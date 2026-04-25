@@ -30,9 +30,7 @@ from cuda.core._resource_handles cimport (
     create_event_handle_noctx,
     create_stream_handle,
     create_stream_handle_with_owner,
-    ensure_context_handle,
     get_current_context,
-    get_last_error,
     get_legacy_stream,
     get_per_thread_stream,
     get_stream_context,
@@ -411,10 +409,6 @@ cdef inline int Stream_ensure_ctx(Stream self) except?-1 nogil:
     if not self._h_context:
         self._h_context = get_stream_context(self._h_stream)
     if self._h_context:
-        if as_cu(self._h_context) == NULL:
-            ctx = ensure_context_handle(self._h_context)
-            if ctx == NULL:
-                HANDLE_RETURN(get_last_error())
         return 0
     HANDLE_RETURN(cydriver.cuStreamGetCtx(as_cu(self._h_stream), &ctx))
     if ctx != NULL:

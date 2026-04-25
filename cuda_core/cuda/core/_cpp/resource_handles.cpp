@@ -11,7 +11,6 @@
 #include <mutex>
 #include <stdexcept>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 #ifndef _WIN32
@@ -227,12 +226,8 @@ void clear_last_error() noexcept {
 
 namespace {
 struct ContextBox {
-    mutable CUcontext resource;
+    CUcontext resource;
     GreenCtxHandle h_green_ctx;
-    mutable std::mutex mutex;
-
-    explicit ContextBox(CUcontext resource, GreenCtxHandle h_green_ctx = {})
-        : resource(resource), h_green_ctx(std::move(h_green_ctx)) {}
 };
 
 struct GreenCtxBox {
@@ -262,7 +257,7 @@ ContextHandle create_context_handle_ref(CUcontext ctx) {
         return h;
     }
     auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox(ctx),
+        new ContextBox{ctx, {}},
         [](const ContextBox* b) {
             context_registry.unregister_handle(b->resource);
             delete b;
@@ -273,57 +268,31 @@ ContextHandle create_context_handle_ref(CUcontext ctx) {
     return h;
 }
 
-static const GreenCtxBox* get_box(const GreenCtxHandle& h) noexcept {
-    const CUgreenCtx* p = h.get();
-    return reinterpret_cast<const GreenCtxBox*>(
-        reinterpret_cast<const char*>(p) - offsetof(GreenCtxBox, resource)
-    );
-}
-
 ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx) {
     if (!h_green_ctx) {
         return {};
     }
-    auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox(nullptr, h_green_ctx),
-        [](const ContextBox* b) {
-            if (b->resource) {
-                context_registry.unregister_handle(b->resource);
-            }
-            delete b;
-        }
-    );
-    return ContextHandle(box, &box->resource);
-}
-
-CUcontext ensure_context_handle(const ContextHandle& h) noexcept {
-    if (!h) {
-        err = CUDA_ERROR_INVALID_CONTEXT;
-        return nullptr;
-    }
-
-    const ContextBox* box = get_box(h);
-    std::lock_guard<std::mutex> lock(box->mutex);
-    if (box->resource) {
-        return box->resource;
-    }
-    if (!box->h_green_ctx) {
-        err = CUDA_ERROR_INVALID_CONTEXT;
-        return nullptr;
-    }
     if (!p_cuCtxFromGreenCtx) {
         err = CUDA_ERROR_NOT_SUPPORTED;
-        return nullptr;
+        return {};
     }
 
     GILReleaseGuard gil;
     CUcontext ctx = nullptr;
-    if (CUDA_SUCCESS != (err = p_cuCtxFromGreenCtx(&ctx, as_cu(box->h_green_ctx)))) {
-        return nullptr;
+    if (CUDA_SUCCESS != (err = p_cuCtxFromGreenCtx(&ctx, as_cu(h_green_ctx)))) {
+        return {};
     }
-    box->resource = ctx;
+
+    auto box = std::shared_ptr<const ContextBox>(
+        new ContextBox{ctx, h_green_ctx},
+        [](const ContextBox* b) {
+            context_registry.unregister_handle(b->resource);
+            delete b;
+        }
+    );
+    ContextHandle h(box, &box->resource);
     context_registry.register_handle(ctx, h);
-    return ctx;
+    return h;
 }
 
 GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept {
@@ -399,7 +368,7 @@ ContextHandle get_primary_context(int device_id) {
     }
 
     auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox(ctx),
+        new ContextBox{ctx, {}},
         [device_id](const ContextBox* b) {
             context_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;

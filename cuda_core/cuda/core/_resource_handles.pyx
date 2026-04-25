@@ -59,8 +59,6 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUcontext ctx) except+ nogil
     ContextHandle create_context_handle_from_green_ctx "cuda_core::create_context_handle_from_green_ctx" (
         const GreenCtxHandle& h_green_ctx) except+ nogil
-    cydriver.CUcontext ensure_context_handle "cuda_core::ensure_context_handle" (
-        const ContextHandle& h) noexcept nogil
     GreenCtxHandle get_context_green_ctx "cuda_core::get_context_green_ctx" (
         const ContextHandle& h) noexcept nogil
     GreenCtxHandle create_green_ctx_handle "cuda_core::create_green_ctx_handle" (

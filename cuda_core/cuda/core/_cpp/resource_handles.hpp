@@ -170,14 +170,10 @@ using FileDescriptorHandle = std::shared_ptr<const int>;
 // Function to create a non-owning context handle (references existing context).
 ContextHandle create_context_handle_ref(CUcontext ctx);
 
-// Create a context handle whose CUcontext view is lazily materialized from
-// the provided green context. The returned ContextHandle keeps the green
-// context alive.
+// Create a context handle for the CUcontext view of the provided green context.
+// The returned ContextHandle keeps the green context alive, but the CUcontext
+// view is non-owning and is not destroyed independently.
 ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx);
-
-// Ensure a ContextHandle has a materialized CUcontext value. For green-context
-// views this calls cuCtxFromGreenCtx once and caches the non-owning CUcontext.
-CUcontext ensure_context_handle(const ContextHandle& h) noexcept;
 
 // Return the green context dependency associated with a ContextHandle, if any.
 GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept;
