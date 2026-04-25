@@ -10,9 +10,10 @@ import glob
 import os
 from pathlib import Path
 
-import cuda.bindings
 from Cython.Build import cythonize
 from setuptools import setup
+
+import cuda.bindings
 
 HERE = Path(__file__).resolve().parent
 CUDA_PKG_PARENT = Path(cuda.bindings.__file__).parents[2]
