@@ -36,14 +36,14 @@ def clear_find_bitcode_lib_cache():
     get_cuda_path_or_home.cache_clear()
 
 
-def _make_bitcode_lib_file(dir_path: Path, libname: str = "device") -> str:
+def _make_bitcode_lib_file(dir_path: Path, libname: str) -> str:
     dir_path.mkdir(parents=True, exist_ok=True)
     file_path = dir_path / _bitcode_lib_filename(libname)
     file_path.touch()
     return str(file_path)
 
 
-def _bitcode_lib_dir_under(anchor_dir: Path, libname: str = "device") -> Path:
+def _bitcode_lib_dir_under(anchor_dir: Path, libname: str) -> Path:
     return anchor_dir / _bitcode_lib_info(libname)["rel_path"]
 
 
@@ -138,7 +138,7 @@ def test_locate_bitcode_lib_search_order(monkeypatch, tmp_path, libname):
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
 def test_find_bitcode_lib_not_found_error_includes_cuda_home_directory_listing(monkeypatch, tmp_path):
     cuda_home = tmp_path / "cuda-home"
-    lib_dir = _bitcode_lib_dir_under(cuda_home)
+    lib_dir = _bitcode_lib_dir_under(cuda_home, "device")
     lib_dir.mkdir(parents=True, exist_ok=True)
     extra_file = lib_dir / "README.txt"
     extra_file.write_text("placeholder", encoding="utf-8")
