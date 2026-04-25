@@ -15,4 +15,4 @@ else
   exit 1
 fi
 
-cythonize -3 -i -Xfreethreading_compatible=True ${SCRIPTPATH}/test_*.pyx
+python "${SCRIPTPATH}/build_tests.py"
