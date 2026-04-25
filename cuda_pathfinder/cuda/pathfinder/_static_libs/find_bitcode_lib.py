@@ -42,7 +42,7 @@ _SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
         ),
         "available_on_windows": True,
     },
-    "nccl": {
+    "nccl_device": {
         "filename": "libnccl_device.bc",
         "rel_path": "lib",
         "site_packages_dirs": ("nvidia/nccl/lib",),
