@@ -460,22 +460,22 @@ cdef class DeviceResources:
         """Query workqueue resources from this device."""
         _check_green_ctx_support()
         _check_workqueue_support()
-        cdef cydriver.CUdevResource wq_config
-        cdef cydriver.CUdevResource wq
+        cdef cydriver.CUdevResource _wq_config
+        cdef cydriver.CUdevResource _wq
 
         IF CUDA_CORE_BUILD_MAJOR >= 13:
             with nogil:
                 HANDLE_RETURN(cydriver.cuDeviceGetDevResource(
                     <cydriver.CUdevice>self._device_id,
-                    &wq_config,
+                    &_wq_config,
                     cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG,
                 ))
                 HANDLE_RETURN(cydriver.cuDeviceGetDevResource(
                     <cydriver.CUdevice>self._device_id,
-                    &wq,
+                    &_wq,
                     cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE,
                 ))
-            return WorkqueueResource._from_dev_resources(wq_config, wq)
+            return WorkqueueResource._from_dev_resources(_wq_config, _wq)
         ELSE:
             raise NotImplementedError(
                 "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"

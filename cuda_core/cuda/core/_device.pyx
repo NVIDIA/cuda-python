@@ -18,19 +18,15 @@ from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueR
 from cuda.core._device_resources import (
     DeviceResources,
     SMResource,
-    SMResourceOptions,
     WorkqueueResource,
-    WorkqueueResourceOptions,
 )
 from cuda.core._event cimport Event as cyEvent
 from cuda.core._event import Event, EventOptions
 from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._resource_handles cimport (
     ContextHandle,
-    DevResourceDescHandle,
     GreenCtxHandle,
     create_context_handle_ref,
-    create_dev_resource_desc_handle,
     create_green_ctx_handle,
     get_primary_context,
     get_last_error,
@@ -1308,7 +1304,6 @@ class Device:
         cdef SMResource sm_res
         cdef WorkqueueResource wq_res
         cdef cydriver.CUdevResource* c_resources = NULL
-        cdef DevResourceDescHandle h_desc
         cdef GreenCtxHandle h_green
 
         if options is None:
@@ -1346,13 +1341,9 @@ class Device:
                 else:
                     raise TypeError(f"Unsupported context resource type: {type(res)}")
 
-            h_desc = create_dev_resource_desc_handle(c_resources, <unsigned int>n_resources)
-            if h_desc.get() == NULL:
-                HANDLE_RETURN(get_last_error())
-                raise RuntimeError("Failed to generate CUDA device resource descriptor")
-
             h_green = create_green_ctx_handle(
-                as_cu(h_desc),
+                c_resources,
+                <unsigned int>n_resources,
                 <cydriver.CUdevice>self._device_id,
                 <unsigned int>cydriver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM,
             )

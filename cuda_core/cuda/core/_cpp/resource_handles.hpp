@@ -147,7 +147,6 @@ extern NvJitLinkDestroyFn p_nvJitLinkDestroy;
 
 using ContextHandle = std::shared_ptr<const CUcontext>;
 using GreenCtxHandle = std::shared_ptr<const CUgreenCtx>;
-using DevResourceDescHandle = std::shared_ptr<const CUdevResourceDesc>;
 using StreamHandle = std::shared_ptr<const CUstream>;
 using EventHandle = std::shared_ptr<const CUevent>;
 using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
@@ -178,15 +177,12 @@ ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green
 // Return the green context dependency associated with a ContextHandle, if any.
 GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept;
 
-// Create an owning green context handle.
-GreenCtxHandle create_green_ctx_handle(CUdevResourceDesc desc, CUdevice dev, unsigned int flags);
+// Create an owning green context handle from a list of device resources.
+GreenCtxHandle create_green_ctx_handle(CUdevResource* resources, unsigned int nbResources,
+                                       CUdevice dev, unsigned int flags);
 
 // Create a non-owning green context handle.
 GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx ctx);
-
-// Generate a descriptor for a resource list. CUDA exposes no explicit destroy
-// API for CUdevResourceDesc; this handle only carries the opaque value.
-DevResourceDescHandle create_dev_resource_desc_handle(CUdevResource* resources, unsigned int nbResources);
 
 // Get handle to the primary context for a device (with thread-local caching)
 // Returns empty handle on error (caller must check)
@@ -532,10 +528,6 @@ inline CUgreenCtx as_cu(const GreenCtxHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-inline CUdevResourceDesc as_cu(const DevResourceDescHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
 inline CUstream as_cu(const StreamHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -595,10 +587,6 @@ inline std::intptr_t as_intptr(const ContextHandle& h) noexcept {
 }
 
 inline std::intptr_t as_intptr(const GreenCtxHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const DevResourceDescHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -694,10 +682,6 @@ inline PyObject* as_py(const ContextHandle& h) noexcept {
 
 inline PyObject* as_py(const GreenCtxHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUgreenCtx", as_intptr(h));
-}
-
-inline PyObject* as_py(const DevResourceDescHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUdevResourceDesc", as_intptr(h));
 }
 
 inline PyObject* as_py(const StreamHandle& h) noexcept {

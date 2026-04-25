@@ -21,7 +21,6 @@ from cuda.bindings cimport cynvjitlink
 from ._resource_handles cimport (
     ContextHandle,
     GreenCtxHandle,
-    DevResourceDescHandle,
     StreamHandle,
     EventHandle,
     MemoryPoolHandle,
@@ -62,11 +61,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     GreenCtxHandle get_context_green_ctx "cuda_core::get_context_green_ctx" (
         const ContextHandle& h) noexcept nogil
     GreenCtxHandle create_green_ctx_handle "cuda_core::create_green_ctx_handle" (
-        cydriver.CUdevResourceDesc desc, cydriver.CUdevice dev, unsigned int flags) except+ nogil
+        cydriver.CUdevResource* resources, unsigned int nbResources,
+        cydriver.CUdevice dev, unsigned int flags) except+ nogil
     GreenCtxHandle create_green_ctx_handle_ref "cuda_core::create_green_ctx_handle_ref" (
         cydriver.CUgreenCtx ctx) except+ nogil
-    DevResourceDescHandle create_dev_resource_desc_handle "cuda_core::create_dev_resource_desc_handle" (
-        cydriver.CUdevResource* resources, unsigned int nbResources) except+ nogil
     ContextHandle get_primary_context "cuda_core::get_primary_context" (
         int device_id) except+ nogil
     ContextHandle get_current_context "cuda_core::get_current_context" () except+ nogil
