@@ -581,9 +581,9 @@ cdef void* __cuCoredumpDeregisterStartCallback = NULL
 cdef void* __cuCoredumpDeregisterCompleteCallback = NULL
 
 
-cdef void* load_library() except* with gil:
+cdef uintptr_t load_library() except* with gil:
     cdef uintptr_t handle = load_nvidia_dynamic_lib("cuda")._handle_uint
-    return <void*>handle
+    return handle
 
 
 ctypedef CUresult (*__cuGetProcAddress_v2_T)(const char*, void**, int, cuuint64_t, CUdriverProcAddressQueryResult*) except?CUDA_ERROR_NOT_FOUND nogil
@@ -593,7 +593,7 @@ cdef __cuGetProcAddress_v2_T _F_cuGetProcAddress_v2 = NULL
 cdef int _init_driver() except -1 nogil:
     global __py_driver_init
 
-    cdef void *handle = NULL
+    cdef uintptr_t handle = 0
     cdef int ptds_mode
 
     with gil, __symbol_lock:
@@ -603,7 +603,7 @@ cdef int _init_driver() except -1 nogil:
 
         # Load library
         handle = load_library()
-        if handle == NULL:
+        if handle == 0:
             raise RuntimeError('Failed to open cuda')
 
         # Get latest __cuGetProcAddress_v2
@@ -620,1507 +620,1507 @@ cdef int _init_driver() except -1 nogil:
 
         # Load function
         global __cuGetErrorString
-        __cuGetErrorString = GetProcAddress(handle, 'cuGetErrorString')
+        _F_cuGetProcAddress_v2('cuGetErrorString', <void **>&__cuGetErrorString, 6000, ptds_mode, NULL)
 
         global __cuGetErrorName
-        __cuGetErrorName = GetProcAddress(handle, 'cuGetErrorName')
+        _F_cuGetProcAddress_v2('cuGetErrorName', <void **>&__cuGetErrorName, 6000, ptds_mode, NULL)
 
         global __cuInit
-        __cuInit = GetProcAddress(handle, 'cuInit')
+        _F_cuGetProcAddress_v2('cuInit', <void **>&__cuInit, 2000, ptds_mode, NULL)
 
         global __cuDriverGetVersion
-        __cuDriverGetVersion = GetProcAddress(handle, 'cuDriverGetVersion')
+        _F_cuGetProcAddress_v2('cuDriverGetVersion', <void **>&__cuDriverGetVersion, 2020, ptds_mode, NULL)
 
         global __cuDeviceGet
-        __cuDeviceGet = GetProcAddress(handle, 'cuDeviceGet')
+        _F_cuGetProcAddress_v2('cuDeviceGet', <void **>&__cuDeviceGet, 2000, ptds_mode, NULL)
 
         global __cuDeviceGetCount
-        __cuDeviceGetCount = GetProcAddress(handle, 'cuDeviceGetCount')
+        _F_cuGetProcAddress_v2('cuDeviceGetCount', <void **>&__cuDeviceGetCount, 2000, ptds_mode, NULL)
 
         global __cuDeviceGetName
-        __cuDeviceGetName = GetProcAddress(handle, 'cuDeviceGetName')
+        _F_cuGetProcAddress_v2('cuDeviceGetName', <void **>&__cuDeviceGetName, 2000, ptds_mode, NULL)
 
         global __cuDeviceGetUuid_v2
-        __cuDeviceGetUuid_v2 = GetProcAddress(handle, 'cuDeviceGetUuid_v2')
+        _F_cuGetProcAddress_v2('cuDeviceGetUuid', <void **>&__cuDeviceGetUuid_v2, 11040, ptds_mode, NULL)
 
         global __cuDeviceGetLuid
-        __cuDeviceGetLuid = GetProcAddress(handle, 'cuDeviceGetLuid')
+        _F_cuGetProcAddress_v2('cuDeviceGetLuid', <void **>&__cuDeviceGetLuid, 10000, ptds_mode, NULL)
 
         global __cuDeviceTotalMem_v2
-        __cuDeviceTotalMem_v2 = GetProcAddress(handle, 'cuDeviceTotalMem_v2')
+        _F_cuGetProcAddress_v2('cuDeviceTotalMem', <void **>&__cuDeviceTotalMem_v2, 3020, ptds_mode, NULL)
 
         global __cuDeviceGetTexture1DLinearMaxWidth
-        __cuDeviceGetTexture1DLinearMaxWidth = GetProcAddress(handle, 'cuDeviceGetTexture1DLinearMaxWidth')
+        _F_cuGetProcAddress_v2('cuDeviceGetTexture1DLinearMaxWidth', <void **>&__cuDeviceGetTexture1DLinearMaxWidth, 11010, ptds_mode, NULL)
 
         global __cuDeviceGetAttribute
-        __cuDeviceGetAttribute = GetProcAddress(handle, 'cuDeviceGetAttribute')
+        _F_cuGetProcAddress_v2('cuDeviceGetAttribute', <void **>&__cuDeviceGetAttribute, 2000, ptds_mode, NULL)
 
         global __cuDeviceGetNvSciSyncAttributes
-        __cuDeviceGetNvSciSyncAttributes = GetProcAddress(handle, 'cuDeviceGetNvSciSyncAttributes')
+        _F_cuGetProcAddress_v2('cuDeviceGetNvSciSyncAttributes', <void **>&__cuDeviceGetNvSciSyncAttributes, 10020, ptds_mode, NULL)
 
         global __cuDeviceSetMemPool
-        __cuDeviceSetMemPool = GetProcAddress(handle, 'cuDeviceSetMemPool')
+        _F_cuGetProcAddress_v2('cuDeviceSetMemPool', <void **>&__cuDeviceSetMemPool, 11020, ptds_mode, NULL)
 
         global __cuDeviceGetMemPool
-        __cuDeviceGetMemPool = GetProcAddress(handle, 'cuDeviceGetMemPool')
+        _F_cuGetProcAddress_v2('cuDeviceGetMemPool', <void **>&__cuDeviceGetMemPool, 11020, ptds_mode, NULL)
 
         global __cuDeviceGetDefaultMemPool
-        __cuDeviceGetDefaultMemPool = GetProcAddress(handle, 'cuDeviceGetDefaultMemPool')
+        _F_cuGetProcAddress_v2('cuDeviceGetDefaultMemPool', <void **>&__cuDeviceGetDefaultMemPool, 11020, ptds_mode, NULL)
 
         global __cuDeviceGetExecAffinitySupport
-        __cuDeviceGetExecAffinitySupport = GetProcAddress(handle, 'cuDeviceGetExecAffinitySupport')
+        _F_cuGetProcAddress_v2('cuDeviceGetExecAffinitySupport', <void **>&__cuDeviceGetExecAffinitySupport, 11040, ptds_mode, NULL)
 
         global __cuFlushGPUDirectRDMAWrites
-        __cuFlushGPUDirectRDMAWrites = GetProcAddress(handle, 'cuFlushGPUDirectRDMAWrites')
+        _F_cuGetProcAddress_v2('cuFlushGPUDirectRDMAWrites', <void **>&__cuFlushGPUDirectRDMAWrites, 11030, ptds_mode, NULL)
 
         global __cuDeviceGetProperties
-        __cuDeviceGetProperties = GetProcAddress(handle, 'cuDeviceGetProperties')
+        _F_cuGetProcAddress_v2('cuDeviceGetProperties', <void **>&__cuDeviceGetProperties, 2000, ptds_mode, NULL)
 
         global __cuDeviceComputeCapability
-        __cuDeviceComputeCapability = GetProcAddress(handle, 'cuDeviceComputeCapability')
+        _F_cuGetProcAddress_v2('cuDeviceComputeCapability', <void **>&__cuDeviceComputeCapability, 2000, ptds_mode, NULL)
 
         global __cuDevicePrimaryCtxRetain
-        __cuDevicePrimaryCtxRetain = GetProcAddress(handle, 'cuDevicePrimaryCtxRetain')
+        _F_cuGetProcAddress_v2('cuDevicePrimaryCtxRetain', <void **>&__cuDevicePrimaryCtxRetain, 7000, ptds_mode, NULL)
 
         global __cuDevicePrimaryCtxRelease_v2
-        __cuDevicePrimaryCtxRelease_v2 = GetProcAddress(handle, 'cuDevicePrimaryCtxRelease_v2')
+        _F_cuGetProcAddress_v2('cuDevicePrimaryCtxRelease', <void **>&__cuDevicePrimaryCtxRelease_v2, 11000, ptds_mode, NULL)
 
         global __cuDevicePrimaryCtxSetFlags_v2
-        __cuDevicePrimaryCtxSetFlags_v2 = GetProcAddress(handle, 'cuDevicePrimaryCtxSetFlags_v2')
+        _F_cuGetProcAddress_v2('cuDevicePrimaryCtxSetFlags', <void **>&__cuDevicePrimaryCtxSetFlags_v2, 11000, ptds_mode, NULL)
 
         global __cuDevicePrimaryCtxGetState
-        __cuDevicePrimaryCtxGetState = GetProcAddress(handle, 'cuDevicePrimaryCtxGetState')
+        _F_cuGetProcAddress_v2('cuDevicePrimaryCtxGetState', <void **>&__cuDevicePrimaryCtxGetState, 7000, ptds_mode, NULL)
 
         global __cuDevicePrimaryCtxReset_v2
-        __cuDevicePrimaryCtxReset_v2 = GetProcAddress(handle, 'cuDevicePrimaryCtxReset_v2')
+        _F_cuGetProcAddress_v2('cuDevicePrimaryCtxReset', <void **>&__cuDevicePrimaryCtxReset_v2, 11000, ptds_mode, NULL)
 
         global __cuCtxCreate_v4
-        __cuCtxCreate_v4 = GetProcAddress(handle, 'cuCtxCreate_v4')
+        _F_cuGetProcAddress_v2('cuCtxCreate', <void **>&__cuCtxCreate_v4, 12050, ptds_mode, NULL)
 
         global __cuCtxDestroy_v2
-        __cuCtxDestroy_v2 = GetProcAddress(handle, 'cuCtxDestroy_v2')
+        _F_cuGetProcAddress_v2('cuCtxDestroy', <void **>&__cuCtxDestroy_v2, 4000, ptds_mode, NULL)
 
         global __cuCtxPushCurrent_v2
-        __cuCtxPushCurrent_v2 = GetProcAddress(handle, 'cuCtxPushCurrent_v2')
+        _F_cuGetProcAddress_v2('cuCtxPushCurrent', <void **>&__cuCtxPushCurrent_v2, 4000, ptds_mode, NULL)
 
         global __cuCtxPopCurrent_v2
-        __cuCtxPopCurrent_v2 = GetProcAddress(handle, 'cuCtxPopCurrent_v2')
+        _F_cuGetProcAddress_v2('cuCtxPopCurrent', <void **>&__cuCtxPopCurrent_v2, 4000, ptds_mode, NULL)
 
         global __cuCtxSetCurrent
-        __cuCtxSetCurrent = GetProcAddress(handle, 'cuCtxSetCurrent')
+        _F_cuGetProcAddress_v2('cuCtxSetCurrent', <void **>&__cuCtxSetCurrent, 4000, ptds_mode, NULL)
 
         global __cuCtxGetCurrent
-        __cuCtxGetCurrent = GetProcAddress(handle, 'cuCtxGetCurrent')
+        _F_cuGetProcAddress_v2('cuCtxGetCurrent', <void **>&__cuCtxGetCurrent, 4000, ptds_mode, NULL)
 
         global __cuCtxGetDevice
-        __cuCtxGetDevice = GetProcAddress(handle, 'cuCtxGetDevice')
+        _F_cuGetProcAddress_v2('cuCtxGetDevice', <void **>&__cuCtxGetDevice, 2000, ptds_mode, NULL)
 
         global __cuCtxGetFlags
-        __cuCtxGetFlags = GetProcAddress(handle, 'cuCtxGetFlags')
+        _F_cuGetProcAddress_v2('cuCtxGetFlags', <void **>&__cuCtxGetFlags, 7000, ptds_mode, NULL)
 
         global __cuCtxSetFlags
-        __cuCtxSetFlags = GetProcAddress(handle, 'cuCtxSetFlags')
+        _F_cuGetProcAddress_v2('cuCtxSetFlags', <void **>&__cuCtxSetFlags, 12010, ptds_mode, NULL)
 
         global __cuCtxGetId
-        __cuCtxGetId = GetProcAddress(handle, 'cuCtxGetId')
+        _F_cuGetProcAddress_v2('cuCtxGetId', <void **>&__cuCtxGetId, 12000, ptds_mode, NULL)
 
         global __cuCtxSynchronize
-        __cuCtxSynchronize = GetProcAddress(handle, 'cuCtxSynchronize')
+        _F_cuGetProcAddress_v2('cuCtxSynchronize', <void **>&__cuCtxSynchronize, 2000, ptds_mode, NULL)
 
         global __cuCtxSetLimit
-        __cuCtxSetLimit = GetProcAddress(handle, 'cuCtxSetLimit')
+        _F_cuGetProcAddress_v2('cuCtxSetLimit', <void **>&__cuCtxSetLimit, 3010, ptds_mode, NULL)
 
         global __cuCtxGetLimit
-        __cuCtxGetLimit = GetProcAddress(handle, 'cuCtxGetLimit')
+        _F_cuGetProcAddress_v2('cuCtxGetLimit', <void **>&__cuCtxGetLimit, 3010, ptds_mode, NULL)
 
         global __cuCtxGetCacheConfig
-        __cuCtxGetCacheConfig = GetProcAddress(handle, 'cuCtxGetCacheConfig')
+        _F_cuGetProcAddress_v2('cuCtxGetCacheConfig', <void **>&__cuCtxGetCacheConfig, 3020, ptds_mode, NULL)
 
         global __cuCtxSetCacheConfig
-        __cuCtxSetCacheConfig = GetProcAddress(handle, 'cuCtxSetCacheConfig')
+        _F_cuGetProcAddress_v2('cuCtxSetCacheConfig', <void **>&__cuCtxSetCacheConfig, 3020, ptds_mode, NULL)
 
         global __cuCtxGetApiVersion
-        __cuCtxGetApiVersion = GetProcAddress(handle, 'cuCtxGetApiVersion')
+        _F_cuGetProcAddress_v2('cuCtxGetApiVersion', <void **>&__cuCtxGetApiVersion, 3020, ptds_mode, NULL)
 
         global __cuCtxGetStreamPriorityRange
-        __cuCtxGetStreamPriorityRange = GetProcAddress(handle, 'cuCtxGetStreamPriorityRange')
+        _F_cuGetProcAddress_v2('cuCtxGetStreamPriorityRange', <void **>&__cuCtxGetStreamPriorityRange, 5050, ptds_mode, NULL)
 
         global __cuCtxResetPersistingL2Cache
-        __cuCtxResetPersistingL2Cache = GetProcAddress(handle, 'cuCtxResetPersistingL2Cache')
+        _F_cuGetProcAddress_v2('cuCtxResetPersistingL2Cache', <void **>&__cuCtxResetPersistingL2Cache, 11000, ptds_mode, NULL)
 
         global __cuCtxGetExecAffinity
-        __cuCtxGetExecAffinity = GetProcAddress(handle, 'cuCtxGetExecAffinity')
+        _F_cuGetProcAddress_v2('cuCtxGetExecAffinity', <void **>&__cuCtxGetExecAffinity, 11040, ptds_mode, NULL)
 
         global __cuCtxRecordEvent
-        __cuCtxRecordEvent = GetProcAddress(handle, 'cuCtxRecordEvent')
+        _F_cuGetProcAddress_v2('cuCtxRecordEvent', <void **>&__cuCtxRecordEvent, 12050, ptds_mode, NULL)
 
         global __cuCtxWaitEvent
-        __cuCtxWaitEvent = GetProcAddress(handle, 'cuCtxWaitEvent')
+        _F_cuGetProcAddress_v2('cuCtxWaitEvent', <void **>&__cuCtxWaitEvent, 12050, ptds_mode, NULL)
 
         global __cuCtxAttach
-        __cuCtxAttach = GetProcAddress(handle, 'cuCtxAttach')
+        _F_cuGetProcAddress_v2('cuCtxAttach', <void **>&__cuCtxAttach, 2000, ptds_mode, NULL)
 
         global __cuCtxDetach
-        __cuCtxDetach = GetProcAddress(handle, 'cuCtxDetach')
+        _F_cuGetProcAddress_v2('cuCtxDetach', <void **>&__cuCtxDetach, 2000, ptds_mode, NULL)
 
         global __cuCtxGetSharedMemConfig
-        __cuCtxGetSharedMemConfig = GetProcAddress(handle, 'cuCtxGetSharedMemConfig')
+        _F_cuGetProcAddress_v2('cuCtxGetSharedMemConfig', <void **>&__cuCtxGetSharedMemConfig, 4020, ptds_mode, NULL)
 
         global __cuCtxSetSharedMemConfig
-        __cuCtxSetSharedMemConfig = GetProcAddress(handle, 'cuCtxSetSharedMemConfig')
+        _F_cuGetProcAddress_v2('cuCtxSetSharedMemConfig', <void **>&__cuCtxSetSharedMemConfig, 4020, ptds_mode, NULL)
 
         global __cuModuleLoad
-        __cuModuleLoad = GetProcAddress(handle, 'cuModuleLoad')
+        _F_cuGetProcAddress_v2('cuModuleLoad', <void **>&__cuModuleLoad, 2000, ptds_mode, NULL)
 
         global __cuModuleLoadData
-        __cuModuleLoadData = GetProcAddress(handle, 'cuModuleLoadData')
+        _F_cuGetProcAddress_v2('cuModuleLoadData', <void **>&__cuModuleLoadData, 2000, ptds_mode, NULL)
 
         global __cuModuleLoadDataEx
-        __cuModuleLoadDataEx = GetProcAddress(handle, 'cuModuleLoadDataEx')
+        _F_cuGetProcAddress_v2('cuModuleLoadDataEx', <void **>&__cuModuleLoadDataEx, 2010, ptds_mode, NULL)
 
         global __cuModuleLoadFatBinary
-        __cuModuleLoadFatBinary = GetProcAddress(handle, 'cuModuleLoadFatBinary')
+        _F_cuGetProcAddress_v2('cuModuleLoadFatBinary', <void **>&__cuModuleLoadFatBinary, 2000, ptds_mode, NULL)
 
         global __cuModuleUnload
-        __cuModuleUnload = GetProcAddress(handle, 'cuModuleUnload')
+        _F_cuGetProcAddress_v2('cuModuleUnload', <void **>&__cuModuleUnload, 2000, ptds_mode, NULL)
 
         global __cuModuleGetLoadingMode
-        __cuModuleGetLoadingMode = GetProcAddress(handle, 'cuModuleGetLoadingMode')
+        _F_cuGetProcAddress_v2('cuModuleGetLoadingMode', <void **>&__cuModuleGetLoadingMode, 11070, ptds_mode, NULL)
 
         global __cuModuleGetFunction
-        __cuModuleGetFunction = GetProcAddress(handle, 'cuModuleGetFunction')
+        _F_cuGetProcAddress_v2('cuModuleGetFunction', <void **>&__cuModuleGetFunction, 2000, ptds_mode, NULL)
 
         global __cuModuleGetFunctionCount
-        __cuModuleGetFunctionCount = GetProcAddress(handle, 'cuModuleGetFunctionCount')
+        _F_cuGetProcAddress_v2('cuModuleGetFunctionCount', <void **>&__cuModuleGetFunctionCount, 12040, ptds_mode, NULL)
 
         global __cuModuleEnumerateFunctions
-        __cuModuleEnumerateFunctions = GetProcAddress(handle, 'cuModuleEnumerateFunctions')
+        _F_cuGetProcAddress_v2('cuModuleEnumerateFunctions', <void **>&__cuModuleEnumerateFunctions, 12040, ptds_mode, NULL)
 
         global __cuModuleGetGlobal_v2
-        __cuModuleGetGlobal_v2 = GetProcAddress(handle, 'cuModuleGetGlobal_v2')
+        _F_cuGetProcAddress_v2('cuModuleGetGlobal', <void **>&__cuModuleGetGlobal_v2, 3020, ptds_mode, NULL)
 
         global __cuLinkCreate_v2
-        __cuLinkCreate_v2 = GetProcAddress(handle, 'cuLinkCreate_v2')
+        _F_cuGetProcAddress_v2('cuLinkCreate', <void **>&__cuLinkCreate_v2, 6050, ptds_mode, NULL)
 
         global __cuLinkAddData_v2
-        __cuLinkAddData_v2 = GetProcAddress(handle, 'cuLinkAddData_v2')
+        _F_cuGetProcAddress_v2('cuLinkAddData', <void **>&__cuLinkAddData_v2, 6050, ptds_mode, NULL)
 
         global __cuLinkAddFile_v2
-        __cuLinkAddFile_v2 = GetProcAddress(handle, 'cuLinkAddFile_v2')
+        _F_cuGetProcAddress_v2('cuLinkAddFile', <void **>&__cuLinkAddFile_v2, 6050, ptds_mode, NULL)
 
         global __cuLinkComplete
-        __cuLinkComplete = GetProcAddress(handle, 'cuLinkComplete')
+        _F_cuGetProcAddress_v2('cuLinkComplete', <void **>&__cuLinkComplete, 5050, ptds_mode, NULL)
 
         global __cuLinkDestroy
-        __cuLinkDestroy = GetProcAddress(handle, 'cuLinkDestroy')
+        _F_cuGetProcAddress_v2('cuLinkDestroy', <void **>&__cuLinkDestroy, 5050, ptds_mode, NULL)
 
         global __cuModuleGetTexRef
-        __cuModuleGetTexRef = GetProcAddress(handle, 'cuModuleGetTexRef')
+        _F_cuGetProcAddress_v2('cuModuleGetTexRef', <void **>&__cuModuleGetTexRef, 2000, ptds_mode, NULL)
 
         global __cuModuleGetSurfRef
-        __cuModuleGetSurfRef = GetProcAddress(handle, 'cuModuleGetSurfRef')
+        _F_cuGetProcAddress_v2('cuModuleGetSurfRef', <void **>&__cuModuleGetSurfRef, 3000, ptds_mode, NULL)
 
         global __cuLibraryLoadData
-        __cuLibraryLoadData = GetProcAddress(handle, 'cuLibraryLoadData')
+        _F_cuGetProcAddress_v2('cuLibraryLoadData', <void **>&__cuLibraryLoadData, 12000, ptds_mode, NULL)
 
         global __cuLibraryLoadFromFile
-        __cuLibraryLoadFromFile = GetProcAddress(handle, 'cuLibraryLoadFromFile')
+        _F_cuGetProcAddress_v2('cuLibraryLoadFromFile', <void **>&__cuLibraryLoadFromFile, 12000, ptds_mode, NULL)
 
         global __cuLibraryUnload
-        __cuLibraryUnload = GetProcAddress(handle, 'cuLibraryUnload')
+        _F_cuGetProcAddress_v2('cuLibraryUnload', <void **>&__cuLibraryUnload, 12000, ptds_mode, NULL)
 
         global __cuLibraryGetKernel
-        __cuLibraryGetKernel = GetProcAddress(handle, 'cuLibraryGetKernel')
+        _F_cuGetProcAddress_v2('cuLibraryGetKernel', <void **>&__cuLibraryGetKernel, 12000, ptds_mode, NULL)
 
         global __cuLibraryGetKernelCount
-        __cuLibraryGetKernelCount = GetProcAddress(handle, 'cuLibraryGetKernelCount')
+        _F_cuGetProcAddress_v2('cuLibraryGetKernelCount', <void **>&__cuLibraryGetKernelCount, 12040, ptds_mode, NULL)
 
         global __cuLibraryEnumerateKernels
-        __cuLibraryEnumerateKernels = GetProcAddress(handle, 'cuLibraryEnumerateKernels')
+        _F_cuGetProcAddress_v2('cuLibraryEnumerateKernels', <void **>&__cuLibraryEnumerateKernels, 12040, ptds_mode, NULL)
 
         global __cuLibraryGetModule
-        __cuLibraryGetModule = GetProcAddress(handle, 'cuLibraryGetModule')
+        _F_cuGetProcAddress_v2('cuLibraryGetModule', <void **>&__cuLibraryGetModule, 12000, ptds_mode, NULL)
 
         global __cuKernelGetFunction
-        __cuKernelGetFunction = GetProcAddress(handle, 'cuKernelGetFunction')
+        _F_cuGetProcAddress_v2('cuKernelGetFunction', <void **>&__cuKernelGetFunction, 12000, ptds_mode, NULL)
 
         global __cuKernelGetLibrary
-        __cuKernelGetLibrary = GetProcAddress(handle, 'cuKernelGetLibrary')
+        _F_cuGetProcAddress_v2('cuKernelGetLibrary', <void **>&__cuKernelGetLibrary, 12050, ptds_mode, NULL)
 
         global __cuLibraryGetGlobal
-        __cuLibraryGetGlobal = GetProcAddress(handle, 'cuLibraryGetGlobal')
+        _F_cuGetProcAddress_v2('cuLibraryGetGlobal', <void **>&__cuLibraryGetGlobal, 12000, ptds_mode, NULL)
 
         global __cuLibraryGetManaged
-        __cuLibraryGetManaged = GetProcAddress(handle, 'cuLibraryGetManaged')
+        _F_cuGetProcAddress_v2('cuLibraryGetManaged', <void **>&__cuLibraryGetManaged, 12000, ptds_mode, NULL)
 
         global __cuLibraryGetUnifiedFunction
-        __cuLibraryGetUnifiedFunction = GetProcAddress(handle, 'cuLibraryGetUnifiedFunction')
+        _F_cuGetProcAddress_v2('cuLibraryGetUnifiedFunction', <void **>&__cuLibraryGetUnifiedFunction, 12000, ptds_mode, NULL)
 
         global __cuKernelGetAttribute
-        __cuKernelGetAttribute = GetProcAddress(handle, 'cuKernelGetAttribute')
+        _F_cuGetProcAddress_v2('cuKernelGetAttribute', <void **>&__cuKernelGetAttribute, 12000, ptds_mode, NULL)
 
         global __cuKernelSetAttribute
-        __cuKernelSetAttribute = GetProcAddress(handle, 'cuKernelSetAttribute')
+        _F_cuGetProcAddress_v2('cuKernelSetAttribute', <void **>&__cuKernelSetAttribute, 12000, ptds_mode, NULL)
 
         global __cuKernelSetCacheConfig
-        __cuKernelSetCacheConfig = GetProcAddress(handle, 'cuKernelSetCacheConfig')
+        _F_cuGetProcAddress_v2('cuKernelSetCacheConfig', <void **>&__cuKernelSetCacheConfig, 12000, ptds_mode, NULL)
 
         global __cuKernelGetName
-        __cuKernelGetName = GetProcAddress(handle, 'cuKernelGetName')
+        _F_cuGetProcAddress_v2('cuKernelGetName', <void **>&__cuKernelGetName, 12030, ptds_mode, NULL)
 
         global __cuKernelGetParamInfo
-        __cuKernelGetParamInfo = GetProcAddress(handle, 'cuKernelGetParamInfo')
+        _F_cuGetProcAddress_v2('cuKernelGetParamInfo', <void **>&__cuKernelGetParamInfo, 12040, ptds_mode, NULL)
 
         global __cuMemGetInfo_v2
-        __cuMemGetInfo_v2 = GetProcAddress(handle, 'cuMemGetInfo_v2')
+        _F_cuGetProcAddress_v2('cuMemGetInfo', <void **>&__cuMemGetInfo_v2, 3020, ptds_mode, NULL)
 
         global __cuMemAlloc_v2
-        __cuMemAlloc_v2 = GetProcAddress(handle, 'cuMemAlloc_v2')
+        _F_cuGetProcAddress_v2('cuMemAlloc', <void **>&__cuMemAlloc_v2, 3020, ptds_mode, NULL)
 
         global __cuMemAllocPitch_v2
-        __cuMemAllocPitch_v2 = GetProcAddress(handle, 'cuMemAllocPitch_v2')
+        _F_cuGetProcAddress_v2('cuMemAllocPitch', <void **>&__cuMemAllocPitch_v2, 3020, ptds_mode, NULL)
 
         global __cuMemFree_v2
-        __cuMemFree_v2 = GetProcAddress(handle, 'cuMemFree_v2')
+        _F_cuGetProcAddress_v2('cuMemFree', <void **>&__cuMemFree_v2, 3020, ptds_mode, NULL)
 
         global __cuMemGetAddressRange_v2
-        __cuMemGetAddressRange_v2 = GetProcAddress(handle, 'cuMemGetAddressRange_v2')
+        _F_cuGetProcAddress_v2('cuMemGetAddressRange', <void **>&__cuMemGetAddressRange_v2, 3020, ptds_mode, NULL)
 
         global __cuMemAllocHost_v2
-        __cuMemAllocHost_v2 = GetProcAddress(handle, 'cuMemAllocHost_v2')
+        _F_cuGetProcAddress_v2('cuMemAllocHost', <void **>&__cuMemAllocHost_v2, 3020, ptds_mode, NULL)
 
         global __cuMemFreeHost
-        __cuMemFreeHost = GetProcAddress(handle, 'cuMemFreeHost')
+        _F_cuGetProcAddress_v2('cuMemFreeHost', <void **>&__cuMemFreeHost, 2000, ptds_mode, NULL)
 
         global __cuMemHostAlloc
-        __cuMemHostAlloc = GetProcAddress(handle, 'cuMemHostAlloc')
+        _F_cuGetProcAddress_v2('cuMemHostAlloc', <void **>&__cuMemHostAlloc, 2020, ptds_mode, NULL)
 
         global __cuMemHostGetDevicePointer_v2
-        __cuMemHostGetDevicePointer_v2 = GetProcAddress(handle, 'cuMemHostGetDevicePointer_v2')
+        _F_cuGetProcAddress_v2('cuMemHostGetDevicePointer', <void **>&__cuMemHostGetDevicePointer_v2, 3020, ptds_mode, NULL)
 
         global __cuMemHostGetFlags
-        __cuMemHostGetFlags = GetProcAddress(handle, 'cuMemHostGetFlags')
+        _F_cuGetProcAddress_v2('cuMemHostGetFlags', <void **>&__cuMemHostGetFlags, 2030, ptds_mode, NULL)
 
         global __cuMemAllocManaged
-        __cuMemAllocManaged = GetProcAddress(handle, 'cuMemAllocManaged')
+        _F_cuGetProcAddress_v2('cuMemAllocManaged', <void **>&__cuMemAllocManaged, 6000, ptds_mode, NULL)
 
         global __cuDeviceRegisterAsyncNotification
-        __cuDeviceRegisterAsyncNotification = GetProcAddress(handle, 'cuDeviceRegisterAsyncNotification')
+        _F_cuGetProcAddress_v2('cuDeviceRegisterAsyncNotification', <void **>&__cuDeviceRegisterAsyncNotification, 12040, ptds_mode, NULL)
 
         global __cuDeviceUnregisterAsyncNotification
-        __cuDeviceUnregisterAsyncNotification = GetProcAddress(handle, 'cuDeviceUnregisterAsyncNotification')
+        _F_cuGetProcAddress_v2('cuDeviceUnregisterAsyncNotification', <void **>&__cuDeviceUnregisterAsyncNotification, 12040, ptds_mode, NULL)
 
         global __cuDeviceGetByPCIBusId
-        __cuDeviceGetByPCIBusId = GetProcAddress(handle, 'cuDeviceGetByPCIBusId')
+        _F_cuGetProcAddress_v2('cuDeviceGetByPCIBusId', <void **>&__cuDeviceGetByPCIBusId, 4010, ptds_mode, NULL)
 
         global __cuDeviceGetPCIBusId
-        __cuDeviceGetPCIBusId = GetProcAddress(handle, 'cuDeviceGetPCIBusId')
+        _F_cuGetProcAddress_v2('cuDeviceGetPCIBusId', <void **>&__cuDeviceGetPCIBusId, 4010, ptds_mode, NULL)
 
         global __cuIpcGetEventHandle
-        __cuIpcGetEventHandle = GetProcAddress(handle, 'cuIpcGetEventHandle')
+        _F_cuGetProcAddress_v2('cuIpcGetEventHandle', <void **>&__cuIpcGetEventHandle, 4010, ptds_mode, NULL)
 
         global __cuIpcOpenEventHandle
-        __cuIpcOpenEventHandle = GetProcAddress(handle, 'cuIpcOpenEventHandle')
+        _F_cuGetProcAddress_v2('cuIpcOpenEventHandle', <void **>&__cuIpcOpenEventHandle, 4010, ptds_mode, NULL)
 
         global __cuIpcGetMemHandle
-        __cuIpcGetMemHandle = GetProcAddress(handle, 'cuIpcGetMemHandle')
+        _F_cuGetProcAddress_v2('cuIpcGetMemHandle', <void **>&__cuIpcGetMemHandle, 4010, ptds_mode, NULL)
 
         global __cuIpcOpenMemHandle_v2
-        __cuIpcOpenMemHandle_v2 = GetProcAddress(handle, 'cuIpcOpenMemHandle_v2')
+        _F_cuGetProcAddress_v2('cuIpcOpenMemHandle', <void **>&__cuIpcOpenMemHandle_v2, 11000, ptds_mode, NULL)
 
         global __cuIpcCloseMemHandle
-        __cuIpcCloseMemHandle = GetProcAddress(handle, 'cuIpcCloseMemHandle')
+        _F_cuGetProcAddress_v2('cuIpcCloseMemHandle', <void **>&__cuIpcCloseMemHandle, 4010, ptds_mode, NULL)
 
         global __cuMemHostRegister_v2
-        __cuMemHostRegister_v2 = GetProcAddress(handle, 'cuMemHostRegister_v2')
+        _F_cuGetProcAddress_v2('cuMemHostRegister', <void **>&__cuMemHostRegister_v2, 6050, ptds_mode, NULL)
 
         global __cuMemHostUnregister
-        __cuMemHostUnregister = GetProcAddress(handle, 'cuMemHostUnregister')
+        _F_cuGetProcAddress_v2('cuMemHostUnregister', <void **>&__cuMemHostUnregister, 4000, ptds_mode, NULL)
 
         global __cuMemcpy
-        __cuMemcpy = GetProcAddress(handle, 'cuMemcpy')
+        _F_cuGetProcAddress_v2('cuMemcpy', <void **>&__cuMemcpy, 4000, ptds_mode, NULL)
 
         global __cuMemcpyPeer
-        __cuMemcpyPeer = GetProcAddress(handle, 'cuMemcpyPeer')
+        _F_cuGetProcAddress_v2('cuMemcpyPeer', <void **>&__cuMemcpyPeer, 4000, ptds_mode, NULL)
 
         global __cuMemcpyHtoD_v2
-        __cuMemcpyHtoD_v2 = GetProcAddress(handle, 'cuMemcpyHtoD_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyHtoD', <void **>&__cuMemcpyHtoD_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpyDtoH_v2
-        __cuMemcpyDtoH_v2 = GetProcAddress(handle, 'cuMemcpyDtoH_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyDtoH', <void **>&__cuMemcpyDtoH_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpyDtoD_v2
-        __cuMemcpyDtoD_v2 = GetProcAddress(handle, 'cuMemcpyDtoD_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyDtoD', <void **>&__cuMemcpyDtoD_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpyDtoA_v2
-        __cuMemcpyDtoA_v2 = GetProcAddress(handle, 'cuMemcpyDtoA_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyDtoA', <void **>&__cuMemcpyDtoA_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpyAtoD_v2
-        __cuMemcpyAtoD_v2 = GetProcAddress(handle, 'cuMemcpyAtoD_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyAtoD', <void **>&__cuMemcpyAtoD_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpyHtoA_v2
-        __cuMemcpyHtoA_v2 = GetProcAddress(handle, 'cuMemcpyHtoA_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyHtoA', <void **>&__cuMemcpyHtoA_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpyAtoH_v2
-        __cuMemcpyAtoH_v2 = GetProcAddress(handle, 'cuMemcpyAtoH_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyAtoH', <void **>&__cuMemcpyAtoH_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpyAtoA_v2
-        __cuMemcpyAtoA_v2 = GetProcAddress(handle, 'cuMemcpyAtoA_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyAtoA', <void **>&__cuMemcpyAtoA_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpy2D_v2
-        __cuMemcpy2D_v2 = GetProcAddress(handle, 'cuMemcpy2D_v2')
+        _F_cuGetProcAddress_v2('cuMemcpy2D', <void **>&__cuMemcpy2D_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpy2DUnaligned_v2
-        __cuMemcpy2DUnaligned_v2 = GetProcAddress(handle, 'cuMemcpy2DUnaligned_v2')
+        _F_cuGetProcAddress_v2('cuMemcpy2DUnaligned', <void **>&__cuMemcpy2DUnaligned_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpy3D_v2
-        __cuMemcpy3D_v2 = GetProcAddress(handle, 'cuMemcpy3D_v2')
+        _F_cuGetProcAddress_v2('cuMemcpy3D', <void **>&__cuMemcpy3D_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpy3DPeer
-        __cuMemcpy3DPeer = GetProcAddress(handle, 'cuMemcpy3DPeer')
+        _F_cuGetProcAddress_v2('cuMemcpy3DPeer', <void **>&__cuMemcpy3DPeer, 4000, ptds_mode, NULL)
 
         global __cuMemcpyAsync
-        __cuMemcpyAsync = GetProcAddress(handle, 'cuMemcpyAsync')
+        _F_cuGetProcAddress_v2('cuMemcpyAsync', <void **>&__cuMemcpyAsync, 4000, ptds_mode, NULL)
 
         global __cuMemcpyPeerAsync
-        __cuMemcpyPeerAsync = GetProcAddress(handle, 'cuMemcpyPeerAsync')
+        _F_cuGetProcAddress_v2('cuMemcpyPeerAsync', <void **>&__cuMemcpyPeerAsync, 4000, ptds_mode, NULL)
 
         global __cuMemcpyHtoDAsync_v2
-        __cuMemcpyHtoDAsync_v2 = GetProcAddress(handle, 'cuMemcpyHtoDAsync_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyHtoDAsync', <void **>&__cuMemcpyHtoDAsync_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpyDtoHAsync_v2
-        __cuMemcpyDtoHAsync_v2 = GetProcAddress(handle, 'cuMemcpyDtoHAsync_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyDtoHAsync', <void **>&__cuMemcpyDtoHAsync_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpyDtoDAsync_v2
-        __cuMemcpyDtoDAsync_v2 = GetProcAddress(handle, 'cuMemcpyDtoDAsync_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyDtoDAsync', <void **>&__cuMemcpyDtoDAsync_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpyHtoAAsync_v2
-        __cuMemcpyHtoAAsync_v2 = GetProcAddress(handle, 'cuMemcpyHtoAAsync_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyHtoAAsync', <void **>&__cuMemcpyHtoAAsync_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpyAtoHAsync_v2
-        __cuMemcpyAtoHAsync_v2 = GetProcAddress(handle, 'cuMemcpyAtoHAsync_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyAtoHAsync', <void **>&__cuMemcpyAtoHAsync_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpy2DAsync_v2
-        __cuMemcpy2DAsync_v2 = GetProcAddress(handle, 'cuMemcpy2DAsync_v2')
+        _F_cuGetProcAddress_v2('cuMemcpy2DAsync', <void **>&__cuMemcpy2DAsync_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpy3DAsync_v2
-        __cuMemcpy3DAsync_v2 = GetProcAddress(handle, 'cuMemcpy3DAsync_v2')
+        _F_cuGetProcAddress_v2('cuMemcpy3DAsync', <void **>&__cuMemcpy3DAsync_v2, 3020, ptds_mode, NULL)
 
         global __cuMemcpy3DPeerAsync
-        __cuMemcpy3DPeerAsync = GetProcAddress(handle, 'cuMemcpy3DPeerAsync')
+        _F_cuGetProcAddress_v2('cuMemcpy3DPeerAsync', <void **>&__cuMemcpy3DPeerAsync, 4000, ptds_mode, NULL)
 
         global __cuMemsetD8_v2
-        __cuMemsetD8_v2 = GetProcAddress(handle, 'cuMemsetD8_v2')
+        _F_cuGetProcAddress_v2('cuMemsetD8', <void **>&__cuMemsetD8_v2, 3020, ptds_mode, NULL)
 
         global __cuMemsetD16_v2
-        __cuMemsetD16_v2 = GetProcAddress(handle, 'cuMemsetD16_v2')
+        _F_cuGetProcAddress_v2('cuMemsetD16', <void **>&__cuMemsetD16_v2, 3020, ptds_mode, NULL)
 
         global __cuMemsetD32_v2
-        __cuMemsetD32_v2 = GetProcAddress(handle, 'cuMemsetD32_v2')
+        _F_cuGetProcAddress_v2('cuMemsetD32', <void **>&__cuMemsetD32_v2, 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D8_v2
-        __cuMemsetD2D8_v2 = GetProcAddress(handle, 'cuMemsetD2D8_v2')
+        _F_cuGetProcAddress_v2('cuMemsetD2D8', <void **>&__cuMemsetD2D8_v2, 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D16_v2
-        __cuMemsetD2D16_v2 = GetProcAddress(handle, 'cuMemsetD2D16_v2')
+        _F_cuGetProcAddress_v2('cuMemsetD2D16', <void **>&__cuMemsetD2D16_v2, 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D32_v2
-        __cuMemsetD2D32_v2 = GetProcAddress(handle, 'cuMemsetD2D32_v2')
+        _F_cuGetProcAddress_v2('cuMemsetD2D32', <void **>&__cuMemsetD2D32_v2, 3020, ptds_mode, NULL)
 
         global __cuMemsetD8Async
-        __cuMemsetD8Async = GetProcAddress(handle, 'cuMemsetD8Async')
+        _F_cuGetProcAddress_v2('cuMemsetD8Async', <void **>&__cuMemsetD8Async, 3020, ptds_mode, NULL)
 
         global __cuMemsetD16Async
-        __cuMemsetD16Async = GetProcAddress(handle, 'cuMemsetD16Async')
+        _F_cuGetProcAddress_v2('cuMemsetD16Async', <void **>&__cuMemsetD16Async, 3020, ptds_mode, NULL)
 
         global __cuMemsetD32Async
-        __cuMemsetD32Async = GetProcAddress(handle, 'cuMemsetD32Async')
+        _F_cuGetProcAddress_v2('cuMemsetD32Async', <void **>&__cuMemsetD32Async, 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D8Async
-        __cuMemsetD2D8Async = GetProcAddress(handle, 'cuMemsetD2D8Async')
+        _F_cuGetProcAddress_v2('cuMemsetD2D8Async', <void **>&__cuMemsetD2D8Async, 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D16Async
-        __cuMemsetD2D16Async = GetProcAddress(handle, 'cuMemsetD2D16Async')
+        _F_cuGetProcAddress_v2('cuMemsetD2D16Async', <void **>&__cuMemsetD2D16Async, 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D32Async
-        __cuMemsetD2D32Async = GetProcAddress(handle, 'cuMemsetD2D32Async')
+        _F_cuGetProcAddress_v2('cuMemsetD2D32Async', <void **>&__cuMemsetD2D32Async, 3020, ptds_mode, NULL)
 
         global __cuArrayCreate_v2
-        __cuArrayCreate_v2 = GetProcAddress(handle, 'cuArrayCreate_v2')
+        _F_cuGetProcAddress_v2('cuArrayCreate', <void **>&__cuArrayCreate_v2, 3020, ptds_mode, NULL)
 
         global __cuArrayGetDescriptor_v2
-        __cuArrayGetDescriptor_v2 = GetProcAddress(handle, 'cuArrayGetDescriptor_v2')
+        _F_cuGetProcAddress_v2('cuArrayGetDescriptor', <void **>&__cuArrayGetDescriptor_v2, 3020, ptds_mode, NULL)
 
         global __cuArrayGetSparseProperties
-        __cuArrayGetSparseProperties = GetProcAddress(handle, 'cuArrayGetSparseProperties')
+        _F_cuGetProcAddress_v2('cuArrayGetSparseProperties', <void **>&__cuArrayGetSparseProperties, 11010, ptds_mode, NULL)
 
         global __cuMipmappedArrayGetSparseProperties
-        __cuMipmappedArrayGetSparseProperties = GetProcAddress(handle, 'cuMipmappedArrayGetSparseProperties')
+        _F_cuGetProcAddress_v2('cuMipmappedArrayGetSparseProperties', <void **>&__cuMipmappedArrayGetSparseProperties, 11010, ptds_mode, NULL)
 
         global __cuArrayGetMemoryRequirements
-        __cuArrayGetMemoryRequirements = GetProcAddress(handle, 'cuArrayGetMemoryRequirements')
+        _F_cuGetProcAddress_v2('cuArrayGetMemoryRequirements', <void **>&__cuArrayGetMemoryRequirements, 11060, ptds_mode, NULL)
 
         global __cuMipmappedArrayGetMemoryRequirements
-        __cuMipmappedArrayGetMemoryRequirements = GetProcAddress(handle, 'cuMipmappedArrayGetMemoryRequirements')
+        _F_cuGetProcAddress_v2('cuMipmappedArrayGetMemoryRequirements', <void **>&__cuMipmappedArrayGetMemoryRequirements, 11060, ptds_mode, NULL)
 
         global __cuArrayGetPlane
-        __cuArrayGetPlane = GetProcAddress(handle, 'cuArrayGetPlane')
+        _F_cuGetProcAddress_v2('cuArrayGetPlane', <void **>&__cuArrayGetPlane, 11020, ptds_mode, NULL)
 
         global __cuArrayDestroy
-        __cuArrayDestroy = GetProcAddress(handle, 'cuArrayDestroy')
+        _F_cuGetProcAddress_v2('cuArrayDestroy', <void **>&__cuArrayDestroy, 2000, ptds_mode, NULL)
 
         global __cuArray3DCreate_v2
-        __cuArray3DCreate_v2 = GetProcAddress(handle, 'cuArray3DCreate_v2')
+        _F_cuGetProcAddress_v2('cuArray3DCreate', <void **>&__cuArray3DCreate_v2, 3020, ptds_mode, NULL)
 
         global __cuArray3DGetDescriptor_v2
-        __cuArray3DGetDescriptor_v2 = GetProcAddress(handle, 'cuArray3DGetDescriptor_v2')
+        _F_cuGetProcAddress_v2('cuArray3DGetDescriptor', <void **>&__cuArray3DGetDescriptor_v2, 3020, ptds_mode, NULL)
 
         global __cuMipmappedArrayCreate
-        __cuMipmappedArrayCreate = GetProcAddress(handle, 'cuMipmappedArrayCreate')
+        _F_cuGetProcAddress_v2('cuMipmappedArrayCreate', <void **>&__cuMipmappedArrayCreate, 5000, ptds_mode, NULL)
 
         global __cuMipmappedArrayGetLevel
-        __cuMipmappedArrayGetLevel = GetProcAddress(handle, 'cuMipmappedArrayGetLevel')
+        _F_cuGetProcAddress_v2('cuMipmappedArrayGetLevel', <void **>&__cuMipmappedArrayGetLevel, 5000, ptds_mode, NULL)
 
         global __cuMipmappedArrayDestroy
-        __cuMipmappedArrayDestroy = GetProcAddress(handle, 'cuMipmappedArrayDestroy')
+        _F_cuGetProcAddress_v2('cuMipmappedArrayDestroy', <void **>&__cuMipmappedArrayDestroy, 5000, ptds_mode, NULL)
 
         global __cuMemGetHandleForAddressRange
-        __cuMemGetHandleForAddressRange = GetProcAddress(handle, 'cuMemGetHandleForAddressRange')
+        _F_cuGetProcAddress_v2('cuMemGetHandleForAddressRange', <void **>&__cuMemGetHandleForAddressRange, 11070, ptds_mode, NULL)
 
         global __cuMemBatchDecompressAsync
-        __cuMemBatchDecompressAsync = GetProcAddress(handle, 'cuMemBatchDecompressAsync')
+        _F_cuGetProcAddress_v2('cuMemBatchDecompressAsync', <void **>&__cuMemBatchDecompressAsync, 12060, ptds_mode, NULL)
 
         global __cuMemAddressReserve
-        __cuMemAddressReserve = GetProcAddress(handle, 'cuMemAddressReserve')
+        _F_cuGetProcAddress_v2('cuMemAddressReserve', <void **>&__cuMemAddressReserve, 10020, ptds_mode, NULL)
 
         global __cuMemAddressFree
-        __cuMemAddressFree = GetProcAddress(handle, 'cuMemAddressFree')
+        _F_cuGetProcAddress_v2('cuMemAddressFree', <void **>&__cuMemAddressFree, 10020, ptds_mode, NULL)
 
         global __cuMemCreate
-        __cuMemCreate = GetProcAddress(handle, 'cuMemCreate')
+        _F_cuGetProcAddress_v2('cuMemCreate', <void **>&__cuMemCreate, 10020, ptds_mode, NULL)
 
         global __cuMemRelease
-        __cuMemRelease = GetProcAddress(handle, 'cuMemRelease')
+        _F_cuGetProcAddress_v2('cuMemRelease', <void **>&__cuMemRelease, 10020, ptds_mode, NULL)
 
         global __cuMemMap
-        __cuMemMap = GetProcAddress(handle, 'cuMemMap')
+        _F_cuGetProcAddress_v2('cuMemMap', <void **>&__cuMemMap, 10020, ptds_mode, NULL)
 
         global __cuMemMapArrayAsync
-        __cuMemMapArrayAsync = GetProcAddress(handle, 'cuMemMapArrayAsync')
+        _F_cuGetProcAddress_v2('cuMemMapArrayAsync', <void **>&__cuMemMapArrayAsync, 11010, ptds_mode, NULL)
 
         global __cuMemUnmap
-        __cuMemUnmap = GetProcAddress(handle, 'cuMemUnmap')
+        _F_cuGetProcAddress_v2('cuMemUnmap', <void **>&__cuMemUnmap, 10020, ptds_mode, NULL)
 
         global __cuMemSetAccess
-        __cuMemSetAccess = GetProcAddress(handle, 'cuMemSetAccess')
+        _F_cuGetProcAddress_v2('cuMemSetAccess', <void **>&__cuMemSetAccess, 10020, ptds_mode, NULL)
 
         global __cuMemGetAccess
-        __cuMemGetAccess = GetProcAddress(handle, 'cuMemGetAccess')
+        _F_cuGetProcAddress_v2('cuMemGetAccess', <void **>&__cuMemGetAccess, 10020, ptds_mode, NULL)
 
         global __cuMemExportToShareableHandle
-        __cuMemExportToShareableHandle = GetProcAddress(handle, 'cuMemExportToShareableHandle')
+        _F_cuGetProcAddress_v2('cuMemExportToShareableHandle', <void **>&__cuMemExportToShareableHandle, 10020, ptds_mode, NULL)
 
         global __cuMemImportFromShareableHandle
-        __cuMemImportFromShareableHandle = GetProcAddress(handle, 'cuMemImportFromShareableHandle')
+        _F_cuGetProcAddress_v2('cuMemImportFromShareableHandle', <void **>&__cuMemImportFromShareableHandle, 10020, ptds_mode, NULL)
 
         global __cuMemGetAllocationGranularity
-        __cuMemGetAllocationGranularity = GetProcAddress(handle, 'cuMemGetAllocationGranularity')
+        _F_cuGetProcAddress_v2('cuMemGetAllocationGranularity', <void **>&__cuMemGetAllocationGranularity, 10020, ptds_mode, NULL)
 
         global __cuMemGetAllocationPropertiesFromHandle
-        __cuMemGetAllocationPropertiesFromHandle = GetProcAddress(handle, 'cuMemGetAllocationPropertiesFromHandle')
+        _F_cuGetProcAddress_v2('cuMemGetAllocationPropertiesFromHandle', <void **>&__cuMemGetAllocationPropertiesFromHandle, 10020, ptds_mode, NULL)
 
         global __cuMemRetainAllocationHandle
-        __cuMemRetainAllocationHandle = GetProcAddress(handle, 'cuMemRetainAllocationHandle')
+        _F_cuGetProcAddress_v2('cuMemRetainAllocationHandle', <void **>&__cuMemRetainAllocationHandle, 11000, ptds_mode, NULL)
 
         global __cuMemFreeAsync
-        __cuMemFreeAsync = GetProcAddress(handle, 'cuMemFreeAsync')
+        _F_cuGetProcAddress_v2('cuMemFreeAsync', <void **>&__cuMemFreeAsync, 11020, ptds_mode, NULL)
 
         global __cuMemAllocAsync
-        __cuMemAllocAsync = GetProcAddress(handle, 'cuMemAllocAsync')
+        _F_cuGetProcAddress_v2('cuMemAllocAsync', <void **>&__cuMemAllocAsync, 11020, ptds_mode, NULL)
 
         global __cuMemPoolTrimTo
-        __cuMemPoolTrimTo = GetProcAddress(handle, 'cuMemPoolTrimTo')
+        _F_cuGetProcAddress_v2('cuMemPoolTrimTo', <void **>&__cuMemPoolTrimTo, 11020, ptds_mode, NULL)
 
         global __cuMemPoolSetAttribute
-        __cuMemPoolSetAttribute = GetProcAddress(handle, 'cuMemPoolSetAttribute')
+        _F_cuGetProcAddress_v2('cuMemPoolSetAttribute', <void **>&__cuMemPoolSetAttribute, 11020, ptds_mode, NULL)
 
         global __cuMemPoolGetAttribute
-        __cuMemPoolGetAttribute = GetProcAddress(handle, 'cuMemPoolGetAttribute')
+        _F_cuGetProcAddress_v2('cuMemPoolGetAttribute', <void **>&__cuMemPoolGetAttribute, 11020, ptds_mode, NULL)
 
         global __cuMemPoolSetAccess
-        __cuMemPoolSetAccess = GetProcAddress(handle, 'cuMemPoolSetAccess')
+        _F_cuGetProcAddress_v2('cuMemPoolSetAccess', <void **>&__cuMemPoolSetAccess, 11020, ptds_mode, NULL)
 
         global __cuMemPoolGetAccess
-        __cuMemPoolGetAccess = GetProcAddress(handle, 'cuMemPoolGetAccess')
+        _F_cuGetProcAddress_v2('cuMemPoolGetAccess', <void **>&__cuMemPoolGetAccess, 11020, ptds_mode, NULL)
 
         global __cuMemPoolCreate
-        __cuMemPoolCreate = GetProcAddress(handle, 'cuMemPoolCreate')
+        _F_cuGetProcAddress_v2('cuMemPoolCreate', <void **>&__cuMemPoolCreate, 11020, ptds_mode, NULL)
 
         global __cuMemPoolDestroy
-        __cuMemPoolDestroy = GetProcAddress(handle, 'cuMemPoolDestroy')
+        _F_cuGetProcAddress_v2('cuMemPoolDestroy', <void **>&__cuMemPoolDestroy, 11020, ptds_mode, NULL)
 
         global __cuMemAllocFromPoolAsync
-        __cuMemAllocFromPoolAsync = GetProcAddress(handle, 'cuMemAllocFromPoolAsync')
+        _F_cuGetProcAddress_v2('cuMemAllocFromPoolAsync', <void **>&__cuMemAllocFromPoolAsync, 11020, ptds_mode, NULL)
 
         global __cuMemPoolExportToShareableHandle
-        __cuMemPoolExportToShareableHandle = GetProcAddress(handle, 'cuMemPoolExportToShareableHandle')
+        _F_cuGetProcAddress_v2('cuMemPoolExportToShareableHandle', <void **>&__cuMemPoolExportToShareableHandle, 11020, ptds_mode, NULL)
 
         global __cuMemPoolImportFromShareableHandle
-        __cuMemPoolImportFromShareableHandle = GetProcAddress(handle, 'cuMemPoolImportFromShareableHandle')
+        _F_cuGetProcAddress_v2('cuMemPoolImportFromShareableHandle', <void **>&__cuMemPoolImportFromShareableHandle, 11020, ptds_mode, NULL)
 
         global __cuMemPoolExportPointer
-        __cuMemPoolExportPointer = GetProcAddress(handle, 'cuMemPoolExportPointer')
+        _F_cuGetProcAddress_v2('cuMemPoolExportPointer', <void **>&__cuMemPoolExportPointer, 11020, ptds_mode, NULL)
 
         global __cuMemPoolImportPointer
-        __cuMemPoolImportPointer = GetProcAddress(handle, 'cuMemPoolImportPointer')
+        _F_cuGetProcAddress_v2('cuMemPoolImportPointer', <void **>&__cuMemPoolImportPointer, 11020, ptds_mode, NULL)
 
         global __cuMulticastCreate
-        __cuMulticastCreate = GetProcAddress(handle, 'cuMulticastCreate')
+        _F_cuGetProcAddress_v2('cuMulticastCreate', <void **>&__cuMulticastCreate, 12010, ptds_mode, NULL)
 
         global __cuMulticastAddDevice
-        __cuMulticastAddDevice = GetProcAddress(handle, 'cuMulticastAddDevice')
+        _F_cuGetProcAddress_v2('cuMulticastAddDevice', <void **>&__cuMulticastAddDevice, 12010, ptds_mode, NULL)
 
         global __cuMulticastBindMem
-        __cuMulticastBindMem = GetProcAddress(handle, 'cuMulticastBindMem')
+        _F_cuGetProcAddress_v2('cuMulticastBindMem', <void **>&__cuMulticastBindMem, 12010, ptds_mode, NULL)
 
         global __cuMulticastBindAddr
-        __cuMulticastBindAddr = GetProcAddress(handle, 'cuMulticastBindAddr')
+        _F_cuGetProcAddress_v2('cuMulticastBindAddr', <void **>&__cuMulticastBindAddr, 12010, ptds_mode, NULL)
 
         global __cuMulticastUnbind
-        __cuMulticastUnbind = GetProcAddress(handle, 'cuMulticastUnbind')
+        _F_cuGetProcAddress_v2('cuMulticastUnbind', <void **>&__cuMulticastUnbind, 12010, ptds_mode, NULL)
 
         global __cuMulticastGetGranularity
-        __cuMulticastGetGranularity = GetProcAddress(handle, 'cuMulticastGetGranularity')
+        _F_cuGetProcAddress_v2('cuMulticastGetGranularity', <void **>&__cuMulticastGetGranularity, 12010, ptds_mode, NULL)
 
         global __cuPointerGetAttribute
-        __cuPointerGetAttribute = GetProcAddress(handle, 'cuPointerGetAttribute')
+        _F_cuGetProcAddress_v2('cuPointerGetAttribute', <void **>&__cuPointerGetAttribute, 4000, ptds_mode, NULL)
 
         global __cuMemPrefetchAsync_v2
-        __cuMemPrefetchAsync_v2 = GetProcAddress(handle, 'cuMemPrefetchAsync_v2')
+        _F_cuGetProcAddress_v2('cuMemPrefetchAsync', <void **>&__cuMemPrefetchAsync_v2, 12020, ptds_mode, NULL)
 
         global __cuMemAdvise_v2
-        __cuMemAdvise_v2 = GetProcAddress(handle, 'cuMemAdvise_v2')
+        _F_cuGetProcAddress_v2('cuMemAdvise', <void **>&__cuMemAdvise_v2, 12020, ptds_mode, NULL)
 
         global __cuMemRangeGetAttribute
-        __cuMemRangeGetAttribute = GetProcAddress(handle, 'cuMemRangeGetAttribute')
+        _F_cuGetProcAddress_v2('cuMemRangeGetAttribute', <void **>&__cuMemRangeGetAttribute, 8000, ptds_mode, NULL)
 
         global __cuMemRangeGetAttributes
-        __cuMemRangeGetAttributes = GetProcAddress(handle, 'cuMemRangeGetAttributes')
+        _F_cuGetProcAddress_v2('cuMemRangeGetAttributes', <void **>&__cuMemRangeGetAttributes, 8000, ptds_mode, NULL)
 
         global __cuPointerSetAttribute
-        __cuPointerSetAttribute = GetProcAddress(handle, 'cuPointerSetAttribute')
+        _F_cuGetProcAddress_v2('cuPointerSetAttribute', <void **>&__cuPointerSetAttribute, 6000, ptds_mode, NULL)
 
         global __cuPointerGetAttributes
-        __cuPointerGetAttributes = GetProcAddress(handle, 'cuPointerGetAttributes')
+        _F_cuGetProcAddress_v2('cuPointerGetAttributes', <void **>&__cuPointerGetAttributes, 7000, ptds_mode, NULL)
 
         global __cuStreamCreate
-        __cuStreamCreate = GetProcAddress(handle, 'cuStreamCreate')
+        _F_cuGetProcAddress_v2('cuStreamCreate', <void **>&__cuStreamCreate, 2000, ptds_mode, NULL)
 
         global __cuStreamCreateWithPriority
-        __cuStreamCreateWithPriority = GetProcAddress(handle, 'cuStreamCreateWithPriority')
+        _F_cuGetProcAddress_v2('cuStreamCreateWithPriority', <void **>&__cuStreamCreateWithPriority, 5050, ptds_mode, NULL)
 
         global __cuStreamGetPriority
-        __cuStreamGetPriority = GetProcAddress(handle, 'cuStreamGetPriority')
+        _F_cuGetProcAddress_v2('cuStreamGetPriority', <void **>&__cuStreamGetPriority, 5050, ptds_mode, NULL)
 
         global __cuStreamGetDevice
-        __cuStreamGetDevice = GetProcAddress(handle, 'cuStreamGetDevice')
+        _F_cuGetProcAddress_v2('cuStreamGetDevice', <void **>&__cuStreamGetDevice, 12080, ptds_mode, NULL)
 
         global __cuStreamGetFlags
-        __cuStreamGetFlags = GetProcAddress(handle, 'cuStreamGetFlags')
+        _F_cuGetProcAddress_v2('cuStreamGetFlags', <void **>&__cuStreamGetFlags, 5050, ptds_mode, NULL)
 
         global __cuStreamGetId
-        __cuStreamGetId = GetProcAddress(handle, 'cuStreamGetId')
+        _F_cuGetProcAddress_v2('cuStreamGetId', <void **>&__cuStreamGetId, 12000, ptds_mode, NULL)
 
         global __cuStreamGetCtx
-        __cuStreamGetCtx = GetProcAddress(handle, 'cuStreamGetCtx')
+        _F_cuGetProcAddress_v2('cuStreamGetCtx', <void **>&__cuStreamGetCtx, 9020, ptds_mode, NULL)
 
         global __cuStreamGetCtx_v2
-        __cuStreamGetCtx_v2 = GetProcAddress(handle, 'cuStreamGetCtx_v2')
+        _F_cuGetProcAddress_v2('cuStreamGetCtx_v2', <void **>&__cuStreamGetCtx_v2, 12050, ptds_mode, NULL)
 
         global __cuStreamWaitEvent
-        __cuStreamWaitEvent = GetProcAddress(handle, 'cuStreamWaitEvent')
+        _F_cuGetProcAddress_v2('cuStreamWaitEvent', <void **>&__cuStreamWaitEvent, 3020, ptds_mode, NULL)
 
         global __cuStreamAddCallback
-        __cuStreamAddCallback = GetProcAddress(handle, 'cuStreamAddCallback')
+        _F_cuGetProcAddress_v2('cuStreamAddCallback', <void **>&__cuStreamAddCallback, 5000, ptds_mode, NULL)
 
         global __cuStreamBeginCapture_v2
-        __cuStreamBeginCapture_v2 = GetProcAddress(handle, 'cuStreamBeginCapture_v2')
+        _F_cuGetProcAddress_v2('cuStreamBeginCapture', <void **>&__cuStreamBeginCapture_v2, 10010, ptds_mode, NULL)
 
         global __cuStreamBeginCaptureToGraph
-        __cuStreamBeginCaptureToGraph = GetProcAddress(handle, 'cuStreamBeginCaptureToGraph')
+        _F_cuGetProcAddress_v2('cuStreamBeginCaptureToGraph', <void **>&__cuStreamBeginCaptureToGraph, 12030, ptds_mode, NULL)
 
         global __cuThreadExchangeStreamCaptureMode
-        __cuThreadExchangeStreamCaptureMode = GetProcAddress(handle, 'cuThreadExchangeStreamCaptureMode')
+        _F_cuGetProcAddress_v2('cuThreadExchangeStreamCaptureMode', <void **>&__cuThreadExchangeStreamCaptureMode, 10010, ptds_mode, NULL)
 
         global __cuStreamEndCapture
-        __cuStreamEndCapture = GetProcAddress(handle, 'cuStreamEndCapture')
+        _F_cuGetProcAddress_v2('cuStreamEndCapture', <void **>&__cuStreamEndCapture, 10000, ptds_mode, NULL)
 
         global __cuStreamIsCapturing
-        __cuStreamIsCapturing = GetProcAddress(handle, 'cuStreamIsCapturing')
+        _F_cuGetProcAddress_v2('cuStreamIsCapturing', <void **>&__cuStreamIsCapturing, 10000, ptds_mode, NULL)
 
         global __cuStreamGetCaptureInfo_v3
-        __cuStreamGetCaptureInfo_v3 = GetProcAddress(handle, 'cuStreamGetCaptureInfo_v3')
+        _F_cuGetProcAddress_v2('cuStreamGetCaptureInfo', <void **>&__cuStreamGetCaptureInfo_v3, 12030, ptds_mode, NULL)
 
         global __cuStreamUpdateCaptureDependencies_v2
-        __cuStreamUpdateCaptureDependencies_v2 = GetProcAddress(handle, 'cuStreamUpdateCaptureDependencies_v2')
+        _F_cuGetProcAddress_v2('cuStreamUpdateCaptureDependencies', <void **>&__cuStreamUpdateCaptureDependencies_v2, 12030, ptds_mode, NULL)
 
         global __cuStreamAttachMemAsync
-        __cuStreamAttachMemAsync = GetProcAddress(handle, 'cuStreamAttachMemAsync')
+        _F_cuGetProcAddress_v2('cuStreamAttachMemAsync', <void **>&__cuStreamAttachMemAsync, 6000, ptds_mode, NULL)
 
         global __cuStreamQuery
-        __cuStreamQuery = GetProcAddress(handle, 'cuStreamQuery')
+        _F_cuGetProcAddress_v2('cuStreamQuery', <void **>&__cuStreamQuery, 2000, ptds_mode, NULL)
 
         global __cuStreamSynchronize
-        __cuStreamSynchronize = GetProcAddress(handle, 'cuStreamSynchronize')
+        _F_cuGetProcAddress_v2('cuStreamSynchronize', <void **>&__cuStreamSynchronize, 2000, ptds_mode, NULL)
 
         global __cuStreamDestroy_v2
-        __cuStreamDestroy_v2 = GetProcAddress(handle, 'cuStreamDestroy_v2')
+        _F_cuGetProcAddress_v2('cuStreamDestroy', <void **>&__cuStreamDestroy_v2, 4000, ptds_mode, NULL)
 
         global __cuStreamCopyAttributes
-        __cuStreamCopyAttributes = GetProcAddress(handle, 'cuStreamCopyAttributes')
+        _F_cuGetProcAddress_v2('cuStreamCopyAttributes', <void **>&__cuStreamCopyAttributes, 11000, ptds_mode, NULL)
 
         global __cuStreamGetAttribute
-        __cuStreamGetAttribute = GetProcAddress(handle, 'cuStreamGetAttribute')
+        _F_cuGetProcAddress_v2('cuStreamGetAttribute', <void **>&__cuStreamGetAttribute, 11000, ptds_mode, NULL)
 
         global __cuStreamSetAttribute
-        __cuStreamSetAttribute = GetProcAddress(handle, 'cuStreamSetAttribute')
+        _F_cuGetProcAddress_v2('cuStreamSetAttribute', <void **>&__cuStreamSetAttribute, 11000, ptds_mode, NULL)
 
         global __cuEventCreate
-        __cuEventCreate = GetProcAddress(handle, 'cuEventCreate')
+        _F_cuGetProcAddress_v2('cuEventCreate', <void **>&__cuEventCreate, 2000, ptds_mode, NULL)
 
         global __cuEventRecord
-        __cuEventRecord = GetProcAddress(handle, 'cuEventRecord')
+        _F_cuGetProcAddress_v2('cuEventRecord', <void **>&__cuEventRecord, 2000, ptds_mode, NULL)
 
         global __cuEventRecordWithFlags
-        __cuEventRecordWithFlags = GetProcAddress(handle, 'cuEventRecordWithFlags')
+        _F_cuGetProcAddress_v2('cuEventRecordWithFlags', <void **>&__cuEventRecordWithFlags, 11010, ptds_mode, NULL)
 
         global __cuEventQuery
-        __cuEventQuery = GetProcAddress(handle, 'cuEventQuery')
+        _F_cuGetProcAddress_v2('cuEventQuery', <void **>&__cuEventQuery, 2000, ptds_mode, NULL)
 
         global __cuEventSynchronize
-        __cuEventSynchronize = GetProcAddress(handle, 'cuEventSynchronize')
+        _F_cuGetProcAddress_v2('cuEventSynchronize', <void **>&__cuEventSynchronize, 2000, ptds_mode, NULL)
 
         global __cuEventDestroy_v2
-        __cuEventDestroy_v2 = GetProcAddress(handle, 'cuEventDestroy_v2')
+        _F_cuGetProcAddress_v2('cuEventDestroy', <void **>&__cuEventDestroy_v2, 4000, ptds_mode, NULL)
 
         global __cuEventElapsedTime_v2
-        __cuEventElapsedTime_v2 = GetProcAddress(handle, 'cuEventElapsedTime_v2')
+        _F_cuGetProcAddress_v2('cuEventElapsedTime', <void **>&__cuEventElapsedTime_v2, 12080, ptds_mode, NULL)
 
         global __cuImportExternalMemory
-        __cuImportExternalMemory = GetProcAddress(handle, 'cuImportExternalMemory')
+        _F_cuGetProcAddress_v2('cuImportExternalMemory', <void **>&__cuImportExternalMemory, 10000, ptds_mode, NULL)
 
         global __cuExternalMemoryGetMappedBuffer
-        __cuExternalMemoryGetMappedBuffer = GetProcAddress(handle, 'cuExternalMemoryGetMappedBuffer')
+        _F_cuGetProcAddress_v2('cuExternalMemoryGetMappedBuffer', <void **>&__cuExternalMemoryGetMappedBuffer, 10000, ptds_mode, NULL)
 
         global __cuExternalMemoryGetMappedMipmappedArray
-        __cuExternalMemoryGetMappedMipmappedArray = GetProcAddress(handle, 'cuExternalMemoryGetMappedMipmappedArray')
+        _F_cuGetProcAddress_v2('cuExternalMemoryGetMappedMipmappedArray', <void **>&__cuExternalMemoryGetMappedMipmappedArray, 10000, ptds_mode, NULL)
 
         global __cuDestroyExternalMemory
-        __cuDestroyExternalMemory = GetProcAddress(handle, 'cuDestroyExternalMemory')
+        _F_cuGetProcAddress_v2('cuDestroyExternalMemory', <void **>&__cuDestroyExternalMemory, 10000, ptds_mode, NULL)
 
         global __cuImportExternalSemaphore
-        __cuImportExternalSemaphore = GetProcAddress(handle, 'cuImportExternalSemaphore')
+        _F_cuGetProcAddress_v2('cuImportExternalSemaphore', <void **>&__cuImportExternalSemaphore, 10000, ptds_mode, NULL)
 
         global __cuSignalExternalSemaphoresAsync
-        __cuSignalExternalSemaphoresAsync = GetProcAddress(handle, 'cuSignalExternalSemaphoresAsync')
+        _F_cuGetProcAddress_v2('cuSignalExternalSemaphoresAsync', <void **>&__cuSignalExternalSemaphoresAsync, 10000, ptds_mode, NULL)
 
         global __cuWaitExternalSemaphoresAsync
-        __cuWaitExternalSemaphoresAsync = GetProcAddress(handle, 'cuWaitExternalSemaphoresAsync')
+        _F_cuGetProcAddress_v2('cuWaitExternalSemaphoresAsync', <void **>&__cuWaitExternalSemaphoresAsync, 10000, ptds_mode, NULL)
 
         global __cuDestroyExternalSemaphore
-        __cuDestroyExternalSemaphore = GetProcAddress(handle, 'cuDestroyExternalSemaphore')
+        _F_cuGetProcAddress_v2('cuDestroyExternalSemaphore', <void **>&__cuDestroyExternalSemaphore, 10000, ptds_mode, NULL)
 
         global __cuStreamWaitValue32_v2
-        __cuStreamWaitValue32_v2 = GetProcAddress(handle, 'cuStreamWaitValue32_v2')
+        _F_cuGetProcAddress_v2('cuStreamWaitValue32', <void **>&__cuStreamWaitValue32_v2, 11070, ptds_mode, NULL)
 
         global __cuStreamWaitValue64_v2
-        __cuStreamWaitValue64_v2 = GetProcAddress(handle, 'cuStreamWaitValue64_v2')
+        _F_cuGetProcAddress_v2('cuStreamWaitValue64', <void **>&__cuStreamWaitValue64_v2, 11070, ptds_mode, NULL)
 
         global __cuStreamWriteValue32_v2
-        __cuStreamWriteValue32_v2 = GetProcAddress(handle, 'cuStreamWriteValue32_v2')
+        _F_cuGetProcAddress_v2('cuStreamWriteValue32', <void **>&__cuStreamWriteValue32_v2, 11070, ptds_mode, NULL)
 
         global __cuStreamWriteValue64_v2
-        __cuStreamWriteValue64_v2 = GetProcAddress(handle, 'cuStreamWriteValue64_v2')
+        _F_cuGetProcAddress_v2('cuStreamWriteValue64', <void **>&__cuStreamWriteValue64_v2, 11070, ptds_mode, NULL)
 
         global __cuStreamBatchMemOp_v2
-        __cuStreamBatchMemOp_v2 = GetProcAddress(handle, 'cuStreamBatchMemOp_v2')
+        _F_cuGetProcAddress_v2('cuStreamBatchMemOp', <void **>&__cuStreamBatchMemOp_v2, 11070, ptds_mode, NULL)
 
         global __cuFuncGetAttribute
-        __cuFuncGetAttribute = GetProcAddress(handle, 'cuFuncGetAttribute')
+        _F_cuGetProcAddress_v2('cuFuncGetAttribute', <void **>&__cuFuncGetAttribute, 2020, ptds_mode, NULL)
 
         global __cuFuncSetAttribute
-        __cuFuncSetAttribute = GetProcAddress(handle, 'cuFuncSetAttribute')
+        _F_cuGetProcAddress_v2('cuFuncSetAttribute', <void **>&__cuFuncSetAttribute, 9000, ptds_mode, NULL)
 
         global __cuFuncSetCacheConfig
-        __cuFuncSetCacheConfig = GetProcAddress(handle, 'cuFuncSetCacheConfig')
+        _F_cuGetProcAddress_v2('cuFuncSetCacheConfig', <void **>&__cuFuncSetCacheConfig, 3000, ptds_mode, NULL)
 
         global __cuFuncGetModule
-        __cuFuncGetModule = GetProcAddress(handle, 'cuFuncGetModule')
+        _F_cuGetProcAddress_v2('cuFuncGetModule', <void **>&__cuFuncGetModule, 11000, ptds_mode, NULL)
 
         global __cuFuncGetName
-        __cuFuncGetName = GetProcAddress(handle, 'cuFuncGetName')
+        _F_cuGetProcAddress_v2('cuFuncGetName', <void **>&__cuFuncGetName, 12030, ptds_mode, NULL)
 
         global __cuFuncGetParamInfo
-        __cuFuncGetParamInfo = GetProcAddress(handle, 'cuFuncGetParamInfo')
+        _F_cuGetProcAddress_v2('cuFuncGetParamInfo', <void **>&__cuFuncGetParamInfo, 12040, ptds_mode, NULL)
 
         global __cuFuncIsLoaded
-        __cuFuncIsLoaded = GetProcAddress(handle, 'cuFuncIsLoaded')
+        _F_cuGetProcAddress_v2('cuFuncIsLoaded', <void **>&__cuFuncIsLoaded, 12040, ptds_mode, NULL)
 
         global __cuFuncLoad
-        __cuFuncLoad = GetProcAddress(handle, 'cuFuncLoad')
+        _F_cuGetProcAddress_v2('cuFuncLoad', <void **>&__cuFuncLoad, 12040, ptds_mode, NULL)
 
         global __cuLaunchKernel
-        __cuLaunchKernel = GetProcAddress(handle, 'cuLaunchKernel')
+        _F_cuGetProcAddress_v2('cuLaunchKernel', <void **>&__cuLaunchKernel, 4000, ptds_mode, NULL)
 
         global __cuLaunchKernelEx
-        __cuLaunchKernelEx = GetProcAddress(handle, 'cuLaunchKernelEx')
+        _F_cuGetProcAddress_v2('cuLaunchKernelEx', <void **>&__cuLaunchKernelEx, 11060, ptds_mode, NULL)
 
         global __cuLaunchCooperativeKernel
-        __cuLaunchCooperativeKernel = GetProcAddress(handle, 'cuLaunchCooperativeKernel')
+        _F_cuGetProcAddress_v2('cuLaunchCooperativeKernel', <void **>&__cuLaunchCooperativeKernel, 9000, ptds_mode, NULL)
 
         global __cuLaunchCooperativeKernelMultiDevice
-        __cuLaunchCooperativeKernelMultiDevice = GetProcAddress(handle, 'cuLaunchCooperativeKernelMultiDevice')
+        _F_cuGetProcAddress_v2('cuLaunchCooperativeKernelMultiDevice', <void **>&__cuLaunchCooperativeKernelMultiDevice, 9000, ptds_mode, NULL)
 
         global __cuLaunchHostFunc
-        __cuLaunchHostFunc = GetProcAddress(handle, 'cuLaunchHostFunc')
+        _F_cuGetProcAddress_v2('cuLaunchHostFunc', <void **>&__cuLaunchHostFunc, 10000, ptds_mode, NULL)
 
         global __cuFuncSetBlockShape
-        __cuFuncSetBlockShape = GetProcAddress(handle, 'cuFuncSetBlockShape')
+        _F_cuGetProcAddress_v2('cuFuncSetBlockShape', <void **>&__cuFuncSetBlockShape, 2000, ptds_mode, NULL)
 
         global __cuFuncSetSharedSize
-        __cuFuncSetSharedSize = GetProcAddress(handle, 'cuFuncSetSharedSize')
+        _F_cuGetProcAddress_v2('cuFuncSetSharedSize', <void **>&__cuFuncSetSharedSize, 2000, ptds_mode, NULL)
 
         global __cuParamSetSize
-        __cuParamSetSize = GetProcAddress(handle, 'cuParamSetSize')
+        _F_cuGetProcAddress_v2('cuParamSetSize', <void **>&__cuParamSetSize, 2000, ptds_mode, NULL)
 
         global __cuParamSeti
-        __cuParamSeti = GetProcAddress(handle, 'cuParamSeti')
+        _F_cuGetProcAddress_v2('cuParamSeti', <void **>&__cuParamSeti, 2000, ptds_mode, NULL)
 
         global __cuParamSetf
-        __cuParamSetf = GetProcAddress(handle, 'cuParamSetf')
+        _F_cuGetProcAddress_v2('cuParamSetf', <void **>&__cuParamSetf, 2000, ptds_mode, NULL)
 
         global __cuParamSetv
-        __cuParamSetv = GetProcAddress(handle, 'cuParamSetv')
+        _F_cuGetProcAddress_v2('cuParamSetv', <void **>&__cuParamSetv, 2000, ptds_mode, NULL)
 
         global __cuLaunch
-        __cuLaunch = GetProcAddress(handle, 'cuLaunch')
+        _F_cuGetProcAddress_v2('cuLaunch', <void **>&__cuLaunch, 2000, ptds_mode, NULL)
 
         global __cuLaunchGrid
-        __cuLaunchGrid = GetProcAddress(handle, 'cuLaunchGrid')
+        _F_cuGetProcAddress_v2('cuLaunchGrid', <void **>&__cuLaunchGrid, 2000, ptds_mode, NULL)
 
         global __cuLaunchGridAsync
-        __cuLaunchGridAsync = GetProcAddress(handle, 'cuLaunchGridAsync')
+        _F_cuGetProcAddress_v2('cuLaunchGridAsync', <void **>&__cuLaunchGridAsync, 2000, ptds_mode, NULL)
 
         global __cuParamSetTexRef
-        __cuParamSetTexRef = GetProcAddress(handle, 'cuParamSetTexRef')
+        _F_cuGetProcAddress_v2('cuParamSetTexRef', <void **>&__cuParamSetTexRef, 2000, ptds_mode, NULL)
 
         global __cuFuncSetSharedMemConfig
-        __cuFuncSetSharedMemConfig = GetProcAddress(handle, 'cuFuncSetSharedMemConfig')
+        _F_cuGetProcAddress_v2('cuFuncSetSharedMemConfig', <void **>&__cuFuncSetSharedMemConfig, 4020, ptds_mode, NULL)
 
         global __cuGraphCreate
-        __cuGraphCreate = GetProcAddress(handle, 'cuGraphCreate')
+        _F_cuGetProcAddress_v2('cuGraphCreate', <void **>&__cuGraphCreate, 10000, ptds_mode, NULL)
 
         global __cuGraphAddKernelNode_v2
-        __cuGraphAddKernelNode_v2 = GetProcAddress(handle, 'cuGraphAddKernelNode_v2')
+        _F_cuGetProcAddress_v2('cuGraphAddKernelNode', <void **>&__cuGraphAddKernelNode_v2, 12000, ptds_mode, NULL)
 
         global __cuGraphKernelNodeGetParams_v2
-        __cuGraphKernelNodeGetParams_v2 = GetProcAddress(handle, 'cuGraphKernelNodeGetParams_v2')
+        _F_cuGetProcAddress_v2('cuGraphKernelNodeGetParams', <void **>&__cuGraphKernelNodeGetParams_v2, 12000, ptds_mode, NULL)
 
         global __cuGraphKernelNodeSetParams_v2
-        __cuGraphKernelNodeSetParams_v2 = GetProcAddress(handle, 'cuGraphKernelNodeSetParams_v2')
+        _F_cuGetProcAddress_v2('cuGraphKernelNodeSetParams', <void **>&__cuGraphKernelNodeSetParams_v2, 12000, ptds_mode, NULL)
 
         global __cuGraphAddMemcpyNode
-        __cuGraphAddMemcpyNode = GetProcAddress(handle, 'cuGraphAddMemcpyNode')
+        _F_cuGetProcAddress_v2('cuGraphAddMemcpyNode', <void **>&__cuGraphAddMemcpyNode, 10000, ptds_mode, NULL)
 
         global __cuGraphMemcpyNodeGetParams
-        __cuGraphMemcpyNodeGetParams = GetProcAddress(handle, 'cuGraphMemcpyNodeGetParams')
+        _F_cuGetProcAddress_v2('cuGraphMemcpyNodeGetParams', <void **>&__cuGraphMemcpyNodeGetParams, 10000, ptds_mode, NULL)
 
         global __cuGraphMemcpyNodeSetParams
-        __cuGraphMemcpyNodeSetParams = GetProcAddress(handle, 'cuGraphMemcpyNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphMemcpyNodeSetParams', <void **>&__cuGraphMemcpyNodeSetParams, 10000, ptds_mode, NULL)
 
         global __cuGraphAddMemsetNode
-        __cuGraphAddMemsetNode = GetProcAddress(handle, 'cuGraphAddMemsetNode')
+        _F_cuGetProcAddress_v2('cuGraphAddMemsetNode', <void **>&__cuGraphAddMemsetNode, 10000, ptds_mode, NULL)
 
         global __cuGraphMemsetNodeGetParams
-        __cuGraphMemsetNodeGetParams = GetProcAddress(handle, 'cuGraphMemsetNodeGetParams')
+        _F_cuGetProcAddress_v2('cuGraphMemsetNodeGetParams', <void **>&__cuGraphMemsetNodeGetParams, 10000, ptds_mode, NULL)
 
         global __cuGraphMemsetNodeSetParams
-        __cuGraphMemsetNodeSetParams = GetProcAddress(handle, 'cuGraphMemsetNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphMemsetNodeSetParams', <void **>&__cuGraphMemsetNodeSetParams, 10000, ptds_mode, NULL)
 
         global __cuGraphAddHostNode
-        __cuGraphAddHostNode = GetProcAddress(handle, 'cuGraphAddHostNode')
+        _F_cuGetProcAddress_v2('cuGraphAddHostNode', <void **>&__cuGraphAddHostNode, 10000, ptds_mode, NULL)
 
         global __cuGraphHostNodeGetParams
-        __cuGraphHostNodeGetParams = GetProcAddress(handle, 'cuGraphHostNodeGetParams')
+        _F_cuGetProcAddress_v2('cuGraphHostNodeGetParams', <void **>&__cuGraphHostNodeGetParams, 10000, ptds_mode, NULL)
 
         global __cuGraphHostNodeSetParams
-        __cuGraphHostNodeSetParams = GetProcAddress(handle, 'cuGraphHostNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphHostNodeSetParams', <void **>&__cuGraphHostNodeSetParams, 10000, ptds_mode, NULL)
 
         global __cuGraphAddChildGraphNode
-        __cuGraphAddChildGraphNode = GetProcAddress(handle, 'cuGraphAddChildGraphNode')
+        _F_cuGetProcAddress_v2('cuGraphAddChildGraphNode', <void **>&__cuGraphAddChildGraphNode, 10000, ptds_mode, NULL)
 
         global __cuGraphChildGraphNodeGetGraph
-        __cuGraphChildGraphNodeGetGraph = GetProcAddress(handle, 'cuGraphChildGraphNodeGetGraph')
+        _F_cuGetProcAddress_v2('cuGraphChildGraphNodeGetGraph', <void **>&__cuGraphChildGraphNodeGetGraph, 10000, ptds_mode, NULL)
 
         global __cuGraphAddEmptyNode
-        __cuGraphAddEmptyNode = GetProcAddress(handle, 'cuGraphAddEmptyNode')
+        _F_cuGetProcAddress_v2('cuGraphAddEmptyNode', <void **>&__cuGraphAddEmptyNode, 10000, ptds_mode, NULL)
 
         global __cuGraphAddEventRecordNode
-        __cuGraphAddEventRecordNode = GetProcAddress(handle, 'cuGraphAddEventRecordNode')
+        _F_cuGetProcAddress_v2('cuGraphAddEventRecordNode', <void **>&__cuGraphAddEventRecordNode, 11010, ptds_mode, NULL)
 
         global __cuGraphEventRecordNodeGetEvent
-        __cuGraphEventRecordNodeGetEvent = GetProcAddress(handle, 'cuGraphEventRecordNodeGetEvent')
+        _F_cuGetProcAddress_v2('cuGraphEventRecordNodeGetEvent', <void **>&__cuGraphEventRecordNodeGetEvent, 11010, ptds_mode, NULL)
 
         global __cuGraphEventRecordNodeSetEvent
-        __cuGraphEventRecordNodeSetEvent = GetProcAddress(handle, 'cuGraphEventRecordNodeSetEvent')
+        _F_cuGetProcAddress_v2('cuGraphEventRecordNodeSetEvent', <void **>&__cuGraphEventRecordNodeSetEvent, 11010, ptds_mode, NULL)
 
         global __cuGraphAddEventWaitNode
-        __cuGraphAddEventWaitNode = GetProcAddress(handle, 'cuGraphAddEventWaitNode')
+        _F_cuGetProcAddress_v2('cuGraphAddEventWaitNode', <void **>&__cuGraphAddEventWaitNode, 11010, ptds_mode, NULL)
 
         global __cuGraphEventWaitNodeGetEvent
-        __cuGraphEventWaitNodeGetEvent = GetProcAddress(handle, 'cuGraphEventWaitNodeGetEvent')
+        _F_cuGetProcAddress_v2('cuGraphEventWaitNodeGetEvent', <void **>&__cuGraphEventWaitNodeGetEvent, 11010, ptds_mode, NULL)
 
         global __cuGraphEventWaitNodeSetEvent
-        __cuGraphEventWaitNodeSetEvent = GetProcAddress(handle, 'cuGraphEventWaitNodeSetEvent')
+        _F_cuGetProcAddress_v2('cuGraphEventWaitNodeSetEvent', <void **>&__cuGraphEventWaitNodeSetEvent, 11010, ptds_mode, NULL)
 
         global __cuGraphAddExternalSemaphoresSignalNode
-        __cuGraphAddExternalSemaphoresSignalNode = GetProcAddress(handle, 'cuGraphAddExternalSemaphoresSignalNode')
+        _F_cuGetProcAddress_v2('cuGraphAddExternalSemaphoresSignalNode', <void **>&__cuGraphAddExternalSemaphoresSignalNode, 11020, ptds_mode, NULL)
 
         global __cuGraphExternalSemaphoresSignalNodeGetParams
-        __cuGraphExternalSemaphoresSignalNodeGetParams = GetProcAddress(handle, 'cuGraphExternalSemaphoresSignalNodeGetParams')
+        _F_cuGetProcAddress_v2('cuGraphExternalSemaphoresSignalNodeGetParams', <void **>&__cuGraphExternalSemaphoresSignalNodeGetParams, 11020, ptds_mode, NULL)
 
         global __cuGraphExternalSemaphoresSignalNodeSetParams
-        __cuGraphExternalSemaphoresSignalNodeSetParams = GetProcAddress(handle, 'cuGraphExternalSemaphoresSignalNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphExternalSemaphoresSignalNodeSetParams', <void **>&__cuGraphExternalSemaphoresSignalNodeSetParams, 11020, ptds_mode, NULL)
 
         global __cuGraphAddExternalSemaphoresWaitNode
-        __cuGraphAddExternalSemaphoresWaitNode = GetProcAddress(handle, 'cuGraphAddExternalSemaphoresWaitNode')
+        _F_cuGetProcAddress_v2('cuGraphAddExternalSemaphoresWaitNode', <void **>&__cuGraphAddExternalSemaphoresWaitNode, 11020, ptds_mode, NULL)
 
         global __cuGraphExternalSemaphoresWaitNodeGetParams
-        __cuGraphExternalSemaphoresWaitNodeGetParams = GetProcAddress(handle, 'cuGraphExternalSemaphoresWaitNodeGetParams')
+        _F_cuGetProcAddress_v2('cuGraphExternalSemaphoresWaitNodeGetParams', <void **>&__cuGraphExternalSemaphoresWaitNodeGetParams, 11020, ptds_mode, NULL)
 
         global __cuGraphExternalSemaphoresWaitNodeSetParams
-        __cuGraphExternalSemaphoresWaitNodeSetParams = GetProcAddress(handle, 'cuGraphExternalSemaphoresWaitNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphExternalSemaphoresWaitNodeSetParams', <void **>&__cuGraphExternalSemaphoresWaitNodeSetParams, 11020, ptds_mode, NULL)
 
         global __cuGraphAddBatchMemOpNode
-        __cuGraphAddBatchMemOpNode = GetProcAddress(handle, 'cuGraphAddBatchMemOpNode')
+        _F_cuGetProcAddress_v2('cuGraphAddBatchMemOpNode', <void **>&__cuGraphAddBatchMemOpNode, 11070, ptds_mode, NULL)
 
         global __cuGraphBatchMemOpNodeGetParams
-        __cuGraphBatchMemOpNodeGetParams = GetProcAddress(handle, 'cuGraphBatchMemOpNodeGetParams')
+        _F_cuGetProcAddress_v2('cuGraphBatchMemOpNodeGetParams', <void **>&__cuGraphBatchMemOpNodeGetParams, 11070, ptds_mode, NULL)
 
         global __cuGraphBatchMemOpNodeSetParams
-        __cuGraphBatchMemOpNodeSetParams = GetProcAddress(handle, 'cuGraphBatchMemOpNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphBatchMemOpNodeSetParams', <void **>&__cuGraphBatchMemOpNodeSetParams, 11070, ptds_mode, NULL)
 
         global __cuGraphExecBatchMemOpNodeSetParams
-        __cuGraphExecBatchMemOpNodeSetParams = GetProcAddress(handle, 'cuGraphExecBatchMemOpNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphExecBatchMemOpNodeSetParams', <void **>&__cuGraphExecBatchMemOpNodeSetParams, 11070, ptds_mode, NULL)
 
         global __cuGraphAddMemAllocNode
-        __cuGraphAddMemAllocNode = GetProcAddress(handle, 'cuGraphAddMemAllocNode')
+        _F_cuGetProcAddress_v2('cuGraphAddMemAllocNode', <void **>&__cuGraphAddMemAllocNode, 11040, ptds_mode, NULL)
 
         global __cuGraphMemAllocNodeGetParams
-        __cuGraphMemAllocNodeGetParams = GetProcAddress(handle, 'cuGraphMemAllocNodeGetParams')
+        _F_cuGetProcAddress_v2('cuGraphMemAllocNodeGetParams', <void **>&__cuGraphMemAllocNodeGetParams, 11040, ptds_mode, NULL)
 
         global __cuGraphAddMemFreeNode
-        __cuGraphAddMemFreeNode = GetProcAddress(handle, 'cuGraphAddMemFreeNode')
+        _F_cuGetProcAddress_v2('cuGraphAddMemFreeNode', <void **>&__cuGraphAddMemFreeNode, 11040, ptds_mode, NULL)
 
         global __cuGraphMemFreeNodeGetParams
-        __cuGraphMemFreeNodeGetParams = GetProcAddress(handle, 'cuGraphMemFreeNodeGetParams')
+        _F_cuGetProcAddress_v2('cuGraphMemFreeNodeGetParams', <void **>&__cuGraphMemFreeNodeGetParams, 11040, ptds_mode, NULL)
 
         global __cuDeviceGraphMemTrim
-        __cuDeviceGraphMemTrim = GetProcAddress(handle, 'cuDeviceGraphMemTrim')
+        _F_cuGetProcAddress_v2('cuDeviceGraphMemTrim', <void **>&__cuDeviceGraphMemTrim, 11040, ptds_mode, NULL)
 
         global __cuDeviceGetGraphMemAttribute
-        __cuDeviceGetGraphMemAttribute = GetProcAddress(handle, 'cuDeviceGetGraphMemAttribute')
+        _F_cuGetProcAddress_v2('cuDeviceGetGraphMemAttribute', <void **>&__cuDeviceGetGraphMemAttribute, 11040, ptds_mode, NULL)
 
         global __cuDeviceSetGraphMemAttribute
-        __cuDeviceSetGraphMemAttribute = GetProcAddress(handle, 'cuDeviceSetGraphMemAttribute')
+        _F_cuGetProcAddress_v2('cuDeviceSetGraphMemAttribute', <void **>&__cuDeviceSetGraphMemAttribute, 11040, ptds_mode, NULL)
 
         global __cuGraphClone
-        __cuGraphClone = GetProcAddress(handle, 'cuGraphClone')
+        _F_cuGetProcAddress_v2('cuGraphClone', <void **>&__cuGraphClone, 10000, ptds_mode, NULL)
 
         global __cuGraphNodeFindInClone
-        __cuGraphNodeFindInClone = GetProcAddress(handle, 'cuGraphNodeFindInClone')
+        _F_cuGetProcAddress_v2('cuGraphNodeFindInClone', <void **>&__cuGraphNodeFindInClone, 10000, ptds_mode, NULL)
 
         global __cuGraphNodeGetType
-        __cuGraphNodeGetType = GetProcAddress(handle, 'cuGraphNodeGetType')
+        _F_cuGetProcAddress_v2('cuGraphNodeGetType', <void **>&__cuGraphNodeGetType, 10000, ptds_mode, NULL)
 
         global __cuGraphGetNodes
-        __cuGraphGetNodes = GetProcAddress(handle, 'cuGraphGetNodes')
+        _F_cuGetProcAddress_v2('cuGraphGetNodes', <void **>&__cuGraphGetNodes, 10000, ptds_mode, NULL)
 
         global __cuGraphGetRootNodes
-        __cuGraphGetRootNodes = GetProcAddress(handle, 'cuGraphGetRootNodes')
+        _F_cuGetProcAddress_v2('cuGraphGetRootNodes', <void **>&__cuGraphGetRootNodes, 10000, ptds_mode, NULL)
 
         global __cuGraphGetEdges_v2
-        __cuGraphGetEdges_v2 = GetProcAddress(handle, 'cuGraphGetEdges_v2')
+        _F_cuGetProcAddress_v2('cuGraphGetEdges', <void **>&__cuGraphGetEdges_v2, 12030, ptds_mode, NULL)
 
         global __cuGraphNodeGetDependencies_v2
-        __cuGraphNodeGetDependencies_v2 = GetProcAddress(handle, 'cuGraphNodeGetDependencies_v2')
+        _F_cuGetProcAddress_v2('cuGraphNodeGetDependencies', <void **>&__cuGraphNodeGetDependencies_v2, 12030, ptds_mode, NULL)
 
         global __cuGraphNodeGetDependentNodes_v2
-        __cuGraphNodeGetDependentNodes_v2 = GetProcAddress(handle, 'cuGraphNodeGetDependentNodes_v2')
+        _F_cuGetProcAddress_v2('cuGraphNodeGetDependentNodes', <void **>&__cuGraphNodeGetDependentNodes_v2, 12030, ptds_mode, NULL)
 
         global __cuGraphAddDependencies_v2
-        __cuGraphAddDependencies_v2 = GetProcAddress(handle, 'cuGraphAddDependencies_v2')
+        _F_cuGetProcAddress_v2('cuGraphAddDependencies', <void **>&__cuGraphAddDependencies_v2, 12030, ptds_mode, NULL)
 
         global __cuGraphRemoveDependencies_v2
-        __cuGraphRemoveDependencies_v2 = GetProcAddress(handle, 'cuGraphRemoveDependencies_v2')
+        _F_cuGetProcAddress_v2('cuGraphRemoveDependencies', <void **>&__cuGraphRemoveDependencies_v2, 12030, ptds_mode, NULL)
 
         global __cuGraphDestroyNode
-        __cuGraphDestroyNode = GetProcAddress(handle, 'cuGraphDestroyNode')
+        _F_cuGetProcAddress_v2('cuGraphDestroyNode', <void **>&__cuGraphDestroyNode, 10000, ptds_mode, NULL)
 
         global __cuGraphInstantiateWithFlags
-        __cuGraphInstantiateWithFlags = GetProcAddress(handle, 'cuGraphInstantiateWithFlags')
+        _F_cuGetProcAddress_v2('cuGraphInstantiate', <void **>&__cuGraphInstantiateWithFlags, 11040, ptds_mode, NULL)
 
         global __cuGraphInstantiateWithParams
-        __cuGraphInstantiateWithParams = GetProcAddress(handle, 'cuGraphInstantiateWithParams')
+        _F_cuGetProcAddress_v2('cuGraphInstantiateWithParams', <void **>&__cuGraphInstantiateWithParams, 12000, ptds_mode, NULL)
 
         global __cuGraphExecGetFlags
-        __cuGraphExecGetFlags = GetProcAddress(handle, 'cuGraphExecGetFlags')
+        _F_cuGetProcAddress_v2('cuGraphExecGetFlags', <void **>&__cuGraphExecGetFlags, 12000, ptds_mode, NULL)
 
         global __cuGraphExecKernelNodeSetParams_v2
-        __cuGraphExecKernelNodeSetParams_v2 = GetProcAddress(handle, 'cuGraphExecKernelNodeSetParams_v2')
+        _F_cuGetProcAddress_v2('cuGraphExecKernelNodeSetParams', <void **>&__cuGraphExecKernelNodeSetParams_v2, 12000, ptds_mode, NULL)
 
         global __cuGraphExecMemcpyNodeSetParams
-        __cuGraphExecMemcpyNodeSetParams = GetProcAddress(handle, 'cuGraphExecMemcpyNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphExecMemcpyNodeSetParams', <void **>&__cuGraphExecMemcpyNodeSetParams, 10020, ptds_mode, NULL)
 
         global __cuGraphExecMemsetNodeSetParams
-        __cuGraphExecMemsetNodeSetParams = GetProcAddress(handle, 'cuGraphExecMemsetNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphExecMemsetNodeSetParams', <void **>&__cuGraphExecMemsetNodeSetParams, 10020, ptds_mode, NULL)
 
         global __cuGraphExecHostNodeSetParams
-        __cuGraphExecHostNodeSetParams = GetProcAddress(handle, 'cuGraphExecHostNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphExecHostNodeSetParams', <void **>&__cuGraphExecHostNodeSetParams, 10020, ptds_mode, NULL)
 
         global __cuGraphExecChildGraphNodeSetParams
-        __cuGraphExecChildGraphNodeSetParams = GetProcAddress(handle, 'cuGraphExecChildGraphNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphExecChildGraphNodeSetParams', <void **>&__cuGraphExecChildGraphNodeSetParams, 11010, ptds_mode, NULL)
 
         global __cuGraphExecEventRecordNodeSetEvent
-        __cuGraphExecEventRecordNodeSetEvent = GetProcAddress(handle, 'cuGraphExecEventRecordNodeSetEvent')
+        _F_cuGetProcAddress_v2('cuGraphExecEventRecordNodeSetEvent', <void **>&__cuGraphExecEventRecordNodeSetEvent, 11010, ptds_mode, NULL)
 
         global __cuGraphExecEventWaitNodeSetEvent
-        __cuGraphExecEventWaitNodeSetEvent = GetProcAddress(handle, 'cuGraphExecEventWaitNodeSetEvent')
+        _F_cuGetProcAddress_v2('cuGraphExecEventWaitNodeSetEvent', <void **>&__cuGraphExecEventWaitNodeSetEvent, 11010, ptds_mode, NULL)
 
         global __cuGraphExecExternalSemaphoresSignalNodeSetParams
-        __cuGraphExecExternalSemaphoresSignalNodeSetParams = GetProcAddress(handle, 'cuGraphExecExternalSemaphoresSignalNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphExecExternalSemaphoresSignalNodeSetParams', <void **>&__cuGraphExecExternalSemaphoresSignalNodeSetParams, 11020, ptds_mode, NULL)
 
         global __cuGraphExecExternalSemaphoresWaitNodeSetParams
-        __cuGraphExecExternalSemaphoresWaitNodeSetParams = GetProcAddress(handle, 'cuGraphExecExternalSemaphoresWaitNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphExecExternalSemaphoresWaitNodeSetParams', <void **>&__cuGraphExecExternalSemaphoresWaitNodeSetParams, 11020, ptds_mode, NULL)
 
         global __cuGraphNodeSetEnabled
-        __cuGraphNodeSetEnabled = GetProcAddress(handle, 'cuGraphNodeSetEnabled')
+        _F_cuGetProcAddress_v2('cuGraphNodeSetEnabled', <void **>&__cuGraphNodeSetEnabled, 11060, ptds_mode, NULL)
 
         global __cuGraphNodeGetEnabled
-        __cuGraphNodeGetEnabled = GetProcAddress(handle, 'cuGraphNodeGetEnabled')
+        _F_cuGetProcAddress_v2('cuGraphNodeGetEnabled', <void **>&__cuGraphNodeGetEnabled, 11060, ptds_mode, NULL)
 
         global __cuGraphUpload
-        __cuGraphUpload = GetProcAddress(handle, 'cuGraphUpload')
+        _F_cuGetProcAddress_v2('cuGraphUpload', <void **>&__cuGraphUpload, 11010, ptds_mode, NULL)
 
         global __cuGraphLaunch
-        __cuGraphLaunch = GetProcAddress(handle, 'cuGraphLaunch')
+        _F_cuGetProcAddress_v2('cuGraphLaunch', <void **>&__cuGraphLaunch, 10000, ptds_mode, NULL)
 
         global __cuGraphExecDestroy
-        __cuGraphExecDestroy = GetProcAddress(handle, 'cuGraphExecDestroy')
+        _F_cuGetProcAddress_v2('cuGraphExecDestroy', <void **>&__cuGraphExecDestroy, 10000, ptds_mode, NULL)
 
         global __cuGraphDestroy
-        __cuGraphDestroy = GetProcAddress(handle, 'cuGraphDestroy')
+        _F_cuGetProcAddress_v2('cuGraphDestroy', <void **>&__cuGraphDestroy, 10000, ptds_mode, NULL)
 
         global __cuGraphExecUpdate_v2
-        __cuGraphExecUpdate_v2 = GetProcAddress(handle, 'cuGraphExecUpdate_v2')
+        _F_cuGetProcAddress_v2('cuGraphExecUpdate', <void **>&__cuGraphExecUpdate_v2, 12000, ptds_mode, NULL)
 
         global __cuGraphKernelNodeCopyAttributes
-        __cuGraphKernelNodeCopyAttributes = GetProcAddress(handle, 'cuGraphKernelNodeCopyAttributes')
+        _F_cuGetProcAddress_v2('cuGraphKernelNodeCopyAttributes', <void **>&__cuGraphKernelNodeCopyAttributes, 11000, ptds_mode, NULL)
 
         global __cuGraphKernelNodeGetAttribute
-        __cuGraphKernelNodeGetAttribute = GetProcAddress(handle, 'cuGraphKernelNodeGetAttribute')
+        _F_cuGetProcAddress_v2('cuGraphKernelNodeGetAttribute', <void **>&__cuGraphKernelNodeGetAttribute, 11000, ptds_mode, NULL)
 
         global __cuGraphKernelNodeSetAttribute
-        __cuGraphKernelNodeSetAttribute = GetProcAddress(handle, 'cuGraphKernelNodeSetAttribute')
+        _F_cuGetProcAddress_v2('cuGraphKernelNodeSetAttribute', <void **>&__cuGraphKernelNodeSetAttribute, 11000, ptds_mode, NULL)
 
         global __cuGraphDebugDotPrint
-        __cuGraphDebugDotPrint = GetProcAddress(handle, 'cuGraphDebugDotPrint')
+        _F_cuGetProcAddress_v2('cuGraphDebugDotPrint', <void **>&__cuGraphDebugDotPrint, 11030, ptds_mode, NULL)
 
         global __cuUserObjectCreate
-        __cuUserObjectCreate = GetProcAddress(handle, 'cuUserObjectCreate')
+        _F_cuGetProcAddress_v2('cuUserObjectCreate', <void **>&__cuUserObjectCreate, 11030, ptds_mode, NULL)
 
         global __cuUserObjectRetain
-        __cuUserObjectRetain = GetProcAddress(handle, 'cuUserObjectRetain')
+        _F_cuGetProcAddress_v2('cuUserObjectRetain', <void **>&__cuUserObjectRetain, 11030, ptds_mode, NULL)
 
         global __cuUserObjectRelease
-        __cuUserObjectRelease = GetProcAddress(handle, 'cuUserObjectRelease')
+        _F_cuGetProcAddress_v2('cuUserObjectRelease', <void **>&__cuUserObjectRelease, 11030, ptds_mode, NULL)
 
         global __cuGraphRetainUserObject
-        __cuGraphRetainUserObject = GetProcAddress(handle, 'cuGraphRetainUserObject')
+        _F_cuGetProcAddress_v2('cuGraphRetainUserObject', <void **>&__cuGraphRetainUserObject, 11030, ptds_mode, NULL)
 
         global __cuGraphReleaseUserObject
-        __cuGraphReleaseUserObject = GetProcAddress(handle, 'cuGraphReleaseUserObject')
+        _F_cuGetProcAddress_v2('cuGraphReleaseUserObject', <void **>&__cuGraphReleaseUserObject, 11030, ptds_mode, NULL)
 
         global __cuGraphAddNode_v2
-        __cuGraphAddNode_v2 = GetProcAddress(handle, 'cuGraphAddNode_v2')
+        _F_cuGetProcAddress_v2('cuGraphAddNode', <void **>&__cuGraphAddNode_v2, 12030, ptds_mode, NULL)
 
         global __cuGraphNodeSetParams
-        __cuGraphNodeSetParams = GetProcAddress(handle, 'cuGraphNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphNodeSetParams', <void **>&__cuGraphNodeSetParams, 12020, ptds_mode, NULL)
 
         global __cuGraphExecNodeSetParams
-        __cuGraphExecNodeSetParams = GetProcAddress(handle, 'cuGraphExecNodeSetParams')
+        _F_cuGetProcAddress_v2('cuGraphExecNodeSetParams', <void **>&__cuGraphExecNodeSetParams, 12020, ptds_mode, NULL)
 
         global __cuGraphConditionalHandleCreate
-        __cuGraphConditionalHandleCreate = GetProcAddress(handle, 'cuGraphConditionalHandleCreate')
+        _F_cuGetProcAddress_v2('cuGraphConditionalHandleCreate', <void **>&__cuGraphConditionalHandleCreate, 12030, ptds_mode, NULL)
 
         global __cuOccupancyMaxActiveBlocksPerMultiprocessor
-        __cuOccupancyMaxActiveBlocksPerMultiprocessor = GetProcAddress(handle, 'cuOccupancyMaxActiveBlocksPerMultiprocessor')
+        _F_cuGetProcAddress_v2('cuOccupancyMaxActiveBlocksPerMultiprocessor', <void **>&__cuOccupancyMaxActiveBlocksPerMultiprocessor, 6050, ptds_mode, NULL)
 
         global __cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
-        __cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags = GetProcAddress(handle, 'cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags')
+        _F_cuGetProcAddress_v2('cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags', <void **>&__cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags, 7000, ptds_mode, NULL)
 
         global __cuOccupancyMaxPotentialBlockSize
-        __cuOccupancyMaxPotentialBlockSize = GetProcAddress(handle, 'cuOccupancyMaxPotentialBlockSize')
+        _F_cuGetProcAddress_v2('cuOccupancyMaxPotentialBlockSize', <void **>&__cuOccupancyMaxPotentialBlockSize, 6050, ptds_mode, NULL)
 
         global __cuOccupancyMaxPotentialBlockSizeWithFlags
-        __cuOccupancyMaxPotentialBlockSizeWithFlags = GetProcAddress(handle, 'cuOccupancyMaxPotentialBlockSizeWithFlags')
+        _F_cuGetProcAddress_v2('cuOccupancyMaxPotentialBlockSizeWithFlags', <void **>&__cuOccupancyMaxPotentialBlockSizeWithFlags, 7000, ptds_mode, NULL)
 
         global __cuOccupancyAvailableDynamicSMemPerBlock
-        __cuOccupancyAvailableDynamicSMemPerBlock = GetProcAddress(handle, 'cuOccupancyAvailableDynamicSMemPerBlock')
+        _F_cuGetProcAddress_v2('cuOccupancyAvailableDynamicSMemPerBlock', <void **>&__cuOccupancyAvailableDynamicSMemPerBlock, 10020, ptds_mode, NULL)
 
         global __cuOccupancyMaxPotentialClusterSize
-        __cuOccupancyMaxPotentialClusterSize = GetProcAddress(handle, 'cuOccupancyMaxPotentialClusterSize')
+        _F_cuGetProcAddress_v2('cuOccupancyMaxPotentialClusterSize', <void **>&__cuOccupancyMaxPotentialClusterSize, 11070, ptds_mode, NULL)
 
         global __cuOccupancyMaxActiveClusters
-        __cuOccupancyMaxActiveClusters = GetProcAddress(handle, 'cuOccupancyMaxActiveClusters')
+        _F_cuGetProcAddress_v2('cuOccupancyMaxActiveClusters', <void **>&__cuOccupancyMaxActiveClusters, 11070, ptds_mode, NULL)
 
         global __cuTexRefSetArray
-        __cuTexRefSetArray = GetProcAddress(handle, 'cuTexRefSetArray')
+        _F_cuGetProcAddress_v2('cuTexRefSetArray', <void **>&__cuTexRefSetArray, 2000, ptds_mode, NULL)
 
         global __cuTexRefSetMipmappedArray
-        __cuTexRefSetMipmappedArray = GetProcAddress(handle, 'cuTexRefSetMipmappedArray')
+        _F_cuGetProcAddress_v2('cuTexRefSetMipmappedArray', <void **>&__cuTexRefSetMipmappedArray, 5000, ptds_mode, NULL)
 
         global __cuTexRefSetAddress_v2
-        __cuTexRefSetAddress_v2 = GetProcAddress(handle, 'cuTexRefSetAddress_v2')
+        _F_cuGetProcAddress_v2('cuTexRefSetAddress', <void **>&__cuTexRefSetAddress_v2, 3020, ptds_mode, NULL)
 
         global __cuTexRefSetAddress2D_v3
-        __cuTexRefSetAddress2D_v3 = GetProcAddress(handle, 'cuTexRefSetAddress2D_v3')
+        _F_cuGetProcAddress_v2('cuTexRefSetAddress2D', <void **>&__cuTexRefSetAddress2D_v3, 4010, ptds_mode, NULL)
 
         global __cuTexRefSetFormat
-        __cuTexRefSetFormat = GetProcAddress(handle, 'cuTexRefSetFormat')
+        _F_cuGetProcAddress_v2('cuTexRefSetFormat', <void **>&__cuTexRefSetFormat, 2000, ptds_mode, NULL)
 
         global __cuTexRefSetAddressMode
-        __cuTexRefSetAddressMode = GetProcAddress(handle, 'cuTexRefSetAddressMode')
+        _F_cuGetProcAddress_v2('cuTexRefSetAddressMode', <void **>&__cuTexRefSetAddressMode, 2000, ptds_mode, NULL)
 
         global __cuTexRefSetFilterMode
-        __cuTexRefSetFilterMode = GetProcAddress(handle, 'cuTexRefSetFilterMode')
+        _F_cuGetProcAddress_v2('cuTexRefSetFilterMode', <void **>&__cuTexRefSetFilterMode, 2000, ptds_mode, NULL)
 
         global __cuTexRefSetMipmapFilterMode
-        __cuTexRefSetMipmapFilterMode = GetProcAddress(handle, 'cuTexRefSetMipmapFilterMode')
+        _F_cuGetProcAddress_v2('cuTexRefSetMipmapFilterMode', <void **>&__cuTexRefSetMipmapFilterMode, 5000, ptds_mode, NULL)
 
         global __cuTexRefSetMipmapLevelBias
-        __cuTexRefSetMipmapLevelBias = GetProcAddress(handle, 'cuTexRefSetMipmapLevelBias')
+        _F_cuGetProcAddress_v2('cuTexRefSetMipmapLevelBias', <void **>&__cuTexRefSetMipmapLevelBias, 5000, ptds_mode, NULL)
 
         global __cuTexRefSetMipmapLevelClamp
-        __cuTexRefSetMipmapLevelClamp = GetProcAddress(handle, 'cuTexRefSetMipmapLevelClamp')
+        _F_cuGetProcAddress_v2('cuTexRefSetMipmapLevelClamp', <void **>&__cuTexRefSetMipmapLevelClamp, 5000, ptds_mode, NULL)
 
         global __cuTexRefSetMaxAnisotropy
-        __cuTexRefSetMaxAnisotropy = GetProcAddress(handle, 'cuTexRefSetMaxAnisotropy')
+        _F_cuGetProcAddress_v2('cuTexRefSetMaxAnisotropy', <void **>&__cuTexRefSetMaxAnisotropy, 5000, ptds_mode, NULL)
 
         global __cuTexRefSetBorderColor
-        __cuTexRefSetBorderColor = GetProcAddress(handle, 'cuTexRefSetBorderColor')
+        _F_cuGetProcAddress_v2('cuTexRefSetBorderColor', <void **>&__cuTexRefSetBorderColor, 8000, ptds_mode, NULL)
 
         global __cuTexRefSetFlags
-        __cuTexRefSetFlags = GetProcAddress(handle, 'cuTexRefSetFlags')
+        _F_cuGetProcAddress_v2('cuTexRefSetFlags', <void **>&__cuTexRefSetFlags, 2000, ptds_mode, NULL)
 
         global __cuTexRefGetAddress_v2
-        __cuTexRefGetAddress_v2 = GetProcAddress(handle, 'cuTexRefGetAddress_v2')
+        _F_cuGetProcAddress_v2('cuTexRefGetAddress', <void **>&__cuTexRefGetAddress_v2, 3020, ptds_mode, NULL)
 
         global __cuTexRefGetArray
-        __cuTexRefGetArray = GetProcAddress(handle, 'cuTexRefGetArray')
+        _F_cuGetProcAddress_v2('cuTexRefGetArray', <void **>&__cuTexRefGetArray, 2000, ptds_mode, NULL)
 
         global __cuTexRefGetMipmappedArray
-        __cuTexRefGetMipmappedArray = GetProcAddress(handle, 'cuTexRefGetMipmappedArray')
+        _F_cuGetProcAddress_v2('cuTexRefGetMipmappedArray', <void **>&__cuTexRefGetMipmappedArray, 5000, ptds_mode, NULL)
 
         global __cuTexRefGetAddressMode
-        __cuTexRefGetAddressMode = GetProcAddress(handle, 'cuTexRefGetAddressMode')
+        _F_cuGetProcAddress_v2('cuTexRefGetAddressMode', <void **>&__cuTexRefGetAddressMode, 2000, ptds_mode, NULL)
 
         global __cuTexRefGetFilterMode
-        __cuTexRefGetFilterMode = GetProcAddress(handle, 'cuTexRefGetFilterMode')
+        _F_cuGetProcAddress_v2('cuTexRefGetFilterMode', <void **>&__cuTexRefGetFilterMode, 2000, ptds_mode, NULL)
 
         global __cuTexRefGetFormat
-        __cuTexRefGetFormat = GetProcAddress(handle, 'cuTexRefGetFormat')
+        _F_cuGetProcAddress_v2('cuTexRefGetFormat', <void **>&__cuTexRefGetFormat, 2000, ptds_mode, NULL)
 
         global __cuTexRefGetMipmapFilterMode
-        __cuTexRefGetMipmapFilterMode = GetProcAddress(handle, 'cuTexRefGetMipmapFilterMode')
+        _F_cuGetProcAddress_v2('cuTexRefGetMipmapFilterMode', <void **>&__cuTexRefGetMipmapFilterMode, 5000, ptds_mode, NULL)
 
         global __cuTexRefGetMipmapLevelBias
-        __cuTexRefGetMipmapLevelBias = GetProcAddress(handle, 'cuTexRefGetMipmapLevelBias')
+        _F_cuGetProcAddress_v2('cuTexRefGetMipmapLevelBias', <void **>&__cuTexRefGetMipmapLevelBias, 5000, ptds_mode, NULL)
 
         global __cuTexRefGetMipmapLevelClamp
-        __cuTexRefGetMipmapLevelClamp = GetProcAddress(handle, 'cuTexRefGetMipmapLevelClamp')
+        _F_cuGetProcAddress_v2('cuTexRefGetMipmapLevelClamp', <void **>&__cuTexRefGetMipmapLevelClamp, 5000, ptds_mode, NULL)
 
         global __cuTexRefGetMaxAnisotropy
-        __cuTexRefGetMaxAnisotropy = GetProcAddress(handle, 'cuTexRefGetMaxAnisotropy')
+        _F_cuGetProcAddress_v2('cuTexRefGetMaxAnisotropy', <void **>&__cuTexRefGetMaxAnisotropy, 5000, ptds_mode, NULL)
 
         global __cuTexRefGetBorderColor
-        __cuTexRefGetBorderColor = GetProcAddress(handle, 'cuTexRefGetBorderColor')
+        _F_cuGetProcAddress_v2('cuTexRefGetBorderColor', <void **>&__cuTexRefGetBorderColor, 8000, ptds_mode, NULL)
 
         global __cuTexRefGetFlags
-        __cuTexRefGetFlags = GetProcAddress(handle, 'cuTexRefGetFlags')
+        _F_cuGetProcAddress_v2('cuTexRefGetFlags', <void **>&__cuTexRefGetFlags, 2000, ptds_mode, NULL)
 
         global __cuTexRefCreate
-        __cuTexRefCreate = GetProcAddress(handle, 'cuTexRefCreate')
+        _F_cuGetProcAddress_v2('cuTexRefCreate', <void **>&__cuTexRefCreate, 2000, ptds_mode, NULL)
 
         global __cuTexRefDestroy
-        __cuTexRefDestroy = GetProcAddress(handle, 'cuTexRefDestroy')
+        _F_cuGetProcAddress_v2('cuTexRefDestroy', <void **>&__cuTexRefDestroy, 2000, ptds_mode, NULL)
 
         global __cuSurfRefSetArray
-        __cuSurfRefSetArray = GetProcAddress(handle, 'cuSurfRefSetArray')
+        _F_cuGetProcAddress_v2('cuSurfRefSetArray', <void **>&__cuSurfRefSetArray, 3000, ptds_mode, NULL)
 
         global __cuSurfRefGetArray
-        __cuSurfRefGetArray = GetProcAddress(handle, 'cuSurfRefGetArray')
+        _F_cuGetProcAddress_v2('cuSurfRefGetArray', <void **>&__cuSurfRefGetArray, 3000, ptds_mode, NULL)
 
         global __cuTexObjectCreate
-        __cuTexObjectCreate = GetProcAddress(handle, 'cuTexObjectCreate')
+        _F_cuGetProcAddress_v2('cuTexObjectCreate', <void **>&__cuTexObjectCreate, 5000, ptds_mode, NULL)
 
         global __cuTexObjectDestroy
-        __cuTexObjectDestroy = GetProcAddress(handle, 'cuTexObjectDestroy')
+        _F_cuGetProcAddress_v2('cuTexObjectDestroy', <void **>&__cuTexObjectDestroy, 5000, ptds_mode, NULL)
 
         global __cuTexObjectGetResourceDesc
-        __cuTexObjectGetResourceDesc = GetProcAddress(handle, 'cuTexObjectGetResourceDesc')
+        _F_cuGetProcAddress_v2('cuTexObjectGetResourceDesc', <void **>&__cuTexObjectGetResourceDesc, 5000, ptds_mode, NULL)
 
         global __cuTexObjectGetTextureDesc
-        __cuTexObjectGetTextureDesc = GetProcAddress(handle, 'cuTexObjectGetTextureDesc')
+        _F_cuGetProcAddress_v2('cuTexObjectGetTextureDesc', <void **>&__cuTexObjectGetTextureDesc, 5000, ptds_mode, NULL)
 
         global __cuTexObjectGetResourceViewDesc
-        __cuTexObjectGetResourceViewDesc = GetProcAddress(handle, 'cuTexObjectGetResourceViewDesc')
+        _F_cuGetProcAddress_v2('cuTexObjectGetResourceViewDesc', <void **>&__cuTexObjectGetResourceViewDesc, 5000, ptds_mode, NULL)
 
         global __cuSurfObjectCreate
-        __cuSurfObjectCreate = GetProcAddress(handle, 'cuSurfObjectCreate')
+        _F_cuGetProcAddress_v2('cuSurfObjectCreate', <void **>&__cuSurfObjectCreate, 5000, ptds_mode, NULL)
 
         global __cuSurfObjectDestroy
-        __cuSurfObjectDestroy = GetProcAddress(handle, 'cuSurfObjectDestroy')
+        _F_cuGetProcAddress_v2('cuSurfObjectDestroy', <void **>&__cuSurfObjectDestroy, 5000, ptds_mode, NULL)
 
         global __cuSurfObjectGetResourceDesc
-        __cuSurfObjectGetResourceDesc = GetProcAddress(handle, 'cuSurfObjectGetResourceDesc')
+        _F_cuGetProcAddress_v2('cuSurfObjectGetResourceDesc', <void **>&__cuSurfObjectGetResourceDesc, 5000, ptds_mode, NULL)
 
         global __cuTensorMapEncodeTiled
-        __cuTensorMapEncodeTiled = GetProcAddress(handle, 'cuTensorMapEncodeTiled')
+        _F_cuGetProcAddress_v2('cuTensorMapEncodeTiled', <void **>&__cuTensorMapEncodeTiled, 12000, ptds_mode, NULL)
 
         global __cuTensorMapEncodeIm2col
-        __cuTensorMapEncodeIm2col = GetProcAddress(handle, 'cuTensorMapEncodeIm2col')
+        _F_cuGetProcAddress_v2('cuTensorMapEncodeIm2col', <void **>&__cuTensorMapEncodeIm2col, 12000, ptds_mode, NULL)
 
         global __cuTensorMapEncodeIm2colWide
-        __cuTensorMapEncodeIm2colWide = GetProcAddress(handle, 'cuTensorMapEncodeIm2colWide')
+        _F_cuGetProcAddress_v2('cuTensorMapEncodeIm2colWide', <void **>&__cuTensorMapEncodeIm2colWide, 12080, ptds_mode, NULL)
 
         global __cuTensorMapReplaceAddress
-        __cuTensorMapReplaceAddress = GetProcAddress(handle, 'cuTensorMapReplaceAddress')
+        _F_cuGetProcAddress_v2('cuTensorMapReplaceAddress', <void **>&__cuTensorMapReplaceAddress, 12000, ptds_mode, NULL)
 
         global __cuDeviceCanAccessPeer
-        __cuDeviceCanAccessPeer = GetProcAddress(handle, 'cuDeviceCanAccessPeer')
+        _F_cuGetProcAddress_v2('cuDeviceCanAccessPeer', <void **>&__cuDeviceCanAccessPeer, 4000, ptds_mode, NULL)
 
         global __cuCtxEnablePeerAccess
-        __cuCtxEnablePeerAccess = GetProcAddress(handle, 'cuCtxEnablePeerAccess')
+        _F_cuGetProcAddress_v2('cuCtxEnablePeerAccess', <void **>&__cuCtxEnablePeerAccess, 4000, ptds_mode, NULL)
 
         global __cuCtxDisablePeerAccess
-        __cuCtxDisablePeerAccess = GetProcAddress(handle, 'cuCtxDisablePeerAccess')
+        _F_cuGetProcAddress_v2('cuCtxDisablePeerAccess', <void **>&__cuCtxDisablePeerAccess, 4000, ptds_mode, NULL)
 
         global __cuDeviceGetP2PAttribute
-        __cuDeviceGetP2PAttribute = GetProcAddress(handle, 'cuDeviceGetP2PAttribute')
+        _F_cuGetProcAddress_v2('cuDeviceGetP2PAttribute', <void **>&__cuDeviceGetP2PAttribute, 8000, ptds_mode, NULL)
 
         global __cuGraphicsUnregisterResource
-        __cuGraphicsUnregisterResource = GetProcAddress(handle, 'cuGraphicsUnregisterResource')
+        _F_cuGetProcAddress_v2('cuGraphicsUnregisterResource', <void **>&__cuGraphicsUnregisterResource, 3000, ptds_mode, NULL)
 
         global __cuGraphicsSubResourceGetMappedArray
-        __cuGraphicsSubResourceGetMappedArray = GetProcAddress(handle, 'cuGraphicsSubResourceGetMappedArray')
+        _F_cuGetProcAddress_v2('cuGraphicsSubResourceGetMappedArray', <void **>&__cuGraphicsSubResourceGetMappedArray, 3000, ptds_mode, NULL)
 
         global __cuGraphicsResourceGetMappedMipmappedArray
-        __cuGraphicsResourceGetMappedMipmappedArray = GetProcAddress(handle, 'cuGraphicsResourceGetMappedMipmappedArray')
+        _F_cuGetProcAddress_v2('cuGraphicsResourceGetMappedMipmappedArray', <void **>&__cuGraphicsResourceGetMappedMipmappedArray, 5000, ptds_mode, NULL)
 
         global __cuGraphicsResourceGetMappedPointer_v2
-        __cuGraphicsResourceGetMappedPointer_v2 = GetProcAddress(handle, 'cuGraphicsResourceGetMappedPointer_v2')
+        _F_cuGetProcAddress_v2('cuGraphicsResourceGetMappedPointer', <void **>&__cuGraphicsResourceGetMappedPointer_v2, 3020, ptds_mode, NULL)
 
         global __cuGraphicsResourceSetMapFlags_v2
-        __cuGraphicsResourceSetMapFlags_v2 = GetProcAddress(handle, 'cuGraphicsResourceSetMapFlags_v2')
+        _F_cuGetProcAddress_v2('cuGraphicsResourceSetMapFlags', <void **>&__cuGraphicsResourceSetMapFlags_v2, 6050, ptds_mode, NULL)
 
         global __cuGraphicsMapResources
-        __cuGraphicsMapResources = GetProcAddress(handle, 'cuGraphicsMapResources')
+        _F_cuGetProcAddress_v2('cuGraphicsMapResources', <void **>&__cuGraphicsMapResources, 3000, ptds_mode, NULL)
 
         global __cuGraphicsUnmapResources
-        __cuGraphicsUnmapResources = GetProcAddress(handle, 'cuGraphicsUnmapResources')
+        _F_cuGetProcAddress_v2('cuGraphicsUnmapResources', <void **>&__cuGraphicsUnmapResources, 3000, ptds_mode, NULL)
 
         global __cuGetProcAddress_v2
-        __cuGetProcAddress_v2 = GetProcAddress(handle, 'cuGetProcAddress_v2')
+        _F_cuGetProcAddress_v2('cuGetProcAddress', <void **>&__cuGetProcAddress_v2, 12000, ptds_mode, NULL)
 
         global __cuCoredumpGetAttribute
-        __cuCoredumpGetAttribute = GetProcAddress(handle, 'cuCoredumpGetAttribute')
+        _F_cuGetProcAddress_v2('cuCoredumpGetAttribute', <void **>&__cuCoredumpGetAttribute, 12010, ptds_mode, NULL)
 
         global __cuCoredumpGetAttributeGlobal
-        __cuCoredumpGetAttributeGlobal = GetProcAddress(handle, 'cuCoredumpGetAttributeGlobal')
+        _F_cuGetProcAddress_v2('cuCoredumpGetAttributeGlobal', <void **>&__cuCoredumpGetAttributeGlobal, 12010, ptds_mode, NULL)
 
         global __cuCoredumpSetAttribute
-        __cuCoredumpSetAttribute = GetProcAddress(handle, 'cuCoredumpSetAttribute')
+        _F_cuGetProcAddress_v2('cuCoredumpSetAttribute', <void **>&__cuCoredumpSetAttribute, 12010, ptds_mode, NULL)
 
         global __cuCoredumpSetAttributeGlobal
-        __cuCoredumpSetAttributeGlobal = GetProcAddress(handle, 'cuCoredumpSetAttributeGlobal')
+        _F_cuGetProcAddress_v2('cuCoredumpSetAttributeGlobal', <void **>&__cuCoredumpSetAttributeGlobal, 12010, ptds_mode, NULL)
 
         global __cuGetExportTable
-        __cuGetExportTable = GetProcAddress(handle, 'cuGetExportTable')
+        _F_cuGetProcAddress_v2('cuGetExportTable', <void **>&__cuGetExportTable, 3000, ptds_mode, NULL)
 
         global __cuGreenCtxCreate
-        __cuGreenCtxCreate = GetProcAddress(handle, 'cuGreenCtxCreate')
+        _F_cuGetProcAddress_v2('cuGreenCtxCreate', <void **>&__cuGreenCtxCreate, 12040, ptds_mode, NULL)
 
         global __cuGreenCtxDestroy
-        __cuGreenCtxDestroy = GetProcAddress(handle, 'cuGreenCtxDestroy')
+        _F_cuGetProcAddress_v2('cuGreenCtxDestroy', <void **>&__cuGreenCtxDestroy, 12040, ptds_mode, NULL)
 
         global __cuCtxFromGreenCtx
-        __cuCtxFromGreenCtx = GetProcAddress(handle, 'cuCtxFromGreenCtx')
+        _F_cuGetProcAddress_v2('cuCtxFromGreenCtx', <void **>&__cuCtxFromGreenCtx, 12040, ptds_mode, NULL)
 
         global __cuDeviceGetDevResource
-        __cuDeviceGetDevResource = GetProcAddress(handle, 'cuDeviceGetDevResource')
+        _F_cuGetProcAddress_v2('cuDeviceGetDevResource', <void **>&__cuDeviceGetDevResource, 12040, ptds_mode, NULL)
 
         global __cuCtxGetDevResource
-        __cuCtxGetDevResource = GetProcAddress(handle, 'cuCtxGetDevResource')
+        _F_cuGetProcAddress_v2('cuCtxGetDevResource', <void **>&__cuCtxGetDevResource, 12040, ptds_mode, NULL)
 
         global __cuGreenCtxGetDevResource
-        __cuGreenCtxGetDevResource = GetProcAddress(handle, 'cuGreenCtxGetDevResource')
+        _F_cuGetProcAddress_v2('cuGreenCtxGetDevResource', <void **>&__cuGreenCtxGetDevResource, 12040, ptds_mode, NULL)
 
         global __cuDevSmResourceSplitByCount
-        __cuDevSmResourceSplitByCount = GetProcAddress(handle, 'cuDevSmResourceSplitByCount')
+        _F_cuGetProcAddress_v2('cuDevSmResourceSplitByCount', <void **>&__cuDevSmResourceSplitByCount, 12040, ptds_mode, NULL)
 
         global __cuDevResourceGenerateDesc
-        __cuDevResourceGenerateDesc = GetProcAddress(handle, 'cuDevResourceGenerateDesc')
+        _F_cuGetProcAddress_v2('cuDevResourceGenerateDesc', <void **>&__cuDevResourceGenerateDesc, 12040, ptds_mode, NULL)
 
         global __cuGreenCtxRecordEvent
-        __cuGreenCtxRecordEvent = GetProcAddress(handle, 'cuGreenCtxRecordEvent')
+        _F_cuGetProcAddress_v2('cuGreenCtxRecordEvent', <void **>&__cuGreenCtxRecordEvent, 12040, ptds_mode, NULL)
 
         global __cuGreenCtxWaitEvent
-        __cuGreenCtxWaitEvent = GetProcAddress(handle, 'cuGreenCtxWaitEvent')
+        _F_cuGetProcAddress_v2('cuGreenCtxWaitEvent', <void **>&__cuGreenCtxWaitEvent, 12040, ptds_mode, NULL)
 
         global __cuStreamGetGreenCtx
-        __cuStreamGetGreenCtx = GetProcAddress(handle, 'cuStreamGetGreenCtx')
+        _F_cuGetProcAddress_v2('cuStreamGetGreenCtx', <void **>&__cuStreamGetGreenCtx, 12040, ptds_mode, NULL)
 
         global __cuGreenCtxStreamCreate
-        __cuGreenCtxStreamCreate = GetProcAddress(handle, 'cuGreenCtxStreamCreate')
+        _F_cuGetProcAddress_v2('cuGreenCtxStreamCreate', <void **>&__cuGreenCtxStreamCreate, 12050, ptds_mode, NULL)
 
         global __cuLogsRegisterCallback
-        __cuLogsRegisterCallback = GetProcAddress(handle, 'cuLogsRegisterCallback')
+        _F_cuGetProcAddress_v2('cuLogsRegisterCallback', <void **>&__cuLogsRegisterCallback, 12080, ptds_mode, NULL)
 
         global __cuLogsUnregisterCallback
-        __cuLogsUnregisterCallback = GetProcAddress(handle, 'cuLogsUnregisterCallback')
+        _F_cuGetProcAddress_v2('cuLogsUnregisterCallback', <void **>&__cuLogsUnregisterCallback, 12080, ptds_mode, NULL)
 
         global __cuLogsCurrent
-        __cuLogsCurrent = GetProcAddress(handle, 'cuLogsCurrent')
+        _F_cuGetProcAddress_v2('cuLogsCurrent', <void **>&__cuLogsCurrent, 12080, ptds_mode, NULL)
 
         global __cuLogsDumpToFile
-        __cuLogsDumpToFile = GetProcAddress(handle, 'cuLogsDumpToFile')
+        _F_cuGetProcAddress_v2('cuLogsDumpToFile', <void **>&__cuLogsDumpToFile, 12080, ptds_mode, NULL)
 
         global __cuLogsDumpToMemory
-        __cuLogsDumpToMemory = GetProcAddress(handle, 'cuLogsDumpToMemory')
+        _F_cuGetProcAddress_v2('cuLogsDumpToMemory', <void **>&__cuLogsDumpToMemory, 12080, ptds_mode, NULL)
 
         global __cuCheckpointProcessGetRestoreThreadId
-        __cuCheckpointProcessGetRestoreThreadId = GetProcAddress(handle, 'cuCheckpointProcessGetRestoreThreadId')
+        _F_cuGetProcAddress_v2('cuCheckpointProcessGetRestoreThreadId', <void **>&__cuCheckpointProcessGetRestoreThreadId, 12080, ptds_mode, NULL)
 
         global __cuCheckpointProcessGetState
-        __cuCheckpointProcessGetState = GetProcAddress(handle, 'cuCheckpointProcessGetState')
+        _F_cuGetProcAddress_v2('cuCheckpointProcessGetState', <void **>&__cuCheckpointProcessGetState, 12080, ptds_mode, NULL)
 
         global __cuCheckpointProcessLock
-        __cuCheckpointProcessLock = GetProcAddress(handle, 'cuCheckpointProcessLock')
+        _F_cuGetProcAddress_v2('cuCheckpointProcessLock', <void **>&__cuCheckpointProcessLock, 12080, ptds_mode, NULL)
 
         global __cuCheckpointProcessCheckpoint
-        __cuCheckpointProcessCheckpoint = GetProcAddress(handle, 'cuCheckpointProcessCheckpoint')
+        _F_cuGetProcAddress_v2('cuCheckpointProcessCheckpoint', <void **>&__cuCheckpointProcessCheckpoint, 12080, ptds_mode, NULL)
 
         global __cuCheckpointProcessRestore
-        __cuCheckpointProcessRestore = GetProcAddress(handle, 'cuCheckpointProcessRestore')
+        _F_cuGetProcAddress_v2('cuCheckpointProcessRestore', <void **>&__cuCheckpointProcessRestore, 12080, ptds_mode, NULL)
 
         global __cuCheckpointProcessUnlock
-        __cuCheckpointProcessUnlock = GetProcAddress(handle, 'cuCheckpointProcessUnlock')
+        _F_cuGetProcAddress_v2('cuCheckpointProcessUnlock', <void **>&__cuCheckpointProcessUnlock, 12080, ptds_mode, NULL)
 
         global __cuGraphicsEGLRegisterImage
-        __cuGraphicsEGLRegisterImage = GetProcAddress(handle, 'cuGraphicsEGLRegisterImage')
+        _F_cuGetProcAddress_v2('cuGraphicsEGLRegisterImage', <void **>&__cuGraphicsEGLRegisterImage, 7000, ptds_mode, NULL)
 
         global __cuEGLStreamConsumerConnect
-        __cuEGLStreamConsumerConnect = GetProcAddress(handle, 'cuEGLStreamConsumerConnect')
+        _F_cuGetProcAddress_v2('cuEGLStreamConsumerConnect', <void **>&__cuEGLStreamConsumerConnect, 7000, ptds_mode, NULL)
 
         global __cuEGLStreamConsumerConnectWithFlags
-        __cuEGLStreamConsumerConnectWithFlags = GetProcAddress(handle, 'cuEGLStreamConsumerConnectWithFlags')
+        _F_cuGetProcAddress_v2('cuEGLStreamConsumerConnectWithFlags', <void **>&__cuEGLStreamConsumerConnectWithFlags, 8000, ptds_mode, NULL)
 
         global __cuEGLStreamConsumerDisconnect
-        __cuEGLStreamConsumerDisconnect = GetProcAddress(handle, 'cuEGLStreamConsumerDisconnect')
+        _F_cuGetProcAddress_v2('cuEGLStreamConsumerDisconnect', <void **>&__cuEGLStreamConsumerDisconnect, 7000, ptds_mode, NULL)
 
         global __cuEGLStreamConsumerAcquireFrame
-        __cuEGLStreamConsumerAcquireFrame = GetProcAddress(handle, 'cuEGLStreamConsumerAcquireFrame')
+        _F_cuGetProcAddress_v2('cuEGLStreamConsumerAcquireFrame', <void **>&__cuEGLStreamConsumerAcquireFrame, 7000, ptds_mode, NULL)
 
         global __cuEGLStreamConsumerReleaseFrame
-        __cuEGLStreamConsumerReleaseFrame = GetProcAddress(handle, 'cuEGLStreamConsumerReleaseFrame')
+        _F_cuGetProcAddress_v2('cuEGLStreamConsumerReleaseFrame', <void **>&__cuEGLStreamConsumerReleaseFrame, 7000, ptds_mode, NULL)
 
         global __cuEGLStreamProducerConnect
-        __cuEGLStreamProducerConnect = GetProcAddress(handle, 'cuEGLStreamProducerConnect')
+        _F_cuGetProcAddress_v2('cuEGLStreamProducerConnect', <void **>&__cuEGLStreamProducerConnect, 7000, ptds_mode, NULL)
 
         global __cuEGLStreamProducerDisconnect
-        __cuEGLStreamProducerDisconnect = GetProcAddress(handle, 'cuEGLStreamProducerDisconnect')
+        _F_cuGetProcAddress_v2('cuEGLStreamProducerDisconnect', <void **>&__cuEGLStreamProducerDisconnect, 7000, ptds_mode, NULL)
 
         global __cuEGLStreamProducerPresentFrame
-        __cuEGLStreamProducerPresentFrame = GetProcAddress(handle, 'cuEGLStreamProducerPresentFrame')
+        _F_cuGetProcAddress_v2('cuEGLStreamProducerPresentFrame', <void **>&__cuEGLStreamProducerPresentFrame, 7000, ptds_mode, NULL)
 
         global __cuEGLStreamProducerReturnFrame
-        __cuEGLStreamProducerReturnFrame = GetProcAddress(handle, 'cuEGLStreamProducerReturnFrame')
+        _F_cuGetProcAddress_v2('cuEGLStreamProducerReturnFrame', <void **>&__cuEGLStreamProducerReturnFrame, 7000, ptds_mode, NULL)
 
         global __cuGraphicsResourceGetMappedEglFrame
-        __cuGraphicsResourceGetMappedEglFrame = GetProcAddress(handle, 'cuGraphicsResourceGetMappedEglFrame')
+        _F_cuGetProcAddress_v2('cuGraphicsResourceGetMappedEglFrame', <void **>&__cuGraphicsResourceGetMappedEglFrame, 7000, ptds_mode, NULL)
 
         global __cuEventCreateFromEGLSync
-        __cuEventCreateFromEGLSync = GetProcAddress(handle, 'cuEventCreateFromEGLSync')
+        _F_cuGetProcAddress_v2('cuEventCreateFromEGLSync', <void **>&__cuEventCreateFromEGLSync, 9000, ptds_mode, NULL)
 
         global __cuGraphicsGLRegisterBuffer
-        __cuGraphicsGLRegisterBuffer = GetProcAddress(handle, 'cuGraphicsGLRegisterBuffer')
+        _F_cuGetProcAddress_v2('cuGraphicsGLRegisterBuffer', <void **>&__cuGraphicsGLRegisterBuffer, 3000, ptds_mode, NULL)
 
         global __cuGraphicsGLRegisterImage
-        __cuGraphicsGLRegisterImage = GetProcAddress(handle, 'cuGraphicsGLRegisterImage')
+        _F_cuGetProcAddress_v2('cuGraphicsGLRegisterImage', <void **>&__cuGraphicsGLRegisterImage, 3000, ptds_mode, NULL)
 
         global __cuGLGetDevices_v2
-        __cuGLGetDevices_v2 = GetProcAddress(handle, 'cuGLGetDevices_v2')
+        _F_cuGetProcAddress_v2('cuGLGetDevices', <void **>&__cuGLGetDevices_v2, 6050, ptds_mode, NULL)
 
         global __cuGLCtxCreate_v2
-        __cuGLCtxCreate_v2 = GetProcAddress(handle, 'cuGLCtxCreate_v2')
+        _F_cuGetProcAddress_v2('cuGLCtxCreate', <void **>&__cuGLCtxCreate_v2, 3020, ptds_mode, NULL)
 
         global __cuGLInit
-        __cuGLInit = GetProcAddress(handle, 'cuGLInit')
+        _F_cuGetProcAddress_v2('cuGLInit', <void **>&__cuGLInit, 2000, ptds_mode, NULL)
 
         global __cuGLRegisterBufferObject
-        __cuGLRegisterBufferObject = GetProcAddress(handle, 'cuGLRegisterBufferObject')
+        _F_cuGetProcAddress_v2('cuGLRegisterBufferObject', <void **>&__cuGLRegisterBufferObject, 2000, ptds_mode, NULL)
 
         global __cuGLMapBufferObject_v2
-        __cuGLMapBufferObject_v2 = GetProcAddress(handle, 'cuGLMapBufferObject_v2')
+        _F_cuGetProcAddress_v2('cuGLMapBufferObject', <void **>&__cuGLMapBufferObject_v2, 3020, ptds_mode, NULL)
 
         global __cuGLUnmapBufferObject
-        __cuGLUnmapBufferObject = GetProcAddress(handle, 'cuGLUnmapBufferObject')
+        _F_cuGetProcAddress_v2('cuGLUnmapBufferObject', <void **>&__cuGLUnmapBufferObject, 2000, ptds_mode, NULL)
 
         global __cuGLUnregisterBufferObject
-        __cuGLUnregisterBufferObject = GetProcAddress(handle, 'cuGLUnregisterBufferObject')
+        _F_cuGetProcAddress_v2('cuGLUnregisterBufferObject', <void **>&__cuGLUnregisterBufferObject, 2000, ptds_mode, NULL)
 
         global __cuGLSetBufferObjectMapFlags
-        __cuGLSetBufferObjectMapFlags = GetProcAddress(handle, 'cuGLSetBufferObjectMapFlags')
+        _F_cuGetProcAddress_v2('cuGLSetBufferObjectMapFlags', <void **>&__cuGLSetBufferObjectMapFlags, 2030, ptds_mode, NULL)
 
         global __cuGLMapBufferObjectAsync_v2
-        __cuGLMapBufferObjectAsync_v2 = GetProcAddress(handle, 'cuGLMapBufferObjectAsync_v2')
+        _F_cuGetProcAddress_v2('cuGLMapBufferObjectAsync', <void **>&__cuGLMapBufferObjectAsync_v2, 3020, ptds_mode, NULL)
 
         global __cuGLUnmapBufferObjectAsync
-        __cuGLUnmapBufferObjectAsync = GetProcAddress(handle, 'cuGLUnmapBufferObjectAsync')
+        _F_cuGetProcAddress_v2('cuGLUnmapBufferObjectAsync', <void **>&__cuGLUnmapBufferObjectAsync, 2030, ptds_mode, NULL)
 
         global __cuProfilerInitialize
-        __cuProfilerInitialize = GetProcAddress(handle, 'cuProfilerInitialize')
+        _F_cuGetProcAddress_v2('cuProfilerInitialize', <void **>&__cuProfilerInitialize, 4000, ptds_mode, NULL)
 
         global __cuProfilerStart
-        __cuProfilerStart = GetProcAddress(handle, 'cuProfilerStart')
+        _F_cuGetProcAddress_v2('cuProfilerStart', <void **>&__cuProfilerStart, 4000, ptds_mode, NULL)
 
         global __cuProfilerStop
-        __cuProfilerStop = GetProcAddress(handle, 'cuProfilerStop')
+        _F_cuGetProcAddress_v2('cuProfilerStop', <void **>&__cuProfilerStop, 4000, ptds_mode, NULL)
 
         global __cuVDPAUGetDevice
-        __cuVDPAUGetDevice = GetProcAddress(handle, 'cuVDPAUGetDevice')
+        _F_cuGetProcAddress_v2('cuVDPAUGetDevice', <void **>&__cuVDPAUGetDevice, 3010, ptds_mode, NULL)
 
         global __cuVDPAUCtxCreate_v2
-        __cuVDPAUCtxCreate_v2 = GetProcAddress(handle, 'cuVDPAUCtxCreate_v2')
+        _F_cuGetProcAddress_v2('cuVDPAUCtxCreate', <void **>&__cuVDPAUCtxCreate_v2, 3020, ptds_mode, NULL)
 
         global __cuGraphicsVDPAURegisterVideoSurface
-        __cuGraphicsVDPAURegisterVideoSurface = GetProcAddress(handle, 'cuGraphicsVDPAURegisterVideoSurface')
+        _F_cuGetProcAddress_v2('cuGraphicsVDPAURegisterVideoSurface', <void **>&__cuGraphicsVDPAURegisterVideoSurface, 3010, ptds_mode, NULL)
 
         global __cuGraphicsVDPAURegisterOutputSurface
-        __cuGraphicsVDPAURegisterOutputSurface = GetProcAddress(handle, 'cuGraphicsVDPAURegisterOutputSurface')
+        _F_cuGetProcAddress_v2('cuGraphicsVDPAURegisterOutputSurface', <void **>&__cuGraphicsVDPAURegisterOutputSurface, 3010, ptds_mode, NULL)
 
         global __cuDeviceGetHostAtomicCapabilities
-        __cuDeviceGetHostAtomicCapabilities = GetProcAddress(handle, 'cuDeviceGetHostAtomicCapabilities')
+        _F_cuGetProcAddress_v2('cuDeviceGetHostAtomicCapabilities', <void **>&__cuDeviceGetHostAtomicCapabilities, 13010, ptds_mode, NULL)
 
         global __cuCtxGetDevice_v2
-        __cuCtxGetDevice_v2 = GetProcAddress(handle, 'cuCtxGetDevice_v2')
+        _F_cuGetProcAddress_v2('cuCtxGetDevice_v2', <void **>&__cuCtxGetDevice_v2, 13010, ptds_mode, NULL)
 
         global __cuCtxSynchronize_v2
-        __cuCtxSynchronize_v2 = GetProcAddress(handle, 'cuCtxSynchronize_v2')
+        _F_cuGetProcAddress_v2('cuCtxSynchronize_v2', <void **>&__cuCtxSynchronize_v2, 13010, ptds_mode, NULL)
 
         global __cuMemcpyBatchAsync_v2
-        __cuMemcpyBatchAsync_v2 = GetProcAddress(handle, 'cuMemcpyBatchAsync_v2')
+        _F_cuGetProcAddress_v2('cuMemcpyBatchAsync', <void **>&__cuMemcpyBatchAsync_v2, 13010, ptds_mode, NULL)
 
         global __cuMemcpy3DBatchAsync_v2
-        __cuMemcpy3DBatchAsync_v2 = GetProcAddress(handle, 'cuMemcpy3DBatchAsync_v2')
+        _F_cuGetProcAddress_v2('cuMemcpy3DBatchAsync', <void **>&__cuMemcpy3DBatchAsync_v2, 13010, ptds_mode, NULL)
 
         global __cuMemGetDefaultMemPool
-        __cuMemGetDefaultMemPool = GetProcAddress(handle, 'cuMemGetDefaultMemPool')
+        _F_cuGetProcAddress_v2('cuMemGetDefaultMemPool', <void **>&__cuMemGetDefaultMemPool, 13010, ptds_mode, NULL)
 
         global __cuMemGetMemPool
-        __cuMemGetMemPool = GetProcAddress(handle, 'cuMemGetMemPool')
+        _F_cuGetProcAddress_v2('cuMemGetMemPool', <void **>&__cuMemGetMemPool, 13010, ptds_mode, NULL)
 
         global __cuMemSetMemPool
-        __cuMemSetMemPool = GetProcAddress(handle, 'cuMemSetMemPool')
+        _F_cuGetProcAddress_v2('cuMemSetMemPool', <void **>&__cuMemSetMemPool, 13010, ptds_mode, NULL)
 
         global __cuMulticastBindMem_v2
-        __cuMulticastBindMem_v2 = GetProcAddress(handle, 'cuMulticastBindMem_v2')
+        _F_cuGetProcAddress_v2('cuMulticastBindMem_v2', <void **>&__cuMulticastBindMem_v2, 13010, ptds_mode, NULL)
 
         global __cuMulticastBindAddr_v2
-        __cuMulticastBindAddr_v2 = GetProcAddress(handle, 'cuMulticastBindAddr_v2')
+        _F_cuGetProcAddress_v2('cuMulticastBindAddr_v2', <void **>&__cuMulticastBindAddr_v2, 13010, ptds_mode, NULL)
 
         global __cuMemPrefetchBatchAsync
-        __cuMemPrefetchBatchAsync = GetProcAddress(handle, 'cuMemPrefetchBatchAsync')
+        _F_cuGetProcAddress_v2('cuMemPrefetchBatchAsync', <void **>&__cuMemPrefetchBatchAsync, 13010, ptds_mode, NULL)
 
         global __cuMemDiscardBatchAsync
-        __cuMemDiscardBatchAsync = GetProcAddress(handle, 'cuMemDiscardBatchAsync')
+        _F_cuGetProcAddress_v2('cuMemDiscardBatchAsync', <void **>&__cuMemDiscardBatchAsync, 13010, ptds_mode, NULL)
 
         global __cuMemDiscardAndPrefetchBatchAsync
-        __cuMemDiscardAndPrefetchBatchAsync = GetProcAddress(handle, 'cuMemDiscardAndPrefetchBatchAsync')
+        _F_cuGetProcAddress_v2('cuMemDiscardAndPrefetchBatchAsync', <void **>&__cuMemDiscardAndPrefetchBatchAsync, 13010, ptds_mode, NULL)
 
         global __cuGraphNodeGetContainingGraph
-        __cuGraphNodeGetContainingGraph = GetProcAddress(handle, 'cuGraphNodeGetContainingGraph')
+        _F_cuGetProcAddress_v2('cuGraphNodeGetContainingGraph', <void **>&__cuGraphNodeGetContainingGraph, 13010, ptds_mode, NULL)
 
         global __cuGraphNodeGetLocalId
-        __cuGraphNodeGetLocalId = GetProcAddress(handle, 'cuGraphNodeGetLocalId')
+        _F_cuGetProcAddress_v2('cuGraphNodeGetLocalId', <void **>&__cuGraphNodeGetLocalId, 13010, ptds_mode, NULL)
 
         global __cuGraphNodeGetToolsId
-        __cuGraphNodeGetToolsId = GetProcAddress(handle, 'cuGraphNodeGetToolsId')
+        _F_cuGetProcAddress_v2('cuGraphNodeGetToolsId', <void **>&__cuGraphNodeGetToolsId, 13010, ptds_mode, NULL)
 
         global __cuGraphGetId
-        __cuGraphGetId = GetProcAddress(handle, 'cuGraphGetId')
+        _F_cuGetProcAddress_v2('cuGraphGetId', <void **>&__cuGraphGetId, 13010, ptds_mode, NULL)
 
         global __cuGraphExecGetId
-        __cuGraphExecGetId = GetProcAddress(handle, 'cuGraphExecGetId')
+        _F_cuGetProcAddress_v2('cuGraphExecGetId', <void **>&__cuGraphExecGetId, 13010, ptds_mode, NULL)
 
         global __cuDeviceGetP2PAtomicCapabilities
-        __cuDeviceGetP2PAtomicCapabilities = GetProcAddress(handle, 'cuDeviceGetP2PAtomicCapabilities')
+        _F_cuGetProcAddress_v2('cuDeviceGetP2PAtomicCapabilities', <void **>&__cuDeviceGetP2PAtomicCapabilities, 13010, ptds_mode, NULL)
 
         global __cuDevSmResourceSplit
-        __cuDevSmResourceSplit = GetProcAddress(handle, 'cuDevSmResourceSplit')
+        _F_cuGetProcAddress_v2('cuDevSmResourceSplit', <void **>&__cuDevSmResourceSplit, 13010, ptds_mode, NULL)
 
         global __cuGreenCtxGetId
-        __cuGreenCtxGetId = GetProcAddress(handle, 'cuGreenCtxGetId')
+        _F_cuGetProcAddress_v2('cuGreenCtxGetId', <void **>&__cuGreenCtxGetId, 13010, ptds_mode, NULL)
 
         global __cuStreamGetDevResource
-        __cuStreamGetDevResource = GetProcAddress(handle, 'cuStreamGetDevResource')
+        _F_cuGetProcAddress_v2('cuStreamGetDevResource', <void **>&__cuStreamGetDevResource, 13010, ptds_mode, NULL)
 
         global __cuKernelGetParamCount
-        __cuKernelGetParamCount = GetProcAddress(handle, 'cuKernelGetParamCount')
+        _F_cuGetProcAddress_v2('cuKernelGetParamCount', <void **>&__cuKernelGetParamCount, 13020, ptds_mode, NULL)
 
         global __cuMemcpyWithAttributesAsync
-        __cuMemcpyWithAttributesAsync = GetProcAddress(handle, 'cuMemcpyWithAttributesAsync')
+        _F_cuGetProcAddress_v2('cuMemcpyWithAttributesAsync', <void **>&__cuMemcpyWithAttributesAsync, 13020, ptds_mode, NULL)
 
         global __cuMemcpy3DWithAttributesAsync
-        __cuMemcpy3DWithAttributesAsync = GetProcAddress(handle, 'cuMemcpy3DWithAttributesAsync')
+        _F_cuGetProcAddress_v2('cuMemcpy3DWithAttributesAsync', <void **>&__cuMemcpy3DWithAttributesAsync, 13020, ptds_mode, NULL)
 
         global __cuStreamBeginCaptureToCig
-        __cuStreamBeginCaptureToCig = GetProcAddress(handle, 'cuStreamBeginCaptureToCig')
+        _F_cuGetProcAddress_v2('cuStreamBeginCaptureToCig', <void **>&__cuStreamBeginCaptureToCig, 13020, ptds_mode, NULL)
 
         global __cuStreamEndCaptureToCig
-        __cuStreamEndCaptureToCig = GetProcAddress(handle, 'cuStreamEndCaptureToCig')
+        _F_cuGetProcAddress_v2('cuStreamEndCaptureToCig', <void **>&__cuStreamEndCaptureToCig, 13020, ptds_mode, NULL)
 
         global __cuFuncGetParamCount
-        __cuFuncGetParamCount = GetProcAddress(handle, 'cuFuncGetParamCount')
+        _F_cuGetProcAddress_v2('cuFuncGetParamCount', <void **>&__cuFuncGetParamCount, 13020, ptds_mode, NULL)
 
         global __cuLaunchHostFunc_v2
-        __cuLaunchHostFunc_v2 = GetProcAddress(handle, 'cuLaunchHostFunc_v2')
+        _F_cuGetProcAddress_v2('cuLaunchHostFunc_v2', <void **>&__cuLaunchHostFunc_v2, 13020, ptds_mode, NULL)
 
         global __cuGraphNodeGetParams
-        __cuGraphNodeGetParams = GetProcAddress(handle, 'cuGraphNodeGetParams')
+        _F_cuGetProcAddress_v2('cuGraphNodeGetParams', <void **>&__cuGraphNodeGetParams, 13020, ptds_mode, NULL)
 
         global __cuCoredumpRegisterStartCallback
-        __cuCoredumpRegisterStartCallback = GetProcAddress(handle, 'cuCoredumpRegisterStartCallback')
+        _F_cuGetProcAddress_v2('cuCoredumpRegisterStartCallback', <void **>&__cuCoredumpRegisterStartCallback, 13020, ptds_mode, NULL)
 
         global __cuCoredumpRegisterCompleteCallback
-        __cuCoredumpRegisterCompleteCallback = GetProcAddress(handle, 'cuCoredumpRegisterCompleteCallback')
+        _F_cuGetProcAddress_v2('cuCoredumpRegisterCompleteCallback', <void **>&__cuCoredumpRegisterCompleteCallback, 13020, ptds_mode, NULL)
 
         global __cuCoredumpDeregisterStartCallback
-        __cuCoredumpDeregisterStartCallback = GetProcAddress(handle, 'cuCoredumpDeregisterStartCallback')
+        _F_cuGetProcAddress_v2('cuCoredumpDeregisterStartCallback', <void **>&__cuCoredumpDeregisterStartCallback, 13020, ptds_mode, NULL)
 
         global __cuCoredumpDeregisterCompleteCallback
-        __cuCoredumpDeregisterCompleteCallback = GetProcAddress(handle, 'cuCoredumpDeregisterCompleteCallback')
+        _F_cuGetProcAddress_v2('cuCoredumpDeregisterCompleteCallback', <void **>&__cuCoredumpDeregisterCompleteCallback, 13020, ptds_mode, NULL)
 
         __py_driver_init = True
         return 0
