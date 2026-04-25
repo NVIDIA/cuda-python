@@ -73,6 +73,17 @@ def test_query_driver_cuda_version_returns_parsed_dataclass(monkeypatch):
     )
 
 
+def test_driver_cuda_version_from_encoded_returns_subclass_instance():
+    version = driver_info.DriverCudaVersion.from_encoded(12080)
+
+    assert version == driver_info.DriverCudaVersion(
+        encoded=12080,
+        major=12,
+        minor=8,
+    )
+    assert type(version) is driver_info.DriverCudaVersion
+
+
 def test_query_driver_cuda_version_wraps_internal_failures(monkeypatch):
     root_cause = RuntimeError("low-level query failed")
 
