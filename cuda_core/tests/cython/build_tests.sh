@@ -15,4 +15,11 @@ else
   exit 1
 fi
 
-python "${SCRIPTPATH}/build_tests.py"
+# pixi-build's editable install exposes the cuda namespace package via a
+# finder hook that Cython's filesystem .pxd resolver does not consult.
+# Surface the package's parent directory on PYTHONPATH so `cimport
+# cuda.bindings.*` can locate the .pxd files.
+CUDA_PKG_PARENT=$(python -c "import cuda.bindings as m, os; print(os.path.dirname(os.path.dirname(os.path.dirname(m.__file__))))")
+export PYTHONPATH="${CUDA_PKG_PARENT}${PYTHONPATH:+:${PYTHONPATH}}"
+
+cythonize -3 -i -Xfreethreading_compatible=True ${SCRIPTPATH}/test_*.pyx
