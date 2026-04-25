@@ -459,7 +459,8 @@ class CompatibilityGuardRails:
             return
         raise CompatibilityInsufficientMetadataError(
             "v1 compatibility checks only give definitive answers for "
-            f"packaged_with='ctk' items. {item.describe()} is packaged_with={item.packaged_with!r}."
+            f"packaged_with='ctk' items, plus compatibility-neutral driver libraries. "
+            f"{item.describe()} is packaged_with={item.packaged_with!r}."
         )
 
     def _enforce_ctk_metadata(self, item: ResolvedItem) -> None:
@@ -485,9 +486,10 @@ class CompatibilityGuardRails:
             )
 
     def _anchor_item(self) -> ResolvedItem | None:
-        if not self._resolved_items:
-            return None
-        return self._resolved_items[0]
+        for item in self._resolved_items:
+            if item.packaged_with == "ctk":
+                return item
+        return None
 
     def _remember(self, item: ResolvedItem) -> None:
         if item not in self._resolved_items:
@@ -498,6 +500,12 @@ class CompatibilityGuardRails:
         self._resolved_items.clear()
 
     def _register_and_check(self, item: ResolvedItem) -> None:
+        # Driver libraries come from the installed display driver rather than a
+        # CUDA Toolkit line, so they do not need CTK metadata and must not lock
+        # the process-wide CTK anchor.
+        if item.packaged_with == "driver":
+            self._remember(item)
+            return
         self._enforce_supported_packaging(item)
         self._enforce_ctk_metadata(item)
         self._enforce_constraints(item)

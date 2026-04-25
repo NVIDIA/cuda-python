@@ -174,6 +174,30 @@ def test_public_apis_route_through_process_wide_guard_rails(
     assert fake_guard_rails.calls == [(guard_rails_method_name, args)]
 
 
+def test_public_driver_libs_are_allowed_in_strict_mode(monkeypatch, tmp_path):
+    driver_lib_path = _touch(tmp_path / "driver-root" / "libnvidia-ml.so.1")
+
+    monkeypatch.setattr(
+        compatibility_module,
+        "_load_nvidia_dynamic_lib",
+        lambda _libname: _loaded_dl(driver_lib_path, found_via="system-search"),
+    )
+    monkeypatch.setattr(
+        pathfinder,
+        "process_wide_compatibility_guard_rails",
+        CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000)),
+    )
+
+    def fail_raw_fallback(_libname: str) -> LoadedDL:
+        pytest.fail("strict mode must not fall back to raw loading")
+
+    monkeypatch.setattr(process_wide_module, "_load_nvidia_dynamic_lib", fail_raw_fallback)
+
+    loaded = pathfinder.load_nvidia_dynamic_lib("nvml")
+
+    assert loaded.abs_path == driver_lib_path
+
+
 @pytest.mark.parametrize("env_value", [None, ""])
 def test_public_apis_default_to_strict_when_env_var_is_unset_or_empty(monkeypatch, tmp_path, env_value):
     lib_path = _touch(tmp_path / "no-version-json" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
@@ -358,6 +382,63 @@ def test_other_packaging_raises_insufficient_metadata(monkeypatch, tmp_path):
 
     with pytest.raises(CompatibilityInsufficientMetadataError, match="packaged_with='ctk'"):
         guard_rails.find_bitcode_lib("nvshmem_device")
+
+
+def test_driver_libs_do_not_lock_ctk_anchor(monkeypatch, tmp_path):
+    driver_lib_path = _touch(tmp_path / "driver-root" / "libnvidia-ml.so.1")
+    ctk_root = tmp_path / "cuda-12.9"
+    _write_version_json(ctk_root, "12.9.20250531")
+    ctk_lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+
+    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
+        if libname == "nvml":
+            return _loaded_dl(driver_lib_path, found_via="system-search")
+        if libname == "nvrtc":
+            return _loaded_dl(ctk_lib_path)
+        raise AssertionError(f"Unexpected libname: {libname!r}")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+
+    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
+
+    driver_loaded = guard_rails.load_nvidia_dynamic_lib("nvml")
+    ctk_loaded = guard_rails.load_nvidia_dynamic_lib("nvrtc")
+
+    assert driver_loaded.abs_path == driver_lib_path
+    assert ctk_loaded.abs_path == ctk_lib_path
+
+
+def test_driver_libs_do_not_mask_later_ctk_mismatch(monkeypatch, tmp_path):
+    driver_lib_path = _touch(tmp_path / "driver-root" / "libnvidia-ml.so.1")
+    lib_root = tmp_path / "cuda-12.8"
+    hdr_root = tmp_path / "cuda-12.9"
+    _write_version_json(lib_root, "12.8.20250303")
+    _write_version_json(hdr_root, "12.9.20250531")
+
+    lib_path = _touch(lib_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    hdr_dir = hdr_root / "targets" / "x86_64-linux" / "include"
+    _touch(hdr_dir / "nvrtc.h")
+
+    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
+        if libname == "nvml":
+            return _loaded_dl(driver_lib_path, found_via="system-search")
+        if libname == "nvrtc":
+            return _loaded_dl(lib_path)
+        raise AssertionError(f"Unexpected libname: {libname!r}")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+    monkeypatch.setattr(
+        compatibility_module,
+        "_locate_nvidia_header_directory",
+        lambda _libname: LocatedHeaderDir(abs_path=str(hdr_dir), found_via="CUDA_PATH"),
+    )
+
+    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
+    guard_rails.load_nvidia_dynamic_lib("nvml")
+    guard_rails.load_nvidia_dynamic_lib("nvrtc")
+
+    with pytest.raises(CompatibilityCheckError, match="exact CTK major.minor match"):
+        guard_rails.find_nvidia_header_directory("nvrtc")
 
 
 def test_constraints_accept_string_and_tuple_forms(monkeypatch, tmp_path):
