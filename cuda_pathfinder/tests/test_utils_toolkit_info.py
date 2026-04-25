@@ -13,6 +13,39 @@ def _clear_cuda_header_version_cache():
     toolkit_info.read_cuda_header_version.cache_clear()
 
 
+def test_encoded_cuda_version_from_encoded_decodes_major_minor():
+    assert toolkit_info.EncodedCudaVersion.from_encoded(13020) == toolkit_info.EncodedCudaVersion(
+        encoded=13020,
+        major=13,
+        minor=2,
+    )
+
+
+def test_encoded_cuda_version_from_encoded_accepts_decimal_string():
+    assert toolkit_info.EncodedCudaVersion.from_encoded("13020") == toolkit_info.EncodedCudaVersion(
+        encoded=13020,
+        major=13,
+        minor=2,
+    )
+
+
+def test_encoded_cuda_version_from_encoded_raises_helpful_error_for_invalid_string():
+    with pytest.raises(
+        ValueError,
+        match=r"EncodedCudaVersion\.from_encoded\(\) expected an integer or decimal string, got '13\.2'",
+    ):
+        toolkit_info.EncodedCudaVersion.from_encoded("13.2")
+
+
+@pytest.mark.parametrize("encoded", [-1, "-1"])
+def test_encoded_cuda_version_from_encoded_rejects_negative_values(encoded):
+    with pytest.raises(
+        ValueError,
+        match=r"EncodedCudaVersion\.from_encoded\(\) expected a non-negative encoded CUDA version, got -1",
+    ):
+        toolkit_info.EncodedCudaVersion.from_encoded(encoded)
+
+
 def test_parse_cuda_header_version_returns_parsed_dataclass():
     header_text = """
     #ifndef CUDA_H
@@ -26,6 +59,17 @@ def test_parse_cuda_header_version_returns_parsed_dataclass():
         major=13,
         minor=2,
     )
+
+
+def test_cuda_toolkit_version_from_encoded_returns_subclass_instance():
+    version = toolkit_info.CudaToolkitVersion.from_encoded(12090)
+
+    assert version == toolkit_info.CudaToolkitVersion(
+        encoded=12090,
+        major=12,
+        minor=9,
+    )
+    assert type(version) is toolkit_info.CudaToolkitVersion
 
 
 def test_parse_cuda_header_version_returns_none_when_macro_is_missing():

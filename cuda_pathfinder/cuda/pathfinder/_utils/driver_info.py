@@ -7,11 +7,13 @@ import ctypes
 import functools
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import cast
 
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     load_nvidia_dynamic_lib as _load_nvidia_dynamic_lib,
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.toolkit_info import EncodedCudaVersion
 
 
 class QueryDriverCudaVersionError(RuntimeError):
@@ -19,7 +21,7 @@ class QueryDriverCudaVersionError(RuntimeError):
 
 
 @dataclass(frozen=True, slots=True)
-class DriverCudaVersion:
+class DriverCudaVersion(EncodedCudaVersion):
     """
     CUDA-facing driver version reported by ``cuDriverGetVersion()``.
 
@@ -41,21 +43,13 @@ class DriverCudaVersion:
     to ``Driver Version: 595.58.03``.
     """
 
-    encoded: int
-    major: int
-    minor: int
-
 
 @functools.cache
 def query_driver_cuda_version() -> DriverCudaVersion:
     """Return the CUDA driver version parsed into its major/minor components."""
     try:
         encoded = _query_driver_cuda_version_int()
-        return DriverCudaVersion(
-            encoded=encoded,
-            major=encoded // 1000,
-            minor=(encoded % 1000) // 10,
-        )
+        return cast(DriverCudaVersion, DriverCudaVersion.from_encoded(encoded))
     except Exception as exc:
         raise QueryDriverCudaVersionError("Failed to query the CUDA driver version.") from exc
 
