@@ -581,6 +581,11 @@ cdef void* __cuCoredumpDeregisterStartCallback = NULL
 cdef void* __cuCoredumpDeregisterCompleteCallback = NULL
 
 
+cdef void* load_library() except* with gil:
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("cuda")._handle_uint
+    return <void*>handle
+
+
 ctypedef CUresult (*__cuGetProcAddress_v2_T)(const char*, void**, int, cuuint64_t, CUdriverProcAddressQueryResult*) except?CUDA_ERROR_NOT_FOUND nogil
 cdef __cuGetProcAddress_v2_T _F_cuGetProcAddress_v2 = NULL
 
@@ -597,11 +602,13 @@ cdef int _init_driver() except -1 nogil:
             return 0
 
         # Load library
-        handle = load_nvidia_dynamic_lib("cuda")._handle_uint
+        handle = load_library()
+        if handle == NULL:
+            raise RuntimeError('Failed to open cuda')
 
         # Get latest __cuGetProcAddress_v2
         global __cuGetProcAddress_v2
-        __cuGetProcAddress_v2 = windll.GetProcAddress(handle, 'cuGetProcAddress_v2')
+        __cuGetProcAddress_v2 = GetProcAddress(handle, 'cuGetProcAddress_v2')
         if __cuGetProcAddress_v2 == NULL:
             raise RuntimeError("Failed to get __cuGetProcAddress_v2")
         _F_cuGetProcAddress_v2 = <__cuGetProcAddress_v2_T>__cuGetProcAddress_v2
