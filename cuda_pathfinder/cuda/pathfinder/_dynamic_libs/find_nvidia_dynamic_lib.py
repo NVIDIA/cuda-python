@@ -79,12 +79,13 @@ def find_nvidia_dynamic_lib(libname: str) -> str:
         error_label=f"find_nvidia_dynamic_lib subprocess for {libname!r}",
     )
     if payload.status == STATUS_OK:
-        assert payload.abs_path is not None
-        return payload.abs_path
+        abs_path: str | None = payload.abs_path
+        assert abs_path is not None
+        return abs_path
 
-    message = (
-        payload.error["message"]
-        if payload.error and "message" in payload.error
-        else f"find_nvidia_dynamic_lib could not locate {libname!r}"
-    )
+    error = payload.error
+    if error is not None and "message" in error:
+        message = error["message"]
+    else:
+        message = f"find_nvidia_dynamic_lib could not locate {libname!r}"
     raise DynamicLibNotFoundError(message)

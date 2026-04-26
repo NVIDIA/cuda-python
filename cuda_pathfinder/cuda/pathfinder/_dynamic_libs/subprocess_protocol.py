@@ -128,9 +128,7 @@ def run_dynamic_lib_subprocess(
             cwd=DYNAMIC_LIB_SUBPROCESS_CWD,
         )
     except subprocess.TimeoutExpired as exc:
-        raise_subprocess_child_process_error(
-            error_label, timeout=exc.timeout, stdout=exc.stdout, stderr=exc.stderr
-        )
+        raise_subprocess_child_process_error(error_label, timeout=exc.timeout, stdout=exc.stdout, stderr=exc.stderr)
 
     if result.returncode != 0:
         raise_subprocess_child_process_error(

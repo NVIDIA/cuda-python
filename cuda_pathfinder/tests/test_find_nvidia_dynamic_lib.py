@@ -32,9 +32,7 @@ def test_unknown_libname_raises_dynamic_lib_unknown_error():
 
 def test_known_but_platform_unavailable_libname_raises_dynamic_lib_not_available_error(monkeypatch):
     find_nvidia_dynamic_lib.cache_clear()
-    monkeypatch.setattr(
-        load_nvidia_dynamic_lib_module, "_ALL_KNOWN_LIBNAMES", frozenset(("known_but_unavailable",))
-    )
+    monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_ALL_KNOWN_LIBNAMES", frozenset(("known_but_unavailable",)))
     monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_ALL_SUPPORTED_LIBNAMES", frozenset())
     monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_PLATFORM_NAME", "TestOS")
     with pytest.raises(
@@ -47,9 +45,7 @@ def test_known_but_platform_unavailable_libname_raises_dynamic_lib_not_available
 def _is_expected_find_failure(libname: str) -> bool:
     # Mirror load-side strictness: libnames known to fail loading on this
     # platform are also allowed to fail finding.
-    if libname == "nvpl_fftw" and platform.machine().lower() != "aarch64":
-        return True
-    return False
+    return libname == "nvpl_fftw" and platform.machine().lower() != "aarch64"
 
 
 @pytest.mark.parametrize(
