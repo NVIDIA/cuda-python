@@ -198,12 +198,10 @@ def find_via_path_override(ctx: SearchContext) -> FindResult | None:
         err = ", ".join(ctx.error_messages) or f"no matching file under {override!r}"
         att = "\n".join(ctx.attachments)
         raise DynamicLibNotFoundError(
-            f'{env_var}={override!r} is set but {ctx.lib_searched_for!r} was not found there: {err}\n{att}'
+            f"{env_var}={override!r} is set but {ctx.lib_searched_for!r} was not found there: {err}\n{att}"
         )
 
-    raise DynamicLibNotFoundError(
-        f'{env_var}={override!r} is set but the path does not exist as a file or directory.'
-    )
+    raise DynamicLibNotFoundError(f"{env_var}={override!r} is set but the path does not exist as a file or directory.")
 
 
 def find_in_site_packages(ctx: SearchContext) -> FindResult | None:
