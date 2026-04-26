@@ -13,6 +13,7 @@ from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.platform_loader import LOADER
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     MODE_CANARY,
+    MODE_FIND,
     MODE_LOAD,
     STATUS_NOT_FOUND,
     STATUS_OK,
@@ -20,12 +21,9 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     format_dynamic_lib_subprocess_payload,
 )
 
-# NOTE: The main entrypoint (below) serves both production (canary probe)
-# and tests (full loader). Keeping them together ensures a single subprocess
-# protocol and CLI surface, so the test subprocess stays aligned with the
-# production flow while avoiding a separate test-only module.
-# Any production-code impact is negligible since the extra logic only runs
-# in the subprocess entrypoint and only in test mode.
+# The main entrypoint serves three modes — canary probe, find-without-load,
+# and (test-only) full-loader exercise — behind a single subprocess protocol
+# so test and production flows stay aligned.
 
 
 def _probe_canary_abs_path(libname: str) -> str | None:
@@ -92,6 +90,22 @@ def probe_dynamic_lib_and_print_json(libname: str, mode: str) -> None:
         abs_path = _probe_canary_abs_path(libname)
         status = STATUS_OK if abs_path is not None else STATUS_NOT_FOUND
         print(format_dynamic_lib_subprocess_payload(status, abs_path))
+        return
+
+    if mode == MODE_FIND:
+        from cuda.pathfinder import load_nvidia_dynamic_lib
+
+        try:
+            loaded = load_nvidia_dynamic_lib(libname)
+        except DynamicLibNotFoundError as exc:
+            error = {"type": exc.__class__.__name__, "message": str(exc)}
+            print(format_dynamic_lib_subprocess_payload(STATUS_NOT_FOUND, None, error=error))
+            return
+        abs_path = loaded.abs_path
+        if not isinstance(abs_path, str):
+            raise RuntimeError(f"loaded.abs_path is not a string: {abs_path!r}")
+        _validate_abs_path(abs_path)
+        print(format_dynamic_lib_subprocess_payload(STATUS_OK, abs_path))
         return
 
     if mode == MODE_LOAD:

@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import functools
 import struct
-import subprocess
 import sys
 from typing import TYPE_CHECKING
 
@@ -27,12 +26,9 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     run_find_steps,
 )
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
-    DYNAMIC_LIB_SUBPROCESS_CWD,
     MODE_CANARY,
     STATUS_OK,
-    DynamicLibSubprocessPayload,
-    build_dynamic_lib_subprocess_command,
-    parse_dynamic_lib_subprocess_payload,
+    run_dynamic_lib_subprocess,
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
@@ -74,30 +70,6 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     )
 
 
-def _coerce_subprocess_output(output: str | bytes | None) -> str:
-    if isinstance(output, bytes):
-        return output.decode(errors="replace")
-    return "" if output is None else output
-
-
-def _raise_canary_probe_child_process_error(
-    *,
-    returncode: int | None = None,
-    timeout: float | None = None,
-    stderr: str | bytes | None = None,
-) -> None:
-    if timeout is None:
-        error_line = f"Canary probe child process exited with code {returncode}."
-    else:
-        error_line = f"Canary probe child process timed out after {timeout} seconds."
-    raise ChildProcessError(
-        f"{error_line}\n"
-        "--- stderr-from-child-process ---\n"
-        f"{_coerce_subprocess_output(stderr)}"
-        "<end-of-stderr-from-child-process>\n"
-    )
-
-
 @functools.cache
 def _resolve_system_loaded_abs_path_in_subprocess(
     libname: str,
@@ -105,30 +77,10 @@ def _resolve_system_loaded_abs_path_in_subprocess(
     timeout: float = _CANARY_PROBE_TIMEOUT_SECONDS,
 ) -> str | None:
     """Resolve a canary library's absolute path in a fresh Python subprocess."""
-    try:
-        result = subprocess.run(  # noqa: S603 - trusted argv: current interpreter + internal probe module
-            build_dynamic_lib_subprocess_command(MODE_CANARY, libname),
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            check=False,
-            cwd=DYNAMIC_LIB_SUBPROCESS_CWD,
-        )
-    except subprocess.TimeoutExpired as exc:
-        _raise_canary_probe_child_process_error(timeout=exc.timeout, stderr=exc.stderr)
-
-    if result.returncode != 0:
-        _raise_canary_probe_child_process_error(returncode=result.returncode, stderr=result.stderr)
-
-    payload: DynamicLibSubprocessPayload = parse_dynamic_lib_subprocess_payload(
-        result.stdout,
-        libname=libname,
-        error_label="Canary probe child process",
+    payload = run_dynamic_lib_subprocess(
+        MODE_CANARY, libname, timeout=timeout, error_label="Canary probe child process"
     )
-    abs_path: str | None = payload.abs_path
-    if payload.status == STATUS_OK:
-        return abs_path
-    return None
+    return payload.abs_path if payload.status == STATUS_OK else None
 
 
 def _loadable_via_canary_subprocess(libname: str, *, timeout: float = _CANARY_PROBE_TIMEOUT_SECONDS) -> bool:

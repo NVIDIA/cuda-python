@@ -18,6 +18,9 @@ from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.load_dl_common import (
     DynamicLibUnknownError as DynamicLibUnknownError,
 )
+from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import (
+    find_nvidia_dynamic_lib as find_nvidia_dynamic_lib,
+)
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL as LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (

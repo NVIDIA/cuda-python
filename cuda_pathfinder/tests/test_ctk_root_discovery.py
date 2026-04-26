@@ -33,6 +33,7 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
+_PROTOCOL_MODULE = "cuda.pathfinder._dynamic_libs.subprocess_protocol"
 _STEPS_MODULE = "cuda.pathfinder._dynamic_libs.search_steps"
 _PACKAGE_ROOT = DYNAMIC_LIB_SUBPROCESS_CWD
 
@@ -201,7 +202,7 @@ def test_subprocess_probe_returns_abs_path_on_string_payload(mocker):
         stdout='{"status": "ok", "abs_path": "/usr/local/cuda/lib64/libcudart.so.13"}\n',
         stderr="",
     )
-    run_mock = mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    run_mock = mocker.patch(f"{_PROTOCOL_MODULE}.subprocess.run", return_value=result)
 
     assert _resolve_system_loaded_abs_path_in_subprocess("cudart") == "/usr/local/cuda/lib64/libcudart.so.13"
     run_mock.assert_called_once_with(
@@ -221,14 +222,14 @@ def test_subprocess_probe_returns_none_on_null_payload(mocker):
         stdout='{"status": "not-found", "abs_path": null}\n',
         stderr="",
     )
-    mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    mocker.patch(f"{_PROTOCOL_MODULE}.subprocess.run", return_value=result)
 
     assert _resolve_system_loaded_abs_path_in_subprocess("cudart") is None
 
 
 def test_subprocess_probe_raises_on_child_failure(mocker):
     result = subprocess.CompletedProcess(args=[], returncode=1, stdout="", stderr="child failed\n")
-    mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    mocker.patch(f"{_PROTOCOL_MODULE}.subprocess.run", return_value=result)
 
     with pytest.raises(ChildProcessError, match="child failed"):
         _resolve_system_loaded_abs_path_in_subprocess("cudart")
@@ -236,7 +237,7 @@ def test_subprocess_probe_raises_on_child_failure(mocker):
 
 def test_subprocess_probe_raises_on_timeout(mocker):
     mocker.patch(
-        f"{_MODULE}.subprocess.run",
+        f"{_PROTOCOL_MODULE}.subprocess.run",
         side_effect=subprocess.TimeoutExpired(cmd=["python"], timeout=10.0, stderr="probe hung\n"),
     )
     with pytest.raises(ChildProcessError, match="timed out after 10.0 seconds"):
@@ -245,7 +246,7 @@ def test_subprocess_probe_raises_on_timeout(mocker):
 
 def test_subprocess_probe_raises_on_empty_stdout(mocker):
     result = subprocess.CompletedProcess(args=[], returncode=0, stdout=" \n \n", stderr="")
-    mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    mocker.patch(f"{_PROTOCOL_MODULE}.subprocess.run", return_value=result)
 
     with pytest.raises(RuntimeError, match="produced no stdout payload"):
         _resolve_system_loaded_abs_path_in_subprocess("cudart")
@@ -253,7 +254,7 @@ def test_subprocess_probe_raises_on_empty_stdout(mocker):
 
 def test_subprocess_probe_raises_on_invalid_json_payload(mocker):
     result = subprocess.CompletedProcess(args=[], returncode=0, stdout="not-json\n", stderr="")
-    mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    mocker.patch(f"{_PROTOCOL_MODULE}.subprocess.run", return_value=result)
 
     with pytest.raises(RuntimeError, match="invalid JSON payload"):
         _resolve_system_loaded_abs_path_in_subprocess("cudart")
@@ -266,7 +267,7 @@ def test_subprocess_probe_raises_on_unexpected_json_payload(mocker):
         stdout='{"path": "/usr/local/cuda/lib64/libcudart.so.13"}\n',
         stderr="",
     )
-    mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    mocker.patch(f"{_PROTOCOL_MODULE}.subprocess.run", return_value=result)
 
     with pytest.raises(RuntimeError, match="unexpected payload"):
         _resolve_system_loaded_abs_path_in_subprocess("cudart")
