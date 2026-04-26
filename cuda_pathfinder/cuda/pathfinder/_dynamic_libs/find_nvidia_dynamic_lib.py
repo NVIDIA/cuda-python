@@ -84,8 +84,5 @@ def find_nvidia_dynamic_lib(libname: str) -> str:
         return abs_path
 
     error = payload.error
-    if error is not None and "message" in error:
-        message = error["message"]
-    else:
-        message = f"find_nvidia_dynamic_lib could not locate {libname!r}"
+    message = error["message"] if error and "message" in error else f"could not locate {libname!r}"
     raise DynamicLibNotFoundError(message)
