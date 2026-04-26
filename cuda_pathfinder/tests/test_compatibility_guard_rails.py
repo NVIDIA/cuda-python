@@ -22,7 +22,17 @@ from cuda.pathfinder import (
     StaticLibNotFoundError,
     process_wide_compatibility_guard_rails,
 )
+from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import _resolve_system_loaded_abs_path_in_subprocess
+from cuda.pathfinder._headers.find_nvidia_headers import (
+    locate_nvidia_header_directory as locate_nvidia_header_directory_raw,
+)
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.driver_info import DriverCudaVersion, QueryDriverCudaVersionError
+from cuda.pathfinder._utils.toolkit_info import read_cuda_header_version
+from local_helpers import (
+    locate_real_cuda_toolkit_version_from_cuda_h,
+    require_real_cuda_toolkit_version_from_cuda_h,
+)
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_COMPATIBILITY_GUARD_RAILS_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -33,6 +43,21 @@ process_wide_module = importlib.import_module("cuda.pathfinder._process_wide_com
 @pytest.fixture(autouse=True)
 def _default_process_wide_guard_rails_mode(monkeypatch):
     monkeypatch.delenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, raising=False)
+
+
+@pytest.fixture
+def clear_real_cuda_h_probe_caches():
+    locate_real_cuda_toolkit_version_from_cuda_h.cache_clear()
+    locate_nvidia_header_directory_raw.cache_clear()
+    _resolve_system_loaded_abs_path_in_subprocess.cache_clear()
+    get_cuda_path_or_home.cache_clear()
+    read_cuda_header_version.cache_clear()
+    yield
+    locate_real_cuda_toolkit_version_from_cuda_h.cache_clear()
+    locate_nvidia_header_directory_raw.cache_clear()
+    _resolve_system_loaded_abs_path_in_subprocess.cache_clear()
+    get_cuda_path_or_home.cache_clear()
+    read_cuda_header_version.cache_clear()
 
 
 def _write_cuda_h(
@@ -653,10 +678,16 @@ def test_find_nvidia_header_directory_returns_none_when_unresolved(monkeypatch):
     assert guard_rails.find_nvidia_header_directory("nvrtc") is None
 
 
+@pytest.mark.usefixtures("clear_real_cuda_h_probe_caches")
 def test_real_wheel_ctk_items_are_compatible(info_summary_append):
+    real_ctk = require_real_cuda_toolkit_version_from_cuda_h()
+    info_summary_append(
+        f"real cuda.h CTK version={real_ctk.version.major}.{real_ctk.version.minor} "
+        f"via {real_ctk.found_via} at {real_ctk.cuda_h_path!r}"
+    )
     guard_rails = CompatibilityGuardRails(
-        ctk_major=13,
-        ctk_minor=2,
+        ctk_major=real_ctk.version.major,
+        ctk_minor=real_ctk.version.minor,
         driver_cuda_version=_driver_cuda_version(13000),
     )
 
@@ -691,10 +722,16 @@ def test_real_wheel_ctk_items_are_compatible(info_summary_append):
         _assert_real_ctk_backed_path(path)
 
 
+@pytest.mark.usefixtures("clear_real_cuda_h_probe_caches")
 def test_real_wheel_component_version_does_not_override_ctk_line(info_summary_append):
+    real_ctk = require_real_cuda_toolkit_version_from_cuda_h()
+    info_summary_append(
+        f"real cuda.h CTK version={real_ctk.version.major}.{real_ctk.version.minor} "
+        f"via {real_ctk.found_via} at {real_ctk.cuda_h_path!r}"
+    )
     guard_rails = CompatibilityGuardRails(
-        ctk_major=13,
-        ctk_minor=2,
+        ctk_major=real_ctk.version.major,
+        ctk_minor=real_ctk.version.minor,
         driver_cuda_version=_driver_cuda_version(13000),
     )
 
