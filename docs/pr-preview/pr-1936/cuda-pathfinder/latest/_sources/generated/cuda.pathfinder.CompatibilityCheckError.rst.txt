@@ -1,6 +1,0 @@
-﻿cuda.pathfinder.CompatibilityCheckError
-=======================================
-
-.. currentmodule:: cuda.pathfinder
-
-.. autoexception:: CompatibilityCheckError
