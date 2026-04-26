@@ -24,6 +24,7 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     SearchContext,
     derive_ctk_root,
     find_via_ctk_root,
+    find_via_path_override,
     run_find_steps,
 )
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
@@ -60,8 +61,13 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     Driver libs (libcuda, libnvidia-ml) are part of the display driver, not
     the CUDA Toolkit. They are expected to be discoverable via the platform's
     native loader mechanisms, so the full CTK search cascade (site-packages,
-    conda, CUDA_PATH, canary) is unnecessary.
+    conda, CUDA_PATH, canary) is unnecessary. The per-library override env
+    var is still honored so developers can point at a custom build.
     """
+    override_ctx = SearchContext(desc)
+    override_find = find_via_path_override(override_ctx)
+    if override_find is not None:
+        return LOADER.load_with_abs_path(desc, override_find.abs_path, override_find.found_via)
     loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, False)
     if loaded is not None:
         return loaded
@@ -221,23 +227,37 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         RuntimeError: If Python is not 64-bit.
 
     Search order:
-        0. **Already loaded in the current process**
+        0. **Per-library path override (developer escape hatch)**
+
+           - If ``CUDA_PATHFINDER_<LIBNAME_UPPER>_PATH_OVERRIDE`` is set, it
+             takes precedence over every other source. The value may be either
+             an absolute path to the library file or a directory containing it
+             (searched with the same logic as other anchor-based steps). For
+             ``libname="nvshmem_host"`` the variable is
+             ``CUDA_PATHFINDER_NVSHMEM_HOST_PATH_OVERRIDE``.
+
+             If the override is set but the library cannot be resolved from
+             it, the load fails immediately rather than silently falling
+             through. This makes the override behavior explicit and easy to
+             debug.
+
+        1. **Already loaded in the current process**
 
            - If a matching library is already loaded by some other component,
              return its absolute path and handle and skip the rest of the search.
 
-        1. **NVIDIA Python wheels**
+        2. **NVIDIA Python wheels**
 
            - Scan installed distributions (``site-packages``) to find libraries
              shipped in NVIDIA wheels.
 
-        2. **Conda environment**
+        3. **Conda environment**
 
            - Conda installations are discovered via ``CONDA_PREFIX``, which is
              defined automatically in activated conda environments (see
              https://docs.conda.io/projects/conda-build/en/stable/user-guide/environment-variables.html).
 
-        3. **OS default mechanisms**
+        4. **OS default mechanisms**
 
            - Fall back to the native loader:
 
@@ -253,21 +273,21 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
              As a result, the native DLL search used here does **not** include
              the system ``PATH``.
 
-        4. **Environment variables**
+        5. **Environment variables**
 
            - If set, use ``CUDA_PATH`` or ``CUDA_HOME`` (in that order).
              On Windows, this is the typical way system-installed CTK DLLs are
              located. Note that the NVIDIA CTK installer automatically
              adds ``CUDA_PATH`` to the system-wide environment.
 
-        5. **CTK root canary probe (discoverable libs only)**
+        6. **CTK root canary probe (discoverable libs only)**
 
            - For selected libraries whose shared object doesn't reside on the
              standard linker path (currently ``nvvm``), attempt to derive CTK
              root by system-loading a well-known CTK canary library in a
              subprocess and then searching relative to that root. On Windows,
              the canary uses the same native ``LoadLibraryExW`` semantics as
-             step 3, so there is also no ``PATH``-based discovery.
+             step 4, so there is also no ``PATH``-based discovery.
 
     **Driver libraries** (``"cuda"``, ``"nvml"``):
 
@@ -275,8 +295,9 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         are expected to be reachable via the native OS loader path. For these
         libraries the search is simplified to:
 
-        0. Already loaded in the current process
-        1. OS default mechanisms (``dlopen`` / ``LoadLibraryExW``)
+        0. Per-library path override (``CUDA_PATHFINDER_<LIBNAME>_PATH_OVERRIDE``)
+        1. Already loaded in the current process
+        2. OS default mechanisms (``dlopen`` / ``LoadLibraryExW``)
 
         The CTK-specific steps (site-packages, conda, ``CUDA_PATH``, canary
         probe) are skipped entirely.

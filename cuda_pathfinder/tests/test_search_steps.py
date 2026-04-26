@@ -21,6 +21,8 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     find_in_conda,
     find_in_cuda_path,
     find_in_site_packages,
+    find_via_path_override,
+    path_override_env_var,
     run_find_steps,
 )
 
@@ -440,3 +442,67 @@ class TestAnchorRelDirs:
         assert result is not None
         assert result.abs_path == str(so_file)
         assert result.found_via == "CUDA_PATH"
+
+
+# ---------------------------------------------------------------------------
+# find_via_path_override
+# ---------------------------------------------------------------------------
+
+
+class TestPathOverrideEnvVar:
+    def test_uppercases_libname(self):
+        assert path_override_env_var("cudart") == "CUDA_PATHFINDER_CUDART_PATH_OVERRIDE"
+
+    def test_preserves_underscore(self):
+        assert path_override_env_var("nvshmem_host") == "CUDA_PATHFINDER_NVSHMEM_HOST_PATH_OVERRIDE"
+
+    def test_uppercases_mixed_case(self):
+        assert path_override_env_var("cublasLt") == "CUDA_PATHFINDER_CUBLASLT_PATH_OVERRIDE"
+
+
+class TestFindViaPathOverride:
+    def test_unset_returns_none(self, monkeypatch):
+        monkeypatch.delenv("CUDA_PATHFINDER_CUDART_PATH_OVERRIDE", raising=False)
+        assert find_via_path_override(_ctx()) is None
+
+    def test_empty_returns_none(self, monkeypatch):
+        monkeypatch.setenv("CUDA_PATHFINDER_CUDART_PATH_OVERRIDE", "")
+        assert find_via_path_override(_ctx()) is None
+
+    def test_file_path_used_as_is(self, monkeypatch, tmp_path):
+        so_file = tmp_path / "libcudart.so.99"
+        so_file.touch()
+        monkeypatch.setenv("CUDA_PATHFINDER_CUDART_PATH_OVERRIDE", str(so_file))
+        result = find_via_path_override(_ctx())
+        assert result is not None
+        assert result.abs_path == os.path.normpath(str(so_file))
+        assert result.found_via == "override(CUDA_PATHFINDER_CUDART_PATH_OVERRIDE)"
+
+    def test_directory_searched_linux(self, monkeypatch, tmp_path):
+        so_file = tmp_path / "libcudart.so"
+        so_file.touch()
+        monkeypatch.setenv("CUDA_PATHFINDER_CUDART_PATH_OVERRIDE", str(tmp_path))
+        result = find_via_path_override(_ctx(platform=LinuxSearchPlatform()))
+        assert result is not None
+        assert result.abs_path == str(so_file)
+        assert result.found_via == "override(CUDA_PATHFINDER_CUDART_PATH_OVERRIDE)"
+
+    def test_nonexistent_path_raises(self, monkeypatch, tmp_path):
+        bogus = tmp_path / "does-not-exist"
+        monkeypatch.setenv("CUDA_PATHFINDER_CUDART_PATH_OVERRIDE", str(bogus))
+        with pytest.raises(DynamicLibNotFoundError, match="does not exist"):
+            find_via_path_override(_ctx())
+
+    def test_directory_without_lib_raises(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("CUDA_PATHFINDER_CUDART_PATH_OVERRIDE", str(tmp_path))
+        with pytest.raises(DynamicLibNotFoundError, match="was not found there"):
+            find_via_path_override(_ctx(platform=LinuxSearchPlatform()))
+
+    def test_per_lib_isolation(self, monkeypatch, tmp_path):
+        # Override for nvshmem_host must not affect cudart lookups.
+        monkeypatch.setenv("CUDA_PATHFINDER_NVSHMEM_HOST_PATH_OVERRIDE", str(tmp_path / "nope"))
+        monkeypatch.delenv("CUDA_PATHFINDER_CUDART_PATH_OVERRIDE", raising=False)
+        assert find_via_path_override(_ctx()) is None
+
+    def test_runs_first_in_early_steps(self):
+        assert EARLY_FIND_STEPS[0] is find_via_path_override

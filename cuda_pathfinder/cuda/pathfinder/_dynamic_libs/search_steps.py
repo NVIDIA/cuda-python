@@ -158,6 +158,54 @@ def find_via_ctk_root(ctx: SearchContext, ctk_root: str) -> FindResult | None:
 # ---------------------------------------------------------------------------
 
 
+_PATH_OVERRIDE_ENV_PREFIX = "CUDA_PATHFINDER_"
+_PATH_OVERRIDE_ENV_SUFFIX = "_PATH_OVERRIDE"
+
+
+def path_override_env_var(libname: str) -> str:
+    """Return the per-library override environment variable name."""
+    return f"{_PATH_OVERRIDE_ENV_PREFIX}{libname.upper()}{_PATH_OVERRIDE_ENV_SUFFIX}"
+
+
+def find_via_path_override(ctx: SearchContext) -> FindResult | None:
+    """Resolve a library via the per-library override environment variable.
+
+    The variable name is ``CUDA_PATHFINDER_<LIBNAME_UPPER>_PATH_OVERRIDE``.
+
+    Value semantics:
+    - Unset or empty: this step is a no-op and returns ``None``.
+    - Path to an existing regular file: used as the resolved library file.
+    - Path to an existing directory: searched for the library file using the
+      same platform logic as other anchor-based steps.
+    - Anything else (path does not exist, directory has no matching library):
+      raises :class:`DynamicLibNotFoundError`. An explicit override that fails
+      to resolve must not silently fall through to other search steps.
+    """
+    env_var = path_override_env_var(ctx.libname)
+    override = os.environ.get(env_var)
+    if not override:
+        return None
+
+    found_via = f"override({env_var})"
+
+    if os.path.isfile(override):
+        return FindResult(os.path.normpath(override), found_via)
+
+    if os.path.isdir(override):
+        abs_path = _find_using_lib_dir(ctx, override)
+        if abs_path is not None:
+            return FindResult(abs_path, found_via)
+        err = ", ".join(ctx.error_messages) or f"no matching file under {override!r}"
+        att = "\n".join(ctx.attachments)
+        raise DynamicLibNotFoundError(
+            f'{env_var}={override!r} is set but {ctx.lib_searched_for!r} was not found there: {err}\n{att}'
+        )
+
+    raise DynamicLibNotFoundError(
+        f'{env_var}={override!r} is set but the path does not exist as a file or directory.'
+    )
+
+
 def find_in_site_packages(ctx: SearchContext) -> FindResult | None:
     """Search pip wheel install locations."""
     rel_dirs = ctx.platform.site_packages_rel_dirs(ctx.desc)
@@ -208,7 +256,9 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
 # ---------------------------------------------------------------------------
 
 #: Find steps that run before the already-loaded check and system search.
-EARLY_FIND_STEPS: tuple[FindStep, ...] = (find_in_site_packages, find_in_conda)
+#: The path-override step has the highest priority and fails loudly if the
+#: override env var is set but the library cannot be resolved from it.
+EARLY_FIND_STEPS: tuple[FindStep, ...] = (find_via_path_override, find_in_site_packages, find_in_conda)
 
 #: Find steps that run after system search fails.
 LATE_FIND_STEPS: tuple[FindStep, ...] = (find_in_cuda_path,)
