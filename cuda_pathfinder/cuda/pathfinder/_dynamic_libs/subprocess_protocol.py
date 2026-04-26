@@ -72,8 +72,10 @@ def parse_dynamic_lib_subprocess_payload(
         isinstance(error, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in error.items())
     ):
         reject()
-    if status == STATUS_OK and isinstance(abs_path, str):
-        return DynamicLibSubprocessPayload(status=STATUS_OK, abs_path=abs_path, error=error)
+    # STATUS_OK carries a path and never an error; STATUS_NOT_FOUND has no
+    # path but may carry a structured error from the child loader.
+    if status == STATUS_OK and isinstance(abs_path, str) and error is None:
+        return DynamicLibSubprocessPayload(status=STATUS_OK, abs_path=abs_path, error=None)
     if status == STATUS_NOT_FOUND and abs_path is None:
         return DynamicLibSubprocessPayload(status=STATUS_NOT_FOUND, abs_path=None, error=error)
     reject()

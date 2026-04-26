@@ -1,8 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import os
 import platform
+import subprocess
+import sys
+import textwrap
 
 import pytest
 from child_load_nvidia_dynamic_lib_helper import run_load_nvidia_dynamic_lib_in_subprocess
@@ -13,10 +17,13 @@ from cuda.pathfinder import (
     DynamicLibUnknownError,
     find_nvidia_dynamic_lib,
 )
+from cuda.pathfinder._dynamic_libs import find_nvidia_dynamic_lib as find_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
+    STATUS_NOT_FOUND,
     STATUS_OK,
+    DynamicLibSubprocessPayload,
     parse_dynamic_lib_subprocess_payload,
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
@@ -94,17 +101,74 @@ def test_find_matches_load_in_subprocess(info_summary_append):
     assert os.path.samefile(find_abs_path, load_payload.abs_path)
 
 
+def test_find_nvidia_dynamic_lib_propagates_subprocess_not_found_message(monkeypatch):
+    # End-to-end of the structured-error path: the subprocess child encodes
+    # DynamicLibNotFoundError into the JSON payload; the parent re-raises
+    # with the original message preserved.
+    find_nvidia_dynamic_lib.cache_clear()
+    expected = "child loader said: cudart could not be located"
+
+    def fake_run(mode, libname, *, timeout, error_label):
+        return DynamicLibSubprocessPayload(
+            status=STATUS_NOT_FOUND,
+            abs_path=None,
+            error={"type": "DynamicLibNotFoundError", "message": expected},
+        )
+
+    monkeypatch.setattr(find_nvidia_dynamic_lib_module, "run_dynamic_lib_subprocess", fake_run)
+    with pytest.raises(DynamicLibNotFoundError, match=expected):
+        find_nvidia_dynamic_lib("cudart")
+
+
+def test_find_nvidia_dynamic_lib_falls_back_when_subprocess_not_found_omits_message(monkeypatch):
+    find_nvidia_dynamic_lib.cache_clear()
+
+    def fake_run(mode, libname, *, timeout, error_label):
+        return DynamicLibSubprocessPayload(status=STATUS_NOT_FOUND, abs_path=None, error=None)
+
+    monkeypatch.setattr(find_nvidia_dynamic_lib_module, "run_dynamic_lib_subprocess", fake_run)
+    with pytest.raises(DynamicLibNotFoundError, match=r"could not locate 'cudart'"):
+        find_nvidia_dynamic_lib("cudart")
+
+
+_DOES_NOT_LOAD_PROBE = textwrap.dedent(
+    """
+    import json
+    import os
+    import sys
+
+    from cuda.pathfinder import DynamicLibNotFoundError, find_nvidia_dynamic_lib
+
+    libname = sys.argv[1]
+    try:
+        find_nvidia_dynamic_lib(libname)
+        find_status = "found"
+    except DynamicLibNotFoundError:
+        find_status = "not-found"
+
+    with open("/proc/self/maps") as f:
+        maps = f.read()
+    print(json.dumps({"find_status": find_status, "loaded": ("lib" + libname) in maps}))
+    """
+).strip()
+
+
 def test_find_nvidia_dynamic_lib_does_not_load_in_caller_process():
     if IS_WINDOWS or not os.path.exists("/proc/self/maps"):
         pytest.skip("Requires /proc/self/maps for in-process load detection")
 
-    find_nvidia_dynamic_lib.cache_clear()
     libname = "cudart"
-    try:
-        find_nvidia_dynamic_lib(libname)
-    except DynamicLibNotFoundError:
+    # Run in a fresh interpreter so test ordering / other pathfinder tests
+    # in the same process can't have pre-loaded the library.
+    result = subprocess.run(  # noqa: S603 - trusted argv: current interpreter + inline probe
+        [sys.executable, "-c", _DOES_NOT_LOAD_PROBE, libname],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode == 0, f"probe failed:\nstdout={result.stdout!r}\nstderr={result.stderr!r}"
+    payload = json.loads(result.stdout.strip().splitlines()[-1])
+    if payload["find_status"] == "not-found":
         pytest.skip(f"{libname} not available on this host")
-
-    with open("/proc/self/maps") as f:
-        maps = f.read()
-    assert "libcudart" not in maps, "find_nvidia_dynamic_lib must not load the library into the caller process"
+    assert payload["loaded"] is False, "find_nvidia_dynamic_lib must not load the library into the caller process"
