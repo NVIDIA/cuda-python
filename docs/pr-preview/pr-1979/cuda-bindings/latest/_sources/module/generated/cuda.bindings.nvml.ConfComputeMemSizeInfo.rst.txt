@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.ConfComputeMemSizeInfo
+=========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: ConfComputeMemSizeInfo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ConfComputeMemSizeInfo.__init__
+      ~ConfComputeMemSizeInfo.from_buffer
+      ~ConfComputeMemSizeInfo.from_data
+      ~ConfComputeMemSizeInfo.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ConfComputeMemSizeInfo.protected_mem_size_kib
+      ~ConfComputeMemSizeInfo.ptr
+      ~ConfComputeMemSizeInfo.unprotected_mem_size_kib
+   
+   
