@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=9f64a547"></script>
+    <script src="_static/documentation_options.js?v=d838460c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev69';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev71';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -503,9 +503,15 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Context.html">cuda.core.Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.SMResource.html">cuda.core.SMResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.WorkqueueResource.html">cuda.core.WorkqueueResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ContextOptions.html">cuda.core.ContextOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.SMResourceOptions.html">cuda.core.SMResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
@@ -683,14 +689,32 @@ deprecation periods for breaking changes.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a record at a specific point of execution within a CUDA stream.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions" title="cuda.core.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>([nonblocking, priority])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a>(*args, **kwargs)</p></td>
+<td><p>CUDA context wrapper.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.SMResource.html#cuda.core.SMResource" title="cuda.core.SMResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResource</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Represent an SM (streaming multiprocessor) resource partition.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource" title="cuda.core.WorkqueueResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResource</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Represent a workqueue resource for a device or green context.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions" title="cuda.core.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>([nonblocking, priority])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> options.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([enable_timing, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([enable_timing, ...])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, ...])</p></td>
 <td><p>Customizable launch options.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ContextOptions.html#cuda.core.ContextOptions" title="cuda.core.ContextOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ContextOptions</span></code></a>(resources)</p></td>
+<td><p>Options for context creation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.SMResourceOptions.html#cuda.core.SMResourceOptions" title="cuda.core.SMResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResourceOptions</span></code></a>([count, ...])</p></td>
+<td><p>Customizable <a class="reference internal" href="generated/cuda.core.SMResource.html#cuda.core.SMResource.split" title="cuda.core.SMResource.split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResource.split</span></code></a> options.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions" title="cuda.core.WorkqueueResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResourceOptions</span></code></a>([sharing_scope])</p></td>
+<td><p>Customizable <a class="reference internal" href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.configure" title="cuda.core.WorkqueueResource.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResource.configure</span></code></a> options.</p></td>
 </tr>
 </tbody>
 </table>

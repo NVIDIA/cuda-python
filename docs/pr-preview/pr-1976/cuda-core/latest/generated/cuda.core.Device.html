@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=9f64a547"></script>
+    <script src="../_static/documentation_options.js?v=d838460c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev69';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev71';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -503,9 +503,15 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Context.html">cuda.core.Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.SMResource.html">cuda.core.SMResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.WorkqueueResource.html">cuda.core.WorkqueueResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.ContextOptions.html">cuda.core.ContextOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.SMResourceOptions.html">cuda.core.SMResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
@@ -673,7 +679,7 @@
 across multiple libraries imported in the process to both see
 and use the same GPU device.</p>
 <p>While acting as the entry point, many other CUDA resources can be
-allocated such as streams and buffers. Any <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> dependent
+allocated such as streams and buffers. Any <a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a> dependent
 resource created through this device, will continue to refer to
 this device’s context.</p>
 <p>Newly returned <a class="reference internal" href="#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> objects are thread-local singletons
@@ -745,21 +751,21 @@ device and the specified peer device.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Device.create_context">
-<span class="sig-name descname"><span class="pre">create_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ContextOptions</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Context</span></span></span><a class="headerlink" href="#cuda.core.Device.create_context" title="Link to this definition">#</a></dt>
-<dd><p>Create a new <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> object.</p>
+<span class="sig-name descname"><span class="pre">create_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.ContextOptions.html#cuda.core.ContextOptions" title="cuda.core.ContextOptions"><span class="pre">ContextOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><span class="pre">Context</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_context" title="Link to this definition">#</a></dt>
+<dd><p>Create a new <a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a> object.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The newly context will not be set as current.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>options</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">ContextOptions</span></code>, optional) – Customizable dataclass for context creation options.</p>
+<dd class="field-odd"><p><strong>options</strong> (<a class="reference internal" href="cuda.core.ContextOptions.html#cuda.core.ContextOptions" title="cuda.core._context.ContextOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ContextOptions</span></code></a>, optional) – Customizable dataclass for context creation options.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Newly created context object.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -868,21 +874,21 @@ such that the lifetime is managed.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">Context</span> <span class="pre">ctx:</span> <span class="pre">Context</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Context</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Device.set_current" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><span class="pre">Context</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Device.set_current" title="Link to this definition">#</a></dt>
 <dd><p>Set device to be used for GPU executions.</p>
 <p>Initializes CUDA and sets the calling thread to a valid CUDA
 context. By default the primary context is used, but optional <cite>ctx</cite>
-parameter can be used to explicitly supply a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> object.</p>
+parameter can be used to explicitly supply a <a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a> object.</p>
 <p>Providing a <cite>ctx</cite> causes the previous set context to be popped and returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ctx</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code>, optional) – Optional context to push onto this device’s current thread stack.</p>
+<dd class="field-odd"><p><strong>ctx</strong> (<a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a>, optional) – Optional context to push onto this device’s current thread stack.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Popped context.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code>, optional</p>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a>, optional</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -943,8 +949,8 @@ for NVIDIA Machine Library (NVML) access) for this
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.Device.context">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Context</span></em><a class="headerlink" href="#cuda.core.Device.context" title="Link to this definition">#</a></dt>
-<dd><p>Return the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> associated with this device.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><span class="pre">Context</span></a></em><a class="headerlink" href="#cuda.core.Device.context" title="Link to this definition">#</a></dt>
+<dd><p>Return the <a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a> associated with this device.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Device must be initialized.</p>
@@ -993,7 +999,7 @@ the legacy stream.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.Device.resources">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resources</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DeviceResources</span></em><a class="headerlink" href="#cuda.core.Device.resources" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resources</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core._device_resources.DeviceResources.html#cuda.core._device_resources.DeviceResources" title="cuda.core._device_resources.DeviceResources"><span class="pre">DeviceResources</span></a></em><a class="headerlink" href="#cuda.core.Device.resources" title="Link to this definition">#</a></dt>
 <dd><p>Return the hardware resource query namespace for this device.</p>
 </dd></dl>
 
