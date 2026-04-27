@@ -13,10 +13,23 @@ fi
 cuda_version="$1"
 cuda_major="${cuda_version%%.*}"
 uname_m="$(uname -m)"
+case "$cuda_major" in
+    12)
+        python_version=3.12
+        ;;
+    13)
+        python_version=3.14
+        ;;
+    *)
+        echo "Unsupported CUDA major version for this helper: $cuda_major" 1>&2
+        echo "Expected a 12.x or 13.x toolkit version." 1>&2
+        exit 1
+        ;;
+esac
 
 eval "$(conda shell.bash hook)"
 
-conda create --yes -n "pathfinder_testing_cu$cuda_version" python=3.14 cuda-toolkit="$cuda_version"
+conda create --yes -n "pathfinder_testing_cu$cuda_version" "python=$python_version" cuda-toolkit="$cuda_version"
 set +u
 conda activate "pathfinder_testing_cu$cuda_version"
 set -u
