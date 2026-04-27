@@ -12,7 +12,7 @@ def test_nvlink_get_link_count(all_devices):
     for device in all_devices:
         fields = nvml.FieldValue(0)
         assert len(nvml.device_get_field_values(device, fields)) == 0
-        
+
         assert len(nvml.device_get_field_values(device, [])) == 0
 
         fields = nvml.FieldValue(1)
