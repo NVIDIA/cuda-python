@@ -19,14 +19,13 @@ from cuda.core._resource_handles cimport (
     as_intptr,
     as_py,
     create_graph_handle,
-    create_graph_handle_ref,
     create_graph_node_handle,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from dataclasses import dataclass
 
-from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core._utils.cuda_utils import driver
 
 
 cdef class Condition:
@@ -347,7 +346,7 @@ cdef class GraphDef:
             with nogil:
                 HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), nodes_vec.data(), &num_nodes))
 
-        return set(GraphNode._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes))
+        return {GraphNode._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes)}
 
     def edges(self) -> set:
         """Return all edges in the graph as (from_node, to_node) pairs.
@@ -386,11 +385,11 @@ cdef class GraphDef:
                     HANDLE_RETURN(cydriver.cuGraphGetEdges(
                         as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), &num_edges))
 
-        return set(
+        return {
             (GraphNode._create(self._h_graph, from_nodes[i]),
              GraphNode._create(self._h_graph, to_nodes[i]))
             for i in range(num_edges)
-        )
+        }
 
     @property
     def handle(self) -> driver.CUgraph:

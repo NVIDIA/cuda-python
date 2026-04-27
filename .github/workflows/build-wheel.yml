@@ -44,18 +44,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      # The env vars ACTIONS_CACHE_SERVICE_V2, ACTIONS_RESULTS_URL, and ACTIONS_RUNTIME_TOKEN
-      # are exposed by this action.
-      - name: Enable sccache
-        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad  # 0.0.9
+      - name: Install latest rapidsai/sccache
+        if: ${{ startsWith(inputs.host-platform, 'linux') }}
+        run: |
+          curl -fsSL "https://github.com/rapidsai/sccache/releases/latest/download/sccache-$(uname -m)-unknown-linux-musl.tar.gz" \
+            | sudo tar -C /usr/local/bin -xvzf - --wildcards --strip-components=1 -x '*/sccache'
+          echo "SCCACHE_PATH=/usr/local/bin/sccache" >> "$GITHUB_ENV"
+          echo "SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=true" >> "$GITHUB_ENV"
 
       # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
       - name: Adding addtional GHA cache-related env vars
         uses: actions/github-script@v8
         with:
           script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'])
-            core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
+            core.exportVariable('ACTIONS_CACHE_SERVICE_V2', 'on');
+            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'] || '');
+            core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'] || '');
+            core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'] || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'] || '');
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -75,20 +81,26 @@ jobs:
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
-        uses: ilammy/msvc-dev-cmd@v1  # TODO: ask admin to allow pinning commits
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756  # v1
 
       - name: Set up yq
         # GitHub made an unprofessional decision to not provide it in their Windows VMs,
         # see https://github.com/actions/runner-images/issues/7443.
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         env:
-          # doesn't seem there's an easy way to avoid hard-coding it?
-          YQ_URL: https://github.com/mikefarah/yq/releases/latest/download/yq_windows_amd64.exe
-          YQ_DIR: yq_latest
+          YQ_VERSION: v4.52.5
+          YQ_SHA256: 47594981f3848a4b4447494adeca9555f908f7cf0a89c4da3fd0243a4631da1c
+          YQ_DIR: yq
         shell: pwsh -command ". '{0}'"
         run: |
+          $yqUrl = "https://github.com/mikefarah/yq/releases/download/${env:YQ_VERSION}/yq_windows_amd64.exe"
           mkdir -Force -ErrorAction SilentlyContinue "${env:YQ_DIR}" | Out-Null
-          Invoke-WebRequest -UseBasicParsing -OutFile "${env:YQ_DIR}/yq.exe" -Uri "$env:YQ_URL"
+          Invoke-WebRequest -UseBasicParsing -OutFile "${env:YQ_DIR}/yq.exe" -Uri "$yqUrl"
+          $hash = (Get-FileHash -Algorithm SHA256 "${env:YQ_DIR}/yq.exe").Hash.ToLower()
+          if ($hash -ne $env:YQ_SHA256) {
+            Write-Error "SHA256 mismatch for yq: expected $env:YQ_SHA256, got $hash"
+            exit 1
+          }
           ls -l $env:YQ_DIR
           echo "$((Get-Location).Path)\\$env:YQ_DIR" >> $env:GITHUB_PATH
           $env:Path += ";$((Get-Location).Path)\\$env:YQ_DIR"
@@ -168,6 +180,7 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=${{ env.SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
@@ -175,12 +188,21 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host/${{ env.SCCACHE_PATH }}" --show-stats
+            "/host/${{ env.SCCACHE_PATH }}" --show-adv-stats &&
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_bindings.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
           CIBW_TEST_COMMAND: >
             echo "ok!"
+
+      - name: Report sccache stats (cuda.bindings)
+        if: ${{ inputs.host-platform != 'win-64' }}
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache_bindings.json
+          label: "cuda.bindings"
+          build-step: "Build cuda.bindings wheel"
 
       - name: List the cuda.bindings artifacts directory
         run: |
@@ -224,6 +246,7 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=${{ env.SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
@@ -233,12 +256,21 @@ jobs:
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats
+            "/host${{ env.SCCACHE_PATH }}" --show-adv-stats &&
+            "/host${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
           CIBW_TEST_COMMAND: >
             echo "ok!"
+
+      - name: Report sccache stats (cuda.core)
+        if: ${{ inputs.host-platform != 'win-64' }}
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache_core.json
+          label: "cuda.core"
+          build-step: "Build cuda.core wheel"
 
       - name: List the cuda.core artifacts directory and rename
         run: |
@@ -403,6 +435,7 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=${{ env.SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
@@ -412,12 +445,21 @@ jobs:
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats
+            "/host${{ env.SCCACHE_PATH }}" --show-adv-stats &&
+            "/host${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core_prev.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
           CIBW_TEST_COMMAND: >
             echo "ok!"
+
+      - name: Report sccache stats (cuda.core prev)
+        if: ${{ inputs.host-platform != 'win-64' }}
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache_core_prev.json
+          label: "cuda.core (prev CTK)"
+          build-step: "Build cuda.core wheel"
 
       - name: List the cuda.core artifacts directory and rename
         run: |

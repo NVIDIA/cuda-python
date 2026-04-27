@@ -8,4 +8,4 @@ Release Notes
    :maxdepth: 3
    :glob:
 
-   release/*[0-9]-notes
+   release/*-notes

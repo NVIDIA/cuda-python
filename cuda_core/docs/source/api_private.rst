@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 :orphan:
@@ -16,7 +16,7 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   _memory._buffer.DevicePointerT
+   typing.DevicePointerT
    _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
    _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
    _memory._virtual_memory_resource.VirtualMemoryGranularityT
@@ -50,4 +50,40 @@ CUDA protocols
    :toctree: generated/
    :template: protocol.rst
 
-   _stream.IsStreamT
+   typing.IsStreamT
+
+NVML
+----
+
+.. autosummary::
+   :toctree: generated/
+   :template: autosummary/cyclass.rst
+
+   system._device.BAR1MemoryInfo
+   system._device.ClockInfo
+   system._device.ClockOffsets
+   system._device.CoolerInfo
+   system._device.DeviceAttributes
+   system._device.DeviceEvents
+   system._device.EventData
+   system._device.FanInfo
+   system._device.FieldValue
+   system._device.FieldValues
+   system._device.GpuDynamicPstatesInfo
+   system._device.GpuDynamicPstatesUtilization
+   system._device.GpuP2PCapsIndex
+   system._device.GpuP2PStatus
+   system._device.GpuTopologyLevel
+   system._device.InforomInfo
+   system._device.MemoryInfo
+   system._device.MigInfo
+   system._device.NvlinkInfo
+   system._device.PciInfo
+   system._device.ProcessInfo
+   system._device.RepairStatus
+   system._device.Temperature
+   system._device.ThermalSensor
+   system._device.ThermalSettings
+   system._system_events.RegisteredSystemEvents
+   system._system_events.SystemEvent
+   system._system_events.SystemEvents

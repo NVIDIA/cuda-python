@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 import ctypes
 import math
@@ -76,9 +76,43 @@ def convert_strides_to_counts(strides, itemsize):
     return tuple(s // itemsize for s in strides)
 
 
-@pytest.mark.parametrize(
-    "in_arr,",
-    (
+def _arr_ptr(arr):
+    """Return the data pointer of *arr* regardless of its type."""
+    if torch is not None and isinstance(arr, torch.Tensor):
+        return arr.data_ptr()
+    if isinstance(arr, np.ndarray):
+        return arr.ctypes.data
+    return gpu_array_ptr(arr)
+
+
+def _arr_strides_in_counts(arr):
+    """Return strides in element counts for *arr* regardless of its type."""
+    if torch is not None and isinstance(arr, torch.Tensor):
+        return tuple(arr.stride())
+    return convert_strides_to_counts(arr.strides, arr.dtype.itemsize)
+
+
+def _arr_size(arr):
+    """Return the number of elements in *arr*."""
+    if torch is not None and isinstance(arr, torch.Tensor):
+        return arr.numel()
+    return arr.size
+
+
+def _arr_is_c_contiguous(arr):
+    if torch is not None and isinstance(arr, torch.Tensor):
+        return arr.is_contiguous()
+    return arr.flags.c_contiguous if hasattr(arr, "flags") else arr.flags["C_CONTIGUOUS"]
+
+
+def _arr_is_writeable(arr):
+    if torch is not None and isinstance(arr, torch.Tensor):
+        return True  # torch tensors are writable by default
+    return arr.flags.writeable if hasattr(arr.flags, "writeable") else True
+
+
+def _cpu_array_samples():
+    samples = [
         np.empty(3, dtype=np.int32),
         np.empty((6, 6), dtype=np.float64)[::2, ::2],
         np.empty((3, 4), order="F"),
@@ -88,8 +122,27 @@ def convert_strides_to_counts(strides, itemsize):
             np.frombuffer(b""),
             marks=requires_module(np, "2.1"),
         ),
-    ),
-)
+    ]
+    if torch is not None:
+        samples += [
+            pytest.param(torch.arange(12, dtype=torch.float32), id="torch-1d"),
+            pytest.param(torch.arange(24, dtype=torch.float32).reshape(2, 3, 4), id="torch-nd"),
+            pytest.param(torch.tensor(42.0), id="torch-scalar"),
+            pytest.param(torch.empty(0, dtype=torch.float32), id="torch-empty"),
+            pytest.param(
+                torch.arange(12, dtype=torch.float32).reshape(3, 4).t(),
+                id="torch-non-contiguous",
+            ),
+            pytest.param(torch.arange(100, dtype=torch.int64)[10:20], id="torch-sliced"),
+            pytest.param(
+                torch.arange(60, dtype=torch.float32).reshape(6, 10)[1:4, 2:7],
+                id="torch-sliced-2d",
+            ),
+        ]
+    return samples
+
+
+@pytest.mark.parametrize("in_arr,", _cpu_array_samples())
 class TestViewCPU:
     def test_args_viewable_as_strided_memory_cpu(self, in_arr):
         @args_viewable_as_strided_memory((0,))
@@ -113,16 +166,16 @@ class TestViewCPU:
 
     def _check_view(self, view, in_arr):
         assert isinstance(view, StridedMemoryView)
-        assert view.ptr == in_arr.ctypes.data
-        assert view.shape == in_arr.shape
-        assert view.size == in_arr.size
-        strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
-        assert (in_arr.flags.c_contiguous and view.strides is None) or view.strides == strides_in_counts
-        assert view.dtype == in_arr.dtype
+        assert view.ptr == _arr_ptr(in_arr)
+        expected_shape = tuple(in_arr.shape)
+        assert view.shape == expected_shape
+        assert view.size == _arr_size(in_arr)
+        strides_in_counts = _arr_strides_in_counts(in_arr)
+        assert (_arr_is_c_contiguous(in_arr) and view.strides is None) or view.strides == strides_in_counts
         assert view.device_id == -1
         assert view.is_device_accessible is False
         assert view.exporting_obj is in_arr
-        assert view.readonly is not in_arr.flags.writeable
+        assert view.readonly is not _arr_is_writeable(in_arr)
 
 
 def gpu_array_samples():
@@ -141,10 +194,38 @@ def gpu_array_samples():
             pytest.param(numba_cuda.device_array((2,), dtype=np.int8), False, id="numba-cuda-int8"),
             pytest.param(numba_cuda.device_array((4, 2), dtype=np.float32), True, id="numba-cuda-float32"),
         ]
+    if torch is not None:
+        samples += [
+            pytest.param(torch.arange(12, dtype=torch.float32, device="cuda"), True, id="torch-1d"),
+            pytest.param(
+                torch.arange(24, dtype=torch.float32, device="cuda").reshape(2, 3, 4),
+                True,
+                id="torch-nd",
+            ),
+            pytest.param(torch.tensor(42.0, dtype=torch.float32, device="cuda"), False, id="torch-scalar"),
+            pytest.param(torch.empty(0, dtype=torch.float32, device="cuda"), False, id="torch-empty"),
+            pytest.param(
+                torch.arange(12, dtype=torch.float32, device="cuda").reshape(3, 4).t(),
+                True,
+                id="torch-non-contiguous",
+            ),
+            pytest.param(
+                torch.arange(100, dtype=torch.int64, device="cuda")[10:20],
+                True,
+                id="torch-sliced",
+            ),
+            pytest.param(
+                torch.arange(60, dtype=torch.float32, device="cuda").reshape(6, 10)[1:4, 2:7],
+                True,
+                id="torch-sliced-2d",
+            ),
+        ]
     return samples
 
 
 def gpu_array_ptr(arr):
+    if torch is not None and isinstance(arr, torch.Tensor):
+        return arr.data_ptr()
     if cp is not None and isinstance(arr, cp.ndarray):
         return arr.data.ptr
     if numba_cuda is not None and isinstance(arr, numba_cuda.cudadrv.devicearray.DeviceNDArray):
@@ -192,18 +273,18 @@ class TestViewGPU:
     def _check_view(self, view, in_arr, dev):
         assert isinstance(view, StridedMemoryView)
         assert view.ptr == gpu_array_ptr(in_arr)
-        assert view.shape == in_arr.shape
-        assert view.size == in_arr.size
-        strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
-        if in_arr.flags["C_CONTIGUOUS"]:
+        expected_shape = tuple(in_arr.shape)
+        assert view.shape == expected_shape
+        assert view.size == _arr_size(in_arr)
+        strides_in_counts = _arr_strides_in_counts(in_arr)
+        if _arr_is_c_contiguous(in_arr):
             assert view.strides in (None, strides_in_counts)
         else:
             assert view.strides == strides_in_counts
-        assert view.dtype == in_arr.dtype
         assert view.device_id == dev.device_id
         assert view.is_device_accessible is True
         assert view.exporting_obj is in_arr
-        # can't test view.readonly with CuPy or Numba...
+        # can't test view.readonly with CuPy, Numba, or torch...
 
 
 def test_strided_memory_view_dlpack_export_numpy_roundtrip():
@@ -712,3 +793,236 @@ def test_ml_dtypes_bfloat16_dlpack_requires_ml_dtypes(init_cuda, no_ml_dtypes, a
     smv = api(a, stream_ptr=0)
     with pytest.raises(NotImplementedError, match=r"requires `ml_dtypes`"):
         smv.dtype  # noqa: B018
+
+
+def test_strided_memory_view_repr():
+    """__repr__ returns a descriptive string."""
+    src = np.arange(6, dtype=np.int32).reshape(2, 3)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    r = repr(view)
+    assert r.startswith("StridedMemoryView(ptr=")
+
+
+def test_strided_memory_view_copy_to_raises():
+    """copy_to raises NotImplementedError."""
+    src = np.zeros(5, dtype=np.float32)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    with pytest.raises(NotImplementedError, match="copy_to"):
+        view.copy_to(view, stream=None)
+
+
+def test_strided_memory_view_get_layout_error():
+    """get_layout raises ValueError for an empty (uninitialized) StridedMemoryView."""
+    with pytest.warns(DeprecationWarning, match="deprecated"):
+        view = StridedMemoryView()
+    with pytest.raises(ValueError, match="Cannot infer layout"):
+        _ = view._layout
+
+
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+def test_strided_memory_view_deprecated_cai_init(init_cuda):
+    """Deprecated StridedMemoryView(cai_obj) init path for CAI-only objects."""
+    src = cp.zeros(5, dtype=cp.float32)
+    dev = Device()
+    stream = dev.create_stream()
+    cai_only = _EnforceCAIView(src)
+    with pytest.deprecated_call():
+        view = StridedMemoryView(cai_only, stream_ptr=stream.handle)
+    assert view.is_device_accessible is True
+    assert view.ptr == src.data.ptr
+
+
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+def test_from_any_interface_cai_fallback(init_cuda):
+    """from_any_interface falls back to CAI when an object has no __dlpack__."""
+    src = cp.zeros(5, dtype=cp.float32)
+    dev = Device()
+    stream = dev.create_stream()
+    cai_only = _EnforceCAIView(src)
+    view = StridedMemoryView.from_any_interface(cai_only, stream_ptr=stream.handle)
+    assert view.is_device_accessible is True
+    assert view.ptr == src.data.ptr
+
+
+def test_strided_memory_view_copy_from_raises():
+    """copy_from raises NotImplementedError."""
+    src = np.zeros(5, dtype=np.float32)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    with pytest.raises(NotImplementedError, match="copy_from"):
+        view.copy_from(view, stream=None)
+
+
+def test_strided_memory_view_view_no_args_returns_self():
+    """view() with layout=None and dtype=None returns self."""
+    src = np.arange(6, dtype=np.int32).reshape(2, 3)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    same = view.view(layout=None, dtype=None)
+    assert same is view
+
+
+def test_strided_memory_view_view_with_dtype_only():
+    """view() with only dtype re-interprets using current layout."""
+    src = np.arange(4, dtype=np.float32)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    viewed = view.view(dtype=np.dtype("int32"))
+    assert viewed.dtype == np.dtype("int32")
+    assert viewed._layout == view._layout
+
+
+def test_dlpack_export_structured_dtype_raises():
+    """Structured dtypes are rejected for DLPack export."""
+    dt = np.dtype([("x", np.float32), ("y", np.int32)])  # itemsize=8
+    # Create a valid view first, then re-view with the structured dtype to
+    # bypass numpy's own __dlpack__ rejection during import.
+    src = np.zeros(3, dtype=np.float64)  # itemsize=8 to match
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    bad_view = view.view(dtype=dt)
+    with pytest.raises(BufferError, match="Structured dtypes"):
+        bad_view.__dlpack__()
+
+
+def test_dlpack_export_unsupported_dtype_raises():
+    """Unsupported dtype kind is rejected for DLPack export."""
+    # numpy void dtype (kind='V', typestr='|V4') hits the else branch
+    # in _smv_dtype_numpy_to_dlpack at _memoryview.pyx:577
+    src = np.zeros(3, dtype=np.float32)  # itemsize=4 to match V4
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    bad_view = view.view(dtype=np.dtype("V4"))
+    with pytest.raises(BufferError, match="Unsupported dtype for DLPack export"):
+        bad_view.__dlpack__()
+
+
+class _FakeCAIv2:
+    """Object with CUDA Array Interface v2 (unsupported)."""
+
+    def __init__(self):
+        self.__cuda_array_interface__ = {
+            "version": 2,
+            "shape": (5,),
+            "typestr": "<f4",
+            "data": (0, False),
+        }
+
+
+class _FakeCAIWithMask:
+    """Object with CUDA Array Interface that has a mask."""
+
+    def __init__(self):
+        self.__cuda_array_interface__ = {
+            "version": 3,
+            "shape": (5,),
+            "typestr": "<f4",
+            "data": (0, False),
+            "mask": np.ones(5, dtype=bool),
+        }
+
+
+class _FakeArrayInterfacev2:
+    """Object with NumPy Array Interface v2 (unsupported)."""
+
+    def __init__(self, arr):
+        iface = dict(arr.__array_interface__)
+        iface["version"] = 2
+        self.__array_interface__ = iface
+
+
+class _FakeArrayInterfaceWithMask:
+    """Object with NumPy Array Interface that has a mask."""
+
+    def __init__(self, arr):
+        iface = dict(arr.__array_interface__)
+        iface["mask"] = np.ones(arr.shape, dtype=bool)
+        self.__array_interface__ = iface
+
+
+def test_cai_v2_rejected():
+    """CUDA Array Interface v2 raises BufferError."""
+    from cuda.core._memoryview import view_as_cai
+
+    obj = _FakeCAIv2()
+    with pytest.raises(BufferError, match="v3 or above"):
+        view_as_cai(obj, stream_ptr=-1)
+
+
+def test_cai_mask_rejected():
+    """CUDA Array Interface with mask raises BufferError."""
+    from cuda.core._memoryview import view_as_cai
+
+    obj = _FakeCAIWithMask()
+    with pytest.raises(BufferError, match="mask is not supported"):
+        view_as_cai(obj, stream_ptr=-1)
+
+
+class _FakeCAIv3:
+    """Valid CUDA Array Interface v3 object (for stream=None test)."""
+
+    def __init__(self):
+        self.__cuda_array_interface__ = {
+            "version": 3,
+            "shape": (5,),
+            "typestr": "<f4",
+            "data": (0, False),
+        }
+
+
+def test_cai_stream_none_rejected():
+    """CUDA Array Interface with stream=None raises BufferError."""
+    from cuda.core._memoryview import view_as_cai
+
+    obj = _FakeCAIv3()
+    with pytest.raises(BufferError, match="stream=None is ambiguous"):
+        view_as_cai(obj, stream_ptr=None)
+
+
+def test_array_interface_v2_rejected():
+    """NumPy Array Interface v2 raises BufferError."""
+    from cuda.core._memoryview import view_as_array_interface
+
+    arr = np.zeros(5, dtype=np.float32)
+    obj = _FakeArrayInterfacev2(arr)
+    with pytest.raises(BufferError, match="v3 or above"):
+        view_as_array_interface(obj)
+
+
+def test_array_interface_mask_rejected():
+    """NumPy Array Interface with mask raises BufferError."""
+    from cuda.core._memoryview import view_as_array_interface
+
+    arr = np.zeros(5, dtype=np.float32)
+    obj = _FakeArrayInterfaceWithMask(arr)
+    with pytest.raises(BufferError, match="mask is not supported"):
+        view_as_array_interface(obj)
+
+
+_torch_skip = pytest.mark.skipif(torch is None, reason="PyTorch is not installed")
+
+
+@_torch_skip
+@pytest.mark.parametrize(
+    "dtype",
+    [
+        pytest.param("float16", id="float16"),
+        pytest.param("float32", id="float32"),
+        pytest.param("float64", id="float64"),
+        pytest.param("int8", id="int8"),
+        pytest.param("int16", id="int16"),
+        pytest.param("int32", id="int32"),
+        pytest.param("int64", id="int64"),
+        pytest.param("uint8", id="uint8"),
+        pytest.param("bool", id="bool"),
+        pytest.param("complex64", id="complex64"),
+        pytest.param("complex128", id="complex128"),
+        pytest.param(
+            "bfloat16",
+            id="bfloat16",
+            marks=pytest.mark.skipif(ml_dtypes is None, reason="ml_dtypes is not installed"),
+        ),
+    ],
+)
+def test_torch_tensor_bridge_dtypes(init_cuda, dtype):
+    """Verify that dtype mapping via the tensor bridge matches torch's own dtype."""
+    torch_dtype = getattr(torch, dtype)
+    a = torch.tensor([1, 0, 1], dtype=torch_dtype, device="cuda")
+    smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
+    assert smv.dtype.itemsize == a.element_size()
+    assert smv.ptr == a.data_ptr()

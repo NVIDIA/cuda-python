@@ -6,12 +6,11 @@ from __future__ import annotations
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._memory._memory_pool cimport _MemPool, MP_init_create_pool, MP_init_current_pool
-from cuda.core._utils.cuda_utils cimport (
-    HANDLE_RETURN,
-    check_or_create_options,
-)
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._memory._memory_pool cimport _MemPool
+from cuda.core._memory._memory_pool cimport MP_init_create_pool, MP_init_current_pool  # no-cython-lint
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport check_or_create_options  # no-cython-lint
+from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
 from dataclasses import dataclass
 import threading
@@ -120,6 +119,11 @@ cdef class ManagedMemoryResource(_MemPool):
     @property
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
+        return True
+
+    @property
+    def is_managed(self) -> bool:
+        """Return True. This memory resource provides managed (unified) memory buffers."""
         return True
 
 

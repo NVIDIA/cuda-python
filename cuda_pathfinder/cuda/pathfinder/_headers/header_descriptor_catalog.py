@@ -98,6 +98,12 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         site_packages_dirs=("nvidia/cu13/include", "nvidia/npp/include"),
     ),
     HeaderDescriptorSpec(
+        name="profiler",
+        packaged_with="ctk",
+        header_basename="cuda_profiler_api.h",
+        site_packages_dirs=("nvidia/cu13/include", "nvidia/cuda_profiler_api/include"),
+    ),
+    HeaderDescriptorSpec(
         name="nvcc",
         packaged_with="ctk",
         header_basename="fatbinary_section.h",

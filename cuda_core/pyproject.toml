@@ -7,6 +7,7 @@ requires = [
     "setuptools>=80",
     "setuptools-scm[simple]>=8",
     "Cython>=3.2,<3.3",
+    "cuda-pathfinder>=1.5"
 ]
 build-backend = "build_hooks"
 backend-path = ["."]
@@ -19,7 +20,7 @@ dynamic = [
     "readme",
 ]
 requires-python = '>=3.10'
-description = "cuda.core: (experimental) pythonic CUDA module"
+description = "cuda.core: pythonic CUDA module"
 authors = [
     { name = "NVIDIA Corporation" }
 ]
@@ -108,7 +109,6 @@ git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--mat
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"
-enable = "cpython-freethreading"
 build-verbosity = 1
 
 [tool.cibuildwheel.linux]
@@ -117,4 +117,4 @@ archs = "native"
 [tool.cibuildwheel.windows]
 archs = "AMD64"
 before-build = "pip install delvewheel"
-repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
+repair-wheel-command = "delvewheel repair --namespace-pkg cuda --exclude \"torch_cpu.dll;torch_python.dll\" -w {dest_dir} {wheel}"

@@ -11,6 +11,7 @@ import functools
 import glob
 import os
 import re
+import subprocess
 import sys
 import tempfile
 import zipfile
@@ -28,13 +29,41 @@ get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 
+# Please keep in sync with the copy in cuda_bindings/build_hooks.py.
+def _import_get_cuda_path_or_home():
+    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
+
+    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
+    """
+    try:
+        import cuda.pathfinder
+    except ModuleNotFoundError as exc:
+        if exc.name not in ("cuda", "cuda.pathfinder"):
+            raise
+        try:
+            import cuda
+        except ModuleNotFoundError:
+            cuda = None
+
+        for p in sys.path:
+            sp_cuda = os.path.join(p, "cuda")
+            if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
+                cuda.__path__ = list(cuda.__path__) + [sp_cuda]
+                break
+        else:
+            raise ModuleNotFoundError(
+                "cuda-pathfinder is not installed in the build environment. "
+                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
+            )
+        import cuda.pathfinder
+
+    return cuda.pathfinder.get_cuda_path_or_home
+
+
 @functools.cache
 def _get_cuda_path() -> str:
-    # Not using cuda.pathfinder.get_cuda_path_or_home() here because this
-    # build backend runs in an isolated venv where the cuda namespace package
-    # from backend-path shadows the installed cuda-pathfinder. See #1803 for
-    # a workaround to apply after cuda-pathfinder >= 1.5 is released.
-    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+    get_cuda_path_or_home = _import_get_cuda_path_or_home()
+    cuda_path = get_cuda_path_or_home()
     if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)
@@ -91,7 +120,7 @@ def _determine_cuda_major_version() -> str:
 _extensions = None
 
 
-def _build_cuda_core():
+def _build_cuda_core(debug=False):
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,
     # is installed. Otherwise, cimport any cuda.bindings modules would fail!
@@ -136,10 +165,42 @@ def _build_cuda_core():
 
     all_include_dirs = [os.path.join(_get_cuda_path(), "include")]
     extra_compile_args = []
+    extra_link_args = []
+    extra_cythonize_kwargs = {}
+    if sys.platform == "win32":
+        if debug:
+            raise RuntimeError("Debuggable builds are not supported on Windows.")
+    else:
+        if debug:
+            extra_cythonize_kwargs["gdb_debug"] = True
+            extra_compile_args += ["-g", "-O0"]
+            extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
+        else:
+            extra_compile_args += ["-O3"]
+            extra_link_args += ["-Wl,--strip-all"]
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
         # related to free-threading builds.
         extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
+
+    # On Windows, _tensor_bridge.pyx needs a stub import library so the MSVC
+    # linker can resolve the AOTI symbols (they live in torch_cpu.dll at
+    # runtime).  We generate the .lib from a .def file at build time.
+    _aoti_extra_link_args = []
+    if sys.platform == "win32":
+        _def_file = os.path.join("cuda", "core", "_include", "aoti_shim.def")
+        _lib_file = os.path.join("build", "aoti_shim.lib")
+        os.makedirs("build", exist_ok=True)
+        subprocess.check_call(  # noqa: S603
+            ["lib", f"/DEF:{_def_file}", f"/OUT:{_lib_file}", "/MACHINE:X64"],  # noqa: S607
+            stdout=subprocess.DEVNULL,
+        )
+        _aoti_extra_link_args = [_lib_file]
+
+    def get_extra_link_args(mod_name):
+        if mod_name == "_tensor_bridge" and _aoti_extra_link_args:
+            return extra_link_args + _aoti_extra_link_args
+        return extra_link_args
 
     ext_modules = tuple(
         Extension(
@@ -152,6 +213,7 @@ def _build_cuda_core():
             + all_include_dirs,
             language="c++",
             extra_compile_args=extra_compile_args,
+            extra_link_args=get_extra_link_args(mod),
         )
         for mod in module_names()
     )
@@ -169,6 +231,7 @@ def _build_cuda_core():
         nthreads=nthreads,
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,
+        **extra_cythonize_kwargs,
     )
 
     return
@@ -254,7 +317,9 @@ def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
 
 
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_core()
+    debug_default = sys.platform != "win32"  # Debug builds not supported on Windows
+    debug = config_settings.get("debug", debug_default) if config_settings else debug_default
+    _build_cuda_core(debug=debug)
     wheel_name = _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
 
     # Patch the .pth file to add Cython include paths
@@ -265,7 +330,8 @@ def build_editable(wheel_directory, config_settings=None, metadata_directory=Non
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_core()
+    debug = config_settings.get("debug", False) if config_settings else False
+    _build_cuda_core(debug=debug)
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 
 

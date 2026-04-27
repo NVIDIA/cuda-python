@@ -1,0 +1,217 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Restricted Paths Guard"
+
+on:
+  # Run on drafts too so maintainers get early awareness on WIP PRs.
+  # Label updates on fork PRs require pull_request_target permissions.
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+jobs:
+  restricted-paths-guard:
+    name: Apply review label if needed
+    if: github.repository_owner == 'NVIDIA'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed for collaborator permission check
+      pull-requests: write
+    steps:
+      - name: Inspect PR author signals for restricted paths
+        env:
+          # PR metadata inputs (author_association from event payload is
+          # unreliable for fork PRs, so we query the collaborator API directly)
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+
+          # Workflow policy inputs
+          REVIEW_LABEL: Needs-Restricted-Paths-Review
+
+          # API request context/auth
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          COLLABORATOR_PERMISSION="not checked"
+          COLLABORATOR_PERMISSION_API_ERROR=""
+
+          if ! MATCHING_RESTRICTED_PATHS=$(
+            gh api \
+              --paginate \
+              --jq '
+                .[]
+                | select(
+                    (.filename | startswith("cuda_bindings/"))
+                    or ((.previous_filename // "") | startswith("cuda_bindings/"))
+                    or (.filename | startswith("cuda_python/"))
+                    or ((.previous_filename // "") | startswith("cuda_python/"))
+                  )
+                | if (.previous_filename // "") != "" then
+                    "\(.previous_filename) -> \(.filename)"
+                  else
+                    .filename
+                  end
+              ' \
+              "repos/$REPO/pulls/$PR_NUMBER/files"
+          ); then
+            echo "::error::Failed to inspect the PR file list."
+            {
+              echo "## Restricted Paths Guard Failed"
+              echo ""
+              echo "- **Error**: Failed to inspect the PR file list."
+              echo "- **Author**: $PR_AUTHOR"
+              echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
+              echo ""
+              echo "Please update the PR at: $PR_URL"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          # Fetch live PR labels to avoid stale event payload (race condition
+          # when labels are changed shortly before the workflow runs).
+          if ! LIVE_LABELS=$(
+            gh pr view "${PR_NUMBER}" --repo "${REPO}" \
+              --json labels \
+              --jq '[.labels[].name]'
+          ); then
+            echo "::error::Failed to inspect the current PR labels."
+            {
+              echo "## Restricted Paths Guard Failed"
+              echo ""
+              echo "- **Error**: Failed to inspect the current PR labels."
+              echo "- **Author**: $PR_AUTHOR"
+              echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
+              echo ""
+              echo "Please update the PR at: $PR_URL"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          TOUCHES_RESTRICTED_PATHS=false
+          if [ -n "$MATCHING_RESTRICTED_PATHS" ]; then
+            TOUCHES_RESTRICTED_PATHS=true
+          fi
+
+          write_matching_restricted_paths() {
+            echo "- **Matched restricted paths**:"
+            echo '```text'
+            printf '%s\n' "$MATCHING_RESTRICTED_PATHS"
+            echo '```'
+          }
+
+          write_collaborator_permission_api_error() {
+            echo "- **Collaborator permission API error**:"
+            echo '```text'
+            printf '%s\n' "$COLLABORATOR_PERMISSION_API_ERROR"
+            echo '```'
+          }
+
+          HAS_TRUSTED_SIGNAL=false
+          LABEL_ACTION="not needed (no restricted paths)"
+          TRUSTED_SIGNALS="(none)"
+
+          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
+            # Distinguish a legitimate 404 "not a collaborator" response from
+            # actual API failures. The former is an expected untrusted case;
+            # the latter fails the workflow so it can be rerun later.
+            if COLLABORATOR_PERMISSION_RESPONSE=$(
+              gh api "repos/$REPO/collaborators/$PR_AUTHOR/permission" \
+                --jq '.permission' 2>&1
+            ); then
+              COLLABORATOR_PERMISSION="$COLLABORATOR_PERMISSION_RESPONSE"
+            elif [[ "$COLLABORATOR_PERMISSION_RESPONSE" == *"(HTTP 404)"* ]]; then
+              COLLABORATOR_PERMISSION="none"
+            else
+              COLLABORATOR_PERMISSION="unknown"
+              COLLABORATOR_PERMISSION_API_ERROR="$COLLABORATOR_PERMISSION_RESPONSE"
+              echo "::error::Failed to inspect collaborator permission for $PR_AUTHOR."
+              {
+                echo "## Restricted Paths Guard Failed"
+                echo ""
+                echo "- **Error**: Failed to inspect collaborator permission."
+                echo "- **Author**: $PR_AUTHOR"
+                echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
+                echo ""
+                write_matching_restricted_paths
+                echo ""
+                write_collaborator_permission_api_error
+                echo ""
+                echo "Please retry this workflow. If the failure persists, inspect the collaborator permission API error above."
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+
+            case "$COLLABORATOR_PERMISSION" in
+              admin|maintain|write)
+                HAS_TRUSTED_SIGNAL=true
+                LABEL_ACTION="not needed (collaborator permission is a trusted signal)"
+                TRUSTED_SIGNALS="collaborator_permission:$COLLABORATOR_PERMISSION"
+                ;;
+              *)
+                # triage, read, or none: not a trusted signal
+                ;;
+            esac
+          fi
+
+          NEEDS_REVIEW_LABEL=false
+          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$HAS_TRUSTED_SIGNAL" = "false" ]; then
+            NEEDS_REVIEW_LABEL=true
+          fi
+
+          LABEL_ALREADY_PRESENT=false
+          if jq -e --arg label "$REVIEW_LABEL" '.[] == $label' <<<"$LIVE_LABELS" >/dev/null; then
+            LABEL_ALREADY_PRESENT=true
+          fi
+
+          if [ "$NEEDS_REVIEW_LABEL" = "true" ]; then
+            if [ "$LABEL_ALREADY_PRESENT" = "true" ]; then
+              LABEL_ACTION="already present"
+            elif ! gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "$REVIEW_LABEL"; then
+              echo "::error::Failed to add the $REVIEW_LABEL label."
+              {
+                echo "## Restricted Paths Guard Failed"
+                echo ""
+                echo "- **Error**: Failed to add the \`$REVIEW_LABEL\` label."
+                echo "- **Author**: $PR_AUTHOR"
+                echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
+                echo ""
+                write_matching_restricted_paths
+                echo ""
+                echo "Please update the PR at: $PR_URL"
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            else
+              LABEL_ACTION="added"
+            fi
+          elif [ "$LABEL_ALREADY_PRESENT" = "true" ]; then
+            LABEL_ACTION="left in place (manual removal required)"
+          fi
+
+          {
+            echo "## Restricted Paths Guard Completed"
+            echo ""
+            echo "- **Author**: $PR_AUTHOR"
+            echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
+            echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
+            echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
+            echo "- **Trusted signals**: $TRUSTED_SIGNALS"
+            echo "- **Label action**: $LABEL_ACTION"
+            if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
+              echo ""
+              write_matching_restricted_paths
+            fi
+            if [ "$NEEDS_REVIEW_LABEL" = "true" ]; then
+              echo ""
+              echo "- **Manual follow-up**: No trusted signal was found, so \`$REVIEW_LABEL\` is required."
+            elif [ "$LABEL_ALREADY_PRESENT" = "true" ]; then
+              echo ""
+              echo "- **Manual follow-up**: Existing \`$REVIEW_LABEL\` was left in place intentionally because this workflow does not inspect every commit. Remove it manually after reviewing the PR for restricted-paths policy compliance."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

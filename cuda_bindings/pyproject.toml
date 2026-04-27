@@ -6,6 +6,7 @@ requires = [
     "setuptools_scm[simple]>=8",
     "cython>=3.2,<3.3",
     "pyclibrary>=0.1.7",
+    "cuda-pathfinder>=1.5",
 ]
 build-backend = "build_hooks"
 backend-path = ["."]
@@ -72,7 +73,6 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"
-enable = "cpython-freethreading"
 build-verbosity = 1
 
 [tool.cibuildwheel.linux]

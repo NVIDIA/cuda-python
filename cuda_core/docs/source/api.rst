@@ -144,11 +144,40 @@ Managed memory
 .. module:: cuda.core
    :no-index:
 
+
+Graphics interoperability
+-------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   GraphicsResource
+
+
+Tensor Memory Accelerator (TMA)
+-------------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   TensorMapDescriptor
+
+   :template: dataclass.rst
+
+   TensorMapDescriptorOptions
+
+
 CUDA compilation toolchain
 --------------------------
 
 .. autosummary::
    :toctree: generated/
+
+   :template: autosummary/cyclass.rst
 
    Program
    Linker
@@ -186,9 +215,6 @@ Events
    :toctree: generated/
 
    system.register_events
-   system.RegisteredSystemEvents
-   system.SystemEvent
-   system.SystemEvents
    system.SystemEventType
 
 Enums
@@ -202,6 +228,7 @@ Enums
    system.BrandType
    system.ClockId
    system.ClocksEventReasons
+   system.ClockType
    system.CoolerControl
    system.CoolerTarget
    system.DeviceArch
@@ -209,6 +236,7 @@ Enums
    system.FanControlPolicy
    system.FieldId
    system.InforomObject
+   system.NvlinkVersion
    system.PcieUtilCounter
    system.Pstates
    system.TemperatureSensors
@@ -225,29 +253,6 @@ Types
    :template: autosummary/cyclass.rst
 
    system.Device
-   system.BAR1MemoryInfo
-   system.ClockInfo
-   system.ClockOffsets
-   system.ClockType
-   system.CoolerInfo
-   system.DeviceAttributes
-   system.DeviceEvents
-   system.EventData
-   system.FanInfo
-   system.FieldValue
-   system.FieldValues
-   system.GpuDynamicPstatesInfo
-   system.GpuDynamicPstatesUtilization
-   system.GpuP2PCapsIndex
-   system.GpuP2PStatus
-   system.GpuTopologyLevel
-   system.InforomInfo
-   system.MemoryInfo
-   system.PciInfo
-   system.RepairStatus
-   system.Temperature
-   system.ThermalSensor
-   system.ThermalSettings
 
 .. module:: cuda.core.utils
 
