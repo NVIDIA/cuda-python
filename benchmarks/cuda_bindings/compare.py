@@ -128,10 +128,7 @@ def main() -> None:
             overhead_str = "-"
 
         if cpp_benchmarks:
-            print(
-                f"{name:<{name_width}}  {cpp_str:>12}  {cpp_rsd:>8}  "
-                f"{py_str:>14}  {py_rsd:>7}  {overhead_str:>10}"
-            )
+            print(f"{name:<{name_width}}  {cpp_str:>12}  {cpp_rsd:>8}  {py_str:>14}  {py_rsd:>7}  {overhead_str:>10}")
         else:
             print(f"{name:<{name_width}}  {py_str:>14}  {py_rsd:>7}")
 
