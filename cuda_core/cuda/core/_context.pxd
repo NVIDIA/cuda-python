@@ -13,9 +13,7 @@ cdef class Context:
 
     cdef:
         ContextHandle _h_context
-        GreenCtxHandle _h_green_ctx
         int _device_id
-        bint _is_green
         object __weakref__
 
     @staticmethod

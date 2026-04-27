@@ -12,7 +12,8 @@ from libc.stdlib cimport free, malloc
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
+from cuda.core._utils.cuda_utils import is_sequence
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
 
 
@@ -25,7 +26,7 @@ __all__ = [
 ]
 
 
-cdef inline void _check_green_ctx_support() except *:
+cdef inline int _check_green_ctx_support() except?-1:
     cdef tuple drv = cy_driver_version()
     cdef tuple bind = cy_binding_version()
     if drv < (12, 4, 0):
@@ -38,9 +39,10 @@ cdef inline void _check_green_ctx_support() except *:
             "Green context support requires cuda.bindings 12.4 or newer. "
             f"Using cuda.bindings version {'.'.join(map(str, bind))}"
         )
+    return 0
 
 
-cdef inline void _check_workqueue_support() except *:
+cdef inline int _check_workqueue_support() except?-1:
     cdef tuple drv = cy_driver_version()
     cdef tuple bind = cy_binding_version()
     if drv < (13, 1, 0):
@@ -53,10 +55,11 @@ cdef inline void _check_workqueue_support() except *:
             "WorkqueueResource requires cuda.bindings 13.1 or newer. "
             f"Using cuda.bindings version {'.'.join(map(str, bind))}"
         )
+    return 0
 
 
 @dataclass
-class SMResourceOptions:
+cdef class SMResourceOptions:
     """Options for :meth:`SMResource.split`.
 
     ``count`` determines the number of requested groups. Scalar ``count`` or
@@ -70,61 +73,62 @@ class SMResourceOptions:
 
 
 @dataclass
-class WorkqueueResourceOptions:
+cdef class WorkqueueResourceOptions:
     """Options for :meth:`WorkqueueResource.configure`."""
 
     sharing_scope: str | None = None
 
 
-cdef inline bint _is_sequence(object value):
-    return (
-        isinstance(value, SequenceABC)
-        and not isinstance(value, (str, bytes, bytearray))
-    )
+cdef inline int _validate_split_field_length(
+    object value, str field_name, int n_groups, bint count_is_scalar
+) except?-1:
+    if count_is_scalar:
+        if is_sequence(value):
+            raise ValueError(
+                f"{field_name} is a Sequence but count is scalar; "
+                "count must be a Sequence to specify multiple groups"
+            )
+    elif is_sequence(value) and len(value) != n_groups:
+        raise ValueError(
+            f"{field_name} has length {len(value)}, expected {n_groups} "
+            "(must match count)"
+        )
+    return 0
 
 
-cdef int _resolve_group_count(object options) except -1:
+cdef int _resolve_group_count(SMResourceOptions options) except -1:
     cdef object count = options.count
     cdef int n_groups
-    cdef object value
-    cdef str field_name
+    cdef bint count_is_scalar
 
     if count is None or isinstance(count, int):
         n_groups = 1
-    elif _is_sequence(count):
+        count_is_scalar = True
+    elif is_sequence(count):
         n_groups = len(count)
         if n_groups == 0:
             raise ValueError("count sequence must not be empty")
+        count_is_scalar = False
     else:
         raise TypeError(f"count must be int, Sequence, or None, got {type(count)}")
 
-    if n_groups == 1:
-        for field_name in (
-            "coscheduled_sm_count",
-            "preferred_coscheduled_sm_count",
-        ):
-            value = getattr(options, field_name)
-            if _is_sequence(value):
-                raise ValueError(
-                    f"{field_name} is a Sequence but count is scalar; "
-                    "count must be a Sequence to specify multiple groups"
-                )
-    else:
-        for field_name in (
-            "coscheduled_sm_count",
-            "preferred_coscheduled_sm_count",
-        ):
-            value = getattr(options, field_name)
-            if _is_sequence(value) and len(value) != n_groups:
-                raise ValueError(
-                    f"{field_name} has length {len(value)}, expected {n_groups} "
-                    "(must match count)"
-                )
+    _validate_split_field_length(
+        options.coscheduled_sm_count,
+        "coscheduled_sm_count",
+        n_groups,
+        count_is_scalar,
+    )
+    _validate_split_field_length(
+        options.preferred_coscheduled_sm_count,
+        "preferred_coscheduled_sm_count",
+        n_groups,
+        count_is_scalar,
+    )
     return n_groups
 
 
 cdef object _broadcast_field(object value, int n_groups):
-    if _is_sequence(value):
+    if is_sequence(value):
         return list(value)
     return [value] * n_groups
 
@@ -150,7 +154,7 @@ cdef inline bint _can_use_structured_sm_split():
         return False
 
 
-cdef inline void _check_split_by_count_support() except *:
+cdef inline int _check_split_by_count_support() except?-1:
     cdef tuple drv = cy_driver_version()
     cdef tuple bind = cy_binding_version()
     if drv < (12, 4, 0):
@@ -163,9 +167,10 @@ cdef inline void _check_split_by_count_support() except *:
             "SMResource.split() requires cuda.bindings 12.4 or newer. "
             f"Using cuda.bindings version {'.'.join(map(str, bind))}"
         )
+    return 0
 
 
-cdef object _resolve_split_by_count_request(object options):
+cdef object _resolve_split_by_count_request(SMResourceOptions options):
     cdef int n_groups = _resolve_group_count(options)
     cdef list counts = _broadcast_field(options.count, n_groups)
     cdef object first = counts[0]
@@ -195,11 +200,11 @@ cdef object _resolve_split_by_count_request(object options):
 
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
-    cdef void _fill_group_params(
+    cdef int _fill_group_params(
         cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS* params,
         int n_groups,
-        object options,
-    ) except *:
+        SMResourceOptions options,
+    ) except?-1:
         cdef list counts = _broadcast_field(options.count, n_groups)
         cdef list coscheduled = _broadcast_field(options.coscheduled_sm_count, n_groups)
         cdef list preferred = _broadcast_field(options.preferred_coscheduled_sm_count, n_groups)
@@ -215,9 +220,10 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
                     preferred[i], "preferred_coscheduled_sm_count"
                 )
             params[i].flags = 0
+        return 0
 
 
-    cdef object _split_with_general_api(SMResource sm, object options, bint dry_run):
+    cdef object _split_with_general_api(SMResource sm, SMResourceOptions options, bint dry_run):
         cdef int n_groups = _resolve_group_count(options)
         cdef cydriver.CUdevResource* result = NULL
         cdef cydriver.CUdevResource remaining
@@ -255,28 +261,28 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 
             if result != NULL:
                 for i in range(n_groups):
-                    groups.append(SMResource._from_dev_resource(result[i]))
-                return groups, SMResource._from_dev_resource(remaining)
+                    groups.append(SMResource._from_split_resource(result[i], sm, True))
+                return groups, SMResource._from_split_resource(remaining, sm, True)
 
             for i in range(n_groups):
                 memset(&synth, 0, sizeof(cydriver.CUdevResource))
                 synth.type = cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM
                 synth.sm.smCount = params[i].smCount
-                groups.append(SMResource._from_dry_run_resource(synth))
-            return groups, SMResource._from_dry_run_resource(remaining)
+                groups.append(SMResource._from_split_resource(synth, sm, False))
+            return groups, SMResource._from_split_resource(remaining, sm, False)
         finally:
             if params != NULL:
                 free(params)
             if result != NULL:
                 free(result)
 ELSE:
-    cdef object _split_with_general_api(SMResource sm, object options, bint dry_run):
+    cdef object _split_with_general_api(SMResource sm, SMResourceOptions options, bint dry_run):
         raise NotImplementedError(
             "SMResource.split() requires cuda.core to be built with CUDA 13.x bindings"
         )
 
 
-cdef object _split_with_count_api(SMResource sm, object options, bint dry_run):
+cdef object _split_with_count_api(SMResource sm, SMResourceOptions options, bint dry_run):
     cdef object request = _resolve_split_by_count_request(options)
     cdef unsigned int nb_groups = <unsigned int>request[0]
     cdef unsigned int min_count = <unsigned int>request[1]
@@ -304,14 +310,34 @@ cdef object _split_with_count_api(SMResource sm, object options, bint dry_run):
 
         for i in range(actual_groups):
             if dry_run:
-                groups.append(SMResource._from_dry_run_resource(result[i]))
+                groups.append(SMResource._from_split_resource(result[i], sm, False))
             else:
-                groups.append(SMResource._from_dev_resource(result[i]))
+                groups.append(SMResource._from_split_resource(result[i], sm, True))
         if dry_run:
-            return groups, SMResource._from_dry_run_resource(remaining)
-        return groups, SMResource._from_dev_resource(remaining)
+            return groups, SMResource._from_split_resource(remaining, sm, False)
+        return groups, SMResource._from_split_resource(remaining, sm, True)
     finally:
         free(result)
+
+
+cdef inline unsigned int _sm_resource_granularity(int device_id) except? 0:
+    cdef int major
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuDeviceGetAttribute(
+            &major,
+            cydriver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR,
+            <cydriver.CUdevice>device_id,
+        ))
+    if major >= 9:
+        return 8
+    return 2
+
+
+cdef inline unsigned int _fallback_if_zero(unsigned int value, unsigned int fallback) noexcept:
+    if value != 0:
+        return value
+    return fallback
 
 
 cdef class SMResource:
@@ -324,17 +350,41 @@ cdef class SMResource:
         )
 
     @staticmethod
-    cdef SMResource _from_dev_resource(cydriver.CUdevResource res):
+    cdef SMResource _from_dev_resource(cydriver.CUdevResource res, int device_id):
         cdef SMResource self = SMResource.__new__(SMResource)
         self._resource = res
+        self._sm_count = res.sm.smCount
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            self._min_partition_size = res.sm.minSmPartitionSize
+            self._coscheduled_alignment = res.sm.smCoscheduledAlignment
+            self._flags = res.sm.flags
+        ELSE:
+            self._min_partition_size = _sm_resource_granularity(device_id)
+            self._coscheduled_alignment = self._min_partition_size
+            self._flags = 0
         self._is_usable = True
         return self
 
     @staticmethod
-    cdef SMResource _from_dry_run_resource(cydriver.CUdevResource res):
+    cdef SMResource _from_split_resource(cydriver.CUdevResource res, SMResource parent, bint is_usable):
         cdef SMResource self = SMResource.__new__(SMResource)
         self._resource = res
-        self._is_usable = False
+        self._sm_count = res.sm.smCount
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            self._min_partition_size = _fallback_if_zero(
+                res.sm.minSmPartitionSize,
+                parent._min_partition_size,
+            )
+            self._coscheduled_alignment = _fallback_if_zero(
+                res.sm.smCoscheduledAlignment,
+                parent._coscheduled_alignment,
+            )
+            self._flags = res.sm.flags
+        ELSE:
+            self._min_partition_size = parent._min_partition_size
+            self._coscheduled_alignment = parent._coscheduled_alignment
+            self._flags = parent._flags
+        self._is_usable = is_usable
         return self
 
     @property
@@ -345,33 +395,34 @@ cdef class SMResource:
     @property
     def sm_count(self) -> int:
         """Total SMs available in this resource."""
-        return self._resource.sm.smCount
+        return self._sm_count
 
     @property
     def min_partition_size(self) -> int:
         """Minimum SM count required to create a partition."""
-        return self._resource.sm.minSmPartitionSize
+        return self._min_partition_size
 
     @property
     def coscheduled_alignment(self) -> int:
         """Number of SMs guaranteed to be co-scheduled."""
-        return self._resource.sm.smCoscheduledAlignment
+        return self._coscheduled_alignment
 
     @property
     def flags(self) -> int:
         """Raw flags from the underlying SM resource."""
-        return self._resource.sm.flags
+        return self._flags
 
     def split(self, options not None, *, bint dry_run=False):
         """Split this SM resource into groups plus a remainder."""
-        if not isinstance(options, SMResourceOptions):
-            raise TypeError(f"options must be SMResourceOptions, got {type(options)}")
-        _resolve_group_count(options)
+        cdef SMResourceOptions opts = check_or_create_options(
+            SMResourceOptions, options, "SM resource options"
+        )
+        _resolve_group_count(opts)
         _check_green_ctx_support()
         if _can_use_structured_sm_split():
-            return _split_with_general_api(self, options, dry_run)
+            return _split_with_general_api(self, opts, dry_run)
         _check_split_by_count_support()
-        return _split_with_count_api(self, options, dry_run)
+        return _split_with_count_api(self, opts, dry_run)
 
 
 cdef class WorkqueueResource:
@@ -400,25 +451,26 @@ cdef class WorkqueueResource:
 
     def configure(self, options not None):
         """Configure the workqueue resource in place."""
+        cdef WorkqueueResourceOptions opts = check_or_create_options(
+            WorkqueueResourceOptions, options, "Workqueue resource options"
+        )
         _check_green_ctx_support()
         _check_workqueue_support()
-        if not isinstance(options, WorkqueueResourceOptions):
-            raise TypeError(f"options must be WorkqueueResourceOptions, got {type(options)}")
-        if options.sharing_scope is None:
+        if opts.sharing_scope is None:
             return None
 
         IF CUDA_CORE_BUILD_MAJOR >= 13:
-            if options.sharing_scope == "device_ctx":
+            if opts.sharing_scope == "device_ctx":
                 self._wq_config_resource.wqConfig.sharingScope = (
                     cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_DEVICE_CTX
                 )
-            elif options.sharing_scope == "green_ctx_balanced":
+            elif opts.sharing_scope == "green_ctx_balanced":
                 self._wq_config_resource.wqConfig.sharingScope = (
                     cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED
                 )
             else:
                 raise ValueError(
-                    f"Unknown sharing_scope: {options.sharing_scope!r}. "
+                    f"Unknown sharing_scope: {opts.sharing_scope!r}. "
                     "Expected 'device_ctx' or 'green_ctx_balanced'."
                 )
         ELSE:
@@ -453,7 +505,7 @@ cdef class DeviceResources:
                 &res,
                 cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM,
             ))
-        return SMResource._from_dev_resource(res)
+        return SMResource._from_dev_resource(res, self._device_id)
 
     @property
     def workqueue(self) -> WorkqueueResource:

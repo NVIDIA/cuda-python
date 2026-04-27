@@ -8,14 +8,18 @@ from cuda.bindings cimport cydriver
 cdef class SMResource:
     cdef:
         cydriver.CUdevResource _resource
+        unsigned int _sm_count
+        unsigned int _min_partition_size
+        unsigned int _coscheduled_alignment
+        unsigned int _flags
         bint _is_usable
         object __weakref__
 
     @staticmethod
-    cdef SMResource _from_dev_resource(cydriver.CUdevResource res)
+    cdef SMResource _from_dev_resource(cydriver.CUdevResource res, int device_id)
 
     @staticmethod
-    cdef SMResource _from_dry_run_resource(cydriver.CUdevResource res)
+    cdef SMResource _from_split_resource(cydriver.CUdevResource res, SMResource parent, bint is_usable)
 
 
 cdef class WorkqueueResource:

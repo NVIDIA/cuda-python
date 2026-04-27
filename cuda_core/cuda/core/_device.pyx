@@ -7,7 +7,7 @@ from __future__ import annotations
 cimport cpython
 
 from cuda.bindings cimport cydriver
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
 from libc.stdlib cimport free, malloc
 
 import threading
@@ -15,11 +15,6 @@ import threading
 from cuda.core._context cimport Context
 from cuda.core._context import ContextOptions
 from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueResource
-from cuda.core._device_resources import (
-    DeviceResources,
-    SMResource,
-    WorkqueueResource,
-)
 from cuda.core._event cimport Event as cyEvent
 from cuda.core._event import Event, EventOptions
 from cuda.core._memory._buffer cimport Buffer, MemoryResource
@@ -1309,15 +1304,11 @@ class Device:
         if options is None:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
-        assert_type(options, ContextOptions)
+        options = check_or_create_options(ContextOptions, options, "Context options")
         if options.resources is None:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
-        resources = options.resources
-        if isinstance(resources, (SMResource, WorkqueueResource)):
-            resources = (resources,)
-        else:
-            resources = tuple(resources)
+        resources = tuple(options.resources)
         if len(resources) == 0:
             raise ValueError("ContextOptions.resources must not be empty")
 

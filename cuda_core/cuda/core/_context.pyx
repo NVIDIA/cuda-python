@@ -2,9 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from cuda.bindings cimport cydriver
+from cuda.core._device_resources import SMResource, WorkqueueResource
 from cuda.core._resource_handles cimport (
     ContextHandle,
     GreenCtxHandle,
@@ -19,6 +23,9 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
 __all__ = ['Context', 'ContextOptions']
+
+
+DeviceResourcesT = Sequence[SMResource | WorkqueueResource]
 
 
 cdef class Context:
@@ -36,23 +43,17 @@ cdef class Context:
         """Create Context from existing ContextHandle (cdef-only factory)."""
         cdef Context ctx = cls.__new__(cls)
         ctx._h_context = h_context
-        ctx._h_green_ctx = get_context_green_ctx(h_context)
         ctx._device_id = device_id
-        ctx._is_green = ctx._h_green_ctx.get() != NULL
         return ctx
 
     @staticmethod
     cdef Context _from_green_ctx(type cls, GreenCtxHandle h_green_ctx, int device_id):
         """Create Context from an owning green context handle."""
-        cdef Context ctx = cls.__new__(cls)
-        ctx._h_green_ctx = h_green_ctx
-        ctx._h_context = create_context_handle_from_green_ctx(h_green_ctx)
-        if not ctx._h_context:
+        cdef ContextHandle h_context = create_context_handle_from_green_ctx(h_green_ctx)
+        if not h_context:
             HANDLE_RETURN(get_last_error())
             raise RuntimeError("Failed to create CUDA context view from green context")
-        ctx._device_id = device_id
-        ctx._is_green = True
-        return ctx
+        return Context._from_handle(cls, h_context, device_id)
 
     @property
     def handle(self):
@@ -70,7 +71,9 @@ cdef class Context:
     @property
     def is_green(self) -> bool:
         """True if this context was created from device resources."""
-        return bool(self._is_green)
+        if not self._h_context:
+            return False
+        return get_context_green_ctx(self._h_context).get() != NULL
 
     cpdef close(self):
         """Release this context wrapper's underlying CUDA handles."""
@@ -84,7 +87,6 @@ cdef class Context:
                     "Restore a previous context before closing this context."
                 )
         self._h_context.reset()
-        self._h_green_ctx.reset()
 
     def __eq__(self, other):
         if not isinstance(other, Context):
@@ -100,12 +102,12 @@ cdef class Context:
 
 
 @dataclass
-class ContextOptions:
+cdef class ContextOptions:
     """Options for context creation.
 
     Attributes
     ----------
-    resources : Sequence[SMResource | WorkqueueResource], optional
+    resources : :obj:`~_context.DeviceResourcesT`
         Device resources used to create a green context.
     """
-    resources: object = None
+    resources: DeviceResourcesT
