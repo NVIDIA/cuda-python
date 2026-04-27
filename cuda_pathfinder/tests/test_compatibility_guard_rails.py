@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from local_helpers import (
+    have_distribution,
     locate_real_cuda_toolkit_version_from_cuda_h,
     require_real_cuda_toolkit_version_from_cuda_h,
     require_real_driver_cuda_version,
@@ -49,6 +50,7 @@ def _default_process_wide_guard_rails_mode(monkeypatch):
 
 @pytest.fixture
 def clear_real_host_probe_caches():
+    have_distribution.cache_clear()
     locate_real_cuda_toolkit_version_from_cuda_h.cache_clear()
     locate_nvidia_header_directory_raw.cache_clear()
     _resolve_system_loaded_abs_path_in_subprocess.cache_clear()
@@ -57,6 +59,7 @@ def clear_real_host_probe_caches():
     driver_info._load_nvidia_dynamic_lib.cache_clear()
     driver_info.query_driver_cuda_version.cache_clear()
     yield
+    have_distribution.cache_clear()
     locate_real_cuda_toolkit_version_from_cuda_h.cache_clear()
     locate_nvidia_header_directory_raw.cache_clear()
     _resolve_system_loaded_abs_path_in_subprocess.cache_clear()
@@ -685,16 +688,26 @@ def test_find_nvidia_header_directory_returns_none_when_unresolved(monkeypatch):
 
 
 @pytest.mark.usefixtures("clear_real_host_probe_caches")
-def test_real_wheel_ctk_items_are_compatible(info_summary_append):
-    real_ctk = require_real_cuda_toolkit_version_from_cuda_h()
+def test_real_driver(info_summary_append):
     real_driver = require_real_driver_cuda_version()
+    info_summary_append(
+        f"real driver CUDA version={real_driver.major}.{real_driver.minor} (encoded={real_driver.encoded})"
+    )
+
+
+@pytest.mark.usefixtures("clear_real_host_probe_caches")
+def test_real_ctk(info_summary_append):
+    real_ctk = require_real_cuda_toolkit_version_from_cuda_h()
     info_summary_append(
         f"real cuda.h CTK version={real_ctk.version.major}.{real_ctk.version.minor} "
         f"via {real_ctk.found_via} at {real_ctk.cuda_h_path!r}"
     )
-    info_summary_append(
-        f"real driver CUDA version={real_driver.major}.{real_driver.minor} (encoded={real_driver.encoded})"
-    )
+
+
+@pytest.mark.usefixtures("clear_real_host_probe_caches")
+def test_real_wheel_ctk_items_are_compatible(info_summary_append):
+    real_ctk = require_real_cuda_toolkit_version_from_cuda_h()
+    real_driver = require_real_driver_cuda_version()
     guard_rails = CompatibilityGuardRails(
         ctk_major=real_ctk.version.major,
         ctk_minor=real_ctk.version.minor,
@@ -716,33 +729,29 @@ def test_real_wheel_ctk_items_are_compatible(info_summary_append):
     ) as exc:
         if STRICTNESS == "all_must_work":
             raise
-        info_summary_append(f"real CTK check unavailable: {exc.__class__.__name__}: {exc}")
-        return
-
-    info_summary_append(f"nvrtc={loaded.abs_path!r}")
-    info_summary_append(f"nvrtc_headers={header_dir!r}")
-    info_summary_append(f"cudadevrt={static_lib!r}")
-    info_summary_append(f"libdevice={bitcode_lib!r}")
-    info_summary_append(f"nvcc={nvcc!r}")
+        pytest.skip(f"real CTK check unavailable: {exc.__class__.__name__}: {exc}")
 
     assert isinstance(loaded.abs_path, str)
     assert header_dir is not None
-    assert nvcc is not None
-    for path in (loaded.abs_path, header_dir, static_lib, bitcode_lib, nvcc):
+    for path in (loaded.abs_path, header_dir, static_lib, bitcode_lib):
         _assert_real_ctk_backed_path(path)
+    if have_distribution(r"^nvidia-cuda-nvcc-cu12$"):
+        # For CUDA 12, NVIDIA publishes a PyPI package named nvidia-cuda-nvcc-cu12,
+        # but the wheels only contain nvcc-adjacent compiler components such as
+        # ptxas, CRT headers, libnvvm, and libdevice; the nvcc executable itself
+        # is not included.
+        if nvcc is not None:
+            # nvcc found elsewhere, e.g. /usr/local or Conda.
+            _assert_real_ctk_backed_path(nvcc)
+    else:
+        assert nvcc is not None
+        _assert_real_ctk_backed_path(nvcc)
 
 
 @pytest.mark.usefixtures("clear_real_host_probe_caches")
 def test_real_wheel_component_version_does_not_override_ctk_line(info_summary_append):
     real_ctk = require_real_cuda_toolkit_version_from_cuda_h()
     real_driver = require_real_driver_cuda_version()
-    info_summary_append(
-        f"real cuda.h CTK version={real_ctk.version.major}.{real_ctk.version.minor} "
-        f"via {real_ctk.found_via} at {real_ctk.cuda_h_path!r}"
-    )
-    info_summary_append(
-        f"real driver CUDA version={real_driver.major}.{real_driver.minor} (encoded={real_driver.encoded})"
-    )
     guard_rails = CompatibilityGuardRails(
         ctk_major=real_ctk.version.major,
         ctk_minor=real_ctk.version.minor,
@@ -754,14 +763,11 @@ def test_real_wheel_component_version_does_not_override_ctk_line(info_summary_ap
     except (CompatibilityCheckError, CompatibilityInsufficientMetadataError) as exc:
         if STRICTNESS == "all_must_work":
             raise
-        info_summary_append(f"real cufft CTK check unavailable: {exc.__class__.__name__}: {exc}")
-        return
+        pytest.skip(f"real cufft CTK check unavailable: {exc.__class__.__name__}: {exc}")
 
     if header_dir is None:
         if STRICTNESS == "all_must_work":
             raise AssertionError("Expected CTK-backed cufft headers to be discoverable.")
-        info_summary_append("real cufft CTK check unavailable: cufft headers not found")
-        return
+        pytest.skip("real cufft CTK check unavailable: cufft headers not found")
 
-    info_summary_append(f"cufft_headers={header_dir!r}")
     _assert_real_ctk_backed_path(header_dir)
