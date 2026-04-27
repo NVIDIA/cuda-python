@@ -7,7 +7,8 @@ from __future__ import annotations
 from cuda.core._memory._buffer cimport Buffer, _init_mem_attrs
 from cuda.core._stream cimport Stream, Stream_accept
 
-from cuda.core._utils.cuda_utils import driver, get_binding_version, handle_return
+from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core._utils.version import binding_version
 from cuda.core._device import Device
 
 
@@ -201,7 +202,7 @@ cdef bint _managed_location_uses_v2_bindings():
     # cuda.bindings 13.x switches these APIs to CUmemLocation-based wrappers.
     global _V2_BINDINGS
     if _V2_BINDINGS < 0:
-        _V2_BINDINGS = 1 if get_binding_version() >= (13, 0) else 0
+        _V2_BINDINGS = 1 if binding_version() >= (13, 0) else 0
     return _V2_BINDINGS != 0
 
 
