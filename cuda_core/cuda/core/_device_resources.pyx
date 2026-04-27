@@ -27,45 +27,85 @@ __all__ = [
 ]
 
 
+# Module-level cached version checks (trinary: 0=unchecked, 1=supported, -1=unsupported)
+cdef int _green_ctx_checked = 0
+cdef int _workqueue_checked = 0
+cdef str _green_ctx_err_msg = ""
+cdef str _workqueue_err_msg = ""
+
+
 cdef inline int _check_green_ctx_support() except?-1:
+    global _green_ctx_checked, _green_ctx_err_msg
+    if _green_ctx_checked == 1:
+        return 0
+    if _green_ctx_checked == -1:
+        raise RuntimeError(_green_ctx_err_msg)
     cdef tuple drv = cy_driver_version()
     cdef tuple bind = cy_binding_version()
     if drv < (12, 4, 0):
-        raise NotImplementedError(
-            "Green context support requires CUDA driver 12.4 or newer. "
-            f"Using driver version {'.'.join(map(str, drv))}"
+        _green_ctx_err_msg = (
+            "Green context support requires CUDA driver 12.4 or newer "
+            f"(current driver: {'.'.join(map(str, drv))})"
         )
+        _green_ctx_checked = -1
+        raise RuntimeError(_green_ctx_err_msg)
     if bind < (12, 4, 0):
-        raise NotImplementedError(
-            "Green context support requires cuda.bindings 12.4 or newer. "
-            f"Using cuda.bindings version {'.'.join(map(str, bind))}"
+        _green_ctx_err_msg = (
+            "Green context support requires cuda.bindings 12.4 or newer "
+            f"(current bindings: {'.'.join(map(str, bind))})"
         )
+        _green_ctx_checked = -1
+        raise RuntimeError(_green_ctx_err_msg)
+    _green_ctx_checked = 1
     return 0
 
 
 cdef inline int _check_workqueue_support() except?-1:
+    global _workqueue_checked, _workqueue_err_msg
+    if _workqueue_checked == 1:
+        return 0
+    if _workqueue_checked == -1:
+        raise RuntimeError(_workqueue_err_msg)
     cdef tuple drv = cy_driver_version()
     cdef tuple bind = cy_binding_version()
     if drv < (13, 1, 0):
-        raise NotImplementedError(
-            "WorkqueueResource requires CUDA driver 13.1 or newer. "
-            f"Using driver version {'.'.join(map(str, drv))}"
+        _workqueue_err_msg = (
+            "WorkqueueResource requires CUDA driver 13.1 or newer "
+            f"(current driver: {'.'.join(map(str, drv))})"
         )
+        _workqueue_checked = -1
+        raise RuntimeError(_workqueue_err_msg)
     if bind < (13, 1, 0):
-        raise NotImplementedError(
-            "WorkqueueResource requires cuda.bindings 13.1 or newer. "
-            f"Using cuda.bindings version {'.'.join(map(str, bind))}"
+        _workqueue_err_msg = (
+            "WorkqueueResource requires cuda.bindings 13.1 or newer "
+            f"(current bindings: {'.'.join(map(str, bind))})"
         )
+        _workqueue_checked = -1
+        raise RuntimeError(_workqueue_err_msg)
+    _workqueue_checked = 1
     return 0
 
 
 @dataclass
 cdef class SMResourceOptions:
-    """Options for :meth:`SMResource.split`.
+    """Customizable :obj:`SMResource.split` options.
 
-    ``count`` determines the number of requested groups. Scalar ``count`` or
-    ``None`` creates one group; a sequence creates ``len(count)`` groups. Other
-    sequence fields must match the length of ``count``.
+    Each field accepts a scalar (for a single group) or a ``Sequence``
+    (for multiple groups). ``count`` drives the number of groups; other
+    ``Sequence`` fields must match its length.
+
+    Attributes
+    ----------
+    count : int or Sequence[int], optional
+        Requested SM count per group. ``None`` means discovery mode
+        (auto-detect). (Default to ``None``)
+    coscheduled_sm_count : int or Sequence[int], optional
+        Minimum number of SMs guaranteed to be co-scheduled in each
+        group. (Default to ``None``)
+    preferred_coscheduled_sm_count : int or Sequence[int], optional
+        Preferred co-scheduled SM count; the driver tries to satisfy
+        this but may fall back to ``coscheduled_sm_count``.
+        (Default to ``None``)
     """
 
     count: int | SequenceABC | None = None
@@ -75,7 +115,14 @@ cdef class SMResourceOptions:
 
 @dataclass
 cdef class WorkqueueResourceOptions:
-    """Options for :meth:`WorkqueueResource.configure`."""
+    """Customizable :obj:`WorkqueueResource.configure` options.
+
+    Attributes
+    ----------
+    sharing_scope : str, optional
+        Workqueue sharing scope. Accepted values: ``"device_ctx"``
+        or ``"green_ctx_balanced"``. (Default to ``None``)
+    """
 
     sharing_scope: str | None = None
 
@@ -97,7 +144,7 @@ cdef inline int _validate_split_field_length(
     return 0
 
 
-cdef int _resolve_group_count(SMResourceOptions options) except -1:
+cdef inline int _resolve_group_count(SMResourceOptions options) except?-1:
     cdef object count = options.count
     cdef int n_groups
     cdef bint count_is_scalar
@@ -128,47 +175,34 @@ cdef int _resolve_group_count(SMResourceOptions options) except -1:
     return n_groups
 
 
-cdef object _broadcast_field(object value, int n_groups):
+cdef inline object _broadcast_field(object value, int n_groups):
     if is_sequence(value):
         return list(value)
     return [value] * n_groups
 
 
-cdef inline unsigned int _as_uint(object value, str field_name) except? 0:
-    if not isinstance(value, int):
-        raise TypeError(f"{field_name} must be an int or None, got {type(value)}")
-    if value < 0:
-        raise ValueError(f"{field_name} must be non-negative")
-    return <unsigned int>value
-
-
-cdef inline unsigned int _count_to_sm_count(object value) except? 0:
+cdef inline unsigned int _to_sm_count(object value) except? 0:
+    """Convert a count value to unsigned int. None maps to 0 (discovery)."""
     if value is None:
         return 0
-    return _as_uint(value, "count")
+    if value < 0:
+        raise ValueError(f"count must be non-negative, got {value}")
+    return <unsigned int>(value)
 
+
+cdef int _structured_split_checked = 0
 
 cdef inline bint _can_use_structured_sm_split():
+    """Check if cuDevSmResourceSplit (13.1+) is available. Cached."""
+    global _structured_split_checked
+    if _structured_split_checked != 0:
+        return _structured_split_checked == 1
     IF CUDA_CORE_BUILD_MAJOR >= 13:
-        return cy_driver_version() >= (13, 1, 0) and cy_binding_version() >= (13, 1, 0)
-    ELSE:
-        return False
-
-
-cdef inline int _check_split_by_count_support() except?-1:
-    cdef tuple drv = cy_driver_version()
-    cdef tuple bind = cy_binding_version()
-    if drv < (12, 4, 0):
-        raise NotImplementedError(
-            "SMResource.split() requires CUDA driver 12.4 or newer. "
-            f"Using driver version {'.'.join(map(str, drv))}"
-        )
-    if bind < (12, 4, 0):
-        raise NotImplementedError(
-            "SMResource.split() requires cuda.bindings 12.4 or newer. "
-            f"Using cuda.bindings version {'.'.join(map(str, bind))}"
-        )
-    return 0
+        if cy_driver_version() >= (13, 1, 0) and cy_binding_version() >= (13, 1, 0):
+            _structured_split_checked = 1
+            return True
+    _structured_split_checked = -1
+    return False
 
 
 cdef object _resolve_split_by_count_request(SMResourceOptions options):
@@ -179,29 +213,29 @@ cdef object _resolve_split_by_count_request(SMResourceOptions options):
     cdef unsigned int min_count
 
     if options.coscheduled_sm_count is not None:
-        raise NotImplementedError(
+        raise RuntimeError(
             "SMResourceOptions.coscheduled_sm_count requires the CUDA 13.1 "
             "structured SM split API"
         )
     if options.preferred_coscheduled_sm_count is not None:
-        raise NotImplementedError(
+        raise RuntimeError(
             "SMResourceOptions.preferred_coscheduled_sm_count requires the "
             "CUDA 13.1 structured SM split API"
         )
 
     for value in counts[1:]:
         if value != first:
-            raise NotImplementedError(
+            raise RuntimeError(
                 "CUDA 12 SM splitting only supports homogeneous count values; "
                 "use CUDA 13.1 or newer for per-group counts"
             )
 
-    min_count = _count_to_sm_count(first)
+    min_count = _to_sm_count(first)
     return n_groups, min_count
 
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
-    cdef int _fill_group_params(
+    cdef inline int _fill_group_params(
         cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS* params,
         int n_groups,
         SMResourceOptions options,
@@ -213,13 +247,11 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 
         for i in range(n_groups):
             memset(&params[i], 0, sizeof(cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS))
-            params[i].smCount = _count_to_sm_count(counts[i])
+            params[i].smCount = _to_sm_count(counts[i])
             if coscheduled[i] is not None:
-                params[i].coscheduledSmCount = _as_uint(coscheduled[i], "coscheduled_sm_count")
+                params[i].coscheduledSmCount = <unsigned int>(coscheduled[i])
             if preferred[i] is not None:
-                params[i].preferredCoscheduledSmCount = _as_uint(
-                    preferred[i], "preferred_coscheduled_sm_count"
-                )
+                params[i].preferredCoscheduledSmCount = <unsigned int>(preferred[i])
             params[i].flags = 0
         return 0
 
@@ -253,7 +285,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
             with nogil:
                 HANDLE_RETURN(cydriver.cuDevSmResourceSplit(
                     result,
-                    <unsigned int>n_groups,
+                    <unsigned int>(n_groups),
                     &sm._resource,
                     &remaining,
                     0,
@@ -278,15 +310,15 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
                 free(result)
 ELSE:
     cdef object _split_with_general_api(SMResource sm, SMResourceOptions options, bint dry_run):
-        raise NotImplementedError(
+        raise RuntimeError(
             "SMResource.split() requires cuda.core to be built with CUDA 13.x bindings"
         )
 
 
 cdef object _split_with_count_api(SMResource sm, SMResourceOptions options, bint dry_run):
     cdef object request = _resolve_split_by_count_request(options)
-    cdef unsigned int nb_groups = <unsigned int>request[0]
-    cdef unsigned int min_count = <unsigned int>request[1]
+    cdef unsigned int nb_groups = <unsigned int>(request[0])
+    cdef unsigned int min_count = <unsigned int>(request[1])
     cdef unsigned int actual_groups = nb_groups
     cdef cydriver.CUdevResource* result = NULL
     cdef cydriver.CUdevResource remaining
@@ -328,7 +360,7 @@ cdef inline unsigned int _sm_resource_granularity(int device_id) except? 0:
         HANDLE_RETURN(cydriver.cuDeviceGetAttribute(
             &major,
             cydriver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR,
-            <cydriver.CUdevice>device_id,
+            <cydriver.CUdevice>(device_id),
         ))
     if major >= 9:
         return 8
@@ -342,7 +374,11 @@ cdef inline unsigned int _fallback_if_zero(unsigned int value, unsigned int fall
 
 
 cdef class SMResource:
-    """SM resource queried from a device. Not user-constructible."""
+    """Represent an SM (streaming multiprocessor) resource partition.
+
+    Instances are returned by :obj:`DeviceResources.sm` or
+    :meth:`SMResource.split` and cannot be instantiated directly.
+    """
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
@@ -391,7 +427,7 @@ cdef class SMResource:
     @property
     def handle(self) -> int:
         """Return the address of the underlying ``CUdevResource`` struct."""
-        return <intptr_t>&self._resource
+        return <intptr_t>(&self._resource)
 
     @property
     def sm_count(self) -> int:
@@ -414,7 +450,22 @@ cdef class SMResource:
         return self._flags
 
     def split(self, options not None, *, bint dry_run=False):
-        """Split this SM resource into groups plus a remainder."""
+        """Split this SM resource into groups and a remainder.
+
+        Parameters
+        ----------
+        options : :obj:`SMResourceOptions`
+            Split configuration (count, co-scheduling constraints).
+        dry_run : bool, optional
+            If ``True``, return filled-in metadata without creating
+            usable resource objects. (Default to ``False``)
+
+        Returns
+        -------
+        tuple[list[:obj:`SMResource`], :obj:`SMResource`]
+            ``(groups, remainder)`` where each group holds a disjoint
+            SM partition and *remainder* holds any unassigned SMs.
+        """
         cdef SMResourceOptions opts = check_or_create_options(
             SMResourceOptions, options, "SM resource options"
         )
@@ -422,12 +473,18 @@ cdef class SMResource:
         _check_green_ctx_support()
         if _can_use_structured_sm_split():
             return _split_with_general_api(self, opts, dry_run)
-        _check_split_by_count_support()
+        # SplitByCount requires the same 12.4+ as green ctx support (already checked above)
         return _split_with_count_api(self, opts, dry_run)
 
 
 cdef class WorkqueueResource:
-    """Workqueue resource. Not user-constructible."""
+    """Represent a workqueue resource for a device or green context.
+
+    Merges ``CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG`` and
+    ``CU_DEV_RESOURCE_TYPE_WORKQUEUE`` under one user-facing type.
+    Instances are returned by :obj:`DeviceResources.workqueue` and
+    cannot be instantiated directly.
+    """
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
@@ -448,10 +505,16 @@ cdef class WorkqueueResource:
     @property
     def handle(self) -> int:
         """Return the address of the underlying config ``CUdevResource`` struct."""
-        return <intptr_t>&self._wq_config_resource
+        return <intptr_t>(&self._wq_config_resource)
 
     def configure(self, options not None):
-        """Configure the workqueue resource in place."""
+        """Configure the workqueue resource in place.
+
+        Parameters
+        ----------
+        options : :obj:`WorkqueueResourceOptions`
+            Configuration options (sharing scope, etc.).
+        """
         cdef WorkqueueResourceOptions opts = check_or_create_options(
             WorkqueueResourceOptions, options, "Workqueue resource options"
         )
@@ -475,17 +538,20 @@ cdef class WorkqueueResource:
                     "Expected 'device_ctx' or 'green_ctx_balanced'."
                 )
         ELSE:
-            raise NotImplementedError(
+            raise RuntimeError(
                 "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
             )
 
 
 cdef class DeviceResources:
-    """Namespace for hardware resource query. Not user-constructible.
+    """Namespace for hardware resource queries.
 
-    When obtained via ``dev.resources``, queries return full device resources.
-    When obtained via ``ctx.resources``, queries return the resources
-    provisioned for that context.
+    When obtained via :obj:`Device.resources`, queries return full device
+    resources. When obtained via :obj:`Context.resources` or
+    :obj:`Stream.resources`, queries return the resources provisioned for
+    that context.
+
+    This class cannot be instantiated directly.
     """
 
     def __init__(self, *args, **kwargs):
@@ -525,14 +591,14 @@ cdef class DeviceResources:
                 ))
         else:
             HANDLE_RETURN(cydriver.cuDeviceGetDevResource(
-                <cydriver.CUdevice>self._device_id, res,
+                <cydriver.CUdevice>(self._device_id), res,
                 cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM,
             ))
         return 0
 
     @property
     def sm(self) -> SMResource:
-        """Query SM resources."""
+        """Return the :obj:`SMResource` for this device or context."""
         _check_green_ctx_support()
         cdef cydriver.CUdevResource res
         with nogil:
@@ -541,7 +607,7 @@ cdef class DeviceResources:
 
     @property
     def workqueue(self) -> WorkqueueResource:
-        """Query workqueue resources."""
+        """Return the :obj:`WorkqueueResource` for this device or context."""
         _check_green_ctx_support()
         _check_workqueue_support()
         cdef cydriver.CUdevResource _wq_config
@@ -581,17 +647,17 @@ cdef class DeviceResources:
                 # Device-level query
                 with nogil:
                     HANDLE_RETURN(cydriver.cuDeviceGetDevResource(
-                        <cydriver.CUdevice>self._device_id,
+                        <cydriver.CUdevice>(self._device_id),
                         &_wq_config,
                         cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG,
                     ))
                     HANDLE_RETURN(cydriver.cuDeviceGetDevResource(
-                        <cydriver.CUdevice>self._device_id,
+                        <cydriver.CUdevice>(self._device_id),
                         &_wq,
                         cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE,
                     ))
             return WorkqueueResource._from_dev_resources(_wq_config, _wq)
         ELSE:
-            raise NotImplementedError(
+            raise RuntimeError(
                 "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
             )

@@ -1302,11 +1302,15 @@ class Device:
         cdef GreenCtxHandle h_green
 
         if options is None:
-            raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
+            raise ValueError(
+                "options with device resources must be provided to create a green context"
+            )
 
         options = check_or_create_options(ContextOptions, options, "Context options")
         if options.resources is None:
-            raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
+            raise ValueError(
+                "ContextOptions.resources must be provided to create a green context"
+            )
 
         resources = tuple(options.resources)
         if len(resources) == 0:
@@ -1334,9 +1338,9 @@ class Device:
 
             h_green = create_green_ctx_handle(
                 c_resources,
-                <unsigned int>n_resources,
-                <cydriver.CUdevice>self._device_id,
-                <unsigned int>cydriver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM,
+                <unsigned int>(n_resources),
+                <cydriver.CUdevice>(self._device_id),
+                <unsigned int>(cydriver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM),
             )
             if h_green.get() == NULL:
                 HANDLE_RETURN(get_last_error())

@@ -149,7 +149,7 @@ cdef class ContextOptions:
 
     Attributes
     ----------
-    resources : :obj:`~_context.DeviceResourcesT`
+    resources : :obj:`~cuda.core.typing.DeviceResourcesT`
         Device resources used to create a green context.
     """
     resources: DeviceResourcesT

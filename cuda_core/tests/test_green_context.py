@@ -47,7 +47,7 @@ def sm_resource(init_cuda):
     """Query SM resources from the device, skip if unsupported."""
     try:
         return init_cuda.resources.sm
-    except (NotImplementedError, CUDAError) as exc:
+    except (RuntimeError, ValueError, CUDAError) as exc:
         pytest.skip(str(exc))
 
 
@@ -56,7 +56,7 @@ def wq_resource(init_cuda):
     """Query workqueue resources from the device, skip if unsupported."""
     try:
         return init_cuda.resources.workqueue
-    except (NotImplementedError, CUDAError) as exc:
+    except (RuntimeError, ValueError, CUDAError) as exc:
         pytest.skip(str(exc))
 
 
@@ -113,10 +113,10 @@ def test_not_user_constructible():
         WorkqueueResource()
 
 
-def test_create_context_without_resources_stays_unimplemented(init_cuda):
-    with pytest.raises(NotImplementedError):
+def test_create_context_requires_resources(init_cuda):
+    with pytest.raises(ValueError, match="resources must be provided"):
         init_cuda.create_context()
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError, match="resources must be provided"):
         init_cuda.create_context(ContextOptions(resources=None))
     with pytest.raises(TypeError):
         init_cuda.create_context(object())
@@ -389,7 +389,7 @@ class TestContextResources:
             ctx_wq = green_ctx.resources.workqueue
             assert stream_wq.handle != 0
             assert ctx_wq.handle != 0
-        except (NotImplementedError, CUDAError):
+        except (RuntimeError, ValueError, CUDAError):
             pass  # workqueue not available on this driver/build
 
 
