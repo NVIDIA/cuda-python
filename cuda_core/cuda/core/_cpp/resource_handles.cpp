@@ -414,7 +414,11 @@ StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags
 
     // Dispatch: green context uses cuGreenCtxStreamCreate, primary uses cuStreamCreateWithPriority
     GreenCtxHandle h_green = get_context_green_ctx(h_ctx);
-    if (h_green && p_cuGreenCtxStreamCreate) {
+    if (h_green) {
+        if (!p_cuGreenCtxStreamCreate) {
+            err = CUDA_ERROR_NOT_SUPPORTED;
+            return {};
+        }
         if (CUDA_SUCCESS != (err = p_cuGreenCtxStreamCreate(&stream, as_cu(h_green), flags, priority))) {
             return {};
         }

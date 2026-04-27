@@ -293,6 +293,13 @@ class TestGreenContextLifecycle:
         with pytest.raises(RuntimeError, match="only supported on green contexts"):
             ctx.create_stream()
 
+    def test_create_stream_blocking_raises(self, green_ctx):
+        """Green context streams must be non-blocking."""
+        from cuda.core import StreamOptions
+
+        with pytest.raises(ValueError, match="must be non-blocking"):
+            green_ctx.create_stream(StreamOptions(nonblocking=False))
+
     def test_create_stream_explicit(self, green_ctx):
         """Create a stream directly from the green context (no set_current)."""
         stream = green_ctx.create_stream()

@@ -548,19 +548,35 @@ cdef class DeviceResources:
         cdef cydriver.CUdevResource _wq
 
         IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef GreenCtxHandle h_green
             if self._h_context:
-                # Context-level query
-                with nogil:
-                    HANDLE_RETURN(cydriver.cuCtxGetDevResource(
-                        as_cu(self._h_context),
-                        &_wq_config,
-                        cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG,
-                    ))
-                    HANDLE_RETURN(cydriver.cuCtxGetDevResource(
-                        as_cu(self._h_context),
-                        &_wq,
-                        cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE,
-                    ))
+                h_green = get_context_green_ctx(self._h_context)
+                if h_green:
+                    # Green context query
+                    with nogil:
+                        HANDLE_RETURN(cydriver.cuGreenCtxGetDevResource(
+                            as_cu(h_green),
+                            &_wq_config,
+                            cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG,
+                        ))
+                        HANDLE_RETURN(cydriver.cuGreenCtxGetDevResource(
+                            as_cu(h_green),
+                            &_wq,
+                            cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE,
+                        ))
+                else:
+                    # Primary context query
+                    with nogil:
+                        HANDLE_RETURN(cydriver.cuCtxGetDevResource(
+                            as_cu(self._h_context),
+                            &_wq_config,
+                            cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG,
+                        ))
+                        HANDLE_RETURN(cydriver.cuCtxGetDevResource(
+                            as_cu(self._h_context),
+                            &_wq,
+                            cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE,
+                        ))
             else:
                 # Device-level query
                 with nogil:

@@ -31,6 +31,7 @@ from cuda.core._resource_handles cimport (
     create_stream_handle,
     create_stream_handle_with_owner,
     get_current_context,
+    get_last_error,
     get_legacy_stream,
     get_per_thread_stream,
     get_stream_context,
@@ -143,8 +144,15 @@ cdef class Stream:
                                    else cydriver.CUstream_flags.CU_STREAM_DEFAULT)
         # TODO: we might want to consider memoizing high/low per CUDA context and avoid this call
         cdef int high, low
+        cdef cydriver.CUresult res_code
         with nogil:
-            HANDLE_RETURN(cydriver.cuCtxGetStreamPriorityRange(&high, &low))
+            res_code = cydriver.cuCtxGetStreamPriorityRange(&high, &low)
+        if res_code != cydriver.CUresult.CUDA_SUCCESS:
+            if res_code == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+                raise RuntimeError(
+                    "No current CUDA context. Call dev.set_current() before creating streams."
+                )
+            HANDLE_RETURN(res_code)
         cdef int prio
         if priority is not None:
             prio = priority
@@ -157,7 +165,21 @@ cdef class Stream:
         # For green contexts, the C++ layer auto-dispatches to cuGreenCtxStreamCreate.
         h_stream = create_stream_handle(h_context, flags, prio)
         if not h_stream:
-            raise RuntimeError("Failed to create CUDA stream")
+            res_code = get_last_error()
+            if not nonblocking and res_code == cydriver.CUresult.CUDA_ERROR_INVALID_VALUE:
+                # cuGreenCtxStreamCreate rejects CU_STREAM_DEFAULT;
+                # no need to check is_green since primary streams don't fail this way
+                raise ValueError(
+                    "Green context streams must be non-blocking. "
+                    "Use StreamOptions(nonblocking=True) or omit the option (True is the default)."
+                )
+            elif res_code == cydriver.CUresult.CUDA_ERROR_NOT_SUPPORTED:
+                raise RuntimeError(
+                    "cuGreenCtxStreamCreate is not available. "
+                    "Green context stream creation requires CUDA 12.5 or newer."
+                )
+            else:
+                HANDLE_RETURN(res_code)
         self = Stream._from_handle(cls, h_stream)
         self._nonblocking = int(nonblocking)
         self._priority = prio

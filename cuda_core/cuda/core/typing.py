@@ -4,10 +4,12 @@
 
 """Public type aliases and protocols used in cuda.core API signatures."""
 
+from cuda.core._context import DeviceResourcesT
 from cuda.core._memory._buffer import DevicePointerT
 from cuda.core._stream import IsStreamT
 
 __all__ = [
     "DevicePointerT",
+    "DeviceResourcesT",
     "IsStreamT",
 ]
