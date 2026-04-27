@@ -1,0 +1,39 @@
+﻿cuda.bindings.nvml.EncoderSessionInfo
+=====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: EncoderSessionInfo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EncoderSessionInfo.__init__
+      ~EncoderSessionInfo.from_buffer
+      ~EncoderSessionInfo.from_data
+      ~EncoderSessionInfo.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EncoderSessionInfo.average_fps
+      ~EncoderSessionInfo.average_latency
+      ~EncoderSessionInfo.codec_type
+      ~EncoderSessionInfo.h_resolution
+      ~EncoderSessionInfo.pid
+      ~EncoderSessionInfo.ptr
+      ~EncoderSessionInfo.session_id
+      ~EncoderSessionInfo.v_resolution
+      ~EncoderSessionInfo.vgpu_instance
+   
+   
