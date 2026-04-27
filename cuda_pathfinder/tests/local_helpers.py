@@ -12,6 +12,7 @@ import pytest
 from cuda.pathfinder._headers.find_nvidia_headers import (
     locate_nvidia_header_directory as locate_nvidia_header_directory_raw,
 )
+from cuda.pathfinder._utils import driver_info
 from cuda.pathfinder._utils.toolkit_info import CudaToolkitVersion, read_cuda_header_version
 
 
@@ -68,3 +69,11 @@ def require_real_cuda_toolkit_version_from_cuda_h() -> LocatedRealCudaToolkitVer
         header_dir=located.abs_path,
         found_via=located.found_via,
     )
+
+
+def require_real_driver_cuda_version() -> driver_info.DriverCudaVersion:
+    """Return the real-host CUDA driver version or skip if it cannot be queried."""
+    try:
+        return driver_info.query_driver_cuda_version()
+    except driver_info.QueryDriverCudaVersionError as exc:
+        pytest.skip(f"Could not query the CUDA driver version for a real driver installation: {exc}")
