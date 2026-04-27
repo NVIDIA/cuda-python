@@ -360,6 +360,8 @@ def test_field_values():
         # TODO: Are there any fields that return double's?  It would be good to
         # test those.
 
+        assert len(device.get_field_values([])) == 0    
+
         field_ids = [
             system.FieldId.DEV_TOTAL_ENERGY_CONSUMPTION,
             system.FieldId.DEV_PCIE_COUNT_TX_BYTES,
