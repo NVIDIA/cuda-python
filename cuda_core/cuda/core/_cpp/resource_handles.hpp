@@ -64,6 +64,8 @@ extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
 extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
 extern decltype(&cuDevResourceGenerateDesc) p_cuDevResourceGenerateDesc;
 
+extern decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate;
+
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
 

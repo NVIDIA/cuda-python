@@ -153,7 +153,8 @@ cdef class Stream:
         else:
             prio = high
 
-        # C++ creates the stream and returns owning handle with context dependency
+        # C++ creates the stream and returns owning handle with context dependency.
+        # For green contexts, the C++ layer auto-dispatches to cuGreenCtxStreamCreate.
         h_stream = create_stream_handle(h_context, flags, prio)
         if not h_stream:
             raise RuntimeError("Failed to create CUDA stream")

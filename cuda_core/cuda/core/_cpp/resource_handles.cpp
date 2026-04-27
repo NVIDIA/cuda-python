@@ -34,6 +34,8 @@ decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy = nullptr;
 decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx = nullptr;
 decltype(&cuDevResourceGenerateDesc) p_cuDevResourceGenerateDesc = nullptr;
 
+decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate = nullptr;
+
 decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority = nullptr;
 decltype(&cuStreamDestroy) p_cuStreamDestroy = nullptr;
 
@@ -409,8 +411,17 @@ static HandleRegistry<CUstream, StreamHandle> stream_registry;
 StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags, int priority) {
     GILReleaseGuard gil;
     CUstream stream;
-    if (CUDA_SUCCESS != (err = p_cuStreamCreateWithPriority(&stream, flags, priority))) {
-        return {};
+
+    // Dispatch: green context uses cuGreenCtxStreamCreate, primary uses cuStreamCreateWithPriority
+    GreenCtxHandle h_green = get_context_green_ctx(h_ctx);
+    if (h_green && p_cuGreenCtxStreamCreate) {
+        if (CUDA_SUCCESS != (err = p_cuGreenCtxStreamCreate(&stream, as_cu(h_green), flags, priority))) {
+            return {};
+        }
+    } else {
+        if (CUDA_SUCCESS != (err = p_cuStreamCreateWithPriority(&stream, flags, priority))) {
+            return {};
+        }
     }
 
     auto box = std::shared_ptr<const StreamBox>(

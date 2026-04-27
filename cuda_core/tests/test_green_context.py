@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+
 import contextlib
 
 import numpy as np
@@ -69,21 +70,6 @@ def green_ctx(init_cuda, sm_resource):
         pytest.skip(str(exc))
     yield ctx
     ctx.close()
-
-
-@pytest.fixture
-def green_ctx_active(init_cuda, green_ctx):
-    """Set a green context as current and restore the previous on teardown.
-
-    Yields (dev, green_ctx, stream) for use in kernel launch tests.
-    """
-    dev = init_cuda
-    prev = dev.set_current(green_ctx)
-    try:
-        stream = dev.create_stream()
-        yield dev, green_ctx, stream
-    finally:
-        dev.set_current(prev)
 
 
 @pytest.fixture
@@ -299,23 +285,23 @@ class TestGreenContextLifecycle:
         assert green_ctx.is_green
         assert green_ctx.handle is not None
 
-    def test_set_current_swap_preserves_identity(self, init_cuda, green_ctx):
-        dev = init_cuda
-        with _use_green_ctx(dev, green_ctx):
-            pass  # just verify push/pop works
-        # After exiting, primary context is restored.
-        # Verify we can swap in and get identity back:
-        prev = dev.set_current(green_ctx)
-        try:
-            pass
-        finally:
-            restored = dev.set_current(prev)
-        assert restored is green_ctx
-        assert restored.is_green
+    def test_create_stream_on_primary_raises(self, init_cuda):
+        """create_stream is only for green contexts."""
+        # The init_cuda fixture sets the primary context
+        # Get the primary context via device internals
+        ctx = init_cuda._context
+        with pytest.raises(RuntimeError, match="only supported on green contexts"):
+            ctx.create_stream()
 
-    def test_stream_and_event_track_green_context(self, green_ctx_active):
-        dev, green_ctx, stream = green_ctx_active
+    def test_create_stream_explicit(self, green_ctx):
+        """Create a stream directly from the green context (no set_current)."""
+        stream = green_ctx.create_stream()
+        assert stream is not None
+        assert stream.context.is_green
+        assert stream.context == green_ctx
 
+    def test_stream_and_event_track_green_context(self, green_ctx):
+        stream = green_ctx.create_stream()
         event = stream.record()
         assert stream.context.is_green
         assert stream.context == green_ctx
@@ -325,13 +311,65 @@ class TestGreenContextLifecycle:
         event.sync()
 
     def test_close_while_current_raises(self, init_cuda, green_ctx):
+        """close() on a current context raises — test via set_current."""
         dev = init_cuda
         with _use_green_ctx(dev, green_ctx), pytest.raises(RuntimeError, match="while it is current"):
             green_ctx.close()
 
+    def test_set_current_swap_regression(self, init_cuda, green_ctx):
+        """set_current still works (backward compat) and preserves identity."""
+        dev = init_cuda
+        with _use_green_ctx(dev, green_ctx):
+            pass  # just verify push/pop works
+        # Swap again and check identity round-trip
+        prev = dev.set_current(green_ctx)
+        try:
+            assert prev is not None
+        finally:
+            restored = dev.set_current(prev)
+        assert restored is green_ctx
+        assert restored.is_green
+
 
 # ---------------------------------------------------------------------------
-# Kernel launch in green context
+# Context.resources
+# ---------------------------------------------------------------------------
+
+
+class TestContextResources:
+    def test_green_ctx_sm_resources(self, green_ctx, sm_resource):
+        """Green context's SM resources should be a subset of device SMs."""
+        ctx_sm = green_ctx.resources.sm
+        assert ctx_sm.sm_count > 0
+        assert ctx_sm.sm_count <= sm_resource.sm_count
+
+    def test_green_ctx_resources_reflect_partition(self, init_cuda, sm_resource):
+        """Two green contexts should have disjoint SM partitions."""
+        half = _aligned_half(sm_resource)
+        if half < sm_resource.min_partition_size:
+            pytest.skip("Not enough SMs for a 2-group split")
+
+        groups, _ = sm_resource.split(SMResourceOptions(count=(half, half)))
+
+        ctx_a = ctx_b = None
+        try:
+            ctx_a = init_cuda.create_context(ContextOptions(resources=[groups[0]]))
+            ctx_b = init_cuda.create_context(ContextOptions(resources=[groups[1]]))
+
+            sm_a = ctx_a.resources.sm.sm_count
+            sm_b = ctx_b.resources.sm.sm_count
+            assert sm_a > 0
+            assert sm_b > 0
+            assert sm_a + sm_b <= sm_resource.sm_count
+        finally:
+            if ctx_b is not None:
+                ctx_b.close()
+            if ctx_a is not None:
+                ctx_a.close()
+
+
+# ---------------------------------------------------------------------------
+# Kernel launch in green context (explicit model)
 # ---------------------------------------------------------------------------
 
 
@@ -354,10 +392,10 @@ def _launch_fill_and_verify(dev, stream, kernel, n, value):
 
 
 class TestGreenContextKernelLaunch:
-    def test_launch_and_verify(self, green_ctx_active, fill_kernel):
-        """Compile, launch in green context, verify results on host."""
-        dev, _, stream = green_ctx_active
-        _launch_fill_and_verify(dev, stream, fill_kernel, n=64, value=42)
+    def test_launch_and_verify(self, init_cuda, green_ctx, fill_kernel):
+        """Launch kernel via ctx.create_stream (explicit model, no set_current)."""
+        stream = green_ctx.create_stream()
+        _launch_fill_and_verify(init_cuda, stream, fill_kernel, n=64, value=42)
 
     def test_two_green_contexts_independent(self, init_cuda, sm_resource, fill_kernel):
         """Two SM groups -> two green contexts -> two independent kernels."""
@@ -375,9 +413,8 @@ class TestGreenContextKernelLaunch:
             ctx_b = dev.create_context(ContextOptions(resources=[groups[1]]))
 
             for ctx, value in [(ctx_a, 10), (ctx_b, 20)]:
-                with _use_green_ctx(dev, ctx):
-                    stream = dev.create_stream()
-                    _launch_fill_and_verify(dev, stream, fill_kernel, n=64, value=value)
+                stream = ctx.create_stream()
+                _launch_fill_and_verify(dev, stream, fill_kernel, n=64, value=value)
         finally:
             if ctx_b is not None:
                 ctx_b.close()
@@ -397,8 +434,7 @@ class TestGreenContextKernelLaunch:
         assert ctx.is_green
 
         try:
-            with _use_green_ctx(dev, ctx):
-                stream = dev.create_stream()
-                _launch_fill_and_verify(dev, stream, fill_kernel, n=32, value=99)
+            stream = ctx.create_stream()
+            _launch_fill_and_verify(dev, stream, fill_kernel, n=32, value=99)
         finally:
             ctx.close()

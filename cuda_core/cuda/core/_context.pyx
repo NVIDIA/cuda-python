@@ -8,6 +8,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from cuda.bindings cimport cydriver
+from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueResource
 from cuda.core._device_resources import SMResource, WorkqueueResource
 from cuda.core._resource_handles cimport (
     ContextHandle,
@@ -19,6 +20,7 @@ from cuda.core._resource_handles cimport (
     as_intptr,
     as_py,
 )
+from cuda.core._stream import Stream, StreamOptions
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
@@ -74,6 +76,46 @@ cdef class Context:
         if not self._h_context:
             return False
         return get_context_green_ctx(self._h_context).get() != NULL
+
+    @property
+    def resources(self) -> DeviceResources:
+        """Query the hardware resources provisioned for this context.
+
+        For green contexts, returns the resources this context was created
+        with (SM partition, workqueue config). For primary contexts, returns
+        the full device resources.
+
+        Raises :class:`RuntimeError` if the context has been closed.
+        """
+        if not self._h_context:
+            raise RuntimeError("Cannot query resources on a closed context")
+        return DeviceResources._init_from_ctx(self._h_context, self._device_id)
+
+    def create_stream(self, options: StreamOptions | None = None):
+        """Create a new stream bound to this green context.
+
+        This method is only available on green contexts. For primary
+        contexts, use :meth:`Device.create_stream` instead.
+
+        Parameters
+        ----------
+        options : :obj:`~_stream.StreamOptions`, optional
+            Customizable dataclass for stream creation options.
+
+        Returns
+        -------
+        :obj:`~_stream.Stream`
+            Newly created stream object.
+        """
+        if not self._h_context:
+            raise RuntimeError("Cannot create a stream on a closed context")
+        if not self.is_green:
+            raise RuntimeError(
+                "Context.create_stream() is only supported on green contexts. "
+                "Use Device.create_stream() for primary contexts."
+            )
+
+        return Stream._init(options=options, device_id=self._device_id, ctx=self)
 
     cpdef close(self):
         """Release this context wrapper's underlying CUDA handles."""

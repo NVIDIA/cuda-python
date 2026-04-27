@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
+from cuda.core._resource_handles cimport ContextHandle, GreenCtxHandle
 
 
 cdef class SMResource:
@@ -38,7 +39,13 @@ cdef class WorkqueueResource:
 cdef class DeviceResources:
     cdef:
         int _device_id
+        ContextHandle _h_context  # NULL for device-level queries
         object __weakref__
 
     @staticmethod
     cdef DeviceResources _init(int device_id)
+
+    @staticmethod
+    cdef DeviceResources _init_from_ctx(ContextHandle h_context, int device_id)
+
+    cdef inline int _query_sm(self, cydriver.CUdevResource* res) except?-1 nogil

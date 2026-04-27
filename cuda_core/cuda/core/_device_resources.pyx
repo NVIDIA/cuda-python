@@ -12,6 +12,7 @@ from libc.stdlib cimport free, malloc
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
+from cuda.core._resource_handles cimport ContextHandle, GreenCtxHandle, as_cu, get_context_green_ctx
 from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
 from cuda.core._utils.cuda_utils import is_sequence
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
@@ -480,53 +481,99 @@ cdef class WorkqueueResource:
 
 
 cdef class DeviceResources:
-    """Namespace for hardware resource query. Not user-constructible."""
+    """Namespace for hardware resource query. Not user-constructible.
+
+    When obtained via ``dev.resources``, queries return full device resources.
+    When obtained via ``ctx.resources``, queries return the resources
+    provisioned for that context.
+    """
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
             "DeviceResources cannot be instantiated directly. "
-            "Use dev.resources."
+            "Use dev.resources or ctx.resources."
         )
 
     @staticmethod
     cdef DeviceResources _init(int device_id):
         cdef DeviceResources self = DeviceResources.__new__(DeviceResources)
         self._device_id = device_id
+        # _h_context is default empty — queries use cuDeviceGetDevResource
         return self
+
+    @staticmethod
+    cdef DeviceResources _init_from_ctx(ContextHandle h_context, int device_id):
+        cdef DeviceResources self = DeviceResources.__new__(DeviceResources)
+        self._device_id = device_id
+        self._h_context = h_context
+        return self
+
+    cdef inline int _query_sm(self, cydriver.CUdevResource* res) except?-1 nogil:
+        """Query SM resource from either device or context."""
+        cdef GreenCtxHandle h_green
+        if self._h_context:
+            h_green = get_context_green_ctx(self._h_context)
+            if h_green:
+                HANDLE_RETURN(cydriver.cuGreenCtxGetDevResource(
+                    as_cu(h_green), res,
+                    cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM,
+                ))
+            else:
+                HANDLE_RETURN(cydriver.cuCtxGetDevResource(
+                    as_cu(self._h_context), res,
+                    cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM,
+                ))
+        else:
+            HANDLE_RETURN(cydriver.cuDeviceGetDevResource(
+                <cydriver.CUdevice>self._device_id, res,
+                cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM,
+            ))
+        return 0
 
     @property
     def sm(self) -> SMResource:
-        """Query SM resources from this device."""
+        """Query SM resources."""
         _check_green_ctx_support()
         cdef cydriver.CUdevResource res
         with nogil:
-            HANDLE_RETURN(cydriver.cuDeviceGetDevResource(
-                <cydriver.CUdevice>self._device_id,
-                &res,
-                cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM,
-            ))
+            self._query_sm(&res)
         return SMResource._from_dev_resource(res, self._device_id)
 
     @property
     def workqueue(self) -> WorkqueueResource:
-        """Query workqueue resources from this device."""
+        """Query workqueue resources."""
         _check_green_ctx_support()
         _check_workqueue_support()
         cdef cydriver.CUdevResource _wq_config
         cdef cydriver.CUdevResource _wq
 
         IF CUDA_CORE_BUILD_MAJOR >= 13:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuDeviceGetDevResource(
-                    <cydriver.CUdevice>self._device_id,
-                    &_wq_config,
-                    cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG,
-                ))
-                HANDLE_RETURN(cydriver.cuDeviceGetDevResource(
-                    <cydriver.CUdevice>self._device_id,
-                    &_wq,
-                    cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE,
-                ))
+            if self._h_context:
+                # Context-level query
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuCtxGetDevResource(
+                        as_cu(self._h_context),
+                        &_wq_config,
+                        cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG,
+                    ))
+                    HANDLE_RETURN(cydriver.cuCtxGetDevResource(
+                        as_cu(self._h_context),
+                        &_wq,
+                        cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE,
+                    ))
+            else:
+                # Device-level query
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuDeviceGetDevResource(
+                        <cydriver.CUdevice>self._device_id,
+                        &_wq_config,
+                        cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG,
+                    ))
+                    HANDLE_RETURN(cydriver.cuDeviceGetDevResource(
+                        <cydriver.CUdevice>self._device_id,
+                        &_wq,
+                        cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE,
+                    ))
             return WorkqueueResource._from_dev_resources(_wq_config, _wq)
         ELSE:
             raise NotImplementedError(

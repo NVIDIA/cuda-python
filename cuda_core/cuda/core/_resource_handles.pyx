@@ -239,6 +239,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuGreenCtxDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxDestroy)"
     void* p_cuCtxFromGreenCtx "reinterpret_cast<void*&>(cuda_core::p_cuCtxFromGreenCtx)"
     void* p_cuDevResourceGenerateDesc "reinterpret_cast<void*&>(cuda_core::p_cuDevResourceGenerateDesc)"
+    void* p_cuGreenCtxStreamCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxStreamCreate)"
 
     # Stream
     void* p_cuStreamCreateWithPriority "reinterpret_cast<void*&>(cuda_core::p_cuStreamCreateWithPriority)"
@@ -320,6 +321,7 @@ p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
 p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
 p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")
 p_cuDevResourceGenerateDesc = _get_optional_driver_fn("cuDevResourceGenerateDesc")
+p_cuGreenCtxStreamCreate = _get_optional_driver_fn("cuGreenCtxStreamCreate")
 
 # Stream
 p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")
