@@ -160,16 +160,20 @@ jobs:
 
           OLD_BRANCH=${{ needs.compute-matrix.outputs.OLD_BRANCH }}
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(bash ./ci/tools/lookup-run-id-by-branch "${OLD_BRANCH}" "${{ github.repository }}")
+          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s success -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
+          if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
+            echo "LATEST_PRIOR_RUN_ID not found!"
+            exit 1
+          fi
 
-          gh run download "${LATEST_PRIOR_RUN_ID}" -p "${OLD_BASENAME}" -R "${{ github.repository }}"
-          rm -rf "${OLD_BASENAME}-tests"  # exclude cython test artifacts
-          ls -al "${OLD_BASENAME}"
+          gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
+          rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
+          ls -al $OLD_BASENAME
           mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
-          mv "${OLD_BASENAME}"/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
-          rmdir "${OLD_BASENAME}"
+          mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
+          rmdir $OLD_BASENAME
 
-          gh run download "${LATEST_PRIOR_RUN_ID}" -p cuda-python-wheel -R "${{ github.repository }}"
+          gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
           ls -al cuda-python-wheel
           mv cuda-python-wheel/*.whl .
           rmdir cuda-python-wheel
