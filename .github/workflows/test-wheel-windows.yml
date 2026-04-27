@@ -142,27 +142,23 @@ jobs:
         if: ${{ env.USE_BACKPORT_BINDINGS == '1' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          $OLD_BRANCH = yq '.backport_branch' ci/versions.yml
-          $OLD_BASENAME = "cuda-bindings-python${env:PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          $runData = gh run list -b $OLD_BRANCH -L 1 -w "ci.yml" -s success -R NVIDIA/cuda-python --json databaseId | ConvertFrom-Json
-          if (-not $runData -or $runData.Length -eq 0 -or -not $runData[0].databaseId -or [string]::IsNullOrEmpty($runData[0].databaseId)) {
-              Write-Host "LATEST_PRIOR_RUN_ID not found!"
-              exit 1
-          }
-          $LATEST_PRIOR_RUN_ID = $runData[0].databaseId
+          OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
+          OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
+          LATEST_PRIOR_RUN_ID=$(bash ./ci/tools/lookup-run-id-by-branch "${OLD_BRANCH}" "${{ github.repository }}")
 
-          gh run download $LATEST_PRIOR_RUN_ID -p $OLD_BASENAME -R NVIDIA/cuda-python
-          Remove-Item -Recurse -Force "${OLD_BASENAME}-tests"  # exclude cython test artifacts
-          Get-ChildItem -Path $OLD_BASENAME
-          New-Item -Path "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}" -ItemType Directory -Force
-          Move-Item -Path "$OLD_BASENAME/*.whl" -Destination "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
-          Remove-Item -Path $OLD_BASENAME -Force
+          gh run download "${LATEST_PRIOR_RUN_ID}" -p "${OLD_BASENAME}" -R "${{ github.repository }}"
+          rm -rf "${OLD_BASENAME}-tests"  # exclude cython test artifacts
+          ls -al "${OLD_BASENAME}"
+          mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+          mv "${OLD_BASENAME}"/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+          rmdir "${OLD_BASENAME}"
 
-          gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
-          Get-ChildItem -Path cuda-python-wheel
-          Move-Item -Path "cuda-python-wheel/*.whl" -Destination .
-          Remove-Item -Path cuda-python-wheel -Force
+          gh run download "${LATEST_PRIOR_RUN_ID}" -p cuda-python-wheel -R "${{ github.repository }}"
+          ls -al cuda-python-wheel
+          mv cuda-python-wheel/*.whl .
+          rmdir cuda-python-wheel
 
       - name: Display structure of downloaded cuda-python artifacts
         run: |

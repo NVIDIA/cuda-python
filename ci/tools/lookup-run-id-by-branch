@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Find the latest successful workflow run for a branch.
+#
+# This intentionally queries completed runs for the workflow name and filters
+# for success in jq. In CI, `gh run list --status success` and workflow file
+# selectors such as `ci.yml` have proven brittle for this lookup (see PR #1981).
+
+set -euo pipefail
+
+if [[ $# -lt 2 || $# -gt 3 ]]; then
+    echo "Usage: $0 <branch> <repository> [workflow-name]" >&2
+    echo "  branch: The git branch to find the latest successful run for" >&2
+    echo "  repository: The GitHub repository (e.g., NVIDIA/cuda-python)" >&2
+    echo "  workflow-name: Optional workflow name to filter by (default: CI)" >&2
+    exit 1
+fi
+
+BRANCH="${1}"
+REPOSITORY="${2}"
+WORKFLOW_NAME="${3:-CI}"
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Error: jq is required but not installed" >&2
+    exit 1
+fi
+
+if ! command -v gh >/dev/null 2>&1; then
+    echo "Error: GitHub CLI (gh) is required but not installed" >&2
+    exit 1
+fi
+
+echo "Looking up latest successful '${WORKFLOW_NAME}' run on branch '${BRANCH}' in repository '${REPOSITORY}'" >&2
+
+RUN_DATA=$(gh run list \
+    --repo "${REPOSITORY}" \
+    --branch "${BRANCH}" \
+    --workflow "${WORKFLOW_NAME}" \
+    --status completed \
+    --json databaseId,workflowName,status,conclusion,headBranch,createdAt,url \
+    --limit 50)
+
+if [[ -z "${RUN_DATA}" || "${RUN_DATA}" == "[]" ]]; then
+    echo "Error: No completed '${WORKFLOW_NAME}' workflow runs found for branch '${BRANCH}'." >&2
+    exit 1
+fi
+
+RUN_ID=$(echo "${RUN_DATA}" | jq -r --arg branch "${BRANCH}" --arg workflow "${WORKFLOW_NAME}" '
+    map(select(
+        .headBranch == $branch and
+        .workflowName == $workflow and
+        .conclusion == "success"
+    ))
+    | sort_by(.createdAt)
+    | reverse
+    | .[0].databaseId // empty
+')
+
+if [[ -z "${RUN_ID}" ]]; then
+    echo "Error: No successful completed '${WORKFLOW_NAME}' workflow runs found for branch '${BRANCH}'." >&2
+    echo "Completed runs returned by gh:" >&2
+    echo "${RUN_DATA}" | jq -r '.[] | "\(.databaseId): branch=\(.headBranch // "null"), conclusion=\(.conclusion // "null"), status=\(.status // "null"), createdAt=\(.createdAt // "null"), url=\(.url // "null")"' >&2
+    exit 1
+fi
+
+echo "${RUN_ID}"
