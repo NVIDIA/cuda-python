@@ -374,6 +374,24 @@ class TestContextResources:
             if ctx_a is not None:
                 ctx_a.close()
 
+    def test_stream_resources_match_context(self, green_ctx, sm_resource):
+        """stream.resources should return the same as ctx.resources."""
+        stream = green_ctx.create_stream()
+
+        stream_sm = stream.resources.sm
+        ctx_sm = green_ctx.resources.sm
+        assert stream_sm.sm_count == ctx_sm.sm_count
+        assert stream_sm.sm_count > 0
+        assert stream_sm.sm_count <= sm_resource.sm_count
+
+        try:
+            stream_wq = stream.resources.workqueue
+            ctx_wq = green_ctx.resources.workqueue
+            assert stream_wq.handle != 0
+            assert ctx_wq.handle != 0
+        except (NotImplementedError, CUDAError):
+            pass  # workqueue not available on this driver/build
+
 
 # ---------------------------------------------------------------------------
 # Kernel launch in green context (explicit model)

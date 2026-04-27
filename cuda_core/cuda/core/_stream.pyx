@@ -21,6 +21,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from cuda.core._context cimport Context
+from cuda.core._device_resources cimport DeviceResources
 from cuda.core._event import Event, EventOptions
 from cuda.core._resource_handles cimport (
     ContextHandle,
@@ -345,6 +346,18 @@ cdef class Stream:
         Stream_ensure_ctx(self)
         Stream_ensure_ctx_device(self)
         return Context._from_handle(Context, self._h_context, self._device_id)
+
+    @property
+    def resources(self):
+        """Query the hardware resources provisioned for this stream's context.
+
+        For streams created from a green context, returns the resources
+        that context was provisioned with. For streams on the primary
+        context, returns the full device resources.
+        """
+        Stream_ensure_ctx(self)
+        Stream_ensure_ctx_device(self)
+        return DeviceResources._init_from_ctx(self._h_context, self._device_id)
 
     @staticmethod
     def from_handle(handle: int) -> Stream:
