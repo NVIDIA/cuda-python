@@ -56,7 +56,7 @@ def find_nvidia_dynamic_lib(libname: str) -> str:
     Notes:
         Because resolution happens in a separate process, results may differ
         from an in-process ``load_nvidia_dynamic_lib`` if the caller's process
-        has DSOs loaded with custom ``RPATH``s or has already loaded a matching
+        has DSOs loaded with custom ``RPATH`` entries or has already loaded a matching
         library by some other mechanism. The intent is to report the path the
         loader would pick when not influenced by other DSOs in the caller.
     """

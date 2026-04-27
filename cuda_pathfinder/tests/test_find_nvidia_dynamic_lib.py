@@ -20,6 +20,7 @@ from cuda.pathfinder._dynamic_libs import find_nvidia_dynamic_lib as find_nvidia
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
+    DYNAMIC_LIB_SUBPROCESS_CWD,
     STATUS_NOT_FOUND,
     STATUS_OK,
     DynamicLibSubprocessPayload,
@@ -135,12 +136,16 @@ def test_find_nvidia_dynamic_lib_does_not_load_in_caller_process():
     # Run in a fresh interpreter so other pathfinder tests in the same
     # pytest process can't have pre-loaded the library.
     libname = "cudart"
+    # Match the cwd used by the production subprocess helper so the child
+    # resolves the installed ``cuda.pathfinder`` (with ``_version.py``) rather
+    # than a source tree shadow on ``sys.path[0]``.
     result = subprocess.run(  # noqa: S603 - trusted argv: current interpreter + inline probe
         [sys.executable, "-c", _DOES_NOT_LOAD_PROBE, libname],
         capture_output=True,
         text=True,
         timeout=60,
         check=False,
+        cwd=DYNAMIC_LIB_SUBPROCESS_CWD,
     )
     assert result.returncode == 0, f"probe failed:\nstdout={result.stdout!r}\nstderr={result.stderr!r}"
     verdict = result.stdout.strip().splitlines()[-1]
