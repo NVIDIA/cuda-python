@@ -17,7 +17,9 @@ uname_m="$(uname -m)"
 eval "$(conda shell.bash hook)"
 
 conda create --yes -n "pathfinder_testing_cu$cuda_version" python=3.14 cuda-toolkit="$cuda_version"
+set +u
 conda activate "pathfinder_testing_cu$cuda_version"
+set -u
 
 cpkgs=(
     "pytest>=6.2.4"
@@ -46,5 +48,7 @@ fi
 
 for cpkg in "${cpkgs[@]}"; do
     echo "CONDA INSTALL: $cpkg"
+    set +u
     conda install -y -c conda-forge "$cpkg"
+    set -u
 done
