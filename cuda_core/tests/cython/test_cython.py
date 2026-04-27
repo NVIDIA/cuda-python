@@ -67,7 +67,7 @@ def _import_cython_test_modules():
     for module_name in CYTHON_TEST_MODULES:
         try:
             imported_modules[module_name] = importlib.import_module(module_name)
-        except ImportError:
+        except ImportError, ModuleNotFoundError:
             if not build_attempted:
                 build_cython_test_modules()
                 importlib.invalidate_caches()
