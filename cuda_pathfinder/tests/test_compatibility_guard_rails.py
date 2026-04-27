@@ -6,6 +6,11 @@ import os
 from pathlib import Path
 
 import pytest
+from local_helpers import (
+    locate_real_cuda_toolkit_version_from_cuda_h,
+    require_real_cuda_toolkit_version_from_cuda_h,
+    require_real_driver_cuda_version,
+)
 
 import cuda.pathfinder._compatibility_guard_rails as compatibility_module
 from cuda import pathfinder
@@ -26,15 +31,10 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import _resolve_syste
 from cuda.pathfinder._headers.find_nvidia_headers import (
     locate_nvidia_header_directory as locate_nvidia_header_directory_raw,
 )
-from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils import driver_info
 from cuda.pathfinder._utils.driver_info import DriverCudaVersion, QueryDriverCudaVersionError
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.toolkit_info import read_cuda_header_version
-from local_helpers import (
-    locate_real_cuda_toolkit_version_from_cuda_h,
-    require_real_driver_cuda_version,
-    require_real_cuda_toolkit_version_from_cuda_h,
-)
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_COMPATIBILITY_GUARD_RAILS_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -693,8 +693,7 @@ def test_real_wheel_ctk_items_are_compatible(info_summary_append):
         f"via {real_ctk.found_via} at {real_ctk.cuda_h_path!r}"
     )
     info_summary_append(
-        "real driver CUDA version="
-        f"{real_driver.major}.{real_driver.minor} (encoded={real_driver.encoded})"
+        f"real driver CUDA version={real_driver.major}.{real_driver.minor} (encoded={real_driver.encoded})"
     )
     guard_rails = CompatibilityGuardRails(
         ctk_major=real_ctk.version.major,
@@ -742,8 +741,7 @@ def test_real_wheel_component_version_does_not_override_ctk_line(info_summary_ap
         f"via {real_ctk.found_via} at {real_ctk.cuda_h_path!r}"
     )
     info_summary_append(
-        "real driver CUDA version="
-        f"{real_driver.major}.{real_driver.minor} (encoded={real_driver.encoded})"
+        f"real driver CUDA version={real_driver.major}.{real_driver.minor} (encoded={real_driver.encoded})"
     )
     guard_rails = CompatibilityGuardRails(
         ctk_major=real_ctk.version.major,
