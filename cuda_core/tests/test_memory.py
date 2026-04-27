@@ -1918,3 +1918,46 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
     assert buffer.handle >= 0
     assert buffer.size == 0
     assert buffer.device_id == mr.device_id
+
+
+class TestLocation:
+    def test_device_constructor(self):
+        from cuda.core.managed_memory import Location
+        loc = Location.device(0)
+        assert loc.kind == "device"
+        assert loc.id == 0
+
+    def test_host_constructor(self):
+        from cuda.core.managed_memory import Location
+        loc = Location.host()
+        assert loc.kind == "host"
+        assert loc.id is None
+
+    def test_host_numa_constructor(self):
+        from cuda.core.managed_memory import Location
+        loc = Location.host_numa(3)
+        assert loc.kind == "host_numa"
+        assert loc.id == 3
+
+    def test_host_numa_current_constructor(self):
+        from cuda.core.managed_memory import Location
+        loc = Location.host_numa_current()
+        assert loc.kind == "host_numa_current"
+        assert loc.id is None
+
+    def test_frozen(self):
+        import dataclasses
+        from cuda.core.managed_memory import Location
+        loc = Location.device(0)
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            loc.id = 1
+
+    def test_invalid_device_id(self):
+        from cuda.core.managed_memory import Location
+        with pytest.raises(ValueError, match="device id must be >= 0"):
+            Location.device(-1)
+
+    def test_invalid_kind(self):
+        from cuda.core.managed_memory import Location
+        with pytest.raises(ValueError, match="kind must be one of"):
+            Location(kind="not_a_kind", id=None)
