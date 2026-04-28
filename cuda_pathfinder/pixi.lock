@@ -1366,6 +1366,7 @@ packages:
   variants:
     target_platform: noarch
   depends:
+  - packaging
   - python >=3.10
   - python *
   license: Apache-2.0

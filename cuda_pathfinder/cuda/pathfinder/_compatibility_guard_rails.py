@@ -12,6 +12,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TypeAlias, cast
 
+from packaging.requirements import InvalidRequirement, Requirement
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
+from packaging.version import InvalidVersion, Version
+
 from cuda.pathfinder._binaries.find_nvidia_binary_utility import (
     find_nvidia_binary_utility as _find_nvidia_binary_utility,
 )
@@ -49,12 +53,13 @@ from cuda.pathfinder._utils.toolkit_info import ReadCudaHeaderVersionError, read
 
 ItemKind: TypeAlias = str
 PackagedWith: TypeAlias = str
-ConstraintOperator: TypeAlias = str
-ConstraintArg: TypeAlias = int | str | tuple[str, int] | None
+CtkVersionConstraintArg: TypeAlias = str | SpecifierSet | None
 
 _CTK_VERSION_RE = re.compile(r"^(?P<major>\d+)\.(?P<minor>\d+)")
-_REQUIRES_DIST_RE = re.compile(r"^\s*(?P<name>[A-Za-z0-9_.-]+)\s*(?P<specifier_text>[^;]*)(?:\s*;|$)")
-_VERSION_SPECIFIER_RE = re.compile(r"^\s*(?P<operator>==|<=|>=|<|>)\s*(?P<version>[0-9][A-Za-z0-9.+-]*?(?:\.\*)?)\s*$")
+_CTK_VERSION_CONSTRAINT_ERROR = (
+    "ctk_version must be None, a non-empty PEP 440 specifier string like '>=13.2,<14', "
+    "or a packaging.specifiers.SpecifierSet."
+)
 
 _STATIC_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
     "cudadevrt": "ctk",
@@ -89,33 +94,20 @@ class CtkVersion:
     def __str__(self) -> str:
         return f"{self.major}.{self.minor}"
 
+    def as_pep440_version(self) -> Version:
+        return Version(str(self))
+
 
 @dataclass(frozen=True, slots=True)
-class ComparisonConstraint:
-    operator: ConstraintOperator
-    value: int
+class CtkVersionConstraint:
+    specifier: SpecifierSet
+    text: str
 
-    def matches(self, candidate: int) -> bool:
-        if self.operator == "==":
-            return candidate == self.value
-        if self.operator == "<":
-            return candidate < self.value
-        if self.operator == "<=":
-            return candidate <= self.value
-        if self.operator == ">":
-            return candidate > self.value
-        if self.operator == ">=":
-            return candidate >= self.value
-        raise AssertionError(f"Unsupported operator: {self.operator!r}")
+    def matches(self, candidate: CtkVersion) -> bool:
+        return bool(self.specifier.contains(candidate.as_pep440_version(), prereleases=True))
 
     def __str__(self) -> str:
-        return f"{self.operator}{self.value}"
-
-
-@dataclass(frozen=True, slots=True)
-class VersionSpecifier:
-    operator: ConstraintOperator
-    version: str
+        return self.text
 
 
 @dataclass(frozen=True, slots=True)
@@ -147,35 +139,28 @@ class CompatibilityResult:
         raise CompatibilityCheckError(self.message)
 
 
-def _coerce_constraint(name: str, raw_value: ConstraintArg) -> ComparisonConstraint | None:
-    if raw_value is None:
-        return None
-    if isinstance(raw_value, int):
-        return ComparisonConstraint("==", raw_value)
-    if isinstance(raw_value, tuple):
-        if len(raw_value) != 2:
-            raise ValueError(f"{name} tuple constraints must have exactly two elements.")
-        operator, value = raw_value
-        if operator not in ("==", "<", "<=", ">", ">="):
-            raise ValueError(f"{name} has unsupported operator {operator!r}.")
-        if not isinstance(value, int):
-            raise ValueError(f"{name} constraint value must be an integer.")
-        return ComparisonConstraint(operator, value)
-    if isinstance(raw_value, str):
-        match = re.fullmatch(r"\s*(==|<|<=|>|>=)?\s*(\d+)\s*", raw_value)
-        if match is None:
-            raise ValueError(f"{name} must be an int, a (operator, value) tuple, or a string like '>=12'.")
-        operator = match.group(1) or "=="
-        value = int(match.group(2))
-        return ComparisonConstraint(operator, value)
-    raise ValueError(f"{name} must be an int, a (operator, value) tuple, or a string like '>=12'.")
-
-
 def _parse_ctk_version(cuda_version: str) -> CtkVersion | None:
     match = _CTK_VERSION_RE.match(cuda_version)
     if match is None:
         return None
     return CtkVersion(major=int(match.group("major")), minor=int(match.group("minor")))
+
+
+def _coerce_ctk_version_constraint(raw_value: CtkVersionConstraintArg) -> CtkVersionConstraint | None:
+    if raw_value is None:
+        return None
+    if isinstance(raw_value, SpecifierSet):
+        return CtkVersionConstraint(specifier=raw_value, text=str(raw_value))
+    if isinstance(raw_value, str):
+        stripped = raw_value.strip()
+        if not stripped:
+            raise ValueError(_CTK_VERSION_CONSTRAINT_ERROR)
+        try:
+            specifier = SpecifierSet(stripped)
+        except InvalidSpecifier as exc:
+            raise ValueError(_CTK_VERSION_CONSTRAINT_ERROR) from exc
+        return CtkVersionConstraint(specifier=specifier, text=stripped)
+    raise ValueError(_CTK_VERSION_CONSTRAINT_ERROR)
 
 
 def _normalize_distribution_name(name: str) -> str:
@@ -188,63 +173,6 @@ def _distribution_name(dist: importlib.metadata.Distribution) -> str | None:
     # expose Mapping.get() on PackageMetadata.
     metadata = cast(Mapping[str, str], dist.metadata)
     return metadata.get("Name")
-
-
-def _release_version_parts(version: str) -> tuple[int, ...] | None:
-    match = re.match(r"^\d+(?:\.\d+)*", version)
-    if match is None:
-        return None
-    return tuple(int(part) for part in match.group(0).split("."))
-
-
-def _compare_release_versions(lhs: tuple[int, ...], rhs: tuple[int, ...]) -> int:
-    max_len = max(len(lhs), len(rhs))
-    lhs_padded = lhs + (0,) * (max_len - len(lhs))
-    rhs_padded = rhs + (0,) * (max_len - len(rhs))
-    if lhs_padded < rhs_padded:
-        return -1
-    if lhs_padded > rhs_padded:
-        return 1
-    return 0
-
-
-def _parse_version_specifiers(specifier_text: str) -> tuple[VersionSpecifier, ...]:
-    stripped = specifier_text.strip()
-    if not stripped:
-        return ()
-    parsed: list[VersionSpecifier] = []
-    for raw_clause in stripped.split(","):
-        match = _VERSION_SPECIFIER_RE.match(raw_clause)
-        if match is None:
-            return ()
-        parsed.append(VersionSpecifier(operator=match.group("operator"), version=match.group("version")))
-    return tuple(parsed)
-
-
-def _version_satisfies_specifiers(version: str, specifiers: tuple[VersionSpecifier, ...]) -> bool:
-    if not specifiers:
-        return False
-    for specifier in specifiers:
-        if specifier.operator == "==":
-            prefix = specifier.version.removesuffix(".*")
-            if version == prefix or version.startswith(prefix + "."):
-                continue
-            return False
-        candidate_parts = _release_version_parts(version)
-        required_parts = _release_version_parts(specifier.version)
-        if candidate_parts is None or required_parts is None:
-            return False
-        comparison = _compare_release_versions(candidate_parts, required_parts)
-        if specifier.operator == "<" and comparison < 0:
-            continue
-        if specifier.operator == "<=" and comparison <= 0:
-            continue
-        if specifier.operator == ">" and comparison > 0:
-            continue
-        if specifier.operator == ">=" and comparison >= 0:
-            continue
-        return False
-    return True
 
 
 @functools.cache
@@ -263,10 +191,8 @@ def _owned_distribution_candidates(abs_path: str) -> tuple[tuple[str, str], ...]
 
 
 @functools.cache
-def _cuda_toolkit_requirement_maps() -> tuple[
-    tuple[str, CtkVersion, dict[str, tuple[tuple[VersionSpecifier, ...], ...]]], ...
-]:
-    results: list[tuple[str, CtkVersion, dict[str, tuple[tuple[VersionSpecifier, ...], ...]]]] = []
+def _cuda_toolkit_requirement_maps() -> tuple[tuple[str, CtkVersion, dict[str, tuple[SpecifierSet, ...]]], ...]:
+    results: list[tuple[str, CtkVersion, dict[str, tuple[SpecifierSet, ...]]]] = []
     for dist in importlib.metadata.distributions():
         dist_name = _distribution_name(dist)
         if _normalize_distribution_name(dist_name or "") != "cuda-toolkit":
@@ -274,30 +200,24 @@ def _cuda_toolkit_requirement_maps() -> tuple[
         ctk_version = _parse_ctk_version(dist.version)
         if ctk_version is None:
             continue
-        requirement_map: dict[str, set[tuple[VersionSpecifier, ...]]] = {}
-        for requirement in dist.requires or ():
-            match = _REQUIRES_DIST_RE.match(requirement)
-            if match is None:
+        requirement_map: dict[str, set[str]] = {}
+        for requirement_text in dist.requires or ():
+            try:
+                requirement = Requirement(requirement_text)
+            except InvalidRequirement:
                 continue
-            req_name = _normalize_distribution_name(match.group("name"))
-            parsed_specifiers = _parse_version_specifiers(match.group("specifier_text"))
-            if not parsed_specifiers:
+            specifier_text = str(requirement.specifier)
+            if not specifier_text:
                 continue
-            requirement_map.setdefault(req_name, set()).add(parsed_specifiers)
+            req_name = _normalize_distribution_name(requirement.name)
+            requirement_map.setdefault(req_name, set()).add(specifier_text)
         results.append(
             (
                 dist.version,
                 ctk_version,
                 {
-                    name: tuple(
-                        sorted(
-                            specifier_sets,
-                            key=lambda specifiers: tuple(
-                                (specifier.operator, specifier.version) for specifier in specifiers
-                            ),
-                        )
-                    )
-                    for name, specifier_sets in requirement_map.items()
+                    name: tuple(SpecifierSet(specifier_text) for specifier_text in sorted(specifier_set_texts))
+                    for name, specifier_set_texts in requirement_map.items()
                 },
             )
         )
@@ -307,11 +227,16 @@ def _cuda_toolkit_requirement_maps() -> tuple[
 def _wheel_metadata_for_abs_path(abs_path: str) -> CtkMetadata | None:
     matched_versions: dict[CtkVersion, str] = {}
     for owner_name, owner_version in _owned_distribution_candidates(abs_path):
+        try:
+            owner_parsed_version = Version(owner_version)
+        except InvalidVersion:
+            continue
         normalized_owner_name = _normalize_distribution_name(owner_name)
         for toolkit_dist_version, ctk_version, requirement_map in _cuda_toolkit_requirement_maps():
             requirement_specifier_sets = requirement_map.get(normalized_owner_name, ())
             if not any(
-                _version_satisfies_specifiers(owner_version, specifiers) for specifiers in requirement_specifier_sets
+                specifier_set.contains(owner_parsed_version, prereleases=True)
+                for specifier_set in requirement_specifier_sets
             ):
                 continue
             matched_versions[ctk_version] = (
@@ -527,12 +452,10 @@ class CompatibilityGuardRails:
     def __init__(
         self,
         *,
-        ctk_major: ConstraintArg = None,
-        ctk_minor: ConstraintArg = None,
+        ctk_version: CtkVersionConstraintArg = None,
         driver_cuda_version: DriverCudaVersion | None = None,
     ) -> None:
-        self._ctk_major_constraint = _coerce_constraint("ctk_major", ctk_major)
-        self._ctk_minor_constraint = _coerce_constraint("ctk_minor", ctk_minor)
+        self._ctk_version_constraint = _coerce_ctk_version_constraint(ctk_version)
         self._configured_driver_cuda_version = driver_cuda_version
         self._driver_cuda_version = driver_cuda_version
         self._resolved_items: list[ResolvedItem] = []
@@ -567,15 +490,10 @@ class CompatibilityGuardRails:
 
     def _enforce_constraints(self, item: ResolvedItem) -> None:
         assert item.ctk_version is not None
-        if self._ctk_major_constraint is not None and not self._ctk_major_constraint.matches(item.ctk_version.major):
+        if self._ctk_version_constraint is not None and not self._ctk_version_constraint.matches(item.ctk_version):
             raise CompatibilityCheckError(
                 f"{item.describe()} resolves to CTK {item.ctk_version}, which does not satisfy "
-                f"ctk_major{self._ctk_major_constraint}."
-            )
-        if self._ctk_minor_constraint is not None and not self._ctk_minor_constraint.matches(item.ctk_version.minor):
-            raise CompatibilityCheckError(
-                f"{item.describe()} resolves to CTK {item.ctk_version}, which does not satisfy "
-                f"ctk_minor{self._ctk_minor_constraint}."
+                f"ctk_version{self._ctk_version_constraint}."
             )
 
     def _anchor_item(self) -> ResolvedItem | None:

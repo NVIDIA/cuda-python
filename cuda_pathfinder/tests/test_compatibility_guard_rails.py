@@ -12,6 +12,7 @@ from local_helpers import (
     require_real_cuda_toolkit_version_from_cuda_h,
     require_real_driver_cuda_version,
 )
+from packaging.specifiers import SpecifierSet
 
 import cuda.pathfinder._compatibility_guard_rails as compatibility_module
 from cuda import pathfinder
@@ -265,9 +266,7 @@ def test_public_apis_default_mode_applies_when_env_var_is_unset_or_empty(monkeyp
     guarded_lib_path = _touch(tmp_path / "no-cuda-h" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     raw_loaded = _loaded_dl("/opt/mock/libnvrtc.so.12", found_via="system-search")
 
-    monkeypatch.setattr(
-        compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(guarded_lib_path)
-    )
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(guarded_lib_path))
     monkeypatch.setattr(process_wide_module, "_load_nvidia_dynamic_lib", lambda _libname: raw_loaded)
     monkeypatch.setattr(
         pathfinder,
@@ -567,7 +566,7 @@ def test_wheel_metadata_accepts_exact_and_range_requirements(monkeypatch, tmp_pa
     assert metadata.source == "wheel metadata via nvidia-nvjitlink==13.2.78 pinned by cuda-toolkit==13.2.1"
 
 
-def test_constraints_accept_string_and_tuple_forms(monkeypatch, tmp_path):
+def test_ctk_version_constraint_accepts_pep440_string(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-12.9"
     _write_cuda_h(ctk_root, "12.9.20250531")
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
@@ -575,8 +574,7 @@ def test_constraints_accept_string_and_tuple_forms(monkeypatch, tmp_path):
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
     guard_rails = CompatibilityGuardRails(
-        ctk_major=(">=", 12),
-        ctk_minor=">=9",
+        ctk_version=">=12.9,<13",
         driver_cuda_version=_driver_cuda_version(13000),
     )
 
@@ -585,7 +583,7 @@ def test_constraints_accept_string_and_tuple_forms(monkeypatch, tmp_path):
     assert loaded.abs_path == lib_path
 
 
-def test_constraint_failure_raises(monkeypatch, tmp_path):
+def test_ctk_version_constraint_accepts_specifier_set_instance(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-12.9"
     _write_cuda_h(ctk_root, "12.9.20250531")
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
@@ -593,13 +591,34 @@ def test_constraint_failure_raises(monkeypatch, tmp_path):
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
     guard_rails = CompatibilityGuardRails(
-        ctk_major=12,
-        ctk_minor="<9",
+        ctk_version=SpecifierSet(">=12.9,<13"),
         driver_cuda_version=_driver_cuda_version(13000),
     )
 
-    with pytest.raises(CompatibilityCheckError, match="ctk_minor<9"):
+    loaded = guard_rails.load_nvidia_dynamic_lib("nvrtc")
+
+    assert loaded.abs_path == lib_path
+
+
+def test_ctk_version_constraint_failure_raises(monkeypatch, tmp_path):
+    ctk_root = tmp_path / "cuda-12.9"
+    _write_cuda_h(ctk_root, "12.9.20250531")
+    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
+
+    guard_rails = CompatibilityGuardRails(
+        ctk_version="<12.9",
+        driver_cuda_version=_driver_cuda_version(13000),
+    )
+
+    with pytest.raises(CompatibilityCheckError, match="ctk_version<12.9"):
         guard_rails.load_nvidia_dynamic_lib("nvrtc")
+
+
+def test_ctk_version_constraint_rejects_invalid_specifier():
+    with pytest.raises(ValueError, match="PEP 440 specifier"):
+        CompatibilityGuardRails(ctk_version="13.2")
 
 
 def test_static_bitcode_and_binary_methods_participate_in_checks(monkeypatch, tmp_path):
@@ -716,8 +735,7 @@ def test_real_wheel_ctk_items_are_compatible(info_summary_append):
     real_ctk = require_real_cuda_toolkit_version_from_cuda_h()
     real_driver = require_real_driver_cuda_version()
     guard_rails = CompatibilityGuardRails(
-        ctk_major=real_ctk.version.major,
-        ctk_minor=real_ctk.version.minor,
+        ctk_version=f"=={real_ctk.version.major}.{real_ctk.version.minor}",
         driver_cuda_version=real_driver,
     )
 
@@ -760,8 +778,7 @@ def test_real_wheel_component_version_does_not_override_ctk_line(info_summary_ap
     real_ctk = require_real_cuda_toolkit_version_from_cuda_h()
     real_driver = require_real_driver_cuda_version()
     guard_rails = CompatibilityGuardRails(
-        ctk_major=real_ctk.version.major,
-        ctk_minor=real_ctk.version.minor,
+        ctk_version=f"=={real_ctk.version.major}.{real_ctk.version.minor}",
         driver_cuda_version=real_driver,
     )
 
