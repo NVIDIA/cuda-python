@@ -416,9 +416,9 @@ def _build_child_graph_node(g):
     }
 
 
-def _build_if_cond_node(g):
+def _build_if_then_node(g):
     condition = try_create_condition(g)
-    node = g.if_cond(condition)
+    node = g.if_then(condition)
     return node, {
         "condition": condition,
         "cond_type": "if",
@@ -514,14 +514,14 @@ _NODE_SPECS = [
     ),
     pytest.param(
         NodeSpec(
-            "if_cond",
+            "if_then",
             IfNode,
             "CU_GRAPH_NODE_TYPE_CONDITIONAL",
-            _build_if_cond_node,
+            _build_if_then_node,
             reconstructed_class=IfNode if _HAS_NODE_GET_PARAMS else ConditionalNode,
             needs_mempool=False,
         ),
-        id="if_cond",
+        id="if_then",
     ),
     pytest.param(
         NodeSpec(
@@ -1159,7 +1159,7 @@ def _skip_unless_cc_90():
         pytest.skip("Conditional node execution requires CC >= 9.0 (Hopper)")
 
 
-def test_instantiate_and_execute_if_cond(sample_graphdef):
+def test_instantiate_and_execute_if_then(sample_graphdef):
     """If-conditional node: body executes only when condition is non-zero."""
     _skip_unless_cc_90()
     _skip_if_no_mempool()
@@ -1174,8 +1174,8 @@ def test_instantiate_and_execute_if_cond(sample_graphdef):
 
     alloc = sample_graphdef.allocate(ctypes.sizeof(ctypes.c_int))
     ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
-    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition.handle, 1)
-    if_node = setter.if_cond(condition)
+    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition, 1)
+    if_node = setter.if_then(condition)
     if_node.then.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
 
     graph = sample_graphdef.instantiate()
@@ -1206,7 +1206,7 @@ def test_instantiate_and_execute_if_else(sample_graphdef):
 
     alloc = sample_graphdef.allocate(ctypes.sizeof(ctypes.c_int))
     ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
-    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition.handle, 0)
+    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition, 0)
     ie_node = setter.if_else(condition)
     ie_node.then.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
     n1 = ie_node.else_.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
@@ -1240,7 +1240,7 @@ def test_instantiate_and_execute_switch(sample_graphdef):
 
     alloc = sample_graphdef.allocate(ctypes.sizeof(ctypes.c_int))
     ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
-    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition.handle, 2)
+    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition, 2)
     sw_node = setter.switch(condition, 4)
     for branch in sw_node.branches:
         branch.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
@@ -1261,7 +1261,7 @@ def test_instantiate_and_execute_switch(sample_graphdef):
 def test_conditional_node_type_preserved_by_nodes(sample_graphdef):
     """Conditional nodes appear as ConditionalNode base when read back from graph."""
     condition = try_create_condition(sample_graphdef)
-    if_node = sample_graphdef.if_cond(condition)
+    if_node = sample_graphdef.if_then(condition)
     assert isinstance(if_node, IfNode)
 
     all_nodes = sample_graphdef.nodes()

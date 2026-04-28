@@ -603,7 +603,7 @@ cdef class HostCallbackNode(GraphNode):
 cdef class ConditionalNode(GraphNode):
     """Base class for conditional nodes.
 
-    When created via builder methods (if_cond, if_else, while_loop, switch),
+    When created via builder methods (if_then, if_else, while_loop, switch),
     a specific subclass (IfNode, IfElseNode, WhileNode, SwitchNode) is
     returned. When reconstructed from the driver on CUDA 13.2+, the
     correct subclass is determined via cuGraphNodeGetParams. On older

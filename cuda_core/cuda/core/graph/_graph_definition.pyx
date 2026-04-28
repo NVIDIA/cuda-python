@@ -31,11 +31,24 @@ from cuda.core._utils.cuda_utils import driver
 cdef class GraphCondition:
     """A condition variable for conditional graph nodes.
 
-    Created by :meth:`GraphDefinition.create_condition` and passed to
-    conditional-node builder methods (``if_cond``, ``if_else``,
-    ``while_loop``, ``switch``). The underlying value is set at
+    Created by :meth:`GraphDefinition.create_condition` (or
+    :meth:`GraphBuilder.create_condition`) and passed to
+    conditional-node builder methods (:meth:`~GraphDefinition.if_then`,
+    :meth:`~GraphDefinition.if_else`, :meth:`~GraphDefinition.while_loop`,
+    :meth:`~GraphDefinition.switch`). The underlying value is set at
     runtime by device code via ``cudaGraphSetConditional``.
+
+    A :class:`GraphCondition` may be passed directly as a kernel
+    argument to ``launch()``; ``__int__`` returns the underlying
+    ``CUgraphConditionalHandle`` value so device code can update the
+    condition.
     """
+
+    @staticmethod
+    cdef GraphCondition _from_handle(cydriver.CUgraphConditionalHandle c_handle):
+        cdef GraphCondition self = GraphCondition.__new__(GraphCondition)
+        self._c_handle = c_handle
+        return self
 
     def __repr__(self) -> str:
         return f"<GraphCondition handle=0x{<unsigned long long>self._c_handle:x}>"
@@ -47,6 +60,9 @@ cdef class GraphCondition:
 
     def __hash__(self) -> int:
         return hash(<unsigned long long>self._c_handle)
+
+    def __int__(self) -> int:
+        return <unsigned long long>self._c_handle
 
     @property
     def handle(self) -> driver.CUgraphConditionalHandle:
@@ -250,16 +266,14 @@ cdef class GraphDefinition:
             HANDLE_RETURN(cydriver.cuGraphConditionalHandleCreate(
                 &c_handle, as_cu(self._h_graph), ctx, default_val, flags))
 
-        cdef GraphCondition cond = GraphCondition.__new__(GraphCondition)
-        cond._c_handle = c_handle
-        return cond
+        return GraphCondition._from_handle(c_handle)
 
-    def if_cond(self, condition: GraphCondition) -> "IfNode":
+    def if_then(self, condition: GraphCondition) -> "IfNode":
         """Add an entry-point if-conditional node (no dependencies).
 
-        See :meth:`GraphNode.if_cond` for full documentation.
+        See :meth:`GraphNode.if_then` for full documentation.
         """
-        return self._entry.if_cond(condition)
+        return self._entry.if_then(condition)
 
     def if_else(self, condition: GraphCondition) -> "IfElseNode":
         """Add an entry-point if-else conditional node (no dependencies).

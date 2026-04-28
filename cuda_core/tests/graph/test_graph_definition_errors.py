@@ -33,7 +33,7 @@ def _skip_if_no_mempool():
 @pytest.mark.parametrize(
     "method, args",
     [
-        pytest.param("if_cond", (42,), id="if_cond_int"),
+        pytest.param("if_then", (42,), id="if_then_int"),
         pytest.param("if_else", ("not a condition",), id="if_else_str"),
         pytest.param("while_loop", (None,), id="while_loop_none"),
         pytest.param("switch", ([1, 2, 3], 4), id="switch_list"),
@@ -93,7 +93,7 @@ def test_condition_from_different_graph(init_cuda):
     g2 = GraphDefinition()
     condition = try_create_condition(g1)
     with pytest.raises(CUDAError):
-        g2.if_cond(condition)
+        g2.if_then(condition)
 
 
 # =============================================================================
@@ -191,7 +191,7 @@ def test_while_loop_zero_iterations(init_cuda):
     assert result[0] == 0, "Body should not have executed"
 
 
-def test_if_cond_false_skips_body(init_cuda):
+def test_if_then_false_skips_body(init_cuda):
     """If conditional with default_value=0 does not execute its body."""
     _skip_unless_cc_90()
     _skip_if_no_mempool()
@@ -204,7 +204,7 @@ def test_if_cond_false_skips_body(init_cuda):
     condition = g.create_condition(default_value=0)
     alloc = g.allocate(SIZEOF_INT)
     ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
-    if_node = ms.if_cond(condition)
+    if_node = ms.if_then(condition)
     if_node.then.launch(cfg, add_one, alloc.dptr)
 
     graph = g.instantiate()

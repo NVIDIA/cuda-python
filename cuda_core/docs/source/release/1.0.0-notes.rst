@@ -78,6 +78,32 @@ Breaking changes
     and the same on :class:`~graph.GraphNode`, matching
     :meth:`Stream.record` / :meth:`Stream.wait`.
 
+- Unified the conditional graph API on :class:`~graph.GraphCondition`
+  and consistent verbs
+  (`#1945 <https://github.com/NVIDIA/cuda-python/issues/1945>`__):
+
+  - ``GraphBuilder.create_conditional_handle`` ->
+    :meth:`graph.GraphBuilder.create_condition`. The new factory returns a
+    :class:`~graph.GraphCondition` (matching
+    :meth:`graph.GraphDefinition.create_condition`) instead of a raw
+    ``CUgraphConditionalHandle``. The four conditional builder methods
+    (:meth:`~graph.GraphBuilder.if_then`,
+    :meth:`~graph.GraphBuilder.if_else`,
+    :meth:`~graph.GraphBuilder.while_loop`,
+    :meth:`~graph.GraphBuilder.switch`) now accept a
+    :class:`~graph.GraphCondition` instead of a raw handle.
+  - ``GraphBuilder.if_cond`` / ``GraphDefinition.if_cond`` /
+    ``GraphNode.if_cond`` -> :meth:`graph.GraphBuilder.if_then` /
+    :meth:`graph.GraphDefinition.if_then` /
+    :meth:`graph.GraphNode.if_then`. The new name parallels the existing
+    ``if_else``, ``while_loop``, and ``switch`` methods (verb describing the
+    control-flow construct, not an abbreviation of "condition") and matches
+    Python's own ``if/then/else`` vocabulary.
+  - :class:`~graph.GraphCondition` now defines ``__int__`` returning the
+    underlying ``CUgraphConditionalHandle`` value, so a condition may be
+    passed directly as a kernel argument to ``launch()`` without first
+    extracting ``.handle``.
+
 
 Fixes and enhancements
 -----------------------

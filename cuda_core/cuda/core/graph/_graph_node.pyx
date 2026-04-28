@@ -380,7 +380,7 @@ cdef class GraphNode:
         """
         return GN_callback(self, fn, user_data)
 
-    def if_cond(self, condition: GraphCondition) -> IfNode:
+    def if_then(self, condition: GraphCondition) -> IfNode:
         """Add an if-conditional node depending on this node.
 
         The body graph executes only when the condition evaluates to

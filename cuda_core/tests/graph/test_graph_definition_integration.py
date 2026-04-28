@@ -254,7 +254,7 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
     loop.body.launch(heat_cfg, k_heat, a_next.dptr, a_curr.dptr,
                      np.int32(_HEAT_N), _HEAT_ALPHA) \
              .memcpy(a_curr.dptr, a_next.dptr, _HEAT_N * SIZEOF_FLOAT) \
-             .launch(tick_cfg, k_countdown, condition.handle, a_ctr.dptr)
+             .launch(tick_cfg, k_countdown, condition, a_ctr.dptr)
 
     # Phase 5 — After loop: timing end, readback, verify, free memory
     loop.wait(event_start) \
@@ -345,16 +345,16 @@ def _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_
     ie_cond    = g.create_condition(default_value=0)
     loop = p.while_loop(while_cond)
 
-    ie = loop.body.launch(cfg, k_eval, a.dptr, b.dptr, ie_cond.handle) \
+    ie = loop.body.launch(cfg, k_eval, a.dptr, b.dptr, ie_cond) \
                   .if_else(ie_cond)
     ie.then.launch(cfg, k_hi, a.dptr, b.dptr)
     ie.else_.launch(cfg, k_lo, a.dptr, b.dptr)
-    ie.launch(cfg, k_cd, while_cond.handle, ctr.dptr)
+    ie.launch(cfg, k_cd, while_cond, ctr.dptr)
 
     # Post-loop: Newton refinement (IfNode), readback, free
     if_cond = g.create_condition(default_value=0)
-    if_node = loop.launch(cfg, k_check, a.dptr, b.dptr, if_cond.handle) \
-                  .if_cond(if_cond)
+    if_node = loop.launch(cfg, k_check, a.dptr, b.dptr, if_cond) \
+                  .if_then(if_cond)
     if_node.then.launch(cfg, k_newton, a.dptr, b.dptr)
 
     if_node.memcpy(host_ptr, a.dptr, SIZEOF_FLOAT) \

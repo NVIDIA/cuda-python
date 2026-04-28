@@ -29,7 +29,7 @@ def _skip_if_no_mempool():
 
 
 def _make_if(g, cond):
-    node = g.if_cond(cond)
+    node = g.if_then(cond)
     return [node.then]
 
 

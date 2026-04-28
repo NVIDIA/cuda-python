@@ -460,14 +460,14 @@ def sample_condition_alt(sample_graphdef):
 def sample_if_node(sample_graphdef):
     """An IfNode."""
     condition = try_create_condition(sample_graphdef)
-    return sample_graphdef.if_cond(condition)
+    return sample_graphdef.if_then(condition)
 
 
 @pytest.fixture
 def sample_if_node_alt(sample_graphdef):
     """An alternate IfNode from same graph."""
     condition = try_create_condition(sample_graphdef)
-    return sample_graphdef.if_cond(condition)
+    return sample_graphdef.if_then(condition)
 
 
 @pytest.fixture
