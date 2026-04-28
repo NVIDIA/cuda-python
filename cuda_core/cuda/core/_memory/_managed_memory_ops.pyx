@@ -543,51 +543,88 @@ cdef void _do_batch_prefetch(tuple bufs, tuple locs, Stream s):
 
 
 def discard_prefetch(
-    target: Buffer,
-    location: Device | int | None = None,
+    targets,
+    location=None,
     *,
-    stream: Stream | GraphBuilder,
-    location_type: str | None = None,
+    options=None,
+    stream,
 ):
-    """Discard a managed-memory allocation range and prefetch it to a target location.
+    """Discard one or more managed-memory ranges and prefetch them to a target location.
 
     Parameters
     ----------
-    target : :class:`Buffer`
-        Managed allocation to operate on.
-    location : :obj:`~_device.Device` | int | None, optional
-        Target location. When ``location_type`` is ``None``, values are
-        interpreted as a device ordinal, ``-1`` for host, or ``None``.
-        A location is required for discard_prefetch.
-    stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
-        Keyword argument specifying the stream for the asynchronous operation.
-    location_type : str | None, optional
-        Explicit location kind. Supported values are ``"device"``, ``"host"``,
-        ``"host_numa"``, and ``"host_numa_current"``.
+    targets : :class:`Buffer` | Sequence[:class:`Buffer`]
+        One or more managed allocations to discard and re-prefetch.
+    location : :class:`Location` | :obj:`~_device.Device` | int | Sequence[...]
+        Target location(s). A single location applies to all targets;
+        a sequence must match ``len(targets)``.
+    options : None
+        Reserved for future per-call flags. Must be ``None``.
+    stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
+        Stream for the asynchronous operation (keyword-only).
+
+    Raises
+    ------
+    NotImplementedError
+        On a CUDA 12 build of ``cuda.core``. Discard-and-prefetch
+        requires CUDA 13+.
     """
-    if not isinstance(target, Buffer):
-        raise TypeError(f"discard_prefetch target must be a Buffer, got {type(target).__name__}")
-    cdef Buffer buf = <Buffer>target
-    _require_managed_buffer(buf, "discard_prefetch")
-    _require_managed_discard_prefetch_support("discard_prefetch")
-    cdef Stream s = Stream_accept(stream)
-    cdef object ptr = buf.handle
-    cdef size_t nbytes = buf._size
-    cdef object batch_ptr = driver.CUdeviceptr(int(ptr))
-    location = _normalize_managed_location(
-        location,
-        location_type,
-        "discard_prefetch",
-    )
-    handle_return(
-        driver.cuMemDiscardAndPrefetchBatchAsync(
-            [batch_ptr],
-            [nbytes],
-            _SINGLE_RANGE_COUNT,
-            [location],
-            [_FIRST_PREFETCH_LOCATION_INDEX],
-            _SINGLE_PREFETCH_LOCATION_COUNT,
-            _MANAGED_OPERATION_FLAGS,
-            s.handle,
+    if options is not None:
+        raise TypeError(
+            f"discard_prefetch options must be None (reserved); "
+            f"got {type(options).__name__}"
         )
-    )
+    cdef tuple bufs = _coerce_buffer_targets(targets, "discard_prefetch")
+    cdef Py_ssize_t n = len(bufs)
+    cdef tuple locs = _broadcast_locations(location, n, False, "discard_prefetch")
+    cdef Stream s = Stream_accept(stream)
+
+    cdef Buffer buf
+    for buf in bufs:
+        _require_managed_buffer(buf, "discard_prefetch")
+
+    _do_batch_discard_prefetch(bufs, locs, s)
+
+
+cdef void _do_batch_discard_prefetch(tuple bufs, tuple locs, Stream s):
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef Py_ssize_t n = len(bufs)
+        cdef cydriver.CUstream hstream = as_cu(s._h_stream)
+        cdef cydriver.CUdeviceptr* ptrs = <cydriver.CUdeviceptr*>PyMem_Malloc(
+            n * sizeof(cydriver.CUdeviceptr)
+        )
+        cdef size_t* sizes = <size_t*>PyMem_Malloc(n * sizeof(size_t))
+        cdef cydriver.CUmemLocation* loc_arr = <cydriver.CUmemLocation*>PyMem_Malloc(
+            n * sizeof(cydriver.CUmemLocation)
+        )
+        cdef size_t* loc_indices = <size_t*>PyMem_Malloc(n * sizeof(size_t))
+        if not (ptrs and sizes and loc_arr and loc_indices):
+            PyMem_Free(ptrs)
+            PyMem_Free(sizes)
+            PyMem_Free(loc_arr)
+            PyMem_Free(loc_indices)
+            raise MemoryError()
+        cdef Buffer buf
+        cdef Py_ssize_t i
+        try:
+            for i in range(n):
+                buf = <Buffer>bufs[i]
+                ptrs[i] = as_cu(buf._h_ptr)
+                sizes[i] = buf._size
+                loc_arr[i] = _to_cumemlocation(locs[i])
+                loc_indices[i] = <size_t>i
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemDiscardAndPrefetchBatchAsync(
+                    ptrs, sizes, <size_t>n,
+                    loc_arr, loc_indices, <size_t>n,
+                    0, hstream,
+                ))
+        finally:
+            PyMem_Free(ptrs)
+            PyMem_Free(sizes)
+            PyMem_Free(loc_arr)
+            PyMem_Free(loc_indices)
+    ELSE:
+        raise NotImplementedError(
+            "discard_prefetch requires a CUDA 13 build of cuda.core"
+        )
