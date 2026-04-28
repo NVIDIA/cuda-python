@@ -123,7 +123,7 @@ def main() -> None:
             py_mean = py_stats[0]
             cpp_mean = cpp_stats[0]
             overhead_ns = (py_mean - cpp_mean) * 1e9
-            overhead_str = f"+{overhead_ns:.0f} ns"
+            overhead_str = f"{overhead_ns:+.0f} ns"
         else:
             overhead_str = "-"
 

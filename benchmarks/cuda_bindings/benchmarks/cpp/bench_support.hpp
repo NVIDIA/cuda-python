@@ -124,6 +124,7 @@ template <typename Fn>
 std::uint64_t calibrate_loops(
     const Options& options,
     Fn&& fn,
+    const std::function<void()>& post_calibrate = {},
     bool* capped_out = nullptr,
     double* last_elapsed_out = nullptr
 ) {
@@ -136,15 +137,19 @@ std::uint64_t calibrate_loops(
     // Allow callers (e.g. the explicit-loop overload) to request a minimum
     // starting loop count via options.loops.
     const std::uint64_t start_loops = std::max<std::uint64_t>(1, options.loops);
-    std::uint64_t best = start_loops;
     const std::uint64_t max_loops = std::max<std::uint64_t>(start_loops, options.max_loops);
     const std::uint64_t rounds = std::max<std::uint64_t>(1, options.calibrate_rounds);
 
-    bool capped = false;
-    double last_elapsed = 0.0;
+    // Track the round that produced the best (largest) loop count so the
+    // returned loop count, capped flag, and last-elapsed time all describe
+    // the same round.
+    std::uint64_t best_loops = 0;
+    bool best_capped = false;
+    double best_elapsed = 0.0;
 
     for (std::uint64_t round = 0; round < rounds; ++round) {
         std::uint64_t loops = start_loops;
+        bool round_capped = false;
         double elapsed = 0.0;
 
         while (true) {
@@ -155,11 +160,17 @@ std::uint64_t calibrate_loops(
             const auto t1 = std::chrono::steady_clock::now();
             elapsed = std::chrono::duration<double>(t1 - t0).count();
 
+            // Drain any state left behind by this probe (e.g. queued async
+            // work on a persistent stream) before the next probe, the next
+            // round, or the first measured warmup/value runs.
+            if (post_calibrate) {
+                post_calibrate();
+            }
             if (elapsed >= options.min_time_sec) {
                 break;
             }
             if (loops >= max_loops) {
-                capped = true;
+                round_capped = true;
                 break;
             }
             if (loops > max_loops / 2) {
@@ -169,15 +180,16 @@ std::uint64_t calibrate_loops(
             }
         }
 
-        if (loops > best) {
-            best = loops;
+        if (loops >= best_loops) {
+            best_loops = loops;
+            best_capped = round_capped;
+            best_elapsed = elapsed;
         }
-        last_elapsed = elapsed;
     }
 
-    if (capped_out) *capped_out = capped;
-    if (last_elapsed_out) *last_elapsed_out = last_elapsed;
-    return best;
+    if (capped_out) *capped_out = best_capped;
+    if (last_elapsed_out) *last_elapsed_out = best_elapsed;
+    return best_loops;
 }
 
 // Run a benchmark function. The function signature is: void fn() — one call = one operation.
@@ -322,18 +334,18 @@ class BenchmarkSuite {
 public:
     explicit BenchmarkSuite(Options options) : options_(std::move(options)) {}
 
-    // Post-calibration hook. If set, invoked after calibration and before the
-    // first measured warmup/value, for every benchmark in this suite. Intended
-    // for async benchmarks that need to drain state left behind by calibration
-    // (e.g. cuStreamSynchronize on a persistent stream). Can be overridden
-    // per-call via the `post_calibrate` parameter on `run()`.
+    // Post-calibration hook. If set, invoked between calibration probes so
+    // async benchmarks can drain state left behind by each probe before the
+    // next one runs. The final probe leaves the benchmark in a drained state
+    // before the first measured warmup/value. Can be overridden per-call via
+    // the `post_calibrate` parameter on `run()`.
     void set_post_calibrate(std::function<void()> hook) {
         post_calibrate_ = std::move(hook);
     }
 
     // Run a benchmark and record it. The name is used as the benchmark ID.
     // If --min-time is set, loop count is auto-calibrated. `post_calibrate`,
-    // if provided, runs after calibration and before measurement.
+    // if provided, runs between calibration probes to reset async state.
     template <typename Fn>
     void run(
         const std::string& name,
@@ -343,9 +355,8 @@ public:
         std::uint64_t loops = options_.loops;
         Options custom = options_;
         if (options_.min_time_sec > 0.0) {
-            loops = calibrate_and_warn(name, options_, fn);
+            loops = calibrate_and_warn(name, options_, fn, select_post_calibrate(post_calibrate));
             custom.loops = loops;
-            invoke_post_calibrate(post_calibrate);
         }
         auto results = run_benchmark(custom, std::forward<Fn>(fn));
         print_summary(name, results);
@@ -368,9 +379,8 @@ public:
         if (options_.min_time_sec > 0.0) {
             Options calib_opts = options_;
             calib_opts.loops = loops_override;  // floor
-            loops = calibrate_and_warn(name, calib_opts, fn);
+            loops = calibrate_and_warn(name, calib_opts, fn, select_post_calibrate(post_calibrate));
             custom.loops = loops;
-            invoke_post_calibrate(post_calibrate);
         }
         auto results = run_benchmark(custom, std::forward<Fn>(fn));
         print_summary(name, results);
@@ -389,24 +399,24 @@ private:
     std::vector<BenchmarkEntry> entries_;
     std::function<void()> post_calibrate_;
 
-    void invoke_post_calibrate(const std::function<void()>& per_call) const {
+    std::function<void()> select_post_calibrate(const std::function<void()>& per_call) const {
         if (per_call) {
-            per_call();
-        } else if (post_calibrate_) {
-            post_calibrate_();
+            return per_call;
         }
+        return post_calibrate_;
     }
 
     template <typename Fn>
     std::uint64_t calibrate_and_warn(
         const std::string& name,
         const Options& calib_opts,
-        Fn&& fn
+        Fn&& fn,
+        const std::function<void()>& post_calibrate
     ) const {
         bool capped = false;
         double last_elapsed = 0.0;
         std::uint64_t loops = calibrate_loops(
-            calib_opts, std::forward<Fn>(fn), &capped, &last_elapsed
+            calib_opts, std::forward<Fn>(fn), post_calibrate, &capped, &last_elapsed
         );
         if (capped) {
             std::cerr << "WARNING: " << name
