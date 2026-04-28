@@ -54,7 +54,6 @@ _MEM_RANGE_ATTRIBUTE_VALUE_SIZE = 4
 _READ_MOSTLY_ENABLED = 1
 _HOST_LOCATION_ID = -1
 _INVALID_HOST_DEVICE_ORDINAL = 0
-_LEGACY_BINDINGS_VERSION = (12, 9)
 
 
 class DummyDeviceMemoryResource(MemoryResource):
@@ -1264,6 +1263,8 @@ def test_managed_memory_prefetch_supports_managed_pool_allocations(init_cuda):
 
 
 def test_managed_memory_advise_supports_external_managed_allocations(init_cuda):
+    from cuda.core.managed_memory import Location
+
     device = Device()
     _skip_if_managed_location_ops_unsupported(device)
     device.set_current()
@@ -1281,7 +1282,7 @@ def test_managed_memory_advise_supports_external_managed_allocations(init_cuda):
 
     # cuda.bindings currently exposes the combined location attributes for
     # cuMemRangeGetAttribute, so use the legacy location query here.
-    managed_memory.advise(buffer, "set_preferred_location", location_type="host")
+    managed_memory.advise(buffer, "set_preferred_location", Location.host())
     preferred_location = _get_int_mem_range_attr(
         buffer,
         driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION,
@@ -1359,30 +1360,6 @@ def test_managed_memory_discard_prefetch_supports_external_managed_allocations(i
     buffer.close()
 
 
-def test_managed_memory_advise_uses_legacy_bindings_signature(monkeypatch, init_cuda):
-    device = Device()
-    _skip_if_managed_allocation_unsupported(device)
-    device.set_current()
-
-    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
-    calls = []
-
-    def fake_cuMemAdvise(ptr, size, advice, location):
-        calls.append((ptr, size, advice, location))
-        return (driver.CUresult.CUDA_SUCCESS,)
-
-    monkeypatch.setattr(_managed_memory_ops, "binding_version", lambda: _LEGACY_BINDINGS_VERSION)
-    monkeypatch.setattr(_managed_memory_ops, "_V2_BINDINGS", -1)
-    monkeypatch.setattr(_managed_memory_ops.driver, "cuMemAdvise", fake_cuMemAdvise)
-
-    managed_memory.advise(buffer, "set_read_mostly")
-
-    assert len(calls) == 1
-    assert calls[0][3] == int(getattr(driver, "CU_DEVICE_CPU", _HOST_LOCATION_ID))
-
-    buffer.close()
-
-
 def test_managed_memory_operations_reject_non_managed_allocations(init_cuda):
     device = Device()
     device.set_current()
@@ -1411,14 +1388,17 @@ def test_managed_memory_operation_validation(init_cuda):
 
     with pytest.raises(ValueError, match="location is required"):
         managed_memory.prefetch(buffer, stream=stream)
+    from cuda.core.managed_memory import Location
     with pytest.raises(ValueError, match="does not support location_type='host_numa'"):
-        managed_memory.advise(buffer, "set_accessed_by", _INVALID_HOST_DEVICE_ORDINAL, location_type="host_numa")
+        managed_memory.advise(buffer, "set_accessed_by", Location.host_numa(_INVALID_HOST_DEVICE_ORDINAL))
 
     buffer.close()
 
 
 def test_managed_memory_advise_location_validation(init_cuda):
     """Verify doc-specified location constraints for each advice kind."""
+    from cuda.core.managed_memory import Location
+
     device = Device()
     _skip_if_managed_location_ops_unsupported(device)
     device.set_current()
@@ -1431,16 +1411,16 @@ def test_managed_memory_advise_location_validation(init_cuda):
     # set_preferred_location requires a location; device ordinal works
     managed_memory.advise(buffer, "set_preferred_location", device.device_id)
 
-    # set_preferred_location with host location_type
-    managed_memory.advise(buffer, "set_preferred_location", location_type="host")
+    # set_preferred_location with host location
+    managed_memory.advise(buffer, "set_preferred_location", Location.host())
 
     # set_accessed_by with host_numa raises ValueError (INVALID per CUDA docs)
     with pytest.raises(ValueError, match="does not support location_type='host_numa'"):
-        managed_memory.advise(buffer, "set_accessed_by", 0, location_type="host_numa")
+        managed_memory.advise(buffer, "set_accessed_by", Location.host_numa(0))
 
     # set_accessed_by with host_numa_current also raises ValueError
     with pytest.raises(ValueError, match="does not support location_type='host_numa_current'"):
-        managed_memory.advise(buffer, "set_accessed_by", location_type="host_numa_current")
+        managed_memory.advise(buffer, "set_accessed_by", Location.host_numa_current())
 
     # Inferred location from int: -1 maps to host, 0 maps to device
     managed_memory.advise(buffer, "set_preferred_location", -1)
@@ -2220,4 +2200,53 @@ class TestDiscardPrefetch:
         stream = device.create_stream()
         with pytest.raises(ValueError, match="managed-memory"):
             discard_prefetch(buf, Location.host(), stream=stream)
+        buf.close()
+
+
+class TestAdvise:
+    def test_batched_same_advice(self, init_cuda):
+        from cuda.core.managed_memory import advise, Location
+        device = Device()
+        _skip_if_managed_location_ops_unsupported(device)
+        device.set_current()
+        bufs = [
+            DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+            for _ in range(2)
+        ]
+        advise(bufs, "set_read_mostly")
+        for buf in bufs:
+            assert (
+                _get_int_mem_range_attr(
+                    buf,
+                    driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
+                )
+                == _READ_MOSTLY_ENABLED
+            )
+            buf.close()
+
+    def test_batched_per_buffer_location(self, init_cuda):
+        from cuda.core.managed_memory import advise, Location
+        device = Device()
+        _skip_if_managed_location_ops_unsupported(device)
+        device.set_current()
+        bufs = [
+            DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+            for _ in range(2)
+        ]
+        advise(
+            bufs,
+            "set_preferred_location",
+            [Location.host(), Location.device(device.device_id)],
+        )
+        for buf in bufs:
+            buf.close()
+
+    def test_options_must_be_none(self, init_cuda):
+        from cuda.core.managed_memory import advise
+        device = Device()
+        _skip_if_managed_allocation_unsupported(device)
+        device.set_current()
+        buf = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+        with pytest.raises(TypeError, match="must be None"):
+            advise(buf, "set_read_mostly", options={})
         buf.close()
