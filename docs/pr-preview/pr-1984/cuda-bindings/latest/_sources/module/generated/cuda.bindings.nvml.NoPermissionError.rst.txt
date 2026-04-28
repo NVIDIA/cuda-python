@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.NoPermissionError
+====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: NoPermissionError
