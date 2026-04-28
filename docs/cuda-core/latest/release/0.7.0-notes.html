@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=40868cef"></script>
+    <script src="../_static/documentation_options.js?v=d306829c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev65';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev67';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -520,9 +520,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -685,11 +685,11 @@ bulk data movement, with automatic kernel argument integration.</p></li>
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Added the <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.graph</span></code> public module containing
-<a class="reference internal" href="../generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef" title="cuda.core.graph.GraphDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDef</span></code></a> for explicit graph construction, typed node
+<code class="docutils literal notranslate"><span class="pre">GraphDef</span></code> for explicit graph construction, typed node
 subclasses, and supporting types. <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> (stream
 capture) also moves into this module.</p></li>
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.callback" title="cuda.core.graph.GraphBuilder.callback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">callback()</span></code></a> for CPU callbacks during stream
-capture, mirroring the existing <a class="reference internal" href="../generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.callback" title="cuda.core.graph.GraphDef.callback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">callback()</span></code></a> API.</p></li>
+capture, mirroring the existing <code class="docutils literal notranslate"><span class="pre">GraphDef.callback</span></code> API.</p></li>
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.GraphicsResource.html#cuda.core.GraphicsResource" title="cuda.core.GraphicsResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphicsResource</span></code></a> for CUDA-OpenGL interoperability.
 Factory classmethods <a class="reference internal" href="../generated/cuda.core.GraphicsResource.html#cuda.core.GraphicsResource.from_gl_buffer" title="cuda.core.GraphicsResource.from_gl_buffer"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_gl_buffer()</span></code></a> and
 <a class="reference internal" href="../generated/cuda.core.GraphicsResource.html#cuda.core.GraphicsResource.from_gl_image" title="cuda.core.GraphicsResource.from_gl_image"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_gl_image()</span></code></a> register OpenGL objects for CUDA

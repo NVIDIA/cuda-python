@@ -19,6 +19,19 @@ New features
 - TBD
 
 
+Breaking changes
+----------------
+
+- Renamed :class:`~graph.GraphDef` to :class:`~graph.GraphDefinition` for
+  consistency with the rest of the API, which spells words out (e.g.
+  ``TensorMapDescriptor``, not ``TensorMapDesc``).
+  (`#1950 <https://github.com/NVIDIA/cuda-python/issues/1950>`__)
+- Renamed ``cuda.core.graph.Condition`` to :class:`~graph.GraphCondition`
+  to follow the ``Graph*`` prefix convention used by ``GraphBuilder``,
+  ``GraphDefinition``, ``GraphNode``.
+  (`#1945 <https://github.com/NVIDIA/cuda-python/issues/1945>`__)
+
+
 Fixes and enhancements
 -----------------------
 
