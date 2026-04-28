@@ -174,6 +174,22 @@ CUDA compilation toolchain
    LinkerOptions
 
 
+CUDA process checkpointing
+--------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: class.rst
+
+   checkpoint.Process
+
+.. autosummary::
+   :toctree: generated/
+
+   checkpoint.ProcessState
+
+
 CUDA system information and NVIDIA Management Library (NVML)
 ------------------------------------------------------------
 
