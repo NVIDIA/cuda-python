@@ -2245,15 +2245,21 @@ class TestAdvise:
         mr = DummyUnifiedMemoryResource(device)
         bufs = [mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(2)]
         advise(bufs, "set_read_mostly")
-        for buf in bufs:
-            assert (
-                _get_int_mem_range_attr(
-                    buf,
-                    driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
-                )
-                == _READ_MOSTLY_ENABLED
+        # Query all attributes BEFORE closing any buffer. On CUDA 12, freeing
+        # a managed allocation can clear read-mostly advice on neighboring
+        # ranges; close-then-query in a single loop falsely flags the later
+        # iterations as having lost the advice.
+        results = [
+            _get_int_mem_range_attr(
+                buf,
+                driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
             )
+            for buf in bufs
+        ]
+        for buf in bufs:
             buf.close()
+        for r in results:
+            assert r == _READ_MOSTLY_ENABLED
 
     def test_batched_per_buffer_location(self, init_cuda):
         from cuda.core.utils import Location, advise
