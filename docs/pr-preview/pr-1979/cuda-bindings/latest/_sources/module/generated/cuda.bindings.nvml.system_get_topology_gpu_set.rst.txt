@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.system\_get\_topology\_gpu\_set
-==================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: system_get_topology_gpu_set
