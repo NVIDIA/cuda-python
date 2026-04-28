@@ -49,3 +49,32 @@ class Location:
     @classmethod
     def host_numa_current(cls) -> "Location":
         return cls(kind="host_numa_current", id=None)
+
+
+def _coerce_location(value, *, allow_none: bool = False) -> Location | None:
+    """Coerce user input to a Location instance.
+
+    Accepts: Location (passthrough), Device (uses device_id), int (>=0 → device,
+    -1 → host), None (only if allow_none=True).
+    """
+    from cuda.core._device import Device  # avoid import cycle at module load
+
+    if isinstance(value, Location):
+        return value
+    if isinstance(value, Device):
+        return Location.device(value.device_id)
+    if value is None:
+        if allow_none:
+            return None
+        raise ValueError("location is required")
+    if isinstance(value, int):
+        if value == -1:
+            return Location.host()
+        if value >= 0:
+            return Location.device(value)
+        raise ValueError(
+            f"device ordinal must be >= 0 (or -1 for host), got {value}"
+        )
+    raise TypeError(
+        f"location must be a Location, Device, int, or None; got {type(value).__name__}"
+    )

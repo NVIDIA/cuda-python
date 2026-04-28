@@ -1961,3 +1961,47 @@ class TestLocation:
         from cuda.core.managed_memory import Location
         with pytest.raises(ValueError, match="kind must be one of"):
             Location(kind="not_a_kind", id=None)
+
+
+class TestLocationCoerce:
+    def test_passthrough(self):
+        from cuda.core._memory._managed_location import _coerce_location
+        from cuda.core.managed_memory import Location
+        loc = Location.device(0)
+        assert _coerce_location(loc) is loc
+
+    def test_int_device(self):
+        from cuda.core._memory._managed_location import _coerce_location
+        assert _coerce_location(0).kind == "device"
+        assert _coerce_location(0).id == 0
+
+    def test_int_minus_one_is_host(self):
+        from cuda.core._memory._managed_location import _coerce_location
+        assert _coerce_location(-1).kind == "host"
+
+    def test_device_object(self, init_cuda):
+        from cuda.core import Device
+        from cuda.core._memory._managed_location import _coerce_location
+        dev = Device()
+        loc = _coerce_location(dev)
+        assert loc.kind == "device"
+        assert loc.id == dev.device_id
+
+    def test_none_when_disallowed(self):
+        from cuda.core._memory._managed_location import _coerce_location
+        with pytest.raises(ValueError, match="location is required"):
+            _coerce_location(None, allow_none=False)
+
+    def test_none_when_allowed(self):
+        from cuda.core._memory._managed_location import _coerce_location
+        assert _coerce_location(None, allow_none=True) is None
+
+    def test_bad_int(self):
+        from cuda.core._memory._managed_location import _coerce_location
+        with pytest.raises(ValueError, match="device ordinal"):
+            _coerce_location(-2)
+
+    def test_bad_type(self):
+        from cuda.core._memory._managed_location import _coerce_location
+        with pytest.raises(TypeError, match="Location, Device, int, or None"):
+            _coerce_location("device")
