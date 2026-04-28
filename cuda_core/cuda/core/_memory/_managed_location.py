@@ -30,9 +30,8 @@ class Location:
         elif self.kind == "host_numa":
             if not isinstance(self.id, int) or self.id < 0:
                 raise ValueError("host_numa id must be >= 0")
-        elif self.kind in ("host", "host_numa_current"):
-            if self.id is not None:
-                raise ValueError(f"{self.kind} location must have id=None")
+        elif self.kind in ("host", "host_numa_current") and self.id is not None:
+            raise ValueError(f"{self.kind} location must have id=None")
 
     @classmethod
     def device(cls, device_id: int) -> Location:
