@@ -17,11 +17,16 @@ New features
 ------------
 
 - Added managed-memory range operations under :mod:`cuda.core.managed_memory`:
-  ``advise()``, ``prefetch()``, and ``discard_prefetch()``. These free
-  functions accept either a managed :class:`Buffer` or a raw pointer plus
-  ``size=``, validate that the target allocation is managed memory, and then
-  forward to the corresponding CUDA driver operations for range advice and
-  migration.
+  :class:`~managed_memory.Location`, :func:`~managed_memory.advise`,
+  :func:`~managed_memory.prefetch`, :func:`~managed_memory.discard`, and
+  :func:`~managed_memory.discard_prefetch`. Each operation accepts either a
+  single managed :class:`Buffer` or a sequence; with cuda.bindings 12.8+
+  the N>1 case dispatches to the corresponding ``cuMem*BatchAsync`` driver
+  entry point, addressing the managed-memory portion of #1333. Locations
+  are expressed via the typed :class:`~managed_memory.Location` dataclass
+  (with classmethod constructors ``device``, ``host``, ``host_numa``, and
+  ``host_numa_current``); ``Device`` and ``int`` values are still accepted
+  for ergonomic compatibility.
 
 
 Fixes and enhancements

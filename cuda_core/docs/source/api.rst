@@ -137,8 +137,10 @@ Managed memory
 .. autosummary::
    :toctree: generated/
 
+   Location
    advise
    prefetch
+   discard
    discard_prefetch
 
 .. module:: cuda.core
