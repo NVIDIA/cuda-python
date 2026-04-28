@@ -261,27 +261,33 @@ def test_public_driver_libs_are_allowed_in_strict_mode(monkeypatch, tmp_path):
 
 
 @pytest.mark.parametrize("env_value", [None, ""])
-def test_public_apis_default_to_strict_when_env_var_is_unset_or_empty(monkeypatch, tmp_path, env_value):
-    lib_path = _touch(tmp_path / "no-cuda-h" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+def test_public_apis_default_mode_applies_when_env_var_is_unset_or_empty(monkeypatch, tmp_path, env_value):
+    guarded_lib_path = _touch(tmp_path / "no-cuda-h" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    raw_loaded = _loaded_dl("/opt/mock/libnvrtc.so.12", found_via="system-search")
 
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
+    monkeypatch.setattr(
+        compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(guarded_lib_path)
+    )
+    monkeypatch.setattr(process_wide_module, "_load_nvidia_dynamic_lib", lambda _libname: raw_loaded)
     monkeypatch.setattr(
         pathfinder,
         "process_wide_compatibility_guard_rails",
         CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000)),
     )
 
-    def fail_raw_fallback(_libname: str) -> LoadedDL:
-        pytest.fail("strict mode must not fall back to raw loading")
-
-    monkeypatch.setattr(process_wide_module, "_load_nvidia_dynamic_lib", fail_raw_fallback)
     if env_value is None:
         monkeypatch.delenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, raising=False)
     else:
         monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, env_value)
 
-    with pytest.raises(CompatibilityInsufficientMetadataError, match="cuda.h"):
-        pathfinder.load_nvidia_dynamic_lib("nvrtc")
+    default_mode = process_wide_module._COMPATIBILITY_GUARD_RAILS_DEFAULT_MODE
+    if default_mode == "strict":
+        with pytest.raises(CompatibilityInsufficientMetadataError, match="cuda.h"):
+            pathfinder.load_nvidia_dynamic_lib("nvrtc")
+        return
+
+    loaded = pathfinder.load_nvidia_dynamic_lib("nvrtc")
+    assert loaded is raw_loaded
 
 
 def test_public_apis_best_effort_fall_back_on_insufficient_metadata(monkeypatch, tmp_path):
@@ -329,6 +335,7 @@ def test_public_apis_reject_invalid_guard_rails_mode(monkeypatch):
     assert "'off'" in message
     assert "'best_effort'" in message
     assert "'strict'" in message
+    assert f"defaults to {process_wide_module._COMPATIBILITY_GUARD_RAILS_DEFAULT_MODE!r}" in message
 
 
 def test_public_apis_share_process_wide_guard_rails_state(monkeypatch, tmp_path):

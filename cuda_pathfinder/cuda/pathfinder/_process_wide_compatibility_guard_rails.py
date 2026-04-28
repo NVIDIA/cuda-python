@@ -50,6 +50,8 @@ from cuda.pathfinder._static_libs.find_static_lib import (
 _T = TypeVar("_T")
 _COMPATIBILITY_GUARD_RAILS_ENV_VAR = "CUDA_PATHFINDER_COMPATIBILITY_GUARD_RAILS"
 _COMPATIBILITY_GUARD_RAILS_MODES = ("off", "best_effort", "strict")
+_COMPATIBILITY_GUARD_RAILS_DEFAULT_MODE = "strict"
+assert _COMPATIBILITY_GUARD_RAILS_DEFAULT_MODE in _COMPATIBILITY_GUARD_RAILS_MODES
 
 
 class _ProcessWideGuardRailsApi(Protocol):
@@ -80,13 +82,14 @@ process_wide_compatibility_guard_rails: CompatibilityGuardRails = CompatibilityG
 def _compatibility_guard_rails_mode() -> str:
     value = os.environ.get(_COMPATIBILITY_GUARD_RAILS_ENV_VAR)
     if not value:
-        return "strict"
+        return _COMPATIBILITY_GUARD_RAILS_DEFAULT_MODE
     if value in _COMPATIBILITY_GUARD_RAILS_MODES:
         return value
     allowed_values = ", ".join(repr(mode) for mode in _COMPATIBILITY_GUARD_RAILS_MODES)
     raise RuntimeError(
         f"Invalid {_COMPATIBILITY_GUARD_RAILS_ENV_VAR}={value!r}. "
-        f"Allowed values: {allowed_values}. Unset or empty defaults to 'strict'."
+        f"Allowed values: {allowed_values}. "
+        f"Unset or empty defaults to {_COMPATIBILITY_GUARD_RAILS_DEFAULT_MODE!r}."
     )
 
 
