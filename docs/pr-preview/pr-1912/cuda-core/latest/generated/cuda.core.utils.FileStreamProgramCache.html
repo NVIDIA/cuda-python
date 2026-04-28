@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8e29cc3c"></script>
+    <script src="../_static/documentation_options.js?v=6d0dab6e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev89';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev90';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -712,22 +712,21 @@ added entries; surviving entries remain consistent.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><strong>Cross-version sharing.</strong></p>
-<p><code class="docutils literal notranslate"><span class="pre">_FILESTREAM_SCHEMA_VERSION</span></code> encodes both the on-disk storage
-format and the key-schema version, so a cache written by an
-incompatible version is wiped on open (bumping either
-<code class="docutils literal notranslate"><span class="pre">_KEY_SCHEMA_VERSION</span></code> or <code class="docutils literal notranslate"><span class="pre">_FILESTREAM_BACKEND_SCHEMA</span></code> forces
-cleanup instead of leaving orphaned entries on disk).</p>
-<p>Within a single schema version the cache is safe to share across
-<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> patch releases: every entry’s key encodes the
-relevant backend/compiler/runtime fingerprints for its compilation
-path (NVRTC entries pin the NVRTC version, NVVM entries pin the
-libNVVM library and IR versions, PTX/linker entries pin the chosen
-linker backend and its version – and, when the cuLink/driver
-backend is selected, the driver version too; nvJitLink-backed PTX
-entries are deliberately driver-version independent). Entries are
-stored verbatim as the compiled binary, so cross-patch sharing
-only requires that the compiler-pinning surface above stays stable
-– there is no Python-pickle compatibility involved.</p>
+<p>The cache is safe to share across <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> patch releases:
+every entry’s key encodes the relevant backend/compiler/runtime
+fingerprints for its compilation path (NVRTC entries pin the
+NVRTC version, NVVM entries pin the libNVVM library and IR
+versions, PTX/linker entries pin the chosen linker backend and
+its version – and, when the cuLink/driver backend is selected,
+the driver version too; nvJitLink-backed PTX entries are
+deliberately driver-version independent). Bumping
+<code class="docutils literal notranslate"><span class="pre">_KEY_SCHEMA_VERSION</span></code> (mixed into every key’s hash) produces
+new keys that don’t collide with old entries, so old entries
+become invisible to lookups and are reaped on the next size-cap
+eviction pass. Entries are stored verbatim as the compiled
+binary, so cross-patch sharing only requires that the
+compiler-pinning surface above stays stable – there is no
+Python-pickle compatibility involved.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
