@@ -2242,7 +2242,8 @@ class TestAdvise:
         device = Device()
         _skip_if_managed_location_ops_unsupported(device)
         device.set_current()
-        bufs = [DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(2)]
+        mr = DummyUnifiedMemoryResource(device)
+        bufs = [mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(2)]
         advise(bufs, "set_read_mostly")
         for buf in bufs:
             assert (
@@ -2260,7 +2261,8 @@ class TestAdvise:
         device = Device()
         _skip_if_managed_location_ops_unsupported(device)
         device.set_current()
-        bufs = [DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(2)]
+        mr = DummyUnifiedMemoryResource(device)
+        bufs = [mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(2)]
         advise(
             bufs,
             "set_preferred_location",
