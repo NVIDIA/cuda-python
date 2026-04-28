@@ -2094,3 +2094,60 @@ class TestPrefetch:
         with pytest.raises(TypeError, match="must be None"):
             prefetch(buf, Location.host(), options={}, stream=stream)
         buf.close()
+
+
+class TestDiscard:
+    def test_single_buffer(self, init_cuda):
+        from cuda.core.managed_memory import Location, discard, prefetch
+        device = Device()
+        skip_if_managed_memory_unsupported(device)
+        if not hasattr(driver, "cuMemDiscardBatchAsync"):
+            pytest.skip("cuMemDiscardBatchAsync unavailable")
+        device.set_current()
+        mr = create_managed_memory_resource_or_skip()
+        buf = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+        stream = device.create_stream()
+        prefetch(buf, Location.device(device.device_id), stream=stream)
+        stream.sync()
+        discard(buf, stream=stream)
+        stream.sync()
+        buf.close()
+
+    def test_batched(self, init_cuda):
+        from cuda.core.managed_memory import Location, discard, prefetch
+        device = Device()
+        skip_if_managed_memory_unsupported(device)
+        if not hasattr(driver, "cuMemDiscardBatchAsync"):
+            pytest.skip("cuMemDiscardBatchAsync unavailable")
+        device.set_current()
+        mr = create_managed_memory_resource_or_skip()
+        bufs = [mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(3)]
+        stream = device.create_stream()
+        prefetch(bufs, Location.device(device.device_id), stream=stream)
+        stream.sync()
+        discard(bufs, stream=stream)
+        stream.sync()
+        for buf in bufs:
+            buf.close()
+
+    def test_rejects_non_managed(self, init_cuda):
+        from cuda.core.managed_memory import discard
+        device = Device()
+        device.set_current()
+        buf = DummyDeviceMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+        stream = device.create_stream()
+        with pytest.raises(ValueError, match="managed-memory"):
+            discard(buf, stream=stream)
+        buf.close()
+
+    def test_options_must_be_none(self, init_cuda):
+        from cuda.core.managed_memory import discard
+        device = Device()
+        skip_if_managed_memory_unsupported(device)
+        device.set_current()
+        mr = create_managed_memory_resource_or_skip()
+        buf = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+        stream = device.create_stream()
+        with pytest.raises(TypeError, match="must be None"):
+            discard(buf, options={}, stream=stream)
+        buf.close()

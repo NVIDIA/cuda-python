@@ -313,6 +313,77 @@ cdef void _require_managed_discard_prefetch_support(str what):
         )
 
 
+def discard(
+    targets,
+    *,
+    options=None,
+    stream,
+):
+    """Discard one or more managed-memory ranges.
+
+    Parameters
+    ----------
+    targets : :class:`Buffer` | Sequence[:class:`Buffer`]
+        One or more managed allocations to discard. Their resident pages
+        are released without prefetching new contents; subsequent access
+        is satisfied by lazy migration.
+    options : None
+        Reserved for future per-call flags. Must be ``None``.
+    stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
+        Stream for the asynchronous discard (keyword-only).
+
+    Raises
+    ------
+    NotImplementedError
+        On a CUDA 12 build of ``cuda.core``. Discard requires CUDA 13+.
+    """
+    if options is not None:
+        raise TypeError(
+            f"discard options must be None (reserved); got {type(options).__name__}"
+        )
+    cdef tuple bufs = _coerce_buffer_targets(targets, "discard")
+    cdef Py_ssize_t n = len(bufs)
+    cdef Stream s = Stream_accept(stream)
+
+    cdef Buffer buf
+    for buf in bufs:
+        _require_managed_buffer(buf, "discard")
+
+    _do_batch_discard(bufs, s)
+
+
+cdef void _do_batch_discard(tuple bufs, Stream s):
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef Py_ssize_t n = len(bufs)
+        cdef cydriver.CUstream hstream = as_cu(s._h_stream)
+        cdef cydriver.CUdeviceptr* ptrs = <cydriver.CUdeviceptr*>PyMem_Malloc(
+            n * sizeof(cydriver.CUdeviceptr)
+        )
+        cdef size_t* sizes = <size_t*>PyMem_Malloc(n * sizeof(size_t))
+        if not (ptrs and sizes):
+            PyMem_Free(ptrs)
+            PyMem_Free(sizes)
+            raise MemoryError()
+        cdef Buffer buf
+        cdef Py_ssize_t i
+        try:
+            for i in range(n):
+                buf = <Buffer>bufs[i]
+                ptrs[i] = as_cu(buf._h_ptr)
+                sizes[i] = buf._size
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemDiscardBatchAsync(
+                    ptrs, sizes, <size_t>n, 0, hstream,
+                ))
+        finally:
+            PyMem_Free(ptrs)
+            PyMem_Free(sizes)
+    ELSE:
+        raise NotImplementedError(
+            "discard requires a CUDA 13 build of cuda.core"
+        )
+
+
 def advise(
     target: Buffer,
     advice: driver.CUmem_advise | str,
