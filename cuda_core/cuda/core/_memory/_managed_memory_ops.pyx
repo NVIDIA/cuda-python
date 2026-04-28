@@ -8,7 +8,7 @@ from cpython.mem cimport PyMem_Free, PyMem_Malloc
 from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer, _init_mem_attrs
+from cuda.core._memory._buffer cimport Buffer
 from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -81,8 +81,10 @@ cdef tuple _normalize_managed_advice(object advice):
 
 
 cdef void _require_managed_buffer(Buffer self, str what):
-    _init_mem_attrs(self)
-    if not self._mem_attrs.is_managed:
+    # Buffer.is_managed handles both pointer-attribute and memory-resource
+    # paths (e.g. pool-allocated managed memory whose pointer attribute
+    # does not advertise CU_POINTER_ATTRIBUTE_IS_MANAGED).
+    if not self.is_managed:
         raise ValueError(f"{what} requires a managed-memory allocation")
 
 
