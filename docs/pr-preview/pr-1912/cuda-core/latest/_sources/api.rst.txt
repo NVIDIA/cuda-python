@@ -265,4 +265,5 @@ avoid recompiling identical source + options + target without writing the
    :toctree: generated/
 
    ProgramCacheResource
+   InMemoryProgramCache
    FileStreamProgramCache

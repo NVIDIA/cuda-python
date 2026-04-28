@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=51cbe594"></script>
+    <script src="../_static/documentation_options.js?v=c24bebe7"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev85';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev87';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -64,7 +64,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.utils.FileStreamProgramCache" href="cuda.core.utils.FileStreamProgramCache.html" />
+    <link rel="next" title="cuda.core.utils.InMemoryProgramCache" href="cuda.core.utils.InMemoryProgramCache.html" />
     <link rel="prev" title="cuda.core.utils.StridedMemoryView" href="cuda.core.utils.StridedMemoryView.html" />
 
 
@@ -585,6 +585,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
 </ul>
 </details></li>
@@ -698,8 +699,11 @@ and use the cache as a plain <code class="docutils literal notranslate"><span cl
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._module</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObjectCode</span>
 
 <span class="n">key</span> <span class="o">=</span> <span class="n">make_program_cache_key</span><span class="p">(</span>
-    <span class="n">code</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
-    <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;cubin&quot;</span><span class="p">,</span> <span class="n">extra_digest</span><span class="o">=</span><span class="n">header_fingerprint</span><span class="p">(),</span>
+    <span class="n">code</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+    <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span>
+    <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+    <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;cubin&quot;</span><span class="p">,</span>
+    <span class="n">extra_digest</span><span class="o">=</span><span class="n">header_fingerprint</span><span class="p">(),</span>
 <span class="p">)</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -789,11 +793,11 @@ a failure mid-iteration leaves earlier writes committed.</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.utils.FileStreamProgramCache.html"
+       href="cuda.core.utils.InMemoryProgramCache.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.utils.FileStreamProgramCache</p>
+        <p class="prev-next-title">cuda.core.utils.InMemoryProgramCache</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
