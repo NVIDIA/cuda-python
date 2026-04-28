@@ -129,24 +129,6 @@ Each subclass exposes attributes unique to its operation type.
    graph.SwitchNode
 
 
-.. module:: cuda.core.managed_memory
-
-Managed memory
---------------
-
-.. autosummary::
-   :toctree: generated/
-
-   Location
-   advise
-   prefetch
-   discard
-   discard_prefetch
-
-.. module:: cuda.core
-   :no-index:
-
-
 Graphics interoperability
 -------------------------
 
@@ -265,7 +247,12 @@ Utility functions
    :toctree: generated/
 
    args_viewable_as_strided_memory
+   advise
+   prefetch
+   discard
+   discard_prefetch
 
    :template: autosummary/cyclass.rst
 
+   Location
    StridedMemoryView

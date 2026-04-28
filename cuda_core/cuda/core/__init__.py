@@ -28,7 +28,7 @@ _import_versioned_module()
 del _import_versioned_module
 
 
-from cuda.core import managed_memory, system, utils
+from cuda.core import system, utils
 from cuda.core._device import Device
 from cuda.core._event import Event, EventOptions
 from cuda.core._graphics import GraphicsResource
