@@ -187,13 +187,6 @@ CUDA process checkpointing
 .. autosummary::
    :toctree: generated/
 
-   :template: dataclass.rst
-
-   checkpoint.GpuPair
-
-.. autosummary::
-   :toctree: generated/
-
    checkpoint.ProcessState
 
 
