@@ -34,11 +34,9 @@ set +u
 conda activate "pathfinder_testing_cu$cuda_version"
 set -u
 
+# Keep this list aligned with the Linux-installable subset of
+# cuda_pathfinder/pyproject.toml.
 cpkgs=(
-    "pytest>=6.2.4"
-    "pytest-mock"
-    "pytest-repeat"
-    "pytest-randomly"
     "cusparselt-dev"
     "cutensor"
     "cutlass"

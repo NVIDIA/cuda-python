@@ -23,11 +23,9 @@ switch ($cudaMajor) {
 conda create --yes -n "pathfinder_testing_cu$CudaVersion" "python=$pythonVersion" "cuda-toolkit=$CudaVersion"
 conda activate "pathfinder_testing_cu$CudaVersion"
 
+# Keep this list aligned with the Windows-installable subset of
+# cuda_pathfinder/pyproject.toml.
 $cpkgs = @(
-    "pytest>=6.2.4",
-    "pytest-mock",
-    "pytest-repeat",
-    "pytest-randomly",
     "cusparselt-dev",
     "cutensor",
     "cutlass",
@@ -35,8 +33,6 @@ $cpkgs = @(
     "libmathdx-dev"
 )
 
-# Keep the PowerShell environment aligned with the Windows-relevant
-# cuda_pathfinder dependency groups; Linux-only deps stay in the .sh script.
 foreach ($cpkg in $cpkgs) {
     Write-Host "CONDA INSTALL: $cpkg"
     conda install -y -c conda-forge $cpkg
