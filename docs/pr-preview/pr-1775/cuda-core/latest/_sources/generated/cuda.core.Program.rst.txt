@@ -25,8 +25,8 @@ cuda.core.Program
    .. rubric:: Attributes
 
    
-   .. autoproperty:: backend
-   .. autoproperty:: handle
-   .. autoproperty:: pch_status
+   .. autoattribute:: backend
+   .. autoattribute:: handle
+   .. autoattribute:: pch_status
    
    

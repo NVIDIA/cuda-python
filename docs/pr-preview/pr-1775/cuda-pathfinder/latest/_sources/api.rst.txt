@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 .. module:: cuda.pathfinder
@@ -15,6 +15,8 @@ CUDA bitcode and static libraries.
 
 .. autosummary::
    :toctree: generated/
+
+   get_cuda_path_or_home
 
    SUPPORTED_NVIDIA_LIBNAMES
    load_nvidia_dynamic_lib

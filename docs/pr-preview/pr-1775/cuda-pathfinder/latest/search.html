@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -36,27 +36,28 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
 
 
 
-    <script src="_static/documentation_options.js?v=6d0302ba"></script>
+    <script src="_static/documentation_options.js?v=b8aeccfa"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'search';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.4.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.5.5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
 
 <script src="_static/searchtools.js"></script>
@@ -76,25 +77,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
+  
+    
+  
 
 
   </head>
 
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+  <body data-default-mode="">
+
 
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
-
 
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -123,7 +127,7 @@
 </aside>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -396,6 +400,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.get_cuda_path_or_home.html">cuda.pathfinder.get_cuda_path_or_home</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html">cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.load_nvidia_dynamic_lib.html">cuda.pathfinder.load_nvidia_dynamic_lib</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.LoadedDL.html">cuda.pathfinder.LoadedDL</a></li>
@@ -425,6 +430,12 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.5.4-notes.html">1.5.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.5.3-notes.html">1.5.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.5.2-notes.html">1.5.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.5.1-notes.html">1.5.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.5.0-notes.html">1.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.4.4-notes.html">1.4.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.4.3-notes.html">1.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.4.2-notes.html">1.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.4.1-notes.html">1.4.1</a></li>
@@ -532,8 +543,8 @@
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
 
   <footer class="bd-footer">

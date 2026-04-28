@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,10 +37,10 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
 
 
@@ -51,12 +51,13 @@
     <script src="_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'install';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
     <link rel="canonical" href="docs/install.html" />
     <link rel="icon" href="_static/favicon.png"/>
@@ -70,25 +71,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
 
 
   </head>
 
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+  <body data-default-mode="">
+
 
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
-
 
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -117,7 +124,7 @@
 </aside>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -205,15 +212,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="environment_variables.html">
-    Environment Variables
+  <a class="nav-link nav-internal" href="motivation.html">
+    Motivation
   </a>
 </li>
 
@@ -225,6 +232,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="api.html">
     CUDA Python API Reference
@@ -415,6 +429,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="motivation.html">
     Motivation
   </a>
@@ -545,6 +566,7 @@
 </details></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">CUDA Python API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -1319,14 +1341,16 @@ library are thread-safe. This is subject to change.</p></li>
 </section>
 <section id="installing-from-source">
 <h2>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">#</a></h2>
+<section id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>CUDA Toolkit headers[^1]</p></li>
 <li><p>CUDA Runtime static library[^2]</p></li>
 </ul>
 <p>[^1]: User projects that <code class="docutils literal notranslate"><span class="pre">cimport</span></code> CUDA symbols in Cython must also use CUDA Toolkit (CTK) types as provided by the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> major.minor version. This results in CTK headers becoming a transitive dependency of downstream projects through CUDA Python.</p>
 <p>[^2]: The CUDA Runtime static library (<code class="docutils literal notranslate"><span class="pre">libcudart_static.a</span></code> on Linux, <code class="docutils literal notranslate"><span class="pre">cudart_static.lib</span></code> on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the <code class="docutils literal notranslate"><span class="pre">cuda-cudart-static</span></code> package.</p>
-<p>Source builds require that the provided CUDA headers are of the same major.minor version as the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> you’re trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> (or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>) environment variable to specify the location of your headers. For example, if your headers are located in <code class="docutils literal notranslate"><span class="pre">/usr/local/cuda/include</span></code>, then you should set <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> with:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda
+<p>Source builds require that the provided CUDA headers are of the same major.minor version as the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> you’re trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>) environment variable to specify the location of your headers. If both are set, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> takes precedence. For example, if your headers are located in <code class="docutils literal notranslate"><span class="pre">/usr/local/cuda/include</span></code>, then you should set <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_PATH</span><span class="o">=</span>/usr/local/cuda
 </pre></div>
 </div>
 <p>See <a class="reference external" href="environment_variables.rst">Environment Variables</a> for a description of other build-time environment variables.</p>
@@ -1334,11 +1358,15 @@ library are thread-safe. This is subject to change.</p></li>
 <p class="admonition-title">Note</p>
 <p>Only <code class="docutils literal notranslate"><span class="pre">cydriver</span></code>, <code class="docutils literal notranslate"><span class="pre">cyruntime</span></code> and <code class="docutils literal notranslate"><span class="pre">cynvrtc</span></code> are impacted by the header requirement.</p>
 </div>
+</section>
+<section id="editable-install">
+<h3>Editable Install<a class="headerlink" href="#editable-install" title="Link to this heading">#</a></h3>
 <p>You can use:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>-e<span class="w"> </span>.
 </pre></div>
 </div>
 <p>to install the module as editable in your current Python environment (e.g. for testing of porting other libraries to use the binding).</p>
+</section>
 </section>
 </section>
 
@@ -1389,15 +1417,19 @@ library are thread-safe. This is subject to change.</p></li>
     class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-requirements">Runtime Requirements</a><ul class="visible nav section-nav flex-column">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-requirements">Runtime Requirements</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#free-threading-build-support">Free-threading Build Support</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-pypi">Installing from PyPI</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-conda">Installing from Conda</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-source">Installing from Source</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-source">Installing from Source</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#editable-install">Editable Install</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -1416,8 +1448,8 @@ library are thread-safe. This is subject to change.</p></li>
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
 
   <footer class="bd-footer">

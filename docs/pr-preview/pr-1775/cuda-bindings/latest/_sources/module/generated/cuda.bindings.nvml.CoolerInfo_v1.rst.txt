@@ -26,7 +26,7 @@
 
    .. autosummary::
    
-      ~CoolerInfo_v1.ind_ex
+      ~CoolerInfo_v1.index
       ~CoolerInfo_v1.ptr
       ~CoolerInfo_v1.signal_type
       ~CoolerInfo_v1.target

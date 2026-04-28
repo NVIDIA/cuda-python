@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,26 +37,27 @@
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
 
 
-    <script src="../_static/documentation_options.js?v=6d0302ba"></script>
+    <script src="../_static/documentation_options.js?v=b8aeccfa"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.pathfinder.load_nvidia_dynamic_lib';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.4.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.5.5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
     <link rel="canonical" href="docs/generated/cuda.pathfinder.load_nvidia_dynamic_lib.html" />
     <link rel="icon" href="../_static/favicon.png"/>
@@ -70,25 +71,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
 
 
   </head>
 
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+  <body data-default-mode="">
+
 
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
-
 
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -117,7 +124,7 @@
 </aside>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -394,6 +401,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.get_cuda_path_or_home.html">cuda.pathfinder.get_cuda_path_or_home</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html">cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.pathfinder.load_nvidia_dynamic_lib</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.LoadedDL.html">cuda.pathfinder.LoadedDL</a></li>
@@ -423,6 +431,12 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.5.4-notes.html">1.5.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.5.3-notes.html">1.5.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.5.2-notes.html">1.5.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.5.1-notes.html">1.5.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.5.0-notes.html">1.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.4.4-notes.html">1.4.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.4.3-notes.html">1.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.4.2-notes.html">1.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.4.1-notes.html">1.4.1</a></li>
@@ -537,8 +551,8 @@ it, leading to crashes or subtle failures.</p>
 </ul>
 </dd>
 </dl>
-<dl class="simple">
-<dt>Search order:</dt><dd><ol class="arabic simple" start="0">
+<dl>
+<dt>Search order:</dt><dd><ol class="arabic" start="0">
 <li><p><strong>Already loaded in the current process</strong></p>
 <ul class="simple">
 <li><p>If a matching library is already loaded by some other component,
@@ -559,26 +573,27 @@ defined automatically in activated conda environments (see
 </ul>
 </li>
 <li><p><strong>OS default mechanisms</strong></p>
-<ul class="simple">
+<ul>
 <li><p>Fall back to the native loader:</p>
-<ul>
+<ul class="simple">
 <li><p>Linux: <code class="docutils literal notranslate"><span class="pre">dlopen()</span></code></p></li>
-<li><p>Windows: <code class="docutils literal notranslate"><span class="pre">LoadLibraryW()</span></code></p></li>
+<li><p>Windows: <code class="docutils literal notranslate"><span class="pre">LoadLibraryExW()</span></code></p></li>
 </ul>
-</li>
-<li><p>CUDA Toolkit (CTK) system installs with system config updates are often
-discovered via:</p>
-<ul>
-<li><p>Linux: <code class="docutils literal notranslate"><span class="pre">/etc/ld.so.conf.d/*cuda*.conf</span></code></p></li>
-<li><p>Windows: <code class="docutils literal notranslate"><span class="pre">C:\Program</span> <span class="pre">Files\NVIDIA</span> <span class="pre">GPU</span> <span class="pre">Computing</span> <span class="pre">Toolkit\CUDA\vX.Y\bin</span></code>
-on the system <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p></li>
-</ul>
+<p>On Linux, CUDA Toolkit (CTK) system installs with system config updates are
+usually discovered via <code class="docutils literal notranslate"><span class="pre">/etc/ld.so.conf.d/*cuda*.conf</span></code>.</p>
+<p>On Windows, under Python 3.8+, CPython configures the process with
+<code class="docutils literal notranslate"><span class="pre">SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS)</span></code>.
+As a result, the native DLL search used here does <strong>not</strong> include
+the system <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p>
 </li>
 </ul>
 </li>
 <li><p><strong>Environment variables</strong></p>
 <ul class="simple">
-<li><p>If set, use <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (in that order).</p></li>
+<li><p>If set, use <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> (in that order).
+On Windows, this is the typical way system-installed CTK DLLs are
+located. Note that the NVIDIA CTK installer automatically
+adds <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> to the system-wide environment.</p></li>
 </ul>
 </li>
 <li><p><strong>CTK root canary probe (discoverable libs only)</strong></p>
@@ -586,7 +601,9 @@ on the system <code class="docutils literal notranslate"><span class="pre">PATH<
 <li><p>For selected libraries whose shared object doesn’t reside on the
 standard linker path (currently <code class="docutils literal notranslate"><span class="pre">nvvm</span></code>), attempt to derive CTK
 root by system-loading a well-known CTK canary library in a
-subprocess and then searching relative to that root.</p></li>
+subprocess and then searching relative to that root. On Windows,
+the canary uses the same native <code class="docutils literal notranslate"><span class="pre">LoadLibraryExW</span></code> semantics as
+step 3, so there is also no <code class="docutils literal notranslate"><span class="pre">PATH</span></code>-based discovery.</p></li>
 </ul>
 </li>
 </ol>
@@ -595,13 +612,13 @@ subprocess and then searching relative to that root.</p></li>
 <p><strong>Driver libraries</strong> (<code class="docutils literal notranslate"><span class="pre">&quot;cuda&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;nvml&quot;</span></code>):</p>
 <blockquote>
 <div><p>These are part of the NVIDIA display driver (not the CUDA Toolkit) and
-are always on the system linker path.  For these libraries the search
-is simplified to:</p>
+are expected to be reachable via the native OS loader path. For these
+libraries the search is simplified to:</p>
 <ol class="arabic simple" start="0">
 <li><p>Already loaded in the current process</p></li>
-<li><p>OS default mechanisms (<code class="docutils literal notranslate"><span class="pre">dlopen</span></code> / <code class="docutils literal notranslate"><span class="pre">LoadLibraryW</span></code>)</p></li>
+<li><p>OS default mechanisms (<code class="docutils literal notranslate"><span class="pre">dlopen</span></code> / <code class="docutils literal notranslate"><span class="pre">LoadLibraryExW</span></code>)</p></li>
 </ol>
-<p>The CTK-specific steps (site-packages, conda, <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>, canary
+<p>The CTK-specific steps (site-packages, conda, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>, canary
 probe) are skipped entirely.</p>
 </div></blockquote>
 <p class="rubric">Notes</p>
@@ -658,8 +675,8 @@ guarantee that multiple libraries are all resolved from the same location.</p>
     class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.pathfinder.load_nvidia_dynamic_lib"><code class="docutils literal notranslate"><span class="pre">load_nvidia_dynamic_lib()</span></code></a></li>
 </ul>
   </nav></div>
@@ -679,8 +696,8 @@ guarantee that multiple libraries are all resolved from the same location.</p>
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
 
   <footer class="bd-footer">

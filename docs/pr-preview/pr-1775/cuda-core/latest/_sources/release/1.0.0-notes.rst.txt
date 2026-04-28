@@ -1,0 +1,45 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.0.0 Release Notes
+=================================
+
+
+Highlights
+----------
+
+- TBD
+
+
+New features
+------------
+
+- Added managed-memory range operations under :mod:`cuda.core.managed_memory`:
+  :class:`~managed_memory.Location`, :func:`~managed_memory.advise`,
+  :func:`~managed_memory.prefetch`, :func:`~managed_memory.discard`, and
+  :func:`~managed_memory.discard_prefetch`. Each operation accepts either a
+  single managed :class:`Buffer` or a sequence; with cuda.bindings 12.8+
+  the N>1 case dispatches to the corresponding ``cuMem*BatchAsync`` driver
+  entry point, addressing the managed-memory portion of #1333. Locations
+  are expressed via the typed :class:`~managed_memory.Location` dataclass
+  (with classmethod constructors ``device``, ``host``, ``host_numa``, and
+  ``host_numa_current``); ``Device`` and ``int`` values are still accepted
+  for ergonomic compatibility.
+
+
+Fixes and enhancements
+-----------------------
+
+- :class:`~utils.StridedMemoryView` now provides a fast path for ``torch.Tensor``
+  objects via PyTorch's AOT Inductor (AOTI) stable C ABI. When a ``torch.Tensor``
+  is passed to any ``from_*`` classmethod (``from_dlpack``,
+  ``from_cuda_array_interface``, ``from_array_interface``, or
+  ``from_any_interface``), tensor metadata is read directly from the underlying
+  C struct, bypassing the DLPack and CUDA Array Interface protocol overhead.
+  This yields ~7-20x faster ``StridedMemoryView`` construction for PyTorch
+  tensors (depending on whether stream ordering is required).  Proper CUDA stream ordering is established between PyTorch's current
+  stream and the consumer stream, matching the DLPack synchronization contract.
+  Requires PyTorch >= 2.3.
+  (`#749 <https://github.com/NVIDIA/cuda-python/issues/749>`__)

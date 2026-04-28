@@ -1,6 +1,0 @@
-﻿cuda.core.GraphCompleteOptions
-==============================
-
-.. currentmodule:: cuda.core
-
-.. autoclass:: GraphCompleteOptions
