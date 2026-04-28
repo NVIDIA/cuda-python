@@ -6,16 +6,16 @@ from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport GraphHandle
 
 
-cdef class Condition:
+cdef class GraphCondition:
     cdef:
         cydriver.CUgraphConditionalHandle _c_handle
         object __weakref__
 
 
-cdef class GraphDef:
+cdef class GraphDefinition:
     cdef:
         GraphHandle _h_graph
         object __weakref__
 
     @staticmethod
-    cdef GraphDef _from_handle(GraphHandle h_graph)
+    cdef GraphDefinition _from_handle(GraphHandle h_graph)

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""End-to-end integration tests exercising all GraphDef node types in realistic scenarios."""
+"""End-to-end integration tests exercising all GraphDefinition node types in realistic scenarios."""
 
 import ctypes
 
@@ -10,7 +10,7 @@ import pytest
 
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import driver, handle_return
-from cuda.core.graph import GraphDef
+from cuda.core.graph import GraphDefinition
 
 SIZEOF_FLOAT = 4
 SIZEOF_INT = 4
@@ -213,7 +213,7 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
     """Build, instantiate, launch, and verify the heat-diffusion graph."""
 
     # Definitions
-    g = GraphDef()
+    g = GraphDefinition()
     condition = g.create_condition(default_value=1)
     event_start = dev.create_event(EventOptions(enable_timing=True))
     event_end = dev.create_event(EventOptions(enable_timing=True))
@@ -240,7 +240,7 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
     m_ctr  = a_ctr.memset(a_ctr.dptr, np.int32(_HEAT_ITERS), 1)
 
     # Phase 3 — Boundary conditions (child graph)
-    bc = GraphDef() \
+    bc = GraphDefinition() \
          .memset(a_curr.dptr, np.float32(_HEAT_T_LEFT), 1) \
          .memset(a_curr.dptr + (_HEAT_N - 1) * SIZEOF_FLOAT,
                  np.float32(_HEAT_T_RIGHT), 1) \
@@ -323,7 +323,7 @@ def _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_
     """Build, instantiate, launch, and verify the bisection graph."""
 
     # Definitions
-    g = GraphDef()
+    g = GraphDefinition()
     cfg = LaunchConfig(grid=1, block=1)
     results = {}
 
@@ -426,7 +426,7 @@ def test_switch_dispatch(init_cuda, mode, expected):
 
 def _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr):
     """Build, instantiate, launch, and verify the switch-dispatch graph."""
-    g = GraphDef()
+    g = GraphDefinition()
     cfg = LaunchConfig(grid=1, block=1)
 
     # fmt: off
