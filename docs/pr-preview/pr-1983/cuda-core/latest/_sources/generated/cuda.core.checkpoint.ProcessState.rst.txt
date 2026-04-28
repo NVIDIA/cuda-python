@@ -1,0 +1,6 @@
+﻿cuda.core.checkpoint.ProcessState
+=================================
+
+.. currentmodule:: cuda.core.checkpoint
+
+.. autoenum:: ProcessState

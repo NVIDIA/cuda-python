@@ -1,0 +1,6 @@
+﻿cuda.core.checkpoint.GpuPair
+============================
+
+.. currentmodule:: cuda.core.checkpoint
+
+.. autoclass:: GpuPair
