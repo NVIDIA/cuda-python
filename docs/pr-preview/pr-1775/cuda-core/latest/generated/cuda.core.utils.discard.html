@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.managed_memory.discard_prefetch &#8212; cuda.core</title>
+    <title>cuda.core.utils.discard &#8212; cuda.core</title>
   
   
   
@@ -44,28 +44,28 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4e9e9861"></script>
+    <script src="../_static/documentation_options.js?v=eae61c78"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.managed_memory.discard_prefetch';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.utils.discard';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.managed_memory.discard_prefetch.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.utils.discard.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.GraphicsResource" href="cuda.core.GraphicsResource.html" />
-    <link rel="prev" title="cuda.core.managed_memory.discard" href="cuda.core.managed_memory.discard.html" />
+    <link rel="next" title="cuda.core.utils.discard_prefetch" href="cuda.core.utils.discard_prefetch.html" />
+    <link rel="prev" title="cuda.core.utils.prefetch" href="cuda.core.utils.prefetch.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -541,11 +541,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.Location.html">cuda.core.managed_memory.Location</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.advise.html">cuda.core.managed_memory.advise</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.prefetch.html">cuda.core.managed_memory.prefetch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.discard.html">cuda.core.managed_memory.discard</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.managed_memory.discard_prefetch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -587,6 +582,11 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.advise.html">cuda.core.utils.advise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.prefetch.html">cuda.core.utils.prefetch</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.utils.discard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.discard_prefetch.html">cuda.core.utils.discard_prefetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.Location.html">cuda.core.utils.Location</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
@@ -652,7 +652,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.managed_memory.discard_prefetch</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.utils.discard</span></li>
   </ul>
 </nav>
 </div>
@@ -669,25 +669,24 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-managed-memory-discard-prefetch">
-<h1>cuda.core.managed_memory.discard_prefetch<a class="headerlink" href="#cuda-core-managed-memory-discard-prefetch" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-utils-discard">
+<h1>cuda.core.utils.discard<a class="headerlink" href="#cuda-core-utils-discard" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="cuda.core.managed_memory.discard_prefetch">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.managed_memory.</span></span><span class="sig-name descname"><span class="pre">discard_prefetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.managed_memory.discard_prefetch" title="Link to this definition">#</a></dt>
-<dd><p>Discard one or more managed-memory ranges and prefetch them to a target location.</p>
+<dt class="sig sig-object py" id="cuda.core.utils.discard">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.utils.</span></span><span class="sig-name descname"><span class="pre">discard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.utils.discard" title="Link to this definition">#</a></dt>
+<dd><p>Discard one or more managed-memory ranges.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>targets</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> | Sequence[<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>]) – One or more managed allocations to discard and re-prefetch.</p></li>
-<li><p><strong>location</strong> (<a class="reference internal" href="cuda.core.managed_memory.Location.html#cuda.core.managed_memory.Location" title="cuda.core.managed_memory.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code> | int | Sequence[…]) – Target location(s). A single location applies to all targets;
-a sequence must match <code class="docutils literal notranslate"><span class="pre">len(targets)</span></code>.</p></li>
+<li><p><strong>targets</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> | Sequence[<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>]) – One or more managed allocations to discard. Their resident pages
+are released without prefetching new contents; subsequent access
+is satisfied by lazy migration.</p></li>
 <li><p><strong>options</strong> (<em>None</em>) – Reserved for future per-call flags. Must be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
-<li><p><strong>stream</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – Stream for the asynchronous operation (keyword-only).</p></li>
+<li><p><strong>stream</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – Stream for the asynchronous discard (keyword-only).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – On a CUDA 12 build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>. Discard-and-prefetch
-    requires CUDA 13+.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – On a CUDA 12 build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>. Discard requires CUDA 13+.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -705,20 +704,20 @@ a sequence must match <code class="docutils literal notranslate"><span class="pr
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.managed_memory.discard.html"
+       href="cuda.core.utils.prefetch.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.managed_memory.discard</p>
+        <p class="prev-next-title">cuda.core.utils.prefetch</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.GraphicsResource.html"
+       href="cuda.core.utils.discard_prefetch.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.GraphicsResource</p>
+        <p class="prev-next-title">cuda.core.utils.discard_prefetch</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -743,7 +742,7 @@ a sequence must match <code class="docutils literal notranslate"><span class="pr
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.managed_memory.discard_prefetch"><code class="docutils literal notranslate"><span class="pre">discard_prefetch()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.discard"><code class="docutils literal notranslate"><span class="pre">discard()</span></code></a></li>
 </ul>
   </nav></div>
 

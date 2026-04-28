@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4e9e9861"></script>
+    <script src="../_static/documentation_options.js?v=eae61c78"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -64,7 +64,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.utils.StridedMemoryView" href="cuda.core.utils.StridedMemoryView.html" />
+    <link rel="next" title="cuda.core.utils.advise" href="cuda.core.utils.advise.html" />
     <link rel="prev" title="cuda.core.system.Device" href="cuda.core.system.Device.html" />
 
 
@@ -541,11 +541,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.Location.html">cuda.core.managed_memory.Location</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.advise.html">cuda.core.managed_memory.advise</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.prefetch.html">cuda.core.managed_memory.prefetch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.discard.html">cuda.core.managed_memory.discard</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.discard_prefetch.html">cuda.core.managed_memory.discard_prefetch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -587,6 +582,11 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.advise.html">cuda.core.utils.advise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.prefetch.html">cuda.core.utils.prefetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.discard.html">cuda.core.utils.discard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.discard_prefetch.html">cuda.core.utils.discard_prefetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.Location.html">cuda.core.utils.Location</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
@@ -721,11 +721,11 @@ example:</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.utils.StridedMemoryView.html"
+       href="cuda.core.utils.advise.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.utils.StridedMemoryView</p>
+        <p class="prev-next-title">cuda.core.utils.advise</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

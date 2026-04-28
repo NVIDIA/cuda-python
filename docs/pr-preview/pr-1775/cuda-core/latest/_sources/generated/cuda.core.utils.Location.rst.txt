@@ -1,10 +1,10 @@
 ﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-cuda.core.managed\_memory.Location
-==================================
+cuda.core.utils.Location
+========================
 
-.. currentmodule:: cuda.core.managed_memory
+.. currentmodule:: cuda.core.utils
 
 .. autoclass:: Location
 
@@ -27,7 +27,7 @@ cuda.core.managed\_memory.Location
    .. rubric:: Attributes
 
    
-   .. autoproperty:: id
-   .. autoproperty:: kind
+   .. autoattribute:: id
+   .. autoattribute:: kind
    
    

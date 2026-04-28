@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.managed_memory.Location &#8212; cuda.core</title>
+    <title>cuda.core.utils.discard_prefetch &#8212; cuda.core</title>
   
   
   
@@ -44,28 +44,28 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4e9e9861"></script>
+    <script src="../_static/documentation_options.js?v=eae61c78"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.managed_memory.Location';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.utils.discard_prefetch';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.managed_memory.Location.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.utils.discard_prefetch.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.managed_memory.advise" href="cuda.core.managed_memory.advise.html" />
-    <link rel="prev" title="cuda.core.graph.SwitchNode" href="cuda.core.graph.SwitchNode.html" />
+    <link rel="next" title="cuda.core.utils.Location" href="cuda.core.utils.Location.html" />
+    <link rel="prev" title="cuda.core.utils.discard" href="cuda.core.utils.discard.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -541,11 +541,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.managed_memory.Location</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.advise.html">cuda.core.managed_memory.advise</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.prefetch.html">cuda.core.managed_memory.prefetch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.discard.html">cuda.core.managed_memory.discard</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.discard_prefetch.html">cuda.core.managed_memory.discard_prefetch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -587,6 +582,11 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.advise.html">cuda.core.utils.advise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.prefetch.html">cuda.core.utils.prefetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.discard.html">cuda.core.utils.discard</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.utils.discard_prefetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.Location.html">cuda.core.utils.Location</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
@@ -652,7 +652,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.managed_memory.Location</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.utils.discard_prefetch</span></li>
   </ul>
 </nav>
 </div>
@@ -669,67 +669,27 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-managed-memory-location">
-<h1>cuda.core.managed_memory.Location<a class="headerlink" href="#cuda-core-managed-memory-location" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.managed_memory.Location">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.managed_memory.</span></span><span class="sig-name descname"><span class="pre">Location</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'device'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'host'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'host_numa'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'host_numa_current'</span></span><span class="p"><span class="pre">]</span></span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+  <section id="cuda-core-utils-discard-prefetch">
+<h1>cuda.core.utils.discard_prefetch<a class="headerlink" href="#cuda-core-utils-discard-prefetch" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.core.utils.discard_prefetch">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.utils.</span></span><span class="sig-name descname"><span class="pre">discard_prefetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.utils.discard_prefetch" title="Link to this definition">#</a></dt>
+<dd><p>Discard one or more managed-memory ranges and prefetch them to a target location.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>targets</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> | Sequence[<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>]) – One or more managed allocations to discard and re-prefetch.</p></li>
+<li><p><strong>location</strong> (<a class="reference internal" href="cuda.core.utils.Location.html#cuda.core.utils.Location" title="cuda.core.utils.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code> | int | Sequence[…]) – Target location(s). A single location applies to all targets;
+a sequence must match <code class="docutils literal notranslate"><span class="pre">len(targets)</span></code>.</p></li>
+<li><p><strong>options</strong> (<em>None</em>) – Reserved for future per-call flags. Must be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>stream</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – Stream for the asynchronous operation (keyword-only).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – On a CUDA 12 build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>. Discard-and-prefetch
+    requires CUDA 13+.</p>
+</dd>
 </dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.managed_memory.Location" title="Link to this definition">#</a></dt>
-<dd><p>Typed managed-memory location.</p>
-<p>Use the classmethod constructors (<code class="docutils literal notranslate"><span class="pre">device</span></code>, <code class="docutils literal notranslate"><span class="pre">host</span></code>, <code class="docutils literal notranslate"><span class="pre">host_numa</span></code>,
-<code class="docutils literal notranslate"><span class="pre">host_numa_current</span></code>) rather than constructing directly.</p>
-<p class="rubric">Methods</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.managed_memory.Location.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'device'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'host'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'host_numa'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'host_numa_current'</span></span><span class="p"><span class="pre">]</span></span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.managed_memory.Location.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.managed_memory.Location.device">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.managed_memory.Location" title="cuda.core._memory._managed_location.Location"><span class="pre">Location</span></a></span></span><a class="headerlink" href="#cuda.core.managed_memory.Location.device" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.managed_memory.Location.host">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">host</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.managed_memory.Location" title="cuda.core._memory._managed_location.Location"><span class="pre">Location</span></a></span></span><a class="headerlink" href="#cuda.core.managed_memory.Location.host" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.managed_memory.Location.host_numa">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">host_numa</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">numa_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.managed_memory.Location" title="cuda.core._memory._managed_location.Location"><span class="pre">Location</span></a></span></span><a class="headerlink" href="#cuda.core.managed_memory.Location.host_numa" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.managed_memory.Location.host_numa_current">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">host_numa_current</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.managed_memory.Location" title="cuda.core._memory._managed_location.Location"><span class="pre">Location</span></a></span></span><a class="headerlink" href="#cuda.core.managed_memory.Location.host_numa_current" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Attributes</p>
 </dd></dl>
 
 </section>
@@ -745,20 +705,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.graph.SwitchNode.html"
+       href="cuda.core.utils.discard.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.graph.SwitchNode</p>
+        <p class="prev-next-title">cuda.core.utils.discard</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.managed_memory.advise.html"
+       href="cuda.core.utils.Location.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.managed_memory.advise</p>
+        <p class="prev-next-title">cuda.core.utils.Location</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -783,14 +743,7 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.managed_memory.Location"><code class="docutils literal notranslate"><span class="pre">Location</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.managed_memory.Location.__init__"><code class="docutils literal notranslate"><span class="pre">Location.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.managed_memory.Location.device"><code class="docutils literal notranslate"><span class="pre">Location.device()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.managed_memory.Location.host"><code class="docutils literal notranslate"><span class="pre">Location.host()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.managed_memory.Location.host_numa"><code class="docutils literal notranslate"><span class="pre">Location.host_numa()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.managed_memory.Location.host_numa_current"><code class="docutils literal notranslate"><span class="pre">Location.host_numa_current()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.discard_prefetch"><code class="docutils literal notranslate"><span class="pre">discard_prefetch()</span></code></a></li>
 </ul>
   </nav></div>
 

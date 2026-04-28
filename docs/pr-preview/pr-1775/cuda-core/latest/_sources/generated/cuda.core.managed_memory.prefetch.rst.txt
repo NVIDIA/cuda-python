@@ -1,6 +1,0 @@
-﻿cuda.core.managed\_memory.prefetch
-==================================
-
-.. currentmodule:: cuda.core.managed_memory
-
-.. autofunction:: prefetch

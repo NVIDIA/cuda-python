@@ -1,0 +1,6 @@
+﻿cuda.core.utils.prefetch
+========================
+
+.. currentmodule:: cuda.core.utils
+
+.. autofunction:: prefetch

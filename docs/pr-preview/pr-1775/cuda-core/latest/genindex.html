@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=4e9e9861"></script>
+    <script src="_static/documentation_options.js?v=eae61c78"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -534,11 +534,6 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.managed_memory.Location.html">cuda.core.managed_memory.Location</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.managed_memory.advise.html">cuda.core.managed_memory.advise</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.managed_memory.prefetch.html">cuda.core.managed_memory.prefetch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.managed_memory.discard.html">cuda.core.managed_memory.discard</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.managed_memory.discard_prefetch.html">cuda.core.managed_memory.discard_prefetch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -580,6 +575,11 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.advise.html">cuda.core.utils.advise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.prefetch.html">cuda.core.utils.prefetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard.html">cuda.core.utils.discard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch.html">cuda.core.utils.discard_prefetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.Location.html">cuda.core.utils.Location</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
@@ -742,8 +742,6 @@
 </li>
         <li><a href="generated/cuda.core.Linker.html#cuda.core.Linker.__init__">(cuda.core.Linker method)</a>
 </li>
-        <li><a href="generated/cuda.core.managed_memory.Location.html#cuda.core.managed_memory.Location.__init__">(cuda.core.managed_memory.Location method)</a>
-</li>
         <li><a href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.__init__">(cuda.core.ManagedMemoryResource method)</a>
 </li>
         <li><a href="generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource.__init__">(cuda.core.MemoryResource method)</a>
@@ -810,6 +808,8 @@
 </li>
         <li><a href="generated/cuda.core.TensorMapDescriptor.html#cuda.core.TensorMapDescriptor.__init__">(cuda.core.TensorMapDescriptor method)</a>
 </li>
+        <li><a href="generated/cuda.core.utils.Location.html#cuda.core.utils.Location.__init__">(cuda.core.utils.Location method)</a>
+</li>
         <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.__init__">(cuda.core.utils.StridedMemoryView method)</a>
 </li>
         <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.__init__">(cuda.core.VirtualMemoryResource method)</a>
@@ -835,7 +835,7 @@
 </li>
       <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy">AdjacencySetProxy (class in cuda.core.graph._adjacency_set_proxy)</a>
 </li>
-      <li><a href="generated/cuda.core.managed_memory.advise.html#cuda.core.managed_memory.advise">advise() (in module cuda.core.managed_memory)</a>
+      <li><a href="generated/cuda.core.utils.advise.html#cuda.core.utils.advise">advise() (in module cuda.core.utils)</a>
 </li>
       <li><a href="generated/cuda.core.system.AffinityScope.html#cuda.core.system.AffinityScope">AffinityScope (class in cuda.core.system)</a>
 </li>
@@ -1137,10 +1137,10 @@
 </li>
       <li><a href="generated/cuda.core.Program.html#cuda.core.Program.compile">compile() (cuda.core.Program method)</a>
 </li>
-      <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.complete">complete() (cuda.core.graph.GraphBuilder method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.complete">complete() (cuda.core.graph.GraphBuilder method)</a>
+</li>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.compute_capability">compute_capability (cuda.core.Device property)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.compute_capability_major">compute_capability_major (cuda.core._device.DeviceProperties attribute)</a>
@@ -1264,13 +1264,6 @@
 
       <ul>
         <li><a href="api.html#module-cuda.core">module</a>
-</li>
-      </ul></li>
-      <li>
-    cuda.core.managed_memory
-
-      <ul>
-        <li><a href="api.html#module-cuda.core.managed_memory">module</a>
 </li>
       </ul></li>
       <li>
@@ -1398,7 +1391,7 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/cuda.core.managed_memory.Location.html#cuda.core.managed_memory.Location.device">device() (cuda.core.managed_memory.Location class method)</a>
+      <li><a href="generated/cuda.core.utils.Location.html#cuda.core.utils.Location.device">device() (cuda.core.utils.Location class method)</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.device_as_default_execution_space">device_as_default_execution_space (cuda.core.ProgramOptions attribute)</a>
 </li>
@@ -1465,10 +1458,10 @@
       <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.discard">discard() (cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
 
       <ul>
-        <li><a href="generated/cuda.core.managed_memory.discard.html#cuda.core.managed_memory.discard">(in module cuda.core.managed_memory)</a>
+        <li><a href="generated/cuda.core.utils.discard.html#cuda.core.utils.discard">(in module cuda.core.utils)</a>
 </li>
       </ul></li>
-      <li><a href="generated/cuda.core.managed_memory.discard_prefetch.html#cuda.core.managed_memory.discard_prefetch">discard_prefetch() (in module cuda.core.managed_memory)</a>
+      <li><a href="generated/cuda.core.utils.discard_prefetch.html#cuda.core.utils.discard_prefetch">discard_prefetch() (in module cuda.core.utils)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.dma_buf_supported">dma_buf_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
@@ -2010,7 +2003,7 @@
 </li>
       <li><a href="generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode.height">height (cuda.core.graph.MemsetNode attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.managed_memory.Location.html#cuda.core.managed_memory.Location.host">host() (cuda.core.managed_memory.Location class method)</a>
+      <li><a href="generated/cuda.core.utils.Location.html#cuda.core.utils.Location.host">host() (cuda.core.utils.Location class method)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.host_alloc_dma_buf_supported">host_alloc_dma_buf_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
@@ -2020,9 +2013,9 @@
 </li>
       <li><a href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions.host_node_params">host_node_params (cuda.core.graph.GraphDebugPrintOptions attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.managed_memory.Location.html#cuda.core.managed_memory.Location.host_numa">host_numa() (cuda.core.managed_memory.Location class method)</a>
+      <li><a href="generated/cuda.core.utils.Location.html#cuda.core.utils.Location.host_numa">host_numa() (cuda.core.utils.Location class method)</a>
 </li>
-      <li><a href="generated/cuda.core.managed_memory.Location.html#cuda.core.managed_memory.Location.host_numa_current">host_numa_current() (cuda.core.managed_memory.Location class method)</a>
+      <li><a href="generated/cuda.core.utils.Location.html#cuda.core.utils.Location.host_numa_current">host_numa_current() (cuda.core.utils.Location class method)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.host_numa_id">host_numa_id (cuda.core._device.DeviceProperties attribute)</a>
 </li>
@@ -2044,6 +2037,8 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.utils.Location.html#cuda.core.utils.Location.id">id (cuda.core.utils.Location attribute)</a>
+</li>
       <li><a href="generated/cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode.if_cond">if_cond() (cuda.core.graph.AllocNode method)</a>
 
       <ul>
@@ -2372,10 +2367,10 @@
 </li>
       <li><a href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions.kernel_node_attributes">kernel_node_attributes (cuda.core.graph.GraphDebugPrintOptions attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions.kernel_node_params">kernel_node_params (cuda.core.graph.GraphDebugPrintOptions attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes">KernelAttributes (class in cuda.core._module)</a>
 </li>
       <li><a href="generated/cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode">KernelNode (class in cuda.core.graph)</a>
@@ -2383,6 +2378,8 @@
       <li><a href="generated/cuda.core._module.KernelOccupancy.html#cuda.core._module.KernelOccupancy">KernelOccupancy (class in cuda.core._module)</a>
 </li>
       <li><a href="generated/cuda.core.LinkerOptions.html#cuda.core.LinkerOptions.kernels_used">kernels_used (cuda.core.LinkerOptions attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.utils.Location.html#cuda.core.utils.Location.kind">kind (cuda.core.utils.Location attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2468,7 +2465,7 @@
 </li>
       <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes.local_size_bytes">local_size_bytes() (cuda.core._module.KernelAttributes method)</a>
 </li>
-      <li><a href="generated/cuda.core.managed_memory.Location.html#cuda.core.managed_memory.Location">Location (class in cuda.core.managed_memory)</a>
+      <li><a href="generated/cuda.core.utils.Location.html#cuda.core.utils.Location">Location (class in cuda.core.utils)</a>
 </li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.location_type">location_type (cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
@@ -2630,10 +2627,10 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_layers">maximum_texturecubemap_layered_layers (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-      <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_width">maximum_texturecubemap_layered_width (cuda.core._device.DeviceProperties attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_width">maximum_texturecubemap_layered_width (cuda.core._device.DeviceProperties attribute)</a>
+</li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texturecubemap_width">maximum_texturecubemap_width (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._module.MaxPotentialBlockSizeOccupancyResult.html#cuda.core._module.MaxPotentialBlockSizeOccupancyResult">MaxPotentialBlockSizeOccupancyResult (in module cuda.core._module)</a>
@@ -2775,8 +2772,6 @@
 
       <ul>
         <li><a href="api.html#module-cuda.core">cuda.core</a>
-</li>
-        <li><a href="api.html#module-cuda.core.managed_memory">cuda.core.managed_memory</a>
 </li>
         <li><a href="api.html#module-cuda.core.utils">cuda.core.utils</a>
 </li>
@@ -3015,7 +3010,7 @@
 </li>
       <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes.preferred_shared_memory_carveout">preferred_shared_memory_carveout() (cuda.core._module.KernelAttributes method)</a>
 </li>
-      <li><a href="generated/cuda.core.managed_memory.prefetch.html#cuda.core.managed_memory.prefetch">prefetch() (in module cuda.core.managed_memory)</a>
+      <li><a href="generated/cuda.core.utils.prefetch.html#cuda.core.utils.prefetch">prefetch() (in module cuda.core.utils)</a>
 </li>
       <li><a href="generated/cuda.core.Stream.html#cuda.core.Stream.priority">priority (cuda.core.Stream attribute)</a>
 

@@ -1,6 +1,0 @@
-﻿cuda.core.managed\_memory.discard
-=================================
-
-.. currentmodule:: cuda.core.managed_memory
-
-.. autofunction:: discard
