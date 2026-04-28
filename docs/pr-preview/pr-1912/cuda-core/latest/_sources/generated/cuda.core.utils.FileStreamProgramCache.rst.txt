@@ -17,6 +17,7 @@ cuda.core.utils.FileStreamProgramCache
    .. automethod:: clear
    .. automethod:: close
    .. automethod:: get
+   .. automethod:: update
 
    
    

@@ -17,6 +17,7 @@ cuda.core.utils.ProgramCacheResource
    .. automethod:: clear
    .. automethod:: close
    .. automethod:: get
+   .. automethod:: update
 
    
    

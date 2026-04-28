@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d838460c"></script>
+    <script src="../_static/documentation_options.js?v=51cbe594"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev71';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev85';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -716,6 +716,8 @@ For NVVM IR, can be str, bytes, or bytearray.</p></li>
 <dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">target_type:</span> <span class="pre">str</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">name_expressions:</span> <span class="pre">tuple</span> <span class="pre">|</span> <span class="pre">list</span> <span class="pre">=</span> <span class="pre">()</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">logs=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">cache:</span> <span class="pre">'ProgramCacheResource</span> <span class="pre">|</span> <span class="pre">None'</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.Program.compile" title="Link to this definition">#</a></dt>
@@ -727,6 +729,23 @@ For NVVM IR, can be str, bytes, or bytearray.</p></li>
 <li><p><strong>name_expressions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>, </em><em>optional</em>) – Sequence of name expressions to make accessible in the compiled code.
 Used for template instantiation and similar cases.</p></li>
 <li><p><strong>logs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – Object with a <code class="docutils literal notranslate"><span class="pre">write</span></code> method to receive compilation logs.</p></li>
+<li><p><strong>cache</strong> (<a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a>, optional) – If provided, the compiled binary is looked up in <code class="docutils literal notranslate"><span class="pre">cache</span></code> via a
+key derived from the program’s code, options, <code class="docutils literal notranslate"><span class="pre">target_type</span></code> and
+<code class="docutils literal notranslate"><span class="pre">name_expressions</span></code>. On a hit the cached bytes are wrapped in a
+fresh <a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> (with the same <code class="docutils literal notranslate"><span class="pre">target_type</span></code>
+and <code class="docutils literal notranslate"><span class="pre">ProgramOptions.name</span></code>) and returned without re-compiling;
+on a miss the compile output is stored as raw bytes (the cache
+extracts <code class="docutils literal notranslate"><span class="pre">bytes(object_code.code)</span></code>). Note that
+<code class="docutils literal notranslate"><span class="pre">ObjectCode.symbol_mapping</span></code> is not preserved across a cache
+round-trip – callers using <code class="docutils literal notranslate"><span class="pre">name_expressions</span></code> who need
+<code class="docutils literal notranslate"><span class="pre">get_kernel(name_expression)</span></code> after a hit must compile fresh
+or look the mangled symbol up by hand. Options that require an
+<code class="docutils literal notranslate"><span class="pre">extra_digest</span></code> (<code class="docutils literal notranslate"><span class="pre">include_path</span></code>, <code class="docutils literal notranslate"><span class="pre">pre_include</span></code>, <code class="docutils literal notranslate"><span class="pre">pch</span></code>,
+<code class="docutils literal notranslate"><span class="pre">use_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>, NVVM <code class="docutils literal notranslate"><span class="pre">use_libdevice=True</span></code>, or NVRTC
+<code class="docutils literal notranslate"><span class="pre">options.name</span></code> with a directory component) raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>
+via <a class="reference internal" href="cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a>; for those
+compiles, use the manual <code class="docutils literal notranslate"><span class="pre">make_program_cache_key(...)</span></code> pattern
+directly.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

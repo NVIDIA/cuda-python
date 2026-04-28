@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d838460c"></script>
+    <script src="../_static/documentation_options.js?v=51cbe594"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev71';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev85';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -695,11 +695,12 @@ default <code class="docutils literal notranslate"><span class="pre">ProgramOpti
 device).</p></li>
 <li><p><strong>target_type</strong> – One of <code class="docutils literal notranslate"><span class="pre">&quot;ptx&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cubin&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ltoir&quot;</span></code>.</p></li>
 <li><p><strong>name_expressions</strong> – Optional iterable of mangled-name lookups. Order is not significant.
-Elements may be <code class="docutils literal notranslate"><span class="pre">str</span></code>, <code class="docutils literal notranslate"><span class="pre">bytes</span></code>, or <code class="docutils literal notranslate"><span class="pre">bytearray</span></code>; <code class="docutils literal notranslate"><span class="pre">&quot;foo&quot;</span></code> and
-<code class="docutils literal notranslate"><span class="pre">b&quot;foo&quot;</span></code> produce distinct keys because <code class="docutils literal notranslate"><span class="pre">Program.compile</span></code> records
-the original Python object as the <code class="docutils literal notranslate"><span class="pre">ObjectCode.symbol_mapping</span></code> key,
-and <code class="docutils literal notranslate"><span class="pre">get_kernel</span></code> lookups must use the same type the cache key
-recorded.</p></li>
+Elements may be <code class="docutils literal notranslate"><span class="pre">str</span></code> or <code class="docutils literal notranslate"><span class="pre">bytes</span></code>; <code class="docutils literal notranslate"><span class="pre">&quot;foo&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">b&quot;foo&quot;</span></code> produce
+distinct keys because <code class="docutils literal notranslate"><span class="pre">Program.compile</span></code> records the original Python
+object as the <code class="docutils literal notranslate"><span class="pre">ObjectCode.symbol_mapping</span></code> key, and <code class="docutils literal notranslate"><span class="pre">get_kernel</span></code>
+lookups must use the same type the cache key recorded. <code class="docutils literal notranslate"><span class="pre">bytearray</span></code>
+is rejected because <code class="docutils literal notranslate"><span class="pre">Program.compile</span></code> stores each element as a
+dict key and <code class="docutils literal notranslate"><span class="pre">bytearray</span></code> is unhashable.</p></li>
 <li><p><strong>extra_digest</strong> – Caller-supplied bytes mixed into the key. Required whenever
 <a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.ProgramOptions</span></code></a> sets any option that pulls in
 external file content (<code class="docutils literal notranslate"><span class="pre">include_path</span></code>, <code class="docutils literal notranslate"><span class="pre">pre_include</span></code>, <code class="docutils literal notranslate"><span class="pre">pch</span></code>,
@@ -727,17 +728,37 @@ other inputs too (embedded kernels, generated sources, etc.).</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>Wiring a cache around <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> compile:</p>
+<p>For most workflows you should not call <code class="docutils literal notranslate"><span class="pre">make_program_cache_key</span></code>
+yourself – pass <code class="docutils literal notranslate"><span class="pre">cache=</span></code> to <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda.core.Program.compile()</span></code></a>,
+which derives the key, returns the cached
+<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> on hit, and stores the compile
+result on miss:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Program</span><span class="p">,</span> <span class="n">ProgramOptions</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._module</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObjectCode</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileStreamProgramCache</span><span class="p">,</span> <span class="n">make_program_cache_key</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileStreamProgramCache</span>
 
 <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;extern &quot;C&quot; __global__ void k(int *a){ *a = 1; }&#39;</span>
 <span class="n">options</span> <span class="o">=</span> <span class="n">ProgramOptions</span><span class="p">(</span><span class="n">arch</span><span class="o">=</span><span class="s2">&quot;sm_80&quot;</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="n">FileStreamProgramCache</span><span class="p">(</span><span class="s2">&quot;/var/cache/myapp/cuda&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cache</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">FileStreamProgramCache</span><span class="p">()</span> <span class="k">as</span> <span class="n">cache</span><span class="p">:</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="s2">&quot;cubin&quot;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Call <code class="docutils literal notranslate"><span class="pre">make_program_cache_key</span></code> directly when the compile inputs
+require an <code class="docutils literal notranslate"><span class="pre">extra_digest</span></code> (the cache cannot read external file
+content on the caller’s behalf) – <code class="docutils literal notranslate"><span class="pre">Program.compile(cache=...)</span></code>
+refuses those inputs with a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> pointing here:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._module</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObjectCode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileStreamProgramCache</span><span class="p">,</span> <span class="n">make_program_cache_key</span>
+
+<span class="k">with</span> <span class="n">FileStreamProgramCache</span><span class="p">()</span> <span class="k">as</span> <span class="n">cache</span><span class="p">:</span>
     <span class="n">key</span> <span class="o">=</span> <span class="n">make_program_cache_key</span><span class="p">(</span>
-        <span class="n">code</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;cubin&quot;</span>
+        <span class="n">code</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+        <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+        <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;cubin&quot;</span><span class="p">,</span>
+        <span class="n">extra_digest</span><span class="o">=</span><span class="n">fingerprint_headers</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">include_path</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
