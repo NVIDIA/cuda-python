@@ -62,14 +62,14 @@ def test_free_null_pointer(init_cuda):
     """free(0) raises a CUDA error."""
     g = GraphDefinition()
     with pytest.raises(CUDAError):
-        g.free(0)
+        g.deallocate(0)
 
 
 def test_memset_invalid_value_size(init_cuda):
     """memset with 3-byte value (not 1, 2, or 4) raises ValueError."""
     _skip_if_no_mempool()
     g = GraphDefinition()
-    alloc = g.alloc(1024)
+    alloc = g.allocate(1024)
     with pytest.raises(ValueError):
         alloc.memset(alloc.dptr, b"\x01\x02\x03", 100)
 
@@ -113,7 +113,7 @@ def test_join_single_predecessor(init_cuda):
     """node.join() with no extra args creates a single-dep empty node."""
     _skip_if_no_mempool()
     g = GraphDefinition()
-    a = g.alloc(1024)
+    a = g.allocate(1024)
     joined = a.join()
     assert isinstance(joined, EmptyNode)
     assert set(joined.pred) == {a}
@@ -136,7 +136,7 @@ def test_unmatched_alloc_succeeds(init_cuda):
     """Alloc without corresponding free is valid (graph-scoped lifetime)."""
     _skip_if_no_mempool()
     g = GraphDefinition()
-    g.alloc(1024)
+    g.allocate(1024)
     graph = g.instantiate()
     stream = Device().create_stream()
     graph.launch(stream)
@@ -174,7 +174,7 @@ def test_while_loop_zero_iterations(init_cuda):
 
     g = GraphDefinition()
     condition = g.create_condition(default_value=0)
-    alloc = g.alloc(SIZEOF_INT)
+    alloc = g.allocate(SIZEOF_INT)
     ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
     loop = ms.while_loop(condition)
     loop.body.launch(cfg, add_one, alloc.dptr)
@@ -202,7 +202,7 @@ def test_if_cond_false_skips_body(init_cuda):
 
     g = GraphDefinition()
     condition = g.create_condition(default_value=0)
-    alloc = g.alloc(SIZEOF_INT)
+    alloc = g.allocate(SIZEOF_INT)
     ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
     if_node = ms.if_cond(condition)
     if_node.then.launch(cfg, add_one, alloc.dptr)
@@ -230,7 +230,7 @@ def test_switch_oob_skips_all_branches(init_cuda):
 
     g = GraphDefinition()
     condition = g.create_condition(default_value=99)
-    alloc = g.alloc(SIZEOF_INT)
+    alloc = g.allocate(SIZEOF_INT)
     ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
     sw = ms.switch(condition, 3)
     for branch in sw.branches:

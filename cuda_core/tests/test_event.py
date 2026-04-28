@@ -48,16 +48,16 @@ def test_timing_success(init_cuda):
     assert elapsed_time_ms > 10
 
 
-def test_is_sync_busy_waited(init_cuda):
-    options = EventOptions(enable_timing=False, busy_waited_sync=True)
+def test_uses_blocking_sync(init_cuda):
+    options = EventOptions(enable_timing=False, use_blocking_sync=True)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.is_sync_busy_waited is True
+    assert event.uses_blocking_sync is True
 
     options = EventOptions(enable_timing=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.is_sync_busy_waited is False
+    assert event.uses_blocking_sync is False
 
 
 def test_sync(init_cuda):
@@ -86,8 +86,8 @@ def test_error_timing_disabled():
 
     event1 = stream.record(options=enabled)
     event2 = stream.record(options=disabled)
-    assert not event1.is_timing_disabled
-    assert event2.is_timing_disabled
+    assert event1.is_timing_enabled
+    assert not event2.is_timing_enabled
     stream.sync()
     with pytest.raises(RuntimeError, match="^Both Events must be created with timing enabled"):
         event2 - event1
@@ -213,13 +213,13 @@ def test_event_rsub_not_implemented(init_cuda):
     assert result is NotImplemented
 
 
-def test_event_get_ipc_descriptor_non_ipc(init_cuda):
-    """get_ipc_descriptor raises RuntimeError on a non-IPC event."""
+def test_event_ipc_descriptor_non_ipc(init_cuda):
+    """ipc_descriptor raises RuntimeError on a non-IPC event."""
     device = Device()
     stream = device.create_stream()
     event = stream.record()
     with pytest.raises(RuntimeError, match="not IPC-enabled"):
-        event.get_ipc_descriptor()
+        _ = event.ipc_descriptor
 
 
 def test_event_is_done_false(init_cuda):

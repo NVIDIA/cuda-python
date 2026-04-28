@@ -121,16 +121,16 @@ cdef StreamHandle get_per_thread_stream() except+ nogil
 # Event handles
 cdef EventHandle create_event_handle(
     const ContextHandle& h_ctx, unsigned int flags,
-    bint timing_disabled, bint busy_waited,
+    bint timing_enabled, bint uses_blocking_sync,
     bint ipc_enabled, int device_id) except+ nogil
 cdef EventHandle create_event_handle_noctx(unsigned int flags) except+ nogil
 cdef EventHandle create_event_handle_ref(cydriver.CUevent event) except+ nogil
 cdef EventHandle create_event_handle_ipc(
-    const cydriver.CUipcEventHandle& ipc_handle, bint busy_waited) except+ nogil
+    const cydriver.CUipcEventHandle& ipc_handle, bint uses_blocking_sync) except+ nogil
 
 # Event metadata getters
-cdef bint get_event_timing_disabled(const EventHandle& h) noexcept nogil
-cdef bint get_event_busy_waited(const EventHandle& h) noexcept nogil
+cdef bint get_event_timing_enabled(const EventHandle& h) noexcept nogil
+cdef bint get_event_uses_blocking_sync(const EventHandle& h) noexcept nogil
 cdef bint get_event_ipc_enabled(const EventHandle& h) noexcept nogil
 cdef int get_event_device_id(const EventHandle& h) noexcept nogil
 cdef ContextHandle get_event_context(const EventHandle& h) noexcept nogil

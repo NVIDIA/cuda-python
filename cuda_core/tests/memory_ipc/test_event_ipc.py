@@ -131,10 +131,10 @@ class TestIpcEventProperties:
     """
 
     @pytest.mark.flaky(reruns=2)
-    @pytest.mark.parametrize("busy_waited_sync", [True, False])
+    @pytest.mark.parametrize("use_blocking_sync", [True, False])
     @pytest.mark.parametrize("use_options_cls", [True, False])
     @pytest.mark.parametrize("use_option_kw", [True, False])
-    def test_main(self, ipc_device, busy_waited_sync, use_options_cls, use_option_kw):
+    def test_main(self, ipc_device, use_blocking_sync, use_options_cls, use_option_kw):
         device = ipc_device
         stream = device.create_stream()
 
@@ -145,19 +145,19 @@ class TestIpcEventProperties:
 
         # Create an event and send it.
         options = (
-            EventOptions(ipc_enabled=True, busy_waited_sync=busy_waited_sync)
+            EventOptions(ipc_enabled=True, use_blocking_sync=use_blocking_sync)
             if use_options_cls
-            else {"ipc_enabled": True, "busy_waited_sync": busy_waited_sync}
+            else {"ipc_enabled": True, "use_blocking_sync": use_blocking_sync}
         )
         e = stream.record(options=options) if use_option_kw else stream.record(None, options)
         q_out.put(e)
 
         # Check its properties.
         props = q_in.get(timeout=CHILD_TIMEOUT_SEC)
-        assert props[0] == e.get_ipc_descriptor()
+        assert props[0] == e.ipc_descriptor
         assert props[1] == e.is_ipc_enabled
-        assert props[2] == e.is_timing_disabled
-        assert props[3] == e.is_sync_busy_waited
+        assert props[2] == e.is_timing_enabled
+        assert props[3] == e.uses_blocking_sync
         assert props[4] is None
         assert props[5] is None
 
@@ -173,10 +173,10 @@ class TestIpcEventProperties:
 
         # Send its properties.
         props = (
-            e.get_ipc_descriptor(),
+            e.ipc_descriptor,
             e.is_ipc_enabled,
-            e.is_timing_disabled,
-            e.is_sync_busy_waited,
+            e.is_timing_enabled,
+            e.uses_blocking_sync,
             e.device,
             e.context,
         )

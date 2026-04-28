@@ -642,17 +642,15 @@ class GraphBuilder:
         """
         self._mnff.close()
 
-    def add_child(self, child_graph: GraphBuilder):
-        """Adds the child :obj:`~graph.GraphBuilder` builder into self.
-
-        The child graph builder will be added as a child node to the parent graph builder.
+    def embed(self, child: GraphBuilder):
+        """Embed a previously-built :obj:`~graph.GraphBuilder` as a child node.
 
         Parameters
         ----------
-        child_graph : :obj:`~graph.GraphBuilder`
+        child : :obj:`~graph.GraphBuilder`
             The child graph builder. Must have finished building.
         """
-        if not child_graph._building_ended:
+        if not child._building_ended:
             raise ValueError("Child graph has not finished building.")
 
         if not self.is_building:
@@ -670,7 +668,7 @@ class GraphBuilder:
             [
                 handle_return(
                     driver.cuGraphAddChildGraphNode(
-                        graph_out, *deps_info_trimmed, num_dependencies_out, child_graph._mnff.graph
+                        graph_out, *deps_info_trimmed, num_dependencies_out, child._mnff.graph
                     )
                 )
             ]

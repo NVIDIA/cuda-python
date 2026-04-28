@@ -130,19 +130,19 @@ cdef class GraphDefinition:
         n._h_node = create_graph_node_handle(<cydriver.CUgraphNode>NULL, self._h_graph)
         return n
 
-    def alloc(self, size_t size, options: GraphAllocOptions | None = None) -> "AllocNode":
+    def allocate(self, size_t size, options: GraphAllocOptions | None = None) -> "AllocNode":
         """Add an entry-point memory allocation node (no dependencies).
 
-        See :meth:`GraphNode.alloc` for full documentation.
+        See :meth:`GraphNode.allocate` for full documentation.
         """
-        return self._entry.alloc(size, options)
+        return self._entry.allocate(size, options)
 
-    def free(self, dptr) -> "FreeNode":
+    def deallocate(self, dptr) -> "FreeNode":
         """Add an entry-point memory free node (no dependencies).
 
-        See :meth:`GraphNode.free` for full documentation.
+        See :meth:`GraphNode.deallocate` for full documentation.
         """
-        return self._entry.free(dptr)
+        return self._entry.deallocate(dptr)
 
     def memset(self, dst, value, size_t width, size_t height=1, size_t pitch=0) -> "MemsetNode":
         """Add an entry-point memset node (no dependencies).
@@ -197,19 +197,19 @@ cdef class GraphDefinition:
         """
         return self._entry.embed(child)
 
-    def record_event(self, event) -> "EventRecordNode":
+    def record(self, event) -> "EventRecordNode":
         """Add an entry-point event record node (no dependencies).
 
-        See :meth:`GraphNode.record_event` for full documentation.
+        See :meth:`GraphNode.record` for full documentation.
         """
-        return self._entry.record_event(event)
+        return self._entry.record(event)
 
-    def wait_event(self, event) -> "EventWaitNode":
+    def wait(self, event) -> "EventWaitNode":
         """Add an entry-point event wait node (no dependencies).
 
-        See :meth:`GraphNode.wait_event` for full documentation.
+        See :meth:`GraphNode.wait` for full documentation.
         """
-        return self._entry.wait_event(event)
+        return self._entry.wait(event)
 
     def callback(self, fn, *, user_data=None) -> "HostCallbackNode":
         """Add an entry-point host callback node (no dependencies).

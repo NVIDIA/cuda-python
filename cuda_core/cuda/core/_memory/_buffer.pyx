@@ -128,7 +128,7 @@ cdef class Buffer:
 
     def __reduce__(self):
         # Must not serialize the parent's stream!
-        return Buffer._reduce_helper, (self.memory_resource, self.get_ipc_descriptor())
+        return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
     @staticmethod
     def from_handle(
@@ -168,8 +168,9 @@ cdef class Buffer:
         """Import a buffer that was exported from another process."""
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
-    def get_ipc_descriptor(self) -> IPCBufferDescriptor:
-        """Export a buffer allocated for sharing between processes."""
+    @property
+    def ipc_descriptor(self) -> IPCBufferDescriptor:
+        """Descriptor for sharing this buffer with other processes."""
         if self._ipc_data is None:
             self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
         return self._ipc_data.ipc_descriptor
