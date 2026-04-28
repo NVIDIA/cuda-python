@@ -422,14 +422,14 @@ cdef class Buffer:
 
 # Memory Attribute Query Helpers
 # ------------------------------
-cdef void _init_mem_attrs(Buffer self):
+cdef inline void _init_mem_attrs(Buffer self):
     """Initialize memory attributes by querying the pointer."""
     if not self._mem_attrs_inited:
         _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
         self._mem_attrs_inited = True
 
 
-cdef int _query_memory_attrs(
+cdef inline int _query_memory_attrs(
     _MemAttrs& out,
     cydriver.CUdeviceptr ptr
 ) except -1 nogil:
@@ -456,12 +456,15 @@ cdef int _query_memory_attrs(
         ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
     HANDLE_RETURN(ret)
 
+    # TODO: HMM/ATS-enabled sysmem should also report is_managed=True; the
+    # CU_POINTER_ATTRIBUTE_IS_MANAGED query does not capture that yet.
+    out.is_managed = is_managed != 0
+
     if memory_type == 0:
         # unregistered host pointer
         out.is_host_accessible = True
         out.is_device_accessible = False
         out.device_id = -1
-        out.is_managed = False
     elif (
         is_managed
         or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
@@ -470,12 +473,10 @@ cdef int _query_memory_attrs(
         out.is_host_accessible = True
         out.is_device_accessible = True
         out.device_id = device_id
-        out.is_managed = is_managed != 0
     elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
         out.is_host_accessible = False
         out.is_device_accessible = True
         out.device_id = device_id
-        out.is_managed = False
     else:
         with cython.gil:
             raise ValueError(f"Unsupported memory type: {memory_type}")
