@@ -1371,7 +1371,7 @@ def test_managed_memory_advise_uses_legacy_bindings_signature(monkeypatch, init_
         calls.append((ptr, size, advice, location))
         return (driver.CUresult.CUDA_SUCCESS,)
 
-    monkeypatch.setattr(_managed_memory_ops, "get_binding_version", lambda: _LEGACY_BINDINGS_VERSION)
+    monkeypatch.setattr(_managed_memory_ops, "binding_version", lambda: _LEGACY_BINDINGS_VERSION)
     monkeypatch.setattr(_managed_memory_ops, "_V2_BINDINGS", -1)
     monkeypatch.setattr(_managed_memory_ops.driver, "cuMemAdvise", fake_cuMemAdvise)
 
@@ -1396,7 +1396,7 @@ def test_managed_memory_prefetch_uses_legacy_bindings_signature(monkeypatch, ini
         calls.append((ptr, size, location, hstream))
         return (driver.CUresult.CUDA_SUCCESS,)
 
-    monkeypatch.setattr(_managed_memory_ops, "get_binding_version", lambda: _LEGACY_BINDINGS_VERSION)
+    monkeypatch.setattr(_managed_memory_ops, "binding_version", lambda: _LEGACY_BINDINGS_VERSION)
     monkeypatch.setattr(_managed_memory_ops, "_V2_BINDINGS", -1)
     monkeypatch.setattr(_managed_memory_ops.driver, "cuMemPrefetchAsync", fake_cuMemPrefetchAsync)
 
