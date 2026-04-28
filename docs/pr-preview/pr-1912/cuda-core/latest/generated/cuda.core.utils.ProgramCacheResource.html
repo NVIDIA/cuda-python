@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8031d8b2"></script>
+    <script src="../_static/documentation_options.js?v=d838460c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev74';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev71';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -64,7 +64,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.utils.InMemoryProgramCache" href="cuda.core.utils.InMemoryProgramCache.html" />
+    <link rel="next" title="cuda.core.utils.FileStreamProgramCache" href="cuda.core.utils.FileStreamProgramCache.html" />
     <link rel="prev" title="cuda.core.utils.StridedMemoryView" href="cuda.core.utils.StridedMemoryView.html" />
 
 
@@ -585,8 +585,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.utils.ProgramCacheResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.SQLiteProgramCache.html">cuda.core.utils.SQLiteProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
 </ul>
 </details></li>
@@ -599,6 +597,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.0.0-notes.html">1.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
@@ -674,25 +673,36 @@
 <dt class="sig sig-object py" id="cuda.core.utils.ProgramCacheResource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.utils.</span></span><span class="sig-name descname"><span class="pre">ProgramCacheResource</span></span><a class="headerlink" href="#cuda.core.utils.ProgramCacheResource" title="Link to this definition">#</a></dt>
 <dd><p>Abstract base class for compiled-program caches.</p>
-<p>Concrete implementations store and retrieve <a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>
-instances keyed by <code class="docutils literal notranslate"><span class="pre">bytes</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code>. A <code class="docutils literal notranslate"><span class="pre">str</span></code> key is encoded as UTF-8
-before being used, so <code class="docutils literal notranslate"><span class="pre">&quot;k&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">b&quot;k&quot;</span></code> refer to the same entry. A
-typical key is produced by <a class="reference internal" href="cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a>, which returns
+<p>Concrete implementations store and retrieve <strong>raw binary bytes</strong> keyed
+by <code class="docutils literal notranslate"><span class="pre">bytes</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code>. A <code class="docutils literal notranslate"><span class="pre">str</span></code> key is encoded as UTF-8 before
+being used, so <code class="docutils literal notranslate"><span class="pre">&quot;k&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">b&quot;k&quot;</span></code> refer to the same entry. A typical
+key is produced by <a class="reference internal" href="cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a>, which returns
 <code class="docutils literal notranslate"><span class="pre">bytes</span></code>.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Persistent backends use <a class="reference external" href="https://docs.python.org/3/library/pickle.html#module-pickle" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pickle</span></code></a> for serialization. Only read
-cache files that you trust — loading a cache from an untrusted source
-can execute arbitrary code. Cache directories should have the same
-access controls as any other sensitive build artifact.</p>
+<p>The values written are the compiled program bytes themselves –
+cubin, PTX, LTO-IR, etc. Callers that compile via
+<a class="reference internal" href="cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> typically pass the resulting
+<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> directly; the cache extracts
+<code class="docutils literal notranslate"><span class="pre">bytes(object_code.code)</span></code> for storage. Reads return raw bytes so
+cache files remain consumable by external NVIDIA tools
+(<code class="docutils literal notranslate"><span class="pre">cuobjdump</span></code>, <code class="docutils literal notranslate"><span class="pre">nvdisasm</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda-gdb</span></code>, …). Callers
+reconstruct an <a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> themselves when they
+need one:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;cubin&quot;</span><span class="p">)</span>
+    <span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>  <span class="c1"># extracts bytes(obj.code)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">code</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">ObjectCode</span><span class="o">.</span><span class="n">_init</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;cubin&quot;</span><span class="p">)</span>
+</pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Cache only bytes-backed <code class="docutils literal notranslate"><span class="pre">ObjectCode</span></code> instances. Path-backed objects
-(created via <code class="docutils literal notranslate"><span class="pre">ObjectCode.from_cubin(&quot;/path&quot;)</span></code>) store the path, not
-the content — if the file is later modified or deleted, cache hits
-will return stale or broken data. Normalize to bytes before caching.</p>
-</div>
+<p>The cache layer does no payload validation; bytes go in and come
+back out unchanged. Symbol-mapping metadata that
+<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> carries when produced with NVRTC
+name expressions is <strong>not</strong> preserved across a cache round-trip –
+the binary alone is stored. Callers that need symbol_mapping for
+<code class="docutils literal notranslate"><span class="pre">get_kernel(name_expression)</span></code> should compile fresh, or look the
+mangled symbol up by hand.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.ProgramCacheResource.__init__">
@@ -717,10 +727,10 @@ will return stale or broken data. Normalize to bytes before caching.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><span class="pre">ObjectCode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><span class="pre">ObjectCode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.ProgramCacheResource.get" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.ProgramCacheResource.get" title="Link to this definition">#</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">self[key]</span></code> or <code class="docutils literal notranslate"><span class="pre">default</span></code> if absent.</p>
 </dd></dl>
 
@@ -748,11 +758,11 @@ will return stale or broken data. Normalize to bytes before caching.</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.utils.InMemoryProgramCache.html"
+       href="cuda.core.utils.FileStreamProgramCache.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.utils.InMemoryProgramCache</p>
+        <p class="prev-next-title">cuda.core.utils.FileStreamProgramCache</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

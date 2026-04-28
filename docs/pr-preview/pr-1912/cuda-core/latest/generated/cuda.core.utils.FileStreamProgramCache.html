@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8031d8b2"></script>
+    <script src="../_static/documentation_options.js?v=d838460c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev74';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev71';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Environment Variables" href="../environment_variables.html" />
-    <link rel="prev" title="cuda.core.utils.SQLiteProgramCache" href="cuda.core.utils.SQLiteProgramCache.html" />
+    <link rel="prev" title="cuda.core.utils.ProgramCacheResource" href="cuda.core.utils.ProgramCacheResource.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -585,8 +585,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.SQLiteProgramCache.html">cuda.core.utils.SQLiteProgramCache</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.utils.FileStreamProgramCache</a></li>
 </ul>
 </details></li>
@@ -599,6 +597,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.0.0-notes.html">1.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
@@ -675,7 +674,7 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.utils.</span></span><span class="sig-name descname"><span class="pre">FileStreamProgramCache</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><span class="pre">PathLike</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><span class="pre">PathLike</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">max_size_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
@@ -684,8 +683,13 @@
 <dd><p>Persistent program cache backed by a directory of atomic files.</p>
 <p>Designed for multi-process use: writes stage a temporary file and then
 <a class="reference external" href="https://docs.python.org/3/library/os.html#os.replace" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.replace()</span></code></a> it into place, so concurrent readers never observe a
-partially-written entry. There is no cross-process LRU tracking; size
-enforcement is best-effort by file mtime.</p>
+partially-written entry. Each entry on disk is the raw compiled binary
+– cubin / PTX / LTO-IR – with no header, framing, or pickle wrapper,
+so the files are directly consumable by external NVIDIA tools
+(<code class="docutils literal notranslate"><span class="pre">cuobjdump</span></code>, <code class="docutils literal notranslate"><span class="pre">nvdisasm</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda-gdb</span></code>).</p>
+<p>Eviction is by least-recently-<em>read</em> time: every successful read bumps
+the entry’s <code class="docutils literal notranslate"><span class="pre">atime</span></code>, and the size enforcer evicts oldest atime
+first.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><strong>Best-effort writes.</strong></p>
@@ -713,25 +717,29 @@ incompatible version is wiped on open (bumping either
 <code class="docutils literal notranslate"><span class="pre">_KEY_SCHEMA_VERSION</span></code> or <code class="docutils literal notranslate"><span class="pre">_FILESTREAM_BACKEND_SCHEMA</span></code> forces
 cleanup instead of leaving orphaned entries on disk).</p>
 <p>Within a single schema version the cache is safe to share across
-<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> patch releases on a best-effort basis: every entry’s
-key encodes the relevant backend/compiler/runtime fingerprints for
-its compilation path (NVRTC entries pin the NVRTC version, NVVM
-entries pin the libNVVM library and IR versions, PTX/linker entries
-pin the chosen linker backend and its version – and, when the
-cuLink/driver backend is selected, the driver version too;
-nvJitLink-backed PTX entries are deliberately driver-version
-independent). Entries are stored as pickled <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code>,
-so the sharing guarantee also assumes <code class="docutils literal notranslate"><span class="pre">ObjectCode</span></code>’s pickle
-representation stays compatible across the patch releases in
-question; a change to its <code class="docutils literal notranslate"><span class="pre">__reduce__</span></code> protocol would require
-bumping the schema version.</p>
+<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> patch releases: every entry’s key encodes the
+relevant backend/compiler/runtime fingerprints for its compilation
+path (NVRTC entries pin the NVRTC version, NVVM entries pin the
+libNVVM library and IR versions, PTX/linker entries pin the chosen
+linker backend and its version – and, when the cuLink/driver
+backend is selected, the driver version too; nvJitLink-backed PTX
+entries are deliberately driver-version independent). Entries are
+stored verbatim as the compiled binary, so cross-patch sharing
+only requires that the compiler-pinning surface above stays stable
+– there is no Python-pickle compatibility involved.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> – Directory that owns the cache. Created if missing.</p></li>
+<li><p><strong>path</strong> – Directory that owns the cache. Created if missing. If omitted,
+the OS-conventional user cache directory is used:
+<code class="docutils literal notranslate"><span class="pre">$XDG_CACHE_HOME/cuda-python/program-cache</span></code> (Linux, defaulting
+to <code class="docutils literal notranslate"><span class="pre">~/.cache/cuda-python/program-cache</span></code>),
+<code class="docutils literal notranslate"><span class="pre">~/Library/Caches/cuda-python/program-cache</span></code> (macOS), or
+<code class="docutils literal notranslate"><span class="pre">%LOCALAPPDATA%\cuda-python\program-cache</span></code> (Windows).</p></li>
 <li><p><strong>max_size_bytes</strong> – Optional soft cap on total on-disk size. Enforced opportunistically
-on writes; concurrent writers may briefly exceed it.</p></li>
+on writes; concurrent writers may briefly exceed it. Eviction is by
+least-recently-read time (oldest <code class="docutils literal notranslate"><span class="pre">st_atime</span></code> first).</p></li>
 </ul>
 </dd>
 </dl>
@@ -741,7 +749,7 @@ on writes; concurrent writers may briefly exceed it.</p></li>
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><span class="pre">PathLike</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><span class="pre">PathLike</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">max_size_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
@@ -767,10 +775,10 @@ on writes; concurrent writers may briefly exceed it.</p></li>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><span class="pre">ObjectCode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><span class="pre">ObjectCode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.FileStreamProgramCache.get" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.FileStreamProgramCache.get" title="Link to this definition">#</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">self[key]</span></code> or <code class="docutils literal notranslate"><span class="pre">default</span></code> if absent.</p>
 </dd></dl>
 
@@ -789,12 +797,12 @@ on writes; concurrent writers may briefly exceed it.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.utils.SQLiteProgramCache.html"
+       href="cuda.core.utils.ProgramCacheResource.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.utils.SQLiteProgramCache</p>
+        <p class="prev-next-title">cuda.core.utils.ProgramCacheResource</p>
       </div>
     </a>
     <a class="right-next"
