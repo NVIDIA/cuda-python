@@ -44,7 +44,7 @@ from cuda.core import (
     system as ccx_system,
 )
 from cuda.core._dlpack import DLDeviceType
-from cuda.core._memory import IPCBufferDescriptor, _managed_memory_ops
+from cuda.core._memory import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.utils import StridedMemoryView
 
@@ -1389,6 +1389,7 @@ def test_managed_memory_operation_validation(init_cuda):
     with pytest.raises(ValueError, match="location is required"):
         managed_memory.prefetch(buffer, stream=stream)
     from cuda.core.managed_memory import Location
+
     with pytest.raises(ValueError, match="does not support location_type='host_numa'"):
         managed_memory.advise(buffer, "set_accessed_by", Location.host_numa(_INVALID_HOST_DEVICE_ORDINAL))
 
@@ -1875,42 +1876,50 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
 class TestLocation:
     def test_device_constructor(self):
         from cuda.core.managed_memory import Location
+
         loc = Location.device(0)
         assert loc.kind == "device"
         assert loc.id == 0
 
     def test_host_constructor(self):
         from cuda.core.managed_memory import Location
+
         loc = Location.host()
         assert loc.kind == "host"
         assert loc.id is None
 
     def test_host_numa_constructor(self):
         from cuda.core.managed_memory import Location
+
         loc = Location.host_numa(3)
         assert loc.kind == "host_numa"
         assert loc.id == 3
 
     def test_host_numa_current_constructor(self):
         from cuda.core.managed_memory import Location
+
         loc = Location.host_numa_current()
         assert loc.kind == "host_numa_current"
         assert loc.id is None
 
     def test_frozen(self):
         import dataclasses
+
         from cuda.core.managed_memory import Location
+
         loc = Location.device(0)
         with pytest.raises(dataclasses.FrozenInstanceError):
             loc.id = 1
 
     def test_invalid_device_id(self):
         from cuda.core.managed_memory import Location
+
         with pytest.raises(ValueError, match="device id must be >= 0"):
             Location.device(-1)
 
     def test_invalid_kind(self):
         from cuda.core.managed_memory import Location
+
         with pytest.raises(ValueError, match="kind must be one of"):
             Location(kind="not_a_kind", id=None)
 
@@ -1919,21 +1928,25 @@ class TestLocationCoerce:
     def test_passthrough(self):
         from cuda.core._memory._managed_location import _coerce_location
         from cuda.core.managed_memory import Location
+
         loc = Location.device(0)
         assert _coerce_location(loc) is loc
 
     def test_int_device(self):
         from cuda.core._memory._managed_location import _coerce_location
+
         assert _coerce_location(0).kind == "device"
         assert _coerce_location(0).id == 0
 
     def test_int_minus_one_is_host(self):
         from cuda.core._memory._managed_location import _coerce_location
+
         assert _coerce_location(-1).kind == "host"
 
     def test_device_object(self, init_cuda):
         from cuda.core import Device
         from cuda.core._memory._managed_location import _coerce_location
+
         dev = Device()
         loc = _coerce_location(dev)
         assert loc.kind == "device"
@@ -1941,20 +1954,24 @@ class TestLocationCoerce:
 
     def test_none_when_disallowed(self):
         from cuda.core._memory._managed_location import _coerce_location
+
         with pytest.raises(ValueError, match="location is required"):
             _coerce_location(None, allow_none=False)
 
     def test_none_when_allowed(self):
         from cuda.core._memory._managed_location import _coerce_location
+
         assert _coerce_location(None, allow_none=True) is None
 
     def test_bad_int(self):
         from cuda.core._memory._managed_location import _coerce_location
+
         with pytest.raises(ValueError, match="device ordinal"):
             _coerce_location(-2)
 
     def test_bad_type(self):
         from cuda.core._memory._managed_location import _coerce_location
+
         with pytest.raises(TypeError, match="Location, Device, int, or None"):
             _coerce_location("device")
 
@@ -1962,6 +1979,7 @@ class TestLocationCoerce:
 class TestPrefetch:
     def test_single_with_location_host(self, init_cuda):
         from cuda.core.managed_memory import Location, prefetch
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         device.set_current()
@@ -1980,6 +1998,7 @@ class TestPrefetch:
 
     def test_batched_same_location(self, init_cuda):
         from cuda.core.managed_memory import Location, prefetch
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         if not hasattr(driver, "cuMemPrefetchBatchAsync"):
@@ -2002,6 +2021,7 @@ class TestPrefetch:
 
     def test_batched_per_buffer_location(self, init_cuda):
         from cuda.core.managed_memory import Location, prefetch
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         if not hasattr(driver, "cuMemPrefetchBatchAsync"):
@@ -2029,6 +2049,7 @@ class TestPrefetch:
 
     def test_length_mismatch(self, init_cuda):
         from cuda.core.managed_memory import Location, prefetch
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         device.set_current()
@@ -2043,6 +2064,7 @@ class TestPrefetch:
 
     def test_rejects_non_managed(self, init_cuda):
         from cuda.core.managed_memory import Location, prefetch
+
         device = Device()
         device.set_current()
         buf = DummyDeviceMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
@@ -2053,6 +2075,7 @@ class TestPrefetch:
 
     def test_location_required(self, init_cuda):
         from cuda.core.managed_memory import prefetch
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         device.set_current()
@@ -2065,6 +2088,7 @@ class TestPrefetch:
 
     def test_options_must_be_none(self, init_cuda):
         from cuda.core.managed_memory import Location, prefetch
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         device.set_current()
@@ -2079,6 +2103,7 @@ class TestPrefetch:
 class TestDiscard:
     def test_single_buffer(self, init_cuda):
         from cuda.core.managed_memory import Location, discard, prefetch
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         if not hasattr(driver, "cuMemDiscardBatchAsync"):
@@ -2095,6 +2120,7 @@ class TestDiscard:
 
     def test_batched(self, init_cuda):
         from cuda.core.managed_memory import Location, discard, prefetch
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         if not hasattr(driver, "cuMemDiscardBatchAsync"):
@@ -2112,6 +2138,7 @@ class TestDiscard:
 
     def test_rejects_non_managed(self, init_cuda):
         from cuda.core.managed_memory import discard
+
         device = Device()
         device.set_current()
         buf = DummyDeviceMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
@@ -2122,6 +2149,7 @@ class TestDiscard:
 
     def test_options_must_be_none(self, init_cuda):
         from cuda.core.managed_memory import discard
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         device.set_current()
@@ -2136,6 +2164,7 @@ class TestDiscard:
 class TestDiscardPrefetch:
     def test_single_buffer(self, init_cuda):
         from cuda.core.managed_memory import Location, discard_prefetch, prefetch
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         if not hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync"):
@@ -2159,6 +2188,7 @@ class TestDiscardPrefetch:
 
     def test_batched_same_location(self, init_cuda):
         from cuda.core.managed_memory import Location, discard_prefetch, prefetch
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         if not hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync"):
@@ -2181,6 +2211,7 @@ class TestDiscardPrefetch:
 
     def test_length_mismatch(self, init_cuda):
         from cuda.core.managed_memory import Location, discard_prefetch
+
         device = Device()
         skip_if_managed_memory_unsupported(device)
         device.set_current()
@@ -2194,6 +2225,7 @@ class TestDiscardPrefetch:
 
     def test_rejects_non_managed(self, init_cuda):
         from cuda.core.managed_memory import Location, discard_prefetch
+
         device = Device()
         device.set_current()
         buf = DummyDeviceMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
@@ -2205,14 +2237,12 @@ class TestDiscardPrefetch:
 
 class TestAdvise:
     def test_batched_same_advice(self, init_cuda):
-        from cuda.core.managed_memory import advise, Location
+        from cuda.core.managed_memory import advise
+
         device = Device()
         _skip_if_managed_location_ops_unsupported(device)
         device.set_current()
-        bufs = [
-            DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
-            for _ in range(2)
-        ]
+        bufs = [DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(2)]
         advise(bufs, "set_read_mostly")
         for buf in bufs:
             assert (
@@ -2225,14 +2255,12 @@ class TestAdvise:
             buf.close()
 
     def test_batched_per_buffer_location(self, init_cuda):
-        from cuda.core.managed_memory import advise, Location
+        from cuda.core.managed_memory import Location, advise
+
         device = Device()
         _skip_if_managed_location_ops_unsupported(device)
         device.set_current()
-        bufs = [
-            DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
-            for _ in range(2)
-        ]
+        bufs = [DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(2)]
         advise(
             bufs,
             "set_preferred_location",
@@ -2243,6 +2271,7 @@ class TestAdvise:
 
     def test_options_must_be_none(self, init_cuda):
         from cuda.core.managed_memory import advise
+
         device = Device()
         _skip_if_managed_allocation_unsupported(device)
         device.set_current()

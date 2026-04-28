@@ -4,8 +4,8 @@
 
 from __future__ import annotations
 
-from cpython.mem cimport PyMem_Free, PyMem_Malloc
-from libc.stdint cimport uintptr_t
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cpython.mem cimport PyMem_Free, PyMem_Malloc
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
@@ -14,7 +14,7 @@ from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from cuda.core._utils.cuda_utils import driver
-from cuda.core._memory._managed_location import Location, _coerce_location
+from cuda.core._memory._managed_location import _coerce_location
 
 
 cdef dict _MANAGED_ADVICE_ALIASES = {
@@ -182,7 +182,6 @@ def discard(
             f"discard options must be None (reserved); got {type(options).__name__}"
         )
     cdef tuple bufs = _coerce_buffer_targets(targets, "discard")
-    cdef Py_ssize_t n = len(bufs)
     cdef Stream s = Stream_accept(stream)
 
     cdef Buffer buf

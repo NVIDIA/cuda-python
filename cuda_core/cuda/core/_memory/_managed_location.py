@@ -35,19 +35,19 @@ class Location:
                 raise ValueError(f"{self.kind} location must have id=None")
 
     @classmethod
-    def device(cls, device_id: int) -> "Location":
+    def device(cls, device_id: int) -> Location:
         return cls(kind="device", id=device_id)
 
     @classmethod
-    def host(cls) -> "Location":
+    def host(cls) -> Location:
         return cls(kind="host", id=None)
 
     @classmethod
-    def host_numa(cls, numa_id: int) -> "Location":
+    def host_numa(cls, numa_id: int) -> Location:
         return cls(kind="host_numa", id=numa_id)
 
     @classmethod
-    def host_numa_current(cls) -> "Location":
+    def host_numa_current(cls) -> Location:
         return cls(kind="host_numa_current", id=None)
 
 
@@ -71,9 +71,5 @@ def _coerce_location(value, *, allow_none: bool = False) -> Location | None:
             return Location.host()
         if value >= 0:
             return Location.device(value)
-        raise ValueError(
-            f"device ordinal must be >= 0 (or -1 for host), got {value}"
-        )
-    raise TypeError(
-        f"location must be a Location, Device, int, or None; got {type(value).__name__}"
-    )
+        raise ValueError(f"device ordinal must be >= 0 (or -1 for host), got {value}")
+    raise TypeError(f"location must be a Location, Device, int, or None; got {type(value).__name__}")
