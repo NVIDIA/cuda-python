@@ -786,19 +786,19 @@ class Graph:
         """
         return self._mnff.graph
 
-    def update(self, source: "GraphBuilder | GraphDef") -> None:
+    def update(self, source: "GraphBuilder | GraphDefinition") -> None:
         """Update the graph using a new graph definition.
 
         The topology of the provided source must be identical to this graph.
 
         Parameters
         ----------
-        source : :obj:`~graph.GraphBuilder` or :obj:`~graph.GraphDef`
+        source : :obj:`~graph.GraphBuilder` or :obj:`~graph.GraphDefinition`
             The graph definition to update from. A GraphBuilder must have
             finished building.
 
         """
-        from cuda.core.graph import GraphDef
+        from cuda.core.graph import GraphDefinition
 
         cdef cydriver.CUgraph cu_graph
         cdef cydriver.CUgraphExec cu_exec = <cydriver.CUgraphExec><intptr_t>int(self._mnff.graph)
@@ -807,11 +807,11 @@ class Graph:
             if not source._building_ended:
                 raise ValueError("Graph has not finished building.")
             cu_graph = <cydriver.CUgraph><intptr_t>int(source._mnff.graph)
-        elif isinstance(source, GraphDef):
+        elif isinstance(source, GraphDefinition):
             cu_graph = <cydriver.CUgraph><intptr_t>int(source.handle)
         else:
             raise TypeError(
-                f"expected GraphBuilder or GraphDef, got {type(source).__name__}")
+                f"expected GraphBuilder or GraphDefinition, got {type(source).__name__}")
 
         cdef cydriver.CUgraphExecUpdateResultInfo result_info
         cdef cydriver.CUresult err

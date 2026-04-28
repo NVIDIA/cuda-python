@@ -28,7 +28,7 @@ from cuda.core import (
     system,
 )
 from cuda.core._program import _can_load_generated_ptx
-from cuda.core.graph import GraphDef
+from cuda.core.graph import GraphDefinition
 
 
 def _skip_if_no_mempool():
@@ -244,7 +244,7 @@ def sample_ipc_event_descriptor(ipc_device):
 
 
 # =============================================================================
-# Fixtures - Graph types (GraphDef and GraphNode)
+# Fixtures - Graph types (GraphDefinition and GraphNode)
 # =============================================================================
 
 ALLOC_SIZE = 1024
@@ -252,14 +252,14 @@ ALLOC_SIZE = 1024
 
 @pytest.fixture
 def sample_graphdef(init_cuda):
-    """A sample GraphDef."""
-    return GraphDef()
+    """A sample GraphDefinition."""
+    return GraphDefinition()
 
 
 @pytest.fixture
 def sample_graphdef_alt(init_cuda):
-    """An alternate GraphDef (for inequality testing)."""
-    return GraphDef()
+    """An alternate GraphDefinition (for inequality testing)."""
+    return GraphDefinition()
 
 
 @pytest.fixture
@@ -379,7 +379,7 @@ def sample_memcpy_node_alt(sample_graphdef):
 @pytest.fixture
 def sample_child_graph_node(sample_graphdef):
     """A ChildGraphNode."""
-    child = GraphDef()
+    child = GraphDefinition()
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     child.launch(LaunchConfig(grid=1, block=1), kernel)
@@ -389,7 +389,7 @@ def sample_child_graph_node(sample_graphdef):
 @pytest.fixture
 def sample_child_graph_node_alt(sample_graphdef):
     """An alternate ChildGraphNode from same graph."""
-    child = GraphDef()
+    child = GraphDefinition()
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     child.launch(LaunchConfig(grid=1, block=1), kernel)
@@ -446,13 +446,13 @@ def sample_host_callback_node_alt(sample_graphdef):
 
 @pytest.fixture
 def sample_condition(sample_graphdef):
-    """A Condition object."""
+    """A GraphCondition object."""
     return try_create_condition(sample_graphdef)
 
 
 @pytest.fixture
 def sample_condition_alt(sample_graphdef):
-    """An alternate Condition from same graph."""
+    """An alternate GraphCondition from same graph."""
     return try_create_condition(sample_graphdef)
 
 
@@ -682,8 +682,8 @@ REPR_PATTERNS = [
     ("sample_program_ptx", r"<Program backend='(nvJitLink|driver)'>"),
     ("sample_program_nvvm", r"<Program backend='NVVM'>"),
     # Graph types
-    ("sample_graphdef", r"<GraphDef handle=0x[0-9a-f]+>"),
-    ("sample_condition", r"<Condition handle=0x[0-9a-f]+>"),
+    ("sample_graphdef", r"<GraphDefinition handle=0x[0-9a-f]+>"),
+    ("sample_condition", r"<GraphCondition handle=0x[0-9a-f]+>"),
     ("sample_root_node", r"<GraphNode entry>"),
     ("sample_empty_node", r"<EmptyNode handle=0x[0-9a-f]+>"),
     ("sample_alloc_node", r"<AllocNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+ size=\d+>"),

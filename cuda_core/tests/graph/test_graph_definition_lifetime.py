@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for GraphDef resource lifetime management and RAII correctness."""
+"""Tests for GraphDefinition resource lifetime management and RAII correctness."""
 
 import gc
 
@@ -13,7 +13,7 @@ from cuda.core import Device, EventOptions, Kernel, LaunchConfig
 from cuda.core.graph import (
     ChildGraphNode,
     ConditionalNode,
-    GraphDef,
+    GraphDefinition,
     KernelNode,
 )
 
@@ -58,8 +58,8 @@ _COND_BUILDERS = [
 
 @pytest.mark.parametrize("builder, expected_count", _COND_BUILDERS)
 def test_branches_survive_parent_deletion(init_cuda, builder, expected_count):
-    """All branch graphs remain valid after parent GraphDef is deleted."""
-    g = GraphDef()
+    """All branch graphs remain valid after parent GraphDefinition is deleted."""
+    g = GraphDefinition()
     condition = try_create_condition(g)
     branches = builder(g, condition)
     assert len(branches) == expected_count
@@ -73,12 +73,12 @@ def test_branches_survive_parent_deletion(init_cuda, builder, expected_count):
 
 @pytest.mark.parametrize("builder, expected_count", _COND_BUILDERS)
 def test_branches_usable_after_parent_deletion(init_cuda, builder, expected_count):
-    """Nodes can be added to branch graphs after parent GraphDef is deleted."""
+    """Nodes can be added to branch graphs after parent GraphDefinition is deleted."""
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
 
-    g = GraphDef()
+    g = GraphDefinition()
     condition = try_create_condition(g)
     branches = builder(g, condition)
 
@@ -92,7 +92,7 @@ def test_branches_usable_after_parent_deletion(init_cuda, builder, expected_coun
 
 def test_reconstructed_body_survives_parent_deletion(init_cuda):
     """Body graph obtained via nodes() reconstruction survives parent deletion."""
-    g = GraphDef()
+    g = GraphDefinition()
     condition = try_create_condition(g)
     g.while_loop(condition)
 
@@ -117,16 +117,16 @@ def test_reconstructed_body_survives_parent_deletion(init_cuda):
 
 
 def test_child_graph_survives_parent_deletion(init_cuda):
-    """Embedded child graph remains valid after parent GraphDef is deleted."""
+    """Embedded child graph remains valid after parent GraphDefinition is deleted."""
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
 
-    child_def = GraphDef()
+    child_def = GraphDefinition()
     child_def.launch(config, kernel)
     child_def.launch(config, kernel)
 
-    g = GraphDef()
+    g = GraphDefinition()
     node = g.embed(child_def)
     child_ref = node.child_graph
 
@@ -142,13 +142,13 @@ def test_nested_child_graph_lifetime(init_cuda):
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
 
-    inner = GraphDef()
+    inner = GraphDefinition()
     inner.launch(config, kernel)
 
-    middle = GraphDef()
+    middle = GraphDefinition()
     middle.embed(inner)
 
-    outer = GraphDef()
+    outer = GraphDefinition()
     outer_node = outer.embed(middle)
 
     middle_ref = outer_node.child_graph
@@ -171,7 +171,7 @@ def test_event_record_node_keeps_event_alive(init_cuda):
     """EventRecordNode should keep the Event alive after original is deleted."""
     _skip_if_no_mempool()
     dev = Device()
-    g = GraphDef()
+    g = GraphDefinition()
     alloc = g.alloc(1024)
 
     event = dev.create_event(EventOptions(enable_timing=False))
@@ -188,7 +188,7 @@ def test_event_wait_node_keeps_event_alive(init_cuda):
     """EventWaitNode should keep the Event alive after original is deleted."""
     _skip_if_no_mempool()
     dev = Device()
-    g = GraphDef()
+    g = GraphDefinition()
     alloc = g.alloc(1024)
 
     event = dev.create_event(EventOptions(enable_timing=False))
@@ -204,7 +204,7 @@ def test_event_wait_node_keeps_event_alive(init_cuda):
 def test_event_record_node_preserves_metadata(init_cuda):
     """Reconstructed EventRecordNode recovers full Event metadata via reverse lookup."""
     dev = Device()
-    g = GraphDef()
+    g = GraphDefinition()
 
     event = dev.create_event(EventOptions(enable_timing=True, busy_waited_sync=True))
     node = g.record_event(event)
@@ -219,7 +219,7 @@ def test_event_record_node_preserves_metadata(init_cuda):
 def test_event_wait_node_preserves_metadata(init_cuda):
     """Reconstructed EventWaitNode recovers full Event metadata via reverse lookup."""
     dev = Device()
-    g = GraphDef()
+    g = GraphDefinition()
 
     event = dev.create_event(EventOptions(enable_timing=False))
     node = g.wait_event(event)
@@ -233,7 +233,7 @@ def test_event_wait_node_preserves_metadata(init_cuda):
 def test_event_metadata_survives_gc(init_cuda):
     """Event metadata is preserved through reverse lookup even after original is GC'd."""
     dev = Device()
-    g = GraphDef()
+    g = GraphDefinition()
 
     event = dev.create_event(EventOptions(enable_timing=True, busy_waited_sync=True))
     node = g.record_event(event)
@@ -250,7 +250,7 @@ def test_event_metadata_survives_gc(init_cuda):
 def test_event_survives_graph_instantiation_and_execution(init_cuda):
     """Graph with event nodes executes correctly after original Event is deleted."""
     dev = Device()
-    g = GraphDef()
+    g = GraphDefinition()
 
     event = dev.create_event(EventOptions(enable_timing=False))
     rec = g.record_event(event)
@@ -275,7 +275,7 @@ def test_event_survives_graph_clone_and_execution(init_cuda):
     from cuda.core._utils.cuda_utils import driver, handle_return
 
     dev = Device()
-    g = GraphDef()
+    g = GraphDefinition()
 
     event = dev.create_event(EventOptions(enable_timing=False))
     rec = g.record_event(event)
@@ -304,7 +304,7 @@ def test_python_callable_callback_survives_del(init_cuda):
     def my_callback():
         called[0] = True
 
-    g = GraphDef()
+    g = GraphDefinition()
     g.callback(my_callback)
 
     del my_callback
@@ -330,7 +330,7 @@ def test_cfunc_callback_survives_del(init_cuda):
     def raw_fn(data):
         called[0] = True
 
-    g = GraphDef()
+    g = GraphDefinition()
     g.callback(raw_fn)
 
     del raw_fn
@@ -357,7 +357,7 @@ def test_cfunc_bytes_user_data_survives_del(init_cuda):
         result[0] = ctypes.cast(data, ctypes.POINTER(ctypes.c_uint8))[0]
 
     payload = bytes([0xCD])
-    g = GraphDef()
+    g = GraphDefinition()
     g.callback(read_byte, user_data=payload)
 
     del payload
@@ -383,7 +383,7 @@ def test_kernel_node_keeps_kernel_alive(init_cuda):
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
 
-    g = GraphDef()
+    g = GraphDefinition()
     node = g.launch(config, kernel)
 
     del kernel, mod
@@ -399,7 +399,7 @@ def test_kernel_survives_graph_instantiation_and_execution(init_cuda):
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
 
-    g = GraphDef()
+    g = GraphDefinition()
     g.launch(config, kernel)
 
     del kernel, mod
@@ -424,7 +424,7 @@ def test_kernel_survives_graph_clone_and_execution(init_cuda):
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
 
-    g = GraphDef()
+    g = GraphDefinition()
     g.launch(config, kernel)
 
     cloned_cu_graph = handle_return(driver.cuGraphClone(driver.CUgraph(g.handle)))
@@ -465,7 +465,7 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
 
-    g = GraphDef()
+    g = GraphDefinition()
     kernel_node = g.launch(config, kernel)
     # Chain a second node so we can reconstruct the kernel node via pred
     event = Device().create_event()

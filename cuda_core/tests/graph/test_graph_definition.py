@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for GraphDef topology, node types, instantiation, and execution."""
+"""Tests for GraphDefinition topology, node types, instantiation, and execution."""
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -22,7 +22,7 @@ from cuda.core.graph import (
     GraphAllocOptions,
     GraphCompleteOptions,
     GraphDebugPrintOptions,
-    GraphDef,
+    GraphDefinition,
     GraphNode,
     HostCallbackNode,
     IfElseNode,
@@ -76,7 +76,7 @@ class GraphSpec:
     """Describes a graph topology with expected structural properties."""
 
     name: str
-    graphdef: GraphDef
+    graph_definition: GraphDefinition
     named_nodes: dict = field(default_factory=dict)
     expected_edges: set = field(default_factory=set)
     expected_pred: dict = field(default_factory=dict)
@@ -85,12 +85,12 @@ class GraphSpec:
 
 def _build_empty():
     """No nodes, no edges."""
-    return GraphSpec("empty", GraphDef())
+    return GraphSpec("empty", GraphDefinition())
 
 
 def _build_single():
     """One alloc node, no edges."""
-    g = GraphDef()
+    g = GraphDefinition()
     a = g.alloc(ALLOC_SIZE)
     return GraphSpec(
         "single",
@@ -104,7 +104,7 @@ def _build_single():
 
 def _build_chain():
     """Linear chain: a -> b -> c."""
-    g = GraphDef()
+    g = GraphDefinition()
     a = g.alloc(ALLOC_SIZE)
     b = a.alloc(ALLOC_SIZE)
     c = b.alloc(ALLOC_SIZE)
@@ -120,7 +120,7 @@ def _build_chain():
 
 def _build_fan_out():
     """One node feeds three: a -> {b, c, d}."""
-    g = GraphDef()
+    g = GraphDefinition()
     a = g.alloc(ALLOC_SIZE)
     b = a.alloc(ALLOC_SIZE)
     c = a.alloc(ALLOC_SIZE)
@@ -137,7 +137,7 @@ def _build_fan_out():
 
 def _build_fan_in():
     """Three entry nodes merge: {a, b, c} -> d (join)."""
-    g = GraphDef()
+    g = GraphDefinition()
     a = g.alloc(ALLOC_SIZE)
     b = g.alloc(ALLOC_SIZE)
     c = g.alloc(ALLOC_SIZE)
@@ -154,7 +154,7 @@ def _build_fan_in():
 
 def _build_diamond():
     """Diamond: a -> {b, c} -> d (join)."""
-    g = GraphDef()
+    g = GraphDefinition()
     a = g.alloc(ALLOC_SIZE)
     b = a.alloc(ALLOC_SIZE)
     c = a.alloc(ALLOC_SIZE)
@@ -171,7 +171,7 @@ def _build_diamond():
 
 def _build_disconnected():
     """Two independent entry nodes: a, b."""
-    g = GraphDef()
+    g = GraphDefinition()
     a = g.alloc(ALLOC_SIZE)
     b = g.alloc(ALLOC_SIZE)
     return GraphSpec(
@@ -227,7 +227,7 @@ class NodeSpec:
     name: str
     expected_class: type
     expected_type_name: str
-    builder: Callable[[GraphDef], tuple[GraphNode, dict]]
+    builder: Callable[[GraphDefinition], tuple[GraphNode, dict]]
     reconstructed_class: type | None = None
     needs_mempool: bool = True
 
@@ -404,7 +404,7 @@ def _build_host_callback_cfunc_node(g):
 
 
 def _build_child_graph_node(g):
-    child = GraphDef()
+    child = GraphDefinition()
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
@@ -412,7 +412,7 @@ def _build_child_graph_node(g):
     child.launch(config, kernel)
     node = g.embed(child)
     return node, {
-        "child_graph": lambda v: isinstance(v, GraphDef) and len(v.nodes()) == 2,
+        "child_graph": lambda v: isinstance(v, GraphDefinition) and len(v.nodes()) == 2,
     }
 
 
@@ -423,7 +423,7 @@ def _build_if_cond_node(g):
         "condition": condition,
         "cond_type": "if",
         "branches": lambda v: isinstance(v, tuple) and len(v) == 1,
-        "then": lambda v: isinstance(v, GraphDef),
+        "then": lambda v: isinstance(v, GraphDefinition),
     }
 
 
@@ -434,8 +434,8 @@ def _build_if_else_node(g):
         "condition": condition,
         "cond_type": "if",
         "branches": lambda v: isinstance(v, tuple) and len(v) == 2,
-        "then": lambda v: isinstance(v, GraphDef),
-        "else_": lambda v: isinstance(v, GraphDef),
+        "then": lambda v: isinstance(v, GraphDefinition),
+        "else_": lambda v: isinstance(v, GraphDefinition),
     }
 
 
@@ -446,7 +446,7 @@ def _build_while_loop_node(g):
         "condition": condition,
         "cond_type": "while",
         "branches": lambda v: isinstance(v, tuple) and len(v) == 1,
-        "body": lambda v: isinstance(v, GraphDef),
+        "body": lambda v: isinstance(v, GraphDefinition),
     }
 
 
@@ -564,7 +564,7 @@ def node_spec(request, init_cuda):
     spec = request.param
     if spec.needs_mempool:
         _skip_if_no_mempool()
-    g = GraphDef()
+    g = GraphDefinition()
     node, expected_attrs = spec.builder(g)
     return spec, g, node, expected_attrs
 
@@ -576,8 +576,8 @@ def node_spec(request, init_cuda):
 
 @pytest.fixture
 def sample_graphdef(init_cuda):
-    """A sample GraphDef for standalone tests."""
-    return GraphDef()
+    """A sample GraphDefinition for standalone tests."""
+    return GraphDefinition()
 
 
 @pytest.fixture
@@ -595,20 +595,20 @@ def dot_file(tmp_path):
 
 def test_node_count(graph_spec):
     """Graph contains the expected number of nodes."""
-    assert len(graph_spec.graphdef.nodes()) == len(graph_spec.named_nodes)
+    assert len(graph_spec.graph_definition.nodes()) == len(graph_spec.named_nodes)
 
 
 def test_nodes_match(nonempty_graph_spec):
     """nodes() returns exactly the expected nodes."""
     spec = nonempty_graph_spec
-    assert set(spec.graphdef.nodes()) == set(spec.named_nodes.values())
+    assert set(spec.graph_definition.nodes()) == set(spec.named_nodes.values())
 
 
 def test_edges(graph_spec):
     """edges() returns exactly the expected edges."""
     spec = graph_spec
     node_to_name = {v: k for k, v in spec.named_nodes.items()}
-    actual = {(node_to_name[a], node_to_name[b]) for a, b in spec.graphdef.edges()}
+    actual = {(node_to_name[a], node_to_name[b]) for a, b in spec.graph_definition.edges()}
     assert actual == spec.expected_edges
 
 
@@ -631,10 +631,10 @@ def test_succ(nonempty_graph_spec):
 
 
 def test_node_graph_property(nonempty_graph_spec):
-    """Every node's .graph property returns the parent GraphDef."""
+    """Every node's .graph property returns the parent GraphDefinition."""
     spec = nonempty_graph_spec
     for name, node in spec.named_nodes.items():
-        assert node.graph == spec.graphdef, f"graph mismatch for node {name}"
+        assert node.graph == spec.graph_definition, f"graph mismatch for node {name}"
 
 
 # =============================================================================
@@ -656,7 +656,7 @@ def test_node_type_property(node_spec):
 
 
 def test_node_type_preserved_by_nodes(node_spec):
-    """Node type is preserved when retrieved via graphdef.nodes()."""
+    """Node type is preserved when retrieved via graph_definition.nodes()."""
     spec, g, node, _ = node_spec
     all_nodes = g.nodes()
     matched = [n for n in all_nodes if n == node]
@@ -689,7 +689,7 @@ def test_node_attrs(node_spec):
 
 
 def test_node_attrs_preserved_by_nodes(node_spec):
-    """Type-specific attributes survive round-trip through graphdef.nodes()."""
+    """Type-specific attributes survive round-trip through graph_definition.nodes()."""
     spec, g, node, expected_attrs = node_spec
     if not expected_attrs:
         pytest.skip("no type-specific attributes")
@@ -703,7 +703,7 @@ def test_node_attrs_preserved_by_nodes(node_spec):
 def test_identity_preservation(init_cuda):
     """Round-trips through nodes(), edges(), and pred/succ return extant
     objects rather than duplicates."""
-    g = GraphDef()
+    g = GraphDefinition()
     a = g.empty()
     b = g.empty()
 
@@ -737,7 +737,7 @@ def test_registry_cleanup(init_cuda):
     gc.collect()
     assert len(_node_registry) == 0
 
-    g = GraphDef()
+    g = GraphDefinition()
     a = g.empty()
     b = g.empty()
     c = g.empty()
@@ -770,12 +770,12 @@ def test_registry_cleanup(init_cuda):
 
 
 # =============================================================================
-# GraphDef basics
+# GraphDefinition basics
 # =============================================================================
 
 
 def test_graphdef_handle_valid(sample_graphdef):
-    """GraphDef has a valid non-null handle."""
+    """GraphDefinition has a valid non-null handle."""
     assert sample_graphdef.handle is not None
     assert int(sample_graphdef.handle) != 0
 
@@ -854,7 +854,7 @@ def test_alloc_device_option(sample_graphdef, device_spec):
 def test_alloc_peer_access(mempool_device_x2):
     """AllocNode.peer_access reflects requested peers."""
     d0, d1 = mempool_device_x2
-    g = GraphDef()
+    g = GraphDefinition()
     options = GraphAllocOptions(device=d0.device_id, peer_access=[d1.device_id])
     node = g.alloc(ALLOC_SIZE, options)
     assert d1.device_id in node.peer_access
@@ -928,10 +928,10 @@ _EXECUTE_OPTIONS = [
 ]
 
 
-def _instantiate(graphdef, kwargs, stream=None):
-    """Call graphdef.instantiate() with the given kwargs, resolving sentinels."""
+def _instantiate(graph_definition, kwargs, stream=None):
+    """Call graph_definition.instantiate() with the given kwargs, resolving sentinels."""
     if "no_arg" in kwargs:
-        return graphdef.instantiate()
+        return graph_definition.instantiate()
     opts = kwargs.get("options")
     if opts is not None and opts.upload_stream == _SENTINEL_UPLOAD_STREAM:
         opts = GraphCompleteOptions(
@@ -940,12 +940,12 @@ def _instantiate(graphdef, kwargs, stream=None):
             device_launch=opts.device_launch,
             use_node_priority=opts.use_node_priority,
         )
-    return graphdef.instantiate(options=opts)
+    return graph_definition.instantiate(options=opts)
 
 
-def _instantiate_and_upload(graphdef, kwargs, stream):
+def _instantiate_and_upload(graph_definition, kwargs, stream):
     """Instantiate and upload, handling upload_stream option."""
-    graph = _instantiate(graphdef, kwargs, stream)
+    graph = _instantiate(graph_definition, kwargs, stream)
     if not (kwargs.get("options") and kwargs["options"].upload_stream):
         graph.upload(stream)
     return graph
@@ -1053,7 +1053,7 @@ def test_instantiate_and_execute_memcpy(sample_graphdef, inst_kwargs):
 
 def test_instantiate_and_execute_child_graph(sample_graphdef):
     """Graph with embedded child graph can be executed."""
-    child = GraphDef()
+    child = GraphDefinition()
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)

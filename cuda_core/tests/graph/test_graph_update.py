@@ -10,10 +10,10 @@ from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
 from cuda.core._utils.cuda_utils import CUDAError
-from cuda.core.graph import GraphDef
+from cuda.core.graph import GraphDefinition
 
 
-@pytest.mark.parametrize("builder", ["GraphBuilder", "GraphDef"])
+@pytest.mark.parametrize("builder", ["GraphBuilder", "GraphDefinition"])
 @requires_module(np, "2.1")
 def test_graph_update_kernel_args(init_cuda, builder):
     """Update redirects a kernel to write to a different pointer."""
@@ -35,10 +35,10 @@ def test_graph_update_kernel_args(init_cuda, builder):
             launch(gb, LaunchConfig(grid=1, block=1), add_one, ptr)
             finished = gb.end_building()
             return finished.complete(), finished
-    elif builder == "GraphDef":
+    elif builder == "GraphDefinition":
 
         def build(ptr):
-            g = GraphDef()
+            g = GraphDefinition()
             n = g.launch(LaunchConfig(grid=1, block=1), add_one, ptr)
             n.launch(LaunchConfig(grid=1, block=1), add_one, ptr)
             return g.instantiate(), g
@@ -205,5 +205,5 @@ def test_graph_update_wrong_type(init_cuda):
     launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
     graph = gb.end_building().complete()
 
-    with pytest.raises(TypeError, match="expected GraphBuilder or GraphDef"):
+    with pytest.raises(TypeError, match="expected GraphBuilder or GraphDefinition"):
         graph.update("not a graph")
