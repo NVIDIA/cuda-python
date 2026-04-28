@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.NotSupportedError
+====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: NotSupportedError
