@@ -88,7 +88,6 @@ cdef void _require_managed_buffer(Buffer self, str what):
         raise ValueError(f"{what} requires a managed-memory allocation")
 
 
-# Coerce ``targets`` (single Buffer or sequence) to a tuple[Buffer, ...].
 cdef tuple _coerce_buffer_targets(object targets, str what):
     cdef list out
     if isinstance(targets, Buffer):
@@ -110,8 +109,6 @@ cdef tuple _coerce_buffer_targets(object targets, str what):
     )
 
 
-# Broadcast a single location across ``n`` targets, or coerce a length-N
-# sequence elementwise.
 cdef tuple _broadcast_locations(object location, Py_ssize_t n, bint allow_none, str what):
     cdef object coerced
     if isinstance(location, (list, tuple)):

@@ -52,10 +52,9 @@ class Location:
 
 
 def _coerce_location(value, *, allow_none: bool = False) -> Location | None:
-    """Coerce user input to a Location instance.
+    """Coerce ``Location`` / ``Device`` / int / ``None`` to ``Location``.
 
-    Accepts: Location (passthrough), Device (uses device_id), int (>=0 → device,
-    -1 → host), None (only if allow_none=True).
+    Maps int ``-1`` to host and other non-negative ints to that device ordinal.
     """
     from cuda.core._device import Device  # avoid import cycle at module load
 
