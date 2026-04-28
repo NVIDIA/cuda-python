@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+from cuda.core._resource_handles cimport GraphHandle, StreamHandle
+from cuda.core._stream cimport Stream
+
+
+cdef class GraphBuilder:
+    cdef:
+        GraphHandle _h_graph
+        StreamHandle _h_stream
+        int _kind
+        int _state
+        Stream _stream  # cached to avoid reconstruction from _h_stream handle
+        object __weakref__
+
+    @staticmethod
+    cdef GraphBuilder _init(Stream stream)

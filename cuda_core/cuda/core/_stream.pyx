@@ -10,6 +10,7 @@ from libc.stdlib cimport strtol, getenv
 from cuda.bindings cimport cydriver
 
 from cuda.core._event cimport Event as cyEvent
+from cuda.core.graph._graph_builder cimport GraphBuilder
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
@@ -371,9 +372,7 @@ cdef class Stream:
             Newly created graph builder object.
 
         """
-        from cuda.core.graph._graph_builder import GraphBuilder
-
-        return GraphBuilder._init(stream=self, is_stream_owner=False)
+        return GraphBuilder._init(self)
 
 
 # c-only python objects, not public
@@ -474,8 +473,6 @@ cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
 # Helper for API functions that accept either Stream or GraphBuilder. Performs
 # needed checks and returns the relevant stream.
 cdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
-    from cuda.core.graph._graph_builder import GraphBuilder
-
     if isinstance(arg, Stream):
         return <Stream>(arg)
     elif isinstance(arg, GraphBuilder):
