@@ -1383,32 +1383,6 @@ def test_managed_memory_advise_uses_legacy_bindings_signature(monkeypatch, init_
     buffer.close()
 
 
-def test_managed_memory_prefetch_uses_legacy_bindings_signature(monkeypatch, init_cuda):
-    device = Device()
-    _skip_if_managed_location_ops_unsupported(device)
-    device.set_current()
-
-    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
-    stream = device.create_stream()
-    calls = []
-
-    def fake_cuMemPrefetchAsync(ptr, size, location, hstream):
-        calls.append((ptr, size, location, hstream))
-        return (driver.CUresult.CUDA_SUCCESS,)
-
-    monkeypatch.setattr(_managed_memory_ops, "binding_version", lambda: _LEGACY_BINDINGS_VERSION)
-    monkeypatch.setattr(_managed_memory_ops, "_V2_BINDINGS", -1)
-    monkeypatch.setattr(_managed_memory_ops.driver, "cuMemPrefetchAsync", fake_cuMemPrefetchAsync)
-
-    managed_memory.prefetch(buffer, device, stream=stream)
-
-    assert len(calls) == 1
-    assert calls[0][2] == device.device_id
-    assert int(calls[0][3]) == int(stream.handle)
-
-    buffer.close()
-
-
 def test_managed_memory_operations_reject_non_managed_allocations(init_cuda):
     device = Device()
     device.set_current()
@@ -1435,12 +1409,10 @@ def test_managed_memory_operation_validation(init_cuda):
     buffer = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
     stream = device.create_stream()
 
-    with pytest.raises(ValueError, match="requires a location"):
+    with pytest.raises(ValueError, match="location is required"):
         managed_memory.prefetch(buffer, stream=stream)
     with pytest.raises(ValueError, match="does not support location_type='host_numa'"):
         managed_memory.advise(buffer, "set_accessed_by", _INVALID_HOST_DEVICE_ORDINAL, location_type="host_numa")
-    with pytest.raises(ValueError, match="location must be None or -1"):
-        managed_memory.prefetch(buffer, _INVALID_HOST_DEVICE_ORDINAL, stream=stream, location_type="host")
 
     buffer.close()
 
@@ -2005,3 +1977,120 @@ class TestLocationCoerce:
         from cuda.core._memory._managed_location import _coerce_location
         with pytest.raises(TypeError, match="Location, Device, int, or None"):
             _coerce_location("device")
+
+
+class TestPrefetch:
+    def test_single_with_location_host(self, init_cuda):
+        from cuda.core.managed_memory import Location, prefetch
+        device = Device()
+        skip_if_managed_memory_unsupported(device)
+        device.set_current()
+        mr = create_managed_memory_resource_or_skip()
+        buf = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+        stream = device.create_stream()
+
+        prefetch(buf, Location.host(), stream=stream)
+        stream.sync()
+        last = _get_int_mem_range_attr(
+            buf,
+            driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
+        )
+        assert last == _HOST_LOCATION_ID
+        buf.close()
+
+    def test_batched_same_location(self, init_cuda):
+        from cuda.core.managed_memory import Location, prefetch
+        device = Device()
+        skip_if_managed_memory_unsupported(device)
+        if not hasattr(driver, "cuMemPrefetchBatchAsync"):
+            pytest.skip("cuMemPrefetchBatchAsync unavailable")
+        device.set_current()
+        mr = create_managed_memory_resource_or_skip()
+        bufs = [mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(3)]
+        stream = device.create_stream()
+
+        prefetch(bufs, Location.device(device.device_id), stream=stream)
+        stream.sync()
+
+        for buf in bufs:
+            last = _get_int_mem_range_attr(
+                buf,
+                driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
+            )
+            assert last == device.device_id
+            buf.close()
+
+    def test_batched_per_buffer_location(self, init_cuda):
+        from cuda.core.managed_memory import Location, prefetch
+        device = Device()
+        skip_if_managed_memory_unsupported(device)
+        if not hasattr(driver, "cuMemPrefetchBatchAsync"):
+            pytest.skip("cuMemPrefetchBatchAsync unavailable")
+        device.set_current()
+        mr = create_managed_memory_resource_or_skip()
+        bufs = [mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(2)]
+        stream = device.create_stream()
+
+        prefetch(bufs, [Location.host(), Location.device(device.device_id)], stream=stream)
+        stream.sync()
+
+        last0 = _get_int_mem_range_attr(
+            bufs[0],
+            driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
+        )
+        last1 = _get_int_mem_range_attr(
+            bufs[1],
+            driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
+        )
+        assert last0 == _HOST_LOCATION_ID
+        assert last1 == device.device_id
+        for buf in bufs:
+            buf.close()
+
+    def test_length_mismatch(self, init_cuda):
+        from cuda.core.managed_memory import Location, prefetch
+        device = Device()
+        skip_if_managed_memory_unsupported(device)
+        device.set_current()
+        mr = create_managed_memory_resource_or_skip()
+        bufs = [mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(2)]
+        stream = device.create_stream()
+
+        with pytest.raises(ValueError, match="length"):
+            prefetch(bufs, [Location.host()], stream=stream)
+        for buf in bufs:
+            buf.close()
+
+    def test_rejects_non_managed(self, init_cuda):
+        from cuda.core.managed_memory import Location, prefetch
+        device = Device()
+        device.set_current()
+        buf = DummyDeviceMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+        stream = device.create_stream()
+        with pytest.raises(ValueError, match="managed-memory"):
+            prefetch(buf, Location.host(), stream=stream)
+        buf.close()
+
+    def test_location_required(self, init_cuda):
+        from cuda.core.managed_memory import prefetch
+        device = Device()
+        skip_if_managed_memory_unsupported(device)
+        device.set_current()
+        mr = create_managed_memory_resource_or_skip()
+        buf = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+        stream = device.create_stream()
+        with pytest.raises(ValueError, match="location is required"):
+            prefetch(buf, None, stream=stream)
+        buf.close()
+
+    def test_options_must_be_none(self, init_cuda):
+        from cuda.core.managed_memory import Location, prefetch
+        device = Device()
+        skip_if_managed_memory_unsupported(device)
+        device.set_current()
+        mr = create_managed_memory_resource_or_skip()
+        buf = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+        stream = device.create_stream()
+        with pytest.raises(TypeError, match="must be None"):
+            prefetch(buf, Location.host(), options={}, stream=stream)
+        buf.close()

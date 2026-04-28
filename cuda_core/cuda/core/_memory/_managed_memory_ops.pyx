@@ -4,12 +4,19 @@
 
 from __future__ import annotations
 
+from cpython.mem cimport PyMem_Free, PyMem_Malloc
+from libc.stdint cimport uintptr_t
+
+from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, _init_mem_attrs
+from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from cuda.core._utils.cuda_utils import driver, handle_return
 from cuda.core._utils.version import binding_version
 from cuda.core._device import Device
+from cuda.core._memory._managed_location import Location, _coerce_location
 
 
 cdef tuple _VALID_MANAGED_LOCATION_TYPES = (
@@ -228,6 +235,74 @@ cdef void _require_managed_buffer(Buffer self, str what):
         raise ValueError(f"{what} requires a managed-memory allocation")
 
 
+# Coerce ``targets`` (single Buffer or sequence) to a tuple[Buffer, ...].
+cdef tuple _coerce_buffer_targets(object targets, str what):
+    cdef list out
+    if isinstance(targets, Buffer):
+        return (<Buffer>targets,)
+    if isinstance(targets, (list, tuple)):
+        if not targets:
+            raise ValueError(f"{what}: empty targets sequence")
+        out = []
+        for t in targets:
+            if not isinstance(t, Buffer):
+                raise TypeError(
+                    f"{what}: each target must be a Buffer, got {type(t).__name__}"
+                )
+            out.append(t)
+        return tuple(out)
+    raise TypeError(
+        f"{what}: targets must be a Buffer or sequence of Buffer, "
+        f"got {type(targets).__name__}"
+    )
+
+
+# Broadcast a single location across ``n`` targets, or coerce a length-N
+# sequence elementwise.
+cdef tuple _broadcast_locations(object location, Py_ssize_t n, bint allow_none, str what):
+    cdef object coerced
+    if isinstance(location, (list, tuple)):
+        if len(location) != n:
+            raise ValueError(
+                f"{what}: location length {len(location)} does not match "
+                f"targets length {n}"
+            )
+        return tuple(_coerce_location(loc, allow_none=allow_none) for loc in location)
+    coerced = _coerce_location(location, allow_none=allow_none)
+    return tuple([coerced] * n)
+
+
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    # Convert a Location dataclass to a cydriver.CUmemLocation struct.
+    cdef inline cydriver.CUmemLocation _to_cumemlocation(object loc):
+        cdef cydriver.CUmemLocation out
+        cdef str kind = loc.kind
+        if kind == "device":
+            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+            out.id = <int>loc.id
+        elif kind == "host":
+            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+            out.id = 0
+        elif kind == "host_numa":
+            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
+            out.id = <int>loc.id
+        else:  # host_numa_current
+            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT
+            out.id = 0
+        return out
+ELSE:
+    # CUDA 12 cuMemPrefetchAsync takes a device ordinal (-1 = host).
+    cdef inline int _to_legacy_device(object loc) except? -2:
+        cdef str kind = loc.kind
+        if kind == "device":
+            return <int>loc.id
+        if kind == "host":
+            return -1
+        raise RuntimeError(
+            f"location_type={kind!r} requires a CUDA 13 build of cuda.core"
+        )
+
+
 cdef void _require_managed_discard_prefetch_support(str what):
     global _DISCARD_PREFETCH_SUPPORTED
     if _DISCARD_PREFETCH_SUPPORTED < 0:
@@ -293,59 +368,106 @@ def advise(
 
 
 def prefetch(
-    target: Buffer,
-    location: Device | int | None = None,
+    targets,
+    location=None,
     *,
-    stream: Stream | GraphBuilder,
-    location_type: str | None = None,
+    options=None,
+    stream,
 ):
-    """Prefetch a managed-memory allocation range to a target location.
+    """Prefetch one or more managed-memory ranges to a target location.
 
     Parameters
     ----------
-    target : :class:`Buffer`
-        Managed allocation to operate on.
-    location : :obj:`~_device.Device` | int | None, optional
-        Target location. When ``location_type`` is ``None``, values are
-        interpreted as a device ordinal, ``-1`` for host, or ``None``.
-        A location is required for prefetch.
-    stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
-        Keyword argument specifying the stream for the asynchronous prefetch.
-    location_type : str | None, optional
-        Explicit location kind. Supported values are ``"device"``, ``"host"``,
-        ``"host_numa"``, and ``"host_numa_current"``.
-    """
-    if not isinstance(target, Buffer):
-        raise TypeError(f"prefetch target must be a Buffer, got {type(target).__name__}")
-    cdef Buffer buf = <Buffer>target
-    _require_managed_buffer(buf, "prefetch")
-    cdef Stream s = Stream_accept(stream)
-    cdef object ptr = buf.handle
-    cdef size_t nbytes = buf._size
+    targets : :class:`Buffer` | Sequence[:class:`Buffer`]
+        One or more managed allocations to operate on.
+    location : :class:`Location` | :obj:`~_device.Device` | int | Sequence[...]
+        Target location(s). A single location applies to all targets; a
+        sequence must match ``len(targets)``. ``Device`` and ``int`` values
+        are coerced to :class:`Location` (``-1`` maps to host).
+    options : None
+        Reserved for future per-call flags. Must be ``None``.
+    stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
+        Stream for the asynchronous prefetch (keyword-only).
 
-    location = _normalize_managed_location(
-        location,
-        location_type,
-        "prefetch",
-    )
-    if _managed_location_uses_v2_bindings():
-        handle_return(
-            driver.cuMemPrefetchAsync(
-                ptr,
-                nbytes,
-                location,
-                _MANAGED_OPERATION_FLAGS,
-                s.handle,
-            )
+    Raises
+    ------
+    NotImplementedError
+        If ``len(targets) > 1`` on a CUDA 12 build of ``cuda.core``.
+    """
+    if options is not None:
+        raise TypeError(
+            f"prefetch options must be None (reserved); got {type(options).__name__}"
         )
+    cdef tuple bufs = _coerce_buffer_targets(targets, "prefetch")
+    cdef Py_ssize_t n = len(bufs)
+    cdef tuple locs = _broadcast_locations(location, n, False, "prefetch")
+    cdef Stream s = Stream_accept(stream)
+
+    cdef Buffer buf
+    for buf in bufs:
+        _require_managed_buffer(buf, "prefetch")
+
+    if n == 1:
+        _do_single_prefetch(<Buffer>bufs[0], locs[0], s)
     else:
-        handle_return(
-            driver.cuMemPrefetchAsync(
-                ptr,
-                nbytes,
-                _managed_location_to_legacy_device(location, "prefetch"),
-                s.handle,
-            )
+        _do_batch_prefetch(bufs, locs, s)
+
+
+cdef void _do_single_prefetch(Buffer buf, object loc, Stream s):
+    cdef cydriver.CUdeviceptr cu_ptr = as_cu(buf._h_ptr)
+    cdef size_t nbytes = buf._size
+    cdef cydriver.CUstream hstream = as_cu(s._h_stream)
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef cydriver.CUmemLocation cu_loc = _to_cumemlocation(loc)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPrefetchAsync(cu_ptr, nbytes, cu_loc, 0, hstream))
+    ELSE:
+        cdef int dev_int = _to_legacy_device(loc)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPrefetchAsync(cu_ptr, nbytes, dev_int, hstream))
+
+
+cdef void _do_batch_prefetch(tuple bufs, tuple locs, Stream s):
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef Py_ssize_t n = len(bufs)
+        cdef cydriver.CUstream hstream = as_cu(s._h_stream)
+        cdef cydriver.CUdeviceptr* ptrs = <cydriver.CUdeviceptr*>PyMem_Malloc(
+            n * sizeof(cydriver.CUdeviceptr)
+        )
+        cdef size_t* sizes = <size_t*>PyMem_Malloc(n * sizeof(size_t))
+        cdef cydriver.CUmemLocation* loc_arr = <cydriver.CUmemLocation*>PyMem_Malloc(
+            n * sizeof(cydriver.CUmemLocation)
+        )
+        cdef size_t* loc_indices = <size_t*>PyMem_Malloc(n * sizeof(size_t))
+        if not (ptrs and sizes and loc_arr and loc_indices):
+            PyMem_Free(ptrs)
+            PyMem_Free(sizes)
+            PyMem_Free(loc_arr)
+            PyMem_Free(loc_indices)
+            raise MemoryError()
+        cdef Buffer buf
+        cdef Py_ssize_t i
+        try:
+            for i in range(n):
+                buf = <Buffer>bufs[i]
+                ptrs[i] = as_cu(buf._h_ptr)
+                sizes[i] = buf._size
+                loc_arr[i] = _to_cumemlocation(locs[i])
+                loc_indices[i] = <size_t>i
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemPrefetchBatchAsync(
+                    ptrs, sizes, <size_t>n,
+                    loc_arr, loc_indices, <size_t>n,
+                    0, hstream,
+                ))
+        finally:
+            PyMem_Free(ptrs)
+            PyMem_Free(sizes)
+            PyMem_Free(loc_arr)
+            PyMem_Free(loc_indices)
+    ELSE:
+        raise NotImplementedError(
+            "batched prefetch requires a CUDA 13 build of cuda.core"
         )
 
 
