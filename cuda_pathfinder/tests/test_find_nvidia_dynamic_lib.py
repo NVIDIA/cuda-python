@@ -9,8 +9,8 @@ import textwrap
 
 import pytest
 from child_load_nvidia_dynamic_lib_helper import run_load_nvidia_dynamic_lib_in_subprocess
-from conftest import skip_if_missing_libnvcudla_so
 
+from conftest import skip_if_missing_libnvcudla_so
 from cuda.pathfinder import (
     DynamicLibNotAvailableError,
     DynamicLibNotFoundError,
