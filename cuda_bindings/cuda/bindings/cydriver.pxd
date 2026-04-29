@@ -1555,7 +1555,7 @@ cdef extern from 'cuda.h':
     ctypedef enum CUstreamCigDataType_enum:
         STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST
     ctypedef CUstreamCigDataType_enum CUstreamCigDataType
-cdef enum: _CURESULT_INTERNAL_LOADING_ERROR = -42
+cdef enum: _CURESULT_INTERNAL_LOADING_ERROR = CUresult.CUDA_ERROR_NOT_FOUND
 
 
 # TYPES
