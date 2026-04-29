@@ -41,6 +41,12 @@ on:
           'nightly-numba-cuda'.
         type: string
         default: 'standard'
+      sha:
+        description: >
+          Commit SHA used to construct artifact names.
+          Defaults to github.sha (current run) when empty.
+        type: string
+        default: ''
 
 defaults:
   run:
@@ -131,7 +137,7 @@ jobs:
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
           PY_VER: ${{ matrix.PY_VER }}
-          SHA: ${{ github.sha }}
+          SHA: ${{ inputs.sha || github.sha }}
           SKIP_BINDINGS_TEST_OVERRIDE: ${{ inputs.skip-bindings-test && '1' || '0' }}
         run: ./ci/tools/env-vars test
 

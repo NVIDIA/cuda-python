@@ -36,6 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
+      HEAD_SHA: ${{ steps.find.outputs.head_sha }}
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
     steps:
       - name: Checkout repository
@@ -55,27 +56,34 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -n "${{ inputs.run-id }}" ]]; then
-            echo "run_id=${{ inputs.run-id }}" >> $GITHUB_OUTPUT
-            echo "Using manually specified run ID: ${{ inputs.run-id }}"
-            exit 0
+            RUN_ID="${{ inputs.run-id }}"
+            echo "Using manually specified run ID: $RUN_ID"
+          else
+            RUN_ID=$(gh run list \
+              -b main \
+              -L 1 \
+              -w "CI" \
+              -s success \
+              -R "${{ github.repository }}" \
+              --json databaseId \
+              | jq -r '.[0].databaseId')
+
+            if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
+              echo "::error::No successful CI run found on main"
+              exit 1
+            fi
+            echo "Using latest successful CI run: $RUN_ID"
           fi
 
-          RUN_ID=$(gh run list \
-            -b main \
-            -L 1 \
-            -w "CI" \
-            -s success \
+          # Resolve the head SHA from the CI run — artifact names embed this.
+          HEAD_SHA=$(gh run view "$RUN_ID" \
             -R "${{ github.repository }}" \
-            --json databaseId \
-            | jq -r '.[0].databaseId')
-
-          if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
-            echo "::error::No successful CI run found on main"
-            exit 1
-          fi
+            --json headSha \
+            | jq -r '.headSha')
 
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
-          echo "Using latest successful CI run: $RUN_ID"
+          echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
+          echo "Source commit: $HEAD_SHA"
 
   # ── PyTorch interop tests ──
 
@@ -93,6 +101,7 @@ jobs:
       host-platform: linux-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
       matrix_filter: 'map(select(.MODE == "nightly-pytorch"))'
 
@@ -110,6 +119,7 @@ jobs:
       host-platform: win-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
       matrix_filter: 'map(select(.MODE == "nightly-pytorch"))'
 
@@ -129,6 +139,7 @@ jobs:
       host-platform: linux-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
       matrix_filter: 'map(select(.MODE == "nightly-numba-cuda"))'
 
@@ -146,6 +157,7 @@ jobs:
       host-platform: linux-aarch64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
       matrix_filter: 'map(select(.MODE == "nightly-numba-cuda"))'
 
@@ -163,6 +175,7 @@ jobs:
       host-platform: win-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
       matrix_filter: 'map(select(.MODE == "nightly-numba-cuda"))'
 
