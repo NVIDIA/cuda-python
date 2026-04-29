@@ -356,6 +356,11 @@ jobs:
           pytest -rxXs -v --durations=0 tests/test_utils.py tests/example_tests/
           popd
 
+      - name: Patch numba-cuda (upstream bug workarounds)
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: python ci/tools/patch-numba-cuda
+
       - name: Run numba-cuda tests
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
