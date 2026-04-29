@@ -29,6 +29,18 @@ on:
       skip-bindings-test:
         type: boolean
         default: false
+      run-id:
+        description: >
+          Workflow run ID to download artifacts from.
+          Defaults to the current run when empty.
+        type: string
+        default: ''
+      test-mode:
+        description: >
+          Test mode: 'standard' (default), 'nightly-pytorch', or
+          'nightly-numba-cuda'.
+        type: string
+        default: 'standard'
 
 defaults:
   run:
@@ -128,6 +140,8 @@ jobs:
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python build artifacts
         if: ${{ env.USE_BACKPORT_BINDINGS == '0' }}
@@ -135,6 +149,8 @@ jobs:
         with:
           name: cuda-python-wheel
           path: .
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda.bindings build artifacts
         if: ${{ env.USE_BACKPORT_BINDINGS == '0' }}
@@ -142,6 +158,8 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
         if: ${{ env.USE_BACKPORT_BINDINGS == '1' }}
@@ -194,6 +212,8 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.bindings Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
@@ -206,6 +226,8 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core build artifacts
         run: |
@@ -218,6 +240,8 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
@@ -256,7 +280,9 @@ jobs:
       - name: Set up test repetition on nightly runs
         run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
+      # ── Standard test steps (skipped for nightly modes) ──
       - name: Run cuda.pathfinder tests with see_what_works
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
@@ -264,14 +290,14 @@ jobs:
         run: run-tests pathfinder
 
       - name: Run cuda.bindings tests
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ inputs.test-mode == 'standard' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests bindings
 
       - name: Run cuda.bindings benchmarks (smoke test)
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ inputs.test-mode == 'standard' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
           pip install pyperf
           pushd benchmarks/cuda_bindings
@@ -279,12 +305,14 @@ jobs:
           popd
 
       - name: Run cuda.core tests
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests core
 
       - name: Ensure cuda-python installable
+        if: ${{ inputs.test-mode == 'standard' }}
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
             pip install --only-binary=:all: cuda_python*.whl
@@ -293,6 +321,7 @@ jobs:
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
+        if: ${{ inputs.test-mode == 'standard' }}
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
@@ -301,8 +330,48 @@ jobs:
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
         run: run-tests pathfinder
+
+      # ── Nightly: install all cuda-python wheels ──
+      - name: Install cuda-python wheels for nightly testing
+        if: ${{ inputs.test-mode != 'standard' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests nightly-install
+
+      # ── Nightly: PyTorch interop tests ──
+      - name: Install PyTorch
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        run: |
+          TORCH_VER="${{ matrix.TORCH_VER }}"
+          TORCH_CUDA="${{ matrix.TORCH_CUDA }}"
+          if [[ "$TORCH_VER" == "latest" ]]; then
+            pip install torch --index-url "https://download.pytorch.org/whl/${TORCH_CUDA}"
+          else
+            pip install "torch==${TORCH_VER}" --index-url "https://download.pytorch.org/whl/${TORCH_CUDA}"
+          fi
+          python -c "import torch; print(f'PyTorch {torch.__version__}, CUDA {torch.version.cuda}')"
+
+      - name: Run PyTorch interop tests
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        run: |
+          pushd cuda_core
+          pytest -rxXs -v --durations=0 tests/test_utils.py tests/example_tests/
+          popd
+
+      # ── Nightly: numba-cuda tests ──
+      - name: Install numba-cuda
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        run: |
+          pip install numba-cuda
+          python -c "import numba_cuda; print(f'numba-cuda installed')"
+
+      - name: Run numba-cuda tests
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        run: python -m numba_cuda.numba.cuda.tests

@@ -13,8 +13,8 @@ if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument. You provided ${#}"
   exit 1
 fi
-if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" ]]; then
-  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', or 'pathfinder'"
+if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" && "${1}" != "nightly-install" ]]; then
+  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', 'pathfinder', or 'nightly-install'"
   exit 1
 fi
 
@@ -91,4 +91,35 @@ elif [[ "${test_module}" == "core" ]]; then
     ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
   fi
   popd
+elif [[ "${test_module}" == "nightly-install" ]]; then
+  # Install all wheels (pathfinder already installed above) without running tests.
+  # Used by nightly optional-dependency pipelines (pytorch, numba-cuda).
+  echo "Installing bindings wheel"
+  pushd ./cuda_bindings
+  if [[ "${LOCAL_CTK}" == 1 ]]; then
+    pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
+  else
+    pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all]
+  fi
+  popd
+
+  TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
+  echo "Installing core wheel"
+
+  FREE_THREADING=""
+  if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
+    FREE_THREADING+="-ft"
+  fi
+
+  pushd ./cuda_core
+  CUDA_VER_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
+  WHL_EXTRA=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
+  if [[ "${LOCAL_CTK}" != 1 ]]; then
+    WHL_EXTRA=("${WHL_EXTRA[0]}[cu${TEST_CUDA_MAJOR}]")
+  fi
+  pip install "${WHL_EXTRA[@]}" --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${CUDA_VER_MINOR}.*"
+  popd
+
+  echo "All cuda-python wheels installed for nightly testing"
+  pip list | grep -i "cuda\|pathfinder"
 fi
