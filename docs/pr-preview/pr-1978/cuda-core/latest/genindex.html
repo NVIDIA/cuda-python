@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=2f77983b"></script>
+    <script src="_static/documentation_options.js?v=d838460c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev71';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -513,9 +513,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -587,6 +587,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.0.0-notes.html">1.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.5.1-notes.html">0.5.1</a></li>
@@ -690,8 +691,6 @@
 </li>
         <li><a href="generated/cuda.core.graph.ChildGraphNode.html#cuda.core.graph.ChildGraphNode.__init__">(cuda.core.graph.ChildGraphNode method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.Condition.html#cuda.core.graph.Condition.__init__">(cuda.core.graph.Condition method)</a>
-</li>
         <li><a href="generated/cuda.core.graph.ConditionalNode.html#cuda.core.graph.ConditionalNode.__init__">(cuda.core.graph.ConditionalNode method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode.__init__">(cuda.core.graph.EmptyNode method)</a>
@@ -706,7 +705,9 @@
 </li>
         <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.__init__">(cuda.core.graph.GraphBuilder method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.__init__">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition.__init__">(cuda.core.graph.GraphCondition method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.__init__">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.__init__">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -844,7 +845,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode.alloc">(cuda.core.graph.FreeNode method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.alloc">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.alloc">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.alloc">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -1022,7 +1023,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.callback">(cuda.core.graph.GraphBuilder method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.callback">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.callback">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.callback">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -1167,8 +1168,6 @@
         <li><a href="generated/cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode.cond_type">(cuda.core.graph.WhileNode attribute)</a>
 </li>
       </ul></li>
-      <li><a href="generated/cuda.core.graph.Condition.html#cuda.core.graph.Condition">Condition (class in cuda.core.graph)</a>
-</li>
       <li><a href="generated/cuda.core.graph.ConditionalNode.html#cuda.core.graph.ConditionalNode.condition">condition (cuda.core.graph.ConditionalNode attribute)</a>
 
       <ul>
@@ -1231,7 +1230,7 @@
       </ul></li>
       <li><a href="generated/cuda.core._module.ParamInfo.html#cuda.core._module.ParamInfo.count">count() (cuda.core._module.ParamInfo method)</a>
 </li>
-      <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.create_condition">create_condition() (cuda.core.graph.GraphDef method)</a>
+      <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.create_condition">create_condition() (cuda.core.graph.GraphDefinition method)</a>
 </li>
       <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.create_conditional_handle">create_conditional_handle() (cuda.core.graph.GraphBuilder method)</a>
 </li>
@@ -1308,7 +1307,7 @@
       <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.debug_dot_print">debug_dot_print() (cuda.core.graph.GraphBuilder method)</a>
 
       <ul>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.debug_dot_print">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.debug_dot_print">(cuda.core.graph.GraphDefinition method)</a>
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.system._device.GpuDynamicPstatesUtilization.html#cuda.core.system._device.GpuDynamicPstatesUtilization.dec_threshold">dec_threshold (cuda.core.system._device.GpuDynamicPstatesUtilization attribute)</a>
@@ -1471,7 +1470,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.ecc_enabled">ecc_enabled (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.edges">edges() (cuda.core.graph.GraphDef method)</a>
+      <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.edges">edges() (cuda.core.graph.GraphDefinition method)</a>
 </li>
       <li><a href="generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode.element_size">element_size (cuda.core.graph.MemsetNode attribute)</a>
 </li>
@@ -1494,7 +1493,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode.embed">(cuda.core.graph.FreeNode method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.embed">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.embed">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.embed">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -1517,7 +1516,7 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.empty">empty() (cuda.core.graph.GraphDef method)</a>
+      <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.empty">empty() (cuda.core.graph.GraphDefinition method)</a>
 </li>
       <li><a href="generated/cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode">EmptyNode (class in cuda.core.graph)</a>
 </li>
@@ -1620,7 +1619,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode.free">(cuda.core.graph.FreeNode method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.free">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.free">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.free">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -1803,10 +1802,10 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.global_memory_bus_width">global_memory_bus_width (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.gpu_direct_rdma">gpu_direct_rdma (cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.gpu_direct_rdma_flush_writes_options">gpu_direct_rdma_flush_writes_options (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.gpu_direct_rdma_supported">gpu_direct_rdma_supported (cuda.core._device.DeviceProperties attribute)</a>
@@ -1885,9 +1884,11 @@
 </li>
       <li><a href="generated/cuda.core.graph.GraphCompleteOptions.html#cuda.core.graph.GraphCompleteOptions">GraphCompleteOptions (class in cuda.core.graph)</a>
 </li>
+      <li><a href="generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition">GraphCondition (class in cuda.core.graph)</a>
+</li>
       <li><a href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions">GraphDebugPrintOptions (class in cuda.core.graph)</a>
 </li>
-      <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef">GraphDef (class in cuda.core.graph)</a>
+      <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition">GraphDefinition (class in cuda.core.graph)</a>
 </li>
       <li><a href="generated/cuda.core.GraphicsResource.html#cuda.core.GraphicsResource">GraphicsResource (class in cuda.core)</a>
 </li>
@@ -1920,8 +1921,6 @@
 </li>
         <li><a href="generated/cuda.core.graph.ChildGraphNode.html#cuda.core.graph.ChildGraphNode.handle">(cuda.core.graph.ChildGraphNode attribute)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.Condition.html#cuda.core.graph.Condition.handle">(cuda.core.graph.Condition attribute)</a>
-</li>
         <li><a href="generated/cuda.core.graph.ConditionalNode.html#cuda.core.graph.ConditionalNode.handle">(cuda.core.graph.ConditionalNode attribute)</a>
 </li>
         <li><a href="generated/cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode.handle">(cuda.core.graph.EmptyNode attribute)</a>
@@ -1933,6 +1932,8 @@
         <li><a href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode.handle">(cuda.core.graph.FreeNode attribute)</a>
 </li>
         <li><a href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph.handle">(cuda.core.graph.Graph property)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition.handle">(cuda.core.graph.GraphCondition attribute)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.handle">(cuda.core.graph.GraphNode attribute)</a>
 </li>
@@ -2030,7 +2031,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.if_cond">(cuda.core.graph.GraphBuilder method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.if_cond">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.if_cond">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.if_cond">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -2068,7 +2069,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.if_else">(cuda.core.graph.GraphBuilder method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.if_else">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.if_else">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.if_else">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -2109,7 +2110,7 @@
 </li>
       <li><a href="generated/cuda.core.system.InforomObject.html#cuda.core.system.InforomObject">InforomObject (class in cuda.core.system)</a>
 </li>
-      <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.instantiate">instantiate() (cuda.core.graph.GraphDef method)</a>
+      <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.instantiate">instantiate() (cuda.core.graph.GraphDefinition method)</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.instantiate_templates_in_pch">instantiate_templates_in_pch (cuda.core.ProgramOptions attribute)</a>
 </li>
@@ -2306,7 +2307,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.join">(cuda.core.graph.GraphBuilder static method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.join">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.join">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.join">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -2382,7 +2383,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph.launch">(cuda.core.graph.Graph method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.launch">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.launch">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.launch">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -2630,7 +2631,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode.memcpy">(cuda.core.graph.FreeNode method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.memcpy">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.memcpy">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.memcpy">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -2696,7 +2697,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode.memset">(cuda.core.graph.FreeNode method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.memset">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.memset">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.memset">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -2790,7 +2791,7 @@
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.no_source_include">no_source_include (cuda.core.ProgramOptions attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.nodes">nodes() (cuda.core.graph.GraphDef method)</a>
+      <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.nodes">nodes() (cuda.core.graph.GraphDefinition method)</a>
 </li>
       <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes.non_portable_cluster_size_allowed">non_portable_cluster_size_allowed() (cuda.core._module.KernelAttributes method)</a>
 </li>
@@ -3035,7 +3036,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode.record_event">(cuda.core.graph.FreeNode method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.record_event">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.record_event">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.record_event">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -3253,7 +3254,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.switch">(cuda.core.graph.GraphBuilder method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.switch">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.switch">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.switch">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -3545,7 +3546,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode.wait_event">(cuda.core.graph.FreeNode method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.wait_event">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.wait_event">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.wait_event">(cuda.core.graph.GraphNode method)</a>
 </li>
@@ -3587,7 +3588,7 @@
 </li>
         <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.while_loop">(cuda.core.graph.GraphBuilder method)</a>
 </li>
-        <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.while_loop">(cuda.core.graph.GraphDef method)</a>
+        <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.while_loop">(cuda.core.graph.GraphDefinition method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.while_loop">(cuda.core.graph.GraphNode method)</a>
 </li>
