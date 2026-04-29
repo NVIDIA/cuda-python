@@ -183,19 +183,22 @@ def _build_cuda_core(debug=False):
         # related to free-threading builds.
         extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
 
-    # On Windows, _tensor_bridge.pyx needs a stub import library so the MSVC
-    # linker can resolve the AOTI symbols (they live in torch_cpu.dll at
-    # runtime).  We generate the .lib from a .def file at build time.
+    # On Windows, _tensor_bridge.pyx needs stub import libraries so the MSVC
+    # linker can resolve the AOTI symbols at link time.  At runtime the symbols
+    # resolve from the actual DLLs loaded by 'import torch'.
+    #   - aoti_shim.def       -> torch_cpu.dll   (dtype, device, tensor metadata)
+    #   - aoti_shim_cuda.def  -> torch_cuda.dll   (CUDA stream access)
     _aoti_extra_link_args = []
     if sys.platform == "win32":
-        _def_file = os.path.join("cuda", "core", "_include", "aoti_shim.def")
-        _lib_file = os.path.join("build", "aoti_shim.lib")
         os.makedirs("build", exist_ok=True)
-        subprocess.check_call(  # noqa: S603
-            ["lib", f"/DEF:{_def_file}", f"/OUT:{_lib_file}", "/MACHINE:X64"],  # noqa: S607
-            stdout=subprocess.DEVNULL,
-        )
-        _aoti_extra_link_args = [_lib_file]
+        for def_name in ("aoti_shim", "aoti_shim_cuda"):
+            def_file = os.path.join("cuda", "core", "_include", f"{def_name}.def")
+            lib_file = os.path.join("build", f"{def_name}.lib")
+            subprocess.check_call(  # noqa: S603
+                ["lib", f"/DEF:{def_file}", f"/OUT:{lib_file}", "/MACHINE:X64"],  # noqa: S607
+                stdout=subprocess.DEVNULL,
+            )
+            _aoti_extra_link_args.append(lib_file)
 
     def get_extra_link_args(mod_name):
         if mod_name == "_tensor_bridge" and _aoti_extra_link_args:

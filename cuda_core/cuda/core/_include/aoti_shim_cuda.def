@@ -1,0 +1,5 @@
+; Stub import library for CUDA-specific AOTI symbols (torch_cuda.dll).
+; See aoti_shim.def for the torch_cpu.dll counterpart.
+LIBRARY torch_cuda.dll
+EXPORTS
+    aoti_torch_get_current_cuda_stream
