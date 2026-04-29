@@ -98,8 +98,8 @@
   "~": "tests/test_object_protocols.py::test_equality_basic[sample_launch_config]|run",
   "ab": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_launch_config]|run",
   "bb": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_launch_config]|run",
-  "cb": "tests/graph/test_graphdef.py::test_node_attrs[kernel]|run",
-  "db": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[kernel]|run",
+  "cb": "tests/graph/test_graph_definition.py::test_node_attrs[kernel]|run",
+  "db": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[kernel]|run",
   "eb": "tests/test_object_protocols.py::test_same_type_inequality[sample_launch_config-sample_launch_config_alt]|run",
   "fb": "tests/test_object_protocols.py::test_hash_consistency[sample_launch_config]|run",
   "gb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_launch_config]|run",
@@ -155,44 +155,44 @@
   "4b": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_launch_config]|run",
   "5b": "tests/test_object_protocols.py::test_usable_in_set[sample_launch_config]|run",
   "6b": "tests/test_launcher.py::test_launch_config_shmem_size|run",
-  "7b": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDef]|run",
-  "8b": "tests/graph/test_graphdef.py::test_instantiate_and_execute_child_graph|run",
-  "9b": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[auto-free]|run",
-  "!b": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[no-options]|run",
-  "#b": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[node-priority]|run",
-  "$b": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[upload-stream]|run",
-  "%b": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel_device_launch|run",
-  "'b": "tests/graph/test_graphdef.py::test_launch_chain_dependencies|run",
-  "(b": "tests/graph/test_graphdef.py::test_launch_creates_node|run",
-  ")b": "tests/graph/test_graphdef.py::test_node_attrs[child_graph]|setup",
-  "*b": "tests/graph/test_graphdef.py::test_node_attrs[kernel]|setup",
-  "+b": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[child_graph]|setup",
-  ",b": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[kernel]|setup",
-  "-b": "tests/graph/test_graphdef.py::test_node_isinstance[child_graph]|setup",
-  ".b": "tests/graph/test_graphdef.py::test_node_isinstance[kernel]|setup",
-  "/b": "tests/graph/test_graphdef.py::test_node_type_preserved_by_nodes[child_graph]|setup",
-  ":b": "tests/graph/test_graphdef.py::test_node_type_preserved_by_nodes[kernel]|setup",
-  ";b": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[child_graph]|setup",
-  "=b": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[kernel]|setup",
-  "?b": "tests/graph/test_graphdef.py::test_node_type_property[child_graph]|setup",
-  "@b": "tests/graph/test_graphdef.py::test_node_type_property[kernel]|setup",
-  "[b": "tests/graph/test_graphdef_errors.py::test_multiple_instantiation|run",
-  "]b": "tests/graph/test_graphdef_lifetime.py::test_branches_usable_after_parent_deletion[if]|run",
-  "^b": "tests/graph/test_graphdef_lifetime.py::test_branches_usable_after_parent_deletion[if_else]|run",
-  "_b": "tests/graph/test_graphdef_lifetime.py::test_branches_usable_after_parent_deletion[switch]|run",
-  "`b": "tests/graph/test_graphdef_lifetime.py::test_branches_usable_after_parent_deletion[while]|run",
-  "{b": "tests/graph/test_graphdef_lifetime.py::test_child_graph_survives_parent_deletion|run",
-  "|b": "tests/graph/test_graphdef_lifetime.py::test_kernel_node_keeps_kernel_alive|run",
-  "}b": "tests/graph/test_graphdef_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
-  "~b": "tests/graph/test_graphdef_lifetime.py::test_kernel_survives_graph_clone_and_execution|run",
-  "ac": "tests/graph/test_graphdef_lifetime.py::test_kernel_survives_graph_instantiation_and_execution|run",
-  "bc": "tests/graph/test_graphdef_lifetime.py::test_nested_child_graph_lifetime|run",
-  "cc": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_baseline|run",
-  "dc": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_destroy_a1|run",
-  "ec": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_destroy_a2|run",
-  "fc": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_destroy_joint|run",
-  "gc": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_insert_b|run",
-  "hc": "tests/graph/test_graphdef_mutation.py::test_convert_linear_to_fan_in|run",
+  "7b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_child_graph|run",
+  "8b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[auto-free]|run",
+  "9b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[no-options]|run",
+  "!b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[node-priority]|run",
+  "#b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[upload-stream]|run",
+  "$b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel_device_launch|run",
+  "%b": "tests/graph/test_graph_definition.py::test_launch_chain_dependencies|run",
+  "'b": "tests/graph/test_graph_definition.py::test_launch_creates_node|run",
+  "(b": "tests/graph/test_graph_definition.py::test_node_attrs[child_graph]|setup",
+  ")b": "tests/graph/test_graph_definition.py::test_node_attrs[kernel]|setup",
+  "*b": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[child_graph]|setup",
+  "+b": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[kernel]|setup",
+  ",b": "tests/graph/test_graph_definition.py::test_node_isinstance[child_graph]|setup",
+  "-b": "tests/graph/test_graph_definition.py::test_node_isinstance[kernel]|setup",
+  ".b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[child_graph]|setup",
+  "/b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[kernel]|setup",
+  ":b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[child_graph]|setup",
+  ";b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[kernel]|setup",
+  "=b": "tests/graph/test_graph_definition.py::test_node_type_property[child_graph]|setup",
+  "?b": "tests/graph/test_graph_definition.py::test_node_type_property[kernel]|setup",
+  "@b": "tests/graph/test_graph_definition_errors.py::test_multiple_instantiation|run",
+  "[b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[if]|run",
+  "]b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[if_else]|run",
+  "^b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[switch]|run",
+  "_b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[while]|run",
+  "`b": "tests/graph/test_graph_definition_lifetime.py::test_child_graph_survives_parent_deletion|run",
+  "{b": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_keeps_kernel_alive|run",
+  "|b": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
+  "}b": "tests/graph/test_graph_definition_lifetime.py::test_kernel_survives_graph_clone_and_execution|run",
+  "~b": "tests/graph/test_graph_definition_lifetime.py::test_kernel_survives_graph_instantiation_and_execution|run",
+  "ac": "tests/graph/test_graph_definition_lifetime.py::test_nested_child_graph_lifetime|run",
+  "bc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_baseline|run",
+  "cc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a1|run",
+  "dc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a2|run",
+  "ec": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_joint|run",
+  "fc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_insert_b|run",
+  "gc": "tests/graph/test_graph_definition_mutation.py::test_convert_linear_to_fan_in|run",
+  "hc": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDefinition]|run",
   "ic": "tests/test_launcher.py::test_launch_config_init|run",
   "jc": "tests/test_object_protocols.py::test_equality_basic[sample_child_graph_node]|run",
   "kc": "tests/test_object_protocols.py::test_equality_basic[sample_kernel_node]|run",
@@ -374,7 +374,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__launcher_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-28 01:33 +0000
+            created at 2026-04-29 01:27 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -458,14 +458,14 @@
     <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">            Whether to launch as cooperative kernel (default: False)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">        # Convert and validate grid and block dimensions</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">        self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">304 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R 7bS T U 8b9b!b#b$b%b'b(b)bcb*b+bdb,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcV W X Y Z 0 1 2 3 a JdicLdKd6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
-    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">        self.block = cast_to_3_tuple("LaunchConfig.block", block)</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">304 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R 7bS T U 8b9b!b#b$b%b'b(b)bcb*b+bdb,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcV W X Y Z 0 1 2 3 a JdicLdKd6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">        self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">304 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 7b8b9b!b#b$b%b'b(bcb)b*bdb+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgcF G H I J K L M N O P Q R hcS T U V W X Y Z 0 1 2 3 a JdicLdKd6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">        self.block = cast_to_3_tuple("LaunchConfig.block", block)</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">304 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 7b8b9b!b#b$b%b'b(bcb)b*bdb+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgcF G H I J K L M N O P Q R hcS T U V W X Y Z 0 1 2 3 a JdicLdKd6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
     <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        # FIXME: Calling Device() strictly speaking is not quite right; we should instead</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        # look up the device from stream. We probably need to defer the checks related to</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">        # device compute capability or attributes.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">        # thread block clusters are supported starting H100</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        if cluster is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">303 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R 7bS T U 8b9b!b#b$b%b'b(b)bcb*b+bdb,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcV W X Y Z 0 1 2 3 a JdicKd6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        if cluster is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">303 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 7b8b9b!b#b$b%b'b(bcb)b*bdb+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgcF G H I J K L M N O P Q R hcS T U V W X Y Z 0 1 2 3 a JdicKd6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
     <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">            cc = Device().compute_capability</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">2 ctx</label></span><span class="ctxs">2JdKd</span></p>
     <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">            if cc &lt; (9, 0):</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">2 ctx</label></span><span class="ctxs">2JdKd</span></p>
     <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">                raise CUDAError(</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">2 ctx</label></span><span class="ctxs">2JdKd</span></p>
@@ -473,19 +473,19 @@
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">                )</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">            self.cluster = cast_to_3_tuple("LaunchConfig.cluster", cluster)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">            self.cluster = None</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">301 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R 7bS T U 8b9b!b#b$b%b'b(b)bcb*b+bdb,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcV W X Y Z 0 1 2 3 a ic6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">            self.cluster = None</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">301 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 7b8b9b!b#b$b%b'b(bcb)b*bdb+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgcF G H I J K L M N O P Q R hcS T U V W X Y Z 0 1 2 3 a ic6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
     <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">        # Handle shmem_size default</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        if shmem_size is None:</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">301 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R 7bS T U 8b9b!b#b$b%b'b(b)bcb*b+bdb,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcV W X Y Z 0 1 2 3 a ic6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
-    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">            self.shmem_size = 0</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">291 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R 7bS T U 8b9b!b#b$b%b'b(b)b+b-b/b;b?b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcV W X Y Z 0 1 2 3 a 6b5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
+    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        if shmem_size is None:</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">301 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 7b8b9b!b#b$b%b'b(bcb)b*bdb+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgcF G H I J K L M N O P Q R hcS T U V W X Y Z 0 1 2 3 a ic6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
+    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">            self.shmem_size = 0</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">291 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 7b8b9b!b#b$b%b'b(b*b,b.b:b=b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgcF G H I J K L M N O P Q R hcS T U V W X Y Z 0 1 2 3 a 6b5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">            self.shmem_size = shmem_size</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">11 ctx</label></span><span class="ctxs">2cb*bdb,b.b:b=b@bic6b4 </span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">            self.shmem_size = shmem_size</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">11 ctx</label></span><span class="ctxs">2cb)bdb+b-b/b;b?bic6b4 </span></p>
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        # Handle cooperative_launch</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        self.cooperative_launch = cooperative_launch</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">301 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R 7bS T U 8b9b!b#b$b%b'b(b)bcb*b+bdb,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcV W X Y Z 0 1 2 3 a ic6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        self.cooperative_launch = cooperative_launch</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">301 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 7b8b9b!b#b$b%b'b(bcb)b*bdb+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgcF G H I J K L M N O P Q R hcS T U V W X Y Z 0 1 2 3 a ic6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        # Validate cooperative launch support</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">        if self.cooperative_launch and not Device().properties.cooperative_launch:</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">301 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R 7bS T U 8b9b!b#b$b%b'b(b)bcb*b+bdb,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcV W X Y Z 0 1 2 3 a ic6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
+    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">        if self.cooperative_launch and not Device().properties.cooperative_launch:</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">301 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 7b8b9b!b#b$b%b'b(bcb)b*bdb+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgcF G H I J K L M N O P Q R hcS T U V W X Y Z 0 1 2 3 a ic6b4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } jckc~ lcmcfbncocpcqcgbrcsctcucvcwcxcyczcAcBchbCcDcibEcFcGcHcjbIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXckblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbYcZc0c1c2c3c4c5cDb6c7cEb8c9c!c#cFb$c%c'c(c)c*c+c,c-c.c/cGb:c;cHb=c?c@c[cIb]c^c_c`c{c|c}c~cadbdcdddedfdgdhdJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bidjdkdldmdndodpd2bqdrd3bsdtdebudvd4bwdxd5bydzdabAdBdbbCdDdEdFdGdHd</span></p>
     <p class="mis show_mis"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">            raise CUDAError("cooperative kernels are not supported on this device")</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">    def _identity(self):</span>&nbsp;</span><span class="r"><label for="ctxs100" class="ctx">(empty)</label></span></p>
@@ -600,7 +600,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__launcher_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-28 01:33 +0000
+            created at 2026-04-29 01:27 +0000
         </p>
     </div>
 </footer>

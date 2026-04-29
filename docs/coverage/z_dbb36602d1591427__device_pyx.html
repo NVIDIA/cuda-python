@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/system/_device.pyx: 81.25%</title>
+    <title>Coverage for cuda/core/system/_device.pyx: 81.08%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
@@ -12,16 +12,16 @@
   "c": "tests/system/test_system_device.py::test_device_pci_bus_id|run",
   "d": "tests/system/test_system_device.py::test_to_cuda_device|run",
   "e": "tests/system/test_system_device.py::test_device_cpu_affinity|run",
-  "f": "tests/system/test_system_device.py::test_clock_event_reasons|run",
-  "g": "tests/system/test_system_device.py::test_persistence_mode_enabled|run",
-  "h": "tests/system/test_system_device.py::test_device_architecture|run",
-  "i": "tests/system/test_system_device.py::test_devices_are_the_same_architecture|run",
-  "j": "tests/system/test_system_device.py::test_pstates|run",
-  "k": "tests/system/test_system_device.py::test_register_events|run",
-  "l": "tests/system/test_system_device.py::test_clock|run",
-  "m": "tests/system/test_system_device.py::test_compute_running_processes|run",
-  "n": "tests/system/test_system_device.py::test_display_mode|run",
-  "o": "tests/system/test_system_device.py::test_field_values|run",
+  "f": "tests/system/test_system_device.py::test_field_values|run",
+  "g": "tests/system/test_system_device.py::test_clock_event_reasons|run",
+  "h": "tests/system/test_system_device.py::test_persistence_mode_enabled|run",
+  "i": "tests/system/test_system_device.py::test_device_architecture|run",
+  "j": "tests/system/test_system_device.py::test_devices_are_the_same_architecture|run",
+  "k": "tests/system/test_system_device.py::test_pstates|run",
+  "l": "tests/system/test_system_device.py::test_register_events|run",
+  "m": "tests/system/test_system_device.py::test_clock|run",
+  "n": "tests/system/test_system_device.py::test_compute_running_processes|run",
+  "o": "tests/system/test_system_device.py::test_display_mode|run",
   "p": "tests/system/test_system_device.py::test_nvlink|run",
   "q": "tests/system/test_system_device.py::test_addressing_mode|run",
   "r": "tests/system/test_system_device.py::test_auto_boosted_clocks_enabled|run",
@@ -62,7 +62,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;system&#8201;/&#8201;_device.pyx</b>:
-            <span class="pc_cov">81.25%</span>
+            <span class="pc_cov">81.08%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -104,9 +104,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">144 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">117<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">27<span class="text"> missing</span></button>
+            <span class="text">148 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">120<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">28<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -115,7 +115,7 @@
             <a id="nextFileLink" class="nav" href="z_dbb36602d1591427__device_utils_pxi.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-28 01:33 +0000
+            created at 2026-04-29 01:27 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -217,18 +217,18 @@
     <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">        uuid: bytes | str | None = None,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        pci_bus_id: bytes | str | None = None,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    ):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        args = [index, uuid, pci_bus_id]</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">41 ctx</label></span><span class="ctxs">1qbrsflmthuvwexyzcABCinDoEFGHIJKpgjkLMdNOP</span></p>
-    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">        cdef int arg_count = sum(arg is not None for arg in args)</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">42 ctx</label></span><span class="ctxs">1aqbrsflmthuvwexyzcABCinDoEFGHIJKpgjkLMdNOP</span></p>
+    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        args = [index, uuid, pci_bus_id]</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">41 ctx</label></span><span class="ctxs">1qbrsgmntiuvwexyzcABCjoDfEFGHIJKphklLMdNOP</span></p>
+    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">        cdef int arg_count = sum(arg is not None for arg in args)</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">42 ctx</label></span><span class="ctxs">1aqbrsgmntiuvwexyzcABCjoDfEFGHIJKphklLMdNOP</span></p>
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">        if arg_count > 1:</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">41 ctx</label></span><span class="ctxs">1qbrsflmthuvwexyzcABCinDoEFGHIJKpgjkLMdNOP</span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">        if arg_count > 1:</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">41 ctx</label></span><span class="ctxs">1qbrsgmntiuvwexyzcABCjoDfEFGHIJKphklLMdNOP</span></p>
     <p class="mis show_mis"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">            raise ValueError("Handle requires only one of `index`, `uuid`, or `pci_bus_id`.")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        if arg_count == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">41 ctx</label></span><span class="ctxs">1qbrsflmthuvwexyzcABCinDoEFGHIJKpgjkLMdNOP</span></p>
+    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        if arg_count == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">41 ctx</label></span><span class="ctxs">1qbrsgmntiuvwexyzcABCjoDfEFGHIJKphklLMdNOP</span></p>
     <p class="mis show_mis"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">            raise ValueError("Handle requires either a device `index`, `uuid`, or `pci_bus_id`.")</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">41 ctx</label></span><span class="ctxs">1qbrsflmthuvwexyzcABCinDoEFGHIJKpgjkLMdNOP</span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">41 ctx</label></span><span class="ctxs">1qbrsgmntiuvwexyzcABCjoDfEFGHIJKphklLMdNOP</span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        if index is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">42 ctx</label></span><span class="ctxs">1aqbrsflmthuvwexyzcABCinDoEFGHIJKpgjkLMdNOP</span></p>
-    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            self._handle = nvml.device_get_handle_by_index_v2(index)</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">41 ctx</label></span><span class="ctxs">1aqbrsflmthuvwexyzcABCinDoEFGHIJKpgjkLMdNO</span></p>
+    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        if index is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">42 ctx</label></span><span class="ctxs">1aqbrsgmntiuvwexyzcABCjoDfEFGHIJKphklLMdNOP</span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            self._handle = nvml.device_get_handle_by_index_v2(index)</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">41 ctx</label></span><span class="ctxs">1aqbrsgmntiuvwexyzcABCjoDfEFGHIJKphklLMdNO</span></p>
     <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">        elif uuid is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">3 ctx</label></span><span class="ctxs">1acP</span></p>
     <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">            if isinstance(uuid, bytes):</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">1 ctx</label></span><span class="ctxs">1P</span></p>
     <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">                uuid = uuid.decode("ascii")</span>&nbsp;</span><span class="r"><label for="ctxs102" class="ctx">(empty)</label></span></p>
@@ -312,9 +312,9 @@
     <p class="pln"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">        "VOLTA"``, and RTX A6000 will report ``DeviceArchitecture.name ==</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">        "AMPERE"``.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">        arch = nvml.device_get_architecture(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs183"><span class="r"><label for="ctxs183" class="ctx">2 ctx</label></span><span class="ctxs">1hi</span></p>
-    <p class="run"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">        try:</span>&nbsp;</span><input type="checkbox" id="ctxs184"><span class="r"><label for="ctxs184" class="ctx">2 ctx</label></span><span class="ctxs">1hi</span></p>
-    <p class="run"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">            return DeviceArch(arch)</span>&nbsp;</span><input type="checkbox" id="ctxs185"><span class="r"><label for="ctxs185" class="ctx">2 ctx</label></span><span class="ctxs">1hi</span></p>
+    <p class="run"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">        arch = nvml.device_get_architecture(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs183"><span class="r"><label for="ctxs183" class="ctx">2 ctx</label></span><span class="ctxs">1ij</span></p>
+    <p class="run"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">        try:</span>&nbsp;</span><input type="checkbox" id="ctxs184"><span class="r"><label for="ctxs184" class="ctx">2 ctx</label></span><span class="ctxs">1ij</span></p>
+    <p class="run"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">            return DeviceArch(arch)</span>&nbsp;</span><input type="checkbox" id="ctxs185"><span class="r"><label for="ctxs185" class="ctx">2 ctx</label></span><span class="ctxs">1ij</span></p>
     <p class="mis show_mis"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">        except ValueError:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">            return nvml.DeviceArch.UNKNOWN</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -379,13 +379,13 @@
     <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">        For Linux only.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        return nvml.device_get_persistence_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">1 ctx</label></span><span class="ctxs">1g</span></p>
+    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        return nvml.device_get_persistence_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">1 ctx</label></span><span class="ctxs">1h</span></p>
     <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">    @is_persistence_mode_enabled.setter</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    def is_persistence_mode_enabled(self, enabled: bool) -> None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">        nvml.device_set_persistence_mode(</span>&nbsp;</span><input type="checkbox" id="ctxs254"><span class="r"><label for="ctxs254" class="ctx">1 ctx</label></span><span class="ctxs">1g</span></p>
-    <p class="run"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">            self._handle,</span>&nbsp;</span><input type="checkbox" id="ctxs255"><span class="r"><label for="ctxs255" class="ctx">1 ctx</label></span><span class="ctxs">1g</span></p>
-    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">            nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED</span>&nbsp;</span><input type="checkbox" id="ctxs256"><span class="r"><label for="ctxs256" class="ctx">1 ctx</label></span><span class="ctxs">1g</span></p>
+    <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">        nvml.device_set_persistence_mode(</span>&nbsp;</span><input type="checkbox" id="ctxs254"><span class="r"><label for="ctxs254" class="ctx">1 ctx</label></span><span class="ctxs">1h</span></p>
+    <p class="run"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">            self._handle,</span>&nbsp;</span><input type="checkbox" id="ctxs255"><span class="r"><label for="ctxs255" class="ctx">1 ctx</label></span><span class="ctxs">1h</span></p>
+    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">            nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED</span>&nbsp;</span><input type="checkbox" id="ctxs256"><span class="r"><label for="ctxs256" class="ctx">1 ctx</label></span><span class="ctxs">1h</span></p>
     <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
@@ -445,10 +445,10 @@
     <p class="pln"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">        Iterator over :obj:`~Device`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">            An iterator over available devices.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">        initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs316"><span class="r"><label for="ctxs316" class="ctx">40 ctx</label></span><span class="ctxs">1qbrsflmthuvwexyzcABCinDoEFGHIJKpgjkLMdNO</span></p>
+    <p class="run"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">        initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs316"><span class="r"><label for="ctxs316" class="ctx">40 ctx</label></span><span class="ctxs">1qbrsgmntiuvwexyzcABCjoDfEFGHIJKphklLMdNO</span></p>
     <p class="pln"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t"><span class="txt">        for device_id in range(nvml.device_get_count_v2()):</span>&nbsp;</span><input type="checkbox" id="ctxs318"><span class="r"><label for="ctxs318" class="ctx">40 ctx</label></span><span class="ctxs">1qbrsflmthuvwexyzcABCinDoEFGHIJKpgjkLMdNO</span></p>
-    <p class="run"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">            yield cls(index=device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs319"><span class="r"><label for="ctxs319" class="ctx">40 ctx</label></span><span class="ctxs">1qbrsflmthuvwexyzcABCinDoEFGHIJKpgjkLMdNO</span></p>
+    <p class="run"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t"><span class="txt">        for device_id in range(nvml.device_get_count_v2()):</span>&nbsp;</span><input type="checkbox" id="ctxs318"><span class="r"><label for="ctxs318" class="ctx">40 ctx</label></span><span class="ctxs">1qbrsgmntiuvwexyzcABCjoDfEFGHIJKphklLMdNO</span></p>
+    <p class="run"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">            yield cls(index=device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs319"><span class="r"><label for="ctxs319" class="ctx">40 ctx</label></span><span class="ctxs">1qbrsgmntiuvwexyzcABCjoDfEFGHIJKphklLMdNO</span></p>
     <p class="pln"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">    #########################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">    # ADDRESSING MODE</span>&nbsp;</span><span class="r"></span></p>
@@ -482,7 +482,7 @@
     <p class="pln"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">        For Ampere&#8482; or newer fully supported devices.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">        return MigInfo(self)</span>&nbsp;</span><input type="checkbox" id="ctxs353"><span class="r"><label for="ctxs353" class="ctx">2 ctx</label></span><span class="ctxs">1mI</span></p>
+    <p class="run"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">        return MigInfo(self)</span>&nbsp;</span><input type="checkbox" id="ctxs353"><span class="r"><label for="ctxs353" class="ctx">2 ctx</label></span><span class="ctxs">1nI</span></p>
     <p class="pln"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="txt">    #########################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="txt">    # AFFINITY</span>&nbsp;</span><span class="r"></span></p>
@@ -580,7 +580,7 @@
     <p class="pln"><span class="n"><a id="t448" href="#t448">448</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t449" href="#t449">449</a></span><span class="t"><span class="txt">        :obj:`~_device.ClockInfo` object to get information about and manage a specific clock on a device.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t450" href="#t450">450</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t451" href="#t451">451</a></span><span class="t"><span class="txt">        return ClockInfo(self._handle, clock_type)</span>&nbsp;</span><input type="checkbox" id="ctxs451"><span class="r"><label for="ctxs451" class="ctx">1 ctx</label></span><span class="ctxs">1l</span></p>
+    <p class="run"><span class="n"><a id="t451" href="#t451">451</a></span><span class="t"><span class="txt">        return ClockInfo(self._handle, clock_type)</span>&nbsp;</span><input type="checkbox" id="ctxs451"><span class="r"><label for="ctxs451" class="ctx">1 ctx</label></span><span class="ctxs">1m</span></p>
     <p class="pln"><span class="n"><a id="t452" href="#t452">452</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t453" href="#t453">453</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t454" href="#t454">454</a></span><span class="t"><span class="txt">    def is_auto_boosted_clocks_enabled(self) -> tuple[bool, bool]:</span>&nbsp;</span><span class="r"></span></p>
@@ -616,8 +616,8 @@
     <p class="pln"><span class="n"><a id="t484" href="#t484">484</a></span><span class="t"><span class="txt">        For all fully supported products.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t485" href="#t485">485</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t486" href="#t486">486</a></span><span class="t"><span class="txt">        cdef uint64_t[1] reasons</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t487" href="#t487">487</a></span><span class="t"><span class="txt">        reasons[0] = nvml.device_get_current_clocks_event_reasons(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs487"><span class="r"><label for="ctxs487" class="ctx">1 ctx</label></span><span class="ctxs">1f</span></p>
-    <p class="run"><span class="n"><a id="t488" href="#t488">488</a></span><span class="t"><span class="txt">        return [ClocksEventReasons(1 &lt;&lt; reason) for reason in _unpack_bitmask(reasons)]</span>&nbsp;</span><input type="checkbox" id="ctxs488"><span class="r"><label for="ctxs488" class="ctx">1 ctx</label></span><span class="ctxs">1f</span></p>
+    <p class="run"><span class="n"><a id="t487" href="#t487">487</a></span><span class="t"><span class="txt">        reasons[0] = nvml.device_get_current_clocks_event_reasons(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs487"><span class="r"><label for="ctxs487" class="ctx">1 ctx</label></span><span class="ctxs">1g</span></p>
+    <p class="run"><span class="n"><a id="t488" href="#t488">488</a></span><span class="t"><span class="txt">        return [ClocksEventReasons(1 &lt;&lt; reason) for reason in _unpack_bitmask(reasons)]</span>&nbsp;</span><input type="checkbox" id="ctxs488"><span class="r"><label for="ctxs488" class="ctx">1 ctx</label></span><span class="ctxs">1g</span></p>
     <p class="pln"><span class="n"><a id="t489" href="#t489">489</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t490" href="#t490">490</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t491" href="#t491">491</a></span><span class="t"><span class="txt">    def supported_clock_event_reasons(self) -> list[ClocksEventReasons]:</span>&nbsp;</span><span class="r"></span></p>
@@ -630,8 +630,8 @@
     <p class="pln"><span class="n"><a id="t498" href="#t498">498</a></span><span class="t"><span class="txt">        This method is not supported in virtual machines running virtual GPU (vGPU).</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t499" href="#t499">499</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t500" href="#t500">500</a></span><span class="t"><span class="txt">        cdef uint64_t[1] reasons</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t501" href="#t501">501</a></span><span class="t"><span class="txt">        reasons[0] = nvml.device_get_supported_clocks_event_reasons(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs501"><span class="r"><label for="ctxs501" class="ctx">1 ctx</label></span><span class="ctxs">1f</span></p>
-    <p class="run"><span class="n"><a id="t502" href="#t502">502</a></span><span class="t"><span class="txt">        return [ClocksEventReasons(1 &lt;&lt; reason) for reason in _unpack_bitmask(reasons)]</span>&nbsp;</span><input type="checkbox" id="ctxs502"><span class="r"><label for="ctxs502" class="ctx">1 ctx</label></span><span class="ctxs">1f</span></p>
+    <p class="run"><span class="n"><a id="t501" href="#t501">501</a></span><span class="t"><span class="txt">        reasons[0] = nvml.device_get_supported_clocks_event_reasons(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs501"><span class="r"><label for="ctxs501" class="ctx">1 ctx</label></span><span class="ctxs">1g</span></p>
+    <p class="run"><span class="n"><a id="t502" href="#t502">502</a></span><span class="t"><span class="txt">        return [ClocksEventReasons(1 &lt;&lt; reason) for reason in _unpack_bitmask(reasons)]</span>&nbsp;</span><input type="checkbox" id="ctxs502"><span class="r"><label for="ctxs502" class="ctx">1 ctx</label></span><span class="ctxs">1g</span></p>
     <p class="pln"><span class="n"><a id="t503" href="#t503">503</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t504" href="#t504">504</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t505" href="#t505">505</a></span><span class="t"><span class="txt">    # COOLER</span>&nbsp;</span><span class="r"></span></p>
@@ -669,7 +669,7 @@
     <p class="pln"><span class="n"><a id="t537" href="#t537">537</a></span><span class="t"><span class="txt">        Indicates whether a physical display (e.g. monitor) is currently connected to</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t538" href="#t538">538</a></span><span class="t"><span class="txt">        any of the device's connectors.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t539" href="#t539">539</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t540" href="#t540">540</a></span><span class="t"><span class="txt">        return nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED</span>&nbsp;</span><input type="checkbox" id="ctxs540"><span class="r"><label for="ctxs540" class="ctx">1 ctx</label></span><span class="ctxs">1n</span></p>
+    <p class="run"><span class="n"><a id="t540" href="#t540">540</a></span><span class="t"><span class="txt">        return nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED</span>&nbsp;</span><input type="checkbox" id="ctxs540"><span class="r"><label for="ctxs540" class="ctx">1 ctx</label></span><span class="ctxs">1o</span></p>
     <p class="pln"><span class="n"><a id="t541" href="#t541">541</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t542" href="#t542">542</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t543" href="#t543">543</a></span><span class="t"><span class="txt">    def is_display_active(self) -> bool:</span>&nbsp;</span><span class="r"></span></p>
@@ -682,7 +682,7 @@
     <p class="pln"><span class="n"><a id="t550" href="#t550">550</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t551" href="#t551">551</a></span><span class="t"><span class="txt">        Display can be active even when no monitor is physically attached.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t552" href="#t552">552</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t553" href="#t553">553</a></span><span class="t"><span class="txt">        return nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED</span>&nbsp;</span><input type="checkbox" id="ctxs553"><span class="r"><label for="ctxs553" class="ctx">1 ctx</label></span><span class="ctxs">1n</span></p>
+    <p class="run"><span class="n"><a id="t553" href="#t553">553</a></span><span class="t"><span class="txt">        return nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED</span>&nbsp;</span><input type="checkbox" id="ctxs553"><span class="r"><label for="ctxs553" class="ctx">1 ctx</label></span><span class="ctxs">1o</span></p>
     <p class="pln"><span class="n"><a id="t554" href="#t554">554</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t555" href="#t555">555</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t556" href="#t556">556</a></span><span class="t"><span class="txt">    # EVENTS</span>&nbsp;</span><span class="r"></span></p>
@@ -728,7 +728,7 @@
     <p class="pln"><span class="n"><a id="t596" href="#t596">596</a></span><span class="t"><span class="txt">        :class:`cuda.core.system.NotSupportedError`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t597" href="#t597">597</a></span><span class="t"><span class="txt">            None of the requested event types are registered.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t598" href="#t598">598</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t599" href="#t599">599</a></span><span class="t"><span class="txt">        return DeviceEvents(self._handle, events)</span>&nbsp;</span><input type="checkbox" id="ctxs599"><span class="r"><label for="ctxs599" class="ctx">1 ctx</label></span><span class="ctxs">1k</span></p>
+    <p class="run"><span class="n"><a id="t599" href="#t599">599</a></span><span class="t"><span class="txt">        return DeviceEvents(self._handle, events)</span>&nbsp;</span><input type="checkbox" id="ctxs599"><span class="r"><label for="ctxs599" class="ctx">1 ctx</label></span><span class="ctxs">1l</span></p>
     <p class="pln"><span class="n"><a id="t600" href="#t600">600</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t601" href="#t601">601</a></span><span class="t"><span class="txt">    def get_supported_event_types(self) -> list[EventType]:</span>&nbsp;</span><span class="r"><label for="ctxs601" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t602" href="#t602">602</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
@@ -743,8 +743,8 @@
     <p class="pln"><span class="n"><a id="t611" href="#t611">611</a></span><span class="t"><span class="txt">            The list of supported event types.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t612" href="#t612">612</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t613" href="#t613">613</a></span><span class="t"><span class="txt">        cdef uint64_t[1] bitmask</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t"><span class="txt">        bitmask[0] = nvml.device_get_supported_event_types(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs614"><span class="r"><label for="ctxs614" class="ctx">1 ctx</label></span><span class="ctxs">1k</span></p>
-    <p class="run"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t"><span class="txt">        return [EventType(1 &lt;&lt; ev) for ev in _unpack_bitmask(bitmask)]</span>&nbsp;</span><input type="checkbox" id="ctxs615"><span class="r"><label for="ctxs615" class="ctx">1 ctx</label></span><span class="ctxs">1k</span></p>
+    <p class="run"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t"><span class="txt">        bitmask[0] = nvml.device_get_supported_event_types(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs614"><span class="r"><label for="ctxs614" class="ctx">1 ctx</label></span><span class="ctxs">1l</span></p>
+    <p class="run"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t"><span class="txt">        return [EventType(1 &lt;&lt; ev) for ev in _unpack_bitmask(bitmask)]</span>&nbsp;</span><input type="checkbox" id="ctxs615"><span class="r"><label for="ctxs615" class="ctx">1 ctx</label></span><span class="ctxs">1l</span></p>
     <p class="pln"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t"><span class="txt">    # FAN</span>&nbsp;</span><span class="r"></span></p>
@@ -793,303 +793,313 @@
     <p class="pln"><span class="n"><a id="t661" href="#t661">661</a></span><span class="t"><span class="txt">        :obj:`~_device.FieldValues`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t662" href="#t662">662</a></span><span class="t"><span class="txt">            Container of field values corresponding to the requested field IDs.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t663" href="#t663">663</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t664" href="#t664">664</a></span><span class="t"><span class="txt">        return FieldValues(nvml.device_get_field_values(self._handle, field_ids))</span>&nbsp;</span><input type="checkbox" id="ctxs664"><span class="r"><label for="ctxs664" class="ctx">1 ctx</label></span><span class="ctxs">1o</span></p>
-    <p class="pln"><span class="n"><a id="t665" href="#t665">665</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t666" href="#t666">666</a></span><span class="t"><span class="txt">    def clear_field_values(self, field_ids: list[int | tuple[int, int]]) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs666" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t667" href="#t667">667</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t668" href="#t668">668</a></span><span class="t"><span class="txt">        Clear multiple field values from the device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t669" href="#t669">669</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t670" href="#t670">670</a></span><span class="t"><span class="txt">        Parameters</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t671" href="#t671">671</a></span><span class="t"><span class="txt">        ----------</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t672" href="#t672">672</a></span><span class="t"><span class="txt">        field_ids: list[int | tuple[int, int]]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t673" href="#t673">673</a></span><span class="t"><span class="txt">            List of field IDs to clear.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t664" href="#t664">664</a></span><span class="t"><span class="txt">        # Passing a field_ids array of length 0 raises an InvalidArgumentError,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t665" href="#t665">665</a></span><span class="t"><span class="txt">        # so avoid that.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t666" href="#t666">666</a></span><span class="t"><span class="txt">        if len(field_ids) == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs666"><span class="r"><label for="ctxs666" class="ctx">1 ctx</label></span><span class="ctxs">1f</span></p>
+    <p class="run"><span class="n"><a id="t667" href="#t667">667</a></span><span class="t"><span class="txt">            return FieldValues(nvml.FieldValue(0))</span>&nbsp;</span><input type="checkbox" id="ctxs667"><span class="r"><label for="ctxs667" class="ctx">1 ctx</label></span><span class="ctxs">1f</span></p>
+    <p class="pln"><span class="n"><a id="t668" href="#t668">668</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t669" href="#t669">669</a></span><span class="t"><span class="txt">        return FieldValues(nvml.device_get_field_values(self._handle, field_ids))</span>&nbsp;</span><input type="checkbox" id="ctxs669"><span class="r"><label for="ctxs669" class="ctx">1 ctx</label></span><span class="ctxs">1f</span></p>
+    <p class="pln"><span class="n"><a id="t670" href="#t670">670</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t671" href="#t671">671</a></span><span class="t"><span class="txt">    def clear_field_values(self, field_ids: list[int | tuple[int, int]]) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs671" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t672" href="#t672">672</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t673" href="#t673">673</a></span><span class="t"><span class="txt">        Clear multiple field values from the device.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t674" href="#t674">674</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t675" href="#t675">675</a></span><span class="t"><span class="txt">            Each item may be either a single value from the :class:`FieldId`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t676" href="#t676">676</a></span><span class="t"><span class="txt">            enum, or a pair of (:class:`FieldId`, scope ID).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t677" href="#t677">677</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t678" href="#t678">678</a></span><span class="t"><span class="txt">        nvml.device_clear_field_values(self._handle, field_ids)</span>&nbsp;</span><input type="checkbox" id="ctxs678"><span class="r"><label for="ctxs678" class="ctx">1 ctx</label></span><span class="ctxs">1o</span></p>
+    <p class="pln"><span class="n"><a id="t675" href="#t675">675</a></span><span class="t"><span class="txt">        Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t676" href="#t676">676</a></span><span class="t"><span class="txt">        ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t677" href="#t677">677</a></span><span class="t"><span class="txt">        field_ids: list[int | tuple[int, int]]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t678" href="#t678">678</a></span><span class="t"><span class="txt">            List of field IDs to clear.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t679" href="#t679">679</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t680" href="#t680">680</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t681" href="#t681">681</a></span><span class="t"><span class="txt">    # INFOROM</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t682" href="#t682">682</a></span><span class="t"><span class="txt">    # See external class definitions in _inforom.pxi</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t683" href="#t683">683</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t684" href="#t684">684</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t685" href="#t685">685</a></span><span class="t"><span class="txt">    def inforom(self) -> InforomInfo:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t686" href="#t686">686</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t687" href="#t687">687</a></span><span class="t"><span class="txt">        :obj:`~_device.InforomInfo` object with InfoROM information.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t688" href="#t688">688</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t689" href="#t689">689</a></span><span class="t"><span class="txt">        For all products with an InfoROM.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t690" href="#t690">690</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t691" href="#t691">691</a></span><span class="t"><span class="txt">        return InforomInfo(self)</span>&nbsp;</span><input type="checkbox" id="ctxs691"><span class="r"><label for="ctxs691" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
-    <p class="pln"><span class="n"><a id="t692" href="#t692">692</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t693" href="#t693">693</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t694" href="#t694">694</a></span><span class="t"><span class="txt">    # MEMORY</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t695" href="#t695">695</a></span><span class="t"><span class="txt">    # See external class definitions in _memory.pxi</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t696" href="#t696">696</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t697" href="#t697">697</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t698" href="#t698">698</a></span><span class="t"><span class="txt">    def bar1_memory_info(self) -> BAR1MemoryInfo:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t699" href="#t699">699</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t700" href="#t700">700</a></span><span class="t"><span class="txt">        :obj:`~_device.BAR1MemoryInfo` object with BAR1 memory information.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t701" href="#t701">701</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t702" href="#t702">702</a></span><span class="t"><span class="txt">        BAR1 is used to map the FB (device memory) so that it can be directly</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t703" href="#t703">703</a></span><span class="t"><span class="txt">        accessed by the CPU or by 3rd party devices (peer-to-peer on the PCIE</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t704" href="#t704">704</a></span><span class="t"><span class="txt">        bus).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t705" href="#t705">705</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t706" href="#t706">706</a></span><span class="t"><span class="txt">        return BAR1MemoryInfo(nvml.device_get_bar1_memory_info(self._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs706"><span class="r"><label for="ctxs706" class="ctx">1 ctx</label></span><span class="ctxs">1v</span></p>
-    <p class="pln"><span class="n"><a id="t707" href="#t707">707</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t708" href="#t708">708</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t709" href="#t709">709</a></span><span class="t"><span class="txt">    def memory_info(self) -> MemoryInfo:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t710" href="#t710">710</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t711" href="#t711">711</a></span><span class="t"><span class="txt">        :obj:`~_device.MemoryInfo` object with memory information.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t712" href="#t712">712</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t713" href="#t713">713</a></span><span class="t"><span class="txt">        return MemoryInfo(nvml.device_get_memory_info_v2(self._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs713"><span class="r"><label for="ctxs713" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
-    <p class="pln"><span class="n"><a id="t714" href="#t714">714</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t715" href="#t715">715</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t716" href="#t716">716</a></span><span class="t"><span class="txt">    # NVLINK</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t717" href="#t717">717</a></span><span class="t"><span class="txt">    # See external class definitions in _nvlink.pxi</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t718" href="#t718">718</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t719" href="#t719">719</a></span><span class="t"><span class="txt">    def get_nvlink(self, link: int) -> NvlinkInfo:</span>&nbsp;</span><span class="r"><label for="ctxs719" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t680" href="#t680">680</a></span><span class="t"><span class="txt">            Each item may be either a single value from the :class:`FieldId`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t681" href="#t681">681</a></span><span class="t"><span class="txt">            enum, or a pair of (:class:`FieldId`, scope ID).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t682" href="#t682">682</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t683" href="#t683">683</a></span><span class="t"><span class="txt">        # Passing a field_ids array of length 0 raises an InvalidArgumentError,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t684" href="#t684">684</a></span><span class="t"><span class="txt">        # so avoid that.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t685" href="#t685">685</a></span><span class="t"><span class="txt">        if len(field_ids) == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs685"><span class="r"><label for="ctxs685" class="ctx">1 ctx</label></span><span class="ctxs">1f</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t686" href="#t686">686</a></span><span class="t"><span class="txt">            return</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t687" href="#t687">687</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t688" href="#t688">688</a></span><span class="t"><span class="txt">        nvml.device_clear_field_values(self._handle, field_ids)</span>&nbsp;</span><input type="checkbox" id="ctxs688"><span class="r"><label for="ctxs688" class="ctx">1 ctx</label></span><span class="ctxs">1f</span></p>
+    <p class="pln"><span class="n"><a id="t689" href="#t689">689</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t690" href="#t690">690</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t691" href="#t691">691</a></span><span class="t"><span class="txt">    # INFOROM</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t692" href="#t692">692</a></span><span class="t"><span class="txt">    # See external class definitions in _inforom.pxi</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t693" href="#t693">693</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t694" href="#t694">694</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t695" href="#t695">695</a></span><span class="t"><span class="txt">    def inforom(self) -> InforomInfo:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t696" href="#t696">696</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t697" href="#t697">697</a></span><span class="t"><span class="txt">        :obj:`~_device.InforomInfo` object with InfoROM information.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t698" href="#t698">698</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t699" href="#t699">699</a></span><span class="t"><span class="txt">        For all products with an InfoROM.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t700" href="#t700">700</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t701" href="#t701">701</a></span><span class="t"><span class="txt">        return InforomInfo(self)</span>&nbsp;</span><input type="checkbox" id="ctxs701"><span class="r"><label for="ctxs701" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
+    <p class="pln"><span class="n"><a id="t702" href="#t702">702</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t703" href="#t703">703</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t704" href="#t704">704</a></span><span class="t"><span class="txt">    # MEMORY</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t705" href="#t705">705</a></span><span class="t"><span class="txt">    # See external class definitions in _memory.pxi</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t706" href="#t706">706</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t707" href="#t707">707</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t708" href="#t708">708</a></span><span class="t"><span class="txt">    def bar1_memory_info(self) -> BAR1MemoryInfo:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t709" href="#t709">709</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t710" href="#t710">710</a></span><span class="t"><span class="txt">        :obj:`~_device.BAR1MemoryInfo` object with BAR1 memory information.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t711" href="#t711">711</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t712" href="#t712">712</a></span><span class="t"><span class="txt">        BAR1 is used to map the FB (device memory) so that it can be directly</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t713" href="#t713">713</a></span><span class="t"><span class="txt">        accessed by the CPU or by 3rd party devices (peer-to-peer on the PCIE</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t714" href="#t714">714</a></span><span class="t"><span class="txt">        bus).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t715" href="#t715">715</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t716" href="#t716">716</a></span><span class="t"><span class="txt">        return BAR1MemoryInfo(nvml.device_get_bar1_memory_info(self._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs716"><span class="r"><label for="ctxs716" class="ctx">1 ctx</label></span><span class="ctxs">1v</span></p>
+    <p class="pln"><span class="n"><a id="t717" href="#t717">717</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t718" href="#t718">718</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t719" href="#t719">719</a></span><span class="t"><span class="txt">    def memory_info(self) -> MemoryInfo:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t720" href="#t720">720</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t721" href="#t721">721</a></span><span class="t"><span class="txt">        Get :obj:`~NvlinkInfo` about this device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t722" href="#t722">722</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t723" href="#t723">723</a></span><span class="t"><span class="txt">        For devices with NVLink support.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t724" href="#t724">724</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t725" href="#t725">725</a></span><span class="t"><span class="txt">        if link &lt; 0 or link >= NvlinkInfo.max_links:</span>&nbsp;</span><input type="checkbox" id="ctxs725"><span class="r"><label for="ctxs725" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t726" href="#t726">726</a></span><span class="t"><span class="txt">            raise ValueError(f"Link index {link} is out of range [0, {NvlinkInfo.max_links})")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t727" href="#t727">727</a></span><span class="t"><span class="txt">        return NvlinkInfo(self, link)</span>&nbsp;</span><input type="checkbox" id="ctxs727"><span class="r"><label for="ctxs727" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
+    <p class="pln"><span class="n"><a id="t721" href="#t721">721</a></span><span class="t"><span class="txt">        :obj:`~_device.MemoryInfo` object with memory information.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t722" href="#t722">722</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t723" href="#t723">723</a></span><span class="t"><span class="txt">        return MemoryInfo(nvml.device_get_memory_info_v2(self._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs723"><span class="r"><label for="ctxs723" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="pln"><span class="n"><a id="t724" href="#t724">724</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t725" href="#t725">725</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t726" href="#t726">726</a></span><span class="t"><span class="txt">    # NVLINK</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t727" href="#t727">727</a></span><span class="t"><span class="txt">    # See external class definitions in _nvlink.pxi</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t728" href="#t728">728</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t729" href="#t729">729</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t730" href="#t730">730</a></span><span class="t"><span class="txt">    # PCI INFO</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t731" href="#t731">731</a></span><span class="t"><span class="txt">    # See external class definitions in _pci_info.pxi</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t729" href="#t729">729</a></span><span class="t"><span class="txt">    def get_nvlink(self, link: int) -> NvlinkInfo:</span>&nbsp;</span><span class="r"><label for="ctxs729" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t730" href="#t730">730</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t731" href="#t731">731</a></span><span class="t"><span class="txt">        Get :obj:`~NvlinkInfo` about this device.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t732" href="#t732">732</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t733" href="#t733">733</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t734" href="#t734">734</a></span><span class="t"><span class="txt">    def pci_info(self) -> PciInfo:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t735" href="#t735">735</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t736" href="#t736">736</a></span><span class="t"><span class="txt">        :obj:`~_device.PciInfo` object with the PCI attributes of this device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t737" href="#t737">737</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t738" href="#t738">738</a></span><span class="t"><span class="txt">        return PciInfo(nvml.device_get_pci_info_ext(self._handle), self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs738"><span class="r"><label for="ctxs738" class="ctx">4 ctx</label></span><span class="ctxs">1cAdP</span></p>
-    <p class="pln"><span class="n"><a id="t739" href="#t739">739</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t740" href="#t740">740</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t741" href="#t741">741</a></span><span class="t"><span class="txt">    # PERFORMANCE</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t742" href="#t742">742</a></span><span class="t"><span class="txt">    # See external class definitions in _performance.pxi</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t743" href="#t743">743</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t744" href="#t744">744</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t745" href="#t745">745</a></span><span class="t"><span class="txt">    def performance_state(self) -> Pstates:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t746" href="#t746">746</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t747" href="#t747">747</a></span><span class="t"><span class="txt">        The current performance state of the device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t748" href="#t748">748</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t749" href="#t749">749</a></span><span class="t"><span class="txt">        For Fermi&#8482; or newer fully supported devices.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t750" href="#t750">750</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t751" href="#t751">751</a></span><span class="t"><span class="txt">        See :class:`Pstates` for possible performance states.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t752" href="#t752">752</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t753" href="#t753">753</a></span><span class="t"><span class="txt">        return Pstates(nvml.device_get_performance_state(self._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs753"><span class="r"><label for="ctxs753" class="ctx">2 ctx</label></span><span class="ctxs">1lj</span></p>
-    <p class="pln"><span class="n"><a id="t754" href="#t754">754</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t755" href="#t755">755</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t756" href="#t756">756</a></span><span class="t"><span class="txt">    def dynamic_pstates_info(self) -> GpuDynamicPstatesInfo:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t757" href="#t757">757</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t758" href="#t758">758</a></span><span class="t"><span class="txt">        :obj:`~_device.GpuDynamicPstatesInfo` object with performance monitor samples from the associated subdevice.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t759" href="#t759">759</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t760" href="#t760">760</a></span><span class="t"><span class="txt">        return GpuDynamicPstatesInfo(nvml.device_get_dynamic_pstates_info(self._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs760"><span class="r"><label for="ctxs760" class="ctx">1 ctx</label></span><span class="ctxs">1j</span></p>
-    <p class="pln"><span class="n"><a id="t761" href="#t761">761</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t762" href="#t762">762</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t763" href="#t763">763</a></span><span class="t"><span class="txt">    def supported_pstates(self) -> list[Pstates]:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t764" href="#t764">764</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t765" href="#t765">765</a></span><span class="t"><span class="txt">        Get all supported Performance States (P-States) for the device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t766" href="#t766">766</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t767" href="#t767">767</a></span><span class="t"><span class="txt">        The returned list contains a contiguous list of valid P-States supported by</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t768" href="#t768">768</a></span><span class="t"><span class="txt">        the device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t769" href="#t769">769</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t770" href="#t770">770</a></span><span class="t"><span class="txt">        Return</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t771" href="#t771">771</a></span><span class="t"><span class="txt">        ------</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t772" href="#t772">772</a></span><span class="t"><span class="txt">        list[Pstates]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t773" href="#t773">773</a></span><span class="t"><span class="txt">            A list of supported P-States for the device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t733" href="#t733">733</a></span><span class="t"><span class="txt">        For devices with NVLink support.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t734" href="#t734">734</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t735" href="#t735">735</a></span><span class="t"><span class="txt">        if link &lt; 0 or link >= NvlinkInfo.max_links:</span>&nbsp;</span><input type="checkbox" id="ctxs735"><span class="r"><label for="ctxs735" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t736" href="#t736">736</a></span><span class="t"><span class="txt">            raise ValueError(f"Link index {link} is out of range [0, {NvlinkInfo.max_links})")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t737" href="#t737">737</a></span><span class="t"><span class="txt">        return NvlinkInfo(self, link)</span>&nbsp;</span><input type="checkbox" id="ctxs737"><span class="r"><label for="ctxs737" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
+    <p class="pln"><span class="n"><a id="t738" href="#t738">738</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t739" href="#t739">739</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t740" href="#t740">740</a></span><span class="t"><span class="txt">    # PCI INFO</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t741" href="#t741">741</a></span><span class="t"><span class="txt">    # See external class definitions in _pci_info.pxi</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t742" href="#t742">742</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t743" href="#t743">743</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t744" href="#t744">744</a></span><span class="t"><span class="txt">    def pci_info(self) -> PciInfo:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t745" href="#t745">745</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t746" href="#t746">746</a></span><span class="t"><span class="txt">        :obj:`~_device.PciInfo` object with the PCI attributes of this device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t747" href="#t747">747</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t748" href="#t748">748</a></span><span class="t"><span class="txt">        return PciInfo(nvml.device_get_pci_info_ext(self._handle), self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs748"><span class="r"><label for="ctxs748" class="ctx">4 ctx</label></span><span class="ctxs">1cAdP</span></p>
+    <p class="pln"><span class="n"><a id="t749" href="#t749">749</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t750" href="#t750">750</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t751" href="#t751">751</a></span><span class="t"><span class="txt">    # PERFORMANCE</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t752" href="#t752">752</a></span><span class="t"><span class="txt">    # See external class definitions in _performance.pxi</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t753" href="#t753">753</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t754" href="#t754">754</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t755" href="#t755">755</a></span><span class="t"><span class="txt">    def performance_state(self) -> Pstates:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t756" href="#t756">756</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t757" href="#t757">757</a></span><span class="t"><span class="txt">        The current performance state of the device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t758" href="#t758">758</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t759" href="#t759">759</a></span><span class="t"><span class="txt">        For Fermi&#8482; or newer fully supported devices.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t760" href="#t760">760</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t761" href="#t761">761</a></span><span class="t"><span class="txt">        See :class:`Pstates` for possible performance states.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t762" href="#t762">762</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t763" href="#t763">763</a></span><span class="t"><span class="txt">        return Pstates(nvml.device_get_performance_state(self._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs763"><span class="r"><label for="ctxs763" class="ctx">2 ctx</label></span><span class="ctxs">1mk</span></p>
+    <p class="pln"><span class="n"><a id="t764" href="#t764">764</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t765" href="#t765">765</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t766" href="#t766">766</a></span><span class="t"><span class="txt">    def dynamic_pstates_info(self) -> GpuDynamicPstatesInfo:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t767" href="#t767">767</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t768" href="#t768">768</a></span><span class="t"><span class="txt">        :obj:`~_device.GpuDynamicPstatesInfo` object with performance monitor samples from the associated subdevice.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t769" href="#t769">769</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t770" href="#t770">770</a></span><span class="t"><span class="txt">        return GpuDynamicPstatesInfo(nvml.device_get_dynamic_pstates_info(self._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs770"><span class="r"><label for="ctxs770" class="ctx">1 ctx</label></span><span class="ctxs">1k</span></p>
+    <p class="pln"><span class="n"><a id="t771" href="#t771">771</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t772" href="#t772">772</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t773" href="#t773">773</a></span><span class="t"><span class="txt">    def supported_pstates(self) -> list[Pstates]:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t774" href="#t774">774</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t775" href="#t775">775</a></span><span class="t"><span class="txt">        return [Pstates(x) for x in nvml.device_get_supported_performance_states(self._handle)]</span>&nbsp;</span><input type="checkbox" id="ctxs775"><span class="r"><label for="ctxs775" class="ctx">1 ctx</label></span><span class="ctxs">1j</span></p>
+    <p class="pln"><span class="n"><a id="t775" href="#t775">775</a></span><span class="t"><span class="txt">        Get all supported Performance States (P-States) for the device.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t776" href="#t776">776</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t777" href="#t777">777</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t778" href="#t778">778</a></span><span class="t"><span class="txt">    # PROCESS</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t779" href="#t779">779</a></span><span class="t"><span class="txt">    # See external class definitions in _process.pxi</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t780" href="#t780">780</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t781" href="#t781">781</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t782" href="#t782">782</a></span><span class="t"><span class="txt">    def compute_running_processes(self) -> list[ProcessInfo]:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t783" href="#t783">783</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t784" href="#t784">784</a></span><span class="t"><span class="txt">        Get information about processes with a compute context on a device</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t785" href="#t785">785</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t786" href="#t786">786</a></span><span class="t"><span class="txt">        For Fermi&#8482; or newer fully supported devices.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t787" href="#t787">787</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t788" href="#t788">788</a></span><span class="t"><span class="txt">        This function returns information only about compute running processes</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t789" href="#t789">789</a></span><span class="t"><span class="txt">        (e.g. CUDA application which have active context). Any graphics</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t790" href="#t790">790</a></span><span class="t"><span class="txt">        applications (e.g. using OpenGL, DirectX) won't be listed by this</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t791" href="#t791">791</a></span><span class="t"><span class="txt">        function.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t792" href="#t792">792</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t793" href="#t793">793</a></span><span class="t"><span class="txt">        Keep in mind that information returned by this call is dynamic and the</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t794" href="#t794">794</a></span><span class="t"><span class="txt">        number of elements might change in time.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t777" href="#t777">777</a></span><span class="t"><span class="txt">        The returned list contains a contiguous list of valid P-States supported by</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t778" href="#t778">778</a></span><span class="t"><span class="txt">        the device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t779" href="#t779">779</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t780" href="#t780">780</a></span><span class="t"><span class="txt">        Return</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t781" href="#t781">781</a></span><span class="t"><span class="txt">        ------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t782" href="#t782">782</a></span><span class="t"><span class="txt">        list[Pstates]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t783" href="#t783">783</a></span><span class="t"><span class="txt">            A list of supported P-States for the device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t784" href="#t784">784</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t785" href="#t785">785</a></span><span class="t"><span class="txt">        return [Pstates(x) for x in nvml.device_get_supported_performance_states(self._handle)]</span>&nbsp;</span><input type="checkbox" id="ctxs785"><span class="r"><label for="ctxs785" class="ctx">1 ctx</label></span><span class="ctxs">1k</span></p>
+    <p class="pln"><span class="n"><a id="t786" href="#t786">786</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t787" href="#t787">787</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t788" href="#t788">788</a></span><span class="t"><span class="txt">    # PROCESS</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t789" href="#t789">789</a></span><span class="t"><span class="txt">    # See external class definitions in _process.pxi</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t790" href="#t790">790</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t791" href="#t791">791</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t792" href="#t792">792</a></span><span class="t"><span class="txt">    def compute_running_processes(self) -> list[ProcessInfo]:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t793" href="#t793">793</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t794" href="#t794">794</a></span><span class="t"><span class="txt">        Get information about processes with a compute context on a device</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t795" href="#t795">795</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t796" href="#t796">796</a></span><span class="t"><span class="txt">        In MIG mode, if device handle is provided, the API returns aggregate</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t797" href="#t797">797</a></span><span class="t"><span class="txt">        information, only if the caller has appropriate privileges. Per-instance</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t798" href="#t798">798</a></span><span class="t"><span class="txt">        information can be queried by using specific MIG device handles.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t799" href="#t799">799</a></span><span class="t"><span class="txt">        Querying per-instance information using MIG device handles is not</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t800" href="#t800">800</a></span><span class="t"><span class="txt">        supported if the device is in vGPU Host virtualization mode.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t801" href="#t801">801</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t802" href="#t802">802</a></span><span class="t"><span class="txt">        return [ProcessInfo(self, proc) for proc in nvml.device_get_compute_running_processes_v3(self._handle)]</span>&nbsp;</span><input type="checkbox" id="ctxs802"><span class="r"><label for="ctxs802" class="ctx">1 ctx</label></span><span class="ctxs">1m</span></p>
-    <p class="pln"><span class="n"><a id="t803" href="#t803">803</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t804" href="#t804">804</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t805" href="#t805">805</a></span><span class="t"><span class="txt">    # REPAIR STATUS</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t806" href="#t806">806</a></span><span class="t"><span class="txt">    # See external class definitions in _repair_status.pxi</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t807" href="#t807">807</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t808" href="#t808">808</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t809" href="#t809">809</a></span><span class="t"><span class="txt">    def repair_status(self) -> RepairStatus:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t810" href="#t810">810</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t811" href="#t811">811</a></span><span class="t"><span class="txt">        :obj:`~_device.RepairStatus` object with TPC/Channel repair status.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t812" href="#t812">812</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t813" href="#t813">813</a></span><span class="t"><span class="txt">        For Ampere&#8482; or newer fully supported devices.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t814" href="#t814">814</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t815" href="#t815">815</a></span><span class="t"><span class="txt">        return RepairStatus(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs815"><span class="r"><label for="ctxs815" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
-    <p class="pln"><span class="n"><a id="t816" href="#t816">816</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t817" href="#t817">817</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t818" href="#t818">818</a></span><span class="t"><span class="txt">    # TEMPERATURE</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t819" href="#t819">819</a></span><span class="t"><span class="txt">    # See external class definitions in _temperature.pxi</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t820" href="#t820">820</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t821" href="#t821">821</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t822" href="#t822">822</a></span><span class="t"><span class="txt">    def temperature(self) -> Temperature:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t823" href="#t823">823</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t824" href="#t824">824</a></span><span class="t"><span class="txt">        :obj:`~_device.Temperature` object with temperature information for the device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t825" href="#t825">825</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t826" href="#t826">826</a></span><span class="t"><span class="txt">        return Temperature(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs826"><span class="r"><label for="ctxs826" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
-    <p class="pln"><span class="n"><a id="t827" href="#t827">827</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t828" href="#t828">828</a></span><span class="t"><span class="txt">    #######################################################################</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t829" href="#t829">829</a></span><span class="t"><span class="txt">    # TOPOLOGY</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t796" href="#t796">796</a></span><span class="t"><span class="txt">        For Fermi&#8482; or newer fully supported devices.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t797" href="#t797">797</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t798" href="#t798">798</a></span><span class="t"><span class="txt">        This function returns information only about compute running processes</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t799" href="#t799">799</a></span><span class="t"><span class="txt">        (e.g. CUDA application which have active context). Any graphics</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t800" href="#t800">800</a></span><span class="t"><span class="txt">        applications (e.g. using OpenGL, DirectX) won't be listed by this</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t801" href="#t801">801</a></span><span class="t"><span class="txt">        function.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t802" href="#t802">802</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t803" href="#t803">803</a></span><span class="t"><span class="txt">        Keep in mind that information returned by this call is dynamic and the</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t804" href="#t804">804</a></span><span class="t"><span class="txt">        number of elements might change in time.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t805" href="#t805">805</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t806" href="#t806">806</a></span><span class="t"><span class="txt">        In MIG mode, if device handle is provided, the API returns aggregate</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t807" href="#t807">807</a></span><span class="t"><span class="txt">        information, only if the caller has appropriate privileges. Per-instance</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t808" href="#t808">808</a></span><span class="t"><span class="txt">        information can be queried by using specific MIG device handles.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t809" href="#t809">809</a></span><span class="t"><span class="txt">        Querying per-instance information using MIG device handles is not</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t810" href="#t810">810</a></span><span class="t"><span class="txt">        supported if the device is in vGPU Host virtualization mode.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t811" href="#t811">811</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t812" href="#t812">812</a></span><span class="t"><span class="txt">        return [ProcessInfo(self, proc) for proc in nvml.device_get_compute_running_processes_v3(self._handle)]</span>&nbsp;</span><input type="checkbox" id="ctxs812"><span class="r"><label for="ctxs812" class="ctx">1 ctx</label></span><span class="ctxs">1n</span></p>
+    <p class="pln"><span class="n"><a id="t813" href="#t813">813</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t814" href="#t814">814</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t815" href="#t815">815</a></span><span class="t"><span class="txt">    # REPAIR STATUS</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t816" href="#t816">816</a></span><span class="t"><span class="txt">    # See external class definitions in _repair_status.pxi</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t817" href="#t817">817</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t818" href="#t818">818</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t819" href="#t819">819</a></span><span class="t"><span class="txt">    def repair_status(self) -> RepairStatus:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t820" href="#t820">820</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t821" href="#t821">821</a></span><span class="t"><span class="txt">        :obj:`~_device.RepairStatus` object with TPC/Channel repair status.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t822" href="#t822">822</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t823" href="#t823">823</a></span><span class="t"><span class="txt">        For Ampere&#8482; or newer fully supported devices.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t824" href="#t824">824</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t825" href="#t825">825</a></span><span class="t"><span class="txt">        return RepairStatus(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs825"><span class="r"><label for="ctxs825" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
+    <p class="pln"><span class="n"><a id="t826" href="#t826">826</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t827" href="#t827">827</a></span><span class="t"><span class="txt">    ##########################################################################</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t828" href="#t828">828</a></span><span class="t"><span class="txt">    # TEMPERATURE</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t829" href="#t829">829</a></span><span class="t"><span class="txt">    # See external class definitions in _temperature.pxi</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t830" href="#t830">830</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t831" href="#t831">831</a></span><span class="t"><span class="txt">    def get_topology_nearest_gpus(self, level: GpuTopologyLevel) -> Iterable[Device]:</span>&nbsp;</span><span class="r"><label for="ctxs831" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t832" href="#t832">832</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t833" href="#t833">833</a></span><span class="t"><span class="txt">        Retrieve the GPUs that are nearest to this device at a specific interconnectivity level.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t834" href="#t834">834</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t835" href="#t835">835</a></span><span class="t"><span class="txt">        Supported on Linux only.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t836" href="#t836">836</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t837" href="#t837">837</a></span><span class="t"><span class="txt">        Parameters</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t838" href="#t838">838</a></span><span class="t"><span class="txt">        ----------</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t839" href="#t839">839</a></span><span class="t"><span class="txt">        level: :class:`GpuTopologyLevel`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t840" href="#t840">840</a></span><span class="t"><span class="txt">            The topology level.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t841" href="#t841">841</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t842" href="#t842">842</a></span><span class="t"><span class="txt">        Returns</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t843" href="#t843">843</a></span><span class="t"><span class="txt">        -------</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t844" href="#t844">844</a></span><span class="t"><span class="txt">        Iterable of :class:`Device`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t845" href="#t845">845</a></span><span class="t"><span class="txt">            The nearest devices at the given topology level.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t846" href="#t846">846</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t847" href="#t847">847</a></span><span class="t"><span class="txt">        cdef Device device</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t848" href="#t848">848</a></span><span class="t"><span class="txt">        for handle in nvml.device_get_topology_nearest_gpus(self._handle, level):</span>&nbsp;</span><input type="checkbox" id="ctxs848"><span class="r"><label for="ctxs848" class="ctx">1 ctx</label></span><span class="ctxs">1G</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t849" href="#t849">849</a></span><span class="t"><span class="txt">            device = Device.__new__(Device)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t850" href="#t850">850</a></span><span class="t"><span class="txt">            device._handle = handle</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t851" href="#t851">851</a></span><span class="t"><span class="txt">            yield device</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t852" href="#t852">852</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t853" href="#t853">853</a></span><span class="t"><span class="txt">    #######################################################################</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t854" href="#t854">854</a></span><span class="t"><span class="txt">    # UTILIZATION</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t855" href="#t855">855</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t856" href="#t856">856</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t857" href="#t857">857</a></span><span class="t"><span class="txt">    def utilization(self) -> Utilization:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t858" href="#t858">858</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t859" href="#t859">859</a></span><span class="t"><span class="txt">        Retrieves the current :obj:`~Utilization` rates for the device's major</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t860" href="#t860">860</a></span><span class="t"><span class="txt">        subsystems.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t861" href="#t861">861</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t862" href="#t862">862</a></span><span class="t"><span class="txt">        For Fermi&#8482; or newer fully supported devices.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t863" href="#t863">863</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t864" href="#t864">864</a></span><span class="t"><span class="txt">        Note: During driver initialization when ECC is enabled one can see high</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t865" href="#t865">865</a></span><span class="t"><span class="txt">        GPU and Memory Utilization readings.  This is caused by ECC Memory</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t866" href="#t866">866</a></span><span class="t"><span class="txt">        Scrubbing mechanism that is performed during driver initialization.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t867" href="#t867">867</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t868" href="#t868">868</a></span><span class="t"><span class="txt">        Note: On MIG-enabled GPUs, querying device utilization rates is not</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t869" href="#t869">869</a></span><span class="t"><span class="txt">        currently supported.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t870" href="#t870">870</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t871" href="#t871">871</a></span><span class="t"><span class="txt">        Returns</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t872" href="#t872">872</a></span><span class="t"><span class="txt">        -------</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t873" href="#t873">873</a></span><span class="t"><span class="txt">        Utilization</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t874" href="#t874">874</a></span><span class="t"><span class="txt">            An object containing the current utilization rates for the device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t875" href="#t875">875</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t876" href="#t876">876</a></span><span class="t"><span class="txt">        return Utilization(nvml.device_get_utilization_rates(self._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs876"><span class="r"><label for="ctxs876" class="ctx">1 ctx</label></span><span class="ctxs">1N</span></p>
+    <p class="pln"><span class="n"><a id="t831" href="#t831">831</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t832" href="#t832">832</a></span><span class="t"><span class="txt">    def temperature(self) -> Temperature:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t833" href="#t833">833</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t834" href="#t834">834</a></span><span class="t"><span class="txt">        :obj:`~_device.Temperature` object with temperature information for the device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t835" href="#t835">835</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t836" href="#t836">836</a></span><span class="t"><span class="txt">        return Temperature(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs836"><span class="r"><label for="ctxs836" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
+    <p class="pln"><span class="n"><a id="t837" href="#t837">837</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t838" href="#t838">838</a></span><span class="t"><span class="txt">    #######################################################################</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t839" href="#t839">839</a></span><span class="t"><span class="txt">    # TOPOLOGY</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t840" href="#t840">840</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t841" href="#t841">841</a></span><span class="t"><span class="txt">    def get_topology_nearest_gpus(self, level: GpuTopologyLevel) -> Iterable[Device]:</span>&nbsp;</span><span class="r"><label for="ctxs841" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t842" href="#t842">842</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t843" href="#t843">843</a></span><span class="t"><span class="txt">        Retrieve the GPUs that are nearest to this device at a specific interconnectivity level.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t844" href="#t844">844</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t845" href="#t845">845</a></span><span class="t"><span class="txt">        Supported on Linux only.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t846" href="#t846">846</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t847" href="#t847">847</a></span><span class="t"><span class="txt">        Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t848" href="#t848">848</a></span><span class="t"><span class="txt">        ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t849" href="#t849">849</a></span><span class="t"><span class="txt">        level: :class:`GpuTopologyLevel`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t850" href="#t850">850</a></span><span class="t"><span class="txt">            The topology level.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t851" href="#t851">851</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t852" href="#t852">852</a></span><span class="t"><span class="txt">        Returns</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t853" href="#t853">853</a></span><span class="t"><span class="txt">        -------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t854" href="#t854">854</a></span><span class="t"><span class="txt">        Iterable of :class:`Device`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t855" href="#t855">855</a></span><span class="t"><span class="txt">            The nearest devices at the given topology level.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t856" href="#t856">856</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t857" href="#t857">857</a></span><span class="t"><span class="txt">        cdef Device device</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t858" href="#t858">858</a></span><span class="t"><span class="txt">        for handle in nvml.device_get_topology_nearest_gpus(self._handle, level):</span>&nbsp;</span><input type="checkbox" id="ctxs858"><span class="r"><label for="ctxs858" class="ctx">1 ctx</label></span><span class="ctxs">1G</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t859" href="#t859">859</a></span><span class="t"><span class="txt">            device = Device.__new__(Device)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t860" href="#t860">860</a></span><span class="t"><span class="txt">            device._handle = handle</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t861" href="#t861">861</a></span><span class="t"><span class="txt">            yield device</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t862" href="#t862">862</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t863" href="#t863">863</a></span><span class="t"><span class="txt">    #######################################################################</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t864" href="#t864">864</a></span><span class="t"><span class="txt">    # UTILIZATION</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t865" href="#t865">865</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t866" href="#t866">866</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t867" href="#t867">867</a></span><span class="t"><span class="txt">    def utilization(self) -> Utilization:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t868" href="#t868">868</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t869" href="#t869">869</a></span><span class="t"><span class="txt">        Retrieves the current :obj:`~Utilization` rates for the device's major</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t870" href="#t870">870</a></span><span class="t"><span class="txt">        subsystems.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t871" href="#t871">871</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t872" href="#t872">872</a></span><span class="t"><span class="txt">        For Fermi&#8482; or newer fully supported devices.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t873" href="#t873">873</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t874" href="#t874">874</a></span><span class="t"><span class="txt">        Note: During driver initialization when ECC is enabled one can see high</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t875" href="#t875">875</a></span><span class="t"><span class="txt">        GPU and Memory Utilization readings.  This is caused by ECC Memory</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t876" href="#t876">876</a></span><span class="t"><span class="txt">        Scrubbing mechanism that is performed during driver initialization.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t877" href="#t877">877</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t878" href="#t878">878</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t879" href="#t879">879</a></span><span class="t"><span class="txt">def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopologyLevel:</span>&nbsp;</span><span class="r"><label for="ctxs879" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t880" href="#t880">880</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t881" href="#t881">881</a></span><span class="t"><span class="txt">    Retrieve the common ancestor for two devices.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t882" href="#t882">882</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t883" href="#t883">883</a></span><span class="t"><span class="txt">    For Linux only.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t884" href="#t884">884</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t885" href="#t885">885</a></span><span class="t"><span class="txt">    Parameters</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t886" href="#t886">886</a></span><span class="t"><span class="txt">    ----------</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t887" href="#t887">887</a></span><span class="t"><span class="txt">    device1: :class:`Device`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t888" href="#t888">888</a></span><span class="t"><span class="txt">        The first device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t889" href="#t889">889</a></span><span class="t"><span class="txt">    device2: :class:`Device`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t890" href="#t890">890</a></span><span class="t"><span class="txt">        The second device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t891" href="#t891">891</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t892" href="#t892">892</a></span><span class="t"><span class="txt">    Returns</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t893" href="#t893">893</a></span><span class="t"><span class="txt">    -------</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t894" href="#t894">894</a></span><span class="t"><span class="txt">    :class:`GpuTopologyLevel`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t895" href="#t895">895</a></span><span class="t"><span class="txt">        The common ancestor level of the two devices.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t896" href="#t896">896</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t897" href="#t897">897</a></span><span class="t"><span class="txt">    return GpuTopologyLevel(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t898" href="#t898">898</a></span><span class="t"><span class="txt">        nvml.device_get_topology_common_ancestor(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t899" href="#t899">899</a></span><span class="t"><span class="txt">            device1._handle,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t900" href="#t900">900</a></span><span class="t"><span class="txt">            device2._handle,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t901" href="#t901">901</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t902" href="#t902">902</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t903" href="#t903">903</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t904" href="#t904">904</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t905" href="#t905">905</a></span><span class="t"><span class="txt">def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex) -> GpuP2PStatus:</span>&nbsp;</span><span class="r"><label for="ctxs905" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t878" href="#t878">878</a></span><span class="t"><span class="txt">        Note: On MIG-enabled GPUs, querying device utilization rates is not</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t879" href="#t879">879</a></span><span class="t"><span class="txt">        currently supported.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t880" href="#t880">880</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t881" href="#t881">881</a></span><span class="t"><span class="txt">        Returns</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t882" href="#t882">882</a></span><span class="t"><span class="txt">        -------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t883" href="#t883">883</a></span><span class="t"><span class="txt">        Utilization</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t884" href="#t884">884</a></span><span class="t"><span class="txt">            An object containing the current utilization rates for the device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t885" href="#t885">885</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t886" href="#t886">886</a></span><span class="t"><span class="txt">        return Utilization(nvml.device_get_utilization_rates(self._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs886"><span class="r"><label for="ctxs886" class="ctx">1 ctx</label></span><span class="ctxs">1N</span></p>
+    <p class="pln"><span class="n"><a id="t887" href="#t887">887</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t888" href="#t888">888</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t889" href="#t889">889</a></span><span class="t"><span class="txt">def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopologyLevel:</span>&nbsp;</span><span class="r"><label for="ctxs889" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t890" href="#t890">890</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t891" href="#t891">891</a></span><span class="t"><span class="txt">    Retrieve the common ancestor for two devices.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t892" href="#t892">892</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t893" href="#t893">893</a></span><span class="t"><span class="txt">    For Linux only.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t894" href="#t894">894</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t895" href="#t895">895</a></span><span class="t"><span class="txt">    Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t896" href="#t896">896</a></span><span class="t"><span class="txt">    ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t897" href="#t897">897</a></span><span class="t"><span class="txt">    device1: :class:`Device`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t898" href="#t898">898</a></span><span class="t"><span class="txt">        The first device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t899" href="#t899">899</a></span><span class="t"><span class="txt">    device2: :class:`Device`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t900" href="#t900">900</a></span><span class="t"><span class="txt">        The second device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t901" href="#t901">901</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t902" href="#t902">902</a></span><span class="t"><span class="txt">    Returns</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t903" href="#t903">903</a></span><span class="t"><span class="txt">    -------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t904" href="#t904">904</a></span><span class="t"><span class="txt">    :class:`GpuTopologyLevel`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t905" href="#t905">905</a></span><span class="t"><span class="txt">        The common ancestor level of the two devices.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t906" href="#t906">906</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t907" href="#t907">907</a></span><span class="t"><span class="txt">    Retrieve the P2P status between two devices.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t908" href="#t908">908</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t909" href="#t909">909</a></span><span class="t"><span class="txt">    Parameters</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t910" href="#t910">910</a></span><span class="t"><span class="txt">    ----------</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t911" href="#t911">911</a></span><span class="t"><span class="txt">    device1: :class:`Device`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t912" href="#t912">912</a></span><span class="t"><span class="txt">        The first device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t913" href="#t913">913</a></span><span class="t"><span class="txt">    device2: :class:`Device`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t914" href="#t914">914</a></span><span class="t"><span class="txt">        The second device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t915" href="#t915">915</a></span><span class="t"><span class="txt">    index: :class:`GpuP2PCapsIndex`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t916" href="#t916">916</a></span><span class="t"><span class="txt">        The P2P capability index being looked for between ``device1`` and ``device2``.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t917" href="#t917">917</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t918" href="#t918">918</a></span><span class="t"><span class="txt">    Returns</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t919" href="#t919">919</a></span><span class="t"><span class="txt">    -------</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t920" href="#t920">920</a></span><span class="t"><span class="txt">    :class:`GpuP2PStatus`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t921" href="#t921">921</a></span><span class="t"><span class="txt">        The P2P status between the two devices.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t922" href="#t922">922</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t923" href="#t923">923</a></span><span class="t"><span class="txt">    return GpuP2PStatus(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t924" href="#t924">924</a></span><span class="t"><span class="txt">        nvml.device_get_p2p_status(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t925" href="#t925">925</a></span><span class="t"><span class="txt">            device1._handle,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t926" href="#t926">926</a></span><span class="t"><span class="txt">            device2._handle,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t927" href="#t927">927</a></span><span class="t"><span class="txt">            index,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t928" href="#t928">928</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t929" href="#t929">929</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t930" href="#t930">930</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t931" href="#t931">931</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t932" href="#t932">932</a></span><span class="t"><span class="txt">__all__ = [</span>&nbsp;</span><span class="r"><label for="ctxs932" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t933" href="#t933">933</a></span><span class="t"><span class="txt">    "AddressingMode",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t934" href="#t934">934</a></span><span class="t"><span class="txt">    "AffinityScope",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t935" href="#t935">935</a></span><span class="t"><span class="txt">    "BrandType",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t936" href="#t936">936</a></span><span class="t"><span class="txt">    "ClockId",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t937" href="#t937">937</a></span><span class="t"><span class="txt">    "ClocksEventReasons",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t938" href="#t938">938</a></span><span class="t"><span class="txt">    "ClockType",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t939" href="#t939">939</a></span><span class="t"><span class="txt">    "CoolerControl",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t940" href="#t940">940</a></span><span class="t"><span class="txt">    "CoolerTarget",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t941" href="#t941">941</a></span><span class="t"><span class="txt">    "Device",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t942" href="#t942">942</a></span><span class="t"><span class="txt">    "DeviceArch",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t943" href="#t943">943</a></span><span class="t"><span class="txt">    "EventType",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t944" href="#t944">944</a></span><span class="t"><span class="txt">    "FanControlPolicy",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t945" href="#t945">945</a></span><span class="t"><span class="txt">    "FieldId",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t946" href="#t946">946</a></span><span class="t"><span class="txt">    "get_p2p_status",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t947" href="#t947">947</a></span><span class="t"><span class="txt">    "get_topology_common_ancestor",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t948" href="#t948">948</a></span><span class="t"><span class="txt">    "GpuP2PCapsIndex",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t949" href="#t949">949</a></span><span class="t"><span class="txt">    "GpuP2PStatus",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t950" href="#t950">950</a></span><span class="t"><span class="txt">    "GpuTopologyLevel",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t951" href="#t951">951</a></span><span class="t"><span class="txt">    "InforomObject",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t952" href="#t952">952</a></span><span class="t"><span class="txt">    "NvlinkVersion",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t953" href="#t953">953</a></span><span class="t"><span class="txt">    "PcieUtilCounter",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t954" href="#t954">954</a></span><span class="t"><span class="txt">    "Pstates",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t955" href="#t955">955</a></span><span class="t"><span class="txt">    "TemperatureSensors",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t956" href="#t956">956</a></span><span class="t"><span class="txt">    "TemperatureThresholds",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t957" href="#t957">957</a></span><span class="t"><span class="txt">    "ThermalController",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t958" href="#t958">958</a></span><span class="t"><span class="txt">    "ThermalTarget",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t959" href="#t959">959</a></span><span class="t"><span class="txt">    "Utilization",</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t960" href="#t960">960</a></span><span class="t"><span class="txt">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t907" href="#t907">907</a></span><span class="t"><span class="txt">    return GpuTopologyLevel(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t908" href="#t908">908</a></span><span class="t"><span class="txt">        nvml.device_get_topology_common_ancestor(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t909" href="#t909">909</a></span><span class="t"><span class="txt">            device1._handle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t910" href="#t910">910</a></span><span class="t"><span class="txt">            device2._handle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t911" href="#t911">911</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t912" href="#t912">912</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t913" href="#t913">913</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t914" href="#t914">914</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t915" href="#t915">915</a></span><span class="t"><span class="txt">def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex) -> GpuP2PStatus:</span>&nbsp;</span><span class="r"><label for="ctxs915" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t916" href="#t916">916</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t917" href="#t917">917</a></span><span class="t"><span class="txt">    Retrieve the P2P status between two devices.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t918" href="#t918">918</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t919" href="#t919">919</a></span><span class="t"><span class="txt">    Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t920" href="#t920">920</a></span><span class="t"><span class="txt">    ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t921" href="#t921">921</a></span><span class="t"><span class="txt">    device1: :class:`Device`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t922" href="#t922">922</a></span><span class="t"><span class="txt">        The first device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t923" href="#t923">923</a></span><span class="t"><span class="txt">    device2: :class:`Device`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t924" href="#t924">924</a></span><span class="t"><span class="txt">        The second device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t925" href="#t925">925</a></span><span class="t"><span class="txt">    index: :class:`GpuP2PCapsIndex`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t926" href="#t926">926</a></span><span class="t"><span class="txt">        The P2P capability index being looked for between ``device1`` and ``device2``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t927" href="#t927">927</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t928" href="#t928">928</a></span><span class="t"><span class="txt">    Returns</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t929" href="#t929">929</a></span><span class="t"><span class="txt">    -------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t930" href="#t930">930</a></span><span class="t"><span class="txt">    :class:`GpuP2PStatus`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t931" href="#t931">931</a></span><span class="t"><span class="txt">        The P2P status between the two devices.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t932" href="#t932">932</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t933" href="#t933">933</a></span><span class="t"><span class="txt">    return GpuP2PStatus(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t934" href="#t934">934</a></span><span class="t"><span class="txt">        nvml.device_get_p2p_status(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t935" href="#t935">935</a></span><span class="t"><span class="txt">            device1._handle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t936" href="#t936">936</a></span><span class="t"><span class="txt">            device2._handle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t937" href="#t937">937</a></span><span class="t"><span class="txt">            index,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t938" href="#t938">938</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t939" href="#t939">939</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t940" href="#t940">940</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t941" href="#t941">941</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t942" href="#t942">942</a></span><span class="t"><span class="txt">__all__ = [</span>&nbsp;</span><span class="r"><label for="ctxs942" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t943" href="#t943">943</a></span><span class="t"><span class="txt">    "AddressingMode",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t944" href="#t944">944</a></span><span class="t"><span class="txt">    "AffinityScope",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t945" href="#t945">945</a></span><span class="t"><span class="txt">    "BrandType",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t946" href="#t946">946</a></span><span class="t"><span class="txt">    "ClockId",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t947" href="#t947">947</a></span><span class="t"><span class="txt">    "ClocksEventReasons",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t948" href="#t948">948</a></span><span class="t"><span class="txt">    "ClockType",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t949" href="#t949">949</a></span><span class="t"><span class="txt">    "CoolerControl",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t950" href="#t950">950</a></span><span class="t"><span class="txt">    "CoolerTarget",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t951" href="#t951">951</a></span><span class="t"><span class="txt">    "Device",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t952" href="#t952">952</a></span><span class="t"><span class="txt">    "DeviceArch",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t953" href="#t953">953</a></span><span class="t"><span class="txt">    "EventType",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t954" href="#t954">954</a></span><span class="t"><span class="txt">    "FanControlPolicy",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t955" href="#t955">955</a></span><span class="t"><span class="txt">    "FieldId",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t956" href="#t956">956</a></span><span class="t"><span class="txt">    "get_p2p_status",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t957" href="#t957">957</a></span><span class="t"><span class="txt">    "get_topology_common_ancestor",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t958" href="#t958">958</a></span><span class="t"><span class="txt">    "GpuP2PCapsIndex",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t959" href="#t959">959</a></span><span class="t"><span class="txt">    "GpuP2PStatus",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t960" href="#t960">960</a></span><span class="t"><span class="txt">    "GpuTopologyLevel",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t961" href="#t961">961</a></span><span class="t"><span class="txt">    "InforomObject",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t962" href="#t962">962</a></span><span class="t"><span class="txt">    "NvlinkVersion",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t963" href="#t963">963</a></span><span class="t"><span class="txt">    "PcieUtilCounter",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t964" href="#t964">964</a></span><span class="t"><span class="txt">    "Pstates",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t965" href="#t965">965</a></span><span class="t"><span class="txt">    "TemperatureSensors",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t966" href="#t966">966</a></span><span class="t"><span class="txt">    "TemperatureThresholds",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t967" href="#t967">967</a></span><span class="t"><span class="txt">    "ThermalController",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t968" href="#t968">968</a></span><span class="t"><span class="txt">    "ThermalTarget",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t969" href="#t969">969</a></span><span class="t"><span class="txt">    "Utilization",</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t970" href="#t970">970</a></span><span class="t"><span class="txt">]</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -1099,7 +1109,7 @@
             <a class="nav" href="z_dbb36602d1591427__device_utils_pxi.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-28 01:33 +0000
+            created at 2026-04-29 01:27 +0000
         </p>
     </div>
 </footer>

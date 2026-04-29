@@ -21,12 +21,12 @@
   "l": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_event_descriptor-cloudpickle]|run",
   "m": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_event_descriptor-pickle]|run",
   "n": "tests/memory_ipc/test_event_ipc.py::test_event_is_monadic|run",
-  "o": "tests/graph/test_graphdef_lifetime.py::test_event_record_node_preserves_metadata|run",
-  "p": "tests/graph/test_graphdef_lifetime.py::test_event_metadata_survives_gc|run",
-  "q": "tests/graph/test_graphdef_lifetime.py::test_event_wait_node_preserves_metadata|run",
+  "o": "tests/graph/test_graph_definition_lifetime.py::test_event_record_node_preserves_metadata|run",
+  "p": "tests/graph/test_graph_definition_lifetime.py::test_event_metadata_survives_gc|run",
+  "q": "tests/graph/test_graph_definition_lifetime.py::test_event_wait_node_preserves_metadata|run",
   "r": "tests/test_event.py::test_error_timing_disabled|run",
-  "s": "tests/graph/test_graphdef_lifetime.py::test_event_record_node_keeps_event_alive|run",
-  "t": "tests/graph/test_graphdef_lifetime.py::test_event_wait_node_keeps_event_alive|run",
+  "s": "tests/graph/test_graph_definition_lifetime.py::test_event_record_node_keeps_event_alive|run",
+  "t": "tests/graph/test_graph_definition_lifetime.py::test_event_wait_node_keeps_event_alive|run",
   "u": "tests/test_event.py::test_error_timing_incomplete|run",
   "v": "tests/test_event.py::test_error_timing_recorded|run",
   "w": "tests/test_event.py::test_event_is_done_false|run",
@@ -128,22 +128,22 @@
   "Db": "tests/test_object_protocols.py::test_repr_format[sample_event-<Event handle=0x[0-9a-f]+>]|run",
   "Eb": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_event]|run",
   "Fb": "tests/test_object_protocols.py::test_usable_in_set[sample_event]|run",
-  "Gb": "tests/graph/test_graphdef.py::test_instantiate_and_execute_event_record_wait|run",
-  "Hb": "tests/graph/test_graphdef.py::test_node_attrs[event_record]|setup",
-  "Ib": "tests/graph/test_graphdef.py::test_node_attrs[event_wait]|setup",
-  "Jb": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[event_record]|setup",
-  "Kb": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[event_wait]|setup",
-  "Lb": "tests/graph/test_graphdef.py::test_node_isinstance[event_record]|setup",
-  "Mb": "tests/graph/test_graphdef.py::test_node_isinstance[event_wait]|setup",
-  "Nb": "tests/graph/test_graphdef.py::test_node_type_preserved_by_nodes[event_record]|setup",
-  "Ob": "tests/graph/test_graphdef.py::test_node_type_preserved_by_nodes[event_wait]|setup",
-  "Pb": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[event_record]|setup",
-  "Qb": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[event_wait]|setup",
-  "Rb": "tests/graph/test_graphdef.py::test_node_type_property[event_record]|setup",
-  "Sb": "tests/graph/test_graphdef.py::test_node_type_property[event_wait]|setup",
-  "Tb": "tests/graph/test_graphdef_lifetime.py::test_event_survives_graph_clone_and_execution|run",
-  "Ub": "tests/graph/test_graphdef_lifetime.py::test_event_survives_graph_instantiation_and_execution|run",
-  "Vb": "tests/graph/test_graphdef_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
+  "Gb": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_event_record_wait|run",
+  "Hb": "tests/graph/test_graph_definition.py::test_node_attrs[event_record]|setup",
+  "Ib": "tests/graph/test_graph_definition.py::test_node_attrs[event_wait]|setup",
+  "Jb": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[event_record]|setup",
+  "Kb": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[event_wait]|setup",
+  "Lb": "tests/graph/test_graph_definition.py::test_node_isinstance[event_record]|setup",
+  "Mb": "tests/graph/test_graph_definition.py::test_node_isinstance[event_wait]|setup",
+  "Nb": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[event_record]|setup",
+  "Ob": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[event_wait]|setup",
+  "Pb": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[event_record]|setup",
+  "Qb": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[event_wait]|setup",
+  "Rb": "tests/graph/test_graph_definition.py::test_node_type_property[event_record]|setup",
+  "Sb": "tests/graph/test_graph_definition.py::test_node_type_property[event_wait]|setup",
+  "Tb": "tests/graph/test_graph_definition_lifetime.py::test_event_survives_graph_clone_and_execution|run",
+  "Ub": "tests/graph/test_graph_definition_lifetime.py::test_event_survives_graph_instantiation_and_execution|run",
+  "Vb": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
   "Wb": "tests/test_event.py::test_event_creation|run",
   "Xb": "tests/test_object_protocols.py::test_equality_basic[sample_event_record_node]|run",
   "Yb": "tests/test_object_protocols.py::test_equality_basic[sample_event_wait_node]|run",
@@ -263,10 +263,10 @@
   ":c": "tests/test_stream.py::test_stream_wait_event|run",
   ";c": "tests/memory_ipc/test_event_ipc.py::test_event_timing_disabled[options0]|run",
   "=c": "tests/memory_ipc/test_event_ipc.py::test_event_timing_disabled[options1]|run",
-  "?c": "tests/graph/test_graphdef.py::test_node_attrs[event_record]|run",
-  "@c": "tests/graph/test_graphdef.py::test_node_attrs[event_wait]|run",
-  "[c": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[event_record]|run",
-  "]c": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[event_wait]|run",
+  "?c": "tests/graph/test_graph_definition.py::test_node_attrs[event_record]|run",
+  "@c": "tests/graph/test_graph_definition.py::test_node_attrs[event_wait]|run",
+  "[c": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[event_record]|run",
+  "]c": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[event_wait]|run",
   "^c": "tests/test_event.py::test_event_init_disabled|run",
   "_c": "tests/test_event.py::test_ipc_event_descriptor_direct_init|run"
 }
@@ -331,7 +331,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__graphics_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-28 01:33 +0000
+            created at 2026-04-29 01:27 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -684,7 +684,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__graphics_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-28 01:33 +0000
+            created at 2026-04-29 01:27 +0000
         </p>
     </div>
 </footer>

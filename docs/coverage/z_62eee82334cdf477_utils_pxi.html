@@ -27,10 +27,10 @@
   "r": "tests/test_cuda.py::test_graph_poly|run",
   "s": "tests/test_cudart.py::test_cudart_cudaGraphAddMemsetNode|run",
   "t": "tests/test_cuda.py::test_cuda_cuModuleLoadDataEx|run",
-  "u": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[auto-free]|run",
-  "v": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[no-options]|run",
-  "w": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[node-priority]|run",
-  "x": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[upload-stream]|run",
+  "u": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_memcpy[auto-free]|run",
+  "v": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_memcpy[no-options]|run",
+  "w": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_memcpy[node-priority]|run",
+  "x": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_memcpy[upload-stream]|run",
   "y": "tests/test_cuda.py::test_cuda_memcpy|run",
   "z": "tests/test_cudart.py::test_cudart_cudaGraphAddMemcpyNode1D|run",
   "A": "tests/test_cudart.py::test_cudart_cudaMemcpy2DArrayToArray|run",
@@ -78,17 +78,17 @@
   ")": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[1]|run",
   "*": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[False]|run",
   "+": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[True]|run",
-  ",": "tests/graph/test_graph_update.py::test_graph_update_conditional|run",
-  "-": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphBuilder]|run",
-  ".": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDef]|run",
-  "/": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_baseline|run",
-  ":": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_destroy_a1|run",
-  ";": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_destroy_a2|run",
-  "=": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_destroy_joint|run",
-  "?": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_insert_b|run",
-  "@": "tests/graph/test_graphdef_mutation.py::test_convert_linear_to_fan_in|run",
-  "[": "tests/graph/test_graphdef_mutation.py::test_destroyed_node|run",
-  "]": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|run",
+  ",": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_baseline|run",
+  "-": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a1|run",
+  ".": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a2|run",
+  "/": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_joint|run",
+  ":": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_insert_b|run",
+  ";": "tests/graph/test_graph_definition_mutation.py::test_convert_linear_to_fan_in|run",
+  "=": "tests/graph/test_graph_definition_mutation.py::test_destroyed_node|run",
+  "?": "tests/graph/test_graph_update.py::test_graph_update_conditional|run",
+  "@": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphBuilder]|run",
+  "[": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDefinition]|run",
+  "]": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|run",
   "^": "tests/test_cudart.py::test_cudart_func_callback|run",
   "_": "tests/test_cudart.py::test_cudart_hostRegister|run",
   "`": "tests/test_cudart.py::test_cudart_make_api|run",
@@ -232,7 +232,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cufile_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-28 01:33 +0000
+            created at 2026-04-29 01:27 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -388,9 +388,9 @@
     <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">cdef void * _helper_input_void_ptr(ptr, _HelperInputVoidPtrStruct *helper):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    helper[0]._pybuffer.buf = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs142"><span class="r"><label for="ctxs142" class="ctx">156 ctx</label></span><span class="ctxs">2T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . u v w x / : ; = ? @ [ ] q t y r N O z s A B C D E F G H I J K ^ _ ` L { | } ~ abM d b l o m i e c bbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-bP Q R S n .b</span></p>
-    <p class="run"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs143"><span class="r"><label for="ctxs143" class="ctx">156 ctx</label></span><span class="ctxs">2T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . u v w x / : ; = ? @ [ ] q t y r N O z s A B C D E F G H I J K ^ _ ` L { | } ~ abM d b l o m i e c bbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-bP Q R S n .b</span></p>
-    <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        return &lt;void *>&lt;void_ptr>ptr        </span>&nbsp;</span><input type="checkbox" id="ctxs144"><span class="r"><label for="ctxs144" class="ctx">156 ctx</label></span><span class="ctxs">2T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . u v w x / : ; = ? @ [ ] q t y r N O z s A B C D E F G H I J K ^ _ ` L { | } ~ abM d b l o m i e c bbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-bP Q R S n .b</span></p>
+    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    helper[0]._pybuffer.buf = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs142"><span class="r"><label for="ctxs142" class="ctx">156 ctx</label></span><span class="ctxs">2T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + u v w x , - . / : ; = ? @ [ ] q t y r N O z s A B C D E F G H I J K ^ _ ` L { | } ~ abM d b l o m i e c bbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-bP Q R S n .b</span></p>
+    <p class="run"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs143"><span class="r"><label for="ctxs143" class="ctx">156 ctx</label></span><span class="ctxs">2T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + u v w x , - . / : ; = ? @ [ ] q t y r N O z s A B C D E F G H I J K ^ _ ` L { | } ~ abM d b l o m i e c bbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-bP Q R S n .b</span></p>
+    <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        return &lt;void *>&lt;void_ptr>ptr        </span>&nbsp;</span><input type="checkbox" id="ctxs144"><span class="r"><label for="ctxs144" class="ctx">156 ctx</label></span><span class="ctxs">2T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + u v w x , - . / : ; = ? @ [ ] q t y r N O z s A B C D E F G H I J K ^ _ ` L { | } ~ abM d b l o m i e c bbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-bP Q R S n .b</span></p>
     <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    except:</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">31 ctx</label></span><span class="ctxs">1uvwxqyrzsABCDEFGHIJKLMdblomiecn</span></p>
     <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">        if ptr is None:</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">31 ctx</label></span><span class="ctxs">1uvwxqyrzsABCDEFGHIJKLMdblomiecn</span></p>
     <p class="mis show_mis"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">            return NULL</span>&nbsp;</span><span class="r"></span></p>
@@ -866,7 +866,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cufile_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-28 01:33 +0000
+            created at 2026-04-29 01:27 +0000
         </p>
     </div>
 </footer>

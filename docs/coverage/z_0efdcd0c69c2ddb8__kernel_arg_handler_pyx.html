@@ -80,15 +80,15 @@
   "+": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
   ",": "tests/graph/test_graph_builder.py::test_graph_child_graph|run",
   "-": "tests/graph/test_graph_builder.py::test_graph_repeat_capture|run",
-  ".": "tests/graph/test_graph_update.py::test_graph_update_conditional|run",
-  "/": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphBuilder]|run",
-  ":": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDef]|run",
-  ";": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_baseline|run",
-  "=": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_destroy_a1|run",
-  "?": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_destroy_a2|run",
-  "@": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_destroy_joint|run",
-  "[": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_insert_b|run",
-  "]": "tests/graph/test_graphdef_mutation.py::test_convert_linear_to_fan_in|run",
+  ".": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_baseline|run",
+  "/": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a1|run",
+  ":": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a2|run",
+  ";": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_joint|run",
+  "=": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_insert_b|run",
+  "?": "tests/graph/test_graph_definition_mutation.py::test_convert_linear_to_fan_in|run",
+  "@": "tests/graph/test_graph_update.py::test_graph_update_conditional|run",
+  "[": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphBuilder]|run",
+  "]": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDefinition]|run",
   "^": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
   "_": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
   "`": "tests/test_event.py::test_error_timing_incomplete|run",
@@ -99,40 +99,40 @@
   "ab": "tests/graph/test_graph_builder.py::test_graph_is_join_required|run",
   "bb": "tests/graph/test_graph_builder.py::test_graph_straight|run",
   "cb": "tests/graph/test_graph_builder.py::test_graph_stream_lifetime|run",
-  "db": "tests/graph/test_graph_update.py::test_graph_update_topology_mismatch|run",
-  "eb": "tests/graph/test_graph_update.py::test_graph_update_unfinished_builder|run",
-  "fb": "tests/graph/test_graph_update.py::test_graph_update_wrong_type|run",
-  "gb": "tests/graph/test_graphdef.py::test_instantiate_and_execute_child_graph|run",
-  "hb": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[auto-free]|run",
-  "ib": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[no-options]|run",
-  "jb": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[node-priority]|run",
-  "kb": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[upload-stream]|run",
-  "lb": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel_device_launch|run",
-  "mb": "tests/graph/test_graphdef.py::test_launch_chain_dependencies|run",
-  "nb": "tests/graph/test_graphdef.py::test_launch_creates_node|run",
-  "ob": "tests/graph/test_graphdef.py::test_node_attrs[child_graph]|setup",
-  "pb": "tests/graph/test_graphdef.py::test_node_attrs[kernel]|setup",
-  "qb": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[child_graph]|setup",
-  "rb": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[kernel]|setup",
-  "sb": "tests/graph/test_graphdef.py::test_node_isinstance[child_graph]|setup",
-  "tb": "tests/graph/test_graphdef.py::test_node_isinstance[kernel]|setup",
-  "ub": "tests/graph/test_graphdef.py::test_node_type_preserved_by_nodes[child_graph]|setup",
-  "vb": "tests/graph/test_graphdef.py::test_node_type_preserved_by_nodes[kernel]|setup",
-  "wb": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[child_graph]|setup",
-  "xb": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[kernel]|setup",
-  "yb": "tests/graph/test_graphdef.py::test_node_type_property[child_graph]|setup",
-  "zb": "tests/graph/test_graphdef.py::test_node_type_property[kernel]|setup",
-  "Ab": "tests/graph/test_graphdef_errors.py::test_multiple_instantiation|run",
-  "Bb": "tests/graph/test_graphdef_lifetime.py::test_branches_usable_after_parent_deletion[if]|run",
-  "Cb": "tests/graph/test_graphdef_lifetime.py::test_branches_usable_after_parent_deletion[if_else]|run",
-  "Db": "tests/graph/test_graphdef_lifetime.py::test_branches_usable_after_parent_deletion[switch]|run",
-  "Eb": "tests/graph/test_graphdef_lifetime.py::test_branches_usable_after_parent_deletion[while]|run",
-  "Fb": "tests/graph/test_graphdef_lifetime.py::test_child_graph_survives_parent_deletion|run",
-  "Gb": "tests/graph/test_graphdef_lifetime.py::test_kernel_node_keeps_kernel_alive|run",
-  "Hb": "tests/graph/test_graphdef_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
-  "Ib": "tests/graph/test_graphdef_lifetime.py::test_kernel_survives_graph_clone_and_execution|run",
-  "Jb": "tests/graph/test_graphdef_lifetime.py::test_kernel_survives_graph_instantiation_and_execution|run",
-  "Kb": "tests/graph/test_graphdef_lifetime.py::test_nested_child_graph_lifetime|run",
+  "db": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_child_graph|run",
+  "eb": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[auto-free]|run",
+  "fb": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[no-options]|run",
+  "gb": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[node-priority]|run",
+  "hb": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[upload-stream]|run",
+  "ib": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel_device_launch|run",
+  "jb": "tests/graph/test_graph_definition.py::test_launch_chain_dependencies|run",
+  "kb": "tests/graph/test_graph_definition.py::test_launch_creates_node|run",
+  "lb": "tests/graph/test_graph_definition.py::test_node_attrs[child_graph]|setup",
+  "mb": "tests/graph/test_graph_definition.py::test_node_attrs[kernel]|setup",
+  "nb": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[child_graph]|setup",
+  "ob": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[kernel]|setup",
+  "pb": "tests/graph/test_graph_definition.py::test_node_isinstance[child_graph]|setup",
+  "qb": "tests/graph/test_graph_definition.py::test_node_isinstance[kernel]|setup",
+  "rb": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[child_graph]|setup",
+  "sb": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[kernel]|setup",
+  "tb": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[child_graph]|setup",
+  "ub": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[kernel]|setup",
+  "vb": "tests/graph/test_graph_definition.py::test_node_type_property[child_graph]|setup",
+  "wb": "tests/graph/test_graph_definition.py::test_node_type_property[kernel]|setup",
+  "xb": "tests/graph/test_graph_definition_errors.py::test_multiple_instantiation|run",
+  "yb": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[if]|run",
+  "zb": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[if_else]|run",
+  "Ab": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[switch]|run",
+  "Bb": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[while]|run",
+  "Cb": "tests/graph/test_graph_definition_lifetime.py::test_child_graph_survives_parent_deletion|run",
+  "Db": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_keeps_kernel_alive|run",
+  "Eb": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
+  "Fb": "tests/graph/test_graph_definition_lifetime.py::test_kernel_survives_graph_clone_and_execution|run",
+  "Gb": "tests/graph/test_graph_definition_lifetime.py::test_kernel_survives_graph_instantiation_and_execution|run",
+  "Hb": "tests/graph/test_graph_definition_lifetime.py::test_nested_child_graph_lifetime|run",
+  "Ib": "tests/graph/test_graph_update.py::test_graph_update_topology_mismatch|run",
+  "Jb": "tests/graph/test_graph_update.py::test_graph_update_unfinished_builder|run",
+  "Kb": "tests/graph/test_graph_update.py::test_graph_update_wrong_type|run",
   "Lb": "tests/graph/test_options.py::test_graph_build_mode|run",
   "Mb": "tests/graph/test_options.py::test_graph_complete_options|run",
   "Nb": "tests/test_event.py::test_timing_success|run",
@@ -316,7 +316,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__launch_config_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-28 01:33 +0000
+            created at 2026-04-29 01:27 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -446,7 +446,7 @@
     <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">        arg,  # important: keep it a Python object and don't cast</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">        const size_t idx,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        const supported_type* __unused=NULL) except -1:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">    cdef void* ptr = PyMem_Malloc(sizeof(supported_type))</span>&nbsp;</span><input type="checkbox" id="ctxs116"><span class="r"><label for="ctxs116" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">    cdef void* ptr = PyMem_Malloc(sizeof(supported_type))</span>&nbsp;</span><input type="checkbox" id="ctxs116"><span class="r"><label for="ctxs116" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
     <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">    # note: this should also work once ctypes has complex support:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">    # python/cpython#121248</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">    if supported_type is cpp_single_complex:</span>&nbsp;</span><span class="r"></span></p>
@@ -456,10 +456,10 @@
     <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">    elif supported_type is __half_raw:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        (&lt;supported_type*>ptr).x = &lt;int16_t>(arg.view(numpy_int16))</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">1 ctx</label></span><span class="ctxs">1U</span></p>
     <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        (&lt;supported_type*>ptr)[0] = &lt;supported_type>(arg)</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">87 ctx</label></span><span class="ctxs">1O,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
-    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">    data_addresses[idx] = ptr  # take the address to the scalar</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
-    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    data[idx] = ptr  # for later dealloc</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
-    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs129"><span class="r"><label for="ctxs129" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        (&lt;supported_type*>ptr)[0] = &lt;supported_type>(arg)</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">87 ctx</label></span><span class="ctxs">1O,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">    data_addresses[idx] = ptr  # take the address to the scalar</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    data[idx] = ptr  # for later dealloc</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs129"><span class="r"><label for="ctxs129" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
     <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">cdef inline int prepare_tensor_map_arg(</span>&nbsp;</span><span class="r"><label for="ctxs132" class="ctx">(empty)</label></span></p>
@@ -600,19 +600,19 @@
     <p class="pln"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt">cdef class ParamHolder:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">    def __init__(self, kernel_args):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">        if len(kernel_args) == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs270"><span class="r"><label for="ctxs270" class="ctx">246 ctx</label></span><span class="ctxs">2, ~ ab- bbcbs t b c k l m n u v d e o p q r w x y z f g h i 6 7 8 9 ! # $ % ' ( ) . / : dbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKb; = ? @ [ ] LbMbj ^ _ ` { Nb| ObA Q a B Pb+ 4 N M D E K J L I G F H S R 5 U V T * 3 2 1 0 Z Y X W C P } QbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c</span></p>
+    <p class="run"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">        if len(kernel_args) == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs270"><span class="r"><label for="ctxs270" class="ctx">246 ctx</label></span><span class="ctxs">2, ~ ab- bbcbs t b c k l m n u v d e o p q r w x y z f g h i dbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb. / : ; = ? 6 7 8 9 ! # $ % ' ( ) @ [ ] IbJbKbLbMbj ^ _ ` { Nb| ObA Q a B Pb+ 4 N M D E K J L I G F H S R 5 U V T * 3 2 1 0 Z Y X W C P } QbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c</span></p>
     <p class="run"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">            self.ptr = 0</span>&nbsp;</span><input type="checkbox" id="ctxs271"><span class="r"><label for="ctxs271" class="ctx">164 ctx</label></span><span class="ctxs">2~ abbbcbf g h i dbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbj NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c</span></p>
     <p class="run"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">            return</span>&nbsp;</span><input type="checkbox" id="ctxs272"><span class="r"><label for="ctxs272" class="ctx">164 ctx</label></span><span class="ctxs">2~ abbbcbf g h i dbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbj NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c</span></p>
     <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">        cdef size_t n_args = len(kernel_args)</span>&nbsp;</span><input type="checkbox" id="ctxs274"><span class="r"><label for="ctxs274" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">        cdef size_t n_args = len(kernel_args)</span>&nbsp;</span><input type="checkbox" id="ctxs274"><span class="r"><label for="ctxs274" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
     <p class="pln"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">        cdef size_t i</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">        cdef int not_prepared</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">        cdef object arg_type</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">        self.data = vector.vector[voidptr](n_args, nullptr)</span>&nbsp;</span><input type="checkbox" id="ctxs278"><span class="r"><label for="ctxs278" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
-    <p class="run"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">        self.data_addresses = vector.vector[voidptr](n_args)</span>&nbsp;</span><input type="checkbox" id="ctxs279"><span class="r"><label for="ctxs279" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
-    <p class="run"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">        for i, arg in enumerate(kernel_args):</span>&nbsp;</span><input type="checkbox" id="ctxs280"><span class="r"><label for="ctxs280" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
-    <p class="run"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">            arg_type = type(arg)</span>&nbsp;</span><input type="checkbox" id="ctxs281"><span class="r"><label for="ctxs281" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
-    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">            if arg_type is Buffer:</span>&nbsp;</span><input type="checkbox" id="ctxs282"><span class="r"><label for="ctxs282" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">        self.data = vector.vector[voidptr](n_args, nullptr)</span>&nbsp;</span><input type="checkbox" id="ctxs278"><span class="r"><label for="ctxs278" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">        self.data_addresses = vector.vector[voidptr](n_args)</span>&nbsp;</span><input type="checkbox" id="ctxs279"><span class="r"><label for="ctxs279" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">        for i, arg in enumerate(kernel_args):</span>&nbsp;</span><input type="checkbox" id="ctxs280"><span class="r"><label for="ctxs280" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">            arg_type = type(arg)</span>&nbsp;</span><input type="checkbox" id="ctxs281"><span class="r"><label for="ctxs281" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">            if arg_type is Buffer:</span>&nbsp;</span><input type="checkbox" id="ctxs282"><span class="r"><label for="ctxs282" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
     <p class="pln"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">                # we need the address of where the actual buffer address is stored</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">                if type(arg.handle) is int:</span>&nbsp;</span><input type="checkbox" id="ctxs284"><span class="r"><label for="ctxs284" class="ctx">12 ctx</label></span><span class="ctxs">16789!#$%'()}</span></p>
     <p class="pln"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">                    # see note below on handling int arguments</span>&nbsp;</span><span class="r"></span></p>
@@ -622,17 +622,17 @@
     <p class="pln"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">                    # it's a CUdeviceptr:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">                    self.data_addresses[i] = &lt;void*>&lt;intptr_t>(arg.handle.getPtr())</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">                continue</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">            elif arg_type is bool:</span>&nbsp;</span><input type="checkbox" id="ctxs292"><span class="r"><label for="ctxs292" class="ctx">87 ctx</label></span><span class="ctxs">1O,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP</span></p>
+    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">            elif arg_type is bool:</span>&nbsp;</span><input type="checkbox" id="ctxs292"><span class="r"><label for="ctxs292" class="ctx">87 ctx</label></span><span class="ctxs">1O,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP</span></p>
     <p class="run"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">                prepare_arg[cpp_bool](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><input type="checkbox" id="ctxs293"><span class="r"><label for="ctxs293" class="ctx">6 ctx</label></span><span class="ctxs">1bcdej+</span></p>
     <p class="run"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">                continue</span>&nbsp;</span><input type="checkbox" id="ctxs294"><span class="r"><label for="ctxs294" class="ctx">6 ctx</label></span><span class="ctxs">1bcdej+</span></p>
-    <p class="run"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">            elif arg_type is int:</span>&nbsp;</span><input type="checkbox" id="ctxs295"><span class="r"><label for="ctxs295" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP</span></p>
+    <p class="run"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">            elif arg_type is int:</span>&nbsp;</span><input type="checkbox" id="ctxs295"><span class="r"><label for="ctxs295" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP</span></p>
     <p class="pln"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">                # Here's the dilemma: We want to have a fast path to pass in Python</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">                # integers as pointer addresses, but one could also (mistakenly) pass</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">                # it with the intention of passing a scalar integer. It's a mistake</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">                # bacause a Python int is ambiguous (arbitrary width). Our judgement</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">                # call here is to treat it as a pointer address, without any warning!</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">                prepare_arg[intptr_t](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><input type="checkbox" id="ctxs301"><span class="r"><label for="ctxs301" class="ctx">81 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]^_`{|+4NMDEKJLIGFHSR5UVT*3210ZYXWCP</span></p>
-    <p class="run"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">                continue</span>&nbsp;</span><input type="checkbox" id="ctxs302"><span class="r"><label for="ctxs302" class="ctx">81 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]^_`{|+4NMDEKJLIGFHSR5UVT*3210ZYXWCP</span></p>
+    <p class="run"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">                prepare_arg[intptr_t](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><input type="checkbox" id="ctxs301"><span class="r"><label for="ctxs301" class="ctx">81 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]^_`{|+4NMDEKJLIGFHSR5UVT*3210ZYXWCP</span></p>
+    <p class="run"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">                continue</span>&nbsp;</span><input type="checkbox" id="ctxs302"><span class="r"><label for="ctxs302" class="ctx">81 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]^_`{|+4NMDEKJLIGFHSR5UVT*3210ZYXWCP</span></p>
     <p class="run"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">            elif arg_type is float:</span>&nbsp;</span><input type="checkbox" id="ctxs303"><span class="r"><label for="ctxs303" class="ctx">58 ctx</label></span><span class="ctxs">1stbcklmnuvdeopqrwxyzfghijAQaB4NMDEKJLIGFHSR5UVT*3210ZYXWCP</span></p>
     <p class="run"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">                prepare_arg[double](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><input type="checkbox" id="ctxs304"><span class="r"><label for="ctxs304" class="ctx">1 ctx</label></span><span class="ctxs">1*</span></p>
     <p class="run"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">                continue</span>&nbsp;</span><input type="checkbox" id="ctxs305"><span class="r"><label for="ctxs305" class="ctx">1 ctx</label></span><span class="ctxs">1*</span></p>
@@ -677,13 +677,13 @@
     <p class="pln"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">                # TODO: support ctypes/numpy struct</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">                raise TypeError("the argument is of unsupported type: " + str(type(arg)))</span>&nbsp;</span><input type="checkbox" id="ctxs345"><span class="r"><label for="ctxs345" class="ctx">1 ctx</label></span><span class="ctxs">1B</span></p>
     <p class="pln"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">        self.kernel_args = kernel_args</span>&nbsp;</span><input type="checkbox" id="ctxs347"><span class="r"><label for="ctxs347" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
-    <p class="run"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t"><span class="txt">        self.ptr = &lt;intptr_t>self.data_addresses.data()</span>&nbsp;</span><input type="checkbox" id="ctxs348"><span class="r"><label for="ctxs348" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">        self.kernel_args = kernel_args</span>&nbsp;</span><input type="checkbox" id="ctxs347"><span class="r"><label for="ctxs347" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t"><span class="txt">        self.ptr = &lt;intptr_t>self.data_addresses.data()</span>&nbsp;</span><input type="checkbox" id="ctxs348"><span class="r"><label for="ctxs348" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
     <p class="pln"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">        for data in self.data:</span>&nbsp;</span><input type="checkbox" id="ctxs351"><span class="r"><label for="ctxs351" class="ctx">247 ctx</label></span><span class="ctxs">2O , ~ ab- bbcbs t b c k l m n u v d e o p q r w x y z f g h i 6 7 8 9 ! # $ % ' ( ) . / : dbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKb; = ? @ [ ] LbMbj ^ _ ` { Nb| ObA Q a B Pb+ 4 N M D E K J L I G F H S R 5 U V T * 3 2 1 0 Z Y X W C P } QbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c</span></p>
-    <p class="run"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">            if data:</span>&nbsp;</span><input type="checkbox" id="ctxs352"><span class="r"><label for="ctxs352" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
-    <p class="run"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">                PyMem_Free(data)</span>&nbsp;</span><input type="checkbox" id="ctxs353"><span class="r"><label for="ctxs353" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi6789!#$%'()./:;=?@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">        for data in self.data:</span>&nbsp;</span><input type="checkbox" id="ctxs351"><span class="r"><label for="ctxs351" class="ctx">247 ctx</label></span><span class="ctxs">2O , ~ ab- bbcbs t b c k l m n u v d e o p q r w x y z f g h i dbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb. / : ; = ? 6 7 8 9 ! # $ % ' ( ) @ [ ] IbJbKbLbMbj ^ _ ` { Nb| ObA Q a B Pb+ 4 N M D E K J L I G F H S R 5 U V T * 3 2 1 0 Z Y X W C P } QbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c</span></p>
+    <p class="run"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">            if data:</span>&nbsp;</span><input type="checkbox" id="ctxs352"><span class="r"><label for="ctxs352" class="ctx">87 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQaB+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
+    <p class="run"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">                PyMem_Free(data)</span>&nbsp;</span><input type="checkbox" id="ctxs353"><span class="r"><label for="ctxs353" class="ctx">86 ctx</label></span><span class="ctxs">1,-stbcklmnuvdeopqrwxyzfghi./:;=?6789!#$%'()@[]j^_`{|AQa+4NMDEKJLIGFHSR5UVT*3210ZYXWCP}</span></p>
 </main>
 <footer>
     <div class="content">
@@ -693,7 +693,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__launch_config_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-28 01:33 +0000
+            created at 2026-04-29 01:27 +0000
         </p>
     </div>
 </footer>
