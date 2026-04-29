@@ -435,8 +435,7 @@ jobs:
           ref: main
           fetch-depth: 1
           sparse-checkout: |
-            ci/tools/report_universally_skipped_tests.py
-          sparse-checkout-cone-mode: false
+            ci/tools
 
       - name: Report universally-skipped tests
         env:
