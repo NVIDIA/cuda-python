@@ -99,10 +99,6 @@ elif [[ "${test_module}" == "nightly-pytorch" || "${test_module}" == "nightly-nu
   # Install ALL wheels (pathfinder + bindings + core) and the optional dep
   # in a single pip call so pip resolves version constraints in one shot
   # and avoids costly uninstall/reinstall cycles.
-  #
-  # We pushd into cuda_core/ so that --group reads test dependency groups
-  # from cuda_core/pyproject.toml (needed for numpy, cupy, ml_dtypes, etc.).
-  # All other wheel paths use ../ to reach the repo root.
 
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
   CUDA_VER_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
@@ -112,14 +108,11 @@ elif [[ "${test_module}" == "nightly-pytorch" || "${test_module}" == "nightly-nu
     FREE_THREADING+="-ft"
   fi
 
-  # Resolve the pathfinder wheel path before pushd (it's relative to repo root).
-  # CUDA_BINDINGS_ARTIFACTS_DIR and CUDA_CORE_ARTIFACTS_DIR are already absolute
-  # (set via realpath in env-vars).
+  # Resolve pathfinder wheel to absolute path before pushd.
+  # CUDA_BINDINGS_ARTIFACTS_DIR and CUDA_CORE_ARTIFACTS_DIR are already
+  # absolute (set via realpath in env-vars).
   PATHFINDER_WHL=($(realpath ./cuda_pathfinder/*.whl))
 
-  pushd ./cuda_core
-
-  # Build wheel specs (paths are absolute, so pushd doesn't affect them)
   BINDINGS_WHL=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
   if [[ "${LOCAL_CTK}" != 1 ]]; then
     BINDINGS_WHL=("${BINDINGS_WHL[0]}[all]")
@@ -130,18 +123,23 @@ elif [[ "${test_module}" == "nightly-pytorch" || "${test_module}" == "nightly-nu
     CORE_WHL=("${CORE_WHL[0]}[cu${TEST_CUDA_MAJOR}]")
   fi
 
-  # All packages in one pip call: pathfinder + bindings + core + test deps + optional dep
+  # pushd so --group reads test dependency groups from cuda_core/pyproject.toml.
+  # The explicit cuda-toolkit[...]==X.Y.* pin overrides the group's looser ==X.*.
+  pushd ./cuda_core
+
   PIP_ARGS=(
     "${PATHFINDER_WHL[@]}"
     "${BINDINGS_WHL[@]}"
     "${CORE_WHL[@]}"
     --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
-    "cuda-toolkit==${CUDA_VER_MINOR}.*"
   )
 
   if [[ "${test_module}" == "nightly-pytorch" ]]; then
     # TORCH_VER and TORCH_CUDA must be set by the caller.
+    # Use cuda-toolkit[cudart] only — torch brings its own nvcc/nvrtc/etc.
+    # This avoids version conflicts between our nvidia-* pins and torch's.
     echo "Installing pathfinder + bindings + core + test deps + PyTorch ${TORCH_VER} (${TORCH_CUDA})"
+    PIP_ARGS+=("cuda-toolkit[cudart]==${CUDA_VER_MINOR}.*")
     if [[ "${TORCH_VER}" == "latest" ]]; then
       PIP_ARGS+=(torch)
     else
@@ -150,7 +148,13 @@ elif [[ "${test_module}" == "nightly-pytorch" || "${test_module}" == "nightly-nu
     PIP_ARGS+=(--extra-index-url "https://download.pytorch.org/whl/${TORCH_CUDA}")
   elif [[ "${test_module}" == "nightly-numba-cuda" ]]; then
     echo "Installing pathfinder + bindings + core + test deps + numba-cuda"
-    PIP_ARGS+=("numba-cuda[cu${TEST_CUDA_MAJOR}]")
+    # numba-cuda's test-cuXX group deps (can't use --group for a wheel install):
+    PIP_ARGS+=(
+      "cuda-toolkit[curand,cublas]==${CUDA_VER_MINOR}.*"
+      "numba-cuda[cu${TEST_CUDA_MAJOR}]"
+      "cupy-cuda${TEST_CUDA_MAJOR}x"
+      psutil cffi pytest-xdist pytest-benchmark filecheck ml_dtypes statistics
+    )
   fi
 
   pip install "${PIP_ARGS[@]}"
