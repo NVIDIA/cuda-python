@@ -14,9 +14,9 @@ cuda.core.system.\_device.Temperature
 
    
    .. automethod:: __init__
-   .. automethod:: sensor
-   .. automethod:: thermal_settings
-   .. automethod:: threshold
+   .. automethod:: get_sensor
+   .. automethod:: get_thermal_settings
+   .. automethod:: get_threshold
 
    
    

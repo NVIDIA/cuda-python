@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=da2e7649"></script>
+    <script src="../_static/documentation_options.js?v=b7c952d8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev56';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev77';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -518,9 +518,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -571,6 +571,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FanControlPolicy.html">cuda.core.system.FanControlPolicy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.InforomObject.html">cuda.core.system.InforomObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkVersion.html">cuda.core.system.NvlinkVersion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.PcieUtilCounter.html">cuda.core.system.PcieUtilCounter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Pstates.html">cuda.core.system.Pstates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.TemperatureSensors.html">cuda.core.system.TemperatureSensors</a></li>
@@ -591,6 +592,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.0.0-notes.html">1.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
@@ -670,56 +672,8 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.get_current_pcie_link_generation">
-<span class="sig-name descname"><span class="pre">get_current_pcie_link_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.get_current_pcie_link_generation" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve the current PCIe link generation.</p>
-<p>For Fermi™ or newer fully supported devices.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.get_current_pcie_link_width">
-<span class="sig-name descname"><span class="pre">get_current_pcie_link_width</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.get_current_pcie_link_width" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve the current PCIe link width.</p>
-<p>For Fermi™ or newer fully supported devices.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.get_gpu_max_pcie_link_generation">
-<span class="sig-name descname"><span class="pre">get_gpu_max_pcie_link_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.get_gpu_max_pcie_link_generation" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve the maximum PCIe link generation supported by this GPU device.</p>
-<p>For Fermi™ or newer fully supported devices.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.get_max_pcie_link_generation">
-<span class="sig-name descname"><span class="pre">get_max_pcie_link_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.get_max_pcie_link_generation" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve the maximum PCIe link generation possible with this device and system.</p>
-<p>For Fermi™ or newer fully supported devices.</p>
-<p>For example, for a generation 2 PCIe device attached to a generation 1
-PCIe bus, the max link generation this function will report is
-generation 1.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.get_max_pcie_link_width">
-<span class="sig-name descname"><span class="pre">get_max_pcie_link_width</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.get_max_pcie_link_width" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve the maximum PCIe link width possible with this device and system.</p>
-<p>For Fermi™ or newer fully supported devices.</p>
-<p>For example, for a device with a 16x PCIe bus width attached to a 8x
-PCIe system bus this function will report
-a max link width of 8.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.get_pcie_replay_counter">
-<span class="sig-name descname"><span class="pre">get_pcie_replay_counter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.get_pcie_replay_counter" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve the PCIe replay counter.</p>
-<p>For Kepler™ or newer fully supported devices.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.get_pcie_throughput">
-<span class="sig-name descname"><span class="pre">get_pcie_throughput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.PcieUtilCounter.html#cuda.core.system.PcieUtilCounter" title="cuda.core.system.PcieUtilCounter"><span class="pre">PcieUtilCounter</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.get_pcie_throughput" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.get_throughput">
+<span class="sig-name descname"><span class="pre">get_throughput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.PcieUtilCounter.html#cuda.core.system.PcieUtilCounter" title="cuda.core.system.PcieUtilCounter"><span class="pre">PcieUtilCounter</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.get_throughput" title="Link to this definition">#</a></dt>
 <dd><p>Retrieve PCIe utilization information, in KB/s.</p>
 <p>This function is querying a byte counter over a 20ms interval, and thus
 is the PCIe throughput over that interval.</p>
@@ -748,6 +702,20 @@ is the PCIe throughput over that interval.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.current_link_generation">
+<span class="sig-name descname"><span class="pre">current_link_generation</span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.current_link_generation" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the current PCIe link generation.</p>
+<p>For Fermi™ or newer fully supported devices.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.current_link_width">
+<span class="sig-name descname"><span class="pre">current_link_width</span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.current_link_width" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the current PCIe link width.</p>
+<p>For Fermi™ or newer fully supported devices.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.device">
 <span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.device" title="Link to this definition">#</a></dt>
 <dd><p>The device’s id on the bus, 0 to 31</p>
@@ -763,6 +731,40 @@ is the PCIe throughput over that interval.</p>
 <dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.domain">
 <span class="sig-name descname"><span class="pre">domain</span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.domain" title="Link to this definition">#</a></dt>
 <dd><p>The PCI domain on which the device’s bus resides, 0 to 0xffffffff</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.link_generation">
+<span class="sig-name descname"><span class="pre">link_generation</span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.link_generation" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the maximum PCIe link generation possible with this device and system.</p>
+<p>For Fermi™ or newer fully supported devices.</p>
+<p>For example, for a generation 2 PCIe device attached to a generation 1
+PCIe bus, the max link generation this function will report is
+generation 1.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.max_link_generation">
+<span class="sig-name descname"><span class="pre">max_link_generation</span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.max_link_generation" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the maximum PCIe link generation supported by this GPU device.</p>
+<p>For Fermi™ or newer fully supported devices.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.max_link_width">
+<span class="sig-name descname"><span class="pre">max_link_width</span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.max_link_width" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the maximum PCIe link width possible with this device and system.</p>
+<p>For Fermi™ or newer fully supported devices.</p>
+<p>For example, for a device with a 16x PCIe bus width attached to a 8x
+PCIe system bus this function will report
+a max link width of 8.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system._device.PciInfo.replay_counter">
+<span class="sig-name descname"><span class="pre">replay_counter</span></span><a class="headerlink" href="#cuda.core.system._device.PciInfo.replay_counter" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the PCIe replay counter.</p>
+<p>For Kepler™ or newer fully supported devices.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -820,19 +822,19 @@ is the PCIe throughput over that interval.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo"><code class="docutils literal notranslate"><span class="pre">PciInfo</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.__init__"><code class="docutils literal notranslate"><span class="pre">PciInfo.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.get_current_pcie_link_generation"><code class="docutils literal notranslate"><span class="pre">PciInfo.get_current_pcie_link_generation()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.get_current_pcie_link_width"><code class="docutils literal notranslate"><span class="pre">PciInfo.get_current_pcie_link_width()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.get_gpu_max_pcie_link_generation"><code class="docutils literal notranslate"><span class="pre">PciInfo.get_gpu_max_pcie_link_generation()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.get_max_pcie_link_generation"><code class="docutils literal notranslate"><span class="pre">PciInfo.get_max_pcie_link_generation()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.get_max_pcie_link_width"><code class="docutils literal notranslate"><span class="pre">PciInfo.get_max_pcie_link_width()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.get_pcie_replay_counter"><code class="docutils literal notranslate"><span class="pre">PciInfo.get_pcie_replay_counter()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.get_pcie_throughput"><code class="docutils literal notranslate"><span class="pre">PciInfo.get_pcie_throughput()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.get_throughput"><code class="docutils literal notranslate"><span class="pre">PciInfo.get_throughput()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.base_class"><code class="docutils literal notranslate"><span class="pre">PciInfo.base_class</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.bus"><code class="docutils literal notranslate"><span class="pre">PciInfo.bus</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.bus_id"><code class="docutils literal notranslate"><span class="pre">PciInfo.bus_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.current_link_generation"><code class="docutils literal notranslate"><span class="pre">PciInfo.current_link_generation</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.current_link_width"><code class="docutils literal notranslate"><span class="pre">PciInfo.current_link_width</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.device"><code class="docutils literal notranslate"><span class="pre">PciInfo.device</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.device_id"><code class="docutils literal notranslate"><span class="pre">PciInfo.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.domain"><code class="docutils literal notranslate"><span class="pre">PciInfo.domain</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.link_generation"><code class="docutils literal notranslate"><span class="pre">PciInfo.link_generation</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.max_link_generation"><code class="docutils literal notranslate"><span class="pre">PciInfo.max_link_generation</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.max_link_width"><code class="docutils literal notranslate"><span class="pre">PciInfo.max_link_width</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.replay_counter"><code class="docutils literal notranslate"><span class="pre">PciInfo.replay_counter</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.sub_class"><code class="docutils literal notranslate"><span class="pre">PciInfo.sub_class</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.subsystem_id"><code class="docutils literal notranslate"><span class="pre">PciInfo.subsystem_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system._device.PciInfo.vendor_id"><code class="docutils literal notranslate"><span class="pre">PciInfo.vendor_id</span></code></a></li>
