@@ -16,12 +16,19 @@ import pyperf
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 BENCH_DIR = PROJECT_ROOT / "benchmarks"
 DEFAULT_OUTPUT = PROJECT_ROOT / "results-python.json"
+# Env var used to propagate the --benchmark filter from the parent to pyperf
+# worker subprocesses. pyperf reconstructs worker argv from scratch and drops
+# custom flags like --benchmark, so without this the worker would register the
+# full bench list and pyperf would run the wrong bench by task index.
+BENCH_FILTER_ENV_VAR = "CUDA_BINDINGS_BENCH_FILTER"
+
 PYPERF_INHERITED_ENV_VARS = (
     "CUDA_HOME",
     "CUDA_PATH",
     "CUDA_VISIBLE_DEVICES",
     "LD_LIBRARY_PATH",
     "NVIDIA_VISIBLE_DEVICES",
+    BENCH_FILTER_ENV_VAR,
 )
 _MODULE_CACHE: dict[Path, ModuleType] = {}
 
@@ -68,7 +75,43 @@ def _lazy_benchmark(module_path: Path, function_name: str) -> Callable[[int], fl
         return loaded_function(loops)
 
     run.__name__ = function_name
+    # Expose the binding source so the runner can introspect skip lists before
+    # handing the benchmark to pyperf. Accessing these attributes does not
+    # trigger module import — discovery stays lazy.
+    run._bench_module_path = module_path  # type: ignore[attr-defined]
+    run._bench_function_name = function_name  # type: ignore[attr-defined]
     return run
+
+
+def _collect_skipped_benchmarks(
+    bench_ids: list[str],
+    registry: dict[str, Callable[[int], float]],
+) -> set[str]:
+    """Return bench IDs that the owning module has marked as unsupported.
+
+    Benchmark modules may declare a module-level
+    ``SKIPPED_BENCHMARKS: set[str]`` containing the names of ``bench_*``
+    functions whose underlying API is unavailable on the current driver or
+    device (e.g. TMA encoders on pre-Hopper GPUs). Loading the module runs
+    its import-time probe, so this call is the same cost as the first
+    real invocation would have been.
+    """
+    skipped: set[str] = set()
+    loaded_modules: dict[Path, ModuleType] = {}
+    for bench_id in bench_ids:
+        fn = registry[bench_id]
+        module_path = getattr(fn, "_bench_module_path", None)
+        function_name = getattr(fn, "_bench_function_name", None)
+        if module_path is None or function_name is None:
+            continue
+        module = loaded_modules.get(module_path)
+        if module is None:
+            module = load_module(module_path)
+            loaded_modules[module_path] = module
+        module_skip = getattr(module, "SKIPPED_BENCHMARKS", None)
+        if module_skip and function_name in module_skip:
+            skipped.add(bench_id)
+    return skipped
 
 
 def discover_benchmarks() -> dict[str, Callable[[int], float]]:
@@ -183,13 +226,24 @@ def main() -> None:
             print(bench_id)
         return
 
-    if parsed.benchmark:
-        missing = sorted(set(parsed.benchmark) - set(registry))
+    # The --benchmark filter must be the same in the parent and in any pyperf
+    # worker subprocess, otherwise pyperf's task-index bookkeeping points at
+    # the wrong bench. pyperf drops unknown CLI flags when spawning workers,
+    # so fall back to an env var carrying the filter.
+    requested = list(parsed.benchmark)
+    env_filter = os.environ.get(BENCH_FILTER_ENV_VAR, "")
+    if not requested and env_filter:
+        requested = [bid for bid in env_filter.split(",") if bid]
+
+    if requested:
+        missing = sorted(set(requested) - set(registry))
         if missing:
             known = ", ".join(sorted(registry))
             unknown = ", ".join(missing)
             raise ValueError(f"Unknown benchmark(s): {unknown}. Known benchmarks: {known}")
-        benchmark_ids = parsed.benchmark
+        benchmark_ids = requested
+        # Propagate to any pyperf worker we're about to spawn.
+        os.environ[BENCH_FILTER_ENV_VAR] = ",".join(benchmark_ids)
     else:
         benchmark_ids = sorted(registry)
 
@@ -204,6 +258,16 @@ def main() -> None:
         output_path.unlink(missing_ok=True)
 
     sys.argv = [sys.argv[0], "--append", str(output_path), *remaining_argv]
+
+    # Drop benchmarks that the owning module has marked as unavailable on
+    # this driver/device. Without this step a single unsupported bench
+    # (e.g. TMA on a pre-Hopper GPU) would abort the whole pyperf run,
+    # since pyperf treats a raised exception as a fatal worker failure.
+    skipped = _collect_skipped_benchmarks(benchmark_ids, registry)
+    if skipped and not is_worker:
+        for bench_id in sorted(skipped):
+            print(f"Skipping {bench_id}: unsupported on this driver/device", file=sys.stderr)
+    benchmark_ids = [bench_id for bench_id in benchmark_ids if bench_id not in skipped]
 
     runner = pyperf.Runner()
     for bench_id in benchmark_ids:
