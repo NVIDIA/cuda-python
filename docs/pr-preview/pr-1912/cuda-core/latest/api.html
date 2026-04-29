@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=fe8da51d"></script>
+    <script src="_static/documentation_options.js?v=4bb8487f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev92';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev73';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -520,9 +520,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -767,7 +767,7 @@ on other non-blocking streams.</p>
 allowing them to be defined once and launched repeatedly with minimal
 CPU overhead. Graphs can be constructed in two ways:
 <a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> captures operations from a stream, while
-<a class="reference internal" href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef" title="cuda.core.graph.GraphDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDef</span></code></a> builds a graph explicitly by adding nodes and
+<a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code></a> builds a graph explicitly by adding nodes and
 edges. Both produce an executable <a class="reference internal" href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></a> that can be
 launched on a <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a>.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
@@ -778,13 +778,13 @@ launched on a <a class="reference internal" href="generated/cuda.core.Stream.htm
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphBuilder</span></code></a>()</p></td>
 <td><p>A graph under construction by stream capture.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef" title="cuda.core.graph.GraphDef"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphDef</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphDefinition</span></code></a>()</p></td>
 <td><p>A graph definition.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphNode</span></code></a></p></td>
 <td><p>A node in a graph definition.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.Condition.html#cuda.core.graph.Condition" title="cuda.core.graph.Condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.Condition</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphCondition</span></code></a></p></td>
 <td><p>A condition variable for conditional graph nodes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphAllocOptions.html#cuda.core.graph.GraphAllocOptions" title="cuda.core.graph.GraphAllocOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphAllocOptions</span></code></a>([device, ...])</p></td>

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=fe8da51d"></script>
+    <script src="../_static/documentation_options.js?v=4bb8487f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev92';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev73';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -520,9 +520,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -720,6 +720,19 @@ name expressions is <strong>not</strong> preserved across a cache round-trip –
 the binary alone is stored. Callers that need <code class="docutils literal notranslate"><span class="pre">symbol_mapping</span></code>
 for <code class="docutils literal notranslate"><span class="pre">get_kernel(name_expression)</span></code> should compile fresh, or look
 the mangled symbol up by hand.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Concurrent-access idiom.</strong></p>
+<p>Use <a class="reference internal" href="#cuda.core.utils.ProgramCacheResource.get" title="cuda.core.utils.ProgramCacheResource.get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get()</span></code></a> (or <code class="docutils literal notranslate"><span class="pre">data</span> <span class="pre">=</span> <span class="pre">cache[key]</span></code> inside a <code class="docutils literal notranslate"><span class="pre">try</span> <span class="pre">/</span>
+<span class="pre">except</span> <span class="pre">KeyError</span></code>) for lookups. There is intentionally no
+<code class="docutils literal notranslate"><span class="pre">__contains__</span></code>: the obvious <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">key</span> <span class="pre">in</span> <span class="pre">cache:</span> <span class="pre">data</span> <span class="pre">=</span>
+<span class="pre">cache[key]</span></code> idiom is racy across processes (another writer
+can <code class="docutils literal notranslate"><span class="pre">os.replace</span></code> over the entry, or eviction can unlink
+it, between the check and the read), and exposing
+<code class="docutils literal notranslate"><span class="pre">__contains__</span></code> invites that pattern. <code class="docutils literal notranslate"><span class="pre">get</span></code> answers
+both questions in one filesystem-level operation, so a
+successful return always carries the bytes.</p>
+</div>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.ProgramCacheResource.__init__">

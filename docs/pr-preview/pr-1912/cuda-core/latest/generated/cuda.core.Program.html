@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=fe8da51d"></script>
+    <script src="../_static/documentation_options.js?v=4bb8487f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev92';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev73';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -520,9 +520,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -731,22 +731,24 @@ For NVVM IR, can be str, bytes, or bytearray.</p></li>
 Used for template instantiation and similar cases.</p></li>
 <li><p><strong>logs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – Object with a <code class="docutils literal notranslate"><span class="pre">write</span></code> method to receive compilation logs.</p></li>
 <li><p><strong>cache</strong> (<a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a>, optional) – If provided, the compiled binary is looked up in <code class="docutils literal notranslate"><span class="pre">cache</span></code> via a
-key derived from the program’s code, options, <code class="docutils literal notranslate"><span class="pre">target_type</span></code> and
-<code class="docutils literal notranslate"><span class="pre">name_expressions</span></code>. On a hit the cached bytes are wrapped in a
-fresh <a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> (with the same <code class="docutils literal notranslate"><span class="pre">target_type</span></code>
+key derived from the program’s code, options, and <code class="docutils literal notranslate"><span class="pre">target_type</span></code>.
+On a hit the cached bytes are wrapped in a fresh
+<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> (with the same <code class="docutils literal notranslate"><span class="pre">target_type</span></code>
 and <code class="docutils literal notranslate"><span class="pre">ProgramOptions.name</span></code>) and returned without re-compiling;
 on a miss the compile output is stored as raw bytes (the cache
-extracts <code class="docutils literal notranslate"><span class="pre">bytes(object_code.code)</span></code>). Note that
-<code class="docutils literal notranslate"><span class="pre">ObjectCode.symbol_mapping</span></code> is not preserved across a cache
-round-trip – callers using <code class="docutils literal notranslate"><span class="pre">name_expressions</span></code> who need
-<code class="docutils literal notranslate"><span class="pre">get_kernel(name_expression)</span></code> after a hit must compile fresh
-or look the mangled symbol up by hand. Options that require an
-<code class="docutils literal notranslate"><span class="pre">extra_digest</span></code> (<code class="docutils literal notranslate"><span class="pre">include_path</span></code>, <code class="docutils literal notranslate"><span class="pre">pre_include</span></code>, <code class="docutils literal notranslate"><span class="pre">pch</span></code>,
-<code class="docutils literal notranslate"><span class="pre">use_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>, NVVM <code class="docutils literal notranslate"><span class="pre">use_libdevice=True</span></code>, or NVRTC
-<code class="docutils literal notranslate"><span class="pre">options.name</span></code> with a directory component) raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>
-via <a class="reference internal" href="cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a>; for those
-compiles, use the manual <code class="docutils literal notranslate"><span class="pre">make_program_cache_key(...)</span></code> pattern
-directly.</p></li>
+extracts <code class="docutils literal notranslate"><span class="pre">bytes(object_code.code)</span></code>). Passing a non-empty
+<code class="docutils literal notranslate"><span class="pre">name_expressions</span></code> together with <code class="docutils literal notranslate"><span class="pre">cache=</span></code> raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>: NVRTC populates
+<code class="docutils literal notranslate"><span class="pre">ObjectCode.symbol_mapping</span></code> at compile time and that mapping
+is not carried in the binary the cache stores, so cache hits
+would silently miss <code class="docutils literal notranslate"><span class="pre">get_kernel(name_expression)</span></code> lookups.
+Options that require an <code class="docutils literal notranslate"><span class="pre">extra_digest</span></code> (<code class="docutils literal notranslate"><span class="pre">include_path</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pre_include</span></code>, <code class="docutils literal notranslate"><span class="pre">pch</span></code>, <code class="docutils literal notranslate"><span class="pre">use_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>, NVVM
+<code class="docutils literal notranslate"><span class="pre">use_libdevice=True</span></code>, or NVRTC <code class="docutils literal notranslate"><span class="pre">options.name</span></code> with a
+directory component) raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> via
+<a class="reference internal" href="cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a>; for those
+compiles, use the manual <code class="docutils literal notranslate"><span class="pre">make_program_cache_key(...)</span></code>
+pattern directly.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
