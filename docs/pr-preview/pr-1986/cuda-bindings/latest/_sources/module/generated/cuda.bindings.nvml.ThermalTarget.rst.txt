@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.ThermalTarget
+================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: ThermalTarget

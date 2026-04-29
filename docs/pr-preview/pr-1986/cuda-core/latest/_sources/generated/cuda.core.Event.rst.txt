@@ -1,0 +1,38 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.Event
+===============
+
+.. currentmodule:: cuda.core
+
+.. autoclass:: Event
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: close
+   .. automethod:: from_ipc_descriptor
+   .. automethod:: sync
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: context
+   .. autoattribute:: device
+   .. autoattribute:: handle
+   .. autoattribute:: ipc_descriptor
+   .. autoattribute:: is_done
+   .. autoattribute:: is_ipc_enabled
+   .. autoattribute:: is_timing_enabled
+   .. autoattribute:: uses_blocking_sync
+   
+   
