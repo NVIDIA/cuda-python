@@ -274,8 +274,8 @@ jobs:
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
           pip install pyperf
-          pushd cuda_bindings/benchmarks
-          python run_pyperf.py --fast --min-time 1
+          pushd benchmarks/cuda_bindings
+          python run_pyperf.py --debug-single-value
           popd
 
       - name: Run cuda.core tests

@@ -14,7 +14,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._event cimport Event
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._module cimport Kernel
-from cuda.core.graph._graph_def cimport Condition, GraphDef
+from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
 from cuda.core.graph._graph_node cimport GraphNode
 from cuda.core._resource_handles cimport (
     EventHandle,
@@ -255,7 +255,7 @@ cdef class AllocNode(GraphNode):
     @property
     def options(self):
         """A GraphAllocOptions reconstructed from this node's parameters."""
-        from cuda.core.graph._graph_def import GraphAllocOptions
+        from cuda.core.graph._graph_definition import GraphAllocOptions
         return GraphAllocOptions(
             device=self._device_id,
             memory_type=self._memory_type,
@@ -458,7 +458,7 @@ cdef class ChildGraphNode(GraphNode):
 
     Properties
     ----------
-    child_graph : GraphDef
+    child_graph : GraphDefinition
         The embedded graph definition (non-owning wrapper).
     """
 
@@ -487,9 +487,9 @@ cdef class ChildGraphNode(GraphNode):
                 f" child=0x{as_intptr(self._h_child_graph):x}>")
 
     @property
-    def child_graph(self) -> "GraphDef":
+    def child_graph(self) -> "GraphDefinition":
         """The embedded graph definition (non-owning wrapper)."""
-        return GraphDef._from_handle(self._h_child_graph)
+        return GraphDefinition._from_handle(self._h_child_graph)
 
 
 cdef class EventRecordNode(GraphNode):
@@ -629,11 +629,11 @@ cdef class ConditionalNode(GraphNode):
 
     Properties
     ----------
-    condition : Condition or None
+    condition : GraphCondition or None
         The condition variable controlling execution (None pre-13.2).
     cond_type : str or None
         The conditional type ("if", "while", or "switch"; None pre-13.2).
-    branches : tuple of GraphDef
+    branches : tuple of GraphDefinition
         The body graphs for each branch (empty pre-13.2).
     """
 
@@ -655,7 +655,7 @@ cdef class ConditionalNode(GraphNode):
         cdef int cond_type_int = int(cond_params.type)
         cdef unsigned int size = int(cond_params.size)
 
-        cdef Condition condition = Condition.__new__(Condition)
+        cdef GraphCondition condition = GraphCondition.__new__(GraphCondition)
         condition._c_handle = <cydriver.CUgraphConditionalHandle>(
             <unsigned long long>int(cond_params.handle))
 
@@ -668,7 +668,7 @@ cdef class ConditionalNode(GraphNode):
                 h_branch = create_graph_handle_ref(
                     <cydriver.CUgraph><uintptr_t>int(cond_params.phGraph_out[i]),
                     h_graph)
-                branch_list.append(GraphDef._from_handle(h_branch))
+                branch_list.append(GraphDefinition._from_handle(h_branch))
         cdef tuple branches = tuple(branch_list)
 
         cdef type cls
@@ -693,7 +693,7 @@ cdef class ConditionalNode(GraphNode):
         return f"<ConditionalNode handle=0x{as_intptr(self._h_node):x}>"
 
     @property
-    def condition(self) -> Condition | None:
+    def condition(self) -> GraphCondition | None:
         """The condition variable controlling execution."""
         return self._condition
 
@@ -715,7 +715,7 @@ cdef class ConditionalNode(GraphNode):
 
     @property
     def branches(self) -> tuple:
-        """The body graphs for each branch as a tuple of GraphDef.
+        """The body graphs for each branch as a tuple of GraphDefinition.
 
         Returns an empty tuple when reconstructed from the driver
         pre-CUDA 13.2.
@@ -731,7 +731,7 @@ cdef class IfNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def then(self) -> "GraphDef":
+    def then(self) -> "GraphDefinition":
         """The 'then' branch graph."""
         return self._branches[0]
 
@@ -744,12 +744,12 @@ cdef class IfElseNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def then(self) -> "GraphDef":
+    def then(self) -> "GraphDefinition":
         """The ``then`` branch graph (executed when condition is non-zero)."""
         return self._branches[0]
 
     @property
-    def else_(self) -> "GraphDef":
+    def else_(self) -> "GraphDefinition":
         """The ``else`` branch graph (executed when condition is zero)."""
         return self._branches[1]
 
@@ -762,7 +762,7 @@ cdef class WhileNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def body(self) -> "GraphDef":
+    def body(self) -> "GraphDefinition":
         """The loop body graph."""
         return self._branches[0]
 

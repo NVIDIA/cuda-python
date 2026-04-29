@@ -1,0 +1,408 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+"""Tensor bridge: extract PyTorch tensor metadata via the AOTI stable C ABI.
+
+PyTorch is NOT required at build time.  At runtime the AOTI symbols are
+resolved from ``torch._C`` (which is loaded with ``RTLD_GLOBAL``).
+
+The ``pyobj_to_aten_handle`` trick exploits the internal layout of
+``THPVariable`` (PyTorch's Python tensor wrapper).
+
+In PyTorch 2.10+ ``cdata`` is ``at::Tensor`` directly::
+
+    struct THPVariable {
+        PyObject_HEAD
+        at::Tensor cdata;   // <-- &cdata is usable as AtenTensorHandle
+        ...
+    };
+
+In PyTorch 2.3–2.9 ``cdata`` was ``c10::MaybeOwned<at::Tensor>``,
+whose first member is ``bool isBorrowed_`` (padded to 8 bytes),
+followed by the ``at::Tensor`` union member::
+
+    struct THPVariable {
+        PyObject_HEAD
+        c10::MaybeOwned<at::Tensor> cdata;
+        // MaybeOwned layout: { bool isBorrowed_ (8 bytes); at::Tensor own_; }
+        ...
+    };
+
+In both cases the address of the ``at::Tensor`` inside ``cdata`` is
+accepted by the AOTI stable C ABI functions as an ``AtenTensorHandle``.
+The extra 8-byte skip for the ``isBorrowed_`` member is determined
+at runtime from the PyTorch version (see ``_get_cdata_extra_offset``).
+
+Offsetting past ``PyObject_HEAD`` gives us the handle
+without any Python attribute access or method calls (~14 ns for all
+7 metadata queries).
+
+Credit: Emilio Castillo (ecastillo@nvidia.com) – original tensor-bridge POC.
+
+.. note::
+
+   This module must NOT be imported at ``cuda.core`` load time.  It is
+   loaded lazily (by ``_memoryview.pyx``) only when the user actually
+   passes a ``torch.Tensor``.  The caller must ensure that
+   ``torch._C`` has been re-opened with ``RTLD_GLOBAL`` *before*
+   importing this module so that the AOTI symbols are visible.
+"""
+
+from libc.stdint cimport intptr_t, int8_t, int16_t, int32_t, int64_t, uint8_t
+
+from cuda.core._memoryview cimport StridedMemoryView
+from cuda.core._layout cimport _StridedLayout
+from cuda.bindings cimport cydriver
+from cuda.core._resource_handles cimport (
+    EventHandle,
+    create_event_handle_noctx,
+    as_cu,
+)
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+
+cdef extern from "Python.h":
+    ctypedef struct PyObject:
+        pass
+
+cdef extern from "_include/aoti_shim.h":
+    ctypedef int32_t AOTITorchError
+
+    ctypedef struct AtenTensorOpaque:
+        pass
+    ctypedef AtenTensorOpaque* AtenTensorHandle
+
+    # tensor metadata
+    AOTITorchError aoti_torch_get_data_ptr(AtenTensorHandle, void**)
+    AOTITorchError aoti_torch_get_dim(AtenTensorHandle, int64_t*)
+    AOTITorchError aoti_torch_get_sizes(AtenTensorHandle, int64_t**)
+    AOTITorchError aoti_torch_get_strides(AtenTensorHandle, int64_t**)
+
+    # dtype
+    AOTITorchError aoti_torch_get_dtype(AtenTensorHandle, int32_t*)
+    int32_t aoti_torch_dtype_float16()
+    int32_t aoti_torch_dtype_float32()
+    int32_t aoti_torch_dtype_float64()
+    int32_t aoti_torch_dtype_bfloat16()
+    int32_t aoti_torch_dtype_uint8()
+    int32_t aoti_torch_dtype_uint16()
+    int32_t aoti_torch_dtype_uint32()
+    int32_t aoti_torch_dtype_uint64()
+    int32_t aoti_torch_dtype_int8()
+    int32_t aoti_torch_dtype_int16()
+    int32_t aoti_torch_dtype_int32()
+    int32_t aoti_torch_dtype_int64()
+    int32_t aoti_torch_dtype_bool()
+    int32_t aoti_torch_dtype_complex32()
+    int32_t aoti_torch_dtype_complex64()
+    int32_t aoti_torch_dtype_complex128()
+
+    # device
+    AOTITorchError aoti_torch_get_device_type(AtenTensorHandle, int32_t*)
+    AOTITorchError aoti_torch_get_device_index(AtenTensorHandle, int32_t*)
+    int32_t aoti_torch_device_type_cpu()
+    int32_t aoti_torch_device_type_cuda()
+
+    # stream
+    AOTITorchError aoti_torch_get_current_cuda_stream(int32_t, void**)
+
+import numpy
+import sys
+
+
+# ---------------------------------------------------------------------------
+# Module-level state (initialised at import time — AOTI symbols are
+# guaranteed visible because _memoryview bootstraps RTLD_GLOBAL before
+# importing us)
+# ---------------------------------------------------------------------------
+
+cdef int32_t _DEVICE_TYPE_CPU  = aoti_torch_device_type_cpu()
+cdef int32_t _DEVICE_TYPE_CUDA = aoti_torch_device_type_cuda()
+cdef dict _aoti_dtype_map = None
+cdef dict _aoti_itemsize_map = None
+
+# Extra byte offset to skip before reaching the at::Tensor inside
+# THPVariable::cdata.  See _get_cdata_extra_offset() for details.
+# Tri-state: -1 = not yet probed, 0 or 8 = cached result.
+cdef Py_ssize_t _cdata_extra_offset = -1
+
+
+cdef Py_ssize_t _get_cdata_extra_offset():
+    """Return the extra byte offset caused by ``MaybeOwned``'s bool member.
+
+    In PyTorch 2.3–2.9 ``THPVariable::cdata`` is
+    ``c10::MaybeOwned<at::Tensor>``, whose first member is
+    ``bool isBorrowed_`` (padded to pointer alignment = 8 bytes).
+    The actual ``at::Tensor`` sits *after* that bool, so we must
+    skip 8 extra bytes.
+
+    From PyTorch 2.10 onward ``cdata`` is ``at::Tensor`` directly,
+    so no extra offset is needed.
+    """
+    global _cdata_extra_offset
+    if _cdata_extra_offset >= 0:
+        return _cdata_extra_offset
+    torch = sys.modules.get("torch")
+    if torch is None:
+        raise RuntimeError("torch must be imported before _tensor_bridge")
+    try:
+        major = int(torch.__version__.split(".")[0])
+        minor = int(torch.__version__.split(".")[1])
+    except (ValueError, IndexError):
+        raise RuntimeError(
+            f"Cannot parse torch version: {torch.__version__!r}")
+    if (major, minor) < (2, 10):
+        _cdata_extra_offset = 8   # skip MaybeOwned::isBorrowed_ padding
+    else:
+        _cdata_extra_offset = 0   # at::Tensor directly at base
+    return _cdata_extra_offset
+
+
+# ---------------------------------------------------------------------------
+# pointer extraction
+# ---------------------------------------------------------------------------
+
+cdef inline AtenTensorHandle pyobj_to_aten_handle(object obj):
+    """Extract AtenTensorHandle by offsetting past PyObject_HEAD.
+
+    In PyTorch 2.3–2.9 the first field after PyObject_HEAD is
+    ``c10::MaybeOwned<at::Tensor> cdata``, whose ``isBorrowed_``
+    bool member (padded to 8 bytes) precedes the actual
+    ``at::Tensor``.  From 2.10 onward ``cdata`` is ``at::Tensor``
+    directly.  The extra offset is determined once by
+    :func:`_get_cdata_extra_offset` and cached.
+    """
+    return <AtenTensorHandle>(
+        <char*><PyObject*>obj + sizeof(PyObject) + _get_cdata_extra_offset())
+
+
+cdef inline int check_aoti(AOTITorchError err, const char* name) except? -1:
+    """Raise RuntimeError if an AOTI call returned a non-zero error code."""
+    if err != 0:
+        raise RuntimeError(f"{name.decode()} failed")
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# dtype mapping (AOTI int32 -> numpy dtype)
+# ---------------------------------------------------------------------------
+
+cdef dict _build_dtype_map():
+    try:
+        from ml_dtypes import bfloat16 as _bf16  # noqa: F811
+        has_bfloat16 = True
+    except ImportError:
+        has_bfloat16 = False
+
+    cdef dict m = {
+        aoti_torch_dtype_float16(): numpy.dtype(numpy.float16),
+        aoti_torch_dtype_float32(): numpy.dtype(numpy.float32),
+        aoti_torch_dtype_float64(): numpy.dtype(numpy.float64),
+        aoti_torch_dtype_uint8(): numpy.dtype(numpy.uint8),
+        aoti_torch_dtype_uint16(): numpy.dtype(numpy.uint16),
+        aoti_torch_dtype_uint32(): numpy.dtype(numpy.uint32),
+        aoti_torch_dtype_uint64(): numpy.dtype(numpy.uint64),
+        aoti_torch_dtype_int8(): numpy.dtype(numpy.int8),
+        aoti_torch_dtype_int16(): numpy.dtype(numpy.int16),
+        aoti_torch_dtype_int32(): numpy.dtype(numpy.int32),
+        aoti_torch_dtype_int64(): numpy.dtype(numpy.int64),
+        aoti_torch_dtype_bool(): numpy.dtype(numpy.bool_),
+        aoti_torch_dtype_complex64(): numpy.dtype(numpy.complex64),
+        aoti_torch_dtype_complex128(): numpy.dtype(numpy.complex128),
+    }
+    if has_bfloat16:
+        m[aoti_torch_dtype_bfloat16()] = numpy.dtype(_bf16)
+    return m
+
+
+cdef object _get_aoti_dtype(int32_t dtype_code):
+    global _aoti_dtype_map
+    if _aoti_dtype_map is None:
+        _aoti_dtype_map = _build_dtype_map()
+    result = _aoti_dtype_map.get(dtype_code)
+    if result is None:
+        raise TypeError(f"Unsupported AOTI dtype code: {dtype_code}")
+    return result
+
+
+def resolve_aoti_dtype(int32_t dtype_code):
+    """Python-callable wrapper around _get_aoti_dtype (for lazy resolution)."""
+    return _get_aoti_dtype(dtype_code)
+
+
+cdef dict _build_itemsize_map():
+    return {
+        aoti_torch_dtype_bool():       sizeof(uint8_t),
+        aoti_torch_dtype_uint8():      sizeof(uint8_t),
+        aoti_torch_dtype_uint16():     sizeof(int16_t),
+        aoti_torch_dtype_uint32():     sizeof(int32_t),
+        aoti_torch_dtype_uint64():     sizeof(int64_t),
+        aoti_torch_dtype_int8():       sizeof(int8_t),
+        aoti_torch_dtype_float16():    sizeof(int16_t),    # no C float16
+        aoti_torch_dtype_bfloat16():   sizeof(int16_t),    # no C bfloat16
+        aoti_torch_dtype_int16():      sizeof(int16_t),
+        aoti_torch_dtype_complex32():  2 * sizeof(int16_t),  # no C complex32
+        aoti_torch_dtype_float32():    sizeof(float),
+        aoti_torch_dtype_int32():      sizeof(int32_t),
+        aoti_torch_dtype_complex64():  2 * sizeof(float),
+        aoti_torch_dtype_float64():    sizeof(double),
+        aoti_torch_dtype_int64():      sizeof(int64_t),
+        aoti_torch_dtype_complex128(): 2 * sizeof(double),
+    }
+
+
+cdef int _get_aoti_itemsize(int32_t dtype_code) except -1:
+    global _aoti_itemsize_map
+    if _aoti_itemsize_map is None:
+        _aoti_itemsize_map = _build_itemsize_map()
+    result = _aoti_itemsize_map.get(dtype_code)
+    if result is None:
+        raise TypeError(f"Unsupported AOTI dtype code: {dtype_code}")
+    return <int>result
+
+
+# ---------------------------------------------------------------------------
+# Stream ordering helper
+# ---------------------------------------------------------------------------
+
+cpdef int sync_torch_stream(int32_t device_index,
+                            intptr_t consumer_s) except? -1:
+    """Establish stream ordering between PyTorch's current CUDA stream
+    and the given consumer stream.
+
+    Records an event on PyTorch's current stream (the producer) and makes
+    the consumer stream wait on it.  This is a no-op if both streams are
+    the same.
+    """
+    cdef void* producer_s
+    cdef EventHandle h_event
+
+    check_aoti(aoti_torch_get_current_cuda_stream(device_index, &producer_s),
+               b"aoti_torch_get_current_cuda_stream")
+    if <intptr_t>producer_s != consumer_s:
+        with nogil:
+            h_event = create_event_handle_noctx(
+                cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+            HANDLE_RETURN(cydriver.cuEventRecord(
+                as_cu(h_event), <cydriver.CUstream>producer_s))
+            HANDLE_RETURN(cydriver.cuStreamWaitEvent(
+                <cydriver.CUstream>consumer_s, as_cu(h_event), 0))
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# Public API: construct StridedMemoryView from a torch.Tensor
+# ---------------------------------------------------------------------------
+
+def view_as_torch_tensor(object obj, object stream_ptr, view=None):
+    """Create/populate a :class:`StridedMemoryView` from a ``torch.Tensor``.
+
+    This is a fast path that avoids DLPack/CAI protocol overhead by
+    reading tensor metadata directly through the AOTI stable C ABI.
+
+    Parameters
+    ----------
+    obj : torch.Tensor
+        The source tensor.
+    stream_ptr : int or None
+        Consumer stream pointer.  When not ``-1``, stream ordering is
+        established between PyTorch's current CUDA stream (the producer)
+        and the consumer stream, matching the DLPack contract.
+    view : StridedMemoryView, optional
+        If provided, populate this existing view in-place.  Otherwise a
+        new instance is created.
+    """
+    cdef AtenTensorHandle handle = pyobj_to_aten_handle(obj)
+    cdef void* data_ptr
+    cdef int64_t ndim
+    cdef int64_t* sizes_ptr
+    cdef int64_t* strides_ptr
+    cdef int32_t dtype_code
+    cdef int32_t device_type, device_index
+    cdef StridedMemoryView buf
+    cdef int itemsize
+    cdef intptr_t _stream_ptr_int
+    cdef _StridedLayout layout
+
+    # Note: we intentionally skip PyTorch's Python-level __dlpack__ guards
+    # (requires_grad, is_conj, is_neg, non-strided layout, wrong-device)
+    # for the same reason PyTorch's own __dlpack_c_exchange_api__ C path
+    # skips them — the C-level exchange path is designed for performance-
+    # critical consumers.  See DLTensorFromPyObjectNoSync in
+    # torch/csrc/Module.cpp which calls toDLPackNonOwning with zero checks.
+
+    check_aoti(aoti_torch_get_data_ptr(handle, &data_ptr),
+               b"aoti_torch_get_data_ptr")
+    check_aoti(aoti_torch_get_dim(handle, &ndim),
+               b"aoti_torch_get_dim")
+    check_aoti(aoti_torch_get_sizes(handle, &sizes_ptr),
+               b"aoti_torch_get_sizes")
+    check_aoti(aoti_torch_get_strides(handle, &strides_ptr),
+               b"aoti_torch_get_strides")
+    check_aoti(aoti_torch_get_dtype(handle, &dtype_code),
+               b"aoti_torch_get_dtype")
+    check_aoti(aoti_torch_get_device_type(handle, &device_type),
+               b"aoti_torch_get_device_type")
+    check_aoti(aoti_torch_get_device_index(handle, &device_index),
+               b"aoti_torch_get_device_index")
+
+    # -- populate StridedMemoryView --
+    if view is not None:
+        buf = <StridedMemoryView>view
+    else:
+        buf = StridedMemoryView.__new__(StridedMemoryView)
+
+    buf.ptr = <intptr_t>data_ptr
+    buf._dtype = None  # clear cached dtype (view may be reused)
+    # PyTorch always reports tensors as writable via both DLPack
+    # (flags=0, no DLPACK_FLAG_BITMASK_READ_ONLY) and CAI
+    # (__cuda_array_interface__["data"] = (ptr, False)).  Tensors that
+    # cannot be safely exported (requires_grad, conjugate, non-strided)
+    # are rejected with BufferError rather than marked read-only.
+    # The AOTI C ABI has no readonly query either, so False is correct.
+    buf.readonly = False
+    buf.exporting_obj = obj
+    buf.dl_tensor = NULL
+    buf.metadata = None
+    buf._buffer = None
+
+    if device_type == _DEVICE_TYPE_CPU:
+        buf.device_id = -1
+        buf.is_device_accessible = False
+    elif device_type == _DEVICE_TYPE_CUDA:
+        buf.device_id = <int>device_index
+        buf.is_device_accessible = True
+
+        # -- stream ordering (matches the DLPack contract) --
+        # stream_ptr=None is ambiguous for CUDA tensors — the caller must
+        # explicitly choose -1 (no sync) or a valid stream pointer.
+        if stream_ptr is None:
+            raise BufferError(
+                "stream_ptr=None is ambiguous for CUDA tensors; "
+                "pass stream_ptr=-1 to opt out of synchronization, "
+                "or pass a valid stream pointer")
+        _stream_ptr_int = int(stream_ptr)
+        if _stream_ptr_int != -1:
+            sync_torch_stream(device_index, _stream_ptr_int)
+    else:
+        raise BufferError(
+            f"Unsupported device type from torch tensor "
+            f"(AOTI device type id: {device_type})")
+
+    # Defer full numpy dtype resolution until first .dtype access.
+    # Store the raw AOTI dtype code in metadata for lazy lookup.
+    buf.metadata = <int>dtype_code
+
+    # Build _StridedLayout.  init_from_ptr copies shape/strides so we are
+    # safe even though they are borrowed pointers.
+    itemsize = _get_aoti_itemsize(dtype_code)
+    layout = _StridedLayout.__new__(_StridedLayout)
+    layout.init_from_ptr(
+        <int>ndim,
+        sizes_ptr,
+        strides_ptr,
+        itemsize,
+    )
+    buf._layout = layout
+
+    return buf
