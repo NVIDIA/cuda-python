@@ -21,7 +21,7 @@ def bench_curesult_member_access(loops: int) -> float:
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cls.CUDA_SUCCESS
+        _cls.CUDA_SUCCESS  # noqa: B018
     return time.perf_counter() - t0
 
 
