@@ -3514,19 +3514,19 @@ cdef CUresult cuMemcpy3DBatchAsync(size_t numOps, CUDA_MEMCPY3D_BATCH_OP* opList
 cdef CUresult cuMemGetDefaultMemPool(CUmemoryPool* pool_out, CUmemLocation* location, CUmemAllocationType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuMemGetMemPool(CUmemoryPool* pool, CUmemLocation* location, CUmemAllocationType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuMemSetMemPool(CUmemLocation* location, CUmemAllocationType type, CUmemoryPool pool) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
-cdef CUresult cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
-cdef CUresult cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuMemPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuMemDiscardBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, unsigned long long flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuMemDiscardAndPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
+cdef CUresult cuDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice srcDevice, CUdevice dstDevice) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
+cdef CUresult cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
+cdef CUresult cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
+cdef CUresult cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuGraphNodeGetContainingGraph(CUgraphNode hNode, CUgraph* phGraph) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuGraphNodeGetLocalId(CUgraphNode hNode, unsigned int* nodeId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuGraphNodeGetToolsId(CUgraphNode hNode, unsigned long long* toolsNodeId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuGraphGetId(CUgraph hGraph, unsigned int* graphId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuGraphExecGetId(CUgraphExec hGraphExec, unsigned int* graphId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
-cdef CUresult cuDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice srcDevice, CUdevice dstDevice) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuDevSmResourceSplit(CUdevResource* result, unsigned int nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, CU_DEV_SM_RESOURCE_GROUP_PARAMS* groupParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
-cdef CUresult cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuStreamGetDevResource(CUstream hStream, CUdevResource* resource, CUdevResourceType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuKernelGetParamCount(CUkernel kernel, size_t* paramCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil
 cdef CUresult cuMemcpyWithAttributesAsync(CUdeviceptr dst, CUdeviceptr src, size_t size, CUmemcpyAttributes* attr, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil

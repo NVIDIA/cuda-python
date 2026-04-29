@@ -535,19 +535,19 @@ cdef void* __cuMemcpy3DBatchAsync_v2 = NULL
 cdef void* __cuMemGetDefaultMemPool = NULL
 cdef void* __cuMemGetMemPool = NULL
 cdef void* __cuMemSetMemPool = NULL
-cdef void* __cuMulticastBindMem_v2 = NULL
-cdef void* __cuMulticastBindAddr_v2 = NULL
 cdef void* __cuMemPrefetchBatchAsync = NULL
 cdef void* __cuMemDiscardBatchAsync = NULL
 cdef void* __cuMemDiscardAndPrefetchBatchAsync = NULL
+cdef void* __cuDeviceGetP2PAtomicCapabilities = NULL
+cdef void* __cuGreenCtxGetId = NULL
+cdef void* __cuMulticastBindMem_v2 = NULL
+cdef void* __cuMulticastBindAddr_v2 = NULL
 cdef void* __cuGraphNodeGetContainingGraph = NULL
 cdef void* __cuGraphNodeGetLocalId = NULL
 cdef void* __cuGraphNodeGetToolsId = NULL
 cdef void* __cuGraphGetId = NULL
 cdef void* __cuGraphExecGetId = NULL
-cdef void* __cuDeviceGetP2PAtomicCapabilities = NULL
 cdef void* __cuDevSmResourceSplit = NULL
-cdef void* __cuGreenCtxGetId = NULL
 cdef void* __cuStreamGetDevResource = NULL
 cdef void* __cuKernelGetParamCount = NULL
 cdef void* __cuMemcpyWithAttributesAsync = NULL
@@ -2937,44 +2937,69 @@ cdef int _init_driver() except -1 nogil:
             _F_cuGetProcAddress_v2('cuGraphicsVDPAURegisterOutputSurface', <void **>&__cuGraphicsVDPAURegisterOutputSurface, 3010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
         global __cuDeviceGetHostAtomicCapabilities
-        _F_cuGetProcAddress_v2('cuDeviceGetHostAtomicCapabilities', <void **>&__cuDeviceGetHostAtomicCapabilities, 13010, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuDeviceGetHostAtomicCapabilities', <void **>&__cuDeviceGetHostAtomicCapabilities, 13000, ptds_mode, NULL)
         if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuDeviceGetHostAtomicCapabilities == NULL:
-            _F_cuGetProcAddress_v2('cuDeviceGetHostAtomicCapabilities', <void **>&__cuDeviceGetHostAtomicCapabilities, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            _F_cuGetProcAddress_v2('cuDeviceGetHostAtomicCapabilities', <void **>&__cuDeviceGetHostAtomicCapabilities, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
         global __cuCtxGetDevice_v2
-        _F_cuGetProcAddress_v2('cuCtxGetDevice_v2', <void **>&__cuCtxGetDevice_v2, 13010, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuCtxGetDevice_v2', <void **>&__cuCtxGetDevice_v2, 13000, ptds_mode, NULL)
         if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuCtxGetDevice_v2 == NULL:
-            _F_cuGetProcAddress_v2('cuCtxGetDevice_v2', <void **>&__cuCtxGetDevice_v2, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            _F_cuGetProcAddress_v2('cuCtxGetDevice_v2', <void **>&__cuCtxGetDevice_v2, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
         global __cuCtxSynchronize_v2
-        _F_cuGetProcAddress_v2('cuCtxSynchronize_v2', <void **>&__cuCtxSynchronize_v2, 13010, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuCtxSynchronize_v2', <void **>&__cuCtxSynchronize_v2, 13000, ptds_mode, NULL)
         if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuCtxSynchronize_v2 == NULL:
-            _F_cuGetProcAddress_v2('cuCtxSynchronize_v2', <void **>&__cuCtxSynchronize_v2, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            _F_cuGetProcAddress_v2('cuCtxSynchronize_v2', <void **>&__cuCtxSynchronize_v2, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
         global __cuMemcpyBatchAsync_v2
-        _F_cuGetProcAddress_v2('cuMemcpyBatchAsync', <void **>&__cuMemcpyBatchAsync_v2, 13010, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyBatchAsync', <void **>&__cuMemcpyBatchAsync_v2, 13000, ptds_mode, NULL)
         if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMemcpyBatchAsync_v2 == NULL:
-            _F_cuGetProcAddress_v2('cuMemcpyBatchAsync', <void **>&__cuMemcpyBatchAsync_v2, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            _F_cuGetProcAddress_v2('cuMemcpyBatchAsync', <void **>&__cuMemcpyBatchAsync_v2, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
         global __cuMemcpy3DBatchAsync_v2
-        _F_cuGetProcAddress_v2('cuMemcpy3DBatchAsync', <void **>&__cuMemcpy3DBatchAsync_v2, 13010, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpy3DBatchAsync', <void **>&__cuMemcpy3DBatchAsync_v2, 13000, ptds_mode, NULL)
         if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMemcpy3DBatchAsync_v2 == NULL:
-            _F_cuGetProcAddress_v2('cuMemcpy3DBatchAsync', <void **>&__cuMemcpy3DBatchAsync_v2, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            _F_cuGetProcAddress_v2('cuMemcpy3DBatchAsync', <void **>&__cuMemcpy3DBatchAsync_v2, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
         global __cuMemGetDefaultMemPool
-        _F_cuGetProcAddress_v2('cuMemGetDefaultMemPool', <void **>&__cuMemGetDefaultMemPool, 13010, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemGetDefaultMemPool', <void **>&__cuMemGetDefaultMemPool, 13000, ptds_mode, NULL)
         if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMemGetDefaultMemPool == NULL:
-            _F_cuGetProcAddress_v2('cuMemGetDefaultMemPool', <void **>&__cuMemGetDefaultMemPool, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            _F_cuGetProcAddress_v2('cuMemGetDefaultMemPool', <void **>&__cuMemGetDefaultMemPool, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
         global __cuMemGetMemPool
-        _F_cuGetProcAddress_v2('cuMemGetMemPool', <void **>&__cuMemGetMemPool, 13010, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemGetMemPool', <void **>&__cuMemGetMemPool, 13000, ptds_mode, NULL)
         if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMemGetMemPool == NULL:
-            _F_cuGetProcAddress_v2('cuMemGetMemPool', <void **>&__cuMemGetMemPool, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            _F_cuGetProcAddress_v2('cuMemGetMemPool', <void **>&__cuMemGetMemPool, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
         global __cuMemSetMemPool
-        _F_cuGetProcAddress_v2('cuMemSetMemPool', <void **>&__cuMemSetMemPool, 13010, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemSetMemPool', <void **>&__cuMemSetMemPool, 13000, ptds_mode, NULL)
         if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMemSetMemPool == NULL:
-            _F_cuGetProcAddress_v2('cuMemSetMemPool', <void **>&__cuMemSetMemPool, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            _F_cuGetProcAddress_v2('cuMemSetMemPool', <void **>&__cuMemSetMemPool, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+
+        global __cuMemPrefetchBatchAsync
+        _F_cuGetProcAddress_v2('cuMemPrefetchBatchAsync', <void **>&__cuMemPrefetchBatchAsync, 13000, ptds_mode, NULL)
+        if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMemPrefetchBatchAsync == NULL:
+            _F_cuGetProcAddress_v2('cuMemPrefetchBatchAsync', <void **>&__cuMemPrefetchBatchAsync, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+
+        global __cuMemDiscardBatchAsync
+        _F_cuGetProcAddress_v2('cuMemDiscardBatchAsync', <void **>&__cuMemDiscardBatchAsync, 13000, ptds_mode, NULL)
+        if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMemDiscardBatchAsync == NULL:
+            _F_cuGetProcAddress_v2('cuMemDiscardBatchAsync', <void **>&__cuMemDiscardBatchAsync, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+
+        global __cuMemDiscardAndPrefetchBatchAsync
+        _F_cuGetProcAddress_v2('cuMemDiscardAndPrefetchBatchAsync', <void **>&__cuMemDiscardAndPrefetchBatchAsync, 13000, ptds_mode, NULL)
+        if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMemDiscardAndPrefetchBatchAsync == NULL:
+            _F_cuGetProcAddress_v2('cuMemDiscardAndPrefetchBatchAsync', <void **>&__cuMemDiscardAndPrefetchBatchAsync, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+
+        global __cuDeviceGetP2PAtomicCapabilities
+        _F_cuGetProcAddress_v2('cuDeviceGetP2PAtomicCapabilities', <void **>&__cuDeviceGetP2PAtomicCapabilities, 13000, ptds_mode, NULL)
+        if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuDeviceGetP2PAtomicCapabilities == NULL:
+            _F_cuGetProcAddress_v2('cuDeviceGetP2PAtomicCapabilities', <void **>&__cuDeviceGetP2PAtomicCapabilities, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+
+        global __cuGreenCtxGetId
+        _F_cuGetProcAddress_v2('cuGreenCtxGetId', <void **>&__cuGreenCtxGetId, 13000, ptds_mode, NULL)
+        if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuGreenCtxGetId == NULL:
+            _F_cuGetProcAddress_v2('cuGreenCtxGetId', <void **>&__cuGreenCtxGetId, 13000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
         global __cuMulticastBindMem_v2
         _F_cuGetProcAddress_v2('cuMulticastBindMem_v2', <void **>&__cuMulticastBindMem_v2, 13010, ptds_mode, NULL)
@@ -2985,21 +3010,6 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuMulticastBindAddr_v2', <void **>&__cuMulticastBindAddr_v2, 13010, ptds_mode, NULL)
         if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMulticastBindAddr_v2 == NULL:
             _F_cuGetProcAddress_v2('cuMulticastBindAddr_v2', <void **>&__cuMulticastBindAddr_v2, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
-
-        global __cuMemPrefetchBatchAsync
-        _F_cuGetProcAddress_v2('cuMemPrefetchBatchAsync', <void **>&__cuMemPrefetchBatchAsync, 13010, ptds_mode, NULL)
-        if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMemPrefetchBatchAsync == NULL:
-            _F_cuGetProcAddress_v2('cuMemPrefetchBatchAsync', <void **>&__cuMemPrefetchBatchAsync, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
-
-        global __cuMemDiscardBatchAsync
-        _F_cuGetProcAddress_v2('cuMemDiscardBatchAsync', <void **>&__cuMemDiscardBatchAsync, 13010, ptds_mode, NULL)
-        if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMemDiscardBatchAsync == NULL:
-            _F_cuGetProcAddress_v2('cuMemDiscardBatchAsync', <void **>&__cuMemDiscardBatchAsync, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
-
-        global __cuMemDiscardAndPrefetchBatchAsync
-        _F_cuGetProcAddress_v2('cuMemDiscardAndPrefetchBatchAsync', <void **>&__cuMemDiscardAndPrefetchBatchAsync, 13010, ptds_mode, NULL)
-        if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuMemDiscardAndPrefetchBatchAsync == NULL:
-            _F_cuGetProcAddress_v2('cuMemDiscardAndPrefetchBatchAsync', <void **>&__cuMemDiscardAndPrefetchBatchAsync, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
         global __cuGraphNodeGetContainingGraph
         _F_cuGetProcAddress_v2('cuGraphNodeGetContainingGraph', <void **>&__cuGraphNodeGetContainingGraph, 13010, ptds_mode, NULL)
@@ -3026,20 +3036,10 @@ cdef int _init_driver() except -1 nogil:
         if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuGraphExecGetId == NULL:
             _F_cuGetProcAddress_v2('cuGraphExecGetId', <void **>&__cuGraphExecGetId, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
-        global __cuDeviceGetP2PAtomicCapabilities
-        _F_cuGetProcAddress_v2('cuDeviceGetP2PAtomicCapabilities', <void **>&__cuDeviceGetP2PAtomicCapabilities, 13010, ptds_mode, NULL)
-        if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuDeviceGetP2PAtomicCapabilities == NULL:
-            _F_cuGetProcAddress_v2('cuDeviceGetP2PAtomicCapabilities', <void **>&__cuDeviceGetP2PAtomicCapabilities, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
-
         global __cuDevSmResourceSplit
         _F_cuGetProcAddress_v2('cuDevSmResourceSplit', <void **>&__cuDevSmResourceSplit, 13010, ptds_mode, NULL)
         if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuDevSmResourceSplit == NULL:
             _F_cuGetProcAddress_v2('cuDevSmResourceSplit', <void **>&__cuDevSmResourceSplit, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
-
-        global __cuGreenCtxGetId
-        _F_cuGetProcAddress_v2('cuGreenCtxGetId', <void **>&__cuGreenCtxGetId, 13010, ptds_mode, NULL)
-        if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM and __cuGreenCtxGetId == NULL:
-            _F_cuGetProcAddress_v2('cuGreenCtxGetId', <void **>&__cuGreenCtxGetId, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
 
         global __cuStreamGetDevResource
         _F_cuGetProcAddress_v2('cuStreamGetDevResource', <void **>&__cuStreamGetDevResource, 13010, ptds_mode, NULL)
@@ -4552,12 +4552,6 @@ cpdef dict _inspect_function_pointers():
     global __cuMemSetMemPool
     data["__cuMemSetMemPool"] = <intptr_t>__cuMemSetMemPool
 
-    global __cuMulticastBindMem_v2
-    data["__cuMulticastBindMem_v2"] = <intptr_t>__cuMulticastBindMem_v2
-
-    global __cuMulticastBindAddr_v2
-    data["__cuMulticastBindAddr_v2"] = <intptr_t>__cuMulticastBindAddr_v2
-
     global __cuMemPrefetchBatchAsync
     data["__cuMemPrefetchBatchAsync"] = <intptr_t>__cuMemPrefetchBatchAsync
 
@@ -4566,6 +4560,18 @@ cpdef dict _inspect_function_pointers():
 
     global __cuMemDiscardAndPrefetchBatchAsync
     data["__cuMemDiscardAndPrefetchBatchAsync"] = <intptr_t>__cuMemDiscardAndPrefetchBatchAsync
+
+    global __cuDeviceGetP2PAtomicCapabilities
+    data["__cuDeviceGetP2PAtomicCapabilities"] = <intptr_t>__cuDeviceGetP2PAtomicCapabilities
+
+    global __cuGreenCtxGetId
+    data["__cuGreenCtxGetId"] = <intptr_t>__cuGreenCtxGetId
+
+    global __cuMulticastBindMem_v2
+    data["__cuMulticastBindMem_v2"] = <intptr_t>__cuMulticastBindMem_v2
+
+    global __cuMulticastBindAddr_v2
+    data["__cuMulticastBindAddr_v2"] = <intptr_t>__cuMulticastBindAddr_v2
 
     global __cuGraphNodeGetContainingGraph
     data["__cuGraphNodeGetContainingGraph"] = <intptr_t>__cuGraphNodeGetContainingGraph
@@ -4582,14 +4588,8 @@ cpdef dict _inspect_function_pointers():
     global __cuGraphExecGetId
     data["__cuGraphExecGetId"] = <intptr_t>__cuGraphExecGetId
 
-    global __cuDeviceGetP2PAtomicCapabilities
-    data["__cuDeviceGetP2PAtomicCapabilities"] = <intptr_t>__cuDeviceGetP2PAtomicCapabilities
-
     global __cuDevSmResourceSplit
     data["__cuDevSmResourceSplit"] = <intptr_t>__cuDevSmResourceSplit
-
-    global __cuGreenCtxGetId
-    data["__cuGreenCtxGetId"] = <intptr_t>__cuGreenCtxGetId
 
     global __cuStreamGetDevResource
     data["__cuStreamGetDevResource"] = <intptr_t>__cuStreamGetDevResource
@@ -9395,26 +9395,6 @@ cdef CUresult _cuMemSetMemPool(CUmemLocation* location, CUmemAllocationType type
         location, type, pool)
 
 
-cdef CUresult _cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
-    global __cuMulticastBindMem_v2
-    _check_or_init_driver()
-    if __cuMulticastBindMem_v2 == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMulticastBindMem_v2 is not found")
-    return (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice, size_t, CUmemGenericAllocationHandle, size_t, size_t, unsigned long long) noexcept nogil>__cuMulticastBindMem_v2)(
-        mcHandle, dev, mcOffset, memHandle, memOffset, size, flags)
-
-
-cdef CUresult _cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
-    global __cuMulticastBindAddr_v2
-    _check_or_init_driver()
-    if __cuMulticastBindAddr_v2 == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMulticastBindAddr_v2 is not found")
-    return (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice, size_t, CUdeviceptr, size_t, unsigned long long) noexcept nogil>__cuMulticastBindAddr_v2)(
-        mcHandle, dev, mcOffset, memptr, size, flags)
-
-
 cdef CUresult _cuMemPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
     global __cuMemPrefetchBatchAsync
     _check_or_init_driver()
@@ -9443,6 +9423,46 @@ cdef CUresult _cuMemDiscardAndPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* siz
             raise FunctionNotFoundError("function cuMemDiscardAndPrefetchBatchAsync is not found")
     return (<CUresult (*)(CUdeviceptr*, size_t*, size_t, CUmemLocation*, size_t*, size_t, unsigned long long, CUstream) noexcept nogil>__cuMemDiscardAndPrefetchBatchAsync)(
         dptrs, sizes, count, prefetchLocs, prefetchLocIdxs, numPrefetchLocs, flags, hStream)
+
+
+cdef CUresult _cuDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice srcDevice, CUdevice dstDevice) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+    global __cuDeviceGetP2PAtomicCapabilities
+    _check_or_init_driver()
+    if __cuDeviceGetP2PAtomicCapabilities == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuDeviceGetP2PAtomicCapabilities is not found")
+    return (<CUresult (*)(unsigned int*, const CUatomicOperation*, unsigned int, CUdevice, CUdevice) noexcept nogil>__cuDeviceGetP2PAtomicCapabilities)(
+        capabilities, operations, count, srcDevice, dstDevice)
+
+
+cdef CUresult _cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+    global __cuGreenCtxGetId
+    _check_or_init_driver()
+    if __cuGreenCtxGetId == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuGreenCtxGetId is not found")
+    return (<CUresult (*)(CUgreenCtx, unsigned long long*) noexcept nogil>__cuGreenCtxGetId)(
+        greenCtx, greenCtxId)
+
+
+cdef CUresult _cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+    global __cuMulticastBindMem_v2
+    _check_or_init_driver()
+    if __cuMulticastBindMem_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuMulticastBindMem_v2 is not found")
+    return (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice, size_t, CUmemGenericAllocationHandle, size_t, size_t, unsigned long long) noexcept nogil>__cuMulticastBindMem_v2)(
+        mcHandle, dev, mcOffset, memHandle, memOffset, size, flags)
+
+
+cdef CUresult _cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+    global __cuMulticastBindAddr_v2
+    _check_or_init_driver()
+    if __cuMulticastBindAddr_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuMulticastBindAddr_v2 is not found")
+    return (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice, size_t, CUdeviceptr, size_t, unsigned long long) noexcept nogil>__cuMulticastBindAddr_v2)(
+        mcHandle, dev, mcOffset, memptr, size, flags)
 
 
 cdef CUresult _cuGraphNodeGetContainingGraph(CUgraphNode hNode, CUgraph* phGraph) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
@@ -9495,16 +9515,6 @@ cdef CUresult _cuGraphExecGetId(CUgraphExec hGraphExec, unsigned int* graphId) e
         hGraphExec, graphId)
 
 
-cdef CUresult _cuDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice srcDevice, CUdevice dstDevice) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
-    global __cuDeviceGetP2PAtomicCapabilities
-    _check_or_init_driver()
-    if __cuDeviceGetP2PAtomicCapabilities == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuDeviceGetP2PAtomicCapabilities is not found")
-    return (<CUresult (*)(unsigned int*, const CUatomicOperation*, unsigned int, CUdevice, CUdevice) noexcept nogil>__cuDeviceGetP2PAtomicCapabilities)(
-        capabilities, operations, count, srcDevice, dstDevice)
-
-
 cdef CUresult _cuDevSmResourceSplit(CUdevResource* result, unsigned int nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, CU_DEV_SM_RESOURCE_GROUP_PARAMS* groupParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
     global __cuDevSmResourceSplit
     _check_or_init_driver()
@@ -9513,16 +9523,6 @@ cdef CUresult _cuDevSmResourceSplit(CUdevResource* result, unsigned int nbGroups
             raise FunctionNotFoundError("function cuDevSmResourceSplit is not found")
     return (<CUresult (*)(CUdevResource*, unsigned int, const CUdevResource*, CUdevResource*, unsigned int, CU_DEV_SM_RESOURCE_GROUP_PARAMS*) noexcept nogil>__cuDevSmResourceSplit)(
         result, nbGroups, input, remainder, flags, groupParams)
-
-
-cdef CUresult _cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
-    global __cuGreenCtxGetId
-    _check_or_init_driver()
-    if __cuGreenCtxGetId == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuGreenCtxGetId is not found")
-    return (<CUresult (*)(CUgreenCtx, unsigned long long*) noexcept nogil>__cuGreenCtxGetId)(
-        greenCtx, greenCtxId)
 
 
 cdef CUresult _cuStreamGetDevResource(CUstream hStream, CUdevResource* resource, CUdevResourceType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:

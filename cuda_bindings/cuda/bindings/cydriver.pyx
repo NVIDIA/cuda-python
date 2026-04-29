@@ -1906,14 +1906,6 @@ cdef CUresult cuMemSetMemPool(CUmemLocation* location, CUmemAllocationType type,
     return _driver._cuMemSetMemPool(location, type, pool)
 
 
-cdef CUresult cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
-    return _driver._cuMulticastBindMem_v2(mcHandle, dev, mcOffset, memHandle, memOffset, size, flags)
-
-
-cdef CUresult cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
-    return _driver._cuMulticastBindAddr_v2(mcHandle, dev, mcOffset, memptr, size, flags)
-
-
 cdef CUresult cuMemPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
     return _driver._cuMemPrefetchBatchAsync(dptrs, sizes, count, prefetchLocs, prefetchLocIdxs, numPrefetchLocs, flags, hStream)
 
@@ -1924,6 +1916,22 @@ cdef CUresult cuMemDiscardBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t c
 
 cdef CUresult cuMemDiscardAndPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
     return _driver._cuMemDiscardAndPrefetchBatchAsync(dptrs, sizes, count, prefetchLocs, prefetchLocIdxs, numPrefetchLocs, flags, hStream)
+
+
+cdef CUresult cuDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice srcDevice, CUdevice dstDevice) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+    return _driver._cuDeviceGetP2PAtomicCapabilities(capabilities, operations, count, srcDevice, dstDevice)
+
+
+cdef CUresult cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+    return _driver._cuGreenCtxGetId(greenCtx, greenCtxId)
+
+
+cdef CUresult cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+    return _driver._cuMulticastBindMem_v2(mcHandle, dev, mcOffset, memHandle, memOffset, size, flags)
+
+
+cdef CUresult cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+    return _driver._cuMulticastBindAddr_v2(mcHandle, dev, mcOffset, memptr, size, flags)
 
 
 cdef CUresult cuGraphNodeGetContainingGraph(CUgraphNode hNode, CUgraph* phGraph) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
@@ -1946,16 +1954,8 @@ cdef CUresult cuGraphExecGetId(CUgraphExec hGraphExec, unsigned int* graphId) ex
     return _driver._cuGraphExecGetId(hGraphExec, graphId)
 
 
-cdef CUresult cuDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice srcDevice, CUdevice dstDevice) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
-    return _driver._cuDeviceGetP2PAtomicCapabilities(capabilities, operations, count, srcDevice, dstDevice)
-
-
 cdef CUresult cuDevSmResourceSplit(CUdevResource* result, unsigned int nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, CU_DEV_SM_RESOURCE_GROUP_PARAMS* groupParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
     return _driver._cuDevSmResourceSplit(result, nbGroups, input, remainder, flags, groupParams)
-
-
-cdef CUresult cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
-    return _driver._cuGreenCtxGetId(greenCtx, greenCtxId)
 
 
 cdef CUresult cuStreamGetDevResource(CUstream hStream, CUdevResource* resource, CUdevResourceType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
