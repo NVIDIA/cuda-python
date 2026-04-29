@@ -429,6 +429,15 @@ jobs:
       - test-windows
       - doc
     steps:
+      - name: Checkout universally-skipped test reporter
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          ref: main
+          fetch-depth: 1
+          sparse-checkout: |
+            ci/tools/report_universally_skipped_tests.py
+          sparse-checkout-cone-mode: false
+
       - name: Report universally-skipped tests
         env:
           GH_TOKEN: ${{ github.token }}
