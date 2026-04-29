@@ -9,6 +9,7 @@ import textwrap
 
 import pytest
 from child_load_nvidia_dynamic_lib_helper import run_load_nvidia_dynamic_lib_in_subprocess
+from conftest import skip_if_missing_libnvcudla_so
 
 from cuda.pathfinder import (
     DynamicLibNotAvailableError,
@@ -65,6 +66,7 @@ def test_find_nvidia_dynamic_lib_returns_existing_path_without_loading(info_summ
         abs_path = find_nvidia_dynamic_lib(libname)
     except DynamicLibNotFoundError:
         if STRICTNESS == "all_must_work" and not _is_expected_find_failure(libname):
+            skip_if_missing_libnvcudla_so(libname, timeout=30)
             raise
         info_summary_append(f"Not found: {libname=!r}")
         return
