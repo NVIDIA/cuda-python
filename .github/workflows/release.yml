@@ -20,7 +20,6 @@ on:
           - cuda-bindings
           - cuda-pathfinder
           - cuda-python
-          - all
       git-tag:
         description: "The release git tag"
         required: true
@@ -159,7 +158,7 @@ jobs:
       - doc
     environment:
       name: testpypi
-      url: https://test.pypi.org/${{ inputs.component != 'all' && format('p/{0}/', inputs.component) || '' }}
+      url: https://test.pypi.org/p/${{ inputs.component }}/
     permissions:
       id-token: write
     steps:
@@ -189,7 +188,7 @@ jobs:
       - publish-testpypi
     environment:
       name: pypi
-      url: https://pypi.org/${{ inputs.component != 'all' && format('p/{0}/', inputs.component) || '' }}
+      url: https://pypi.org/p/${{ inputs.component }}/
     permissions:
       id-token: write
     steps:
