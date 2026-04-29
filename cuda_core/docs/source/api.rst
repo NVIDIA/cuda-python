@@ -177,17 +177,42 @@ CUDA compilation toolchain
 CUDA process checkpointing
 --------------------------
 
+The :mod:`cuda.core.checkpoint` module wraps the CUDA driver process
+checkpoint APIs. These APIs are intended for Linux process checkpoint and
+restore workflows, and require a CUDA driver with checkpoint API support and
+a ``cuda-bindings`` version that exposes those driver entry points.
+
+A checkpoint workflow operates on a CUDA process by process ID. The typical
+sequence is to lock the process, capture its GPU memory state, restore it
+when needed, and then unlock it so CUDA API calls can resume:
+
+.. code-block:: python
+
+   from cuda.core import checkpoint
+
+   process = checkpoint.Process(pid)
+   process.lock(timeout_ms=5000)
+   process.checkpoint()
+   process.restore()
+   process.unlock()
+
+``Process.state`` returns one of ``"running"``, ``"locked"``,
+``"checkpointed"``, or ``"failed"``. Restore may optionally remap GPUs by
+passing ``gpu_mapping`` from each checkpointed GPU UUID to the GPU UUID that
+should be used during restore. A successful restore returns the process to
+the locked state; call ``Process.unlock`` after restore to allow CUDA API
+calls to resume.
+
+The CUDA driver requires restore to run from the process restore thread.
+Use ``Process.restore_thread_id`` to discover that thread before calling
+``Process.restore`` from a checkpoint coordinator.
+
 .. autosummary::
    :toctree: generated/
 
    :template: class.rst
 
    checkpoint.Process
-
-.. autosummary::
-   :toctree: generated/
-
-   checkpoint.ProcessState
 
 
 CUDA system information and NVIDIA Management Library (NVML)

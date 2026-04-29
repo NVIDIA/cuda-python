@@ -3,11 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections.abc import Mapping as _Mapping
-from dataclasses import dataclass as _dataclass
-from enum import IntEnum as _IntEnum
 from typing import Any as _Any
+from typing import Literal as _Literal
 
 from cuda.core._utils.cuda_utils import handle_return as _handle_cuda_return
+from cuda.core._utils.version import binding_version as _binding_version
+from cuda.core._utils.version import driver_version as _driver_version
 
 try:
     from cuda.bindings import driver as _driver
@@ -15,18 +16,30 @@ except ImportError:
     from cuda import cuda as _driver
 
 
-class ProcessState(_IntEnum):
-    """
-    CUDA checkpoint state for a process.
-    """
+ProcessStateT = _Literal["running", "locked", "checkpointed", "failed"]
 
-    RUNNING = 0
-    LOCKED = 1
-    CHECKPOINTED = 2
-    FAILED = 3
+_PROCESS_STATE_NAMES: dict[int, ProcessStateT] = {
+    0: "running",
+    1: "locked",
+    2: "checkpointed",
+    3: "failed",
+}
+
+_REQUIRED_BINDING_ATTRS = (
+    "cuCheckpointProcessCheckpoint",
+    "cuCheckpointProcessGetRestoreThreadId",
+    "cuCheckpointProcessGetState",
+    "cuCheckpointProcessLock",
+    "cuCheckpointProcessRestore",
+    "cuCheckpointProcessUnlock",
+    "CUcheckpointGpuPair",
+    "CUcheckpointLockArgs",
+    "CUcheckpointRestoreArgs",
+)
+_REQUIRED_DRIVER_VERSION = (12, 8, 0)
+_driver_capability_checked = False
 
 
-@_dataclass(frozen=True)
 class Process:
     """
     CUDA process that can be locked, checkpointed, restored, and unlocked.
@@ -37,19 +50,23 @@ class Process:
         Process ID of the CUDA process.
     """
 
-    pid: int
+    __slots__ = ("pid",)
 
-    def __post_init__(self):
-        _check_pid(self.pid)
+    def __init__(self, pid: int):
+        self.pid = _check_pid(pid)
 
     @property
-    def state(self) -> ProcessState:
+    def state(self) -> ProcessStateT:
         """
         CUDA checkpoint state for this process.
         """
         driver = _get_driver()
-        state = _handle_return(driver, driver.cuCheckpointProcessGetState(self.pid))
-        return ProcessState(int(state))
+        state = _call_driver(driver, driver.cuCheckpointProcessGetState, self.pid)
+        state_value = int(state)
+        try:
+            return _PROCESS_STATE_NAMES[state_value]
+        except KeyError as e:
+            raise RuntimeError(f"Unknown CUDA checkpoint process state: {state_value}") from e
 
     @property
     def restore_thread_id(self) -> int:
@@ -57,7 +74,7 @@ class Process:
         CUDA restore thread ID for this process.
         """
         driver = _get_driver()
-        return _handle_return(driver, driver.cuCheckpointProcessGetRestoreThreadId(self.pid))
+        return _call_driver(driver, driver.cuCheckpointProcessGetRestoreThreadId, self.pid)
 
     def lock(self, timeout_ms: int = 0) -> None:
         """
@@ -71,14 +88,14 @@ class Process:
         driver = _get_driver()
         args = driver.CUcheckpointLockArgs()
         args.timeoutMs = _check_timeout_ms(timeout_ms)
-        _handle_return(driver, driver.cuCheckpointProcessLock(self.pid, args))
+        _call_driver(driver, driver.cuCheckpointProcessLock, self.pid, args)
 
     def checkpoint(self) -> None:
         """
         Checkpoint the GPU memory contents of this locked process.
         """
         driver = _get_driver()
-        _handle_return(driver, driver.cuCheckpointProcessCheckpoint(self.pid, None))
+        _call_driver(driver, driver.cuCheckpointProcessCheckpoint, self.pid, None)
 
     def restore(self, gpu_mapping: _Mapping[_Any, _Any] | None = None) -> None:
         """
@@ -93,34 +110,61 @@ class Process:
         """
         driver = _get_driver()
         args = _make_restore_args(driver, gpu_mapping)
-        _handle_return(driver, driver.cuCheckpointProcessRestore(self.pid, args))
+        _call_driver(driver, driver.cuCheckpointProcessRestore, self.pid, args)
 
     def unlock(self) -> None:
         """
         Unlock this locked process so it can resume CUDA API calls.
         """
         driver = _get_driver()
-        _handle_return(driver, driver.cuCheckpointProcessUnlock(self.pid, None))
+        _call_driver(driver, driver.cuCheckpointProcessUnlock, self.pid, None)
 
 
 def _get_driver():
-    required = (
-        "cuCheckpointProcessCheckpoint",
-        "cuCheckpointProcessGetRestoreThreadId",
-        "cuCheckpointProcessGetState",
-        "cuCheckpointProcessLock",
-        "cuCheckpointProcessRestore",
-        "cuCheckpointProcessUnlock",
-        "CUcheckpointGpuPair",
-        "CUcheckpointLockArgs",
-        "CUcheckpointRestoreArgs",
-    )
-    missing = [name for name in required if not hasattr(_driver, name)]
+    global _driver_capability_checked
+    if _driver_capability_checked:
+        return _driver
+
+    binding_ver = _binding_version()
+    if not _binding_version_supports_checkpoint(binding_ver):
+        raise RuntimeError(
+            "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. "
+            f"Found cuda.bindings {'.'.join(str(part) for part in binding_ver[:3])}."
+        )
+
+    missing = [name for name in _REQUIRED_BINDING_ATTRS if not hasattr(_driver, name)]
     if missing:
         raise RuntimeError(
             f"CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. Missing: {', '.join(missing)}"
         )
+
+    driver_ver = _driver_version()
+    if driver_ver < _REQUIRED_DRIVER_VERSION:
+        raise RuntimeError(
+            "CUDA checkpointing is not supported by the installed NVIDIA driver. "
+            "Upgrade to a driver version with CUDA checkpoint API support."
+        )
+
+    _driver_capability_checked = True
     return _driver
+
+
+def _binding_version_supports_checkpoint(version) -> bool:
+    major, minor, patch = version[:3]
+    return (major == 12 and (minor, patch) >= (8, 0)) or (major == 13 and (minor, patch) >= (0, 2)) or major > 13
+
+
+def _call_driver(driver, func, *args):
+    try:
+        result = func(*args)
+    except RuntimeError as e:
+        if "cuCheckpointProcess" in str(e) and "not found" in str(e):
+            raise RuntimeError(
+                "CUDA checkpointing is not supported by the installed NVIDIA driver. "
+                "Upgrade to a driver version with CUDA checkpoint API support."
+            ) from e
+        raise
+    return _handle_return(driver, result)
 
 
 def _handle_return(driver, result):
@@ -178,5 +222,4 @@ def _make_restore_args(driver, gpu_mapping: _Mapping[_Any, _Any] | None):
 
 __all__ = [
     "Process",
-    "ProcessState",
 ]
