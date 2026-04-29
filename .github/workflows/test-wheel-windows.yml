@@ -191,7 +191,8 @@ jobs:
       - name: Display structure of downloaded cuda-python artifacts
         run: |
           Get-Location
-          Get-ChildItem -Recurse -Force | Select-Object Mode, LastWriteTime, Length, FullName
+          Get-ChildItem cuda_python*.whl | Select-Object Mode, LastWriteTime, Length, FullName
+          Get-ChildItem cuda_pathfinder/ | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
@@ -320,29 +321,33 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests pathfinder
 
-      # ── Nightly: install all cuda-python wheels ──
-      - name: Install cuda-python wheels for nightly testing
-        if: ${{ inputs.test-mode != 'standard' }}
+      # ── Nightly: install wheels + optional dep together ──
+      - name: Install Visual C++ Redistributable (required by PyTorch on Windows)
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        run: |
+          Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" -OutFile "vc_redist.x64.exe"
+          Start-Process -FilePath ".\vc_redist.x64.exe" -ArgumentList "/install", "/quiet", "/norestart" -Wait
+          Remove-Item "vc_redist.x64.exe"
+
+      - name: Install cuda-python wheels + PyTorch
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          TORCH_VER: ${{ matrix.TORCH_VER }}
+          TORCH_CUDA: ${{ matrix.TORCH_CUDA }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests nightly-pytorch
+
+      - name: Install cuda-python wheels + numba-cuda
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: run-tests nightly-install
+        run: run-tests nightly-numba-cuda
 
-      # ── Nightly: PyTorch interop tests ──
-      - name: Install PyTorch
-        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          TORCH_VER="${{ matrix.TORCH_VER }}"
-          TORCH_CUDA="${{ matrix.TORCH_CUDA }}"
-          if [[ "$TORCH_VER" == "latest" ]]; then
-            pip install torch --index-url "https://download.pytorch.org/whl/${TORCH_CUDA}"
-          else
-            pip install "torch==${TORCH_VER}" --index-url "https://download.pytorch.org/whl/${TORCH_CUDA}"
-          fi
-          python -c "import torch; print(f'PyTorch {torch.__version__}, CUDA {torch.version.cuda}')"
-
+      # ── Nightly: run tests ──
       - name: Run PyTorch interop tests
         if: ${{ inputs.test-mode == 'nightly-pytorch' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -351,15 +356,7 @@ jobs:
           pytest -rxXs -v --durations=0 tests/test_utils.py tests/example_tests/
           popd
 
-      # ── Nightly: numba-cuda tests ──
-      - name: Install numba-cuda
-        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          pip install numba-cuda
-          python -c "import numba_cuda; print(f'numba-cuda installed')"
-
       - name: Run numba-cuda tests
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: python -m numba_cuda.numba.cuda.tests
+        run: python -m numba.runtests numba.cuda.tests

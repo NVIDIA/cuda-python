@@ -13,19 +13,22 @@ if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument. You provided ${#}"
   exit 1
 fi
-if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" && "${1}" != "nightly-install" ]]; then
-  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', 'pathfinder', or 'nightly-install'"
+if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" && "${1}" != "nightly-pytorch" && "${1}" != "nightly-numba-cuda" ]]; then
+  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', 'pathfinder', 'nightly-pytorch', or 'nightly-numba-cuda'"
   exit 1
 fi
 
 test_module=${1}
 
-# Unconditionally install pathfinder wheel
-# (it is a direct dependency of bindings, and a transitive dependency of core)
-pushd ./cuda_pathfinder
-echo "Installing pathfinder wheel"
-pip install ./*.whl --group test
-popd
+# For standard modes, install pathfinder up front (it is a direct dependency
+# of bindings, and a transitive dependency of core).  Nightly modes install
+# all wheels together in a single pip call further below.
+if [[ "${test_module}" != "nightly-pytorch" && "${test_module}" != "nightly-numba-cuda" ]]; then
+  pushd ./cuda_pathfinder
+  echo "Installing pathfinder wheel"
+  pip install ./*.whl --group test
+  popd
+fi
 
 if [[ "${test_module}" == "pathfinder" ]]; then
   pushd ./cuda_pathfinder
@@ -91,35 +94,68 @@ elif [[ "${test_module}" == "core" ]]; then
     ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
   fi
   popd
-elif [[ "${test_module}" == "nightly-install" ]]; then
-  # Install all wheels (pathfinder already installed above) without running tests.
-  # Used by nightly optional-dependency pipelines (pytorch, numba-cuda).
-  echo "Installing bindings wheel"
-  pushd ./cuda_bindings
-  if [[ "${LOCAL_CTK}" == 1 ]]; then
-    pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
-  else
-    pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all]
-  fi
-  popd
+elif [[ "${test_module}" == "nightly-pytorch" || "${test_module}" == "nightly-numba-cuda" ]]; then
+  # Nightly optional-dependency testing.
+  # Install ALL wheels (pathfinder + bindings + core) and the optional dep
+  # in a single pip call so pip resolves version constraints in one shot
+  # and avoids costly uninstall/reinstall cycles.
+  #
+  # We pushd into cuda_core/ so that --group reads test dependency groups
+  # from cuda_core/pyproject.toml (needed for numpy, cupy, ml_dtypes, etc.).
+  # All other wheel paths use ../ to reach the repo root.
 
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
-  echo "Installing core wheel"
+  CUDA_VER_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
 
   FREE_THREADING=""
   if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
     FREE_THREADING+="-ft"
   fi
 
+  # Resolve the pathfinder wheel path before pushd (it's relative to repo root).
+  # CUDA_BINDINGS_ARTIFACTS_DIR and CUDA_CORE_ARTIFACTS_DIR are already absolute
+  # (set via realpath in env-vars).
+  PATHFINDER_WHL=($(realpath ./cuda_pathfinder/*.whl))
+
   pushd ./cuda_core
-  CUDA_VER_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
-  WHL_EXTRA=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
+
+  # Build wheel specs (paths are absolute, so pushd doesn't affect them)
+  BINDINGS_WHL=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
   if [[ "${LOCAL_CTK}" != 1 ]]; then
-    WHL_EXTRA=("${WHL_EXTRA[0]}[cu${TEST_CUDA_MAJOR}]")
+    BINDINGS_WHL=("${BINDINGS_WHL[0]}[all]")
   fi
-  pip install "${WHL_EXTRA[@]}" --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${CUDA_VER_MINOR}.*"
+
+  CORE_WHL=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
+  if [[ "${LOCAL_CTK}" != 1 ]]; then
+    CORE_WHL=("${CORE_WHL[0]}[cu${TEST_CUDA_MAJOR}]")
+  fi
+
+  # All packages in one pip call: pathfinder + bindings + core + test deps + optional dep
+  PIP_ARGS=(
+    "${PATHFINDER_WHL[@]}"
+    "${BINDINGS_WHL[@]}"
+    "${CORE_WHL[@]}"
+    --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
+    "cuda-toolkit==${CUDA_VER_MINOR}.*"
+  )
+
+  if [[ "${test_module}" == "nightly-pytorch" ]]; then
+    # TORCH_VER and TORCH_CUDA must be set by the caller.
+    echo "Installing pathfinder + bindings + core + test deps + PyTorch ${TORCH_VER} (${TORCH_CUDA})"
+    if [[ "${TORCH_VER}" == "latest" ]]; then
+      PIP_ARGS+=(torch)
+    else
+      PIP_ARGS+=("torch==${TORCH_VER}")
+    fi
+    PIP_ARGS+=(--extra-index-url "https://download.pytorch.org/whl/${TORCH_CUDA}")
+  elif [[ "${test_module}" == "nightly-numba-cuda" ]]; then
+    echo "Installing pathfinder + bindings + core + test deps + numba-cuda"
+    PIP_ARGS+=("numba-cuda[cu${TEST_CUDA_MAJOR}]")
+  fi
+
+  pip install "${PIP_ARGS[@]}"
   popd
 
-  echo "All cuda-python wheels installed for nightly testing"
-  pip list | grep -i "cuda\|pathfinder"
+  echo "Nightly install complete — installed packages:"
+  pip list
 fi

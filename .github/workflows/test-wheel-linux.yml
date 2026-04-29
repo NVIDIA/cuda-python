@@ -205,7 +205,7 @@ jobs:
       - name: Display structure of downloaded cuda-python artifacts
         run: |
           pwd
-          ls -lahR .
+          ls -lah cuda_python*.whl cuda_pathfinder/
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
@@ -343,27 +343,24 @@ jobs:
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
         run: run-tests pathfinder
 
-      # ── Nightly: install all cuda-python wheels ──
-      - name: Install cuda-python wheels for nightly testing
-        if: ${{ inputs.test-mode != 'standard' }}
+      # ── Nightly: install wheels + optional dep together ──
+      - name: Install cuda-python wheels + PyTorch
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
-        run: run-tests nightly-install
+          TORCH_VER: ${{ matrix.TORCH_VER }}
+          TORCH_CUDA: ${{ matrix.TORCH_CUDA }}
+        run: run-tests nightly-pytorch
 
-      # ── Nightly: PyTorch interop tests ──
-      - name: Install PyTorch
-        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
-        run: |
-          TORCH_VER="${{ matrix.TORCH_VER }}"
-          TORCH_CUDA="${{ matrix.TORCH_CUDA }}"
-          if [[ "$TORCH_VER" == "latest" ]]; then
-            pip install torch --index-url "https://download.pytorch.org/whl/${TORCH_CUDA}"
-          else
-            pip install "torch==${TORCH_VER}" --index-url "https://download.pytorch.org/whl/${TORCH_CUDA}"
-          fi
-          python -c "import torch; print(f'PyTorch {torch.__version__}, CUDA {torch.version.cuda}')"
+      - name: Install cuda-python wheels + numba-cuda
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests nightly-numba-cuda
 
+      # ── Nightly: run tests ──
       - name: Run PyTorch interop tests
         if: ${{ inputs.test-mode == 'nightly-pytorch' }}
         run: |
@@ -371,13 +368,6 @@ jobs:
           pytest -rxXs -v --durations=0 tests/test_utils.py tests/example_tests/
           popd
 
-      # ── Nightly: numba-cuda tests ──
-      - name: Install numba-cuda
-        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
-        run: |
-          pip install numba-cuda
-          python -c "import numba_cuda; print(f'numba-cuda installed')"
-
       - name: Run numba-cuda tests
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
-        run: python -m numba_cuda.numba.cuda.tests
+        run: python -m numba.runtests numba.cuda.tests
