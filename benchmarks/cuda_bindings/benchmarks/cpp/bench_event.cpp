@@ -45,6 +45,11 @@ int main(int argc, char** argv) {
     check_cu(cuStreamSynchronize(stream), "cuStreamSynchronize failed");
 
     bench::BenchmarkSuite suite(options);
+    // Drain the persistent stream after calibration so event_record (which
+    // enqueues onto the stream) and event_synchronize start from a known state.
+    suite.set_post_calibrate([&]() {
+        check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed");
+    });
 
     // --- event_create_destroy ---
     {

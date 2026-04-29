@@ -8,10 +8,10 @@ from cuda.core.graph._graph_builder import (
     GraphCompleteOptions,
     GraphDebugPrintOptions,
 )
-from cuda.core.graph._graph_def import (
-    Condition,
+from cuda.core.graph._graph_definition import (
     GraphAllocOptions,
-    GraphDef,
+    GraphCondition,
+    GraphDefinition,
 )
 from cuda.core.graph._graph_node import GraphNode
 from cuda.core.graph._subclasses import (

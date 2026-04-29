@@ -238,6 +238,12 @@ int main(int argc, char** argv) {
     void* struct_params[] = {&struct_2048B};
 
     bench::BenchmarkSuite suite(options);
+    // After calibration, drain the persistent stream so the first measured
+    // sample does not start on a backlogged stream. Calibration for enqueue-
+    // style ops (kernel launches) may queue many thousands of operations.
+    suite.set_post_calibrate([&]() {
+        check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed");
+    });
 
     suite.run("launch.launch_empty_kernel", [&]() {
         check_cu(cuLaunchKernel(empty_kernel, 1, 1, 1, 1, 1, 1, 0, stream, nullptr, nullptr),

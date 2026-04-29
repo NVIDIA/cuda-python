@@ -18,7 +18,7 @@ from cuda.core._event cimport Event
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._module cimport Kernel
-from cuda.core.graph._graph_def cimport Condition, GraphDef
+from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
 from cuda.core.graph._subclasses cimport (
     AllocNode,
     ChildGraphNode,
@@ -73,7 +73,7 @@ cdef inline GraphNode _registered(GraphNode n):
 cdef class GraphNode:
     """A node in a graph definition.
 
-    Nodes are created by calling builder methods on GraphDef (for
+    Nodes are created by calling builder methods on GraphDefinition (for
     entry-point nodes with no dependencies) or on other Nodes (for
     nodes that depend on a predecessor).
     """
@@ -120,9 +120,9 @@ cdef class GraphNode:
         return driver.CUgraphNodeType(<int>node_type)
 
     @property
-    def graph(self) -> "GraphDef":
-        """Return the GraphDef this node belongs to."""
-        return GraphDef._from_handle(graph_node_get_graph(self._h_node))
+    def graph(self) -> "GraphDefinition":
+        """Return the GraphDefinition this node belongs to."""
+        return GraphDefinition._from_handle(graph_node_get_graph(self._h_node))
 
     @property
     def handle(self) -> driver.CUgraphNode:
@@ -296,7 +296,7 @@ cdef class GraphNode:
         """
         return GN_memcpy(self, <cydriver.CUdeviceptr>dst, <cydriver.CUdeviceptr>src, size)
 
-    def embed(self, child: GraphDef) -> ChildGraphNode:
+    def embed(self, child: GraphDefinition) -> ChildGraphNode:
         """Add a child graph node depending on this node.
 
         Embeds a clone of the given graph definition as a sub-graph node.
@@ -305,7 +305,7 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        child : GraphDef
+        child : GraphDefinition
             The graph definition to embed (will be cloned).
 
         Returns
@@ -313,7 +313,7 @@ cdef class GraphNode:
         ChildGraphNode
             A new ChildGraphNode representing the embedded sub-graph.
         """
-        return GN_embed(self, <GraphDef>child)
+        return GN_embed(self, <GraphDefinition>child)
 
     def record_event(self, event: Event) -> EventRecordNode:
         """Add an event record node depending on this node.
@@ -380,7 +380,7 @@ cdef class GraphNode:
         """
         return GN_callback(self, fn, user_data)
 
-    def if_cond(self, condition: Condition) -> IfNode:
+    def if_cond(self, condition: GraphCondition) -> IfNode:
         """Add an if-conditional node depending on this node.
 
         The body graph executes only when the condition evaluates to
@@ -388,8 +388,8 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        condition : Condition
-            Condition from :meth:`GraphDef.create_condition`.
+        condition : GraphCondition
+            GraphCondition from :meth:`GraphDefinition.create_condition`.
 
         Returns
         -------
@@ -400,7 +400,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_IF, 1, IfNode)
 
-    def if_else(self, condition: Condition) -> IfElseNode:
+    def if_else(self, condition: GraphCondition) -> IfElseNode:
         """Add an if-else conditional node depending on this node.
 
         Two body graphs: the first executes when the condition is
@@ -408,8 +408,8 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        condition : Condition
-            Condition from :meth:`GraphDef.create_condition`.
+        condition : GraphCondition
+            GraphCondition from :meth:`GraphDefinition.create_condition`.
 
         Returns
         -------
@@ -421,7 +421,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_IF, 2, IfElseNode)
 
-    def while_loop(self, condition: Condition) -> WhileNode:
+    def while_loop(self, condition: GraphCondition) -> WhileNode:
         """Add a while-loop conditional node depending on this node.
 
         The body graph executes repeatedly while the condition
@@ -429,8 +429,8 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        condition : Condition
-            Condition from :meth:`GraphDef.create_condition`.
+        condition : GraphCondition
+            GraphCondition from :meth:`GraphDefinition.create_condition`.
 
         Returns
         -------
@@ -441,7 +441,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_WHILE, 1, WhileNode)
 
-    def switch(self, condition: Condition, unsigned int count) -> SwitchNode:
+    def switch(self, condition: GraphCondition, unsigned int count) -> SwitchNode:
         """Add a switch conditional node depending on this node.
 
         The condition value selects which branch to execute. If the
@@ -449,8 +449,8 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        condition : Condition
-            Condition from :meth:`GraphDef.create_condition`.
+        condition : GraphCondition
+            GraphCondition from :meth:`GraphDefinition.create_condition`.
         count : int
             Number of switch cases (branches).
 
@@ -476,14 +476,14 @@ cdef void _destroy_kernel_handle_copy(void* ptr) noexcept nogil:
 
 cdef inline ConditionalNode _make_conditional_node(
         GraphNode pred,
-        Condition condition,
+        GraphCondition condition,
         cydriver.CUgraphConditionalNodeType cond_type,
         unsigned int size,
         type node_cls):
-    if not isinstance(condition, Condition):
+    if not isinstance(condition, GraphCondition):
         raise TypeError(
-            f"condition must be a Condition object (from "
-            f"GraphDef.create_condition()), got {type(condition).__name__}")
+            f"condition must be a GraphCondition object (from "
+            f"GraphDefinition.create_condition()), got {type(condition).__name__}")
     cdef cydriver.CUgraphNodeParams params
     cdef cydriver.CUgraphNode new_node = NULL
 
@@ -522,7 +522,7 @@ cdef inline ConditionalNode _make_conditional_node(
     for i in range(size):
         bg = params.conditional.phGraph_out[i]
         h_branch = create_graph_handle_ref(bg, h_graph)
-        branch_list.append(GraphDef._from_handle(h_branch))
+        branch_list.append(GraphDefinition._from_handle(h_branch))
     cdef tuple branches = tuple(branch_list)
 
     cdef ConditionalNode n = node_cls.__new__(node_cls)
@@ -841,7 +841,7 @@ cdef inline MemcpyNode GN_memcpy(
         c_dst_type, c_src_type))
 
 
-cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDef child_def):
+cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
