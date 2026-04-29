@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.graph.Condition &#8212; cuda.core</title>
+    <title>cuda.core.graph.GraphCondition &#8212; cuda.core</title>
   
   
   
@@ -44,22 +44,22 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=777e0685"></script>
+    <script src="../_static/documentation_options.js?v=24495cab"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.graph.Condition';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.graph.GraphCondition';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev66';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev75';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.graph.Condition.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.graph.GraphCondition.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -520,9 +520,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -594,6 +594,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.0.0-notes.html">1.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
@@ -646,7 +647,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.graph.Condition</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.graph.GraphCondition</span></li>
   </ul>
 </nav>
 </div>
@@ -663,26 +664,26 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-graph-condition">
-<h1>cuda.core.graph.Condition<a class="headerlink" href="#cuda-core-graph-condition" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-graph-graphcondition">
+<h1>cuda.core.graph.GraphCondition<a class="headerlink" href="#cuda-core-graph-graphcondition" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.graph.Condition">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.graph.</span></span><span class="sig-name descname"><span class="pre">Condition</span></span><a class="headerlink" href="#cuda.core.graph.Condition" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.graph.GraphCondition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.graph.</span></span><span class="sig-name descname"><span class="pre">GraphCondition</span></span><a class="headerlink" href="#cuda.core.graph.GraphCondition" title="Link to this definition">#</a></dt>
 <dd><p>A condition variable for conditional graph nodes.</p>
-<p>Created by <a class="reference internal" href="cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.create_condition" title="cuda.core.graph.GraphDef.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphDef.create_condition()</span></code></a> and passed to
+<p>Created by <a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.create_condition" title="cuda.core.graph.GraphDefinition.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphDefinition.create_condition()</span></code></a> and passed to
 conditional-node builder methods (<code class="docutils literal notranslate"><span class="pre">if_cond</span></code>, <code class="docutils literal notranslate"><span class="pre">if_else</span></code>,
 <code class="docutils literal notranslate"><span class="pre">while_loop</span></code>, <code class="docutils literal notranslate"><span class="pre">switch</span></code>). The underlying value is set at
 runtime by device code via <code class="docutils literal notranslate"><span class="pre">cudaGraphSetConditional</span></code>.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.graph.Condition.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph.Condition.__init__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.graph.GraphCondition.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph.GraphCondition.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.graph.Condition.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.graph.Condition.handle" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.graph.GraphCondition.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.graph.GraphCondition.handle" title="Link to this definition">#</a></dt>
 <dd><p>driver.CUgraphConditionalHandle</p>
 <p>The raw CUgraphConditionalHandle as an int.</p>
 </dd></dl>
@@ -740,9 +741,9 @@ runtime by device code via <code class="docutils literal notranslate"><span clas
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.Condition"><code class="docutils literal notranslate"><span class="pre">Condition</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.Condition.__init__"><code class="docutils literal notranslate"><span class="pre">Condition.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.Condition.handle"><code class="docutils literal notranslate"><span class="pre">Condition.handle</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.GraphCondition"><code class="docutils literal notranslate"><span class="pre">GraphCondition</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.GraphCondition.__init__"><code class="docutils literal notranslate"><span class="pre">GraphCondition.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.GraphCondition.handle"><code class="docutils literal notranslate"><span class="pre">GraphCondition.handle</span></code></a></li>
 </ul>
 </li>
 </ul>
