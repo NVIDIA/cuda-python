@@ -1568,7 +1568,7 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuGraphDestroyNode', <void **>&__cuGraphDestroyNode, 10000, ptds_mode, NULL)
 
         global __cuGraphInstantiateWithFlags
-        _F_cuGetProcAddress_v2('cuGraphInstantiate', <void **>&__cuGraphInstantiateWithFlags, 11040, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuGraphInstantiateWithFlags', <void **>&__cuGraphInstantiateWithFlags, 11040, ptds_mode, NULL)
 
         global __cuGraphInstantiateWithParams
         _F_cuGetProcAddress_v2('cuGraphInstantiateWithParams', <void **>&__cuGraphInstantiateWithParams, 12000, ptds_mode, NULL)
