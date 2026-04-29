@@ -17,8 +17,8 @@ New features
 ------------
 
 - Added the :mod:`cuda.core.checkpoint` module for CUDA process checkpointing,
-  including process state queries, lock/checkpoint/restore/unlock operations,
-  and GPU UUID remapping support for restore.
+  including string process state queries, lock/checkpoint/restore/unlock
+  operations, and GPU UUID remapping support for restore.
   (`#1343 <https://github.com/NVIDIA/cuda-python/issues/1343>`__)
 
 
