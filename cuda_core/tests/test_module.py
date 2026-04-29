@@ -207,16 +207,18 @@ def test_get_kernel(init_cuda):
 )
 def test_read_only_kernel_attributes(get_saxpy_kernel_cubin, attr, expected_type):
     kernel, _ = get_saxpy_kernel_cubin
-    method = getattr(kernel.attributes, attr)
-    # get the value without providing a device ordinal
-    value = method()
-    assert value is not None
 
-    # get the value for each device on the system, using either the device object or ordinal
-    for device in Device.get_all_devices():
-        value = method(device)
-        value = method(device.device_id)
+    # Default view: property access on the current-device view.
+    value = getattr(kernel.attributes, attr)
+    assert value is not None
     assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
+
+    # Per-device views via __getitem__: each device, both Device and ordinal forms.
+    for device in Device.get_all_devices():
+        value = getattr(kernel.attributes[device], attr)
+        assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
+        value = getattr(kernel.attributes[device.device_id], attr)
+        assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
 
 
 def test_object_code_load_ptx(get_saxpy_kernel_ptx):
