@@ -78,6 +78,22 @@ Breaking changes
     and the same on :class:`~graph.GraphNode`, matching
     :meth:`Stream.record` / :meth:`Stream.wait`.
 
+- :class:`KernelAttributes` methods are now properties; per-device queries
+  use indexing
+  (`#1945 <https://github.com/NVIDIA/cuda-python/issues/1945>`__):
+
+  - The 17 attribute methods (``max_threads_per_block``, ``num_regs``,
+    ``shared_size_bytes``, ``cluster_scheduling_policy_preference``, etc.)
+    that previously took a ``device_id`` argument are now properties on
+    the view returned by :attr:`Kernel.attributes`. The view is bound to
+    the current device by default; ``kernel.attributes[device]`` returns
+    a view bound to a specific :class:`Device` or device ordinal. The
+    cache is shared across views of the same kernel.
+  - Old: ``kernel.attributes.num_regs()`` and
+    ``kernel.attributes.num_regs(some_dev)``
+  - New: ``kernel.attributes.num_regs`` and
+    ``kernel.attributes[some_dev].num_regs``
+
 - Unified the conditional graph API on :class:`~graph.GraphCondition`
   and consistent verbs
   (`#1945 <https://github.com/NVIDIA/cuda-python/issues/1945>`__):

@@ -39,7 +39,15 @@ __all__ = ["Kernel", "ObjectCode"]
 
 
 cdef class KernelAttributes:
-    """Provides access to kernel attributes."""
+    """Read-only view of a kernel's per-device attributes.
+
+    The default view returned by :attr:`Kernel.attributes` is bound to
+    the current device, resolved at attribute-access time. Use
+    ``kernel.attributes[device]`` to obtain a view bound to a specific
+    device (an :class:`int` device ordinal or :class:`Device`). Per-device
+    views share the underlying cache so a value queried through one view
+    is visible through the others.
+    """
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
@@ -48,8 +56,21 @@ cdef class KernelAttributes:
     cdef KernelAttributes _init(KernelHandle h_kernel):
         cdef KernelAttributes self = KernelAttributes.__new__(KernelAttributes)
         self._h_kernel = h_kernel
+        self._device_id = -1
         self._cache = {}
         return self
+
+    cdef KernelAttributes _view_for_device(self, int device_id):
+        cdef KernelAttributes view = KernelAttributes.__new__(KernelAttributes)
+        view._h_kernel = self._h_kernel
+        view._device_id = device_id
+        view._cache = self._cache
+        return view
+
+    cdef inline int _effective_device_id(self) except? -1:
+        if self._device_id >= 0:
+            return self._device_id
+        return Device().device_id
 
     cdef int _get_cached_attribute(self, int device_id, cydriver.CUfunction_attribute attribute) except? -1:
         """Helper function to get a cached attribute or fetch and cache it if not present."""
@@ -63,121 +84,150 @@ cdef class KernelAttributes:
         self._cache[cache_key] = result
         return result
 
-    cdef inline int _resolve_device_id(self, device_id) except? -1:
-        """Convert Device or int to device_id int."""
-        return Device(device_id).device_id
+    def __getitem__(self, device) -> KernelAttributes:
+        """Return a view of these attributes bound to a specific device.
 
-    def max_threads_per_block(self, device_id: Device | int = None) -> int:
+        Parameters
+        ----------
+        device : Device or int
+            The device whose attributes to query. Accepts a :class:`Device`
+            or a device ordinal (:class:`int`).
+
+        Returns
+        -------
+        KernelAttributes
+            A view bound to ``device`` that shares the underlying cache
+            with this view.
+        """
+        return self._view_for_device(Device(device).device_id)
+
+    @property
+    def max_threads_per_block(self) -> int:
         """int : The maximum number of threads per block.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
         )
 
-    def shared_size_bytes(self, device_id: Device | int = None) -> int:
+    @property
+    def shared_size_bytes(self) -> int:
         """int : The size in bytes of statically-allocated shared memory required by this function.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES
         )
 
-    def const_size_bytes(self, device_id: Device | int = None) -> int:
+    @property
+    def const_size_bytes(self) -> int:
         """int : The size in bytes of user-allocated constant memory required by this function.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES
         )
 
-    def local_size_bytes(self, device_id: Device | int = None) -> int:
+    @property
+    def local_size_bytes(self) -> int:
         """int : The size in bytes of local memory used by each thread of this function.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES
         )
 
-    def num_regs(self, device_id: Device | int = None) -> int:
+    @property
+    def num_regs(self) -> int:
         """int : The number of registers used by each thread of this function.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_NUM_REGS
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_NUM_REGS
         )
 
-    def ptx_version(self, device_id: Device | int = None) -> int:
+    @property
+    def ptx_version(self) -> int:
         """int : The PTX virtual architecture version for which the function was compiled.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_PTX_VERSION
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_PTX_VERSION
         )
 
-    def binary_version(self, device_id: Device | int = None) -> int:
+    @property
+    def binary_version(self) -> int:
         """int : The binary architecture version for which the function was compiled.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_BINARY_VERSION
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_BINARY_VERSION
         )
 
-    def cache_mode_ca(self, device_id: Device | int = None) -> bool:
+    @property
+    def cache_mode_ca(self) -> bool:
         """bool : Whether the function has been compiled with user specified option "-Xptxas --dlcm=ca" set.
         This attribute is read-only."""
         return bool(
             self._get_cached_attribute(
-                self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA
+                self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA
             )
         )
 
-    def max_dynamic_shared_size_bytes(self, device_id: Device | int = None) -> int:
+    @property
+    def max_dynamic_shared_size_bytes(self) -> int:
         """int : The maximum size in bytes of dynamically-allocated shared memory that can be used
         by this function."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
         )
 
-    def preferred_shared_memory_carveout(self, device_id: Device | int = None) -> int:
+    @property
+    def preferred_shared_memory_carveout(self) -> int:
         """int : The shared memory carveout preference, in percent of the total shared memory."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
         )
 
-    def cluster_size_must_be_set(self, device_id: Device | int = None) -> bool:
+    @property
+    def cluster_size_must_be_set(self) -> bool:
         """bool : The kernel must launch with a valid cluster size specified.
         This attribute is read-only."""
         return bool(
             self._get_cached_attribute(
-                self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET
+                self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET
             )
         )
 
-    def required_cluster_width(self, device_id: Device | int = None) -> int:
+    @property
+    def required_cluster_width(self) -> int:
         """int : The required cluster width in blocks."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
         )
 
-    def required_cluster_height(self, device_id: Device | int = None) -> int:
+    @property
+    def required_cluster_height(self) -> int:
         """int : The required cluster height in blocks."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
         )
 
-    def required_cluster_depth(self, device_id: Device | int = None) -> int:
+    @property
+    def required_cluster_depth(self) -> int:
         """int : The required cluster depth in blocks."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
         )
 
-    def non_portable_cluster_size_allowed(self, device_id: Device | int = None) -> bool:
+    @property
+    def non_portable_cluster_size_allowed(self) -> bool:
         """bool : Whether the function can be launched with non-portable cluster size."""
         return bool(
             self._get_cached_attribute(
-                self._resolve_device_id(device_id),
+                self._effective_device_id(),
                 cydriver.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED,
             )
         )
 
-    def cluster_scheduling_policy_preference(self, device_id: Device | int = None) -> int:
+    @property
+    def cluster_scheduling_policy_preference(self) -> int:
         """int : The block scheduling policy of a function."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id),
+            self._effective_device_id(),
             cydriver.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE,
         )
 

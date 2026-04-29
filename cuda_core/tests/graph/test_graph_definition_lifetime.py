@@ -390,7 +390,7 @@ def test_kernel_node_keeps_kernel_alive(init_cuda):
     gc.collect()
 
     retrieved = node.kernel
-    assert retrieved.attributes.max_threads_per_block() > 0
+    assert retrieved.attributes.max_threads_per_block > 0
 
 
 def test_kernel_survives_graph_instantiation_and_execution(init_cuda):
@@ -455,7 +455,7 @@ def test_kernel_from_handle_recovers_library(init_cuda):
     del kernel, mod
     gc.collect()
 
-    assert reconstructed.attributes.max_threads_per_block() > 0
+    assert reconstructed.attributes.max_threads_per_block > 0
 
 
 def test_kernel_node_reconstruction_preserves_validity(init_cuda):
@@ -479,7 +479,7 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
     # -> create_kernel_handle_ref -> handle recovery
     reconstructed = next(iter(successor.pred))
     assert isinstance(reconstructed, KernelNode)
-    assert reconstructed.kernel.attributes.max_threads_per_block() > 0
+    assert reconstructed.kernel.attributes.max_threads_per_block > 0
 
     graph = g.instantiate()
     stream = Device().create_stream()
