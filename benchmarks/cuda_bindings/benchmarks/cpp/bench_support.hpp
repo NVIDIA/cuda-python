@@ -6,10 +6,12 @@
 
 #include <chrono>
 #include <cmath>
+#include <algorithm>
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -22,6 +24,12 @@ struct Options {
     std::uint64_t warmups = 5;
     std::uint64_t values = 20;
     std::uint64_t runs = 20;
+    double min_time_sec = 0.0;
+    // Safety cap for the calibration doubling loop. Set high enough that even
+    // sub-nanosecond ops can reach typical --min-time targets (e.g. 100ms).
+    // A warning is printed if calibration hits this cap before reaching min-time.
+    std::uint64_t max_loops = 100000000;
+    std::uint64_t calibrate_rounds = 3;
     std::string output_path;
     std::string benchmark_name;
 };
@@ -46,6 +54,18 @@ inline Options parse_args(int argc, char** argv) {
             options.warmups = std::strtoull(argv[++i], nullptr, 10);
             continue;
         }
+        if (arg == "--min-time" && i + 1 < argc) {
+            options.min_time_sec = std::strtod(argv[++i], nullptr);
+            continue;
+        }
+        if (arg == "--max-loops" && i + 1 < argc) {
+            options.max_loops = std::strtoull(argv[++i], nullptr, 10);
+            continue;
+        }
+        if (arg == "--calibrate-rounds" && i + 1 < argc) {
+            options.calibrate_rounds = std::strtoull(argv[++i], nullptr, 10);
+            continue;
+        }
         if (arg == "--values" && i + 1 < argc) {
             options.values = std::strtoull(argv[++i], nullptr, 10);
             continue;
@@ -68,6 +88,9 @@ inline Options parse_args(int argc, char** argv) {
                       << "  --warmups N     Warmup values per run (default: 5)\n"
                       << "  --values N      Timed values per run (default: 20)\n"
                       << "  --runs N        Number of runs (default: 20)\n"
+                      << "  --min-time S    Calibrate loops to reach S seconds per value\n"
+                      << "  --max-loops N   Safety cap for calibration loop count (default: 100000000)\n"
+                      << "  --calibrate-rounds N  Calibration passes (default: 3)\n"
                       << "  -o, --output F  Write pyperf-compatible JSON to file\n"
                       << "  --name S        Benchmark name (overrides default)\n";
             std::exit(0);
@@ -91,6 +114,82 @@ inline std::string iso_now() {
     char buf[64];
     std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
     return std::string(buf);
+}
+
+// Calibrate loop count to hit a minimum wall time per value.
+// Returns the chosen loop count. If `capped_out` is non-null, it is set to
+// true when calibration reached `max_loops` before hitting `min_time_sec`
+// (meaning --min-time was NOT actually satisfied by the calibration).
+template <typename Fn>
+std::uint64_t calibrate_loops(
+    const Options& options,
+    Fn&& fn,
+    const std::function<void()>& post_calibrate = {},
+    bool* capped_out = nullptr,
+    double* last_elapsed_out = nullptr
+) {
+    if (options.min_time_sec <= 0.0) {
+        if (capped_out) *capped_out = false;
+        if (last_elapsed_out) *last_elapsed_out = 0.0;
+        return options.loops;
+    }
+
+    // Allow callers (e.g. the explicit-loop overload) to request a minimum
+    // starting loop count via options.loops.
+    const std::uint64_t start_loops = std::max<std::uint64_t>(1, options.loops);
+    const std::uint64_t max_loops = std::max<std::uint64_t>(start_loops, options.max_loops);
+    const std::uint64_t rounds = std::max<std::uint64_t>(1, options.calibrate_rounds);
+
+    // Track the round that produced the best (largest) loop count so the
+    // returned loop count, capped flag, and last-elapsed time all describe
+    // the same round.
+    std::uint64_t best_loops = 0;
+    bool best_capped = false;
+    double best_elapsed = 0.0;
+
+    for (std::uint64_t round = 0; round < rounds; ++round) {
+        std::uint64_t loops = start_loops;
+        bool round_capped = false;
+        double elapsed = 0.0;
+
+        while (true) {
+            const auto t0 = std::chrono::steady_clock::now();
+            for (std::uint64_t i = 0; i < loops; ++i) {
+                fn();
+            }
+            const auto t1 = std::chrono::steady_clock::now();
+            elapsed = std::chrono::duration<double>(t1 - t0).count();
+
+            // Drain any state left behind by this probe (e.g. queued async
+            // work on a persistent stream) before the next probe, the next
+            // round, or the first measured warmup/value runs.
+            if (post_calibrate) {
+                post_calibrate();
+            }
+            if (elapsed >= options.min_time_sec) {
+                break;
+            }
+            if (loops >= max_loops) {
+                round_capped = true;
+                break;
+            }
+            if (loops > max_loops / 2) {
+                loops = max_loops;
+            } else {
+                loops *= 2;
+            }
+        }
+
+        if (loops >= best_loops) {
+            best_loops = loops;
+            best_capped = round_capped;
+            best_elapsed = elapsed;
+        }
+    }
+
+    if (capped_out) *capped_out = best_capped;
+    if (last_elapsed_out) *last_elapsed_out = best_elapsed;
+    return best_loops;
 }
 
 // Run a benchmark function. The function signature is: void fn() — one call = one operation.
@@ -235,12 +334,57 @@ class BenchmarkSuite {
 public:
     explicit BenchmarkSuite(Options options) : options_(std::move(options)) {}
 
+    // Post-calibration hook. If set, invoked between calibration probes so
+    // async benchmarks can drain state left behind by each probe before the
+    // next one runs. The final probe leaves the benchmark in a drained state
+    // before the first measured warmup/value. Can be overridden per-call via
+    // the `post_calibrate` parameter on `run()`.
+    void set_post_calibrate(std::function<void()> hook) {
+        post_calibrate_ = std::move(hook);
+    }
+
     // Run a benchmark and record it. The name is used as the benchmark ID.
+    // If --min-time is set, loop count is auto-calibrated. `post_calibrate`,
+    // if provided, runs between calibration probes to reset async state.
     template <typename Fn>
-    void run(const std::string& name, Fn&& fn) {
-        auto results = run_benchmark(options_, std::forward<Fn>(fn));
+    void run(
+        const std::string& name,
+        Fn&& fn,
+        std::function<void()> post_calibrate = {}
+    ) {
+        std::uint64_t loops = options_.loops;
+        Options custom = options_;
+        if (options_.min_time_sec > 0.0) {
+            loops = calibrate_and_warn(name, options_, fn, select_post_calibrate(post_calibrate));
+            custom.loops = loops;
+        }
+        auto results = run_benchmark(custom, std::forward<Fn>(fn));
         print_summary(name, results);
-        entries_.push_back({name, options_.loops, std::move(results)});
+        entries_.push_back({name, loops, std::move(results)});
+    }
+
+    // Run a benchmark with a custom loop count (used as a floor for fast ops
+    // or a fixed count for slow ops like compilation). When --min-time is set,
+    // calibration still runs but starts from `loops_override` as the minimum.
+    template <typename Fn>
+    void run(
+        const std::string& name,
+        std::uint64_t loops_override,
+        Fn&& fn,
+        std::function<void()> post_calibrate = {}
+    ) {
+        std::uint64_t loops = loops_override;
+        Options custom = options_;
+        custom.loops = loops_override;
+        if (options_.min_time_sec > 0.0) {
+            Options calib_opts = options_;
+            calib_opts.loops = loops_override;  // floor
+            loops = calibrate_and_warn(name, calib_opts, fn, select_post_calibrate(post_calibrate));
+            custom.loops = loops;
+        }
+        auto results = run_benchmark(custom, std::forward<Fn>(fn));
+        print_summary(name, results);
+        entries_.push_back({name, loops, std::move(results)});
     }
 
     // Write all collected benchmarks to the output file (if -o was given).
@@ -253,6 +397,36 @@ public:
 private:
     Options options_;
     std::vector<BenchmarkEntry> entries_;
+    std::function<void()> post_calibrate_;
+
+    std::function<void()> select_post_calibrate(const std::function<void()>& per_call) const {
+        if (per_call) {
+            return per_call;
+        }
+        return post_calibrate_;
+    }
+
+    template <typename Fn>
+    std::uint64_t calibrate_and_warn(
+        const std::string& name,
+        const Options& calib_opts,
+        Fn&& fn,
+        const std::function<void()>& post_calibrate
+    ) const {
+        bool capped = false;
+        double last_elapsed = 0.0;
+        std::uint64_t loops = calibrate_loops(
+            calib_opts, std::forward<Fn>(fn), post_calibrate, &capped, &last_elapsed
+        );
+        if (capped) {
+            std::cerr << "WARNING: " << name
+                      << ": calibration hit --max-loops (" << calib_opts.max_loops
+                      << ") before reaching --min-time (" << calib_opts.min_time_sec
+                      << "s). Last sample: " << last_elapsed
+                      << "s. Raise --max-loops to satisfy --min-time for this benchmark.\n";
+        }
+        return loops;
+    }
 
     static void write_multi_pyperf_json(
         const std::string& output_path,

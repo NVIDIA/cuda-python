@@ -73,7 +73,6 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"
-enable = "cpython-freethreading"
 build-verbosity = 1
 
 [tool.cibuildwheel.linux]

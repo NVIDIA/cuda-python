@@ -81,7 +81,8 @@ cdef class PciInfo:
         """
         return self._pci_info_ext.sub_class
 
-    def get_max_pcie_link_generation(self) -> int:
+    @property
+    def link_generation(self) -> int:
         """
         Retrieve the maximum PCIe link generation possible with this device and system.
 
@@ -93,7 +94,8 @@ cdef class PciInfo:
         """
         return nvml.device_get_max_pcie_link_generation(self._handle)
 
-    def get_gpu_max_pcie_link_generation(self) -> int:
+    @property
+    def max_link_generation(self) -> int:
         """
         Retrieve the maximum PCIe link generation supported by this GPU device.
 
@@ -101,7 +103,8 @@ cdef class PciInfo:
         """
         return nvml.device_get_gpu_max_pcie_link_generation(self._handle)
 
-    def get_max_pcie_link_width(self) -> int:
+    @property
+    def max_link_width(self) -> int:
         """
         Retrieve the maximum PCIe link width possible with this device and system.
 
@@ -113,7 +116,8 @@ cdef class PciInfo:
         """
         return nvml.device_get_max_pcie_link_width(self._handle)
 
-    def get_current_pcie_link_generation(self) -> int:
+    @property
+    def current_link_generation(self) -> int:
         """
         Retrieve the current PCIe link generation.
 
@@ -121,7 +125,8 @@ cdef class PciInfo:
         """
         return nvml.device_get_curr_pcie_link_generation(self._handle)
 
-    def get_current_pcie_link_width(self) -> int:
+    @property
+    def current_link_width(self) -> int:
         """
         Retrieve the current PCIe link width.
 
@@ -129,7 +134,7 @@ cdef class PciInfo:
         """
         return nvml.device_get_curr_pcie_link_width(self._handle)
 
-    def get_pcie_throughput(self, counter: PcieUtilCounter) -> int:
+    def get_throughput(self, counter: PcieUtilCounter) -> int:
         """
         Retrieve PCIe utilization information, in KB/s.
 
@@ -143,7 +148,8 @@ cdef class PciInfo:
         """
         return nvml.device_get_pcie_throughput(self._handle, counter)
 
-    def get_pcie_replay_counter(self) -> int:
+    @property
+    def replay_counter(self) -> int:
         """
         Retrieve the PCIe replay counter.
 
