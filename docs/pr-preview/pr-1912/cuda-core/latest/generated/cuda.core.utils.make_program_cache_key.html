@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8031d8b2"></script>
+    <script src="../_static/documentation_options.js?v=9f64a547"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev74';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev69';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -705,10 +705,10 @@ dict key and <code class="docutils literal notranslate"><span class="pre">bytear
 <li><p><strong>extra_digest</strong> – Caller-supplied bytes mixed into the key. Required whenever
 <a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.ProgramOptions</span></code></a> sets any option that pulls in
 external file content (<code class="docutils literal notranslate"><span class="pre">include_path</span></code>, <code class="docutils literal notranslate"><span class="pre">pre_include</span></code>, <code class="docutils literal notranslate"><span class="pre">pch</span></code>,
-<code class="docutils literal notranslate"><span class="pre">use_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>) – the cache cannot read
-those files on the caller’s behalf, so the caller must fingerprint
-the header / PCH surface and pass it here. Callers may pass this for
-other inputs too (embedded kernels, generated sources, etc.).</p></li>
+<code class="docutils literal notranslate"><span class="pre">use_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>) – the cache cannot read those files on
+the caller’s behalf, so the caller must fingerprint the header /
+PCH surface and pass it here. Callers may pass this for other
+inputs too (embedded kernels, generated sources, etc.).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -719,12 +719,12 @@ other inputs too (embedded kernels, generated sources, etc.).</p></li>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">options</span></code> sets an option with compile-time side effects (such as
-    <code class="docutils literal notranslate"><span class="pre">create_pch</span></code>) – a cache hit skips compilation, so the side effect
-    would not occur.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">extra_digest</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> while <code class="docutils literal notranslate"><span class="pre">options</span></code> sets any option whose
-    compilation effect depends on external file content that the key
-    cannot otherwise observe.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">options</span></code> sets an option with compile-time side effects (such
+    as <code class="docutils literal notranslate"><span class="pre">create_pch</span></code>) – a cache hit skips compilation, so the side
+    effect would not occur.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">extra_digest</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> while <code class="docutils literal notranslate"><span class="pre">options</span></code> sets any option
+    whose compilation effect depends on external file content that the
+    key cannot otherwise observe.</p></li>
 </ul>
 </dd>
 </dl>
