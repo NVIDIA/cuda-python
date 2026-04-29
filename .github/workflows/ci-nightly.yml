@@ -10,6 +10,10 @@
 
 name: "CI: Nightly optional-deps"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
 on:
   schedule:
     # 2 AM UTC daily, after the midnight main CI build finishes
@@ -173,5 +177,21 @@ jobs:
     steps:
       - name: Exit
         run: |
-          # if any dependencies were cancelled or failed, that's a failure
-          jq -e 'all(.[]; . == "success" or . == "skipped")' <<< '${{ toJSON(needs.*.result) }}'
+          # If any dependency was cancelled or failed, that's a failure.
+          #
+          # See ci.yml for the full rationale on why we must use always()
+          # and explicitly check each result rather than relying on the
+          # default behaviour.
+          if ${{ needs.test-pytorch-linux.result == 'cancelled' ||
+                 needs.test-pytorch-linux.result == 'failure' ||
+                 needs.test-pytorch-windows.result == 'cancelled' ||
+                 needs.test-pytorch-windows.result == 'failure' ||
+                 needs.test-numba-cuda-linux-64.result == 'cancelled' ||
+                 needs.test-numba-cuda-linux-64.result == 'failure' ||
+                 needs.test-numba-cuda-linux-aarch64.result == 'cancelled' ||
+                 needs.test-numba-cuda-linux-aarch64.result == 'failure' ||
+                 needs.test-numba-cuda-windows.result == 'cancelled' ||
+                 needs.test-numba-cuda-windows.result == 'failure' }}; then
+            exit 1
+          fi
+          exit 0
