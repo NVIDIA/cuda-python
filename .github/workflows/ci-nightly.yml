@@ -15,6 +15,10 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  push:
+    branches:
+      - "main"
+      - "pull-request/[0-9]+"
   schedule:
     # 2 AM UTC daily, after the midnight main CI build finishes
     - cron: "0 2 * * *"
