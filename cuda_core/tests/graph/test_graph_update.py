@@ -79,11 +79,11 @@ def test_graph_update_conditional(init_cuda):
         gb = Device().create_graph_builder().begin_building()
 
         # Add Node A (sets condition)
-        handle = gb.create_conditional_handle(default_value=condition_value)
+        condition = gb.create_condition(default_value=condition_value)
 
         # Add Node B (while condition)
         try:
-            gb_case = list(gb.switch(handle, 3))
+            gb_case = list(gb.switch(condition, 3))
         except Exception as e:
             with pytest.raises(RuntimeError, match="^(Driver|Binding) version"):
                 raise e

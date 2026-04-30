@@ -151,7 +151,7 @@ cdef class KernelNode(GraphNode):
     def config(self) -> LaunchConfig:
         """A LaunchConfig reconstructed from this node's grid, block, and shmem_size.
 
-        Note: cluster dimensions and cooperative_launch are not preserved
+        Note: cluster dimensions and is_cooperative are not preserved
         by the CUDA driver's kernel node params, so they are not included.
         """
         return LaunchConfig(grid=self._grid, block=self._block,
@@ -181,7 +181,7 @@ cdef class AllocNode(GraphNode):
     cdef AllocNode _create_with_params(GraphNodeHandle h_node,
                                        cydriver.CUdeviceptr dptr, size_t bytesize,
                                        int device_id, str memory_type, tuple peer_access):
-        """Create from known params (called by alloc() builder)."""
+        """Create from known params (called by allocate() builder)."""
         cdef AllocNode n = AllocNode.__new__(AllocNode)
         n._h_node = h_node
         n._dptr = dptr
@@ -275,7 +275,7 @@ cdef class FreeNode(GraphNode):
     @staticmethod
     cdef FreeNode _create_with_params(GraphNodeHandle h_node,
                                       cydriver.CUdeviceptr dptr):
-        """Create from known params (called by free() builder)."""
+        """Create from known params (called by deallocate() builder)."""
         cdef FreeNode n = FreeNode.__new__(FreeNode)
         n._h_node = h_node
         n._dptr = dptr
@@ -504,7 +504,7 @@ cdef class EventRecordNode(GraphNode):
     @staticmethod
     cdef EventRecordNode _create_with_params(GraphNodeHandle h_node,
                                              EventHandle h_event):
-        """Create from known params (called by record_event() builder)."""
+        """Create from known params (called by record() builder)."""
         cdef EventRecordNode n = EventRecordNode.__new__(EventRecordNode)
         n._h_node = h_node
         n._h_event = h_event
@@ -542,7 +542,7 @@ cdef class EventWaitNode(GraphNode):
     @staticmethod
     cdef EventWaitNode _create_with_params(GraphNodeHandle h_node,
                                            EventHandle h_event):
-        """Create from known params (called by wait_event() builder)."""
+        """Create from known params (called by wait() builder)."""
         cdef EventWaitNode n = EventWaitNode.__new__(EventWaitNode)
         n._h_node = h_node
         n._h_event = h_event
@@ -621,7 +621,7 @@ cdef class HostCallbackNode(GraphNode):
 cdef class ConditionalNode(GraphNode):
     """Base class for conditional nodes.
 
-    When created via builder methods (if_cond, if_else, while_loop, switch),
+    When created via builder methods (if_then, if_else, while_loop, switch),
     a specific subclass (IfNode, IfElseNode, WhileNode, SwitchNode) is
     returned. When reconstructed from the driver on CUDA 13.2+, the
     correct subclass is determined via cuGraphNodeGetParams. On older

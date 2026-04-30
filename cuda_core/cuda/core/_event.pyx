@@ -13,8 +13,8 @@ from cuda.core._resource_handles cimport (
     EventHandle,
     create_event_handle,
     create_event_handle_ipc,
-    get_event_timing_disabled,
-    get_event_busy_waited,
+    get_event_timing_enabled,
+    get_event_is_blocking_sync,
     get_event_ipc_enabled,
     get_event_device_id,
     get_event_context,
@@ -44,22 +44,22 @@ cdef class EventOptions:
 
     Attributes
     ----------
-    enable_timing : bool, optional
+    timing_enabled : bool, optional
         Event will record timing data. (Default to False)
-    busy_waited_sync : bool, optional
-        If True, event will use blocking synchronization. When a CPU
-        thread calls synchronize, the call will block until the event
-        has actually been completed.
-        Otherwise, the CPU thread will busy-wait until the event has
-        been completed. (Default to False)
+    blocking_sync : bool, optional
+        If True, the event uses blocking synchronization: a CPU
+        thread that calls :meth:`Event.sync` blocks (yields) until
+        the event has completed. Otherwise (the default), the CPU
+        thread busy-waits until the event has completed.
+        (Default to False)
     ipc_enabled : bool, optional
         Event will be suitable for interprocess use.
-        Note that enable_timing must be False. (Default to False)
+        Note that timing_enabled must be False. (Default to False)
 
     """
 
-    enable_timing: bool | None = False
-    busy_waited_sync: bool | None = False
+    timing_enabled: bool | None = False
+    blocking_sync: bool | None = False
     ipc_enabled: bool | None = False
 
 
@@ -79,8 +79,8 @@ cdef class Event:
 
         # To create events and record the timing:
         s = Device().create_stream()
-        e1 = Device().create_event({"enable_timing": True})
-        e2 = Device().create_event({"enable_timing": True})
+        e1 = Device().create_event({"timing_enabled": True})
+        e2 = Device().create_event({"timing_enabled": True})
         s.record(e1)
         # ... run some GPU works ...
         s.record(e2)
@@ -100,16 +100,16 @@ cdef class Event:
         cdef Event self = cls.__new__(cls)
         cdef EventOptions opts = check_or_create_options(EventOptions, options, "Event options")
         cdef unsigned int flags = 0x0
-        cdef bint timing_disabled = False
-        cdef bint busy_waited = False
+        cdef bint timing_enabled = True
+        cdef bint is_blocking_sync = False
         cdef bint ipc_enabled = False
         self._ipc_descriptor = None
-        if not opts.enable_timing:
+        if not opts.timing_enabled:
             flags |= cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING
-            timing_disabled = True
-        if opts.busy_waited_sync:
+            timing_enabled = False
+        if opts.blocking_sync:
             flags |= cydriver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
-            busy_waited = True
+            is_blocking_sync = True
         if opts.ipc_enabled:
             if is_free:
                 raise TypeError(
@@ -117,23 +117,24 @@ cdef class Event:
                 )
             flags |= cydriver.CUevent_flags.CU_EVENT_INTERPROCESS
             ipc_enabled = True
-            if not timing_disabled:
+            if timing_enabled:
                 raise TypeError("IPC-enabled events cannot use timing.")
         cdef EventHandle h_event = create_event_handle(
-            h_context, flags, timing_disabled, busy_waited, ipc_enabled, device_id)
+            h_context, flags, timing_enabled, is_blocking_sync, ipc_enabled, device_id)
         if not h_event:
             raise RuntimeError("Failed to create CUDA event")
         self._h_event = h_event
         if ipc_enabled:
-            self.get_ipc_descriptor()
+            _ = self.ipc_descriptor  # eagerly populate the descriptor cache
         return self
 
     @staticmethod
     cdef Event _from_handle(EventHandle h_event):
         """Create an Event wrapping an existing EventHandle.
 
-        Metadata (timing, busy_waited, ipc, device_id) is read from the
-        EventBox via pointer arithmetic — no fields are cached on Event.
+        Metadata (timing, blocking_sync, ipc, device_id) is read from
+        the EventBox via pointer arithmetic — no fields are cached on
+        Event.
         """
         cdef Event self = Event.__new__(Event)
         self._h_event = h_event
@@ -163,10 +164,10 @@ cdef class Event:
             return timing
         else:
             if err == cydriver.CUresult.CUDA_ERROR_INVALID_HANDLE:
-                if self.is_timing_disabled or other.is_timing_disabled:
+                if not self.is_timing_enabled or not other.is_timing_enabled:
                     explanation = (
                         "Both Events must be created with timing enabled in order to subtract them; "
-                        "use EventOptions(enable_timing=True) when creating both events."
+                        "use EventOptions(timing_enabled=True) when creating both events."
                     )
                 else:
                     explanation = (
@@ -196,8 +197,9 @@ cdef class Event:
     def __repr__(self) -> str:
         return f"<Event handle={as_intptr(self._h_event):#x}>"
 
-    def get_ipc_descriptor(self) -> IPCEventDescriptor:
-        """Export an event allocated for sharing between processes."""
+    @property
+    def ipc_descriptor(self) -> IPCEventDescriptor:
+        """Descriptor for sharing this event with other processes."""
         if self._ipc_descriptor is not None:
             return self._ipc_descriptor
         if not self.is_ipc_enabled:
@@ -206,7 +208,7 @@ cdef class Event:
         with nogil:
             HANDLE_RETURN(cydriver.cuIpcGetEventHandle(&data, as_cu(self._h_event)))
         cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
-        self._ipc_descriptor = IPCEventDescriptor._init(data_b, get_event_busy_waited(self._h_event))
+        self._ipc_descriptor = IPCEventDescriptor._init(data_b, get_event_is_blocking_sync(self._h_event))
         return self._ipc_descriptor
 
     @classmethod
@@ -215,7 +217,7 @@ cdef class Event:
         cdef cydriver.CUipcEventHandle data
         memcpy(data.reserved, <const void*><const char*>(ipc_descriptor._reserved), sizeof(data.reserved))
         cdef Event self = Event.__new__(cls)
-        cdef EventHandle h_event = create_event_handle_ipc(data, ipc_descriptor._busy_waited)
+        cdef EventHandle h_event = create_event_handle_ipc(data, ipc_descriptor._is_blocking_sync)
         if not h_event:
             raise RuntimeError("Failed to open IPC event handle")
         self._h_event = h_event
@@ -228,23 +230,24 @@ cdef class Event:
         return get_event_ipc_enabled(self._h_event)
 
     @property
-    def is_timing_disabled(self) -> bool:
-        """Return True if the event does not record timing data, otherwise False."""
-        return get_event_timing_disabled(self._h_event)
+    def is_timing_enabled(self) -> bool:
+        """Return True if the event records timing data, otherwise False."""
+        return get_event_timing_enabled(self._h_event)
 
     @property
-    def is_sync_busy_waited(self) -> bool:
-        """Return True if the event synchronization would keep the CPU busy-waiting, otherwise False."""
-        return get_event_busy_waited(self._h_event)
+    def is_blocking_sync(self) -> bool:
+        """Return True if the event uses blocking synchronization (the CPU
+        thread blocks on :meth:`sync` instead of busy-waiting), otherwise False.
+        """
+        return get_event_is_blocking_sync(self._h_event)
 
     def sync(self):
         """Synchronize until the event completes.
 
-        If the event was created with busy_waited_sync, then the
-        calling CPU thread will block until the event has been
-        completed by the device.
-        Otherwise the CPU thread will busy-wait until the event
-        has been completed.
+        If the event was created with ``blocking_sync=True``, the
+        calling CPU thread blocks (yields) until the event has been
+        completed by the device. Otherwise (the default) the CPU
+        thread busy-waits until the event has completed.
 
         """
         with nogil:
@@ -302,28 +305,28 @@ cdef class IPCEventDescriptor:
 
     cdef:
         bytes _reserved
-        bint _busy_waited
+        bint _is_blocking_sync
 
     def __init__(self, *arg, **kwargs):
         raise RuntimeError("IPCEventDescriptor objects cannot be instantiated directly. Please use Event APIs.")
 
     @staticmethod
-    def _init(reserved: bytes, busy_waited: cython.bint):
+    def _init(reserved: bytes, is_blocking_sync: cython.bint):
         cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(IPCEventDescriptor)
         self._reserved = reserved
-        self._busy_waited = busy_waited
+        self._is_blocking_sync = is_blocking_sync
         return self
 
     def __eq__(self, IPCEventDescriptor rhs):
-        # No need to check self._busy_waited.
+        # No need to check self._is_blocking_sync.
         return self._reserved == rhs._reserved
 
     def __reduce__(self):
-        return IPCEventDescriptor._init, (self._reserved, self._busy_waited)
+        return IPCEventDescriptor._init, (self._reserved, self._is_blocking_sync)
 
 
 def _reduce_event(event):
     check_multiprocessing_start_method()
-    return event.from_ipc_descriptor, (event.get_ipc_descriptor(),)
+    return event.from_ipc_descriptor, (event.ipc_descriptor,)
 
 multiprocessing.reduction.register(Event, _reduce_event)

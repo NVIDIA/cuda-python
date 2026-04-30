@@ -29,7 +29,7 @@ def _skip_if_no_mempool():
 
 
 def _make_if(g, cond):
-    node = g.if_cond(cond)
+    node = g.if_then(cond)
     return [node.then]
 
 
@@ -172,10 +172,10 @@ def test_event_record_node_keeps_event_alive(init_cuda):
     _skip_if_no_mempool()
     dev = Device()
     g = GraphDefinition()
-    alloc = g.alloc(1024)
+    alloc = g.allocate(1024)
 
-    event = dev.create_event(EventOptions(enable_timing=False))
-    node = alloc.record_event(event)
+    event = dev.create_event(EventOptions(timing_enabled=False))
+    node = alloc.record(event)
 
     del event
     gc.collect()
@@ -189,10 +189,10 @@ def test_event_wait_node_keeps_event_alive(init_cuda):
     _skip_if_no_mempool()
     dev = Device()
     g = GraphDefinition()
-    alloc = g.alloc(1024)
+    alloc = g.allocate(1024)
 
-    event = dev.create_event(EventOptions(enable_timing=False))
-    node = alloc.wait_event(event)
+    event = dev.create_event(EventOptions(timing_enabled=False))
+    node = alloc.wait(event)
 
     del event
     gc.collect()
@@ -206,12 +206,12 @@ def test_event_record_node_preserves_metadata(init_cuda):
     dev = Device()
     g = GraphDefinition()
 
-    event = dev.create_event(EventOptions(enable_timing=True, busy_waited_sync=True))
-    node = g.record_event(event)
+    event = dev.create_event(EventOptions(timing_enabled=True, blocking_sync=True))
+    node = g.record(event)
 
     reconstructed = node.event
-    assert reconstructed.is_timing_disabled is False
-    assert reconstructed.is_sync_busy_waited is True
+    assert reconstructed.is_timing_enabled is True
+    assert reconstructed.is_blocking_sync is True
     assert reconstructed.is_ipc_enabled is False
     assert reconstructed.device is not None
 
@@ -221,12 +221,12 @@ def test_event_wait_node_preserves_metadata(init_cuda):
     dev = Device()
     g = GraphDefinition()
 
-    event = dev.create_event(EventOptions(enable_timing=False))
-    node = g.wait_event(event)
+    event = dev.create_event(EventOptions(timing_enabled=False))
+    node = g.wait(event)
 
     reconstructed = node.event
-    assert reconstructed.is_timing_disabled is True
-    assert reconstructed.is_sync_busy_waited is False
+    assert reconstructed.is_timing_enabled is False
+    assert reconstructed.is_blocking_sync is False
     assert reconstructed.device is not None
 
 
@@ -235,15 +235,15 @@ def test_event_metadata_survives_gc(init_cuda):
     dev = Device()
     g = GraphDefinition()
 
-    event = dev.create_event(EventOptions(enable_timing=True, busy_waited_sync=True))
-    node = g.record_event(event)
+    event = dev.create_event(EventOptions(timing_enabled=True, blocking_sync=True))
+    node = g.record(event)
 
     del event
     gc.collect()
 
     retrieved = node.event
-    assert retrieved.is_timing_disabled is False
-    assert retrieved.is_sync_busy_waited is True
+    assert retrieved.is_timing_enabled is True
+    assert retrieved.is_blocking_sync is True
     assert retrieved.is_done is True
 
 
@@ -252,9 +252,9 @@ def test_event_survives_graph_instantiation_and_execution(init_cuda):
     dev = Device()
     g = GraphDefinition()
 
-    event = dev.create_event(EventOptions(enable_timing=False))
-    rec = g.record_event(event)
-    rec.wait_event(event)
+    event = dev.create_event(EventOptions(timing_enabled=False))
+    rec = g.record(event)
+    rec.wait(event)
 
     del event
     gc.collect()
@@ -277,9 +277,9 @@ def test_event_survives_graph_clone_and_execution(init_cuda):
     dev = Device()
     g = GraphDefinition()
 
-    event = dev.create_event(EventOptions(enable_timing=False))
-    rec = g.record_event(event)
-    rec.wait_event(event)
+    event = dev.create_event(EventOptions(timing_enabled=False))
+    rec = g.record(event)
+    rec.wait(event)
 
     cloned_cu_graph = handle_return(driver.cuGraphClone(driver.CUgraph(g.handle)))
 
@@ -390,7 +390,7 @@ def test_kernel_node_keeps_kernel_alive(init_cuda):
     gc.collect()
 
     retrieved = node.kernel
-    assert retrieved.attributes.max_threads_per_block() > 0
+    assert retrieved.attributes.max_threads_per_block > 0
 
 
 def test_kernel_survives_graph_instantiation_and_execution(init_cuda):
@@ -455,7 +455,7 @@ def test_kernel_from_handle_recovers_library(init_cuda):
     del kernel, mod
     gc.collect()
 
-    assert reconstructed.attributes.max_threads_per_block() > 0
+    assert reconstructed.attributes.max_threads_per_block > 0
 
 
 def test_kernel_node_reconstruction_preserves_validity(init_cuda):
@@ -469,7 +469,7 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
     kernel_node = g.launch(config, kernel)
     # Chain a second node so we can reconstruct the kernel node via pred
     event = Device().create_event()
-    successor = kernel_node.record_event(event)
+    successor = kernel_node.record(event)
 
     del kernel, mod
     gc.collect()
@@ -479,7 +479,7 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
     # -> create_kernel_handle_ref -> handle recovery
     reconstructed = next(iter(successor.pred))
     assert isinstance(reconstructed, KernelNode)
-    assert reconstructed.kernel.attributes.max_threads_per_block() > 0
+    assert reconstructed.kernel.attributes.max_threads_per_block > 0
 
     graph = g.instantiate()
     stream = Device().create_stream()

@@ -1223,10 +1223,10 @@ def test_mempool_ipc_errors(mempool_device):
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        mr.get_allocation_handle()
+        _ = mr.allocation_handle
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        buffer.get_ipc_descriptor()
+        _ = buffer.ipc_descriptor
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
@@ -1258,7 +1258,7 @@ def test_pinned_mempool_ipc_basic():
     assert mr.numa_id >= 0  # IPC requires a concrete NUMA node
 
     # Test allocation handle export
-    alloc_handle = mr.get_allocation_handle()
+    alloc_handle = mr.allocation_handle
     assert alloc_handle is not None
 
     # Test buffer allocation
@@ -1268,7 +1268,7 @@ def test_pinned_mempool_ipc_basic():
     assert buffer.is_host_accessible
 
     # Test IPC descriptor
-    ipc_desc = buffer.get_ipc_descriptor()
+    ipc_desc = buffer.ipc_descriptor
     assert ipc_desc is not None
     assert ipc_desc.size == 1024
 
@@ -1294,10 +1294,10 @@ def test_pinned_mempool_ipc_errors():
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        mr.get_allocation_handle()
+        _ = mr.allocation_handle
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        buffer.get_ipc_descriptor()
+        _ = buffer.ipc_descriptor
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)

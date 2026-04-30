@@ -9,6 +9,7 @@ from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
 
+from cuda.core.graph._graph_definition cimport GraphCondition
 from cuda.core.graph._utils cimport _attach_host_callback_to_graph
 from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream
@@ -441,19 +442,24 @@ class GraphBuilder:
     def _get_conditional_context(self) -> driver.CUcontext:
         return self._mnff.stream.context.handle
 
-    def create_conditional_handle(self, default_value=None) -> driver.CUgraphConditionalHandle:
-        """Creates a conditional handle for the graph builder.
+    def create_condition(self, default_value=None) -> GraphCondition:
+        """Create a condition variable for use with conditional nodes.
+
+        The returned :class:`GraphCondition` object is passed to conditional-node
+        builder methods (:meth:`if_then`, :meth:`if_else`, :meth:`while_loop`,
+        :meth:`switch`). Its value is controlled at runtime by device code via
+        ``cudaGraphSetConditional``.
 
         Parameters
         ----------
         default_value : int, optional
-            The default value to assign to the conditional handle.
+            The default value to assign to the condition. If None, no
+            default is assigned.
 
         Returns
         -------
-        handle : driver.CUgraphConditionalHandle
-            The newly created conditional handle.
-
+        GraphCondition
+            A condition variable for controlling conditional execution.
         """
         if cy_driver_version() < (12, 3, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional handles")
@@ -467,11 +473,12 @@ class GraphBuilder:
 
         status, _, graph, *_, _ = handle_return(driver.cuStreamGetCaptureInfo(self._mnff.stream.handle))
         if status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
-            raise RuntimeError("Cannot create a conditional handle when graph is not being built")
+            raise RuntimeError("Cannot create a condition when graph is not being built")
 
-        return handle_return(
+        raw_handle = handle_return(
             driver.cuGraphConditionalHandleCreate(graph, self._get_conditional_context(), default_value, flags)
         )
+        return GraphCondition._from_handle(<cydriver.CUgraphConditionalHandle><intptr_t>int(raw_handle))
 
     def _cond_with_params(self, node_params) -> tuple:
         # Get current capture info to ensure we're in a valid state
@@ -509,18 +516,19 @@ class GraphBuilder:
             ]
         )
 
-    def if_cond(self, handle: driver.CUgraphConditionalHandle) -> GraphBuilder:
+    def if_then(self, condition: GraphCondition) -> GraphBuilder:
         """Adds an if condition branch and returns a new graph builder for it.
 
-        The resulting if graph will only execute the branch if the conditional
-        handle evaluates to true at runtime.
+        The resulting if graph will only execute the branch if the
+        condition evaluates to true at runtime.
 
         The new builder inherits work dependencies from the original builder.
 
         Parameters
         ----------
-        handle : driver.CUgraphConditionalHandle
-            The handle to use for the if conditional.
+        condition : :class:`~graph.GraphCondition`
+            The condition variable from :meth:`create_condition` controlling
+            whether the branch executes.
 
         Returns
         -------
@@ -532,26 +540,31 @@ class GraphBuilder:
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional if")
         if cy_binding_version() < (12, 3, 0):
             raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional if")
+        if not isinstance(condition, GraphCondition):
+            raise TypeError(
+                f"condition must be a GraphCondition object (from "
+                f"GraphBuilder.create_condition()), got {type(condition).__name__}")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
-        node_params.conditional.handle = handle
+        node_params.conditional.handle = condition.handle
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_IF
         node_params.conditional.size = 1
         node_params.conditional.ctx = self._get_conditional_context()
         return self._cond_with_params(node_params)[0]
 
-    def if_else(self, handle: driver.CUgraphConditionalHandle) -> tuple[GraphBuilder, GraphBuilder]:
+    def if_else(self, condition: GraphCondition) -> tuple[GraphBuilder, GraphBuilder]:
         """Adds an if-else condition branch and returns new graph builders for both branches.
 
-        The resulting if graph will execute the branch if the conditional handle
+        The resulting if graph will execute the branch if the condition
         evaluates to true at runtime, otherwise the else branch will execute.
 
         The new builders inherit work dependencies from the original builder.
 
         Parameters
         ----------
-        handle : driver.CUgraphConditionalHandle
-            The handle to use for the if-else conditional.
+        condition : :class:`~graph.GraphCondition`
+            The condition variable from :meth:`create_condition` controlling
+            which branch executes.
 
         Returns
         -------
@@ -563,27 +576,32 @@ class GraphBuilder:
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional if-else")
         if cy_binding_version() < (12, 8, 0):
             raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional if-else")
+        if not isinstance(condition, GraphCondition):
+            raise TypeError(
+                f"condition must be a GraphCondition object (from "
+                f"GraphBuilder.create_condition()), got {type(condition).__name__}")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
-        node_params.conditional.handle = handle
+        node_params.conditional.handle = condition.handle
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_IF
         node_params.conditional.size = 2
         node_params.conditional.ctx = self._get_conditional_context()
         return self._cond_with_params(node_params)
 
-    def switch(self, handle: driver.CUgraphConditionalHandle, count: int) -> tuple[GraphBuilder, ...]:
+    def switch(self, condition: GraphCondition, count: int) -> tuple[GraphBuilder, ...]:
         """Adds a switch condition branch and returns new graph builders for all cases.
 
-        The resulting switch graph will execute the branch that matches the
-        case index of the conditional handle at runtime. If no match is found, no branch
-        will be executed.
+        The resulting switch graph will execute the branch whose case index
+        matches the value of the condition at runtime. If no match is found, no
+        branch will be executed.
 
         The new builders inherit work dependencies from the original builder.
 
         Parameters
         ----------
-        handle : driver.CUgraphConditionalHandle
-            The handle to use for the switch conditional.
+        condition : :class:`~graph.GraphCondition`
+            The condition variable from :meth:`create_condition` selecting
+            which case executes.
         count : int
             The number of cases to add to the switch conditional.
 
@@ -597,26 +615,31 @@ class GraphBuilder:
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional switch")
         if cy_binding_version() < (12, 8, 0):
             raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional switch")
+        if not isinstance(condition, GraphCondition):
+            raise TypeError(
+                f"condition must be a GraphCondition object (from "
+                f"GraphBuilder.create_condition()), got {type(condition).__name__}")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
-        node_params.conditional.handle = handle
+        node_params.conditional.handle = condition.handle
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_SWITCH
         node_params.conditional.size = count
         node_params.conditional.ctx = self._get_conditional_context()
         return self._cond_with_params(node_params)
 
-    def while_loop(self, handle: driver.CUgraphConditionalHandle) -> GraphBuilder:
+    def while_loop(self, condition: GraphCondition) -> GraphBuilder:
         """Adds a while loop and returns a new graph builder for it.
 
         The resulting while loop graph will execute the branch repeatedly at runtime
-        until the conditional handle evaluates to false.
+        until the condition evaluates to false.
 
         The new builder inherits work dependencies from the original builder.
 
         Parameters
         ----------
-        handle : driver.CUgraphConditionalHandle
-            The handle to use for the while loop.
+        condition : :class:`~graph.GraphCondition`
+            The condition variable from :meth:`create_condition` controlling
+            loop continuation.
 
         Returns
         -------
@@ -628,9 +651,13 @@ class GraphBuilder:
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional while loop")
         if cy_binding_version() < (12, 3, 0):
             raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional while loop")
+        if not isinstance(condition, GraphCondition):
+            raise TypeError(
+                f"condition must be a GraphCondition object (from "
+                f"GraphBuilder.create_condition()), got {type(condition).__name__}")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
-        node_params.conditional.handle = handle
+        node_params.conditional.handle = condition.handle
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_WHILE
         node_params.conditional.size = 1
         node_params.conditional.ctx = self._get_conditional_context()
@@ -645,17 +672,15 @@ class GraphBuilder:
         """
         self._mnff.close()
 
-    def add_child(self, child_graph: GraphBuilder):
-        """Adds the child :obj:`~graph.GraphBuilder` builder into self.
-
-        The child graph builder will be added as a child node to the parent graph builder.
+    def embed(self, child: GraphBuilder):
+        """Embed a previously-built :obj:`~graph.GraphBuilder` as a child node.
 
         Parameters
         ----------
-        child_graph : :obj:`~graph.GraphBuilder`
+        child : :obj:`~graph.GraphBuilder`
             The child graph builder. Must have finished building.
         """
-        if not child_graph._building_ended:
+        if not child._building_ended:
             raise ValueError("Child graph has not finished building.")
 
         if not self.is_building:
@@ -673,7 +698,7 @@ class GraphBuilder:
             [
                 handle_return(
                     driver.cuGraphAddChildGraphNode(
-                        graph_out, *deps_info_trimmed, num_dependencies_out, child_graph._mnff.graph
+                        graph_out, *deps_info_trimmed, num_dependencies_out, child._mnff.graph
                     )
                 )
             ]

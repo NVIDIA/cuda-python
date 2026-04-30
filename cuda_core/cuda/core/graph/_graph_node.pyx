@@ -215,7 +215,7 @@ cdef class GraphNode:
         """
         return GN_join(self, nodes)
 
-    def alloc(self, size_t size, options=None) -> AllocNode:
+    def allocate(self, size_t size, options=None) -> AllocNode:
         """Add a memory allocation node depending on this node.
 
         Parameters
@@ -233,7 +233,7 @@ cdef class GraphNode:
         """
         return GN_alloc(self, size, options)
 
-    def free(self, dptr: int) -> FreeNode:
+    def deallocate(self, dptr: int) -> FreeNode:
         """Add a memory free node depending on this node.
 
         Parameters
@@ -317,7 +317,7 @@ cdef class GraphNode:
         """
         return GN_embed(self, <GraphDefinition>child)
 
-    def record_event(self, event: Event) -> EventRecordNode:
+    def record(self, event: Event) -> EventRecordNode:
         """Add an event record node depending on this node.
 
         Parameters
@@ -332,7 +332,7 @@ cdef class GraphNode:
         """
         return GN_record_event(self, <Event>event)
 
-    def wait_event(self, event: Event) -> EventWaitNode:
+    def wait(self, event: Event) -> EventWaitNode:
         """Add an event wait node depending on this node.
 
         Parameters
@@ -382,7 +382,7 @@ cdef class GraphNode:
         """
         return GN_callback(self, fn, user_data)
 
-    def if_cond(self, condition: GraphCondition) -> IfNode:
+    def if_then(self, condition: GraphCondition) -> IfNode:
         """Add an if-conditional node depending on this node.
 
         The body graph executes only when the condition evaluates to

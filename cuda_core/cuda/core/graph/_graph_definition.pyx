@@ -33,11 +33,24 @@ __all__ = ['GraphCondition', 'GraphAllocOptions', 'GraphDefinition']
 cdef class GraphCondition:
     """A condition variable for conditional graph nodes.
 
-    Created by :meth:`GraphDefinition.create_condition` and passed to
-    conditional-node builder methods (``if_cond``, ``if_else``,
-    ``while_loop``, ``switch``). The underlying value is set at
+    Created by :meth:`GraphDefinition.create_condition` (or
+    :meth:`GraphBuilder.create_condition`) and passed to
+    conditional-node builder methods (:meth:`~GraphDefinition.if_then`,
+    :meth:`~GraphDefinition.if_else`, :meth:`~GraphDefinition.while_loop`,
+    :meth:`~GraphDefinition.switch`). The underlying value is set at
     runtime by device code via ``cudaGraphSetConditional``.
+
+    A :class:`GraphCondition` may be passed directly as a kernel
+    argument to ``launch()``: the launcher unwraps it to the underlying
+    ``CUgraphConditionalHandle`` value so device code can update the
+    condition.
     """
+
+    @staticmethod
+    cdef GraphCondition _from_handle(cydriver.CUgraphConditionalHandle c_handle):
+        cdef GraphCondition self = GraphCondition.__new__(GraphCondition)
+        self._c_handle = c_handle
+        return self
 
     def __repr__(self) -> str:
         return f"<GraphCondition handle=0x{<unsigned long long>self._c_handle:x}>"
@@ -132,19 +145,19 @@ cdef class GraphDefinition:
         n._h_node = create_graph_node_handle(<cydriver.CUgraphNode>NULL, self._h_graph)
         return n
 
-    def alloc(self, size_t size, options: GraphAllocOptions | None = None) -> "AllocNode":
+    def allocate(self, size_t size, options: GraphAllocOptions | None = None) -> "AllocNode":
         """Add an entry-point memory allocation node (no dependencies).
 
-        See :meth:`GraphNode.alloc` for full documentation.
+        See :meth:`GraphNode.allocate` for full documentation.
         """
-        return self._entry.alloc(size, options)
+        return self._entry.allocate(size, options)
 
-    def free(self, dptr) -> "FreeNode":
+    def deallocate(self, dptr) -> "FreeNode":
         """Add an entry-point memory free node (no dependencies).
 
-        See :meth:`GraphNode.free` for full documentation.
+        See :meth:`GraphNode.deallocate` for full documentation.
         """
-        return self._entry.free(dptr)
+        return self._entry.deallocate(dptr)
 
     def memset(self, dst, value, size_t width, size_t height=1, size_t pitch=0) -> "MemsetNode":
         """Add an entry-point memset node (no dependencies).
@@ -199,19 +212,19 @@ cdef class GraphDefinition:
         """
         return self._entry.embed(child)
 
-    def record_event(self, event) -> "EventRecordNode":
+    def record(self, event) -> "EventRecordNode":
         """Add an entry-point event record node (no dependencies).
 
-        See :meth:`GraphNode.record_event` for full documentation.
+        See :meth:`GraphNode.record` for full documentation.
         """
-        return self._entry.record_event(event)
+        return self._entry.record(event)
 
-    def wait_event(self, event) -> "EventWaitNode":
+    def wait(self, event) -> "EventWaitNode":
         """Add an entry-point event wait node (no dependencies).
 
-        See :meth:`GraphNode.wait_event` for full documentation.
+        See :meth:`GraphNode.wait` for full documentation.
         """
-        return self._entry.wait_event(event)
+        return self._entry.wait(event)
 
     def callback(self, fn, *, user_data=None) -> "HostCallbackNode":
         """Add an entry-point host callback node (no dependencies).
@@ -252,16 +265,14 @@ cdef class GraphDefinition:
             HANDLE_RETURN(cydriver.cuGraphConditionalHandleCreate(
                 &c_handle, as_cu(self._h_graph), ctx, default_val, flags))
 
-        cdef GraphCondition cond = GraphCondition.__new__(GraphCondition)
-        cond._c_handle = c_handle
-        return cond
+        return GraphCondition._from_handle(c_handle)
 
-    def if_cond(self, condition: GraphCondition) -> "IfNode":
+    def if_then(self, condition: GraphCondition) -> "IfNode":
         """Add an entry-point if-conditional node (no dependencies).
 
-        See :meth:`GraphNode.if_cond` for full documentation.
+        See :meth:`GraphNode.if_then` for full documentation.
         """
-        return self._entry.if_cond(condition)
+        return self._entry.if_then(condition)
 
     def if_else(self, condition: GraphCondition) -> "IfElseNode":
         """Add an entry-point if-else conditional node (no dependencies).

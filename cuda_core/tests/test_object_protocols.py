@@ -232,7 +232,7 @@ def sample_ipc_buffer_descriptor(ipc_device):
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
     mr = DeviceMemoryResource(ipc_device, options=options)
     buf = mr.allocate(64)
-    return buf.get_ipc_descriptor()
+    return buf.ipc_descriptor
 
 
 @pytest.fixture
@@ -240,7 +240,7 @@ def sample_ipc_event_descriptor(ipc_device):
     """An IPCEventDescriptor."""
     stream = ipc_device.create_stream()
     e = stream.record(options={"ipc_enabled": True})
-    return e.get_ipc_descriptor()
+    return e.ipc_descriptor
 
 
 # =============================================================================
@@ -278,8 +278,8 @@ def sample_root_node_alt(sample_graphdef_alt):
 def sample_empty_node(sample_graphdef):
     """An EmptyNode created by merging two branches."""
     _skip_if_no_mempool()
-    a = sample_graphdef.alloc(ALLOC_SIZE)
-    b = sample_graphdef.alloc(ALLOC_SIZE)
+    a = sample_graphdef.allocate(ALLOC_SIZE)
+    b = sample_graphdef.allocate(ALLOC_SIZE)
     return sample_graphdef.join(a, b)
 
 
@@ -287,8 +287,8 @@ def sample_empty_node(sample_graphdef):
 def sample_empty_node_alt(sample_graphdef):
     """An alternate EmptyNode from same graph."""
     _skip_if_no_mempool()
-    c = sample_graphdef.alloc(ALLOC_SIZE)
-    d = sample_graphdef.alloc(ALLOC_SIZE)
+    c = sample_graphdef.allocate(ALLOC_SIZE)
+    d = sample_graphdef.allocate(ALLOC_SIZE)
     return sample_graphdef.join(c, d)
 
 
@@ -296,14 +296,14 @@ def sample_empty_node_alt(sample_graphdef):
 def sample_alloc_node(sample_graphdef):
     """An AllocNode."""
     _skip_if_no_mempool()
-    return sample_graphdef.alloc(ALLOC_SIZE)
+    return sample_graphdef.allocate(ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_alloc_node_alt(sample_graphdef):
     """An alternate AllocNode from same graph."""
     _skip_if_no_mempool()
-    return sample_graphdef.alloc(ALLOC_SIZE)
+    return sample_graphdef.allocate(ALLOC_SIZE)
 
 
 @pytest.fixture
@@ -328,23 +328,23 @@ def sample_kernel_node_alt(sample_graphdef, init_cuda):
 def sample_free_node(sample_graphdef):
     """A FreeNode."""
     _skip_if_no_mempool()
-    alloc = sample_graphdef.alloc(ALLOC_SIZE)
-    return alloc.free(alloc.dptr)
+    alloc = sample_graphdef.allocate(ALLOC_SIZE)
+    return alloc.deallocate(alloc.dptr)
 
 
 @pytest.fixture
 def sample_free_node_alt(sample_graphdef):
     """An alternate FreeNode from same graph."""
     _skip_if_no_mempool()
-    alloc = sample_graphdef.alloc(ALLOC_SIZE)
-    return alloc.free(alloc.dptr)
+    alloc = sample_graphdef.allocate(ALLOC_SIZE)
+    return alloc.deallocate(alloc.dptr)
 
 
 @pytest.fixture
 def sample_memset_node(sample_graphdef):
     """A MemsetNode."""
     _skip_if_no_mempool()
-    alloc = sample_graphdef.alloc(ALLOC_SIZE)
+    alloc = sample_graphdef.allocate(ALLOC_SIZE)
     return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
 
 
@@ -352,7 +352,7 @@ def sample_memset_node(sample_graphdef):
 def sample_memset_node_alt(sample_graphdef):
     """An alternate MemsetNode from same graph."""
     _skip_if_no_mempool()
-    alloc = sample_graphdef.alloc(ALLOC_SIZE)
+    alloc = sample_graphdef.allocate(ALLOC_SIZE)
     return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
 
 
@@ -360,8 +360,8 @@ def sample_memset_node_alt(sample_graphdef):
 def sample_memcpy_node(sample_graphdef):
     """A MemcpyNode."""
     _skip_if_no_mempool()
-    src = sample_graphdef.alloc(ALLOC_SIZE)
-    dst = sample_graphdef.alloc(ALLOC_SIZE)
+    src = sample_graphdef.allocate(ALLOC_SIZE)
+    dst = sample_graphdef.allocate(ALLOC_SIZE)
     dep = sample_graphdef.join(src, dst)
     return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
 
@@ -370,8 +370,8 @@ def sample_memcpy_node(sample_graphdef):
 def sample_memcpy_node_alt(sample_graphdef):
     """An alternate MemcpyNode from same graph."""
     _skip_if_no_mempool()
-    src = sample_graphdef.alloc(ALLOC_SIZE)
-    dst = sample_graphdef.alloc(ALLOC_SIZE)
+    src = sample_graphdef.allocate(ALLOC_SIZE)
+    dst = sample_graphdef.allocate(ALLOC_SIZE)
     dep = sample_graphdef.join(src, dst)
     return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
 
@@ -400,28 +400,28 @@ def sample_child_graph_node_alt(sample_graphdef):
 def sample_event_record_node(sample_graphdef, sample_device):
     """An EventRecordNode."""
     event = sample_device.create_event()
-    return sample_graphdef.record_event(event)
+    return sample_graphdef.record(event)
 
 
 @pytest.fixture
 def sample_event_record_node_alt(sample_graphdef, sample_device):
     """An alternate EventRecordNode from same graph."""
     event = sample_device.create_event()
-    return sample_graphdef.record_event(event)
+    return sample_graphdef.record(event)
 
 
 @pytest.fixture
 def sample_event_wait_node(sample_graphdef, sample_device):
     """An EventWaitNode."""
     event = sample_device.create_event()
-    return sample_graphdef.wait_event(event)
+    return sample_graphdef.wait(event)
 
 
 @pytest.fixture
 def sample_event_wait_node_alt(sample_graphdef, sample_device):
     """An alternate EventWaitNode from same graph."""
     event = sample_device.create_event()
-    return sample_graphdef.wait_event(event)
+    return sample_graphdef.wait(event)
 
 
 @pytest.fixture
@@ -460,14 +460,14 @@ def sample_condition_alt(sample_graphdef):
 def sample_if_node(sample_graphdef):
     """An IfNode."""
     condition = try_create_condition(sample_graphdef)
-    return sample_graphdef.if_cond(condition)
+    return sample_graphdef.if_then(condition)
 
 
 @pytest.fixture
 def sample_if_node_alt(sample_graphdef):
     """An alternate IfNode from same graph."""
     condition = try_create_condition(sample_graphdef)
-    return sample_graphdef.if_cond(condition)
+    return sample_graphdef.if_then(condition)
 
 
 @pytest.fixture
@@ -670,7 +670,7 @@ REPR_PATTERNS = [
     (
         "sample_launch_config",
         r"LaunchConfig\(grid=\(\d+, \d+, \d+\), cluster=.+, block=\(\d+, \d+, \d+\), "
-        r"shmem_size=\d+, cooperative_launch=(?:True|False)\)",
+        r"shmem_size=\d+, is_cooperative=(?:True|False)\)",
     ),
     ("sample_kernel", r"<Kernel handle=0x[0-9a-f]+>"),
     # ObjectCode variations (by code_type)

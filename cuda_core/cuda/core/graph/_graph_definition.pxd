@@ -11,6 +11,9 @@ cdef class GraphCondition:
         cydriver.CUgraphConditionalHandle _c_handle
         object __weakref__
 
+    @staticmethod
+    cdef GraphCondition _from_handle(cydriver.CUgraphConditionalHandle c_handle)
+
 
 cdef class GraphDefinition:
     cdef:

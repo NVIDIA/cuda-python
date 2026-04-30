@@ -211,7 +211,7 @@ StreamHandle get_per_thread_stream();
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
 EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
-                                bool timing_disabled, bool busy_waited,
+                                bool timing_enabled, bool is_blocking_sync,
                                 bool ipc_enabled, int device_id);
 
 // Create an owning event handle without context dependency.
@@ -225,17 +225,17 @@ EventHandle create_event_handle_noctx(unsigned int flags);
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
 EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
-                                    bool busy_waited);
+                                    bool is_blocking_sync);
 
 // Create a non-owning event handle (references existing event).
 // Use for events that are managed by the CUDA graph or another owner.
 // The event will NOT be destroyed when the handle is released.
-// Metadata defaults to unknown (timing_disabled=true, device_id=-1).
+// Metadata defaults to unknown (timing_enabled=false, device_id=-1).
 EventHandle create_event_handle_ref(CUevent event);
 
 // Event metadata accessors (read from EventBox via pointer arithmetic)
-bool get_event_timing_disabled(const EventHandle& h) noexcept;
-bool get_event_busy_waited(const EventHandle& h) noexcept;
+bool get_event_timing_enabled(const EventHandle& h) noexcept;
+bool get_event_is_blocking_sync(const EventHandle& h) noexcept;
 bool get_event_ipc_enabled(const EventHandle& h) noexcept;
 int get_event_device_id(const EventHandle& h) noexcept;
 ContextHandle get_event_context(const EventHandle& h) noexcept;
