@@ -1,0 +1,48 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.0.0 Release Notes
+=================================
+
+
+Highlights
+----------
+
+- TBD
+
+
+New features
+------------
+
+- TBD
+
+
+Breaking changes
+----------------
+
+- Renamed :class:`~graph.GraphDef` to :class:`~graph.GraphDefinition` for
+  consistency with the rest of the API, which spells words out (e.g.
+  ``TensorMapDescriptor``, not ``TensorMapDesc``).
+  (`#1950 <https://github.com/NVIDIA/cuda-python/issues/1950>`__)
+- Renamed ``cuda.core.graph.Condition`` to :class:`~graph.GraphCondition`
+  to follow the ``Graph*`` prefix convention used by ``GraphBuilder``,
+  ``GraphDefinition``, ``GraphNode``.
+  (`#1945 <https://github.com/NVIDIA/cuda-python/issues/1945>`__)
+
+
+Fixes and enhancements
+-----------------------
+
+- :class:`~utils.StridedMemoryView` now provides a fast path for ``torch.Tensor``
+  objects via PyTorch's AOT Inductor (AOTI) stable C ABI. When a ``torch.Tensor``
+  is passed to any ``from_*`` classmethod (``from_dlpack``,
+  ``from_cuda_array_interface``, ``from_array_interface``, or
+  ``from_any_interface``), tensor metadata is read directly from the underlying
+  C struct, bypassing the DLPack and CUDA Array Interface protocol overhead.
+  This yields ~7-20x faster ``StridedMemoryView`` construction for PyTorch
+  tensors (depending on whether stream ordering is required).  Proper CUDA stream ordering is established between PyTorch's current
+  stream and the consumer stream, matching the DLPack synchronization contract.
+  Requires PyTorch >= 2.3.
+  (`#749 <https://github.com/NVIDIA/cuda-python/issues/749>`__)
