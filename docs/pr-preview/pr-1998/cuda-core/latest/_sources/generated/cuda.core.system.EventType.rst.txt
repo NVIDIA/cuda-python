@@ -1,0 +1,6 @@
+﻿cuda.core.system.EventType
+==========================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: EventType
