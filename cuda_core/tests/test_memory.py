@@ -38,7 +38,6 @@ from cuda.core import (
     PinnedMemoryResourceOptions,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
-    utils,
 )
 from cuda.core import (
     system as ccx_system,
@@ -1571,5 +1570,3 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
     assert buffer.handle >= 0
     assert buffer.size == 0
     assert buffer.device_id == mr.device_id
-
-
