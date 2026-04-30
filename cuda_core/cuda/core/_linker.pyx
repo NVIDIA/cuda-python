@@ -188,7 +188,7 @@ class LinkerOptions:
     Attributes
     ----------
     name : str, optional
-        Name of the linker. If the linking succeeds, the name is passed down to the generated `ObjectCode`.
+        Name of the linker. If the linking succeeds, the name is passed down to the generated :class:`ObjectCode`.
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
         ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture

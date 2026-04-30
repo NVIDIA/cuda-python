@@ -223,7 +223,7 @@ cdef class DeviceMemoryResource(_MemPool):
         Returns a tuple of sorted device IDs that currently have peer access to
         allocations from this memory pool.
 
-        When setting, accepts a sequence of Device objects or device IDs.
+        When setting, accepts a sequence of :obj:`~_device.Device` objects or device IDs.
         Setting to an empty sequence revokes all peer access.
 
         For non-owned pools (the default or current device pool), the state

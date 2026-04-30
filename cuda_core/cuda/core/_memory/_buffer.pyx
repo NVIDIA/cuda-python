@@ -204,8 +204,9 @@ cdef class Buffer:
 
         Parameters
         ----------
-        dst : :obj:`~_memory.Buffer`
-            Source buffer to copy data from
+        dst : :obj:`~_memory.Buffer`, optional
+            Destination buffer to copy data to. If not provided, a new buffer
+            is allocated using this buffer's memory resource.
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy

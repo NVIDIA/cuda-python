@@ -377,7 +377,7 @@ cdef class DeviceProperties:
 
     @property
     def gpu_overlap(self) -> bool:
-        """bool: Device can possibly copy memory and execute a kernel concurrently. Deprecated. Use instead async_engine_count."""
+        """bool: Device can possibly copy memory and execute a kernel concurrently. Deprecated. Use :attr:`~DeviceProperties.async_engine_count` instead."""
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_OVERLAP))
 
     @property
@@ -662,7 +662,7 @@ cdef class DeviceProperties:
 
     @property
     def read_only_host_register_supported(self) -> bool:
-        """bool: True if device supports using the cuMemHostRegister flag CU_MEMHOSTERGISTER_READ_ONLY to register memory that must be mapped as read-only to the GPU, False if not."""
+        """bool: True if device supports using the cuMemHostRegister flag CU_MEMHOSTREGISTER_READ_ONLY to register memory that must be mapped as read-only to the GPU, False if not."""
         return bool(
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_READ_ONLY_HOST_REGISTER_SUPPORTED)
         )
@@ -841,12 +841,12 @@ cdef class DeviceProperties:
 
     @property
     def mem_decompress_algorithm_mask(self) -> int:
-        """int: The returned valued shall be interpreted as a bitmask, where the individual bits are described by the CUmemDecompressAlgorithm enum."""
+        """int: The returned value shall be interpreted as a bitmask, where the individual bits are described by the CUmemDecompressAlgorithm enum."""
         return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_ALGORITHM_MASK)
 
     @property
     def mem_decompress_maximum_length(self) -> int:
-        """int: The returned valued is the maximum length in bytes of a single decompress operation that is allowed."""
+        """int: The returned value is the maximum length in bytes of a single decompress operation that is allowed."""
         return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_MAXIMUM_LENGTH)
 
     @property
@@ -897,7 +897,7 @@ cdef class DeviceProperties:
 
     @property
     def host_memory_pools_supported(self) -> bool:
-        """bool: Device suports HOST location with the cuMemAllocAsync and cuMemPool family of APIs."""
+        """bool: Device supports HOST location with the cuMemAllocAsync and cuMemPool family of APIs."""
         return bool(
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED)
         )
@@ -1033,7 +1033,7 @@ class Device:
         Parameters
         ----------
         peer : Device | int
-            The peer device to check accessibility to. Can be a Device object or device ID.
+            The peer device to check accessibility to. Can be a :obj:`~_device.Device` object or device ID.
         """
         peer = Device(peer)
         cdef int d1 = <int> self.device_id
@@ -1253,7 +1253,7 @@ class Device:
 
         Note
         ----
-        The newly context will not be set as current.
+        The newly created context will not be set as current.
 
         Parameters
         ----------
@@ -1269,7 +1269,7 @@ class Device:
         raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
     def create_stream(self, obj: IsStreamT | None = None, options: StreamOptions | None = None) -> Stream:
-        """Create a Stream object.
+        """Create a :obj:`~_stream.Stream` object.
 
         New stream objects can be created in two different ways:
 
@@ -1300,7 +1300,7 @@ class Device:
         return Stream._init(obj=obj, options=options, device_id=self._device_id, ctx=self._context)
 
     def create_event(self, options: EventOptions | None = None) -> Event:
-        """Create an Event object without recording it to a Stream.
+        """Create an :obj:`~_event.Event` object without recording it to a :obj:`~_stream.Stream`.
 
         Note
         ----
