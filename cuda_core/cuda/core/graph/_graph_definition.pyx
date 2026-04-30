@@ -27,6 +27,8 @@ from dataclasses import dataclass
 
 from cuda.core._utils.cuda_utils import driver
 
+__all__ = ['GraphCondition', 'GraphAllocOptions', 'GraphDefinition']
+
 
 cdef class GraphCondition:
     """A condition variable for conditional graph nodes.

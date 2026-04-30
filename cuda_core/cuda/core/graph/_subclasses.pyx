@@ -34,6 +34,24 @@ from cuda.core.graph._utils cimport _is_py_host_trampoline
 
 from cuda.core._utils.cuda_utils import driver, handle_return
 
+__all__ = [
+    'AllocNode',
+    'ChildGraphNode',
+    'ConditionalNode',
+    'EmptyNode',
+    'EventRecordNode',
+    'EventWaitNode',
+    'FreeNode',
+    'HostCallbackNode',
+    'IfElseNode',
+    'IfNode',
+    'KernelNode',
+    'MemcpyNode',
+    'MemsetNode',
+    'SwitchNode',
+    'WhileNode',
+]
+
 
 cdef bint _has_cuGraphNodeGetParams = False
 cdef bint _version_checked = False
