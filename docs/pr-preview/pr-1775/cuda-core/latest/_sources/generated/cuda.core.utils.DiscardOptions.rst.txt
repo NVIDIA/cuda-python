@@ -1,0 +1,6 @@
+﻿cuda.core.utils.DiscardOptions
+==============================
+
+.. currentmodule:: cuda.core.utils
+
+.. autoclass:: DiscardOptions

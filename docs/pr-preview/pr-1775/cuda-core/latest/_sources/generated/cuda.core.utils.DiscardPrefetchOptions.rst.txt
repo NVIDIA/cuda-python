@@ -1,0 +1,6 @@
+﻿cuda.core.utils.DiscardPrefetchOptions
+======================================
+
+.. currentmodule:: cuda.core.utils
+
+.. autoclass:: DiscardPrefetchOptions

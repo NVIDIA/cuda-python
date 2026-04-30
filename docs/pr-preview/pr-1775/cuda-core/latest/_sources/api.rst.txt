@@ -20,6 +20,7 @@ Devices and execution
    :toctree: generated/
 
    Device
+   Host
    launch
 
    :template: autosummary/cyclass.rst
@@ -55,6 +56,7 @@ Memory management
    :template: autosummary/cyclass.rst
 
    Buffer
+   ManagedBuffer
    MemoryResource
    DeviceMemoryResource
    GraphMemoryResource
@@ -252,7 +254,13 @@ Utility functions
    discard
    discard_prefetch
 
+   :template: dataclass.rst
+
+   AdviseOptions
+   PrefetchOptions
+   DiscardOptions
+   DiscardPrefetchOptions
+
    :template: autosummary/cyclass.rst
 
-   Location
    StridedMemoryView

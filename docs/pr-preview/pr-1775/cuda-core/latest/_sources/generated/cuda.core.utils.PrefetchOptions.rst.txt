@@ -1,0 +1,6 @@
+﻿cuda.core.utils.PrefetchOptions
+===============================
+
+.. currentmodule:: cuda.core.utils
+
+.. autoclass:: PrefetchOptions

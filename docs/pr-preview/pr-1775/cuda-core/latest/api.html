@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=2298c72e"></script>
+    <script src="_static/documentation_options.js?v=ca8264ec"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev107';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev108';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -500,6 +500,7 @@
 <li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Device.html">cuda.core.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Host.html">cuda.core.Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Event.html">cuda.core.Event</a></li>
@@ -507,6 +508,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ManagedBuffer.html">cuda.core.ManagedBuffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -586,7 +588,10 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.prefetch.html">cuda.core.utils.prefetch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard.html">cuda.core.utils.discard</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch.html">cuda.core.utils.discard_prefetch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.Location.html">cuda.core.utils.Location</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.AdviseOptions.html">cuda.core.utils.AdviseOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.PrefetchOptions.html">cuda.core.utils.PrefetchOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.DiscardOptions.html">cuda.core.utils.DiscardOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.DiscardPrefetchOptions.html">cuda.core.utils.DiscardPrefetchOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
@@ -680,22 +685,25 @@ deprecation periods for breaking changes.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a>([device_id])</p></td>
 <td><p>Represent a GPU and act as an entry point for cuda.core features.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.launch.html#cuda.core.launch" title="cuda.core.launch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch</span></code></a>(stream, LaunchConfig config, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Host</span></code></a>([numa_id, is_numa_current])</p></td>
+<td><p>Host (CPU) location for managed-memory operations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.launch.html#cuda.core.launch" title="cuda.core.launch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch</span></code></a>(stream, LaunchConfig config, ...)</p></td>
 <td><p>Launches a <a class="reference internal" href="generated/cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> object with launch-time configuration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a queue of GPU operations that are executed in a specific order.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a record at a specific point of execution within a CUDA stream.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions" title="cuda.core.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>([nonblocking, priority])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions" title="cuda.core.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>([nonblocking, priority])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> options.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([enable_timing, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([enable_timing, ...])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, ...])</p></td>
 <td><p>Customizable launch options.</p></td>
 </tr>
 </tbody>
@@ -725,37 +733,40 @@ on other non-blocking streams.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a handle to allocated memory.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource" title="cuda.core.MemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer" title="cuda.core.ManagedBuffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedBuffer</span></code></a></p></td>
+<td><p>Managed (unified) memory buffer with a property-style advice API.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource" title="cuda.core.MemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code></a></p></td>
 <td><p>Abstract base class for memory resources that manage allocation and deallocation of buffers.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>(device_id[, options])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>(device_id[, options])</p></td>
 <td><p>A device memory resource managing a stream-ordered memory pool.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource" title="cuda.core.GraphMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a>(device_id)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource" title="cuda.core.GraphMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a>(device_id)</p></td>
 <td><p>A memory resource for memory related to graphs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a>([options])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a>([options])</p></td>
 <td><p>A host-pinned memory resource managing a stream-ordered memory pool.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a>([options])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a>([options])</p></td>
 <td><p>A managed memory resource managing a stream-ordered memory pool.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.LegacyPinnedMemoryResource.html#cuda.core.LegacyPinnedMemoryResource" title="cuda.core.LegacyPinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.LegacyPinnedMemoryResource.html#cuda.core.LegacyPinnedMemoryResource" title="cuda.core.LegacyPinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a></p></td>
 <td><p>Create a pinned memory resource that uses legacy cuMemAllocHost/cudaMallocHost APIs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a>(device_id[, config])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a>(device_id[, config])</p></td>
 <td><p>Create a device memory resource that uses the CUDA VMM APIs to allocate memory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.DeviceMemoryResourceOptions.html#cuda.core.DeviceMemoryResourceOptions" title="cuda.core.DeviceMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResourceOptions</span></code></a>([ipc_enabled, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.DeviceMemoryResourceOptions.html#cuda.core.DeviceMemoryResourceOptions" title="cuda.core.DeviceMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResourceOptions</span></code></a>([ipc_enabled, ...])</p></td>
 <td><p>Customizable <code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> options.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.PinnedMemoryResourceOptions.html#cuda.core.PinnedMemoryResourceOptions" title="cuda.core.PinnedMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a>([ipc_enabled, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.PinnedMemoryResourceOptions.html#cuda.core.PinnedMemoryResourceOptions" title="cuda.core.PinnedMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a>([ipc_enabled, ...])</p></td>
 <td><p>Customizable <code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code> options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions" title="cuda.core.ManagedMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a>([...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions" title="cuda.core.ManagedMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a>([...])</p></td>
 <td><p>Customizable <code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code> options.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a>(...)</p></td>
 <td><p>A configuration object for the VirtualMemoryResource</p></td>
 </tr>
 </tbody>
@@ -1055,10 +1066,19 @@ Each subclass exposes attributes unique to its operation type.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch.html#cuda.core.utils.discard_prefetch" title="cuda.core.utils.discard_prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discard_prefetch</span></code></a>(targets[, location, options])</p></td>
 <td><p>Discard one or more managed-memory ranges and prefetch them to a target location.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.Location.html#cuda.core.utils.Location" title="cuda.core.utils.Location"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Location</span></code></a>(kind[, id])</p></td>
-<td><p>Typed managed-memory location.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.AdviseOptions.html#cuda.core.utils.AdviseOptions" title="cuda.core.utils.AdviseOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AdviseOptions</span></code></a>()</p></td>
+<td><p>Per-call options for <a class="reference internal" href="generated/cuda.core.utils.advise.html#cuda.core.utils.advise" title="cuda.core.utils.advise"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuda.core.utils.advise()</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a>(obj, int stream_ptr)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.PrefetchOptions.html#cuda.core.utils.PrefetchOptions" title="cuda.core.utils.PrefetchOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrefetchOptions</span></code></a>()</p></td>
+<td><p>Per-call options for <a class="reference internal" href="generated/cuda.core.utils.prefetch.html#cuda.core.utils.prefetch" title="cuda.core.utils.prefetch"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuda.core.utils.prefetch()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.DiscardOptions.html#cuda.core.utils.DiscardOptions" title="cuda.core.utils.DiscardOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscardOptions</span></code></a>()</p></td>
+<td><p>Per-call options for <a class="reference internal" href="generated/cuda.core.utils.discard.html#cuda.core.utils.discard" title="cuda.core.utils.discard"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuda.core.utils.discard()</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.DiscardPrefetchOptions.html#cuda.core.utils.DiscardPrefetchOptions" title="cuda.core.utils.DiscardPrefetchOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscardPrefetchOptions</span></code></a>()</p></td>
+<td><p>Per-call options for <a class="reference internal" href="generated/cuda.core.utils.discard_prefetch.html#cuda.core.utils.discard_prefetch" title="cuda.core.utils.discard_prefetch"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuda.core.utils.discard_prefetch()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a>(obj, int stream_ptr)</p></td>
 <td><p>A class holding metadata of a strided dense array/tensor.</p></td>
 </tr>
 </tbody>
