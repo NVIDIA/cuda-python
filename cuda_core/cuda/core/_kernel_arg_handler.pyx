@@ -321,7 +321,8 @@ cdef class ParamHolder:
                     continue
                 elif arg_type is GraphCondition:
                     prepare_arg[cydriver.CUgraphConditionalHandle](
-                        self.data, self.data_addresses, <intptr_t>int(arg), i)
+                        self.data, self.data_addresses,
+                        <intptr_t><unsigned long long>(<GraphCondition>arg)._c_handle, i)
                     continue
                 # If no exact types are found, fallback to slower `isinstance` check
                 elif isinstance(arg, Buffer):
@@ -348,7 +349,8 @@ cdef class ParamHolder:
                     continue
                 elif isinstance(arg, GraphCondition):
                     prepare_arg[cydriver.CUgraphConditionalHandle](
-                        self.data, self.data_addresses, <intptr_t>int(arg), i)
+                        self.data, self.data_addresses,
+                        <intptr_t><unsigned long long>(<GraphCondition>arg)._c_handle, i)
                     continue
                 # TODO: support ctypes/numpy struct
                 raise TypeError("the argument is of unsupported type: " + str(type(arg)))

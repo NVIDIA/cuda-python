@@ -39,7 +39,7 @@ cdef class GraphCondition:
     runtime by device code via ``cudaGraphSetConditional``.
 
     A :class:`GraphCondition` may be passed directly as a kernel
-    argument to ``launch()``; ``__int__`` returns the underlying
+    argument to ``launch()``: the launcher unwraps it to the underlying
     ``CUgraphConditionalHandle`` value so device code can update the
     condition.
     """
@@ -60,9 +60,6 @@ cdef class GraphCondition:
 
     def __hash__(self) -> int:
         return hash(<unsigned long long>self._c_handle)
-
-    def __int__(self) -> int:
-        return <unsigned long long>self._c_handle
 
     @property
     def handle(self) -> driver.CUgraphConditionalHandle:
