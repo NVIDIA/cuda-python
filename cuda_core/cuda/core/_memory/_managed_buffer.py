@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from cuda.core._device import Device
 from cuda.core._host import Host
 from cuda.core._memory._buffer import Buffer
+from cuda.core._memory._managed_memory_ops import advise, discard, discard_prefetch, prefetch
 from cuda.core._utils.cuda_utils import driver, handle_return
 
 if TYPE_CHECKING:
@@ -17,9 +18,35 @@ if TYPE_CHECKING:
 
 _INT_SIZE = 4
 
+# Enum aliases — referenced once per property write, so cache the lookup.
+_ADV = driver.CUmem_advise
+_SET_READ_MOSTLY = _ADV.CU_MEM_ADVISE_SET_READ_MOSTLY
+_UNSET_READ_MOSTLY = _ADV.CU_MEM_ADVISE_UNSET_READ_MOSTLY
+_SET_PREFERRED = _ADV.CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+_UNSET_PREFERRED = _ADV.CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION
+_SET_ACCESSED_BY = _ADV.CU_MEM_ADVISE_SET_ACCESSED_BY
+_UNSET_ACCESSED_BY = _ADV.CU_MEM_ADVISE_UNSET_ACCESSED_BY
+
+_RANGE = driver.CUmem_range_attribute
+_ATTR_READ_MOSTLY = _RANGE.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY
+_ATTR_PREFERRED = _RANGE.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION
+_ATTR_ACCESSED_BY = _RANGE.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY
+
 
 def _get_int_attr(buf: Buffer, attribute) -> int:
     return handle_return(driver.cuMemRangeGetAttribute(_INT_SIZE, attribute, buf.handle, buf.size))
+
+
+def _query_accessed_by(buf: Buffer) -> list[Device | Host]:
+    """Read the live ``CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY`` list.
+
+    Driver fills an int32 array: device id, ``-1`` = host, ``-2`` = empty.
+    Sized to ``cuDeviceGetCount() + 1`` (every visible device plus host).
+    """
+    num_devices = handle_return(driver.cuDeviceGetCount())
+    n = num_devices + 1
+    raw = handle_return(driver.cuMemRangeGetAttribute(n * _INT_SIZE, _ATTR_ACCESSED_BY, buf.handle, buf.size))
+    return [Host() if v == -1 else Device(v) for v in raw if v != -2]
 
 
 class AccessedBySet:
@@ -32,9 +59,9 @@ class AccessedBySet:
 
     Note
     ----
-    The driver's read-back path returns integer device ordinals (``-1`` for
-    host); host NUMA distinctions applied via ``Host(numa_id=...)`` are not
-    distinguishable from a generic ``Host()`` when iterating this set.
+    The driver returns integer device ordinals (``-1`` for host); host
+    NUMA distinctions applied via ``Host(numa_id=...)`` collapse to a
+    generic ``Host()`` when iterating this set.
     """
 
     __slots__ = ("_buf",)
@@ -42,65 +69,41 @@ class AccessedBySet:
     def __init__(self, buf: ManagedBuffer):
         self._buf = buf
 
-    def _query(self) -> list[Device | Host]:
-        # Driver fills the array with device ordinals: device id, -1 = host,
-        # -2 = empty slot. Size must accommodate every CUDA-visible device
-        # plus a slot for the host. We use cuDeviceGetCount (driver-side) to
-        # stay independent of NVML availability.
-        num_devices = handle_return(driver.cuDeviceGetCount())
-        n = num_devices + 1
-        raw = handle_return(
-            driver.cuMemRangeGetAttribute(
-                n * _INT_SIZE,
-                driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY,
-                self._buf.handle,
-                self._buf.size,
-            )
-        )
-        result: list[Device | Host] = []
-        for v in raw:
-            if v == -2:  # CU_DEVICE_INVALID — empty slot
-                continue
-            result.append(Host() if v == -1 else Device(v))
-        return result
-
     def __contains__(self, location) -> bool:
-        return location in self._query()
+        return location in _query_accessed_by(self._buf)
 
     def __iter__(self):
-        return iter(self._query())
+        return iter(_query_accessed_by(self._buf))
 
     def __len__(self) -> int:
-        return len(self._query())
+        return len(_query_accessed_by(self._buf))
 
     def __eq__(self, other) -> bool:
         if isinstance(other, AccessedBySet):
-            return set(self._query()) == set(other._query())
+            return set(_query_accessed_by(self._buf)) == set(_query_accessed_by(other._buf))
         if isinstance(other, (set, frozenset)):
-            return set(self._query()) == other
+            return set(_query_accessed_by(self._buf)) == other
         return NotImplemented
 
     def __repr__(self) -> str:
-        return f"AccessedBySet({set(self._query())!r})"
+        return f"AccessedBySet({set(_query_accessed_by(self._buf))!r})"
 
     def add(self, location: Device | Host) -> None:
         """Apply ``set_accessed_by`` advice for ``location``."""
-        from cuda.core.utils import advise
-
-        advise(self._buf, "set_accessed_by", location)
+        advise(self._buf, _SET_ACCESSED_BY, location)
 
     def discard(self, location: Device | Host) -> None:
         """Apply ``unset_accessed_by`` advice for ``location``."""
-        from cuda.core.utils import advise
-
-        advise(self._buf, "unset_accessed_by", location)
+        advise(self._buf, _UNSET_ACCESSED_BY, location)
 
 
 class ManagedBuffer(Buffer):
     """Managed (unified) memory buffer with a property-style advice API.
 
-    Returned by :meth:`ManagedMemoryResource.allocate`. Wrap an external
-    managed-memory pointer with :meth:`ManagedBuffer.from_handle`.
+    Returned by :meth:`ManagedMemoryResource.allocate`, or wrap an
+    existing managed-memory pointer with :meth:`Buffer.from_handle`
+    (which dispatches by class — ``ManagedBuffer.from_handle(...)``
+    returns a ``ManagedBuffer``).
 
     Examples
     --------
@@ -112,42 +115,25 @@ class ManagedBuffer(Buffer):
 
     Note
     ----
-    The driver's read-back path for ``preferred_location`` and
-    ``accessed_by`` returns integer device ordinals; host NUMA distinctions
-    applied via ``Host(numa_id=...)`` collapse to a generic ``Host()`` when
-    queried. Setters preserve full NUMA information when issuing advice.
+    The legacy ``cuMemRangeGetAttribute`` query path returns integer
+    device ordinals, so ``Host(numa_id=...)`` collapses to ``Host()``
+    on read-back. Setters preserve full NUMA information when issuing
+    advice.
     """
-
-    @classmethod
-    def from_handle(
-        cls,
-        ptr,
-        size: int,
-        mr=None,
-        owner=None,
-    ) -> ManagedBuffer:
-        """Wrap an existing managed-memory pointer in a :class:`ManagedBuffer`."""
-        return cls._init(ptr, size, mr=mr, owner=owner)
 
     @property
     def read_mostly(self) -> bool:
-        """Whether ``set_read_mostly`` advice is currently applied to this range."""
-        return _get_int_attr(self, driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY) != 0
+        """Whether ``set_read_mostly`` advice is currently applied."""
+        return _get_int_attr(self, _ATTR_READ_MOSTLY) != 0
 
     @read_mostly.setter
     def read_mostly(self, value: bool) -> None:
-        from cuda.core.utils import advise
-
-        advise(self, "set_read_mostly" if value else "unset_read_mostly")
+        advise(self, _SET_READ_MOSTLY if value else _UNSET_READ_MOSTLY)
 
     @property
     def preferred_location(self) -> Device | Host | None:
-        """Currently applied ``set_preferred_location`` target, or ``None`` if unset."""
-        # The legacy PREFERRED_LOCATION attribute returns a single int:
-        # -2 = invalid (no preferred location), -1 = host, >=0 = device ordinal.
-        # NUMA-specific preferences round-trip as a generic Host (CUDA driver
-        # limitation of the legacy query path).
-        loc_id = _get_int_attr(self, driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION)
+        """Currently applied ``set_preferred_location`` target, or ``None``."""
+        loc_id = _get_int_attr(self, _ATTR_PREFERRED)
         if loc_id == -2:
             return None
         if loc_id == -1:
@@ -156,12 +142,10 @@ class ManagedBuffer(Buffer):
 
     @preferred_location.setter
     def preferred_location(self, value: Device | Host | None) -> None:
-        from cuda.core.utils import advise
-
         if value is None:
-            advise(self, "unset_preferred_location")
+            advise(self, _UNSET_PREFERRED)
         else:
-            advise(self, "set_preferred_location", value)
+            advise(self, _SET_PREFERRED, value)
 
     @property
     def accessed_by(self) -> AccessedBySet:
@@ -171,29 +155,21 @@ class ManagedBuffer(Buffer):
     @accessed_by.setter
     def accessed_by(self, locations) -> None:
         # Diff against the current driver state and advise only the deltas.
-        from cuda.core.utils import advise
-
-        current = set(AccessedBySet(self))
+        current = set(_query_accessed_by(self))
         target = set(locations)
         for loc in current - target:
-            advise(self, "unset_accessed_by", loc)
+            advise(self, _UNSET_ACCESSED_BY, loc)
         for loc in target - current:
-            advise(self, "set_accessed_by", loc)
+            advise(self, _SET_ACCESSED_BY, loc)
 
     def prefetch(self, location: Device | Host | int, *, stream: Stream | GraphBuilder) -> None:
         """Prefetch this range to ``location`` on ``stream``."""
-        from cuda.core.utils import prefetch as _prefetch
-
-        _prefetch(self, location, stream=stream)
+        prefetch(self, location, stream=stream)
 
     def discard(self, *, stream: Stream | GraphBuilder) -> None:
         """Discard this range's resident pages on ``stream`` (CUDA 13+)."""
-        from cuda.core.utils import discard as _discard
-
-        _discard(self, stream=stream)
+        discard(self, stream=stream)
 
     def discard_prefetch(self, location: Device | Host | int, *, stream: Stream | GraphBuilder) -> None:
         """Discard this range and prefetch to ``location`` on ``stream`` (CUDA 13+)."""
-        from cuda.core.utils import discard_prefetch as _discard_prefetch
-
-        _discard_prefetch(self, location, stream=stream)
+        discard_prefetch(self, location, stream=stream)
