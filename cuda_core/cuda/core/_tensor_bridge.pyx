@@ -103,8 +103,38 @@ cdef extern from "_include/aoti_shim.h":
     int32_t aoti_torch_device_type_cpu()
     int32_t aoti_torch_device_type_cuda()
 
-    # stream
-    AOTITorchError aoti_torch_get_current_cuda_stream(int32_t, void**)
+    # Note: aoti_torch_get_current_cuda_stream is NOT declared here because
+    # it lives in torch_cuda.dll (not torch_cpu.dll).  It is resolved lazily
+    # at runtime via dlsym / GetProcAddress — see _resolve_cuda_stream_fn().
+
+# Runtime resolution for aoti_torch_get_current_cuda_stream.
+# This symbol lives in torch_cuda.dll (Windows) / libtorch_cuda.so (Linux),
+# NOT in torch_cpu.  We resolve it lazily on first use so that the module
+# can be imported even with CPU-only PyTorch.
+ctypedef AOTITorchError (*_get_cuda_stream_fn_t)(int32_t, void**) nogil
+
+cdef extern from *:
+    """
+    #ifdef _WIN32
+    #include <windows.h>
+    static void* _resolve_cuda_stream_fn(void) {
+        HMODULE h = LoadLibraryA("torch_cuda.dll");
+        if (!h) return NULL;
+        return (void*)GetProcAddress(h, "aoti_torch_get_current_cuda_stream");
+    }
+    #else
+    #include <dlfcn.h>
+    #ifndef RTLD_DEFAULT
+    #define RTLD_DEFAULT ((void*)0)
+    #endif
+    static void* _resolve_cuda_stream_fn(void) {
+        return dlsym(RTLD_DEFAULT, "aoti_torch_get_current_cuda_stream");
+    }
+    #endif
+    """
+    void* _resolve_cuda_stream_fn() nogil
+
+cdef _get_cuda_stream_fn_t _cached_get_cuda_stream = NULL
 
 import numpy
 import sys
@@ -274,10 +304,17 @@ cpdef int sync_torch_stream(int32_t device_index,
     the consumer stream wait on it.  This is a no-op if both streams are
     the same.
     """
+    global _cached_get_cuda_stream
     cdef void* producer_s
     cdef EventHandle h_event
 
-    check_aoti(aoti_torch_get_current_cuda_stream(device_index, &producer_s),
+    if _cached_get_cuda_stream == NULL:
+        _cached_get_cuda_stream = <_get_cuda_stream_fn_t>_resolve_cuda_stream_fn()
+        if _cached_get_cuda_stream == NULL:
+            raise RuntimeError(
+                "Cannot resolve aoti_torch_get_current_cuda_stream from "
+                "torch_cuda — is CUDA-enabled PyTorch installed?")
+    check_aoti(_cached_get_cuda_stream(device_index, &producer_s),
                b"aoti_torch_get_current_cuda_stream")
     if <intptr_t>producer_s != consumer_s:
         with nogil:
