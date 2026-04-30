@@ -5,7 +5,7 @@
 from libc.stddef cimport size_t
 
 from cuda.bindings cimport cydriver
-from cuda.core.graph._graph_def cimport Condition
+from cuda.core.graph._graph_definition cimport GraphCondition
 from cuda.core.graph._graph_node cimport GraphNode
 from cuda.core._resource_handles cimport EventHandle, GraphHandle, GraphNodeHandle, KernelHandle
 
@@ -150,7 +150,7 @@ cdef class HostCallbackNode(GraphNode):
 
 cdef class ConditionalNode(GraphNode):
     cdef:
-        Condition _condition
+        GraphCondition _condition
         cydriver.CUgraphConditionalNodeType _cond_type
         tuple _branches
 

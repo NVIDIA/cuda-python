@@ -82,7 +82,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
             with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
                 pool.starmap(
                     self.process_buffer,
-                    [(mrs.index(buffer.memory_resource), buffer.get_ipc_descriptor()) for buffer in buffers],
+                    [(mrs.index(buffer.memory_resource), buffer.ipc_descriptor) for buffer in buffers],
                 )
 
             pgen = PatternGen(device, NBYTES)

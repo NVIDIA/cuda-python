@@ -661,6 +661,11 @@ cdef class Device:
         :obj:`~_device.FieldValues`
             Container of field values corresponding to the requested field IDs.
         """
+        # Passing a field_ids array of length 0 raises an InvalidArgumentError,
+        # so avoid that.
+        if len(field_ids) == 0:
+            return FieldValues(nvml.FieldValue(0))
+
         return FieldValues(nvml.device_get_field_values(self._handle, field_ids))
 
     def clear_field_values(self, field_ids: list[int | tuple[int, int]]) -> None:
@@ -675,6 +680,11 @@ cdef class Device:
             Each item may be either a single value from the :class:`FieldId`
             enum, or a pair of (:class:`FieldId`, scope ID).
         """
+        # Passing a field_ids array of length 0 raises an InvalidArgumentError,
+        # so avoid that.
+        if len(field_ids) == 0:
+            return
+
         nvml.device_clear_field_values(self._handle, field_ids)
 
     ##########################################################################
