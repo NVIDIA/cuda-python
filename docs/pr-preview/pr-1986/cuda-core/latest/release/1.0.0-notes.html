@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d838460c"></script>
+    <script src="../_static/documentation_options.js?v=fbab7503"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev71';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev79';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -705,17 +705,10 @@ with the rest of the API
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">LaunchConfig.cooperative_launch</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig.is_cooperative" title="cuda.core.LaunchConfig.is_cooperative"><code class="xref py py-attr docutils literal notranslate"><span class="pre">LaunchConfig.is_cooperative</span></code></a>
 (also renames the constructor keyword argument).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Event.is_timing_disabled</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event.is_timing_enabled" title="cuda.core.Event.is_timing_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.is_timing_enabled</span></code></a> (boolean
-polarity is flipped to avoid the double-negative form
-<code class="docutils literal notranslate"><span class="pre">not</span> <span class="pre">event.is_timing_disabled</span></code>).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Event.is_sync_busy_waited</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event.uses_blocking_sync" title="cuda.core.Event.uses_blocking_sync"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.uses_blocking_sync</span></code></a>. The
-new name accurately describes the underlying <code class="docutils literal notranslate"><span class="pre">CU_EVENT_BLOCKING_SYNC</span></code>
-flag: when True, the calling CPU thread blocks (yields) on
-<a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event.sync" title="cuda.core.Event.sync"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Event.sync()</span></code></a> instead of busy-waiting. The previous name was
-inverted with respect to its semantics.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">EventOptions.busy_waited_sync</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">EventOptions.use_blocking_sync</span></code>
-(constructor keyword argument and dataclass attribute), to match the
-renamed <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event.uses_blocking_sync" title="cuda.core.Event.uses_blocking_sync"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.uses_blocking_sync</span></code></a> property.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Event.is_timing_disabled</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event.is_timing_enabled" title="cuda.core.Event.is_timing_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.is_timing_enabled</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Event.is_sync_busy_waited</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event.is_blocking_sync" title="cuda.core.Event.is_blocking_sync"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.is_blocking_sync</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EventOptions.enable_timing</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">EventOptions.timing_enabled</span></code>
+and <code class="docutils literal notranslate"><span class="pre">EventOptions.busy_waited_sync</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">EventOptions.blocking_sync</span></code>.</p></li>
 </ul>
 </li>
 <li><p>Renamed graph allocation methods to match <a class="reference internal" href="../generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource.allocate" title="cuda.core.MemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MemoryResource.allocate()</span></code></a> /
@@ -778,10 +771,10 @@ and consistent verbs
 <code class="docutils literal notranslate"><span class="pre">if_else</span></code>, <code class="docutils literal notranslate"><span class="pre">while_loop</span></code>, and <code class="docutils literal notranslate"><span class="pre">switch</span></code> methods (verb describing the
 control-flow construct, not an abbreviation of “condition”) and matches
 Python’s own <code class="docutils literal notranslate"><span class="pre">if/then/else</span></code> vocabulary.</p></li>
-<li><p><a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a> now defines <code class="docutils literal notranslate"><span class="pre">__int__</span></code> returning the
-underlying <code class="docutils literal notranslate"><span class="pre">CUgraphConditionalHandle</span></code> value, so a condition may be
-passed directly as a kernel argument to <code class="docutils literal notranslate"><span class="pre">launch()</span></code> without first
-extracting <code class="docutils literal notranslate"><span class="pre">.handle</span></code>.</p></li>
+<li><p>A <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a> may be passed directly as a kernel
+argument to <code class="docutils literal notranslate"><span class="pre">launch()</span></code>; the launcher unwraps it to the underlying
+<code class="docutils literal notranslate"><span class="pre">CUgraphConditionalHandle</span></code> value. Previously, <code class="docutils literal notranslate"><span class="pre">.handle</span></code> had to be
+extracted explicitly.</p></li>
 </ul>
 </li>
 </ul>

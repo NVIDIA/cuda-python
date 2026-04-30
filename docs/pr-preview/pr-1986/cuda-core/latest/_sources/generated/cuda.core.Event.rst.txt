@@ -30,9 +30,9 @@ cuda.core.Event
    .. autoattribute:: device
    .. autoattribute:: handle
    .. autoattribute:: ipc_descriptor
+   .. autoattribute:: is_blocking_sync
    .. autoattribute:: is_done
    .. autoattribute:: is_ipc_enabled
    .. autoattribute:: is_timing_enabled
-   .. autoattribute:: uses_blocking_sync
    
    

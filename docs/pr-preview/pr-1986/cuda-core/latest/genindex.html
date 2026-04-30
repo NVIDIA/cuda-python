@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=d838460c"></script>
+    <script src="_static/documentation_options.js?v=fbab7503"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev71';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev79';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -958,6 +958,8 @@
         <li><a href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig.block">(cuda.core.LaunchConfig attribute)</a>
 </li>
       </ul></li>
+      <li><a href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions.blocking_sync">blocking_sync (cuda.core.EventOptions attribute)</a>
+</li>
       <li><a href="generated/cuda.core.system._device.InforomInfo.html#cuda.core.system._device.InforomInfo.board_part_number">board_part_number (cuda.core.system._device.InforomInfo attribute)</a>
 </li>
       <li><a href="generated/cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode.body">body (cuda.core.graph.WhileNode attribute)</a>
@@ -1544,8 +1546,6 @@
 </li>
       <li><a href="generated/cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode">EmptyNode (class in cuda.core.graph)</a>
 </li>
-      <li><a href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions.enable_timing">enable_timing (cuda.core.EventOptions attribute)</a>
-</li>
       <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.end_building">end_building() (cuda.core.graph.GraphBuilder method)</a>
 </li>
       <li><a href="generated/cuda.core.Event.html#cuda.core.Event">Event (class in cuda.core)</a>
@@ -2116,12 +2116,16 @@
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.is_auto_boosted_clocks_enabled">is_auto_boosted_clocks_enabled (cuda.core.system.Device attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.Event.html#cuda.core.Event.is_blocking_sync">is_blocking_sync (cuda.core.Event attribute)</a>
+</li>
       <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.is_building">is_building (cuda.core.graph.GraphBuilder property)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.is_c2c_enabled">is_c2c_enabled (cuda.core.system.Device attribute)</a>
 </li>
       <li><a href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig.is_cooperative">is_cooperative (cuda.core.LaunchConfig attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.is_device_accessible">is_device_accessible (cuda.core.Buffer attribute)</a>
 
       <ul>
@@ -2142,8 +2146,6 @@
         <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_device_accessible">(cuda.core.VirtualMemoryResource attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.is_display_active">is_display_active (cuda.core.system.Device attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.is_display_connected">is_display_connected (cuda.core.system.Device attribute)</a>
@@ -3315,6 +3317,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions.timing_enabled">timing_enabled (cuda.core.EventOptions attribute)</a>
+</li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.to_cuda_device">to_cuda_device() (cuda.core.system.Device method)</a>
 </li>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.to_system_device">to_system_device() (cuda.core.Device method)</a>
@@ -3389,8 +3393,6 @@
 </li>
       <li><a href="generated/cuda.core.graph.GraphCompleteOptions.html#cuda.core.graph.GraphCompleteOptions.upload_stream">upload_stream (cuda.core.graph.GraphCompleteOptions attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions.use_blocking_sync">use_blocking_sync (cuda.core.EventOptions attribute)</a>
-</li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.use_fast_math">use_fast_math (cuda.core.ProgramOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.use_libdevice">use_libdevice (cuda.core.ProgramOptions attribute)</a>
@@ -3408,8 +3410,6 @@
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.system._device.ProcessInfo.html#cuda.core.system._device.ProcessInfo.used_gpu_memory">used_gpu_memory (cuda.core.system._device.ProcessInfo attribute)</a>
-</li>
-      <li><a href="generated/cuda.core.Event.html#cuda.core.Event.uses_blocking_sync">uses_blocking_sync (cuda.core.Event attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.utilization">utilization (cuda.core.system.Device attribute)</a>
 </li>

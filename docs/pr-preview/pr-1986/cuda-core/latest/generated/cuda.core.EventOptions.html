@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d838460c"></script>
+    <script src="../_static/documentation_options.js?v=fbab7503"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev71';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev79';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -671,16 +671,16 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">EventOptions</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">enable_timing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">use_blocking_sync</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">timing_enabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">blocking_sync</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">ipc_enabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.EventOptions" title="Link to this definition">#</a></dt>
 <dd><p>Customizable <a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> options.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.EventOptions.enable_timing">
-<span class="sig-name descname"><span class="pre">enable_timing</span></span><a class="headerlink" href="#cuda.core.EventOptions.enable_timing" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.EventOptions.timing_enabled">
+<span class="sig-name descname"><span class="pre">timing_enabled</span></span><a class="headerlink" href="#cuda.core.EventOptions.timing_enabled" title="Link to this definition">#</a></dt>
 <dd><p>Event will record timing data. (Default to False)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -690,8 +690,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.EventOptions.use_blocking_sync">
-<span class="sig-name descname"><span class="pre">use_blocking_sync</span></span><a class="headerlink" href="#cuda.core.EventOptions.use_blocking_sync" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.EventOptions.blocking_sync">
+<span class="sig-name descname"><span class="pre">blocking_sync</span></span><a class="headerlink" href="#cuda.core.EventOptions.blocking_sync" title="Link to this definition">#</a></dt>
 <dd><p>If True, the event uses blocking synchronization: a CPU
 thread that calls <a class="reference internal" href="cuda.core.Event.html#cuda.core.Event.sync" title="cuda.core.Event.sync"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Event.sync()</span></code></a> blocks (yields) until
 the event has completed. Otherwise (the default), the CPU
@@ -708,7 +708,7 @@ thread busy-waits until the event has completed.
 <dt class="sig sig-object py" id="cuda.core.EventOptions.ipc_enabled">
 <span class="sig-name descname"><span class="pre">ipc_enabled</span></span><a class="headerlink" href="#cuda.core.EventOptions.ipc_enabled" title="Link to this definition">#</a></dt>
 <dd><p>Event will be suitable for interprocess use.
-Note that enable_timing must be False. (Default to False)</p>
+Note that timing_enabled must be False. (Default to False)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
@@ -770,8 +770,8 @@ Note that enable_timing must be False. (Default to False)</p>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.EventOptions"><code class="docutils literal notranslate"><span class="pre">EventOptions</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.EventOptions.enable_timing"><code class="docutils literal notranslate"><span class="pre">EventOptions.enable_timing</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.EventOptions.use_blocking_sync"><code class="docutils literal notranslate"><span class="pre">EventOptions.use_blocking_sync</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.EventOptions.timing_enabled"><code class="docutils literal notranslate"><span class="pre">EventOptions.timing_enabled</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.EventOptions.blocking_sync"><code class="docutils literal notranslate"><span class="pre">EventOptions.blocking_sync</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.EventOptions.ipc_enabled"><code class="docutils literal notranslate"><span class="pre">EventOptions.ipc_enabled</span></code></a></li>
 </ul>
 </li>
