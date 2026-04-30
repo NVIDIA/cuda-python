@@ -63,6 +63,3 @@ Advanced and interoperability
 - `jit_program.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/extra/jit_program.py>`_
   JIT-compiles a SAXPY kernel with NVRTC and launches it through the Driver
   API.
-- `numba_emm_plugin.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/extra/numba_emm_plugin.py>`_
-  shows how to back Numba's EMM interface with the NVIDIA CUDA Python Driver
-  API.
