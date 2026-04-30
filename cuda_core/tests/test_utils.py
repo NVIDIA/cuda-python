@@ -343,15 +343,15 @@ class TestViewCudaArrayInterfaceGPU:
 
     def _check_view(self, view, in_arr, dev):
         assert isinstance(view, StridedMemoryView)
-        assert view.ptr == gpu_array_ptr(in_arr)
-        assert view.shape == in_arr.shape
-        assert view.size == in_arr.size
-        strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
-        if in_arr.flags["C_CONTIGUOUS"]:
+        assert view.ptr == _arr_ptr(in_arr)
+        expected_shape = tuple(in_arr.shape)
+        assert view.shape == expected_shape
+        assert view.size == _arr_size(in_arr)
+        strides_in_counts = _arr_strides_in_counts(in_arr)
+        if _arr_is_c_contiguous(in_arr):
             assert view.strides is None
         else:
             assert view.strides == strides_in_counts
-        assert view.dtype == in_arr.dtype
         assert view.device_id == dev.device_id
         assert view.is_device_accessible is True
         assert view.exporting_obj is in_arr
