@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.PcieUtilCounter
-==================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: PcieUtilCounter
