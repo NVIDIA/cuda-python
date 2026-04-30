@@ -6,69 +6,52 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-_VALID_KINDS = ("device", "host", "host_numa", "host_numa_current")
-LocationKind = Literal["device", "host", "host_numa", "host_numa_current"]
+_LocationKind = Literal["device", "host", "host_numa", "host_numa_current"]
 
 
 @dataclass(frozen=True)
-class Location:
-    """Typed managed-memory location.
+class _LocSpec:
+    """Internal location record produced by :func:`_coerce_location`.
 
-    Use the classmethod constructors (``device``, ``host``, ``host_numa``,
-    ``host_numa_current``) rather than constructing directly.
+    Carries the discriminator (``kind``) and the integer payload (``id``)
+    that the Cython layer in ``_managed_memory_ops.pyx`` consumes when
+    building ``CUmemLocation`` structs (CUDA 13+) or legacy device
+    ordinals (CUDA 12).
     """
 
-    kind: LocationKind
-    id: int | None = None
-
-    def __post_init__(self) -> None:
-        if self.kind not in _VALID_KINDS:
-            raise ValueError(f"kind must be one of {_VALID_KINDS!r}, got {self.kind!r}")
-        if self.kind == "device":
-            if not isinstance(self.id, int) or self.id < 0:
-                raise ValueError("device id must be >= 0")
-        elif self.kind == "host_numa":
-            if not isinstance(self.id, int) or self.id < 0:
-                raise ValueError("host_numa id must be >= 0")
-        elif self.kind in ("host", "host_numa_current") and self.id is not None:
-            raise ValueError(f"{self.kind} location must have id=None")
-
-    @classmethod
-    def device(cls, device_id: int) -> Location:
-        return cls(kind="device", id=device_id)
-
-    @classmethod
-    def host(cls) -> Location:
-        return cls(kind="host", id=None)
-
-    @classmethod
-    def host_numa(cls, numa_id: int) -> Location:
-        return cls(kind="host_numa", id=numa_id)
-
-    @classmethod
-    def host_numa_current(cls) -> Location:
-        return cls(kind="host_numa_current", id=None)
+    kind: _LocationKind
+    id: int = 0
 
 
-def _coerce_location(value, *, allow_none: bool = False) -> Location | None:
-    """Coerce ``Location`` / ``Device`` / int / ``None`` to ``Location``.
+def _coerce_location(value, *, allow_none: bool = False) -> _LocSpec | None:
+    """Coerce :class:`Device` / :class:`Host` / int / ``None`` to ``_LocSpec``.
 
-    Maps int ``-1`` to host and other non-negative ints to that device ordinal.
+    Maps int ``-1`` to host and other non-negative ints to that device
+    ordinal. ``Host()``, ``Host(numa_id=N)``, and ``Host.numa_current()``
+    map to the corresponding NUMA-aware kinds.
     """
-    from cuda.core._device import Device  # avoid import cycle at module load
+    # Local imports to avoid import cycles (Device pulls in CUDA init).
+    from cuda.core._device import Device
+    from cuda.core._host import Host
 
-    if isinstance(value, Location):
+    if isinstance(value, _LocSpec):
         return value
     if isinstance(value, Device):
-        return Location.device(value.device_id)
+        return _LocSpec(kind="device", id=value.device_id)
+    if isinstance(value, Host):
+        if value.is_numa_current:
+            return _LocSpec(kind="host_numa_current")
+        if value.numa_id is not None:
+            return _LocSpec(kind="host_numa", id=value.numa_id)
+        return _LocSpec(kind="host")
     if value is None:
         if allow_none:
             return None
         raise ValueError("location is required")
     if isinstance(value, int):
         if value == -1:
-            return Location.host()
+            return _LocSpec(kind="host")
         if value >= 0:
-            return Location.device(value)
+            return _LocSpec(kind="device", id=value)
         raise ValueError(f"device ordinal must be >= 0 (or -1 for host), got {value}")
-    raise TypeError(f"location must be a Location, Device, int, or None; got {type(value).__name__}")
+    raise TypeError(f"location must be a Device, Host, int, or None; got {type(value).__name__}")

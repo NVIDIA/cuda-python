@@ -548,14 +548,15 @@ cdef class MemoryResource:
 
 # Buffer Implementation Helpers
 # -----------------------------
-cdef inline Buffer Buffer_from_deviceptr_handle(
+cdef Buffer Buffer_from_deviceptr_handle(
     DevicePtrHandle h_ptr,
     size_t size,
     MemoryResource mr,
-    object ipc_descriptor = None
+    object ipc_descriptor = None,
+    type cls = Buffer,
 ):
-    """Create a Buffer from an existing DevicePtrHandle."""
-    cdef Buffer buf = Buffer.__new__(Buffer)
+    """Create a Buffer (or subclass instance) from an existing DevicePtrHandle."""
+    cdef Buffer buf = cls.__new__(cls)
     buf._h_ptr = h_ptr
     buf._size = size
     buf._memory_resource = mr

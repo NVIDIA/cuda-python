@@ -116,6 +116,7 @@ def test_package_contents():
         "IPCBufferDescriptor",
         "IPCAllocationHandle",
         "LegacyPinnedMemoryResource",
+        "ManagedBuffer",
         "ManagedMemoryResource",
         "ManagedMemoryResourceOptions",
         "PinnedMemoryResourceOptions",

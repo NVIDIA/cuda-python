@@ -16,17 +16,39 @@ Highlights
 New features
 ------------
 
+- Added :class:`Host` as the symmetric counterpart of :class:`Device` for
+  expressing managed-memory locations: ``Host()`` (any host),
+  ``Host(numa_id=N)`` (specific NUMA node), and ``Host.numa_current()``
+  (calling thread's NUMA node).
+
+- Added :class:`ManagedBuffer`, a :class:`Buffer` subclass returned by
+  :meth:`ManagedMemoryResource.allocate` that exposes a property-style
+  advice API:
+
+  - ``buf.read_mostly`` (bool) — driver-backed get/set.
+  - ``buf.preferred_location`` (:class:`Device` | :class:`Host` | None) —
+    driver-backed get/set; assigning ``None`` unsets.
+  - ``buf.accessed_by`` — a live, set-like view; ``add()`` / ``discard()``
+    issue advice, iteration queries the driver.
+  - ``buf.prefetch(location, *, stream)``, ``buf.discard(*, stream)``,
+    ``buf.discard_prefetch(location, *, stream)`` — instance methods that
+    delegate to the matching free functions.
+
+  Use :meth:`ManagedBuffer.from_handle` to wrap an existing managed-memory
+  pointer.
+
 - Added managed-memory range operations to :mod:`cuda.core.utils`:
-  :class:`~utils.Location`, :func:`~utils.advise`, :func:`~utils.prefetch`,
-  :func:`~utils.discard`, and :func:`~utils.discard_prefetch`. Each
-  operation accepts either a single managed :class:`Buffer` or a
-  sequence; with cuda.bindings 12.8+ the N>1 case dispatches to the
-  corresponding ``cuMem*BatchAsync`` driver entry point, addressing the
-  managed-memory portion of #1333. Locations are expressed via the typed
-  :class:`~utils.Location` dataclass (with classmethod constructors
-  ``device``, ``host``, ``host_numa``, and ``host_numa_current``);
-  ``Device`` and ``int`` values are still accepted for ergonomic
-  compatibility.
+  :func:`~utils.advise`, :func:`~utils.prefetch`, :func:`~utils.discard`,
+  and :func:`~utils.discard_prefetch`. Each operation accepts either a
+  single managed :class:`Buffer` or a sequence; with cuda.bindings 12.8+
+  the N>1 case dispatches to the corresponding ``cuMem*BatchAsync`` driver
+  entry point, addressing the managed-memory portion of #1333. Locations
+  are expressed via :class:`Device` or :class:`Host`; ``int`` values are
+  also accepted (``-1`` maps to host, ``>=0`` to that device ordinal).
+  Per-call options use frozen dataclasses
+  (:class:`~utils.AdviseOptions`, :class:`~utils.PrefetchOptions`,
+  :class:`~utils.DiscardOptions`, :class:`~utils.DiscardPrefetchOptions`)
+  reserved for future flags.
 
 
 Fixes and enhancements

@@ -127,7 +127,7 @@ cdef tuple _broadcast_locations(object location, Py_ssize_t n, bint allow_none, 
 
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
-    # Convert a Location dataclass to a cydriver.CUmemLocation struct.
+    # Convert a _LocSpec dataclass to a cydriver.CUmemLocation struct.
     cdef inline cydriver.CUmemLocation _to_cumemlocation(object loc):
         cdef cydriver.CUmemLocation out
         cdef str kind = loc.kind
@@ -247,7 +247,7 @@ def advise(
         ``"unset_read_mostly"``, ``"set_preferred_location"``,
         ``"unset_preferred_location"``, ``"set_accessed_by"``,
         ``"unset_accessed_by"``) and ``CUmem_advise`` enum values are accepted.
-    location : :class:`Location` | :obj:`~_device.Device` | int | Sequence[...]
+    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | int | Sequence[...]
         Target location(s). Required for advice values that consult a
         location; ignored (may be ``None``) for ``set_read_mostly``,
         ``unset_read_mostly``, and ``unset_preferred_location``. A sequence
@@ -321,10 +321,10 @@ def prefetch(
     ----------
     targets : :class:`Buffer` | Sequence[:class:`Buffer`]
         One or more managed allocations to operate on.
-    location : :class:`Location` | :obj:`~_device.Device` | int | Sequence[...]
+    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | int | Sequence[...]
         Target location(s). A single location applies to all targets; a
-        sequence must match ``len(targets)``. ``Device`` and ``int`` values
-        are coerced to :class:`Location` (``-1`` maps to host).
+        sequence must match ``len(targets)``. ``int`` values are coerced
+        to a location (``-1`` maps to host, ``>=0`` to that device ordinal).
     options : :class:`PrefetchOptions`, optional
         Reserved for future per-call flags. ``None`` (default) and
         ``PrefetchOptions()`` are equivalent.
@@ -427,7 +427,7 @@ def discard_prefetch(
     ----------
     targets : :class:`Buffer` | Sequence[:class:`Buffer`]
         One or more managed allocations to discard and re-prefetch.
-    location : :class:`Location` | :obj:`~_device.Device` | int | Sequence[...]
+    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | int | Sequence[...]
         Target location(s). A single location applies to all targets;
         a sequence must match ``len(targets)``.
     options : :class:`DiscardPrefetchOptions`, optional
