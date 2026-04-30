@@ -114,7 +114,7 @@ def test_event_is_monadic(ipc_device):
 
 @pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize(
-    "options", [{"ipc_enabled": True, "enable_timing": True}, EventOptions(ipc_enabled=True, enable_timing=True)]
+    "options", [{"ipc_enabled": True, "timing_enabled": True}, EventOptions(ipc_enabled=True, timing_enabled=True)]
 )
 def test_event_timing_disabled(ipc_device, options):
     """Check that IPC-enabled events cannot be created with timing enabled."""
@@ -131,10 +131,10 @@ class TestIpcEventProperties:
     """
 
     @pytest.mark.flaky(reruns=2)
-    @pytest.mark.parametrize("use_blocking_sync", [True, False])
+    @pytest.mark.parametrize("blocking_sync", [True, False])
     @pytest.mark.parametrize("use_options_cls", [True, False])
     @pytest.mark.parametrize("use_option_kw", [True, False])
-    def test_main(self, ipc_device, use_blocking_sync, use_options_cls, use_option_kw):
+    def test_main(self, ipc_device, blocking_sync, use_options_cls, use_option_kw):
         device = ipc_device
         stream = device.create_stream()
 
@@ -145,9 +145,9 @@ class TestIpcEventProperties:
 
         # Create an event and send it.
         options = (
-            EventOptions(ipc_enabled=True, use_blocking_sync=use_blocking_sync)
+            EventOptions(ipc_enabled=True, blocking_sync=blocking_sync)
             if use_options_cls
-            else {"ipc_enabled": True, "use_blocking_sync": use_blocking_sync}
+            else {"ipc_enabled": True, "blocking_sync": blocking_sync}
         )
         e = stream.record(options=options) if use_option_kw else stream.record(None, options)
         q_out.put(e)

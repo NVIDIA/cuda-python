@@ -215,8 +215,8 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
     # Definitions
     g = GraphDefinition()
     condition = g.create_condition(default_value=1)
-    event_start = dev.create_event(EventOptions(enable_timing=True))
-    event_end = dev.create_event(EventOptions(enable_timing=True))
+    event_start = dev.create_event(EventOptions(timing_enabled=True))
+    event_end = dev.create_event(EventOptions(timing_enabled=True))
     results = {}
 
     def capture_result():

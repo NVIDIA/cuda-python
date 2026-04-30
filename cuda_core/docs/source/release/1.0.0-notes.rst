@@ -46,17 +46,10 @@ Breaking changes
 
   - ``LaunchConfig.cooperative_launch`` -> :attr:`LaunchConfig.is_cooperative`
     (also renames the constructor keyword argument).
-  - ``Event.is_timing_disabled`` -> :attr:`Event.is_timing_enabled` (boolean
-    polarity is flipped to avoid the double-negative form
-    ``not event.is_timing_disabled``).
-  - ``Event.is_sync_busy_waited`` -> :attr:`Event.uses_blocking_sync`. The
-    new name accurately describes the underlying ``CU_EVENT_BLOCKING_SYNC``
-    flag: when True, the calling CPU thread blocks (yields) on
-    :meth:`Event.sync` instead of busy-waiting. The previous name was
-    inverted with respect to its semantics.
-  - ``EventOptions.busy_waited_sync`` -> ``EventOptions.use_blocking_sync``
-    (constructor keyword argument and dataclass attribute), to match the
-    renamed :attr:`Event.uses_blocking_sync` property.
+  - ``Event.is_timing_disabled`` -> :attr:`Event.is_timing_enabled`.
+  - ``Event.is_sync_busy_waited`` -> :attr:`Event.uses_blocking_sync`.
+  - ``EventOptions.enable_timing`` -> ``EventOptions.timing_enabled``
+    and ``EventOptions.busy_waited_sync`` -> ``EventOptions.blocking_sync``.
 
 - Renamed graph allocation methods to match :meth:`MemoryResource.allocate` /
   :meth:`MemoryResource.deallocate`
@@ -115,10 +108,10 @@ Breaking changes
     ``if_else``, ``while_loop``, and ``switch`` methods (verb describing the
     control-flow construct, not an abbreviation of "condition") and matches
     Python's own ``if/then/else`` vocabulary.
-  - :class:`~graph.GraphCondition` now defines ``__int__`` returning the
-    underlying ``CUgraphConditionalHandle`` value, so a condition may be
-    passed directly as a kernel argument to ``launch()`` without first
-    extracting ``.handle``.
+  - A :class:`~graph.GraphCondition` may be passed directly as a kernel
+    argument to ``launch()``; the launcher unwraps it to the underlying
+    ``CUgraphConditionalHandle`` value. Previously, ``.handle`` had to be
+    extracted explicitly.
 
 
 Fixes and enhancements

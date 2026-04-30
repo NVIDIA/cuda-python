@@ -44,9 +44,9 @@ cdef class EventOptions:
 
     Attributes
     ----------
-    enable_timing : bool, optional
+    timing_enabled : bool, optional
         Event will record timing data. (Default to False)
-    use_blocking_sync : bool, optional
+    blocking_sync : bool, optional
         If True, the event uses blocking synchronization: a CPU
         thread that calls :meth:`Event.sync` blocks (yields) until
         the event has completed. Otherwise (the default), the CPU
@@ -54,12 +54,12 @@ cdef class EventOptions:
         (Default to False)
     ipc_enabled : bool, optional
         Event will be suitable for interprocess use.
-        Note that enable_timing must be False. (Default to False)
+        Note that timing_enabled must be False. (Default to False)
 
     """
 
-    enable_timing: bool | None = False
-    use_blocking_sync: bool | None = False
+    timing_enabled: bool | None = False
+    blocking_sync: bool | None = False
     ipc_enabled: bool | None = False
 
 
@@ -79,8 +79,8 @@ cdef class Event:
 
         # To create events and record the timing:
         s = Device().create_stream()
-        e1 = Device().create_event({"enable_timing": True})
-        e2 = Device().create_event({"enable_timing": True})
+        e1 = Device().create_event({"timing_enabled": True})
+        e2 = Device().create_event({"timing_enabled": True})
         s.record(e1)
         # ... run some GPU works ...
         s.record(e2)
@@ -104,10 +104,10 @@ cdef class Event:
         cdef bint uses_blocking_sync = False
         cdef bint ipc_enabled = False
         self._ipc_descriptor = None
-        if not opts.enable_timing:
+        if not opts.timing_enabled:
             flags |= cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING
             timing_enabled = False
-        if opts.use_blocking_sync:
+        if opts.blocking_sync:
             flags |= cydriver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
             uses_blocking_sync = True
         if opts.ipc_enabled:
@@ -167,7 +167,7 @@ cdef class Event:
                 if not self.is_timing_enabled or not other.is_timing_enabled:
                     explanation = (
                         "Both Events must be created with timing enabled in order to subtract them; "
-                        "use EventOptions(enable_timing=True) when creating both events."
+                        "use EventOptions(timing_enabled=True) when creating both events."
                     )
                 else:
                     explanation = (
@@ -244,7 +244,7 @@ cdef class Event:
     def sync(self):
         """Synchronize until the event completes.
 
-        If the event was created with ``use_blocking_sync=True``, the
+        If the event was created with ``blocking_sync=True``, the
         calling CPU thread blocks (yields) until the event has been
         completed by the device. Otherwise (the default) the CPU
         thread busy-waits until the event has completed.

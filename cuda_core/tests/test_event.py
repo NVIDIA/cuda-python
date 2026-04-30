@@ -23,7 +23,7 @@ def test_event_init_disabled():
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 def test_timing_success(init_cuda):
-    options = EventOptions(enable_timing=True)
+    options = EventOptions(timing_enabled=True)
     device = Device()
     stream = device.create_stream()
 
@@ -49,19 +49,19 @@ def test_timing_success(init_cuda):
 
 
 def test_uses_blocking_sync(init_cuda):
-    options = EventOptions(enable_timing=False, use_blocking_sync=True)
+    options = EventOptions(timing_enabled=False, blocking_sync=True)
     stream = Device().create_stream()
     event = stream.record(options=options)
     assert event.uses_blocking_sync is True
 
-    options = EventOptions(enable_timing=False)
+    options = EventOptions(timing_enabled=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
     assert event.uses_blocking_sync is False
 
 
 def test_sync(init_cuda):
-    options = EventOptions(enable_timing=False)
+    options = EventOptions(timing_enabled=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
     event.sync()
@@ -69,7 +69,7 @@ def test_sync(init_cuda):
 
 
 def test_is_done(init_cuda):
-    options = EventOptions(enable_timing=False)
+    options = EventOptions(timing_enabled=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
     # Without a sync, the captured work might not have yet completed
@@ -80,8 +80,8 @@ def test_is_done(init_cuda):
 def test_error_timing_disabled():
     device = Device()
     device.set_current()
-    enabled = EventOptions(enable_timing=True)
-    disabled = EventOptions(enable_timing=False)
+    enabled = EventOptions(timing_enabled=True)
+    disabled = EventOptions(timing_enabled=False)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)
@@ -102,7 +102,7 @@ def test_error_timing_disabled():
 def test_error_timing_recorded():
     device = Device()
     device.set_current()
-    enabled = EventOptions(enable_timing=True)
+    enabled = EventOptions(timing_enabled=True)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)
@@ -123,7 +123,7 @@ def test_error_timing_incomplete():
     device = Device()
     device.set_current()
     latch = LatchKernel(device)
-    enabled = EventOptions(enable_timing=True)
+    enabled = EventOptions(timing_enabled=True)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)

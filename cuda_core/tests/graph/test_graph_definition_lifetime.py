@@ -174,7 +174,7 @@ def test_event_record_node_keeps_event_alive(init_cuda):
     g = GraphDefinition()
     alloc = g.allocate(1024)
 
-    event = dev.create_event(EventOptions(enable_timing=False))
+    event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.record(event)
 
     del event
@@ -191,7 +191,7 @@ def test_event_wait_node_keeps_event_alive(init_cuda):
     g = GraphDefinition()
     alloc = g.allocate(1024)
 
-    event = dev.create_event(EventOptions(enable_timing=False))
+    event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.wait(event)
 
     del event
@@ -206,7 +206,7 @@ def test_event_record_node_preserves_metadata(init_cuda):
     dev = Device()
     g = GraphDefinition()
 
-    event = dev.create_event(EventOptions(enable_timing=True, use_blocking_sync=True))
+    event = dev.create_event(EventOptions(timing_enabled=True, blocking_sync=True))
     node = g.record(event)
 
     reconstructed = node.event
@@ -221,7 +221,7 @@ def test_event_wait_node_preserves_metadata(init_cuda):
     dev = Device()
     g = GraphDefinition()
 
-    event = dev.create_event(EventOptions(enable_timing=False))
+    event = dev.create_event(EventOptions(timing_enabled=False))
     node = g.wait(event)
 
     reconstructed = node.event
@@ -235,7 +235,7 @@ def test_event_metadata_survives_gc(init_cuda):
     dev = Device()
     g = GraphDefinition()
 
-    event = dev.create_event(EventOptions(enable_timing=True, use_blocking_sync=True))
+    event = dev.create_event(EventOptions(timing_enabled=True, blocking_sync=True))
     node = g.record(event)
 
     del event
@@ -252,7 +252,7 @@ def test_event_survives_graph_instantiation_and_execution(init_cuda):
     dev = Device()
     g = GraphDefinition()
 
-    event = dev.create_event(EventOptions(enable_timing=False))
+    event = dev.create_event(EventOptions(timing_enabled=False))
     rec = g.record(event)
     rec.wait(event)
 
@@ -277,7 +277,7 @@ def test_event_survives_graph_clone_and_execution(init_cuda):
     dev = Device()
     g = GraphDefinition()
 
-    event = dev.create_event(EventOptions(enable_timing=False))
+    event = dev.create_event(EventOptions(timing_enabled=False))
     rec = g.record(event)
     rec.wait(event)
 
