@@ -36,7 +36,6 @@ else:
 
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._utils.cuda_utils import driver
-from cuda.core._device import Device
 
 
 # =============================================================================
@@ -449,11 +448,6 @@ cdef inline int _query_memory_attrs(
 
     cdef cydriver.CUresult ret
     ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
-    if ret == cydriver.CUresult.CUDA_ERROR_NOT_INITIALIZED:
-        with cython.gil:
-            # Device class handles the cuInit call internally
-            Device()
-        ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
     HANDLE_RETURN(ret)
 
     # TODO: HMM/ATS-enabled sysmem should also report is_managed=True; the

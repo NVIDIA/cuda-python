@@ -4,10 +4,20 @@
 
 from cuda.core._memory._managed_location import Location
 from cuda.core._memory._managed_memory_ops import advise, discard, discard_prefetch, prefetch
+from cuda.core._memory._managed_memory_options import (
+    AdviseOptions,
+    DiscardOptions,
+    DiscardPrefetchOptions,
+    PrefetchOptions,
+)
 from cuda.core._memoryview import StridedMemoryView, args_viewable_as_strided_memory
 
 __all__ = [
+    "AdviseOptions",
+    "DiscardOptions",
+    "DiscardPrefetchOptions",
     "Location",
+    "PrefetchOptions",
     "StridedMemoryView",
     "advise",
     "args_viewable_as_strided_memory",

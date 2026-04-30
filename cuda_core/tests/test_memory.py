@@ -2095,7 +2095,7 @@ class TestPrefetch:
         mr = create_managed_memory_resource_or_skip()
         buf = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
         stream = device.create_stream()
-        with pytest.raises(TypeError, match="must be None"):
+        with pytest.raises(TypeError, match="must be a .*Options instance or None"):
             prefetch(buf, Location.host(), options={}, stream=stream)
         buf.close()
 
@@ -2156,7 +2156,7 @@ class TestDiscard:
         mr = create_managed_memory_resource_or_skip()
         buf = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
         stream = device.create_stream()
-        with pytest.raises(TypeError, match="must be None"):
+        with pytest.raises(TypeError, match="must be a .*Options instance or None"):
             discard(buf, options={}, stream=stream)
         buf.close()
 
@@ -2284,6 +2284,6 @@ class TestAdvise:
         _skip_if_managed_allocation_unsupported(device)
         device.set_current()
         buf = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
-        with pytest.raises(TypeError, match="must be None"):
+        with pytest.raises(TypeError, match="must be a .*Options instance or None"):
             advise(buf, "set_read_mostly", options={})
         buf.close()

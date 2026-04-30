@@ -15,6 +15,12 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._memory._managed_location import _coerce_location
+from cuda.core._memory._managed_memory_options import (
+    AdviseOptions,
+    DiscardOptions,
+    DiscardPrefetchOptions,
+    PrefetchOptions,
+)
 
 
 cdef dict _MANAGED_ADVICE_ALIASES = {
@@ -89,6 +95,7 @@ cdef void _require_managed_buffer(Buffer self, str what):
 
 
 cdef tuple _coerce_buffer_targets(object targets, str what):
+    cdef Buffer buf
     cdef list out
     if isinstance(targets, Buffer):
         return (<Buffer>targets,)
@@ -97,11 +104,8 @@ cdef tuple _coerce_buffer_targets(object targets, str what):
             raise ValueError(f"{what}: empty targets sequence")
         out = []
         for t in targets:
-            if not isinstance(t, Buffer):
-                raise TypeError(
-                    f"{what}: each target must be a Buffer, got {type(t).__name__}"
-                )
-            out.append(t)
+            buf = <Buffer?>t
+            out.append(buf)
         return tuple(out)
     raise TypeError(
         f"{what}: targets must be a Buffer or sequence of Buffer, "
@@ -167,8 +171,9 @@ def discard(
         One or more managed allocations to discard. Their resident pages
         are released without prefetching new contents; subsequent access
         is satisfied by lazy migration.
-    options : None
-        Reserved for future per-call flags. Must be ``None``.
+    options : :class:`DiscardOptions`, optional
+        Reserved for future per-call flags. ``None`` (default) and
+        ``DiscardOptions()`` are equivalent.
     stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
         Stream for the asynchronous discard (keyword-only).
 
@@ -177,9 +182,10 @@ def discard(
     NotImplementedError
         On a CUDA 12 build of ``cuda.core``. Discard requires CUDA 13+.
     """
-    if options is not None:
+    if options is not None and not isinstance(options, DiscardOptions):
         raise TypeError(
-            f"discard options must be None (reserved); got {type(options).__name__}"
+            "discard options must be a DiscardOptions instance or None, "
+            f"got {type(options).__name__}"
         )
     cdef tuple bufs = _coerce_buffer_targets(targets, "discard")
     cdef Stream s = Stream_accept(stream)
@@ -246,12 +252,14 @@ def advise(
         location; ignored (may be ``None``) for ``set_read_mostly``,
         ``unset_read_mostly``, and ``unset_preferred_location``. A sequence
         must match ``len(targets)``.
-    options : None
-        Reserved for future per-call flags. Must be ``None``.
+    options : :class:`AdviseOptions`, optional
+        Reserved for future per-call flags. ``None`` (default) and
+        ``AdviseOptions()`` are equivalent.
     """
-    if options is not None:
+    if options is not None and not isinstance(options, AdviseOptions):
         raise TypeError(
-            f"advise options must be None (reserved); got {type(options).__name__}"
+            "advise options must be an AdviseOptions instance or None, "
+            f"got {type(options).__name__}"
         )
     cdef str advice_name
     cdef object advice_value
@@ -317,8 +325,9 @@ def prefetch(
         Target location(s). A single location applies to all targets; a
         sequence must match ``len(targets)``. ``Device`` and ``int`` values
         are coerced to :class:`Location` (``-1`` maps to host).
-    options : None
-        Reserved for future per-call flags. Must be ``None``.
+    options : :class:`PrefetchOptions`, optional
+        Reserved for future per-call flags. ``None`` (default) and
+        ``PrefetchOptions()`` are equivalent.
     stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
         Stream for the asynchronous prefetch (keyword-only).
 
@@ -327,9 +336,10 @@ def prefetch(
     NotImplementedError
         If ``len(targets) > 1`` on a CUDA 12 build of ``cuda.core``.
     """
-    if options is not None:
+    if options is not None and not isinstance(options, PrefetchOptions):
         raise TypeError(
-            f"prefetch options must be None (reserved); got {type(options).__name__}"
+            "prefetch options must be a PrefetchOptions instance or None, "
+            f"got {type(options).__name__}"
         )
     cdef tuple bufs = _coerce_buffer_targets(targets, "prefetch")
     cdef Py_ssize_t n = len(bufs)
@@ -420,8 +430,9 @@ def discard_prefetch(
     location : :class:`Location` | :obj:`~_device.Device` | int | Sequence[...]
         Target location(s). A single location applies to all targets;
         a sequence must match ``len(targets)``.
-    options : None
-        Reserved for future per-call flags. Must be ``None``.
+    options : :class:`DiscardPrefetchOptions`, optional
+        Reserved for future per-call flags. ``None`` (default) and
+        ``DiscardPrefetchOptions()`` are equivalent.
     stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
         Stream for the asynchronous operation (keyword-only).
 
@@ -431,10 +442,10 @@ def discard_prefetch(
         On a CUDA 12 build of ``cuda.core``. Discard-and-prefetch
         requires CUDA 13+.
     """
-    if options is not None:
+    if options is not None and not isinstance(options, DiscardPrefetchOptions):
         raise TypeError(
-            f"discard_prefetch options must be None (reserved); "
-            f"got {type(options).__name__}"
+            "discard_prefetch options must be a DiscardPrefetchOptions "
+            f"instance or None, got {type(options).__name__}"
         )
     cdef tuple bufs = _coerce_buffer_targets(targets, "discard_prefetch")
     cdef Py_ssize_t n = len(bufs)
