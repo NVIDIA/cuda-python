@@ -546,7 +546,7 @@ class GraphBuilder:
                 f"GraphBuilder.create_condition()), got {type(condition).__name__}")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
-        node_params.conditional.handle = int(condition)
+        node_params.conditional.handle = condition.handle
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_IF
         node_params.conditional.size = 1
         node_params.conditional.ctx = self._get_conditional_context()
@@ -582,7 +582,7 @@ class GraphBuilder:
                 f"GraphBuilder.create_condition()), got {type(condition).__name__}")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
-        node_params.conditional.handle = int(condition)
+        node_params.conditional.handle = condition.handle
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_IF
         node_params.conditional.size = 2
         node_params.conditional.ctx = self._get_conditional_context()
@@ -621,7 +621,7 @@ class GraphBuilder:
                 f"GraphBuilder.create_condition()), got {type(condition).__name__}")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
-        node_params.conditional.handle = int(condition)
+        node_params.conditional.handle = condition.handle
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_SWITCH
         node_params.conditional.size = count
         node_params.conditional.ctx = self._get_conditional_context()
@@ -657,7 +657,7 @@ class GraphBuilder:
                 f"GraphBuilder.create_condition()), got {type(condition).__name__}")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
-        node_params.conditional.handle = int(condition)
+        node_params.conditional.handle = condition.handle
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_WHILE
         node_params.conditional.size = 1
         node_params.conditional.ctx = self._get_conditional_context()
