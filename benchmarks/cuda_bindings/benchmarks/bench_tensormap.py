@@ -44,78 +44,78 @@ IM2COL_OOB = cuda.CUtensorMapFloatOOBfill.CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE
 
 _SUCCESS = cuda.CUresult.CUDA_SUCCESS
 
+# Resolve bindings once at module load. A missing attribute (old binding that
+# predates a TMA API) is the only legitimate reason for a probe to skip —
+# everything else (signature mismatches, unexpected TypeError, etc.) should
+# surface loudly instead of being reclassified as "unsupported".
+_ENCODE_TILED = getattr(cuda, "cuTensorMapEncodeTiled", None)
+_ENCODE_IM2COL = getattr(cuda, "cuTensorMapEncodeIm2col", None)
+_ENCODE_IM2COL_WIDE = getattr(cuda, "cuTensorMapEncodeIm2colWide", None)
+_IM2COL_WIDE_MODE_CLS = getattr(cuda, "CUtensorMapIm2ColWideMode", None)
+
 
 def _probe_tiled() -> bool:
-    try:
-        err, _ = cuda.cuTensorMapEncodeTiled(
-            TILED_DTYPE,
-            TILED_RANK,
-            PTR,
-            TILED_GLOBAL_DIM,
-            TILED_GLOBAL_STRIDES,
-            TILED_BOX_DIM,
-            TILED_ELEMENT_STRIDES,
-            TILED_INTERLEAVE,
-            TILED_SWIZZLE,
-            TILED_L2,
-            TILED_OOB,
-        )
-    except Exception:
+    if _ENCODE_TILED is None:
         return False
+    err, _ = _ENCODE_TILED(
+        TILED_DTYPE,
+        TILED_RANK,
+        PTR,
+        TILED_GLOBAL_DIM,
+        TILED_GLOBAL_STRIDES,
+        TILED_BOX_DIM,
+        TILED_ELEMENT_STRIDES,
+        TILED_INTERLEAVE,
+        TILED_SWIZZLE,
+        TILED_L2,
+        TILED_OOB,
+    )
     return err == _SUCCESS
 
 
 def _probe_im2col() -> bool:
-    try:
-        err, _ = cuda.cuTensorMapEncodeIm2col(
-            IM2COL_DTYPE,
-            IM2COL_RANK,
-            PTR,
-            IM2COL_GLOBAL_DIM,
-            IM2COL_GLOBAL_STRIDES,
-            IM2COL_PIXEL_BOX_LOWER,
-            IM2COL_PIXEL_BOX_UPPER,
-            IM2COL_CHANNELS,
-            IM2COL_PIXELS,
-            IM2COL_ELEMENT_STRIDES,
-            IM2COL_INTERLEAVE,
-            IM2COL_SWIZZLE,
-            IM2COL_L2,
-            IM2COL_OOB,
-        )
-    except Exception:
+    if _ENCODE_IM2COL is None:
         return False
+    err, _ = _ENCODE_IM2COL(
+        IM2COL_DTYPE,
+        IM2COL_RANK,
+        PTR,
+        IM2COL_GLOBAL_DIM,
+        IM2COL_GLOBAL_STRIDES,
+        IM2COL_PIXEL_BOX_LOWER,
+        IM2COL_PIXEL_BOX_UPPER,
+        IM2COL_CHANNELS,
+        IM2COL_PIXELS,
+        IM2COL_ELEMENT_STRIDES,
+        IM2COL_INTERLEAVE,
+        IM2COL_SWIZZLE,
+        IM2COL_L2,
+        IM2COL_OOB,
+    )
     return err == _SUCCESS
-
-
-_ENCODE_IM2COL_WIDE = getattr(cuda, "cuTensorMapEncodeIm2colWide", None)
-_IM2COL_WIDE_MODE_CLS = getattr(cuda, "CUtensorMapIm2ColWideMode", None)
 
 
 def _probe_im2col_wide() -> bool:
     if _ENCODE_IM2COL_WIDE is None or _IM2COL_WIDE_MODE_CLS is None:
         return False
-    try:
-        mode = _IM2COL_WIDE_MODE_CLS.CU_TENSOR_MAP_IM2COL_WIDE_MODE_W
-        err, _ = _ENCODE_IM2COL_WIDE(
-            IM2COL_DTYPE,
-            IM2COL_RANK,
-            PTR,
-            IM2COL_GLOBAL_DIM,
-            IM2COL_GLOBAL_STRIDES,
-            0,
-            0,
-            IM2COL_CHANNELS,
-            IM2COL_PIXELS,
-            IM2COL_ELEMENT_STRIDES,
-            IM2COL_INTERLEAVE,
-            mode,
-            cuda.CUtensorMapSwizzle.CU_TENSOR_MAP_SWIZZLE_128B,
-            IM2COL_L2,
-            IM2COL_OOB,
-        )
-    except Exception:
-        return False
+    mode = _IM2COL_WIDE_MODE_CLS.CU_TENSOR_MAP_IM2COL_WIDE_MODE_W
+    err, _ = _ENCODE_IM2COL_WIDE(
+        IM2COL_DTYPE,
+        IM2COL_RANK,
+        PTR,
+        IM2COL_GLOBAL_DIM,
+        IM2COL_GLOBAL_STRIDES,
+        0,
+        0,
+        IM2COL_CHANNELS,
+        IM2COL_PIXELS,
+        IM2COL_ELEMENT_STRIDES,
+        IM2COL_INTERLEAVE,
+        mode,
+        cuda.CUtensorMapSwizzle.CU_TENSOR_MAP_SWIZZLE_128B,
+        IM2COL_L2,
+        IM2COL_OOB,
+    )
     return err == _SUCCESS
 
 

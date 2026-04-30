@@ -253,12 +253,6 @@ def main() -> None:
     remaining_argv = ensure_pyperf_worker_env(remaining_argv)
     is_worker = "--worker" in remaining_argv
 
-    # Delete the file so this run starts fresh.
-    if not is_worker:
-        output_path.unlink(missing_ok=True)
-
-    sys.argv = [sys.argv[0], "--append", str(output_path), *remaining_argv]
-
     # Drop benchmarks that the owning module has marked as unavailable on
     # this driver/device. Without this step a single unsupported bench
     # (e.g. TMA on a pre-Hopper GPU) would abort the whole pyperf run,
@@ -268,6 +262,26 @@ def main() -> None:
         for bench_id in sorted(skipped):
             print(f"Skipping {bench_id}: unsupported on this driver/device", file=sys.stderr)
     benchmark_ids = [bench_id for bench_id in benchmark_ids if bench_id not in skipped]
+
+    # If every selected benchmark was skipped, fail loudly instead of silently
+    # printing "Results saved" with no output. Leave any existing output file
+    # untouched so a prior successful run is not destroyed.
+    if not benchmark_ids:
+        if not is_worker:
+            print(
+                "No benchmarks to run: every selected benchmark is unsupported "
+                "on this driver/device. Existing output file (if any) was left "
+                "untouched.",
+                file=sys.stderr,
+            )
+        sys.exit(1)
+
+    # Delete the file so this run starts fresh. Only destructive once we know
+    # at least one benchmark will actually run.
+    if not is_worker:
+        output_path.unlink(missing_ok=True)
+
+    sys.argv = [sys.argv[0], "--append", str(output_path), *remaining_argv]
 
     runner = pyperf.Runner()
     for bench_id in benchmark_ids:
