@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.read\_async
-================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: read_async
