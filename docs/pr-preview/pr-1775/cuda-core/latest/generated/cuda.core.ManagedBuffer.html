@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ca8264ec"></script>
+    <script src="../_static/documentation_options.js?v=6efae0f5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev108';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev109';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -680,8 +680,10 @@
 <dt class="sig sig-object py" id="cuda.core.ManagedBuffer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">ManagedBuffer</span></span><a class="headerlink" href="#cuda.core.ManagedBuffer" title="Link to this definition">#</a></dt>
 <dd><p>Managed (unified) memory buffer with a property-style advice API.</p>
-<p>Returned by <a class="reference internal" href="cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.allocate" title="cuda.core.ManagedMemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ManagedMemoryResource.allocate()</span></code></a>. Wrap an external
-managed-memory pointer with <a class="reference internal" href="#cuda.core.ManagedBuffer.from_handle" title="cuda.core.ManagedBuffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ManagedBuffer.from_handle()</span></code></a>.</p>
+<p>Returned by <a class="reference internal" href="cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.allocate" title="cuda.core.ManagedMemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ManagedMemoryResource.allocate()</span></code></a>, or wrap an
+existing managed-memory pointer with <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_handle" title="cuda.core.Buffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a>
+(which dispatches by class — <code class="docutils literal notranslate"><span class="pre">ManagedBuffer.from_handle(...)</span></code>
+returns a <code class="docutils literal notranslate"><span class="pre">ManagedBuffer</span></code>).</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">mr</span><span class="o">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span><span class="o">.</span><span class="n">read_mostly</span> <span class="o">=</span> <span class="kc">True</span>
@@ -692,10 +694,10 @@ managed-memory pointer with <a class="reference internal" href="#cuda.core.Manag
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The driver’s read-back path for <code class="docutils literal notranslate"><span class="pre">preferred_location</span></code> and
-<code class="docutils literal notranslate"><span class="pre">accessed_by</span></code> returns integer device ordinals; host NUMA distinctions
-applied via <code class="docutils literal notranslate"><span class="pre">Host(numa_id=...)</span></code> collapse to a generic <code class="docutils literal notranslate"><span class="pre">Host()</span></code> when
-queried. Setters preserve full NUMA information when issuing advice.</p>
+<p>The legacy <code class="docutils literal notranslate"><span class="pre">cuMemRangeGetAttribute</span></code> query path returns integer
+device ordinals, so <code class="docutils literal notranslate"><span class="pre">Host(numa_id=...)</span></code> collapses to <code class="docutils literal notranslate"><span class="pre">Host()</span></code>
+on read-back. Setters preserve full NUMA information when issuing
+advice.</p>
 </div>
 <p class="rubric">Methods</p>
 <dl class="py method">
@@ -828,14 +830,37 @@ asynchronous copy</p></li>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">ptr</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">mr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">owner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerT</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">MemoryResource</span> <span class="pre">mr:</span> <span class="pre">MemoryResource</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">owner:</span> <span class="pre">object</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ManagedBuffer" title="cuda.core._memory._managed_buffer.ManagedBuffer"><span class="pre">ManagedBuffer</span></a></span></span><a class="headerlink" href="#cuda.core.ManagedBuffer.from_handle" title="Link to this definition">#</a></dt>
-<dd><p>Wrap an existing managed-memory pointer in a <a class="reference internal" href="#cuda.core.ManagedBuffer" title="cuda.core.ManagedBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedBuffer</span></code></a>.</p>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.ManagedBuffer.from_handle" title="Link to this definition">#</a></dt>
+<dd><p>Create a new <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> object from a pointer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code>) – Allocated buffer handle object</p></li>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Memory size of the buffer</p></li>
+<li><p><strong>mr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code>, optional) – Memory resource associated with the buffer.  When provided,
+<a class="reference internal" href="cuda.core.MemoryResource.html#cuda.core.MemoryResource.deallocate" title="cuda.core.MemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MemoryResource.deallocate()</span></code></a> is called when the buffer is
+closed or garbage collected.</p></li>
+<li><p><strong>owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – An object holding external allocation that the <code class="docutils literal notranslate"><span class="pre">ptr</span></code> points to.
+The reference is kept as long as the buffer is alive.
+The <code class="docutils literal notranslate"><span class="pre">owner</span></code> and <code class="docutils literal notranslate"><span class="pre">mr</span></code> cannot be specified together.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When neither <code class="docutils literal notranslate"><span class="pre">mr</span></code> nor <code class="docutils literal notranslate"><span class="pre">owner</span></code> is specified, this creates a
+non-owning reference.  The pointer will NOT be freed when the
+<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> is closed or garbage collected.</p>
+<p>Subclasses inherit this method via <code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer._init()</span></code>, so e.g.
+<code class="docutils literal notranslate"><span class="pre">ManagedBuffer.from_handle(ptr,</span> <span class="pre">size)</span></code> returns a <code class="docutils literal notranslate"><span class="pre">ManagedBuffer</span></code>.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -984,13 +1009,13 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedBuffer.preferred_location">
 <span class="sig-name descname"><span class="pre">preferred_location</span></span><a class="headerlink" href="#cuda.core.ManagedBuffer.preferred_location" title="Link to this definition">#</a></dt>
-<dd><p>Currently applied <code class="docutils literal notranslate"><span class="pre">set_preferred_location</span></code> target, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if unset.</p>
+<dd><p>Currently applied <code class="docutils literal notranslate"><span class="pre">set_preferred_location</span></code> target, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedBuffer.read_mostly">
 <span class="sig-name descname"><span class="pre">read_mostly</span></span><a class="headerlink" href="#cuda.core.ManagedBuffer.read_mostly" title="Link to this definition">#</a></dt>
-<dd><p>Whether <code class="docutils literal notranslate"><span class="pre">set_read_mostly</span></code> advice is currently applied to this range.</p>
+<dd><p>Whether <code class="docutils literal notranslate"><span class="pre">set_read_mostly</span></code> advice is currently applied.</p>
 </dd></dl>
 
 <dl class="py attribute">

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ca8264ec"></script>
+    <script src="../_static/documentation_options.js?v=6efae0f5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev108';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev109';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -792,9 +792,10 @@ asynchronous copy</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.from_handle">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span>
 
 <dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerT</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">MemoryResource</span> <span class="pre">mr:</span> <span class="pre">MemoryResource</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
@@ -822,6 +823,8 @@ The <code class="docutils literal notranslate"><span class="pre">owner</span></c
 <p>When neither <code class="docutils literal notranslate"><span class="pre">mr</span></code> nor <code class="docutils literal notranslate"><span class="pre">owner</span></code> is specified, this creates a
 non-owning reference.  The pointer will NOT be freed when the
 <a class="reference internal" href="#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> is closed or garbage collected.</p>
+<p>Subclasses inherit this method via <code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer._init()</span></code>, so e.g.
+<code class="docutils literal notranslate"><span class="pre">ManagedBuffer.from_handle(ptr,</span> <span class="pre">size)</span></code> returns a <code class="docutils literal notranslate"><span class="pre">ManagedBuffer</span></code>.</p>
 </div>
 </dd></dl>
 
