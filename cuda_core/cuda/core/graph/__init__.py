@@ -3,6 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from ._graph_builder import *
-from ._graph_def import *
+from ._graph_definition import *
 from ._graph_node import *
 from ._subclasses import *
