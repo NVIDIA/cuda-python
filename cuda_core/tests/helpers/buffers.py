@@ -9,6 +9,7 @@ from cuda.core._utils.cuda_utils import driver, handle_return
 from . import libc
 
 __all__ = [
+    "DummyDeviceMemoryResource",
     "DummyUnifiedMemoryResource",
     "PatternGen",
     "TrackingMR",
@@ -16,6 +17,30 @@ __all__ = [
     "compare_equal_buffers",
     "make_scratch_buffer",
 ]
+
+
+class DummyDeviceMemoryResource(MemoryResource):
+    def __init__(self, device):
+        self.device = device
+
+    def allocate(self, size, stream=None) -> Buffer:
+        ptr = handle_return(driver.cuMemAlloc(size))
+        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
+
+    def deallocate(self, ptr, size, stream=None):
+        handle_return(driver.cuMemFree(ptr))
+
+    @property
+    def is_device_accessible(self) -> bool:
+        return True
+
+    @property
+    def is_host_accessible(self) -> bool:
+        return False
+
+    @property
+    def device_id(self) -> int:
+        return 0
 
 
 class DummyUnifiedMemoryResource(MemoryResource):
