@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4bb8487f"></script>
+    <script src="../_static/documentation_options.js?v=8031d8b2"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev73';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev74';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -705,7 +705,7 @@
 <li><p>Improved <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> allocation performance when there are no active allocations by setting a higher release threshold (addresses issue #771).</p></li>
 <li><p>Improved <code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> creation time performance by optimizing shape and strides tuple creation using Python/C API (addresses issue #449).</p></li>
 <li><p>Fix <code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code> grid unit conversion when cluster is set (addresses issue #867).</p></li>
-<li><p>Fixed a bug in <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder.add_child</span></code> where dependencies extracted from capturing stream were passed inconsistently with num_dependencies parameter (addresses issue #843).</p></li>
+<li><p>Fixed a bug in <code class="docutils literal notranslate"><span class="pre">GraphBuilder.add_child</span></code> where dependencies extracted from capturing stream were passed inconsistently with num_dependencies parameter (addresses issue #843).</p></li>
 <li><p>Make <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> creation more performant.</p></li>
 <li><p>Enabled <code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryResource</span></code> subclasses to accept <code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code> objects, in addition to previously supported device ordinals.</p></li>
 <li><p>Fixed a bug in <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> and other classes where object cleanup would error during interpreter shutdown.</p></li>

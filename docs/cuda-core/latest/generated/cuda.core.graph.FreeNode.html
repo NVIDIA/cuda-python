@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4bb8487f"></script>
+    <script src="../_static/documentation_options.js?v=8031d8b2"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev73';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev74';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -683,8 +683,8 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.graph.FreeNode.alloc">
-<span class="sig-name descname"><span class="pre">alloc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options=None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode" title="cuda.core.graph.AllocNode"><span class="pre">AllocNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.alloc" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.graph.FreeNode.allocate">
+<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options=None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode" title="cuda.core.graph.AllocNode"><span class="pre">AllocNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.allocate" title="Link to this definition">#</a></dt>
 <dd><p>Add a memory allocation node depending on this node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -742,6 +742,23 @@ copied and its lifetime is tied to the graph.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph.FreeNode.deallocate">
+<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">dptr:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.graph.FreeNode" title="cuda.core.graph.FreeNode"><span class="pre">FreeNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.deallocate" title="Link to this definition">#</a></dt>
+<dd><p>Add a memory free node depending on this node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device pointer to free (typically from AllocNode.dptr).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new FreeNode representing the free operation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.core.graph.FreeNode" title="cuda.core.graph.FreeNode">FreeNode</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.FreeNode.destroy">
 <span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph.FreeNode.destroy" title="Link to this definition">#</a></dt>
 <dd><p>Destroy this node and remove all its edges from the parent graph.</p>
@@ -778,49 +795,6 @@ nodes.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.graph.FreeNode.free">
-<span class="sig-name descname"><span class="pre">free</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">dptr:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.graph.FreeNode" title="cuda.core.graph.FreeNode"><span class="pre">FreeNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.free" title="Link to this definition">#</a></dt>
-<dd><p>Add a memory free node depending on this node.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device pointer to free (typically from AllocNode.dptr).</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A new FreeNode representing the free operation.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.core.graph.FreeNode" title="cuda.core.graph.FreeNode">FreeNode</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.graph.FreeNode.if_cond">
-<span class="sig-name descname"><span class="pre">if_cond</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">GraphCondition</span> <span class="pre">condition:</span> <span class="pre">GraphCondition</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.IfNode.html#cuda.core.graph.IfNode" title="cuda.core.graph.IfNode"><span class="pre">IfNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.if_cond" title="Link to this definition">#</a></dt>
-<dd><p>Add an if-conditional node depending on this node.</p>
-<p>The body graph executes only when the condition evaluates to
-a non-zero value at runtime.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>condition</strong> (<a class="reference internal" href="cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><em>GraphCondition</em></a>) – GraphCondition from <a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.create_condition" title="cuda.core.graph.GraphDefinition.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphDefinition.create_condition()</span></code></a>.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A new IfNode with one branch accessible via <code class="docutils literal notranslate"><span class="pre">.then</span></code>.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.IfNode.html#cuda.core.graph.IfNode" title="cuda.core.graph.IfNode">IfNode</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.FreeNode.if_else">
 <span class="sig-name descname"><span class="pre">if_else</span></span><span class="sig-paren">(</span>
 
@@ -843,6 +817,32 @@ non-zero, the second when it is zero.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.IfElseNode.html#cuda.core.graph.IfElseNode" title="cuda.core.graph.IfElseNode">IfElseNode</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph.FreeNode.if_then">
+<span class="sig-name descname"><span class="pre">if_then</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">GraphCondition</span> <span class="pre">condition:</span> <span class="pre">GraphCondition</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.IfNode.html#cuda.core.graph.IfNode" title="cuda.core.graph.IfNode"><span class="pre">IfNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.if_then" title="Link to this definition">#</a></dt>
+<dd><p>Add an if-conditional node depending on this node.</p>
+<p>The body graph executes only when the condition evaluates to
+a non-zero value at runtime.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>condition</strong> (<a class="reference internal" href="cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><em>GraphCondition</em></a>) – GraphCondition from <a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.create_condition" title="cuda.core.graph.GraphDefinition.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphDefinition.create_condition()</span></code></a>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new IfNode with one branch accessible via <code class="docutils literal notranslate"><span class="pre">.then</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.IfNode.html#cuda.core.graph.IfNode" title="cuda.core.graph.IfNode">IfNode</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -964,8 +964,8 @@ or buffer-protocol object of 1, 2, or 4 bytes.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.graph.FreeNode.record_event">
-<span class="sig-name descname"><span class="pre">record_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Event</span> <span class="pre">event:</span> <span class="pre">Event</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode" title="cuda.core.graph.EventRecordNode"><span class="pre">EventRecordNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.record_event" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.graph.FreeNode.record">
+<span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Event</span> <span class="pre">event:</span> <span class="pre">Event</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode" title="cuda.core.graph.EventRecordNode"><span class="pre">EventRecordNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.record" title="Link to this definition">#</a></dt>
 <dd><p>Add an event record node depending on this node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1011,8 +1011,8 @@ value is out of range, no branch executes.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.graph.FreeNode.wait_event">
-<span class="sig-name descname"><span class="pre">wait_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Event</span> <span class="pre">event:</span> <span class="pre">Event</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode" title="cuda.core.graph.EventWaitNode"><span class="pre">EventWaitNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.wait_event" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.graph.FreeNode.wait">
+<span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Event</span> <span class="pre">event:</span> <span class="pre">Event</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode" title="cuda.core.graph.EventWaitNode"><span class="pre">EventWaitNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.wait" title="Link to this definition">#</a></dt>
 <dd><p>Add an event wait node depending on this node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1174,20 +1174,20 @@ evaluates to a non-zero value.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode"><code class="docutils literal notranslate"><span class="pre">FreeNode</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.__init__"><code class="docutils literal notranslate"><span class="pre">FreeNode.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.alloc"><code class="docutils literal notranslate"><span class="pre">FreeNode.alloc()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.allocate"><code class="docutils literal notranslate"><span class="pre">FreeNode.allocate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.callback"><code class="docutils literal notranslate"><span class="pre">FreeNode.callback()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.deallocate"><code class="docutils literal notranslate"><span class="pre">FreeNode.deallocate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.destroy"><code class="docutils literal notranslate"><span class="pre">FreeNode.destroy()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.embed"><code class="docutils literal notranslate"><span class="pre">FreeNode.embed()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.free"><code class="docutils literal notranslate"><span class="pre">FreeNode.free()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.if_cond"><code class="docutils literal notranslate"><span class="pre">FreeNode.if_cond()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.if_else"><code class="docutils literal notranslate"><span class="pre">FreeNode.if_else()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.if_then"><code class="docutils literal notranslate"><span class="pre">FreeNode.if_then()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.join"><code class="docutils literal notranslate"><span class="pre">FreeNode.join()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.launch"><code class="docutils literal notranslate"><span class="pre">FreeNode.launch()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.memcpy"><code class="docutils literal notranslate"><span class="pre">FreeNode.memcpy()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.memset"><code class="docutils literal notranslate"><span class="pre">FreeNode.memset()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.record_event"><code class="docutils literal notranslate"><span class="pre">FreeNode.record_event()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.record"><code class="docutils literal notranslate"><span class="pre">FreeNode.record()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.switch"><code class="docutils literal notranslate"><span class="pre">FreeNode.switch()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.wait_event"><code class="docutils literal notranslate"><span class="pre">FreeNode.wait_event()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.wait"><code class="docutils literal notranslate"><span class="pre">FreeNode.wait()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.while_loop"><code class="docutils literal notranslate"><span class="pre">FreeNode.while_loop()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.dptr"><code class="docutils literal notranslate"><span class="pre">FreeNode.dptr</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.FreeNode.graph"><code class="docutils literal notranslate"><span class="pre">FreeNode.graph</span></code></a></li>

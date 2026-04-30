@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4bb8487f"></script>
+    <script src="../_static/documentation_options.js?v=8031d8b2"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev73';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev74';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -670,10 +670,16 @@
 <dt class="sig sig-object py" id="cuda.core.graph.GraphCondition">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.graph.</span></span><span class="sig-name descname"><span class="pre">GraphCondition</span></span><a class="headerlink" href="#cuda.core.graph.GraphCondition" title="Link to this definition">#</a></dt>
 <dd><p>A condition variable for conditional graph nodes.</p>
-<p>Created by <a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.create_condition" title="cuda.core.graph.GraphDefinition.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphDefinition.create_condition()</span></code></a> and passed to
-conditional-node builder methods (<code class="docutils literal notranslate"><span class="pre">if_cond</span></code>, <code class="docutils literal notranslate"><span class="pre">if_else</span></code>,
-<code class="docutils literal notranslate"><span class="pre">while_loop</span></code>, <code class="docutils literal notranslate"><span class="pre">switch</span></code>). The underlying value is set at
+<p>Created by <a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.create_condition" title="cuda.core.graph.GraphDefinition.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphDefinition.create_condition()</span></code></a> (or
+<a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.create_condition" title="cuda.core.graph.GraphBuilder.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphBuilder.create_condition()</span></code></a>) and passed to
+conditional-node builder methods (<a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.if_then" title="cuda.core.graph.GraphDefinition.if_then"><code class="xref py py-meth docutils literal notranslate"><span class="pre">if_then()</span></code></a>,
+<a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.if_else" title="cuda.core.graph.GraphDefinition.if_else"><code class="xref py py-meth docutils literal notranslate"><span class="pre">if_else()</span></code></a>, <a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.while_loop" title="cuda.core.graph.GraphDefinition.while_loop"><code class="xref py py-meth docutils literal notranslate"><span class="pre">while_loop()</span></code></a>,
+<a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.switch" title="cuda.core.graph.GraphDefinition.switch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">switch()</span></code></a>). The underlying value is set at
 runtime by device code via <code class="docutils literal notranslate"><span class="pre">cudaGraphSetConditional</span></code>.</p>
+<p>A <a class="reference internal" href="#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a> may be passed directly as a kernel
+argument to <code class="docutils literal notranslate"><span class="pre">launch()</span></code>: the launcher unwraps it to the underlying
+<code class="docutils literal notranslate"><span class="pre">CUgraphConditionalHandle</span></code> value so device code can update the
+condition.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphCondition.__init__">

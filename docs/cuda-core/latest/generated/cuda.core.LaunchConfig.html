@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4bb8487f"></script>
+    <script src="../_static/documentation_options.js?v=8031d8b2"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev73';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev74';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -675,7 +675,7 @@
 <dd><em class="sig-param"><span class="n"><span class="pre">cluster</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">shmem_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">cooperative_launch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">is_cooperative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.LaunchConfig" title="Link to this definition">#</a></dt>
@@ -740,8 +740,8 @@ access to shared memory and can be explicitly synchronized.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.LaunchConfig.cooperative_launch">
-<span class="sig-name descname"><span class="pre">cooperative_launch</span></span><a class="headerlink" href="#cuda.core.LaunchConfig.cooperative_launch" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.LaunchConfig.is_cooperative">
+<span class="sig-name descname"><span class="pre">is_cooperative</span></span><a class="headerlink" href="#cuda.core.LaunchConfig.is_cooperative" title="Link to this definition">#</a></dt>
 <dd><p>Whether this config can be used to launch a cooperative kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -808,7 +808,7 @@ access to shared memory and can be explicitly synchronized.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.cluster"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.cluster</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.block"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.block</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.shmem_size"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.shmem_size</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.cooperative_launch"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.cooperative_launch</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.is_cooperative"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.is_cooperative</span></code></a></li>
 </ul>
 </li>
 </ul>

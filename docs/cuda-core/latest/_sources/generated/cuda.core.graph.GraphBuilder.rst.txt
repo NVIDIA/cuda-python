@@ -14,16 +14,16 @@ cuda.core.graph.GraphBuilder
 
    
    .. automethod:: __init__
-   .. automethod:: add_child
    .. automethod:: begin_building
    .. automethod:: callback
    .. automethod:: close
    .. automethod:: complete
-   .. automethod:: create_conditional_handle
+   .. automethod:: create_condition
    .. automethod:: debug_dot_print
+   .. automethod:: embed
    .. automethod:: end_building
-   .. automethod:: if_cond
    .. automethod:: if_else
+   .. automethod:: if_then
    .. automethod:: join
    .. automethod:: split
    .. automethod:: switch

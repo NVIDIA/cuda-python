@@ -14,20 +14,20 @@ cuda.core.graph.KernelNode
 
    
    .. automethod:: __init__
-   .. automethod:: alloc
+   .. automethod:: allocate
    .. automethod:: callback
+   .. automethod:: deallocate
    .. automethod:: destroy
    .. automethod:: embed
-   .. automethod:: free
-   .. automethod:: if_cond
    .. automethod:: if_else
+   .. automethod:: if_then
    .. automethod:: join
    .. automethod:: launch
    .. automethod:: memcpy
    .. automethod:: memset
-   .. automethod:: record_event
+   .. automethod:: record
    .. automethod:: switch
-   .. automethod:: wait_event
+   .. automethod:: wait
    .. automethod:: while_loop
 
    
