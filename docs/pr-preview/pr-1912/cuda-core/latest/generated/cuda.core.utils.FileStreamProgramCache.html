@@ -735,8 +735,7 @@ stable – there is no Python-pickle compatibility involved.</p>
 <li><p><strong>path</strong> – Directory that owns the cache. Created if missing. If omitted,
 the OS-conventional user cache directory is used:
 <code class="docutils literal notranslate"><span class="pre">$XDG_CACHE_HOME/cuda-python/program-cache</span></code> (Linux, defaulting
-to <code class="docutils literal notranslate"><span class="pre">~/.cache/cuda-python/program-cache</span></code>),
-<code class="docutils literal notranslate"><span class="pre">~/Library/Caches/cuda-python/program-cache</span></code> (macOS), or
+to <code class="docutils literal notranslate"><span class="pre">~/.cache/cuda-python/program-cache</span></code>) or
 <code class="docutils literal notranslate"><span class="pre">%LOCALAPPDATA%\cuda-python\program-cache</span></code> (Windows).</p></li>
 <li><p><strong>max_size_bytes</strong> – Optional soft cap on total on-disk size. Enforced opportunistically
 on writes; concurrent writers may briefly exceed it. Eviction is by
