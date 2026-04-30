@@ -157,7 +157,7 @@ class TestIpcEventProperties:
         assert props[0] == e.ipc_descriptor
         assert props[1] == e.is_ipc_enabled
         assert props[2] == e.is_timing_enabled
-        assert props[3] == e.uses_blocking_sync
+        assert props[3] == e.is_blocking_sync
         assert props[4] is None
         assert props[5] is None
 
@@ -176,7 +176,7 @@ class TestIpcEventProperties:
             e.ipc_descriptor,
             e.is_ipc_enabled,
             e.is_timing_enabled,
-            e.uses_blocking_sync,
+            e.is_blocking_sync,
             e.device,
             e.context,
         )

@@ -47,7 +47,7 @@ Breaking changes
   - ``LaunchConfig.cooperative_launch`` -> :attr:`LaunchConfig.is_cooperative`
     (also renames the constructor keyword argument).
   - ``Event.is_timing_disabled`` -> :attr:`Event.is_timing_enabled`.
-  - ``Event.is_sync_busy_waited`` -> :attr:`Event.uses_blocking_sync`.
+  - ``Event.is_sync_busy_waited`` -> :attr:`Event.is_blocking_sync`.
   - ``EventOptions.enable_timing`` -> ``EventOptions.timing_enabled``
     and ``EventOptions.busy_waited_sync`` -> ``EventOptions.blocking_sync``.
 

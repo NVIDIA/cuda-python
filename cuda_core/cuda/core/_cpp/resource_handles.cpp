@@ -354,7 +354,7 @@ namespace {
 struct EventBox {
     CUevent resource;
     bool timing_enabled;
-    bool uses_blocking_sync;
+    bool is_blocking_sync;
     bool ipc_enabled;
     int device_id;
     ContextHandle h_context;
@@ -372,8 +372,8 @@ bool get_event_timing_enabled(const EventHandle& h) noexcept {
     return h ? get_box(h)->timing_enabled : false;
 }
 
-bool get_event_uses_blocking_sync(const EventHandle& h) noexcept {
-    return h ? get_box(h)->uses_blocking_sync : false;
+bool get_event_is_blocking_sync(const EventHandle& h) noexcept {
+    return h ? get_box(h)->is_blocking_sync : false;
 }
 
 bool get_event_ipc_enabled(const EventHandle& h) noexcept {
@@ -392,7 +392,7 @@ ContextHandle get_event_context(const EventHandle& h) noexcept {
 static HandleRegistry<CUevent, EventHandle> event_registry;
 
 EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
-                                bool timing_enabled, bool uses_blocking_sync,
+                                bool timing_enabled, bool is_blocking_sync,
                                 bool ipc_enabled, int device_id) {
     GILReleaseGuard gil;
     CUevent event;
@@ -401,7 +401,7 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
     }
 
     auto box = std::shared_ptr<const EventBox>(
-        new EventBox{event, timing_enabled, uses_blocking_sync, ipc_enabled, device_id, h_ctx},
+        new EventBox{event, timing_enabled, is_blocking_sync, ipc_enabled, device_id, h_ctx},
         [h_ctx](const EventBox* b) {
             event_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
@@ -427,7 +427,7 @@ EventHandle create_event_handle_ref(CUevent event) {
 }
 
 EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
-                                    bool uses_blocking_sync) {
+                                    bool is_blocking_sync) {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuIpcOpenEventHandle(&event, ipc_handle))) {
@@ -435,7 +435,7 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
     }
 
     auto box = std::shared_ptr<const EventBox>(
-        new EventBox{event, false, uses_blocking_sync, true, -1, {}},
+        new EventBox{event, false, is_blocking_sync, true, -1, {}},
         [](const EventBox* b) {
             event_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;

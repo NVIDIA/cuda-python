@@ -48,16 +48,16 @@ def test_timing_success(init_cuda):
     assert elapsed_time_ms > 10
 
 
-def test_uses_blocking_sync(init_cuda):
+def test_is_blocking_sync(init_cuda):
     options = EventOptions(timing_enabled=False, blocking_sync=True)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.uses_blocking_sync is True
+    assert event.is_blocking_sync is True
 
     options = EventOptions(timing_enabled=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.uses_blocking_sync is False
+    assert event.is_blocking_sync is False
 
 
 def test_sync(init_cuda):

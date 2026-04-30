@@ -14,7 +14,7 @@ from cuda.core._resource_handles cimport (
     create_event_handle,
     create_event_handle_ipc,
     get_event_timing_enabled,
-    get_event_uses_blocking_sync,
+    get_event_is_blocking_sync,
     get_event_ipc_enabled,
     get_event_device_id,
     get_event_context,
@@ -101,7 +101,7 @@ cdef class Event:
         cdef EventOptions opts = check_or_create_options(EventOptions, options, "Event options")
         cdef unsigned int flags = 0x0
         cdef bint timing_enabled = True
-        cdef bint uses_blocking_sync = False
+        cdef bint is_blocking_sync = False
         cdef bint ipc_enabled = False
         self._ipc_descriptor = None
         if not opts.timing_enabled:
@@ -109,7 +109,7 @@ cdef class Event:
             timing_enabled = False
         if opts.blocking_sync:
             flags |= cydriver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
-            uses_blocking_sync = True
+            is_blocking_sync = True
         if opts.ipc_enabled:
             if is_free:
                 raise TypeError(
@@ -120,7 +120,7 @@ cdef class Event:
             if timing_enabled:
                 raise TypeError("IPC-enabled events cannot use timing.")
         cdef EventHandle h_event = create_event_handle(
-            h_context, flags, timing_enabled, uses_blocking_sync, ipc_enabled, device_id)
+            h_context, flags, timing_enabled, is_blocking_sync, ipc_enabled, device_id)
         if not h_event:
             raise RuntimeError("Failed to create CUDA event")
         self._h_event = h_event
@@ -208,7 +208,7 @@ cdef class Event:
         with nogil:
             HANDLE_RETURN(cydriver.cuIpcGetEventHandle(&data, as_cu(self._h_event)))
         cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
-        self._ipc_descriptor = IPCEventDescriptor._init(data_b, get_event_uses_blocking_sync(self._h_event))
+        self._ipc_descriptor = IPCEventDescriptor._init(data_b, get_event_is_blocking_sync(self._h_event))
         return self._ipc_descriptor
 
     @classmethod
@@ -217,7 +217,7 @@ cdef class Event:
         cdef cydriver.CUipcEventHandle data
         memcpy(data.reserved, <const void*><const char*>(ipc_descriptor._reserved), sizeof(data.reserved))
         cdef Event self = Event.__new__(cls)
-        cdef EventHandle h_event = create_event_handle_ipc(data, ipc_descriptor._uses_blocking_sync)
+        cdef EventHandle h_event = create_event_handle_ipc(data, ipc_descriptor._is_blocking_sync)
         if not h_event:
             raise RuntimeError("Failed to open IPC event handle")
         self._h_event = h_event
@@ -235,11 +235,11 @@ cdef class Event:
         return get_event_timing_enabled(self._h_event)
 
     @property
-    def uses_blocking_sync(self) -> bool:
+    def is_blocking_sync(self) -> bool:
         """Return True if the event uses blocking synchronization (the CPU
         thread blocks on :meth:`sync` instead of busy-waiting), otherwise False.
         """
-        return get_event_uses_blocking_sync(self._h_event)
+        return get_event_is_blocking_sync(self._h_event)
 
     def sync(self):
         """Synchronize until the event completes.
@@ -305,24 +305,24 @@ cdef class IPCEventDescriptor:
 
     cdef:
         bytes _reserved
-        bint _uses_blocking_sync
+        bint _is_blocking_sync
 
     def __init__(self, *arg, **kwargs):
         raise RuntimeError("IPCEventDescriptor objects cannot be instantiated directly. Please use Event APIs.")
 
     @staticmethod
-    def _init(reserved: bytes, uses_blocking_sync: cython.bint):
+    def _init(reserved: bytes, is_blocking_sync: cython.bint):
         cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(IPCEventDescriptor)
         self._reserved = reserved
-        self._uses_blocking_sync = uses_blocking_sync
+        self._is_blocking_sync = is_blocking_sync
         return self
 
     def __eq__(self, IPCEventDescriptor rhs):
-        # No need to check self._uses_blocking_sync.
+        # No need to check self._is_blocking_sync.
         return self._reserved == rhs._reserved
 
     def __reduce__(self):
-        return IPCEventDescriptor._init, (self._reserved, self._uses_blocking_sync)
+        return IPCEventDescriptor._init, (self._reserved, self._is_blocking_sync)
 
 
 def _reduce_event(event):

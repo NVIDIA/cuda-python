@@ -211,7 +211,7 @@ def test_event_record_node_preserves_metadata(init_cuda):
 
     reconstructed = node.event
     assert reconstructed.is_timing_enabled is True
-    assert reconstructed.uses_blocking_sync is True
+    assert reconstructed.is_blocking_sync is True
     assert reconstructed.is_ipc_enabled is False
     assert reconstructed.device is not None
 
@@ -226,7 +226,7 @@ def test_event_wait_node_preserves_metadata(init_cuda):
 
     reconstructed = node.event
     assert reconstructed.is_timing_enabled is False
-    assert reconstructed.uses_blocking_sync is False
+    assert reconstructed.is_blocking_sync is False
     assert reconstructed.device is not None
 
 
@@ -243,7 +243,7 @@ def test_event_metadata_survives_gc(init_cuda):
 
     retrieved = node.event
     assert retrieved.is_timing_enabled is True
-    assert retrieved.uses_blocking_sync is True
+    assert retrieved.is_blocking_sync is True
     assert retrieved.is_done is True
 
 
