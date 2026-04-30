@@ -186,6 +186,9 @@ def _build_cuda_core(debug=False):
     # On Windows, _tensor_bridge.pyx needs a stub import library so the MSVC
     # linker can resolve the AOTI symbols (they live in torch_cpu.dll at
     # runtime).  We generate the .lib from a .def file at build time.
+    # Note: aoti_torch_get_current_cuda_stream lives in torch_cuda.dll and
+    # is resolved lazily at runtime (not via the stub lib) — see
+    # _tensor_bridge.pyx.
     _aoti_extra_link_args = []
     if sys.platform == "win32":
         _def_file = os.path.join("cuda", "core", "_include", "aoti_shim.def")

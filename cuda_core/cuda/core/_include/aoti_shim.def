@@ -34,4 +34,3 @@ EXPORTS
     aoti_torch_get_device_index
     aoti_torch_device_type_cpu
     aoti_torch_device_type_cuda
-    aoti_torch_get_current_cuda_stream
