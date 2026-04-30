@@ -30,11 +30,29 @@ CONFIG_PATTERNS = {
     "test-windows": r"^Test (win-64|windows) / ",
 }
 
-INDEX_FILENAME = "job_index.json"
-
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-9;]*[A-Za-z]")
 PYTEST_NODE_ID = re.compile(r"tests/\S+\.py::\S+")
 PYTEST_TEST_OUTCOME = re.compile(r"(tests/\S+\.py::\S+)\s+(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)\b")
+
+# GHA log format markers used to identify which test suite is active.
+# `gh api` logs: ##[group]<step-name> opens a section, ##[endgroup] closes it.
+GHA_GROUP = re.compile(r"##\[group\](.+)")
+# `gh run view --log` logs: tab-separated  <job>\t<step>\t<timestamp>\t<content>
+GHA_LOG_LINE = re.compile(r"^[^\t]+\t([^\t]+)\t[^\t]+\t(.*)", re.DOTALL)
+
+# Map step-name substrings to canonical test suite names.
+STEP_SUITE_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (re.compile(r"run cuda\.bindings tests", re.IGNORECASE), "cuda_bindings"),
+    (re.compile(r"run cuda\.core tests", re.IGNORECASE), "cuda_core"),
+    (re.compile(r"run cuda\.pathfinder tests", re.IGNORECASE), "cuda_pathfinder"),
+]
+
+
+def step_name_to_suite(step_name: str) -> str:
+    for pattern, suite in STEP_SUITE_PATTERNS:
+        if pattern.search(step_name):
+            return suite
+    return ""
 
 
 @dataclasses.dataclass(frozen=True)
@@ -52,8 +70,6 @@ class ConfigLogs:
     name: str
     job_ids: list[int]
     log_paths: list[Path]
-    # job_id -> suite name extracted from the job name
-    job_names: dict[int, str] = dataclasses.field(default_factory=dict)
 
 
 def run_gh(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -103,17 +119,36 @@ def download_job_log(repo: str, run_id: str, job_id: int, out_path: Path) -> boo
     return False
 
 
-def extract_test_status_sets(text: str) -> tuple[set[str], set[str]]:
+def extract_test_status_sets(text: str) -> tuple[set[str], set[str], dict[str, str]]:
+    """Parse pytest output and return (skipped, non_skipped, test_id->suite)."""
     skipped: set[str] = set()
     non_skipped: set[str] = set()
+    test_suites: dict[str, str] = {}
+    current_suite = ""
 
     for raw_line in text.splitlines():
-        line = ANSI_ESCAPE.sub("", raw_line).replace("\\", "/")
+        # Handle `gh run view --log` tab-separated format.
+        # Each line: <job>\t<step>\t<timestamp>\t<content>
+        if log_match := GHA_LOG_LINE.match(raw_line):
+            suite = step_name_to_suite(log_match.group(1))
+            if suite:
+                current_suite = suite
+            line = ANSI_ESCAPE.sub("", log_match.group(2)).replace("\\", "/")
+        else:
+            line = ANSI_ESCAPE.sub("", raw_line).replace("\\", "/")
+            # Handle `gh api` log format: ##[group]<step-name> opens a section.
+            if group_match := GHA_GROUP.search(line):
+                suite = step_name_to_suite(group_match.group(1))
+                if suite:
+                    current_suite = suite
+                continue
 
         # Parse per-test outcomes first so PASS/FAIL lines disqualify tests.
         for test_id, outcome in PYTEST_TEST_OUTCOME.findall(line):
             if outcome == "SKIPPED":
                 skipped.add(test_id)
+                if current_suite:
+                    test_suites.setdefault(test_id, current_suite)
             else:
                 non_skipped.add(test_id)
 
@@ -124,31 +159,10 @@ def extract_test_status_sets(text: str) -> tuple[set[str], set[str]]:
         # include a node id but don't match the strict outcome pattern above.
         for test_id in PYTEST_NODE_ID.findall(line):
             skipped.add(test_id)
+            if current_suite:
+                test_suites.setdefault(test_id, current_suite)
 
-    return skipped, non_skipped
-
-
-def extract_suite_name(job_name: str, config_name: str) -> str:
-    """Return the test suite portion of a job name (first word after the config prefix)."""
-    pattern = CONFIG_PATTERNS.get(config_name, "")
-    if pattern:
-        match = re.match(pattern, job_name)
-        if match:
-            remainder = job_name[match.end() :]
-            parts = remainder.split()
-            return parts[0] if parts else job_name
-    return job_name
-
-
-def save_job_index(logs_root: Path, index: dict[str, dict[str, str]]) -> None:
-    (logs_root / INDEX_FILENAME).write_text(json.dumps(index, indent=2), encoding="utf-8")
-
-
-def load_job_index(logs_root: Path) -> dict[str, dict[str, str]]:
-    index_path = logs_root / INDEX_FILENAME
-    if index_path.exists():
-        return json.loads(index_path.read_text(encoding="utf-8"))
-    return {}
+    return skipped, non_skipped, test_suites
 
 
 def match_job_ids(jobs: Iterable[dict], pattern: str) -> list[int]:
@@ -158,47 +172,26 @@ def match_job_ids(jobs: Iterable[dict], pattern: str) -> list[int]:
 
 def discover_config_logs(logs_root: Path) -> list[ConfigLogs]:
     configs: list[ConfigLogs] = []
-    index = load_job_index(logs_root)
 
     for config in CONFIG_PATTERNS:
         config_dir = logs_root / config
         log_paths = sorted(config_dir.glob("*.log")) if config_dir.exists() else []
         job_ids: list[int] = []
-        job_names: dict[int, str] = {}
-        config_index = index.get(config, {})
-
         for log_path in log_paths:
             with contextlib.suppress(ValueError):
-                job_id = int(log_path.stem)
-                job_ids.append(job_id)
-                suite = config_index.get(str(job_id), "")
-                if suite:
-                    job_names[job_id] = suite
-
-        configs.append(ConfigLogs(name=config, job_ids=job_ids, log_paths=log_paths, job_names=job_names))
+                job_ids.append(int(log_path.stem))
+        configs.append(ConfigLogs(name=config, job_ids=job_ids, log_paths=log_paths))
 
     return configs
 
 
 def download_config_logs(jobs: list[dict], repo: str, run_id: str, logs_root: Path) -> list[ConfigLogs]:
     configs: list[ConfigLogs] = []
-    index: dict[str, dict[str, str]] = {}
 
     for config, pattern in CONFIG_PATTERNS.items():
         config_dir = logs_root / config
         job_ids = match_job_ids(jobs, pattern)
         log_paths: list[Path] = []
-
-        # Build job_id -> suite_name from job metadata before downloading logs.
-        regex = re.compile(pattern)
-        job_names: dict[int, str] = {}
-        for job in jobs:
-            job_name = str(job.get("name", ""))
-            if not regex.search(job_name):
-                continue
-            job_id = int(job["id"])
-            if job_id in job_ids:
-                job_names[job_id] = extract_suite_name(job_name, config)
 
         for job_id in job_ids:
             log_path = config_dir / f"{job_id}.log"
@@ -206,10 +199,8 @@ def download_config_logs(jobs: list[dict], repo: str, run_id: str, logs_root: Pa
                 continue
             log_paths.append(log_path)
 
-        configs.append(ConfigLogs(name=config, job_ids=job_ids, log_paths=log_paths, job_names=job_names))
-        index[config] = {str(jid): name for jid, name in job_names.items()}
+        configs.append(ConfigLogs(name=config, job_ids=job_ids, log_paths=log_paths))
 
-    save_job_index(logs_root, index)
     return configs
 
 
@@ -224,17 +215,12 @@ def analyze_config_logs(config_logs: list[ConfigLogs]) -> list[ConfigResult]:
         for log_path in config.log_paths:
             text = log_path.read_text(encoding="utf-8", errors="replace")
 
-            skipped_in_log, non_skipped_in_log = extract_test_status_sets(text)
+            skipped_in_log, non_skipped_in_log, suites_in_log = extract_test_status_sets(text)
             skipped_any.update(skipped_in_log)
             non_skipped_any.update(non_skipped_in_log)
-
-            # Associate skipped test IDs with the suite derived from the job name.
-            with contextlib.suppress(ValueError):
-                job_id = int(log_path.stem)
-                suite = config.job_names.get(job_id, "")
-                if suite:
-                    for test_id in skipped_in_log:
-                        test_suites.setdefault(test_id, suite)
+            # First log to identify a test's suite wins (setdefault semantics).
+            for test_id, suite in suites_in_log.items():
+                test_suites.setdefault(test_id, suite)
 
         # For sharded matrices, a test may only appear in one log. Treat it as
         # config-skipped if it is skipped at least once and never non-skipped
@@ -280,7 +266,7 @@ def build_summary(results: list[ConfigResult]) -> str:
             "_Note: the test `tests/test_cuda.py::test_always_skip` is expected to be skipped in all configurations, but is missing._"
         )
 
-    # Merge test->suite mappings across all configs (first one seen wins).
+    # Merge test->suite mappings across all configs (first config to identify wins).
     test_suites: dict[str, str] = {}
     for result in results:
         for test_id, suite in result.test_suites.items():
