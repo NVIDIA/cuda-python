@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=51cbe594"></script>
+    <script src="../_static/documentation_options.js?v=5af52104"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev85';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev93';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -715,6 +715,18 @@ when the last reference is released.</p>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.Event" title="cuda.core.Event"><span class="pre">Event</span></a></span></span><a class="headerlink" href="#cuda.core.Event.from_ipc_descriptor" title="Link to this definition">#</a></dt>
 <dd><p>Import an event that was exported from another process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ipc_descriptor</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">IPCEventDescriptor</span></code>) – The IPC descriptor obtained from <a class="reference internal" href="#cuda.core.Event.ipc_descriptor" title="cuda.core.Event.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ipc_descriptor</span></code></a> in
+another process.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new event backed by the imported IPC handle.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
