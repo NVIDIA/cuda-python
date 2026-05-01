@@ -20,10 +20,12 @@ HERE = Path(__file__).resolve().parent
 DEFAULT_CORE = HERE / "results-python.json"
 DEFAULT_BINDINGS = HERE.parent / "cuda_bindings" / "results-python.json"
 
-# Benchmark IDs where cuda.core and cuda.bindings exercise *different*
-# underlying driver calls or hit a cuda.core-side cache, so the "Delta"
-# column is NOT pure Python wrapper overhead. See BENCHMARK_PLAN.md's
-# "Audit notes" section for a full explanation of each entry.
+# Benchmark IDs where the cuda.core path invokes a different driver
+# symbol, makes an additional driver call, or hits a cuda.core-side cache
+# compared to the cuda.bindings bench — i.e. the "Delta" column is NOT
+# pure Python wrapper overhead on top of the same driver call.
+# Unstarred rows compare like-for-like driver calls. See
+# BENCHMARK_PLAN.md's "Audit notes" section for per-row rationale.
 DIFFERENT_CODEPATH_BENCHMARKS: frozenset[str] = frozenset(
     {
         # cuCtxGetDevice (core) vs cuCtxGetCurrent (bindings).
@@ -33,9 +35,15 @@ DIFFERENT_CODEPATH_BENCHMARKS: frozenset[str] = frozenset(
         # DeviceProperties dict cache hit (core) vs cuDeviceGetAttribute
         # (bindings) on every iteration.
         "ctx_device.device_get_attribute",
+        # cuStreamCreateWithPriority + cuCtxGetStreamPriorityRange (core)
+        # vs cuStreamCreate (bindings).
+        "stream.stream_create_destroy",
         # cuMemAllocFromPoolAsync on default stream (core) vs synchronous
         # cuMemAlloc (bindings).
         "memory.mem_alloc_free",
+        # cuMemAllocFromPoolAsync with explicit pool handle (core) vs
+        # cuMemAllocAsync with implicit default pool (bindings).
+        "memory.mem_alloc_async_free_async",
         # cuLaunchKernelEx + per-call ParamHolder (core) vs cuLaunchKernel
         # with pre-built arg tuple (bindings).
         "launch.launch_empty_kernel",
@@ -157,9 +165,11 @@ def main() -> None:
     if bindings_benchmarks:
         # Keep legend lines shorter than the table so they don't overflow.
         print("Delta = core mean - bindings mean (positive = cuda.core slower).")
-        print(f"{DIFFERENT_CODEPATH_MARKER} marks benchmarks where core and bindings exercise different")
-        print("  underlying driver calls or hit a cuda.core cache — see BENCHMARK_PLAN.md")
-        print("  (Audit notes) for details on each row.")
+        print(f"{DIFFERENT_CODEPATH_MARKER} marks benchmarks where the cuda.core path invokes a different driver")
+        print("  symbol, makes an additional driver call, or hits a cuda.core-side cache")
+        print("  — so Delta is not pure Python wrapper overhead on top of the same driver")
+        print("  call. Unstarred rows compare like-for-like driver calls; their Delta is")
+        print("  wrapper overhead. See BENCHMARK_PLAN.md (Audit notes) for per-row detail.")
         print()
 
     print(sep)
