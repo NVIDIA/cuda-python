@@ -48,7 +48,6 @@ def test_check_driver_error():
 
 
 def test_check_runtime_error():
-    num_unexpected = 0
     for error in runtime.cudaError_t:
         if error == runtime.cudaError_t.cudaSuccess:
             assert cuda_utils._check_runtime_error(error) == 0
@@ -56,14 +55,7 @@ def test_check_runtime_error():
             with pytest.raises(cuda_utils.CUDAError) as e:
                 cuda_utils._check_runtime_error(error)
             msg = str(e)
-            if "UNEXPECTED ERROR CODE" in msg:
-                num_unexpected += 1
-            else:
-                # Example repr(error): <cudaError_t.cudaErrorUnknown: 999>
-                enum_name = repr(error).split(".", 1)[1].split(":", 1)[0]
-                assert enum_name in msg
-    # Smoke test: We don't want most to be unexpected.
-    assert num_unexpected < len(driver.CUresult) * 0.5
+            assert error.name in msg
 
 
 def test_driver_error_enum_has_non_empty_docstring():
@@ -177,22 +169,6 @@ def test_check_runtime_error_attaches_explanation():
 
     assert str(e.value) == f"{name.decode()}: {expl}"
     assert str(e.value) != f"{name.decode()}: {desc.decode()}"
-
-
-def test_check_runtime_error_uses_binding_name_for_known_runtime_error(monkeypatch):
-    error = runtime.cudaError_t.cudaErrorInvalidValue
-    runtime_name = b"runtime-provided-name"
-
-    def cuda_get_error_name(_error):
-        return runtime.cudaError_t.cudaSuccess, runtime_name
-
-    monkeypatch.setattr(cuda_utils.runtime, "cudaGetErrorName", cuda_get_error_name)
-
-    with pytest.raises(cuda_utils.CUDAError) as e:
-        cuda_utils._check_runtime_error(error)
-
-    assert str(e.value).startswith(f"{error.name}: ")
-    assert runtime_name.decode() not in str(e.value)
 
 
 def test_precondition():
