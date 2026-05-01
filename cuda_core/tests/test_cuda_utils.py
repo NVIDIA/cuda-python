@@ -179,6 +179,22 @@ def test_check_runtime_error_attaches_explanation():
     assert str(e.value) != f"{name.decode()}: {desc.decode()}"
 
 
+def test_check_runtime_error_uses_binding_name_for_known_runtime_error(monkeypatch):
+    error = runtime.cudaError_t.cudaErrorInvalidValue
+    runtime_name = b"runtime-provided-name"
+
+    def cuda_get_error_name(_error):
+        return runtime.cudaError_t.cudaSuccess, runtime_name
+
+    monkeypatch.setattr(cuda_utils.runtime, "cudaGetErrorName", cuda_get_error_name)
+
+    with pytest.raises(cuda_utils.CUDAError) as e:
+        cuda_utils._check_runtime_error(error)
+
+    assert str(e.value).startswith(f"{error.name}: ")
+    assert runtime_name.decode() not in str(e.value)
+
+
 def test_precondition():
     def checker(*args, what=""):
         if args[0] < 0:

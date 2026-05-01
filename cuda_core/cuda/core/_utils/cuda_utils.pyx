@@ -149,6 +149,13 @@ cdef object _RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
 cdef object _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
 
 
+def _known_runtime_error_name(error):
+    try:
+        return runtime.cudaError_t(error).name
+    except ValueError:
+        return None
+
+
 cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
     if error == cydriver.CUresult.CUDA_SUCCESS:
         return 0
@@ -174,7 +181,9 @@ cpdef inline int _check_runtime_error(error) except?-1:
     name_err, name = runtime.cudaGetErrorName(error)
     if name_err != _RUNTIME_SUCCESS:
         raise CUDAError(f"UNEXPECTED ERROR CODE: {error}")
-    name = name.decode()
+    # Windows hybrid cudart can lag the generated bindings' enum table.
+    # Prefer the binding name for values the bindings know.
+    name = _known_runtime_error_name(error) or name.decode()
     expl = RUNTIME_CUDA_ERROR_EXPLANATIONS.get(int(error))
     if expl is not None:
         raise CUDAError(f"{name}: {expl}")
