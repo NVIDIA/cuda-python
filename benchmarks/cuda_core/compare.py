@@ -20,6 +20,33 @@ HERE = Path(__file__).resolve().parent
 DEFAULT_CORE = HERE / "results-python.json"
 DEFAULT_BINDINGS = HERE.parent / "cuda_bindings" / "results-python.json"
 
+# Benchmark IDs where cuda.core and cuda.bindings exercise *different*
+# underlying driver calls or hit a cuda.core-side cache, so the "Delta"
+# column is NOT pure Python wrapper overhead. See BENCHMARK_PLAN.md's
+# "Audit notes" section for a full explanation of each entry.
+DIFFERENT_CODEPATH_BENCHMARKS: frozenset[str] = frozenset(
+    {
+        # cuCtxGetDevice (core) vs cuCtxGetCurrent (bindings).
+        "ctx_device.ctx_get_current",
+        # TLS list lookup (core) vs cuDeviceGet (bindings).
+        "ctx_device.device_get",
+        # DeviceProperties dict cache hit (core) vs cuDeviceGetAttribute
+        # (bindings) on every iteration.
+        "ctx_device.device_get_attribute",
+        # cuMemAllocFromPoolAsync on default stream (core) vs synchronous
+        # cuMemAlloc (bindings).
+        "memory.mem_alloc_free",
+        # cuLaunchKernelEx + per-call ParamHolder (core) vs cuLaunchKernel
+        # with pre-built arg tuple (bindings).
+        "launch.launch_empty_kernel",
+        "launch.launch_small_kernel",
+        "launch.launch_16_args",
+        "launch.launch_256_args",
+        "launch.launch_512_args",
+    }
+)
+DIFFERENT_CODEPATH_MARKER = "*"
+
 
 def load_benchmarks(path: Path) -> dict[str, list[float]]:
     """Load a pyperf JSON file and return {name: [values]}."""
@@ -59,11 +86,11 @@ def fmt_ns(seconds: float) -> str:
     return f"{seconds * 1e9:,.0f}"
 
 
-def fmt_overhead_ns(core_mean: float, bindings_mean: float) -> str:
+def fmt_delta_ns(core_mean: float, bindings_mean: float) -> str:
     return f"{(core_mean - bindings_mean) * 1e9:+,.0f}"
 
 
-def fmt_overhead_pct(core_mean: float, bindings_mean: float) -> str:
+def fmt_delta_pct(core_mean: float, bindings_mean: float) -> str:
     if bindings_mean <= 0.0:
         return "-"
     pct = (core_mean - bindings_mean) / bindings_mean * 100
@@ -99,26 +126,42 @@ def main() -> None:
         sys.exit(1)
 
     all_names = sorted(set(core_benchmarks) | set(bindings_benchmarks))
-    name_width = max(len(n) for n in all_names)
+
+    # Reserve a trailing column of space for the "different codepath" marker
+    # so it does not collide visually with the benchmark ID.
+    display_names = {
+        name: f"{name} {DIFFERENT_CODEPATH_MARKER}" if name in DIFFERENT_CODEPATH_BENCHMARKS else name
+        for name in all_names
+    }
+    name_width = max(len(display_names[n]) for n in all_names)
     name_width = max(name_width, len("Benchmark"))
 
     bind_w = 14
     core_w = 14
     rsd_w = 8
-    oh_ns_w = 12
-    oh_pct_w = 10
+    delta_ns_w = 12
+    delta_pct_w = 10
 
     if bindings_benchmarks:
         header = (
             f"{'Benchmark':<{name_width}}  "
             f"{'bindings (ns)':>{bind_w}}  {'RSD':>{rsd_w}}  "
             f"{'core (ns)':>{core_w}}  {'RSD':>{rsd_w}}  "
-            f"{'Overhead ns':>{oh_ns_w}}  {'Overhead %':>{oh_pct_w}}"
+            f"{'Delta ns':>{delta_ns_w}}  {'Delta %':>{delta_pct_w}}"
         )
     else:
         header = f"{'Benchmark':<{name_width}}  {'core (ns)':>{core_w}}  {'RSD':>{rsd_w}}"
 
     sep = "-" * len(header)
+
+    if bindings_benchmarks:
+        # Keep legend lines shorter than the table so they don't overflow.
+        print("Delta = core mean - bindings mean (positive = cuda.core slower).")
+        print(f"{DIFFERENT_CODEPATH_MARKER} marks benchmarks where core and bindings exercise different")
+        print("  underlying driver calls or hit a cuda.core cache — see BENCHMARK_PLAN.md")
+        print("  (Audit notes) for details on each row.")
+        print()
+
     print(sep)
     print(header)
     print(sep)
@@ -136,21 +179,23 @@ def main() -> None:
         bind_rsd = fmt_rsd(bind_stats[2]) if bind_stats else "-"
 
         if core_stats and bind_stats:
-            overhead_ns_str = fmt_overhead_ns(core_stats[0], bind_stats[0])
-            overhead_pct_str = fmt_overhead_pct(core_stats[0], bind_stats[0])
+            delta_ns_str = fmt_delta_ns(core_stats[0], bind_stats[0])
+            delta_pct_str = fmt_delta_pct(core_stats[0], bind_stats[0])
         else:
-            overhead_ns_str = "-"
-            overhead_pct_str = "-"
+            delta_ns_str = "-"
+            delta_pct_str = "-"
+
+        display_name = display_names[name]
 
         if bindings_benchmarks:
             print(
-                f"{name:<{name_width}}  "
+                f"{display_name:<{name_width}}  "
                 f"{bind_str:>{bind_w}}  {bind_rsd:>{rsd_w}}  "
                 f"{core_str:>{core_w}}  {core_rsd:>{rsd_w}}  "
-                f"{overhead_ns_str:>{oh_ns_w}}  {overhead_pct_str:>{oh_pct_w}}"
+                f"{delta_ns_str:>{delta_ns_w}}  {delta_pct_str:>{delta_pct_w}}"
             )
         else:
-            print(f"{name:<{name_width}}  {core_str:>{core_w}}  {core_rsd:>{rsd_w}}")
+            print(f"{display_name:<{name_width}}  {core_str:>{core_w}}  {core_rsd:>{rsd_w}}")
 
     print(sep)
 

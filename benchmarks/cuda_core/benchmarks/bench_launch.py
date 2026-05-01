@@ -96,11 +96,15 @@ def _ensure_launch_state() -> None:
 
     module = compile_module(KERNEL_SOURCE, KERNEL_NAMES)
 
-    # Pre-allocate buffers for the kernel args. Use ints (raw pointer
-    # addresses) in the launch hot path so ParamHolder skips the Buffer
-    # type check and goes through its int fast-path.
-    float_buf = DEV.allocate(4)
-    int_bufs_512 = tuple(DEV.allocate(4) for _ in range(512))
+    # Pre-allocate buffers for the kernel args. Allocate on STREAM so the
+    # pool-async allocs are stream-ordered with the launches we will issue
+    # on the same stream below — matches the cuda.bindings bench, which
+    # uses synchronous cuMemAlloc and therefore has the pointers ready
+    # before the first timed launch. Use ints (raw pointer addresses) in
+    # the launch hot path so ParamHolder skips the Buffer type check and
+    # goes through its int fast-path.
+    float_buf = DEV.allocate(4, STREAM)
+    int_bufs_512 = tuple(DEV.allocate(4, STREAM) for _ in range(512))
     int_ptrs_512 = tuple(int(b.handle) for b in int_bufs_512)
 
     MODULE = module

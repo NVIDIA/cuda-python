@@ -120,7 +120,7 @@ def _collect_skipped_benchmarks(
 
 
 def discover_benchmarks(
-    bench_dir: Path = BENCH_DIR,
+    bench_dir: Path | None = None,
     module_name_prefix: str = DEFAULT_MODULE_NAME_PREFIX,
 ) -> dict[str, Callable[[int], float]]:
     """Discover bench_ functions.
@@ -129,6 +129,11 @@ def discover_benchmarks(
     where it calls the operation `loops` times and returns the total elapsed
     time in seconds (using time.perf_counter).
     """
+    # Resolve the default inside the call so tests (and embedders) can
+    # monkeypatch ``BENCH_DIR`` at the module level — Python binds default
+    # args at def-time, so a literal default would ignore later patches.
+    if bench_dir is None:
+        bench_dir = BENCH_DIR
     registry: dict[str, Callable[[int], float]] = {}
     for module_path in sorted(bench_dir.glob("bench_*.py")):
         module_name = module_path.stem
