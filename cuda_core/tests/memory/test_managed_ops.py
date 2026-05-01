@@ -307,15 +307,14 @@ class TestHost:
         with pytest.raises(ValueError, match="numa_id must be a non-negative int"):
             Host(numa_id=-1)
 
-    def test_numa_current_with_id_rejected(self):
-        with pytest.raises(ValueError, match="numa_current"):
-            Host(numa_id=0, is_numa_current=True)
+    def test_numa_current_only_via_classmethod(self):
+        # is_numa_current is internal state, only settable via Host.numa_current()
+        with pytest.raises(TypeError):
+            Host(is_numa_current=True)  # type: ignore[call-arg]
 
-    def test_frozen(self):
-        import dataclasses
-
+    def test_immutable(self):
         h = Host(numa_id=2)
-        with pytest.raises(dataclasses.FrozenInstanceError):
+        with pytest.raises(AttributeError):
             h.numa_id = 3
 
     def test_eq_hash(self):

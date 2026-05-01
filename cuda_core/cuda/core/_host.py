@@ -3,10 +3,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 
-
-@dataclass(frozen=True)
 class Host:
     """Host (CPU) location for managed-memory operations.
 
@@ -22,19 +19,39 @@ class Host:
     and to ``ManagedBuffer.preferred_location`` / ``accessed_by``.
     """
 
-    numa_id: int | None = None
-    is_numa_current: bool = False
+    __slots__ = ("_is_numa_current", "_numa_id")
 
-    def __post_init__(self) -> None:
-        if self.is_numa_current and self.numa_id is not None:
-            raise ValueError("Host.numa_current() cannot have an explicit numa_id")
-        if self.numa_id is not None and (not isinstance(self.numa_id, int) or self.numa_id < 0):
-            raise ValueError(f"numa_id must be a non-negative int, got {self.numa_id!r}")
+    def __init__(self, numa_id: int | None = None) -> None:
+        if numa_id is not None and (not isinstance(numa_id, int) or numa_id < 0):
+            raise ValueError(f"numa_id must be a non-negative int, got {numa_id!r}")
+        object.__setattr__(self, "_numa_id", numa_id)
+        object.__setattr__(self, "_is_numa_current", False)
+
+    @property
+    def numa_id(self) -> int | None:
+        return self._numa_id
+
+    @property
+    def is_numa_current(self) -> bool:
+        return self._is_numa_current
 
     @classmethod
     def numa_current(cls) -> Host:
         """Construct a ``Host`` referring to the calling thread's NUMA node."""
-        return cls(is_numa_current=True)
+        h = cls()
+        object.__setattr__(h, "_is_numa_current", True)
+        return h
+
+    def __setattr__(self, name: str, value) -> None:
+        raise AttributeError(f"{type(self).__name__} is immutable; cannot set {name!r}")
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Host):
+            return NotImplemented
+        return self._numa_id == other._numa_id and self._is_numa_current == other._is_numa_current
+
+    def __hash__(self) -> int:
+        return hash((Host, self._numa_id, self._is_numa_current))
 
     def __repr__(self) -> str:
         if self.is_numa_current:
