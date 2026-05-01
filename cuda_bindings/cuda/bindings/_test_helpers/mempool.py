@@ -13,7 +13,7 @@ def is_windows_mcdm_device(device=0):
         return False
     import cuda.bindings.nvml as nvml
 
-    device_id = int(device.device_id if hasattr(device, "device_id") else device)
+    device_id = int(getattr(device, "device_id", device))
     (err,) = driver.cuInit(0)
     if err != driver.CUresult.CUDA_SUCCESS:
         return False
