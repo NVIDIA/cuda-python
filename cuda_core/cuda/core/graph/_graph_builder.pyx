@@ -11,7 +11,7 @@ from cuda.bindings cimport cydriver
 from cuda.core.graph._graph_definition cimport GraphCondition
 from cuda.core.graph._utils cimport _attach_host_callback_to_graph
 from cuda.core._resource_handles cimport (
-    GraphExecHandle, GraphHandle, StreamHandle, as_cu, as_py,
+    as_cu, as_py,
     create_graph_exec_handle, create_graph_handle, create_graph_handle_ref,
 )
 from cuda.core._stream cimport Stream
