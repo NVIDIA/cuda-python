@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=09c27b2a"></script>
+    <script src="../_static/documentation_options.js?v=66336ffe"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev80';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev86';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -844,7 +844,7 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_overlap">
 <span class="sig-name descname"><span class="pre">gpu_overlap</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_overlap" title="Link to this definition">#</a></dt>
-<dd><p>bool: Device can possibly copy memory and execute a kernel concurrently. Deprecated. Use instead async_engine_count.</p>
+<dd><p>bool: Device can possibly copy memory and execute a kernel concurrently. Deprecated. Use <a class="reference internal" href="#cuda.core._device.DeviceProperties.async_engine_count" title="cuda.core._device.DeviceProperties.async_engine_count"><code class="xref py py-attr docutils literal notranslate"><span class="pre">async_engine_count</span></code></a> instead.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -894,7 +894,7 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_memory_pools_supported">
 <span class="sig-name descname"><span class="pre">host_memory_pools_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_memory_pools_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool: Device suports HOST location with the cuMemAllocAsync and cuMemPool family of APIs.</p>
+<dd><p>bool: Device supports HOST location with the cuMemAllocAsync and cuMemPool family of APIs.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1320,13 +1320,13 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mem_decompress_algorithm_mask">
 <span class="sig-name descname"><span class="pre">mem_decompress_algorithm_mask</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mem_decompress_algorithm_mask" title="Link to this definition">#</a></dt>
-<dd><p>int: The returned valued shall be interpreted as a bitmask, where the individual bits are described by the CUmemDecompressAlgorithm enum.</p>
+<dd><p>int: The returned value shall be interpreted as a bitmask, where the individual bits are described by the CUmemDecompressAlgorithm enum.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mem_decompress_maximum_length">
 <span class="sig-name descname"><span class="pre">mem_decompress_maximum_length</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mem_decompress_maximum_length" title="Link to this definition">#</a></dt>
-<dd><p>int: The returned valued is the maximum length in bytes of a single decompress operation that is allowed.</p>
+<dd><p>int: The returned value is the maximum length in bytes of a single decompress operation that is allowed.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1434,7 +1434,7 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.read_only_host_register_supported">
 <span class="sig-name descname"><span class="pre">read_only_host_register_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.read_only_host_register_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool: True if device supports using the cuMemHostRegister flag CU_MEMHOSTERGISTER_READ_ONLY to register memory that must be mapped as read-only to the GPU, False if not.</p>
+<dd><p>bool: True if device supports using the cuMemHostRegister flag CU_MEMHOSTREGISTER_READ_ONLY to register memory that must be mapped as read-only to the GPU, False if not.</p>
 </dd></dl>
 
 <dl class="py attribute">
