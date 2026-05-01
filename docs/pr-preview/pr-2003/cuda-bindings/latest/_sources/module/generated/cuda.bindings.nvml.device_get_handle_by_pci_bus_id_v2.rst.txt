@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_handle\_by\_pci\_bus\_id\_v2
+============================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_handle_by_pci_bus_id_v2
