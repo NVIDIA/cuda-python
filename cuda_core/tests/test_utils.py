@@ -111,6 +111,12 @@ def _arr_is_writeable(arr):
     return arr.flags.writeable if hasattr(arr.flags, "writeable") else True
 
 
+def _arr_dtype(arr):
+    if torch is not None and isinstance(arr, torch.Tensor):
+        return np.dtype(arr.__cuda_array_interface__["typestr"])
+    return arr.dtype
+
+
 def _cpu_array_samples():
     samples = [
         np.empty(3, dtype=np.int32),
@@ -171,8 +177,8 @@ class TestViewCPU:
         assert view.shape == expected_shape
         assert view.size == _arr_size(in_arr)
         strides_in_counts = _arr_strides_in_counts(in_arr)
-        if _arr_is_c_contiguous(in_arr):
-            assert view.strides in (None, strides_in_counts)
+        if view.strides is None:
+            assert _arr_is_c_contiguous(in_arr)
         else:
             assert view.strides == strides_in_counts
         assert view.device_id == -1
@@ -280,8 +286,8 @@ class TestViewGPU:
         assert view.shape == expected_shape
         assert view.size == _arr_size(in_arr)
         strides_in_counts = _arr_strides_in_counts(in_arr)
-        if _arr_is_c_contiguous(in_arr):
-            assert view.strides in (None, strides_in_counts)
+        if view.strides is None:
+            assert _arr_is_c_contiguous(in_arr)
         else:
             assert view.strides == strides_in_counts
         assert view.device_id == dev.device_id
@@ -351,10 +357,11 @@ class TestViewCudaArrayInterfaceGPU:
         assert view.shape == expected_shape
         assert view.size == _arr_size(in_arr)
         strides_in_counts = _arr_strides_in_counts(in_arr)
-        if _arr_is_c_contiguous(in_arr):
-            assert view.strides in (None, strides_in_counts)
+        if view.strides is None:
+            assert _arr_is_c_contiguous(in_arr)
         else:
             assert view.strides == strides_in_counts
+        assert view.dtype == _arr_dtype(in_arr)
         assert view.device_id == dev.device_id
         assert view.is_device_accessible is True
         assert view.exporting_obj is in_arr
