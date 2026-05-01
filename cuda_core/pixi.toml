@@ -15,7 +15,7 @@ cuda-version = ["12.*", "13.2.*"]
 [feature.test.dependencies]
 cuda-core = { path = "." }
 ml_dtypes = "*"
-pytest = "*"
+pytest = ">=9"
 pytest-benchmark = "*"
 pytest-randomly = "*"
 pytest-repeat = "*"
@@ -99,7 +99,7 @@ numpy = "*"
 numpydoc = "*"
 pip = "*"
 pydata-sphinx-theme = "*"
-pytest = "*"
+pytest = ">=9"
 scipy = "*"
 sphinx = "<8.2.0"
 sphinx-copybutton = "*"
