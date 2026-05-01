@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0a3530b1"></script>
+    <script src="../_static/documentation_options.js?v=788769d5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev119';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev125';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -684,10 +684,11 @@ existing managed-memory pointer with <a class="reference internal" href="#cuda.c
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The legacy <code class="docutils literal notranslate"><span class="pre">cuMemRangeGetAttribute</span></code> query path returns integer
-device ordinals, so <code class="docutils literal notranslate"><span class="pre">Host(numa_id=...)</span></code> collapses to <code class="docutils literal notranslate"><span class="pre">Host()</span></code>
-on read-back. Setters preserve full NUMA information when issuing
-advice.</p>
+<p>On CUDA 13 builds, <code class="docutils literal notranslate"><span class="pre">preferred_location</span></code> round-trips full NUMA
+information. On CUDA 12 the legacy <code class="docutils literal notranslate"><span class="pre">cuMemRangeGetAttribute</span></code> query
+path returns integer device ordinals, so <code class="docutils literal notranslate"><span class="pre">Host(numa_id=...)</span></code>
+collapses to <code class="docutils literal notranslate"><span class="pre">Host()</span></code> on read-back. Setters preserve full NUMA
+information when issuing advice on both.</p>
 </div>
 <p class="rubric">Methods</p>
 <dl class="py method">
@@ -992,17 +993,10 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
 <dt class="sig sig-object py" id="cuda.core.ManagedBuffer.preferred_location">
 <span class="sig-name descname"><span class="pre">preferred_location</span></span><a class="headerlink" href="#cuda.core.ManagedBuffer.preferred_location" title="Link to this definition">#</a></dt>
 <dd><p>Currently applied <code class="docutils literal notranslate"><span class="pre">set_preferred_location</span></code> target, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The legacy <code class="docutils literal notranslate"><span class="pre">CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION</span></code> carries
-only a device ordinal (or <code class="docutils literal notranslate"><span class="pre">-1</span></code> for host) and cannot represent
-a specific NUMA node. As a result, <code class="docutils literal notranslate"><span class="pre">Host(numa_id=N)</span></code> set via
-the setter currently round-trips back as <code class="docutils literal notranslate"><span class="pre">Host()</span></code>. The CUDA 13
-driver added <code class="docutils literal notranslate"><span class="pre">..._PREFERRED_LOCATION_TYPE</span></code> / <code class="docutils literal notranslate"><span class="pre">..._ID</span></code> for
-full <code class="docutils literal notranslate"><span class="pre">CUmemLocation</span></code> round-trip, but <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> does
-not yet expose these via <code class="docutils literal notranslate"><span class="pre">cuMemRangeGetAttribute</span></code>; once it
-does, this getter will be upgraded.</p>
-</div>
+<p>On CUDA 13 builds, fully round-trips <code class="docutils literal notranslate"><span class="pre">Host(numa_id=N)</span></code>. On CUDA 12
+the legacy attribute carries only a device ordinal (or <code class="docutils literal notranslate"><span class="pre">-1</span></code> for
+host), so <code class="docutils literal notranslate"><span class="pre">Host(numa_id=N)</span></code> set via the setter round-trips back
+as <code class="docutils literal notranslate"><span class="pre">Host()</span></code>.</p>
 </dd></dl>
 
 <dl class="py attribute">
