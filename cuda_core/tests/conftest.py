@@ -17,6 +17,7 @@ except ImportError:
     from cuda import cuda as driver
 
 import cuda.core
+from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -88,37 +89,6 @@ def create_pinned_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
     except CUDAError as e:
         xfail_if_mempool_oom(e, xfail_device)
         raise
-
-
-def is_windows_mcdm_device(device=0):
-    if sys.platform != "win32":
-        return False
-    try:
-        import cuda.bindings.nvml as nvml
-
-        device_id = int(device.device_id if hasattr(device, "device_id") else device)
-        (err,) = driver.cuInit(0)
-        if err != driver.CUresult.CUDA_SUCCESS:
-            return False
-        err, pci_bus_id = driver.cuDeviceGetPCIBusId(13, device_id)
-        if err != driver.CUresult.CUDA_SUCCESS:
-            return False
-        pci_bus_id = pci_bus_id.split(b"\x00", 1)[0].decode("ascii")
-        nvml.init_v2()
-        try:
-            handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
-            current, _ = nvml.device_get_driver_model_v2(handle)
-            return current == nvml.DriverModel.DRIVER_MCDM
-        finally:
-            nvml.shutdown()
-    except Exception:
-        # If MCDM detection fails, leave the primary test failure visible.
-        return False
-
-
-def xfail_if_mempool_oom(exc, device=0):
-    if "CUDA_ERROR_OUT_OF_MEMORY" in str(exc) and is_windows_mcdm_device(device):
-        pytest.xfail("Driver could not reserve VA for mempool operations on Windows MCDM")
 
 
 def _device_id_from_resource_options(device, args, kwargs):

@@ -12,6 +12,7 @@ import pytest
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
+from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 
 
 def driverVersionLessThan(target):
@@ -30,36 +31,6 @@ def supportsMemoryPool():
 def supportsManagedMemory():
     err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrManagedMemory, 0)
     return err == cudart.cudaError_t.cudaSuccess and isSupported
-
-
-def is_windows_mcdm_device(device):
-    if platform.system() != "Windows":
-        return False
-    try:
-        import cuda.bindings.nvml as nvml
-
-        (err,) = cuda.cuInit(0)
-        if err != cuda.CUresult.CUDA_SUCCESS:
-            return False
-        err, pci_bus_id = cuda.cuDeviceGetPCIBusId(13, device)
-        if err != cuda.CUresult.CUDA_SUCCESS:
-            return False
-        pci_bus_id = pci_bus_id.split(b"\x00", 1)[0].decode("ascii")
-        nvml.init_v2()
-        try:
-            handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
-            current, _ = nvml.device_get_driver_model_v2(handle)
-            return current == nvml.DriverModel.DRIVER_MCDM
-        finally:
-            nvml.shutdown()
-    except Exception:
-        # If MCDM detection fails, leave the primary test failure visible.
-        return False
-
-
-def xfail_if_mempool_oom(err, api_name, device=0):
-    if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY and is_windows_mcdm_device(device):
-        pytest.xfail(f"{api_name} could not reserve VA for mempool operations on Windows MCDM")
 
 
 def supportsCudaAPI(name):
