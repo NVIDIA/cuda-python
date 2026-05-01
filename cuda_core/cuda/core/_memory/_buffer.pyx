@@ -131,9 +131,8 @@ cdef class Buffer:
         # Must not serialize the parent's stream!
         return Buffer._reduce_helper, (self.memory_resource, self.get_ipc_descriptor())
 
-    @classmethod
+    @staticmethod
     def from_handle(
-        cls,
         ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
         owner: object | None = None,
     ) -> Buffer:
@@ -159,11 +158,8 @@ cdef class Buffer:
         When neither ``mr`` nor ``owner`` is specified, this creates a
         non-owning reference.  The pointer will NOT be freed when the
         :class:`Buffer` is closed or garbage collected.
-
-        Subclasses inherit this method via :meth:`Buffer._init`, so e.g.
-        ``ManagedBuffer.from_handle(ptr, size)`` returns a ``ManagedBuffer``.
         """
-        return cls._init(ptr, size, mr=mr, owner=owner)
+        return Buffer._init(ptr, size, mr=mr, owner=owner)
 
     @classmethod
     def from_ipc_descriptor(

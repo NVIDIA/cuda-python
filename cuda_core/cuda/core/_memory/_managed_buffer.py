@@ -12,6 +12,7 @@ from cuda.core._memory._managed_memory_ops import advise, discard, discard_prefe
 from cuda.core._utils.cuda_utils import driver, handle_return
 
 if TYPE_CHECKING:
+    from cuda.core._memory._buffer import MemoryResource
     from cuda.core._stream import Stream
     from cuda.core.graph import GraphBuilder
 
@@ -101,9 +102,7 @@ class ManagedBuffer(Buffer):
     """Managed (unified) memory buffer with a property-style advice API.
 
     Returned by :meth:`ManagedMemoryResource.allocate`, or wrap an
-    existing managed-memory pointer with :meth:`Buffer.from_handle`
-    (which dispatches by class — ``ManagedBuffer.from_handle(...)``
-    returns a ``ManagedBuffer``).
+    existing managed-memory pointer with :meth:`ManagedBuffer.from_handle`.
 
     Examples
     --------
@@ -120,6 +119,35 @@ class ManagedBuffer(Buffer):
     on read-back. Setters preserve full NUMA information when issuing
     advice.
     """
+
+    @classmethod
+    def from_handle(
+        cls,
+        ptr,
+        size: int,
+        mr: MemoryResource | None = None,
+        owner: object | None = None,
+    ) -> ManagedBuffer:
+        """Wrap an existing managed-memory pointer in a :class:`ManagedBuffer`.
+
+        Use this when you have an externally-allocated managed pointer
+        and want the property-style advice API (:attr:`read_mostly`,
+        :attr:`preferred_location`, :attr:`accessed_by`).
+
+        Parameters
+        ----------
+        ptr : :obj:`~_memory.DevicePointerT`
+            Pointer to a managed allocation.
+        size : int
+            Allocation size in bytes.
+        mr : :obj:`~_memory.MemoryResource`, optional
+            Memory resource that owns ``ptr``. When provided, its
+            ``deallocate`` is called when the buffer is closed.
+        owner : object, optional
+            An object that keeps the underlying allocation alive.
+            ``owner`` and ``mr`` cannot both be specified.
+        """
+        return cls._init(ptr, size, mr=mr, owner=owner)
 
     @property
     def read_mostly(self) -> bool:
