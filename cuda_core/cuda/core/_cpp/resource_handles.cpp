@@ -245,9 +245,9 @@ static const ContextBox* get_box(const ContextHandle& h) noexcept {
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 static HandleRegistry<CUcontext, ContextHandle> context_registry;
-}  // namespace
 
-ContextHandle create_context_handle_ref(CUcontext ctx) {
+// Create a context handle reference, with optional green context as source.
+ContextHandle create_context_handle_ref(CUcontext ctx, GreenCtxHandle h_green_ctx) {
     if (!ctx) {
         return {};
     }
@@ -255,7 +255,7 @@ ContextHandle create_context_handle_ref(CUcontext ctx) {
         return h;
     }
     auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox{ctx, {}},
+        new ContextBox{ctx, std::move(h_green_ctx)},
         [](const ContextBox* b) {
             context_registry.unregister_handle(b->resource);
             delete b;
@@ -265,8 +265,14 @@ ContextHandle create_context_handle_ref(CUcontext ctx) {
     context_registry.register_handle(ctx, h);
     return h;
 }
+}  // namespace
+
+ContextHandle create_context_handle_ref(CUcontext ctx) {
+    return create_context_handle_ref(ctx, {});
+}
 
 ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx) {
+    GILReleaseGuard gil;
     if (!h_green_ctx) {
         return {};
     }
@@ -275,22 +281,12 @@ ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green
         return {};
     }
 
-    GILReleaseGuard gil;
     CUcontext ctx = nullptr;
     if (CUDA_SUCCESS != (err = p_cuCtxFromGreenCtx(&ctx, as_cu(h_green_ctx)))) {
         return {};
     }
 
-    auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox{ctx, h_green_ctx},
-        [](const ContextBox* b) {
-            context_registry.unregister_handle(b->resource);
-            delete b;
-        }
-    );
-    ContextHandle h(box, &box->resource);
-    context_registry.register_handle(ctx, h);
-    return h;
+    return create_context_handle_ref(ctx, h_green_ctx);
 }
 
 GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept {
@@ -302,12 +298,12 @@ GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept {
 
 GreenCtxHandle create_green_ctx_handle(CUdevResource* resources, unsigned int nbResources,
                                        CUdevice dev, unsigned int flags) {
+    GILReleaseGuard gil;
     if (!p_cuDevResourceGenerateDesc || !p_cuGreenCtxCreate || !p_cuGreenCtxDestroy) {
         err = CUDA_ERROR_NOT_SUPPORTED;
         return {};
     }
 
-    GILReleaseGuard gil;
     CUdevResourceDesc desc = nullptr;
     if (CUDA_SUCCESS != (err = p_cuDevResourceGenerateDesc(&desc, resources, nbResources))) {
         return {};

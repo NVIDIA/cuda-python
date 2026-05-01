@@ -8,7 +8,7 @@ cimport cpython
 
 from cuda.bindings cimport cydriver
 from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
-from libc.stdlib cimport free, malloc
+from libcpp.vector cimport vector
 
 import threading
 
@@ -1292,13 +1292,11 @@ class Device:
             Newly created context object.
 
         """
-        cdef int n_resources
         cdef int i
         cdef object resources
         cdef object res
         cdef SMResource sm_res
         cdef WorkqueueResource wq_res
-        cdef cydriver.CUdevResource* c_resources = NULL
         cdef GreenCtxHandle h_green
 
         if options is None:
@@ -1316,39 +1314,32 @@ class Device:
         if len(resources) == 0:
             raise ValueError("ContextOptions.resources must not be empty")
 
-        n_resources = len(resources)
-        c_resources = <cydriver.CUdevResource*>malloc(
-            n_resources * sizeof(cydriver.CUdevResource)
+        cdef vector[cydriver.CUdevResource] c_resources
+        c_resources.resize(len(resources))
+
+        for i, res in enumerate(resources):
+            if isinstance(res, SMResource):
+                sm_res = <SMResource>res
+                if not sm_res._is_usable:
+                    raise ValueError("dry-run SMResource objects cannot be used to create a context")
+                c_resources[i] = sm_res._resource
+            elif isinstance(res, WorkqueueResource):
+                wq_res = <WorkqueueResource>res
+                c_resources[i] = wq_res._wq_config_resource
+            else:
+                raise TypeError(f"Unsupported context resource type: {type(res)}")
+
+        h_green = create_green_ctx_handle(
+            c_resources.data(),
+            <unsigned int>(c_resources.size()),
+            <cydriver.CUdevice>(self._device_id),
+            <unsigned int>(cydriver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM),
         )
-        if c_resources == NULL:
-            raise MemoryError()
+        if h_green.get() == NULL:
+            HANDLE_RETURN(get_last_error())
+            raise RuntimeError("Failed to create CUDA green context")
 
-        try:
-            for i, res in enumerate(resources):
-                if isinstance(res, SMResource):
-                    sm_res = <SMResource>res
-                    if not sm_res._is_usable:
-                        raise ValueError("dry-run SMResource objects cannot be used to create a context")
-                    c_resources[i] = sm_res._resource
-                elif isinstance(res, WorkqueueResource):
-                    wq_res = <WorkqueueResource>res
-                    c_resources[i] = wq_res._wq_config_resource
-                else:
-                    raise TypeError(f"Unsupported context resource type: {type(res)}")
-
-            h_green = create_green_ctx_handle(
-                c_resources,
-                <unsigned int>(n_resources),
-                <cydriver.CUdevice>(self._device_id),
-                <unsigned int>(cydriver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM),
-            )
-            if h_green.get() == NULL:
-                HANDLE_RETURN(get_last_error())
-                raise RuntimeError("Failed to create CUDA green context")
-
-            return Context._from_green_ctx(Context, h_green, self._device_id)
-        finally:
-            free(c_resources)
+        return Context._from_green_ctx(Context, h_green, self._device_id)
 
     def create_stream(self, obj: IsStreamT | None = None, options: StreamOptions | None = None) -> Stream:
         """Create a :obj:`~_stream.Stream` object.
