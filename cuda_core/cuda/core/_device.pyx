@@ -14,7 +14,6 @@ import threading
 from cuda.core._context cimport Context
 from cuda.core._context import ContextOptions
 from cuda.core._event cimport Event as cyEvent
-from cuda.core.graph._graph_builder cimport GraphBuilder
 from cuda.core._event import Event, EventOptions
 from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._resource_handles cimport (
@@ -1371,6 +1370,8 @@ class Device:
             Newly created graph builder object.
 
         """
+        from cuda.core.graph._graph_builder import GraphBuilder
+
         self._check_context_initialized()
         return GraphBuilder._init(self.create_stream())
 
