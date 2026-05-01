@@ -21,7 +21,7 @@ from helpers import IS_WINDOWS, supports_ipc_mempool
 from helpers.buffers import DummyUnifiedMemoryResource, TrackingMR
 
 from conftest import (
-    create_managed_memory_resource_or_xfail,
+    create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_skip,
     skip_if_managed_memory_unsupported,
     skip_if_pinned_memory_unsupported,
@@ -618,7 +618,7 @@ def test_managed_memory_resource_buffer_dlpack_device_type():
     device = Device()
     device.set_current()
     skip_if_managed_memory_unsupported(device)
-    mr = create_managed_memory_resource_or_xfail(ManagedMemoryResourceOptions(preferred_location=device.device_id))
+    mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
     buf = mr.allocate(1024)
 
     assert mr.is_managed
@@ -714,7 +714,7 @@ def test_managed_memory_resource_initialization(init_cuda):
 
     device.set_current()
 
-    mr = create_managed_memory_resource_or_xfail()
+    mr = create_managed_memory_resource_or_skip()
     assert mr.is_device_accessible
     assert mr.is_host_accessible
 
@@ -1029,7 +1029,7 @@ def test_managed_memory_resource_with_options(init_cuda):
 
     # Test basic pool creation
     options = ManagedMemoryResourceOptions()
-    mr = create_managed_memory_resource_or_xfail(options)
+    mr = create_managed_memory_resource_or_skip(options)
     assert mr.is_device_accessible
     assert mr.is_host_accessible
     assert not mr.is_ipc_enabled
@@ -1072,7 +1072,7 @@ def test_managed_memory_resource_preferred_location_default(init_cuda):
     skip_if_managed_memory_unsupported(device)
     device.set_current()
 
-    mr = create_managed_memory_resource_or_xfail()
+    mr = create_managed_memory_resource_or_skip()
     assert mr.preferred_location is None
 
 
@@ -1084,7 +1084,7 @@ def test_managed_memory_resource_preferred_location_device(init_cuda):
 
     # Legacy style
     opts = ManagedMemoryResourceOptions(preferred_location=device.device_id)
-    mr = create_managed_memory_resource_or_xfail(opts)
+    mr = create_managed_memory_resource_or_skip(opts)
     assert mr.preferred_location == ("device", device.device_id)
 
     # Explicit style
@@ -1092,7 +1092,7 @@ def test_managed_memory_resource_preferred_location_device(init_cuda):
         preferred_location=device.device_id,
         preferred_location_type="device",
     )
-    mr = create_managed_memory_resource_or_xfail(opts)
+    mr = create_managed_memory_resource_or_skip(opts)
     assert mr.preferred_location == ("device", device.device_id)
 
 
@@ -1104,12 +1104,12 @@ def test_managed_memory_resource_preferred_location_host(init_cuda):
 
     # Legacy style
     opts = ManagedMemoryResourceOptions(preferred_location=-1)
-    mr = create_managed_memory_resource_or_xfail(opts)
+    mr = create_managed_memory_resource_or_skip(opts)
     assert mr.preferred_location == ("host", None)
 
     # Explicit style
     opts = ManagedMemoryResourceOptions(preferred_location_type="host")
-    mr = create_managed_memory_resource_or_xfail(opts)
+    mr = create_managed_memory_resource_or_skip(opts)
     assert mr.preferred_location == ("host", None)
 
 
@@ -1125,7 +1125,7 @@ def test_managed_memory_resource_preferred_location_host_numa(init_cuda):
 
     # Auto-resolved from current device
     opts = ManagedMemoryResourceOptions(preferred_location_type="host_numa")
-    mr = create_managed_memory_resource_or_xfail(opts)
+    mr = create_managed_memory_resource_or_skip(opts)
     assert mr.preferred_location == ("host_numa", numa_id)
 
     # Explicit NUMA node ID
@@ -1133,7 +1133,7 @@ def test_managed_memory_resource_preferred_location_host_numa(init_cuda):
         preferred_location=numa_id,
         preferred_location_type="host_numa",
     )
-    mr = create_managed_memory_resource_or_xfail(opts)
+    mr = create_managed_memory_resource_or_skip(opts)
     assert mr.preferred_location == ("host_numa", numa_id)
 
 
@@ -1424,7 +1424,7 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
         assert mr.is_ipc_enabled == ipc_enabled
     elif MR is ManagedMemoryResource:
         options = MRops()
-        mr = create_managed_memory_resource_or_xfail(options)
+        mr = create_managed_memory_resource_or_skip(options)
         assert not mr.is_ipc_enabled
 
     # Get the property value
@@ -1477,7 +1477,7 @@ def test_mempool_attributes_repr(memory_resource_factory):
     elif MR is PinnedMemoryResource:
         mr = MR(options={"max_size": 2048})
     elif MR is ManagedMemoryResource:
-        mr = create_managed_memory_resource_or_xfail(options={})
+        mr = create_managed_memory_resource_or_skip(options={})
 
     buffer1 = mr.allocate(64)
     buffer2 = mr.allocate(64)
@@ -1514,7 +1514,7 @@ def test_mempool_attributes_ownership(memory_resource_factory):
     elif MR is PinnedMemoryResource:
         mr = MR({"max_size": POOL_SIZE})
     elif MR is ManagedMemoryResource:
-        mr = create_managed_memory_resource_or_xfail({})
+        mr = create_managed_memory_resource_or_skip({})
 
     attributes = mr.attributes
     mr.close()
@@ -1585,7 +1585,7 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
         mr = create_pinned_memory_resource_or_skip(xfail_device=device)
     elif MR is ManagedMemoryResource:
         skip_if_managed_memory_unsupported(device)
-        mr = create_managed_memory_resource_or_xfail(MROps(preferred_location=device.device_id))
+        mr = create_managed_memory_resource_or_skip(MROps(preferred_location=device.device_id))
     else:
         assert MR is DeviceMemoryResource
         mr = MR(device)

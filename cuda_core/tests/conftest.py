@@ -71,7 +71,9 @@ def skip_if_managed_memory_unsupported(device):
         raise
 
 
-def create_managed_memory_resource_or_xfail(*args, xfail_device=None, **kwargs):
+def create_managed_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
+    # Keep the established "skip" helper name for call-site readability, even though
+    # Windows MCDM mempool OOM setup failures are xfailed instead of skipped.
     try:
         return ManagedMemoryResource(*args, **kwargs)
     except CUDAError as e:
