@@ -27,7 +27,7 @@ from cuda.core import (
     PinnedMemoryResourceOptions,
     _device,
 )
-from cuda.core._utils.cuda_utils import handle_return
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
 
 # Import shared test helpers for tests across subprojects.
 # PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.
@@ -61,19 +61,38 @@ def skip_if_managed_memory_unsupported(device):
         pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
     try:
         ManagedMemoryResource()
+    except CUDAError as e:
+        xfail_if_mempool_oom(e)
+        raise
     except RuntimeError as e:
         if "requires CUDA 13.0" in str(e):
             pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
         raise
 
 
-def create_managed_memory_resource_or_skip(*args, **kwargs):
+def create_managed_memory_resource_or_xfail(*args, **kwargs):
     try:
         return ManagedMemoryResource(*args, **kwargs)
+    except CUDAError as e:
+        xfail_if_mempool_oom(e)
+        raise
     except RuntimeError as e:
         if "requires CUDA 13.0" in str(e):
             pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
         raise
+
+
+def create_pinned_memory_resource_or_skip(*args, **kwargs):
+    try:
+        return PinnedMemoryResource(*args, **kwargs)
+    except CUDAError as e:
+        xfail_if_mempool_oom(e)
+        raise
+
+
+def xfail_if_mempool_oom(exc):
+    if sys.platform == "win32" and "CUDA_ERROR_OUT_OF_MEMORY" in str(exc):
+        pytest.xfail("Driver could not reserve VA for mempool operations on this Windows platform")
 
 
 @pytest.fixture(scope="session", autouse=True)

@@ -3,6 +3,7 @@
 
 import ctypes
 import math
+import platform
 
 import numpy as np
 import pytest
@@ -30,6 +31,11 @@ def driverVersionLessThan(target):
 def supportsMemoryPool():
     err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
     return isSuccess(err) and isSupported
+
+
+def xfail_if_mempool_oom(err, api_name):
+    if platform.system() == "Windows" and err == cudart.cudaError_t.cudaErrorMemoryAllocation:
+        pytest.xfail(f"{api_name} could not reserve VA for mempool operations on this Windows platform")
 
 
 def supportsSparseTexturesDeviceFilter():
@@ -432,6 +438,7 @@ def test_cudart_MemPool_attr():
 
     attr_list = [None] * 8
     err, pool = cudart.cudaMemPoolCreate(poolProps)
+    xfail_if_mempool_oom(err, "cudaMemPoolCreate")
     assertSuccess(err)
 
     for idx, attr in enumerate(
