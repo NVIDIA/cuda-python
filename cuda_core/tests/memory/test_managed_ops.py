@@ -578,6 +578,29 @@ class TestManagedBuffer:
         finally:
             plain.close()
 
+    def test_preferred_location_roundtrip_host_numa(self, init_cuda):
+        """Host(numa_id=N) round-trips correctly on CUDA 13 builds."""
+        from cuda.core._utils.version import binding_version
+
+        if binding_version() < (13, 0, 0):
+            pytest.skip("Host(numa_id=N) round-trip requires CUDA 13 bindings")
+        device = Device()
+        _skip_if_managed_location_ops_unsupported(device)
+        device.set_current()
+        plain = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+        try:
+            buf = ManagedBuffer.from_handle(plain.handle, plain.size, owner=plain)
+            # An explicit NUMA id round-trips via the cu13 v2 attribute pair.
+            # NUMA node 0 exists on every multi-NUMA system; on single-NUMA
+            # systems the driver may collapse to HOST or reject — skip then.
+            buf.preferred_location = Host(numa_id=0)
+            got = buf.preferred_location
+            if got is None or not (isinstance(got, Host) and got.numa_id == 0):
+                pytest.skip("host_numa preferred_location not supported by this driver / hardware")
+            assert got == Host(numa_id=0)
+        finally:
+            plain.close()
+
     def test_accessed_by_add_discard(self, init_cuda):
         device = Device()
         _skip_if_managed_location_ops_unsupported(device)

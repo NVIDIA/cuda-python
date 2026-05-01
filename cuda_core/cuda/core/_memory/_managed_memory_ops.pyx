@@ -333,6 +333,45 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
     ) except ?cydriver.CUDA_ERROR_NOT_FOUND nogil
 
 
+    def _read_preferred_location_v2(Buffer buf):
+        """Internal: read preferred_location with full NUMA detail.
+
+        Bypasses cuda.bindings.driver.cuMemRangeGetAttribute (whose
+        attribute allowlist doesn't yet include the cu13 _TYPE / _ID
+        attributes) by calling cydriver directly.
+
+        Returns Device | Host | None.
+        """
+        cdef cydriver.CUdeviceptr cu_ptr = as_cu(buf._h_ptr)
+        cdef size_t nbytes = buf._size
+        cdef int loc_type = 0
+        cdef int loc_id = 0
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemRangeGetAttribute(
+                <void*>&loc_type, sizeof(int),
+                cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+                cu_ptr, nbytes,
+            ))
+            HANDLE_RETURN(cydriver.cuMemRangeGetAttribute(
+                <void*>&loc_id, sizeof(int),
+                cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
+                cu_ptr, nbytes,
+            ))
+        if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
+            from cuda.core._device import Device
+            return Device(loc_id)
+        if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST:
+            from cuda.core._host import Host
+            return Host()
+        if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA:
+            from cuda.core._host import Host
+            return Host(numa_id=loc_id)
+        if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT:
+            from cuda.core._host import Host
+            return Host.numa_current()
+        return None  # CU_MEM_LOCATION_TYPE_INVALID — no preferred location
+
+
     cdef void _do_batch_prefetch_op(tuple bufs, tuple locs, Stream s, _BatchPrefetchFn fn):
         """Shared body for batched prefetch / discard-and-prefetch."""
         cdef Py_ssize_t n = len(bufs)

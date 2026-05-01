@@ -15,6 +15,7 @@ from cuda.core._memory._managed_memory_ops import (
     _do_single_prefetch_py,
 )
 from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core._utils.version import binding_version
 
 if TYPE_CHECKING:
     from cuda.core._memory._buffer import MemoryResource
@@ -119,10 +120,11 @@ class ManagedBuffer(Buffer):
 
     Note
     ----
-    The legacy ``cuMemRangeGetAttribute`` query path returns integer
-    device ordinals, so ``Host(numa_id=...)`` collapses to ``Host()``
-    on read-back. Setters preserve full NUMA information when issuing
-    advice.
+    On CUDA 13 builds, ``preferred_location`` round-trips full NUMA
+    information. On CUDA 12 the legacy ``cuMemRangeGetAttribute`` query
+    path returns integer device ordinals, so ``Host(numa_id=...)``
+    collapses to ``Host()`` on read-back. Setters preserve full NUMA
+    information when issuing advice on both.
     """
 
     @classmethod
@@ -167,16 +169,16 @@ class ManagedBuffer(Buffer):
     def preferred_location(self) -> Device | Host | None:
         """Currently applied ``set_preferred_location`` target, or ``None``.
 
-        .. note::
-           The legacy ``CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION`` carries
-           only a device ordinal (or ``-1`` for host) and cannot represent
-           a specific NUMA node. As a result, ``Host(numa_id=N)`` set via
-           the setter currently round-trips back as ``Host()``. The CUDA 13
-           driver added ``..._PREFERRED_LOCATION_TYPE`` / ``..._ID`` for
-           full ``CUmemLocation`` round-trip, but ``cuda.bindings`` does
-           not yet expose these via ``cuMemRangeGetAttribute``; once it
-           does, this getter will be upgraded.
+        On CUDA 13 builds, fully round-trips ``Host(numa_id=N)``. On CUDA 12
+        the legacy attribute carries only a device ordinal (or ``-1`` for
+        host), so ``Host(numa_id=N)`` set via the setter round-trips back
+        as ``Host()``.
         """
+        if binding_version() >= (13, 0, 0):
+            from cuda.core._memory._managed_memory_ops import _read_preferred_location_v2
+
+            return _read_preferred_location_v2(self)
+        # CUDA 12 legacy path (no NUMA info available).
         loc_id = _get_int_attr(self, _ATTR_PREFERRED)
         if loc_id == -2:
             return None
