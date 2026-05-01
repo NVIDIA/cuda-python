@@ -18,9 +18,18 @@ docs = { features = [], solve-group = "docs" }
 PIXI_ENVIRONMENT_NAME = "${PIXI_ENVIRONMENT_NAME/default/cu13}"
 
 # Test Tasks
-# Runs tests across all sub-packages: pathfinder → bindings → core (dependency order)
-# Each sub-package has its own pixi.toml; the active environment is forwarded
-# explicitly via -e "$PIXI_ENVIRONMENT_NAME" in each inner pixi run.
+# Runs tests across all sub-packages: pathfinder → bindings → core (dependency order).
+#
+# Each sub-package has its own pixi.toml. We wrap each task in `bash -c '...'`
+# (single-quoted in TOML, double-quoted inside) because pixi `cmd` arrays do
+# not expand shell variables -- without this, the inner `pixi run` would drop
+# into the sub-package's `default` environment, which lacks a cuda-version
+# pin, causing the conda solver to pick a mismatched CUDA toolkit. Forwarding
+# `-e "$PIXI_ENVIRONMENT_NAME"` keeps the active environment consistent end
+# to end.
+#
+# Linux-only for now; Windows/macOS root test-task parity is tracked
+# separately.
 #
 # Usage: pixi run test | pixi run -e cu12 test | pixi run -e cu13 test
 [target.linux.tasks.test-pathfinder]
