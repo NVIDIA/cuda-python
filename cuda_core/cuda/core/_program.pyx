@@ -173,7 +173,7 @@ class ProgramOptions:
     Attributes
     ----------
     name : str, optional
-        Name of the program. If the compilation succeeds, the name is passed down to the generated `ObjectCode`.
+        Name of the program. If the compilation succeeds, the name is passed down to the generated :class:`ObjectCode`.
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
         ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture
@@ -272,13 +272,13 @@ class ProgramOptions:
         Disable the display of a diagnostic number for warning messages.
         Default: False
     diag_error : Union[int, list[int]], optional
-        Emit error for a specified diagnostic message number or comma separated list of numbers.
+        Emit error for a specified diagnostic message number or comma-separated list of numbers.
         Default: None
     diag_suppress : Union[int, list[int]], optional
-        Suppress a specified diagnostic message number or comma separated list of numbers.
+        Suppress a specified diagnostic message number or comma-separated list of numbers.
         Default: None
     diag_warn : Union[int, list[int]], optional
-        Emit warning for a specified diagnostic message number or comma separated lis of numbers.
+        Emit warning for a specified diagnostic message number or comma-separated list of numbers.
         Default: None
     brief_diagnostics : bool, optional
         Disable or enable showing source line and column info in a diagnostic.

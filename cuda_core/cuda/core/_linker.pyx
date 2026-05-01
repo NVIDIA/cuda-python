@@ -106,11 +106,11 @@ cdef class Linker:
         cdef char* c_log_ptr
         if self._use_nvjitlink:
             c_h = as_cu(self._nvjitlink_handle)
-            cynvjitlink.nvJitLinkGetErrorLogSize(c_h, &c_log_size)
+            HANDLE_RETURN_NVJITLINK(c_h, cynvjitlink.nvJitLinkGetErrorLogSize(c_h, &c_log_size))
             log = bytearray(c_log_size)
             if c_log_size > 0:
                 c_log_ptr = <char*>(<bytearray>log)
-                cynvjitlink.nvJitLinkGetErrorLog(c_h, c_log_ptr)
+                HANDLE_RETURN_NVJITLINK(c_h, cynvjitlink.nvJitLinkGetErrorLog(c_h, c_log_ptr))
             return log.decode("utf-8", errors="backslashreplace")
         else:
             return (<bytearray>self._drv_log_bufs[2]).decode(
@@ -132,11 +132,11 @@ cdef class Linker:
         cdef char* c_log_ptr
         if self._use_nvjitlink:
             c_h = as_cu(self._nvjitlink_handle)
-            cynvjitlink.nvJitLinkGetInfoLogSize(c_h, &c_log_size)
+            HANDLE_RETURN_NVJITLINK(c_h, cynvjitlink.nvJitLinkGetInfoLogSize(c_h, &c_log_size))
             log = bytearray(c_log_size)
             if c_log_size > 0:
                 c_log_ptr = <char*>(<bytearray>log)
-                cynvjitlink.nvJitLinkGetInfoLog(c_h, c_log_ptr)
+                HANDLE_RETURN_NVJITLINK(c_h, cynvjitlink.nvJitLinkGetInfoLog(c_h, c_log_ptr))
             return log.decode("utf-8", errors="backslashreplace")
         else:
             return (<bytearray>self._drv_log_bufs[0]).decode(
@@ -200,7 +200,7 @@ class LinkerOptions:
     Attributes
     ----------
     name : str, optional
-        Name of the linker. If the linking succeeds, the name is passed down to the generated `ObjectCode`.
+        Name of the linker. If the linking succeeds, the name is passed down to the generated :class:`ObjectCode`.
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
         ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture

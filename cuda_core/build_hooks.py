@@ -11,6 +11,7 @@ import functools
 import glob
 import os
 import re
+import subprocess
 import sys
 import tempfile
 import zipfile
@@ -167,20 +168,44 @@ def _build_cuda_core(debug=False):
     extra_link_args = []
     extra_cythonize_kwargs = {}
     if sys.platform == "win32":
+        extra_compile_args += ["/std:c++17"]
         if debug:
             raise RuntimeError("Debuggable builds are not supported on Windows.")
     else:
+        extra_compile_args += ["-std=c++17"]
         if debug:
             extra_cythonize_kwargs["gdb_debug"] = True
             extra_compile_args += ["-g", "-O0"]
             extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
         else:
-            extra_compile_args += ["-O3"]
+            extra_compile_args += ["-O2"]
             extra_link_args += ["-Wl,--strip-all"]
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
         # related to free-threading builds.
         extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
+
+    # On Windows, _tensor_bridge.pyx needs a stub import library so the MSVC
+    # linker can resolve the AOTI symbols (they live in torch_cpu.dll at
+    # runtime).  We generate the .lib from a .def file at build time.
+    # Note: aoti_torch_get_current_cuda_stream lives in torch_cuda.dll and
+    # is resolved lazily at runtime (not via the stub lib) — see
+    # _tensor_bridge.pyx.
+    _aoti_extra_link_args = []
+    if sys.platform == "win32":
+        _def_file = os.path.join("cuda", "core", "_include", "aoti_shim.def")
+        _lib_file = os.path.join("build", "aoti_shim.lib")
+        os.makedirs("build", exist_ok=True)
+        subprocess.check_call(  # noqa: S603
+            ["lib", f"/DEF:{_def_file}", f"/OUT:{_lib_file}", "/MACHINE:X64"],  # noqa: S607
+            stdout=subprocess.DEVNULL,
+        )
+        _aoti_extra_link_args = [_lib_file]
+
+    def get_extra_link_args(mod_name):
+        if mod_name == "_tensor_bridge" and _aoti_extra_link_args:
+            return extra_link_args + _aoti_extra_link_args
+        return extra_link_args
 
     ext_modules = tuple(
         Extension(
@@ -193,7 +218,7 @@ def _build_cuda_core(debug=False):
             + all_include_dirs,
             language="c++",
             extra_compile_args=extra_compile_args,
-            extra_link_args=extra_link_args,
+            extra_link_args=get_extra_link_args(mod),
         )
         for mod in module_names()
     )

@@ -148,6 +148,63 @@ class TestFindInSitePackages:
         assert result is None
         assert any("No such file" in m for m in ctx.error_messages)
 
+    # The next three tests cover the Linux glob fallback in
+    # cuda.pathfinder._dynamic_libs.search_platform._find_so_in_rel_dirs.
+    # The fallback triggers when the unversioned libfoo.so is absent but
+    # versioned libfoo.so.<major> files exist (e.g. some conda layouts).
+    # Issue #1732 tracks the decision to return the newest-sorting match
+    # deterministically; these tests lock in that policy at the
+    # site-packages call site.
+
+    def test_glob_fallback_returns_single_versioned_match(self, mocker, tmp_path):
+        lib_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
+        lib_dir.mkdir(parents=True)
+        versioned = lib_dir / "libcudart.so.13"
+        versioned.touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(lib_dir)],
+        )
+
+        result = find_in_site_packages(_ctx(platform=LinuxSearchPlatform()))
+        assert result is not None
+        assert result.abs_path == str(versioned)
+        assert result.found_via == "site-packages"
+
+    def test_glob_fallback_returns_newest_of_multiple_matches(self, mocker, tmp_path):
+        lib_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
+        lib_dir.mkdir(parents=True)
+        older = lib_dir / "libcudart.so.12"
+        newer = lib_dir / "libcudart.so.13"
+        older.touch()
+        newer.touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(lib_dir)],
+        )
+
+        result = find_in_site_packages(_ctx(platform=LinuxSearchPlatform()))
+        assert result is not None
+        assert result.abs_path == str(newer)
+        assert result.found_via == "site-packages"
+
+    def test_glob_fallback_zero_matches_returns_none(self, mocker, tmp_path):
+        lib_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
+        lib_dir.mkdir(parents=True)
+        (lib_dir / "unrelated.txt").touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(lib_dir)],
+        )
+
+        ctx = _ctx(platform=LinuxSearchPlatform())
+        result = find_in_site_packages(ctx)
+        assert result is None
+        assert any("No such file" in m and "libcudart.so" in m for m in ctx.error_messages)
+
 
 # ---------------------------------------------------------------------------
 # find_in_conda
@@ -188,6 +245,54 @@ class TestFindInConda:
         assert result is not None
         assert result.abs_path == str(dll)
         assert result.found_via == "conda"
+
+    # The next three tests cover the Linux glob fallback in
+    # cuda.pathfinder._dynamic_libs.search_platform.LinuxSearchPlatform.find_in_lib_dir,
+    # which is exercised by find_in_conda (and find_in_cuda_path) when the
+    # resolved lib dir contains only versioned libfoo.so.<major> files.
+    # Issue #1732 tracks the decision to return the newest-sorting match
+    # deterministically; these tests lock in that policy at the conda /
+    # CUDA_PATH call site.
+
+    def test_glob_fallback_returns_single_versioned_match(self, mocker, tmp_path):
+        lib_dir = tmp_path / "lib"
+        lib_dir.mkdir()
+        versioned = lib_dir / "libcudart.so.13"
+        versioned.touch()
+
+        mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
+
+        result = find_in_conda(_ctx(platform=LinuxSearchPlatform()))
+        assert result is not None
+        assert result.abs_path == str(versioned)
+        assert result.found_via == "conda"
+
+    def test_glob_fallback_returns_newest_of_multiple_matches(self, mocker, tmp_path):
+        lib_dir = tmp_path / "lib"
+        lib_dir.mkdir()
+        older = lib_dir / "libcudart.so.12"
+        newer = lib_dir / "libcudart.so.13"
+        older.touch()
+        newer.touch()
+
+        mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
+
+        result = find_in_conda(_ctx(platform=LinuxSearchPlatform()))
+        assert result is not None
+        assert result.abs_path == str(newer)
+        assert result.found_via == "conda"
+
+    def test_glob_fallback_zero_matches_returns_none(self, mocker, tmp_path):
+        lib_dir = tmp_path / "lib"
+        lib_dir.mkdir()
+        (lib_dir / "unrelated.txt").touch()
+
+        mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
+
+        ctx = _ctx(platform=LinuxSearchPlatform())
+        result = find_in_conda(ctx)
+        assert result is None
+        assert any("No such file" in m and "libcudart.so" in m for m in ctx.error_messages)
 
 
 # ---------------------------------------------------------------------------

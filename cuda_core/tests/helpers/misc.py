@@ -5,7 +5,7 @@ import pytest
 
 
 def try_create_condition(g, default_value=1):
-    """Create a Condition on graph *g*, skipping the test if unsupported."""
+    """Create a GraphCondition on graph *g*, skipping the test if unsupported."""
     from cuda.core._utils.cuda_utils import CUDAError
 
     try:

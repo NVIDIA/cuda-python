@@ -6,9 +6,13 @@ Driver APIs through cuda.bindings, relative to a similar C++ baseline.
 The goal is to benchmark how much overhead does the Python layer adds to calling
 CUDA APIs and what operations are not in our target of less than 1us of overhead.
 
-Each Python benchmark has a C++ counterpart, which is used to compare the
-operations. We try to make each implementation perform small operations
-and nearly the same work as possible and are run under similar conditions.
+Most Python benchmarks have a C++ counterpart that is used as a comparative
+baseline. We try to make each implementation perform small operations and
+nearly the same work as possible and are run under similar conditions.
+
+A few benchmarks (e.g. in `bench_enum.py`) are intentionally Python-only
+because they measure costs with no direct C++ equivalent — such as enum
+construction and member access on `cuda.bindings` enum classes.
 
 These are **not** throughput benchmarks to measure the overall performance
 of kernels and applications.
@@ -47,12 +51,14 @@ To run the benchmarks combine the environment and task:
 ```bash
 # Run the Python benchmarks in the wheel environment
 pixi run -e wheel bench
+pixi run -e wheel bench --min-time 0.1
 
 # Run the Python benchmarks in the source environment
 pixi run -e source bench
 
 # Run the C++ benchmarks
 pixi run -e wheel bench-cpp
+pixi run -e wheel bench-cpp --min-time 0.1
 ```
 
 Both runners automatically save results to JSON files in the benchmarks

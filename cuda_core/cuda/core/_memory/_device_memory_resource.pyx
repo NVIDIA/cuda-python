@@ -89,19 +89,19 @@ cdef class DeviceMemoryResource(_MemPool):
     :class:`DeviceMemoryResource` and can be distinguished via
     :attr:`DeviceMemoryResource.is_mapped`.
 
-    An MR is shared via an allocation handle obtained by calling
-    :meth:`DeviceMemoryResource.get_allocation_handle`. The allocation handle
-    has a platform-specific interpretation; however, memory IPC is currently
-    only supported for Linux, and in that case allocation handles are file
-    descriptors. After sending an allocation handle to another process, it can
-    be used to create an MMR by invoking
+    An MR is shared via an allocation handle accessed through the
+    :attr:`DeviceMemoryResource.allocation_handle` property. The allocation
+    handle has a platform-specific interpretation; however, memory IPC is
+    currently only supported for Linux, and in that case allocation handles
+    are file descriptors. After sending an allocation handle to another
+    process, it can be used to create an MMR by invoking
     :meth:`DeviceMemoryResource.from_allocation_handle`.
 
-    Buffers can be shared as serializable descriptors obtained by calling
-    :meth:`Buffer.get_ipc_descriptor`. In a receiving process, a shared buffer is
-    created by invoking :meth:`Buffer.from_ipc_descriptor` with an MMR and
-    buffer descriptor, where the MMR corresponds to the MR that created the
-    described buffer.
+    Buffers can be shared as serializable descriptors accessed through the
+    :attr:`Buffer.ipc_descriptor` property. In a receiving process, a shared
+    buffer is created by invoking :meth:`Buffer.from_ipc_descriptor` with an
+    MMR and buffer descriptor, where the MMR corresponds to the MR that
+    created the described buffer.
 
     To help manage the association between memory resources and buffers, a
     registry is provided. Every MR has a unique identifier (UUID). MMRs can be
@@ -194,15 +194,12 @@ cdef class DeviceMemoryResource(_MemPool):
         mr._peer_accessible_by = ()
         return mr
 
-    def get_allocation_handle(self) -> IPCAllocationHandle:
-        """Export the memory pool handle to be shared (requires IPC).
+    @property
+    def allocation_handle(self) -> IPCAllocationHandle:
+        """Shareable handle for this memory pool (requires IPC).
 
         The handle can be used to share the memory pool with other processes.
         The handle is cached in this `MemoryResource` and owned by it.
-
-        Returns
-        -------
-            The shareable handle for the memory pool.
         """
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
@@ -223,7 +220,7 @@ cdef class DeviceMemoryResource(_MemPool):
         Returns a tuple of sorted device IDs that currently have peer access to
         allocations from this memory pool.
 
-        When setting, accepts a sequence of Device objects or device IDs.
+        When setting, accepts a sequence of :obj:`~_device.Device` objects or device IDs.
         Setting to an empty sequence revokes all peer access.
 
         For non-owned pools (the default or current device pool), the state
@@ -404,7 +401,7 @@ def _deep_reduce_device_memory_resource(mr):
     check_multiprocessing_start_method()
     from .._device import Device
     device = Device(mr.device_id)
-    alloc_handle = mr.get_allocation_handle()
+    alloc_handle = mr.allocation_handle
     return mr.from_allocation_handle, (device, alloc_handle)
 
 
