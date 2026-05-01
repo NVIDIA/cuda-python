@@ -361,7 +361,7 @@ cdef class Stream:
 
         return Stream._init(obj=_stream_holder())
 
-    def create_graph_builder(self) -> "GraphBuilder":
+    def create_graph_builder(self) -> GraphBuilder:
         """Create a new :obj:`~graph.GraphBuilder` object.
 
         The new graph builder will be associated with this stream.

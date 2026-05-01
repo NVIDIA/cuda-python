@@ -2,7 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.core._resource_handles cimport GraphHandle, StreamHandle
+from cuda.bindings cimport cydriver
+
+from cuda.core._resource_handles cimport GraphExecHandle, GraphHandle, StreamHandle
 from cuda.core._stream cimport Stream
 
 
@@ -17,3 +19,12 @@ cdef class GraphBuilder:
 
     @staticmethod
     cdef GraphBuilder _init(Stream stream)
+
+
+cdef class Graph:
+    cdef:
+        GraphExecHandle _h_graph_exec
+        object __weakref__
+
+    @staticmethod
+    cdef Graph _init(cydriver.CUgraphExec graph_exec)

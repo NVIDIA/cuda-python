@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import weakref
 from dataclasses import dataclass
 
 from libc.stdint cimport intptr_t
@@ -12,8 +11,8 @@ from cuda.bindings cimport cydriver
 from cuda.core.graph._graph_definition cimport GraphCondition
 from cuda.core.graph._utils cimport _attach_host_callback_to_graph
 from cuda.core._resource_handles cimport (
-    GraphHandle, StreamHandle, as_cu, as_py,
-    create_graph_handle, create_graph_handle_ref,
+    GraphExecHandle, GraphHandle, StreamHandle, as_cu, as_py,
+    create_graph_exec_handle, create_graph_handle, create_graph_handle_ref,
 )
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -150,7 +149,8 @@ class GraphCompleteOptions:
     use_node_priority: bool = False
 
 
-def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> "Graph":
+def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> Graph:
+    cdef cydriver.CUgraphExec c_exec
     params = driver.CUDA_GRAPH_INSTANTIATE_PARAMS()
     if options:
         flags = 0
@@ -165,7 +165,9 @@ def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> 
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
         params.flags = flags
 
-    graph = Graph._init(handle_return(driver.cuGraphInstantiateWithParams(h_graph, params)))
+    py_exec = handle_return(driver.cuGraphInstantiateWithParams(h_graph, params))
+    c_exec = <cydriver.CUgraphExec><intptr_t>int(py_exec)
+    graph = Graph._init(c_exec)
     if params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_ERROR:
         raise RuntimeError(
             "Instantiation failed for an unexpected reason which is described in the return value of the function."
@@ -354,7 +356,7 @@ cdef class GraphBuilder:
         self._state = CAPTURE_ENDED
         return self
 
-    def complete(self, options: GraphCompleteOptions | None = None) -> "Graph":
+    def complete(self, options: GraphCompleteOptions | None = None) -> Graph:
         """Completes the graph builder and returns the built :obj:`~graph.Graph` object.
 
         Parameters
@@ -803,7 +805,7 @@ cdef inline tuple _cond_with_params(GraphBuilder gb, node_params):
     )
 
 
-class Graph:
+cdef class Graph:
     """An executable graph.
 
     A graph groups a set of CUDA kernels and other CUDA operations together and executes
@@ -814,32 +816,18 @@ class Graph:
 
     """
 
-    class _MembersNeededForFinalize:
-        __slots__ = "graph"
-
-        def __init__(self, graph_obj, graph):
-            self.graph = graph
-            weakref.finalize(graph_obj, self.close)
-
-        def close(self):
-            if self.graph:
-                handle_return(driver.cuGraphExecDestroy(self.graph))
-                self.graph = None
-
-    __slots__ = ("__weakref__", "_mnff")
-
     def __init__(self):
         raise RuntimeError("directly constructing a Graph instance is not supported")
 
-    @classmethod
-    def _init(cls, graph):
-        self = cls.__new__(cls)
-        self._mnff = Graph._MembersNeededForFinalize(self, graph)
+    @staticmethod
+    cdef Graph _init(cydriver.CUgraphExec graph_exec):
+        cdef Graph self = Graph.__new__(Graph)
+        self._h_graph_exec = create_graph_exec_handle(graph_exec)
         return self
 
     def close(self):
         """Destroy the graph."""
-        self._mnff.close()
+        self._h_graph_exec.reset()
 
     @property
     def handle(self) -> driver.CUgraphExec:
@@ -851,7 +839,7 @@ class Graph:
             handle, call ``int()`` on the returned object.
 
         """
-        return self._mnff.graph
+        return as_py(self._h_graph_exec)
 
     def update(self, source: "GraphBuilder | GraphDefinition") -> None:
         """Update the graph using a new graph definition.
@@ -868,7 +856,7 @@ class Graph:
         from cuda.core.graph import GraphDefinition
 
         cdef cydriver.CUgraph cu_graph
-        cdef cydriver.CUgraphExec cu_exec = <cydriver.CUgraphExec><intptr_t>int(self._mnff.graph)
+        cdef cydriver.CUgraphExec cu_exec = as_cu(self._h_graph_exec)
 
         if isinstance(source, GraphBuilder):
             if (<GraphBuilder>source)._state != CAPTURE_ENDED:
@@ -899,7 +887,10 @@ class Graph:
             The stream in which to upload the graph
 
         """
-        handle_return(driver.cuGraphUpload(self._mnff.graph, stream.handle))
+        cdef cydriver.CUgraphExec c_exec = as_cu(self._h_graph_exec)
+        cdef cydriver.CUstream c_stream = <cydriver.CUstream><intptr_t>int(stream.handle)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphUpload(c_exec, c_stream))
 
     def launch(self, stream: Stream):
         """Launches the graph in a stream.
@@ -910,4 +901,7 @@ class Graph:
             The stream in which to launch the graph
 
         """
-        handle_return(driver.cuGraphLaunch(self._mnff.graph, stream.handle))
+        cdef cydriver.CUgraphExec c_exec = as_cu(self._h_graph_exec)
+        cdef cydriver.CUstream c_stream = <cydriver.CUstream><intptr_t>int(stream.handle)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphLaunch(c_exec, c_stream))

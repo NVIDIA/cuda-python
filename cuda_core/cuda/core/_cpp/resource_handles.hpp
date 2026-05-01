@@ -94,6 +94,7 @@ extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
 // Graph
 extern decltype(&cuGraphDestroy) p_cuGraphDestroy;
+extern decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy;
 
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
@@ -148,6 +149,7 @@ using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
 using GraphHandle = std::shared_ptr<const CUgraph>;
+using GraphExecHandle = std::shared_ptr<const CUgraphExec>;
 using GraphNodeHandle = std::shared_ptr<const CUgraphNode>;
 using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
 using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
@@ -404,6 +406,14 @@ GraphHandle create_graph_handle(CUgraph graph);
 GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
 
 // ============================================================================
+// Graph exec handle functions
+// ============================================================================
+
+// Wrap an externally-created CUgraphExec with RAII cleanup.
+// When the last reference is released, cuGraphExecDestroy is called automatically.
+GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec);
+
+// ============================================================================
 // Graph node handle functions
 // ============================================================================
 
@@ -529,6 +539,10 @@ inline CUgraph as_cu(const GraphHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUgraphExec as_cu(const GraphExecHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 inline CUgraphNode as_cu(const GraphNodeHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -584,6 +598,10 @@ inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
 }
 
 inline std::intptr_t as_intptr(const GraphHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const GraphExecHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -675,6 +693,10 @@ inline PyObject* as_py(const KernelHandle& h) noexcept {
 
 inline PyObject* as_py(const GraphHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUgraph", as_intptr(h));
+}
+
+inline PyObject* as_py(const GraphExecHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgraphExec", as_intptr(h));
 }
 
 inline PyObject* as_py(const GraphNodeHandle& h) noexcept {

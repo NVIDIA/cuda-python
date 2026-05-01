@@ -1362,7 +1362,7 @@ class Device:
         self._check_context_initialized()
         handle_return(runtime.cudaDeviceSynchronize())
 
-    def create_graph_builder(self) -> "GraphBuilder":
+    def create_graph_builder(self) -> GraphBuilder:
         """Create a new :obj:`~graph.GraphBuilder` object.
 
         Returns

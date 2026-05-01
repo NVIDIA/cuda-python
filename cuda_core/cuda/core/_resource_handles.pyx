@@ -27,6 +27,7 @@ from ._resource_handles cimport (
     LibraryHandle,
     KernelHandle,
     GraphHandle,
+    GraphExecHandle,
     GraphicsResourceHandle,
     NvrtcProgramHandle,
     NvvmProgramHandle,
@@ -154,6 +155,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     GraphHandle create_graph_handle_ref "cuda_core::create_graph_handle_ref" (
         cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
 
+    # Graph exec handles
+    GraphExecHandle create_graph_exec_handle "cuda_core::create_graph_exec_handle" (
+        cydriver.CUgraphExec graph_exec) except+ nogil
+
     # Graph node handles
     GraphNodeHandle create_graph_node_handle "cuda_core::create_graph_node_handle" (
         cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
@@ -265,6 +270,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Graph
     void* p_cuGraphDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphDestroy)"
+    void* p_cuGraphExecDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphExecDestroy)"
 
     # Linker
     void* p_cuLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_cuLinkDestroy)"
@@ -334,6 +340,7 @@ p_cuLibraryGetKernel = _get_driver_fn("cuLibraryGetKernel")
 
 # Graph
 p_cuGraphDestroy = _get_driver_fn("cuGraphDestroy")
+p_cuGraphExecDestroy = _get_driver_fn("cuGraphExecDestroy")
 
 # Linker
 p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
