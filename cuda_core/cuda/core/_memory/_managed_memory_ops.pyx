@@ -47,8 +47,12 @@ cdef dict _MANAGED_ADVICE_ALLOWED_LOCTYPES = {
     "unset_accessed_by": _DEVICE_HOST_ONLY,
 }
 
-# Lazily cached: maps driver.CUmem_advise enum value → string alias.
-cdef dict _ADVICE_ENUM_TO_ALIAS = None
+# Reverse lookup: enum value → alias. Built once at module load.
+cdef dict _ADVICE_ENUM_TO_ALIAS = {
+    getattr(driver.CUmem_advise, attr_name): alias
+    for alias, attr_name in _MANAGED_ADVICE_ALIASES.items()
+    if hasattr(driver.CUmem_advise, attr_name)
+}
 
 
 cdef tuple _normalize_managed_advice(object advice):
@@ -65,13 +69,6 @@ cdef tuple _normalize_managed_advice(object advice):
         return alias, getattr(driver.CUmem_advise, attr_name)
 
     if isinstance(advice, driver.CUmem_advise):
-        global _ADVICE_ENUM_TO_ALIAS
-        if _ADVICE_ENUM_TO_ALIAS is None:
-            _ADVICE_ENUM_TO_ALIAS = {}
-            for alias, attr_name in _MANAGED_ADVICE_ALIASES.items():
-                enum_val = getattr(driver.CUmem_advise, attr_name, None)
-                if enum_val is not None:
-                    _ADVICE_ENUM_TO_ALIAS[enum_val] = alias
         alias = _ADVICE_ENUM_TO_ALIAS.get(advice)
         if alias is None:
             raise ValueError(f"Unsupported advice value: {advice!r}")
