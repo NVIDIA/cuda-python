@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b7c952d8"></script>
+    <script src="../_static/documentation_options.js?v=6d0dab6e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev77';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev90';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -719,7 +719,7 @@ to create a new <a class="reference internal" href="#cuda.core.Stream" title="cu
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Stream lifetime is not managed, foreign object must remain
-alive while this steam is active.</p>
+alive while this stream is active.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -747,7 +747,7 @@ stream object.</p>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><span class="pre">Event</span></a></span></span><a class="headerlink" href="#cuda.core.Stream.record" title="Link to this definition">#</a></dt>
 <dd><p>Record an event onto the stream.</p>
-<p>Creates an Event object (or reuses the given one) by
+<p>Creates an <a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> object (or reuses the given one) by
 recording on the stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -779,6 +779,13 @@ recording on the stream.</p>
 <p>If a <a class="reference internal" href="#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> is provided, then wait until the stream’s
 work is completed. This is done by recording a new <a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>
 on the stream and then waiting on it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event_or_stream</strong> (<a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> | <a class="reference internal" href="#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>) – The event or stream to wait for. Objects supporting the
+<code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> protocol are also accepted and treated as
+streams.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
