@@ -1,6 +1,0 @@
-﻿cuda.core.utils.advise
-======================
-
-.. currentmodule:: cuda.core.utils
-
-.. autofunction:: advise

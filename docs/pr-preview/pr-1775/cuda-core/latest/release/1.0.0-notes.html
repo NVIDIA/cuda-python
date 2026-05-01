@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ae4db4a8"></script>
+    <script src="../_static/documentation_options.js?v=0a3530b1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev118';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev119';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -583,14 +583,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.advise.html">cuda.core.utils.advise</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.prefetch.html">cuda.core.utils.prefetch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.discard.html">cuda.core.utils.discard</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.discard_prefetch.html">cuda.core.utils.discard_prefetch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.AdviseOptions.html">cuda.core.utils.AdviseOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.PrefetchOptions.html">cuda.core.utils.PrefetchOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.DiscardOptions.html">cuda.core.utils.DiscardOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.DiscardPrefetchOptions.html">cuda.core.utils.DiscardPrefetchOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
@@ -704,17 +696,18 @@ delegate to the matching free functions.</p></li>
 <p>Use <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.from_handle" title="cuda.core.ManagedBuffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ManagedBuffer.from_handle()</span></code></a> to wrap an existing managed-memory
 pointer.</p>
 </li>
-<li><p>Added managed-memory range operations to <a class="reference internal" href="../api.html#module-cuda.core.utils" title="cuda.core.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.utils</span></code></a>:
-<a class="reference internal" href="../generated/cuda.core.utils.advise.html#cuda.core.utils.advise" title="cuda.core.utils.advise"><code class="xref py py-func docutils literal notranslate"><span class="pre">advise()</span></code></a>, <a class="reference internal" href="../generated/cuda.core.utils.prefetch.html#cuda.core.utils.prefetch" title="cuda.core.utils.prefetch"><code class="xref py py-func docutils literal notranslate"><span class="pre">prefetch()</span></code></a>, <a class="reference internal" href="../generated/cuda.core.utils.discard.html#cuda.core.utils.discard" title="cuda.core.utils.discard"><code class="xref py py-func docutils literal notranslate"><span class="pre">discard()</span></code></a>,
-and <a class="reference internal" href="../generated/cuda.core.utils.discard_prefetch.html#cuda.core.utils.discard_prefetch" title="cuda.core.utils.discard_prefetch"><code class="xref py py-func docutils literal notranslate"><span class="pre">discard_prefetch()</span></code></a>. Each operation accepts either a
-single managed <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> or a sequence; with cuda.bindings 12.8+
-the N&gt;1 case dispatches to the corresponding <code class="docutils literal notranslate"><span class="pre">cuMem*BatchAsync</span></code> driver
-entry point, addressing the managed-memory portion of #1333. Locations
-are expressed via <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code></a>.
-Per-call options use frozen dataclasses
-(<a class="reference internal" href="../generated/cuda.core.utils.AdviseOptions.html#cuda.core.utils.AdviseOptions" title="cuda.core.utils.AdviseOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdviseOptions</span></code></a>, <a class="reference internal" href="../generated/cuda.core.utils.PrefetchOptions.html#cuda.core.utils.PrefetchOptions" title="cuda.core.utils.PrefetchOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrefetchOptions</span></code></a>,
-<a class="reference internal" href="../generated/cuda.core.utils.DiscardOptions.html#cuda.core.utils.DiscardOptions" title="cuda.core.utils.DiscardOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiscardOptions</span></code></a>, <a class="reference internal" href="../generated/cuda.core.utils.DiscardPrefetchOptions.html#cuda.core.utils.DiscardPrefetchOptions" title="cuda.core.utils.DiscardPrefetchOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiscardPrefetchOptions</span></code></a>)
-reserved for future flags.</p></li>
+<li><p>Added batched managed-memory range operations to <a class="reference internal" href="../api.html#module-cuda.core.utils" title="cuda.core.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.utils</span></code></a>
+(CUDA 13+): <code class="xref py py-func docutils literal notranslate"><span class="pre">prefetch_batch()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">discard_batch()</span></code>,
+and <code class="xref py py-func docutils literal notranslate"><span class="pre">discard_prefetch_batch()</span></code>. Each takes a sequence of
+managed <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> instances and dispatches to the corresponding
+<code class="docutils literal notranslate"><span class="pre">cuMem*BatchAsync</span></code> driver entry point, addressing the managed-memory
+portion of #1333. Single-buffer operations are exposed as instance
+methods on <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer" title="cuda.core.ManagedBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedBuffer</span></code></a> (<a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.prefetch" title="cuda.core.ManagedBuffer.prefetch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prefetch()</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.discard" title="cuda.core.ManagedBuffer.discard"><code class="xref py py-meth docutils literal notranslate"><span class="pre">discard()</span></code></a>, <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.discard_prefetch" title="cuda.core.ManagedBuffer.discard_prefetch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">discard_prefetch()</span></code></a>)
+and as property setters (<a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.read_mostly" title="cuda.core.ManagedBuffer.read_mostly"><code class="xref py py-attr docutils literal notranslate"><span class="pre">read_mostly</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.preferred_location" title="cuda.core.ManagedBuffer.preferred_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">preferred_location</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.accessed_by" title="cuda.core.ManagedBuffer.accessed_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">accessed_by</span></code></a>). Locations are expressed via
+<a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code></a>.</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">

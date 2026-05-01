@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=ae4db4a8"></script>
+    <script src="_static/documentation_options.js?v=0a3530b1"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev118';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev119';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -584,14 +584,6 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.advise.html">cuda.core.utils.advise</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.prefetch.html">cuda.core.utils.prefetch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard.html">cuda.core.utils.discard</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch.html">cuda.core.utils.discard_prefetch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.AdviseOptions.html">cuda.core.utils.AdviseOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.PrefetchOptions.html">cuda.core.utils.PrefetchOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.DiscardOptions.html">cuda.core.utils.DiscardOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.DiscardPrefetchOptions.html">cuda.core.utils.DiscardPrefetchOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
@@ -1053,30 +1045,6 @@ Each subclass exposes attributes unique to its operation type.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html#cuda.core.utils.args_viewable_as_strided_memory" title="cuda.core.utils.args_viewable_as_strided_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">args_viewable_as_strided_memory</span></code></a>(...)</p></td>
 <td><p>Decorator to create proxy objects to <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> for the specified positional arguments.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.advise.html#cuda.core.utils.advise" title="cuda.core.utils.advise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">advise</span></code></a>(targets, advice[, location, options])</p></td>
-<td><p>Apply managed-memory advice to one or more allocation ranges.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.prefetch.html#cuda.core.utils.prefetch" title="cuda.core.utils.prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prefetch</span></code></a>(targets[, location, options])</p></td>
-<td><p>Prefetch one or more managed-memory ranges to a target location.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.discard.html#cuda.core.utils.discard" title="cuda.core.utils.discard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discard</span></code></a>(targets, *[, options])</p></td>
-<td><p>Discard one or more managed-memory ranges.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch.html#cuda.core.utils.discard_prefetch" title="cuda.core.utils.discard_prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discard_prefetch</span></code></a>(targets[, location, options])</p></td>
-<td><p>Discard one or more managed-memory ranges and prefetch them to a target location.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.AdviseOptions.html#cuda.core.utils.AdviseOptions" title="cuda.core.utils.AdviseOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AdviseOptions</span></code></a>()</p></td>
-<td><p>Per-call options for <a class="reference internal" href="generated/cuda.core.utils.advise.html#cuda.core.utils.advise" title="cuda.core.utils.advise"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuda.core.utils.advise()</span></code></a>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.PrefetchOptions.html#cuda.core.utils.PrefetchOptions" title="cuda.core.utils.PrefetchOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrefetchOptions</span></code></a>()</p></td>
-<td><p>Per-call options for <a class="reference internal" href="generated/cuda.core.utils.prefetch.html#cuda.core.utils.prefetch" title="cuda.core.utils.prefetch"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuda.core.utils.prefetch()</span></code></a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.DiscardOptions.html#cuda.core.utils.DiscardOptions" title="cuda.core.utils.DiscardOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscardOptions</span></code></a>()</p></td>
-<td><p>Per-call options for <a class="reference internal" href="generated/cuda.core.utils.discard.html#cuda.core.utils.discard" title="cuda.core.utils.discard"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuda.core.utils.discard()</span></code></a>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.DiscardPrefetchOptions.html#cuda.core.utils.DiscardPrefetchOptions" title="cuda.core.utils.DiscardPrefetchOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscardPrefetchOptions</span></code></a>()</p></td>
-<td><p>Per-call options for <a class="reference internal" href="generated/cuda.core.utils.discard_prefetch.html#cuda.core.utils.discard_prefetch" title="cuda.core.utils.discard_prefetch"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuda.core.utils.discard_prefetch()</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a>(obj, int stream_ptr)</p></td>
 <td><p>A class holding metadata of a strided dense array/tensor.</p></td>
