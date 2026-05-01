@@ -48,10 +48,4 @@ def _coerce_location(value, *, allow_none: bool = False) -> _LocSpec | None:
         if allow_none:
             return None
         raise ValueError("location is required")
-    if isinstance(value, int):
-        if value == -1:
-            return _LocSpec(kind="host")
-        if value >= 0:
-            return _LocSpec(kind="device", id=value)
-        raise ValueError(f"device ordinal must be >= 0 (or -1 for host), got {value}")
-    raise TypeError(f"location must be a Device, Host, int, or None; got {type(value).__name__}")
+    raise TypeError(f"location must be a Device, Host, or None; got {type(value).__name__}")

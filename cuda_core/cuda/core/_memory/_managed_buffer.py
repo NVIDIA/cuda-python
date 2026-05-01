@@ -162,7 +162,7 @@ class ManagedBuffer(Buffer):
         for loc in target - current:
             advise(self, _SET_ACCESSED_BY, loc)
 
-    def prefetch(self, location: Device | Host | int, *, stream: Stream | GraphBuilder) -> None:
+    def prefetch(self, location: Device | Host, *, stream: Stream | GraphBuilder) -> None:
         """Prefetch this range to ``location`` on ``stream``."""
         prefetch(self, location, stream=stream)
 
@@ -170,6 +170,6 @@ class ManagedBuffer(Buffer):
         """Discard this range's resident pages on ``stream`` (CUDA 13+)."""
         discard(self, stream=stream)
 
-    def discard_prefetch(self, location: Device | Host | int, *, stream: Stream | GraphBuilder) -> None:
+    def discard_prefetch(self, location: Device | Host, *, stream: Stream | GraphBuilder) -> None:
         """Discard this range and prefetch to ``location`` on ``stream`` (CUDA 13+)."""
         discard_prefetch(self, location, stream=stream)

@@ -68,7 +68,7 @@ def test_managed_memory_prefetch_supports_managed_pool_allocations(init_cuda):
     buffer = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
     stream = device.create_stream()
 
-    utils.prefetch(buffer, _HOST_LOCATION_ID, stream=stream)
+    utils.prefetch(buffer, Host(), stream=stream)
     stream.sync()
     last_location = _get_int_mem_range_attr(
         buffer,
@@ -143,7 +143,7 @@ def test_managed_memory_discard_prefetch_supports_managed_pool_allocations(init_
     buffer = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
     stream = device.create_stream()
 
-    utils.prefetch(buffer, _HOST_LOCATION_ID, stream=stream)
+    utils.prefetch(buffer, Host(), stream=stream)
     stream.sync()
 
     utils.discard_prefetch(buffer, device, stream=stream)
@@ -166,7 +166,7 @@ def test_managed_memory_discard_prefetch_supports_external_managed_allocations(i
     buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
     stream = device.create_stream()
 
-    utils.prefetch(buffer, _HOST_LOCATION_ID, stream=stream)
+    utils.prefetch(buffer, Host(), stream=stream)
     stream.sync()
 
     utils.discard_prefetch(buffer, device, stream=stream)
@@ -227,8 +227,8 @@ def test_managed_memory_advise_location_validation(init_cuda):
     # set_read_mostly works without a location (location is ignored)
     utils.advise(buffer, "set_read_mostly")
 
-    # set_preferred_location requires a location; device ordinal works
-    utils.advise(buffer, "set_preferred_location", device.device_id)
+    # set_preferred_location requires a location; Device works
+    utils.advise(buffer, "set_preferred_location", device)
 
     # set_preferred_location with host location
     utils.advise(buffer, "set_preferred_location", Host())
@@ -241,9 +241,9 @@ def test_managed_memory_advise_location_validation(init_cuda):
     with pytest.raises(ValueError, match="does not support location_type='host_numa_current'"):
         utils.advise(buffer, "set_accessed_by", Host.numa_current())
 
-    # Inferred location from int: -1 maps to host, 0 maps to device
-    utils.advise(buffer, "set_preferred_location", -1)
-    utils.advise(buffer, "set_preferred_location", 0)
+    # Both Host and Device locations are accepted
+    utils.advise(buffer, "set_preferred_location", Host())
+    utils.advise(buffer, "set_preferred_location", Device(0))
 
     buffer.close()
 
@@ -356,18 +356,6 @@ class TestLocationCoerce:
         spec = _coerce_location(Host.numa_current())
         assert spec.kind == "host_numa_current"
 
-    def test_int_device(self):
-        from cuda.core._memory._managed_location import _coerce_location
-
-        spec = _coerce_location(0)
-        assert spec.kind == "device"
-        assert spec.id == 0
-
-    def test_int_minus_one_is_host(self):
-        from cuda.core._memory._managed_location import _coerce_location
-
-        assert _coerce_location(-1).kind == "host"
-
     def test_none_when_disallowed(self):
         from cuda.core._memory._managed_location import _coerce_location
 
@@ -379,16 +367,17 @@ class TestLocationCoerce:
 
         assert _coerce_location(None, allow_none=True) is None
 
-    def test_bad_int(self):
+    def test_int_rejected(self):
         from cuda.core._memory._managed_location import _coerce_location
 
-        with pytest.raises(ValueError, match="device ordinal"):
-            _coerce_location(-2)
+        # int shorthand was removed in favor of explicit Device/Host
+        with pytest.raises(TypeError, match="Device, Host, or None"):
+            _coerce_location(0)
 
     def test_bad_type(self):
         from cuda.core._memory._managed_location import _coerce_location
 
-        with pytest.raises(TypeError, match="Device, Host, int, or None"):
+        with pytest.raises(TypeError, match="Device, Host, or None"):
             _coerce_location("device")
 
 

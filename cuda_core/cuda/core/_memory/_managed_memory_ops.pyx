@@ -239,7 +239,7 @@ def advise(
         ``"unset_read_mostly"``, ``"set_preferred_location"``,
         ``"unset_preferred_location"``, ``"set_accessed_by"``,
         ``"unset_accessed_by"``) and ``CUmem_advise`` enum values are accepted.
-    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | int | Sequence[...]
+    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | Sequence[...]
         Target location(s). Required for advice values that consult a
         location; ignored (may be ``None``) for ``set_read_mostly``,
         ``unset_read_mostly``, and ``unset_preferred_location``. A sequence
@@ -313,7 +313,7 @@ def prefetch(
     ----------
     targets : :class:`Buffer` | Sequence[:class:`Buffer`]
         One or more managed allocations to operate on.
-    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | int | Sequence[...]
+    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | Sequence[...]
         Target location(s). A single location applies to all targets; a
         sequence must match ``len(targets)``. ``int`` values are coerced
         to a location (``-1`` maps to host, ``>=0`` to that device ordinal).
@@ -407,7 +407,7 @@ def discard_prefetch(
     ----------
     targets : :class:`Buffer` | Sequence[:class:`Buffer`]
         One or more managed allocations to discard and re-prefetch.
-    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | int | Sequence[...]
+    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | Sequence[...]
         Target location(s). A single location applies to all targets;
         a sequence must match ``len(targets)``.
     options : :class:`DiscardPrefetchOptions`, optional
