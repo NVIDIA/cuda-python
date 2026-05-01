@@ -595,6 +595,33 @@ class TestManagedBuffer:
         finally:
             plain.close()
 
+    def test_accessed_by_read_methods(self, init_cuda):
+        """Cover __iter__, __len__, __eq__, __repr__ on AccessedBySet."""
+        device = Device()
+        _skip_if_managed_location_ops_unsupported(device)
+        device.set_current()
+        plain = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+        try:
+            buf = ManagedBuffer.from_handle(plain.handle, plain.size, owner=plain)
+
+            # Empty initially
+            assert len(buf.accessed_by) == 0
+            assert list(buf.accessed_by) == []
+            assert buf.accessed_by == set()
+            assert "AccessedBySet" in repr(buf.accessed_by)
+
+            # After add
+            buf.accessed_by.add(device)
+            assert len(buf.accessed_by) == 1
+            assert list(buf.accessed_by) == [device]
+            assert buf.accessed_by == {device}
+            assert buf.accessed_by != frozenset()
+
+            # __eq__ vs another AccessedBySet on the same buffer
+            assert buf.accessed_by == buf.accessed_by
+        finally:
+            plain.close()
+
     def test_accessed_by_set_assignment(self, init_cuda):
         device = Device()
         _skip_if_managed_location_ops_unsupported(device)
