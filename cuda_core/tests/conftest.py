@@ -27,7 +27,17 @@ from cuda.core import (
     PinnedMemoryResourceOptions,
     _device,
 )
-from cuda.core._utils.cuda_utils import handle_return
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
+
+try:
+    from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
+except ModuleNotFoundError:
+    # Older cuda.bindings artifacts (for example 12.9.x backports) do not ship
+    # this helper yet. In that case, keep the primary failure visible instead of
+    # xfail-ing the known Windows MCDM mempool setup issue.
+    def xfail_if_mempool_oom(err_or_exc, api_name=None, device=0):
+        return
+
 
 # Import shared test helpers for tests across subprojects.
 # PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.
@@ -61,19 +71,54 @@ def skip_if_managed_memory_unsupported(device):
         pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
     try:
         ManagedMemoryResource()
+    except CUDAError as e:
+        xfail_if_mempool_oom(e, device)
+        raise
     except RuntimeError as e:
         if "requires CUDA 13.0" in str(e):
             pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
         raise
 
 
-def create_managed_memory_resource_or_skip(*args, **kwargs):
+def create_managed_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
+    # Keep the established "skip" helper name for call-site readability, even though
+    # Windows MCDM mempool OOM setup failures are xfailed instead of skipped.
     try:
         return ManagedMemoryResource(*args, **kwargs)
+    except CUDAError as e:
+        xfail_if_mempool_oom(e, _device_id_from_resource_options(xfail_device, args, kwargs))
+        raise
     except RuntimeError as e:
         if "requires CUDA 13.0" in str(e):
             pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
         raise
+
+
+def create_pinned_memory_resource_or_xfail(*args, xfail_device=None, **kwargs):
+    try:
+        return PinnedMemoryResource(*args, **kwargs)
+    except CUDAError as e:
+        xfail_if_mempool_oom(e, xfail_device)
+        raise
+
+
+def _device_id_from_resource_options(device, args, kwargs):
+    if device is not None:
+        return device
+    options = kwargs.get("options")
+    if options is None and args:
+        options = args[0]
+    if options is None:
+        return 0
+    if isinstance(options, dict):
+        preferred_location = options.get("preferred_location")
+        preferred_location_type = options.get("preferred_location_type")
+    else:
+        preferred_location = getattr(options, "preferred_location", None)
+        preferred_location_type = getattr(options, "preferred_location_type", None)
+    if preferred_location_type in (None, "device") and isinstance(preferred_location, int) and preferred_location >= 0:
+        return preferred_location
+    return 0
 
 
 @pytest.fixture(scope="session", autouse=True)

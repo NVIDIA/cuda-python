@@ -12,6 +12,7 @@ import pytest
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
+from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 
 
 def driverVersionLessThan(target):
@@ -270,6 +271,7 @@ def test_cuda_memPool_attr():
 
     attr_list = [None] * 8
     err, pool = cuda.cuMemPoolCreate(poolProps)
+    xfail_if_mempool_oom(err, "cuMemPoolCreate", poolProps.location.id)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     for idx, attr in enumerate(
@@ -468,6 +470,12 @@ def test_cuda_graphMem_attr(device):
     params.bytesize = allocSize
 
     err, allocNode = cuda.cuGraphAddMemAllocNode(graph, None, 0, params)
+    if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY:
+        (destroy_err,) = cuda.cuGraphDestroy(graph)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        (destroy_err,) = cuda.cuStreamDestroy(stream)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        xfail_if_mempool_oom(err, "cuGraphAddMemAllocNode", device)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
     assert err == cuda.CUresult.CUDA_SUCCESS
