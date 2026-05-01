@@ -349,8 +349,6 @@ class TestPrefetchBatch:
 
         device = Device()
         skip_if_managed_memory_unsupported(device)
-        if not hasattr(driver, "cuMemPrefetchBatchAsync"):
-            pytest.skip("cuMemPrefetchBatchAsync unavailable")
         device.set_current()
         mr = create_managed_memory_resource_or_skip()
         bufs = [mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(3)]
@@ -372,8 +370,6 @@ class TestPrefetchBatch:
 
         device = Device()
         skip_if_managed_memory_unsupported(device)
-        if not hasattr(driver, "cuMemPrefetchBatchAsync"):
-            pytest.skip("cuMemPrefetchBatchAsync unavailable")
         device.set_current()
         mr = create_managed_memory_resource_or_skip()
         bufs = [mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE) for _ in range(2)]

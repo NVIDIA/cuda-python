@@ -280,10 +280,11 @@ def prefetch_batch(buffers, locations, *, stream):
     stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
         Stream for the asynchronous prefetch (keyword-only).
 
-    Raises
-    ------
-    NotImplementedError
-        On a CUDA 12 build of ``cuda.core``.
+    Notes
+    -----
+    On a CUDA 12 build, falls back to a Python-level loop calling
+    ``cuMemPrefetchAsync`` per buffer (no batched driver entry point on
+    CUDA 12). CUDA 13 builds use ``cuMemPrefetchBatchAsync`` directly.
     """
     cdef tuple bufs = _coerce_batch_buffers(buffers, "prefetch_batch")
     cdef Py_ssize_t n = len(bufs)
@@ -364,9 +365,13 @@ cdef void _do_batch_prefetch(tuple bufs, tuple locs, Stream s):
     IF CUDA_CORE_BUILD_MAJOR >= 13:
         _do_batch_prefetch_op(bufs, locs, s, cydriver.cuMemPrefetchBatchAsync)
     ELSE:
-        raise NotImplementedError(
-            "batched prefetch requires a CUDA 13 build of cuda.core"
-        )
+        # cu12 has no cuMemPrefetchBatchAsync; loop per-range.
+        cdef Buffer buf
+        cdef Py_ssize_t i
+        cdef Py_ssize_t n = len(bufs)
+        for i in range(n):
+            buf = <Buffer>bufs[i]
+            _do_single_prefetch(buf, locs[i], s)
 
 
 def discard_prefetch_batch(buffers, locations, *, stream):
