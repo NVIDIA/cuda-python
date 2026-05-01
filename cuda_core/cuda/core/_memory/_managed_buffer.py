@@ -132,7 +132,18 @@ class ManagedBuffer(Buffer):
 
     @property
     def preferred_location(self) -> Device | Host | None:
-        """Currently applied ``set_preferred_location`` target, or ``None``."""
+        """Currently applied ``set_preferred_location`` target, or ``None``.
+
+        .. note::
+           The legacy ``CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION`` carries
+           only a device ordinal (or ``-1`` for host) and cannot represent
+           a specific NUMA node. As a result, ``Host(numa_id=N)`` set via
+           the setter currently round-trips back as ``Host()``. The CUDA 13
+           driver added ``..._PREFERRED_LOCATION_TYPE`` / ``..._ID`` for
+           full ``CUmemLocation`` round-trip, but ``cuda.bindings`` does
+           not yet expose these via ``cuMemRangeGetAttribute``; once it
+           does, this getter will be upgraded.
+        """
         loc_id = _get_int_attr(self, _ATTR_PREFERRED)
         if loc_id == -2:
             return None
