@@ -249,17 +249,9 @@ Utility functions
    :toctree: generated/
 
    args_viewable_as_strided_memory
-   advise
-   prefetch
-   discard
-   discard_prefetch
-
-   :template: dataclass.rst
-
-   AdviseOptions
-   PrefetchOptions
-   DiscardOptions
-   DiscardPrefetchOptions
+   prefetch_batch
+   discard_batch
+   discard_prefetch_batch
 
    :template: autosummary/cyclass.rst
 

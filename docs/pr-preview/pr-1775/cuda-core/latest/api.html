@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=788769d5"></script>
+    <script src="_static/documentation_options.js?v=4f7fe3bf"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev125';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev126';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -584,6 +584,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_batch.html">cuda.core.utils.discard_batch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch_batch.html">cuda.core.utils.discard_prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
@@ -1046,7 +1049,16 @@ Each subclass exposes attributes unique to its operation type.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html#cuda.core.utils.args_viewable_as_strided_memory" title="cuda.core.utils.args_viewable_as_strided_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">args_viewable_as_strided_memory</span></code></a>(...)</p></td>
 <td><p>Decorator to create proxy objects to <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> for the specified positional arguments.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a>(obj, int stream_ptr)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.prefetch_batch.html#cuda.core.utils.prefetch_batch" title="cuda.core.utils.prefetch_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prefetch_batch</span></code></a>(buffers, locations, *, stream)</p></td>
+<td><p>Prefetch a batch of managed-memory ranges to target locations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.discard_batch.html#cuda.core.utils.discard_batch" title="cuda.core.utils.discard_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discard_batch</span></code></a>(buffers, *, stream)</p></td>
+<td><p>Discard a batch of managed-memory ranges.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch_batch.html#cuda.core.utils.discard_prefetch_batch" title="cuda.core.utils.discard_prefetch_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discard_prefetch_batch</span></code></a>(buffers, locations, ...)</p></td>
+<td><p>Discard a batch of managed-memory ranges and prefetch them to target locations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a>(obj, int stream_ptr)</p></td>
 <td><p>A class holding metadata of a strided dense array/tensor.</p></td>
 </tr>
 </tbody>
