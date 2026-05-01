@@ -322,8 +322,18 @@ cdef void _do_single_prefetch(Buffer buf, object loc, Stream s):
             HANDLE_RETURN(cydriver.cuMemPrefetchAsync(cu_ptr, nbytes, dev_int, hstream))
 
 
-cdef void _do_batch_prefetch(tuple bufs, tuple locs, Stream s):
-    IF CUDA_CORE_BUILD_MAJOR >= 13:
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    # Function-pointer type for cuMemPrefetchBatchAsync /
+    # cuMemDiscardAndPrefetchBatchAsync; both have identical signatures.
+    ctypedef cydriver.CUresult (*_BatchPrefetchFn)(
+        cydriver.CUdeviceptr*, size_t*, size_t,
+        cydriver.CUmemLocation*, size_t*, size_t,
+        unsigned long long, cydriver.CUstream,
+    ) except ?cydriver.CUDA_ERROR_NOT_FOUND nogil
+
+
+    cdef void _do_batch_prefetch_op(tuple bufs, tuple locs, Stream s, _BatchPrefetchFn fn):
+        """Shared body for batched prefetch / discard-and-prefetch."""
         cdef Py_ssize_t n = len(bufs)
         cdef cydriver.CUstream hstream = as_cu(s._h_stream)
         cdef vector[cydriver.CUdeviceptr] ptrs
@@ -343,11 +353,16 @@ cdef void _do_batch_prefetch(tuple bufs, tuple locs, Stream s):
             loc_arr[i] = _to_cumemlocation(locs[i])
             loc_indices[i] = <size_t>i
         with nogil:
-            HANDLE_RETURN(cydriver.cuMemPrefetchBatchAsync(
+            HANDLE_RETURN(fn(
                 ptrs.data(), sizes.data(), <size_t>n,
                 loc_arr.data(), loc_indices.data(), <size_t>n,
                 0, hstream,
             ))
+
+
+cdef void _do_batch_prefetch(tuple bufs, tuple locs, Stream s):
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        _do_batch_prefetch_op(bufs, locs, s, cydriver.cuMemPrefetchBatchAsync)
     ELSE:
         raise NotImplementedError(
             "batched prefetch requires a CUDA 13 build of cuda.core"
@@ -400,30 +415,7 @@ def _do_single_discard_prefetch_py(Buffer buf, location, stream):
 
 cdef void _do_batch_discard_prefetch(tuple bufs, tuple locs, Stream s):
     IF CUDA_CORE_BUILD_MAJOR >= 13:
-        cdef Py_ssize_t n = len(bufs)
-        cdef cydriver.CUstream hstream = as_cu(s._h_stream)
-        cdef vector[cydriver.CUdeviceptr] ptrs
-        cdef vector[size_t] sizes
-        cdef vector[cydriver.CUmemLocation] loc_arr
-        cdef vector[size_t] loc_indices
-        ptrs.resize(n)
-        sizes.resize(n)
-        loc_arr.resize(n)
-        loc_indices.resize(n)
-        cdef Buffer buf
-        cdef Py_ssize_t i
-        for i in range(n):
-            buf = <Buffer>bufs[i]
-            ptrs[i] = as_cu(buf._h_ptr)
-            sizes[i] = buf._size
-            loc_arr[i] = _to_cumemlocation(locs[i])
-            loc_indices[i] = <size_t>i
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemDiscardAndPrefetchBatchAsync(
-                ptrs.data(), sizes.data(), <size_t>n,
-                loc_arr.data(), loc_indices.data(), <size_t>n,
-                0, hstream,
-            ))
+        _do_batch_prefetch_op(bufs, locs, s, cydriver.cuMemDiscardAndPrefetchBatchAsync)
     ELSE:
         raise NotImplementedError(
             "discard_prefetch requires a CUDA 13 build of cuda.core"
