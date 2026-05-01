@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     from libcpp.vector cimport vector
 
@@ -99,7 +101,7 @@ cdef tuple _coerce_buffer_targets(object targets, str what):
     cdef list out
     if isinstance(targets, Buffer):
         return (<Buffer>targets,)
-    if isinstance(targets, (list, tuple)):
+    if isinstance(targets, Sequence):
         if not targets:
             raise ValueError(f"{what}: empty targets sequence")
         out = []
@@ -115,7 +117,7 @@ cdef tuple _coerce_buffer_targets(object targets, str what):
 
 cdef tuple _broadcast_locations(object location, Py_ssize_t n, bint allow_none, str what):
     cdef object coerced
-    if isinstance(location, (list, tuple)):
+    if isinstance(location, Sequence):
         if len(location) != n:
             raise ValueError(
                 f"{what}: location length {len(location)} does not match "
