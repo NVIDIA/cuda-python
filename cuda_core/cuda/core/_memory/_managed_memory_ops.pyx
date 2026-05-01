@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
-    from cpython.mem cimport PyMem_Free, PyMem_Malloc
+    from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
@@ -201,28 +201,20 @@ cdef void _do_batch_discard(tuple bufs, Stream s):
     IF CUDA_CORE_BUILD_MAJOR >= 13:
         cdef Py_ssize_t n = len(bufs)
         cdef cydriver.CUstream hstream = as_cu(s._h_stream)
-        cdef cydriver.CUdeviceptr* ptrs = <cydriver.CUdeviceptr*>PyMem_Malloc(
-            n * sizeof(cydriver.CUdeviceptr)
-        )
-        cdef size_t* sizes = <size_t*>PyMem_Malloc(n * sizeof(size_t))
-        if not (ptrs and sizes):
-            PyMem_Free(ptrs)
-            PyMem_Free(sizes)
-            raise MemoryError()
+        cdef vector[cydriver.CUdeviceptr] ptrs
+        cdef vector[size_t] sizes
+        ptrs.resize(n)
+        sizes.resize(n)
         cdef Buffer buf
         cdef Py_ssize_t i
-        try:
-            for i in range(n):
-                buf = <Buffer>bufs[i]
-                ptrs[i] = as_cu(buf._h_ptr)
-                sizes[i] = buf._size
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemDiscardBatchAsync(
-                    ptrs, sizes, <size_t>n, 0, hstream,
-                ))
-        finally:
-            PyMem_Free(ptrs)
-            PyMem_Free(sizes)
+        for i in range(n):
+            buf = <Buffer>bufs[i]
+            ptrs[i] = as_cu(buf._h_ptr)
+            sizes[i] = buf._size
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemDiscardBatchAsync(
+                ptrs.data(), sizes.data(), <size_t>n, 0, hstream,
+            ))
     ELSE:
         raise NotImplementedError(
             "discard requires a CUDA 13 build of cuda.core"
@@ -374,40 +366,28 @@ cdef void _do_batch_prefetch(tuple bufs, tuple locs, Stream s):
     IF CUDA_CORE_BUILD_MAJOR >= 13:
         cdef Py_ssize_t n = len(bufs)
         cdef cydriver.CUstream hstream = as_cu(s._h_stream)
-        cdef cydriver.CUdeviceptr* ptrs = <cydriver.CUdeviceptr*>PyMem_Malloc(
-            n * sizeof(cydriver.CUdeviceptr)
-        )
-        cdef size_t* sizes = <size_t*>PyMem_Malloc(n * sizeof(size_t))
-        cdef cydriver.CUmemLocation* loc_arr = <cydriver.CUmemLocation*>PyMem_Malloc(
-            n * sizeof(cydriver.CUmemLocation)
-        )
-        cdef size_t* loc_indices = <size_t*>PyMem_Malloc(n * sizeof(size_t))
-        if not (ptrs and sizes and loc_arr and loc_indices):
-            PyMem_Free(ptrs)
-            PyMem_Free(sizes)
-            PyMem_Free(loc_arr)
-            PyMem_Free(loc_indices)
-            raise MemoryError()
+        cdef vector[cydriver.CUdeviceptr] ptrs
+        cdef vector[size_t] sizes
+        cdef vector[cydriver.CUmemLocation] loc_arr
+        cdef vector[size_t] loc_indices
+        ptrs.resize(n)
+        sizes.resize(n)
+        loc_arr.resize(n)
+        loc_indices.resize(n)
         cdef Buffer buf
         cdef Py_ssize_t i
-        try:
-            for i in range(n):
-                buf = <Buffer>bufs[i]
-                ptrs[i] = as_cu(buf._h_ptr)
-                sizes[i] = buf._size
-                loc_arr[i] = _to_cumemlocation(locs[i])
-                loc_indices[i] = <size_t>i
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemPrefetchBatchAsync(
-                    ptrs, sizes, <size_t>n,
-                    loc_arr, loc_indices, <size_t>n,
-                    0, hstream,
-                ))
-        finally:
-            PyMem_Free(ptrs)
-            PyMem_Free(sizes)
-            PyMem_Free(loc_arr)
-            PyMem_Free(loc_indices)
+        for i in range(n):
+            buf = <Buffer>bufs[i]
+            ptrs[i] = as_cu(buf._h_ptr)
+            sizes[i] = buf._size
+            loc_arr[i] = _to_cumemlocation(locs[i])
+            loc_indices[i] = <size_t>i
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPrefetchBatchAsync(
+                ptrs.data(), sizes.data(), <size_t>n,
+                loc_arr.data(), loc_indices.data(), <size_t>n,
+                0, hstream,
+            ))
     ELSE:
         raise NotImplementedError(
             "batched prefetch requires a CUDA 13 build of cuda.core"
@@ -463,40 +443,28 @@ cdef void _do_batch_discard_prefetch(tuple bufs, tuple locs, Stream s):
     IF CUDA_CORE_BUILD_MAJOR >= 13:
         cdef Py_ssize_t n = len(bufs)
         cdef cydriver.CUstream hstream = as_cu(s._h_stream)
-        cdef cydriver.CUdeviceptr* ptrs = <cydriver.CUdeviceptr*>PyMem_Malloc(
-            n * sizeof(cydriver.CUdeviceptr)
-        )
-        cdef size_t* sizes = <size_t*>PyMem_Malloc(n * sizeof(size_t))
-        cdef cydriver.CUmemLocation* loc_arr = <cydriver.CUmemLocation*>PyMem_Malloc(
-            n * sizeof(cydriver.CUmemLocation)
-        )
-        cdef size_t* loc_indices = <size_t*>PyMem_Malloc(n * sizeof(size_t))
-        if not (ptrs and sizes and loc_arr and loc_indices):
-            PyMem_Free(ptrs)
-            PyMem_Free(sizes)
-            PyMem_Free(loc_arr)
-            PyMem_Free(loc_indices)
-            raise MemoryError()
+        cdef vector[cydriver.CUdeviceptr] ptrs
+        cdef vector[size_t] sizes
+        cdef vector[cydriver.CUmemLocation] loc_arr
+        cdef vector[size_t] loc_indices
+        ptrs.resize(n)
+        sizes.resize(n)
+        loc_arr.resize(n)
+        loc_indices.resize(n)
         cdef Buffer buf
         cdef Py_ssize_t i
-        try:
-            for i in range(n):
-                buf = <Buffer>bufs[i]
-                ptrs[i] = as_cu(buf._h_ptr)
-                sizes[i] = buf._size
-                loc_arr[i] = _to_cumemlocation(locs[i])
-                loc_indices[i] = <size_t>i
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemDiscardAndPrefetchBatchAsync(
-                    ptrs, sizes, <size_t>n,
-                    loc_arr, loc_indices, <size_t>n,
-                    0, hstream,
-                ))
-        finally:
-            PyMem_Free(ptrs)
-            PyMem_Free(sizes)
-            PyMem_Free(loc_arr)
-            PyMem_Free(loc_indices)
+        for i in range(n):
+            buf = <Buffer>bufs[i]
+            ptrs[i] = as_cu(buf._h_ptr)
+            sizes[i] = buf._size
+            loc_arr[i] = _to_cumemlocation(locs[i])
+            loc_indices[i] = <size_t>i
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemDiscardAndPrefetchBatchAsync(
+                ptrs.data(), sizes.data(), <size_t>n,
+                loc_arr.data(), loc_indices.data(), <size_t>n,
+                0, hstream,
+            ))
     ELSE:
         raise NotImplementedError(
             "discard_prefetch requires a CUDA 13 build of cuda.core"
