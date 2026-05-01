@@ -15,9 +15,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import cuda.bindings
 from Cython.Build import cythonize
 from setuptools import setup
+
+import cuda.bindings
 
 
 def _bindings_source_root() -> Path:
@@ -25,8 +26,7 @@ def _bindings_source_root() -> Path:
     root = Path(cuda.bindings.__file__).resolve().parents[2]
     if not (root / "cuda" / "bindings").is_dir():
         raise RuntimeError(
-            f"cuda.bindings source tree not found at {root}; "
-            "pixi-build editable install layout may have changed."
+            f"cuda.bindings source tree not found at {root}; pixi-build editable install layout may have changed."
         )
     return root
 
