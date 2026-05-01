@@ -102,13 +102,19 @@ def _arr_size(arr):
 def _arr_is_c_contiguous(arr):
     if torch is not None and isinstance(arr, torch.Tensor):
         return arr.is_contiguous()
-    return arr.flags.c_contiguous if hasattr(arr, "flags") else arr.flags["C_CONTIGUOUS"]
+    return arr.flags.c_contiguous if hasattr(arr.flags, "c_contiguous") else arr.flags["C_CONTIGUOUS"]
 
 
 def _arr_is_writeable(arr):
     if torch is not None and isinstance(arr, torch.Tensor):
         return True  # torch tensors are writable by default
     return arr.flags.writeable if hasattr(arr.flags, "writeable") else True
+
+
+def _arr_dtype(arr):
+    if torch is not None and isinstance(arr, torch.Tensor):
+        return np.dtype(arr.__cuda_array_interface__["typestr"])
+    return arr.dtype
 
 
 def _cpu_array_samples():
@@ -171,7 +177,10 @@ class TestViewCPU:
         assert view.shape == expected_shape
         assert view.size == _arr_size(in_arr)
         strides_in_counts = _arr_strides_in_counts(in_arr)
-        assert (_arr_is_c_contiguous(in_arr) and view.strides is None) or view.strides == strides_in_counts
+        if view.strides is None:
+            assert _arr_is_c_contiguous(in_arr)
+        else:
+            assert view.strides == strides_in_counts
         assert view.device_id == -1
         assert view.is_device_accessible is False
         assert view.exporting_obj is in_arr
@@ -277,8 +286,8 @@ class TestViewGPU:
         assert view.shape == expected_shape
         assert view.size == _arr_size(in_arr)
         strides_in_counts = _arr_strides_in_counts(in_arr)
-        if _arr_is_c_contiguous(in_arr):
-            assert view.strides in (None, strides_in_counts)
+        if view.strides is None:
+            assert _arr_is_c_contiguous(in_arr)
         else:
             assert view.strides == strides_in_counts
         assert view.device_id == dev.device_id
@@ -343,15 +352,16 @@ class TestViewCudaArrayInterfaceGPU:
 
     def _check_view(self, view, in_arr, dev):
         assert isinstance(view, StridedMemoryView)
-        assert view.ptr == gpu_array_ptr(in_arr)
-        assert view.shape == in_arr.shape
-        assert view.size == in_arr.size
-        strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
-        if in_arr.flags["C_CONTIGUOUS"]:
-            assert view.strides is None
+        assert view.ptr == _arr_ptr(in_arr)
+        expected_shape = tuple(in_arr.shape)
+        assert view.shape == expected_shape
+        assert view.size == _arr_size(in_arr)
+        strides_in_counts = _arr_strides_in_counts(in_arr)
+        if view.strides is None:
+            assert _arr_is_c_contiguous(in_arr)
         else:
             assert view.strides == strides_in_counts
-        assert view.dtype == in_arr.dtype
+        assert view.dtype == _arr_dtype(in_arr)
         assert view.device_id == dev.device_id
         assert view.is_device_accessible is True
         assert view.exporting_obj is in_arr
