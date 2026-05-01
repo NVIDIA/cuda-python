@@ -13,7 +13,7 @@ import warnings
 import pytest
 
 import cuda.bindings
-from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
+from conftest import xfail_if_mempool_oom
 from cuda.core import Device, ManagedMemoryResource, ManagedMemoryResourceOptions
 from cuda.core._memory._managed_memory_resource import reset_concurrent_access_warning
 from cuda.core._utils.cuda_utils import CUDAError

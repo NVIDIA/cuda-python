@@ -17,7 +17,6 @@ except ImportError:
     from cuda import cuda as driver
 
 import cuda.core
-from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -29,6 +28,16 @@ from cuda.core import (
     _device,
 )
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
+
+try:
+    from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
+except ModuleNotFoundError:
+    # Older cuda.bindings artifacts (for example 12.9.x backports) do not ship
+    # this helper yet. In that case, keep the primary failure visible instead of
+    # xfail-ing the known Windows MCDM mempool setup issue.
+    def xfail_if_mempool_oom(err_or_exc, api_name=None, device=0):
+        return
+
 
 # Import shared test helpers for tests across subprojects.
 # PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.
