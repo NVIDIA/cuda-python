@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8dde87a7"></script>
+    <script src="../_static/documentation_options.js?v=d5d71919"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev110';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev115';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -688,7 +688,7 @@
 <code class="docutils literal notranslate"><span class="pre">&quot;unset_read_mostly&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;set_preferred_location&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">&quot;unset_preferred_location&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;set_accessed_by&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">&quot;unset_accessed_by&quot;</span></code>) and <code class="docutils literal notranslate"><span class="pre">CUmem_advise</span></code> enum values are accepted.</p></li>
-<li><p><strong>location</strong> (<a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> | <a class="reference internal" href="cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code></a> | int | Sequence[…]) – Target location(s). Required for advice values that consult a
+<li><p><strong>location</strong> (<a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> | <a class="reference internal" href="cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code></a> | Sequence[…]) – Target location(s). Required for advice values that consult a
 location; ignored (may be <code class="docutils literal notranslate"><span class="pre">None</span></code>) for <code class="docutils literal notranslate"><span class="pre">set_read_mostly</span></code>,
 <code class="docutils literal notranslate"><span class="pre">unset_read_mostly</span></code>, and <code class="docutils literal notranslate"><span class="pre">unset_preferred_location</span></code>. A sequence
 must match <code class="docutils literal notranslate"><span class="pre">len(targets)</span></code>.</p></li>

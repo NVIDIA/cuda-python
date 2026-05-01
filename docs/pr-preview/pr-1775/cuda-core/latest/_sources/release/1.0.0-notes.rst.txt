@@ -43,8 +43,7 @@ New features
   single managed :class:`Buffer` or a sequence; with cuda.bindings 12.8+
   the N>1 case dispatches to the corresponding ``cuMem*BatchAsync`` driver
   entry point, addressing the managed-memory portion of #1333. Locations
-  are expressed via :class:`Device` or :class:`Host`; ``int`` values are
-  also accepted (``-1`` maps to host, ``>=0`` to that device ordinal).
+  are expressed via :class:`Device` or :class:`Host`.
   Per-call options use frozen dataclasses
   (:class:`~utils.AdviseOptions`, :class:`~utils.PrefetchOptions`,
   :class:`~utils.DiscardOptions`, :class:`~utils.DiscardPrefetchOptions`)
