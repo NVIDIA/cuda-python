@@ -234,7 +234,7 @@ def test_graph_child_graph(init_cuda):
 
     ## Add child
     try:
-        gb_parent.add_child(gb_child)
+        gb_parent.embed(gb_child)
     except NotImplementedError as e:
         with pytest.raises(
             NotImplementedError,

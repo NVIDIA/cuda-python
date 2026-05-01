@@ -96,7 +96,7 @@ cdef class FanInfo:
         """
         return FanControlPolicy(nvml.device_get_fan_control_policy_v2(self._handle, self._fan))
 
-    def set_default_fan_speed(self):
+    def set_default_speed(self):
         """
         Set the speed of the fan control policy to default.
 

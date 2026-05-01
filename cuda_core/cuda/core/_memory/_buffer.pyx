@@ -128,7 +128,7 @@ cdef class Buffer:
 
     def __reduce__(self):
         # Must not serialize the parent's stream!
-        return Buffer._reduce_helper, (self.memory_resource, self.get_ipc_descriptor())
+        return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
     @staticmethod
     def from_handle(
@@ -168,8 +168,9 @@ cdef class Buffer:
         """Import a buffer that was exported from another process."""
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
-    def get_ipc_descriptor(self) -> IPCBufferDescriptor:
-        """Export a buffer allocated for sharing between processes."""
+    @property
+    def ipc_descriptor(self) -> IPCBufferDescriptor:
+        """Descriptor for sharing this buffer with other processes."""
         if self._ipc_data is None:
             self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
         return self._ipc_data.ipc_descriptor
@@ -391,7 +392,11 @@ cdef class Buffer:
     def is_managed(self) -> bool:
         """Return True if this buffer is CUDA managed (unified) memory, otherwise False."""
         _init_mem_attrs(self)
-        return self._mem_attrs.is_managed
+        if self._mem_attrs.is_managed:
+            return True
+        # Pool-allocated managed memory does not set CU_POINTER_ATTRIBUTE_IS_MANAGED,
+        # so fall back to the memory resource when it advertises managed allocations.
+        return self._memory_resource is not None and self._memory_resource.is_managed
 
     @property
     def is_mapped(self) -> bool:
@@ -534,6 +539,11 @@ cdef class MemoryResource:
     def is_host_accessible(self) -> bool:
         """Whether buffers allocated by this resource are host-accessible."""
         raise TypeError("MemoryResource.is_host_accessible must be implemented by subclasses.")
+
+    @property
+    def is_managed(self) -> bool:
+        """Whether buffers allocated by this resource are CUDA managed (unified) memory."""
+        return False
 
     @property
     def device_id(self) -> int:

@@ -121,6 +121,11 @@ cdef class ManagedMemoryResource(_MemPool):
         """Return True. This memory resource provides host-accessible buffers."""
         return True
 
+    @property
+    def is_managed(self) -> bool:
+        """Return True. This memory resource provides managed (unified) memory buffers."""
+        return True
+
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     cdef tuple _VALID_LOCATION_TYPES = ("device", "host", "host_numa")

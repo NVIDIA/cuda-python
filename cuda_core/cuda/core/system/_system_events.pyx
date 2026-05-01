@@ -26,7 +26,7 @@ cdef class SystemEvent:
     @property
     def event_type(self) -> SystemEventType:
         """
-        The type of event that was triggered.
+        The :obj:`~SystemEventType` that was triggered.
         """
         return SystemEventType(self._event_data.event_type)
 
@@ -40,7 +40,7 @@ cdef class SystemEvent:
     @property
     def device(self) -> _device.Device:
         """
-        The device associated with this event.
+        The :obj:`~_device.Device` associated with this event.
         """
         return _device.Device(pci_bus_id=self.gpu_id)
 
@@ -56,6 +56,9 @@ cdef class SystemEvents:
         return len(self._event_data)
 
     def __getitem__(self, idx: int) -> SystemEvent:
+        """
+        Get the :obj:`~_system_events.SystemEvent` at the specified index.
+        """
         return SystemEvent(self._event_data[idx])
 
 
@@ -78,13 +81,15 @@ cdef class RegisteredSystemEvents:
 
         initialize()
 
+        self._event_set = 0
         self._event_set = nvml.system_event_set_create()
         # If this raises, the event needs to be freed and this is handled by
         # this class's __dealloc__ method.
         nvml.system_register_events(event_bitmask, self._event_set)
 
     def __dealloc__(self):
-        nvml.system_event_set_free(self._event_set)
+        if self._event_set != 0:
+            nvml.system_event_set_free(self._event_set)
 
     def wait(self, timeout_ms: int = 0, buffer_size: int = 1) -> SystemEvents:
         """
@@ -106,6 +111,12 @@ cdef class RegisteredSystemEvents:
             The timeout in milliseconds. A value of 0 means to wait indefinitely.
         buffer_size: int
             The maximum number of events to retrieve.  Must be at least 1.
+
+        Returns
+        -------
+        :obj:`~_system_events.SystemEvents`
+            A set of events that were received.  The number of events returned may
+            be less than the specified buffer size if fewer events were available.
 
         Raises
         ------
@@ -142,9 +153,9 @@ def register_events(events: SystemEventType | int | list[SystemEventType | int])
 
     Returns
     -------
-    :class:`RegisteredSystemEvents`
+    :obj:`~_system_events.RegisteredSystemEvents`
         An object representing the registered events.  Call
-        :meth:`RegisteredSystemEvents.wait` on this object to wait for events.
+        :meth:`~_system_events.RegisteredSystemEvents.wait` on this object to wait for events.
 
     Raises
     ------
@@ -156,8 +167,5 @@ def register_events(events: SystemEventType | int | list[SystemEventType | int])
 
 __all__ = [
     "register_events",
-    "RegisteredSystemEvents",
-    "SystemEvent",
-    "SystemEvents",
     "SystemEventType",
 ]

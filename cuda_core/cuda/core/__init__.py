@@ -4,29 +4,29 @@
 
 from cuda.core._version import __version__
 
-try:
+
+def _import_versioned_module():
+    import importlib
+
     from cuda import bindings
-except ImportError:
-    raise ImportError("cuda.bindings 12.x or 13.x must be installed") from None
-else:
-    cuda_major, cuda_minor = bindings.__version__.split(".")[:2]
+
+    cuda_major = bindings.__version__.split(".")[0]
     if cuda_major not in ("12", "13"):
         raise ImportError("cuda.bindings 12.x or 13.x must be installed")
 
-import importlib
+    subdir = f"cu{cuda_major}"
+    try:
+        versioned_mod = importlib.import_module(f".{subdir}", __package__)
+        # Import all symbols from the module
+        globals().update(versioned_mod.__dict__)
+    except ImportError:
+        # This is not a wheel build, but a conda or local build, do nothing
+        pass
 
-subdir = f"cu{cuda_major}"
-try:
-    versioned_mod = importlib.import_module(f".{subdir}", __package__)
-    # Import all symbols from the module
-    globals().update(versioned_mod.__dict__)
-except ImportError:
-    # This is not a wheel build, but a conda or local build, do nothing
-    pass
-else:
-    del versioned_mod
-finally:
-    del bindings, importlib, subdir, cuda_major, cuda_minor
+
+_import_versioned_module()
+del _import_versioned_module
+
 
 from cuda.core import system, utils
 from cuda.core._device import Device
@@ -34,7 +34,6 @@ from cuda.core._event import Event, EventOptions
 from cuda.core._graphics import GraphicsResource
 from cuda.core._launch_config import LaunchConfig
 from cuda.core._launcher import launch
-from cuda.core._layout import _StridedLayout
 from cuda.core._linker import Linker, LinkerOptions
 from cuda.core._memory import (
     Buffer,
@@ -64,11 +63,11 @@ from cuda.core._stream import (
 )
 from cuda.core._tensor_map import TensorMapDescriptor, TensorMapDescriptorOptions
 from cuda.core.graph import (
-    Condition,
     Graph,
     GraphAllocOptions,
     GraphBuilder,
     GraphCompleteOptions,
+    GraphCondition,
     GraphDebugPrintOptions,
-    GraphDef,
+    GraphDefinition,
 )
