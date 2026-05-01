@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b5df629d"></script>
+    <script src="../_static/documentation_options.js?v=f5b3618d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev50';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev84';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -519,9 +519,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -572,6 +572,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.FanControlPolicy.html">cuda.core.system.FanControlPolicy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.InforomObject.html">cuda.core.system.InforomObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.NvlinkVersion.html">cuda.core.system.NvlinkVersion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.PcieUtilCounter.html">cuda.core.system.PcieUtilCounter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.Pstates.html">cuda.core.system.Pstates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.TemperatureSensors.html">cuda.core.system.TemperatureSensors</a></li>
@@ -664,14 +665,139 @@
                   
   <section id="cuda-core-1-0-0-release-notes">
 <h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 1.0.0 Release Notes<a class="headerlink" href="#cuda-core-1-0-0-release-notes" title="Link to this heading">#</a></h1>
-<section id="breaking-changes">
-<h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
+<section id="highlights">
+<h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>TBD</p></li>
+</ul>
+</section>
+<section id="breaking-changes">
+<h2>Breaking changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Renamed <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDef</span></code> to <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code></a> for
+consistency with the rest of the API, which spells words out (e.g.
+<code class="docutils literal notranslate"><span class="pre">TensorMapDescriptor</span></code>, not <code class="docutils literal notranslate"><span class="pre">TensorMapDesc</span></code>).
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1950">#1950</a>)</p></li>
+<li><p>Renamed <code class="docutils literal notranslate"><span class="pre">cuda.core.graph.Condition</span></code> to <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a>
+to follow the <code class="docutils literal notranslate"><span class="pre">Graph*</span></code> prefix convention used by <code class="docutils literal notranslate"><span class="pre">GraphBuilder</span></code>,
+<code class="docutils literal notranslate"><span class="pre">GraphDefinition</span></code>, <code class="docutils literal notranslate"><span class="pre">GraphNode</span></code>.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>)</p></li>
+<li><p>Converted no-argument deterministic getters to properties for consistency
+with the rest of the API
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
+<ul>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.get_ipc_descriptor()</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.ipc_descriptor" title="cuda.core.Buffer.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a></p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Event.get_ipc_descriptor()</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event.ipc_descriptor" title="cuda.core.Event.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.ipc_descriptor</span></code></a></p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.get_allocation_handle()</span></code> -&gt;
+<a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.allocation_handle" title="cuda.core.DeviceMemoryResource.allocation_handle"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DeviceMemoryResource.allocation_handle</span></code></a></p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">PinnedMemoryResource.get_allocation_handle()</span></code> -&gt;
+<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.allocation_handle" title="cuda.core.PinnedMemoryResource.allocation_handle"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PinnedMemoryResource.allocation_handle</span></code></a></p></li>
+</ul>
+</li>
+<li><p>Renamed boolean / non-noun properties for clearer naming
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">LaunchConfig.cooperative_launch</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig.is_cooperative" title="cuda.core.LaunchConfig.is_cooperative"><code class="xref py py-attr docutils literal notranslate"><span class="pre">LaunchConfig.is_cooperative</span></code></a>
+(also renames the constructor keyword argument).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Event.is_timing_disabled</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event.is_timing_enabled" title="cuda.core.Event.is_timing_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.is_timing_enabled</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Event.is_sync_busy_waited</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event.is_blocking_sync" title="cuda.core.Event.is_blocking_sync"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.is_blocking_sync</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EventOptions.enable_timing</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">EventOptions.timing_enabled</span></code>
+and <code class="docutils literal notranslate"><span class="pre">EventOptions.busy_waited_sync</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">EventOptions.blocking_sync</span></code>.</p></li>
+</ul>
+</li>
+<li><p>Renamed graph allocation methods to match <a class="reference internal" href="../generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource.allocate" title="cuda.core.MemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MemoryResource.allocate()</span></code></a> /
+<a class="reference internal" href="../generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource.deallocate" title="cuda.core.MemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MemoryResource.deallocate()</span></code></a>
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphDefinition.alloc</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.allocate" title="cuda.core.graph.GraphDefinition.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.allocate()</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphDefinition.free</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.deallocate" title="cuda.core.graph.GraphDefinition.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.deallocate()</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphNode.alloc</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.allocate" title="cuda.core.graph.GraphNode.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.allocate()</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphNode.free</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.deallocate" title="cuda.core.graph.GraphNode.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.deallocate()</span></code></a></p></li>
+</ul>
+</li>
+<li><p>Cross-API consistency for graph builders
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphBuilder.add_child</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.embed" title="cuda.core.graph.GraphBuilder.embed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.embed()</span></code></a>
+(matches <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.embed" title="cuda.core.graph.GraphDefinition.embed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.embed()</span></code></a> and
+<a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.embed" title="cuda.core.graph.GraphNode.embed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.embed()</span></code></a>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphDefinition.record_event</span></code> / <code class="docutils literal notranslate"><span class="pre">wait_event</span></code> -&gt;
+<a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.record" title="cuda.core.graph.GraphDefinition.record"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.record()</span></code></a> / <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.wait" title="cuda.core.graph.GraphDefinition.wait"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.wait()</span></code></a>
+and the same on <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphNode</span></code></a>, matching
+<a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream.record" title="cuda.core.Stream.record"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Stream.record()</span></code></a> / <a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream.wait" title="cuda.core.Stream.wait"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Stream.wait()</span></code></a>.</p></li>
+</ul>
+</li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelAttributes</span></code> methods are now properties; per-device queries
+use indexing
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
+<ul>
+<li><p>The 17 attribute methods (<code class="docutils literal notranslate"><span class="pre">max_threads_per_block</span></code>, <code class="docutils literal notranslate"><span class="pre">num_regs</span></code>,
+<code class="docutils literal notranslate"><span class="pre">shared_size_bytes</span></code>, <code class="docutils literal notranslate"><span class="pre">cluster_scheduling_policy_preference</span></code>, etc.)
+that previously took a <code class="docutils literal notranslate"><span class="pre">device_id</span></code> argument are now properties on
+the view returned by <a class="reference internal" href="../generated/cuda.core.Kernel.html#cuda.core.Kernel.attributes" title="cuda.core.Kernel.attributes"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Kernel.attributes</span></code></a>. The view is bound to
+the current device by default; <code class="docutils literal notranslate"><span class="pre">kernel.attributes[device]</span></code> returns
+a view bound to a specific <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> or device ordinal. The
+cache is shared across views of the same kernel.</p></li>
+<li><p>Old: <code class="docutils literal notranslate"><span class="pre">kernel.attributes.num_regs()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">kernel.attributes.num_regs(some_dev)</span></code></p></li>
+<li><p>New: <code class="docutils literal notranslate"><span class="pre">kernel.attributes.num_regs</span></code> and
+<code class="docutils literal notranslate"><span class="pre">kernel.attributes[some_dev].num_regs</span></code></p></li>
+</ul>
+</li>
+<li><p>Unified the conditional graph API on <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a>
+and consistent verbs
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphBuilder.create_conditional_handle</span></code> -&gt;
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.create_condition" title="cuda.core.graph.GraphBuilder.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.create_condition()</span></code></a>. The new factory returns a
+<a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a> (matching
+<a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.create_condition" title="cuda.core.graph.GraphDefinition.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.create_condition()</span></code></a>) instead of a raw
+<code class="docutils literal notranslate"><span class="pre">CUgraphConditionalHandle</span></code>. The four conditional builder methods
+(<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.if_then" title="cuda.core.graph.GraphBuilder.if_then"><code class="xref py py-meth docutils literal notranslate"><span class="pre">if_then()</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.if_else" title="cuda.core.graph.GraphBuilder.if_else"><code class="xref py py-meth docutils literal notranslate"><span class="pre">if_else()</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.while_loop" title="cuda.core.graph.GraphBuilder.while_loop"><code class="xref py py-meth docutils literal notranslate"><span class="pre">while_loop()</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.switch" title="cuda.core.graph.GraphBuilder.switch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">switch()</span></code></a>) now accept a
+<a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a> instead of a raw handle.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphBuilder.if_cond</span></code> / <code class="docutils literal notranslate"><span class="pre">GraphDefinition.if_cond</span></code> /
+<code class="docutils literal notranslate"><span class="pre">GraphNode.if_cond</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.if_then" title="cuda.core.graph.GraphBuilder.if_then"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.if_then()</span></code></a> /
+<a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.if_then" title="cuda.core.graph.GraphDefinition.if_then"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.if_then()</span></code></a> /
+<a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.if_then" title="cuda.core.graph.GraphNode.if_then"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.if_then()</span></code></a>. The new name parallels the existing
+<code class="docutils literal notranslate"><span class="pre">if_else</span></code>, <code class="docutils literal notranslate"><span class="pre">while_loop</span></code>, and <code class="docutils literal notranslate"><span class="pre">switch</span></code> methods (verb describing the
+control-flow construct, not an abbreviation of “condition”) and matches
+Python’s own <code class="docutils literal notranslate"><span class="pre">if/then/else</span></code> vocabulary.</p></li>
+<li><p>A <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a> may be passed directly as a kernel
+argument to <code class="docutils literal notranslate"><span class="pre">launch()</span></code>; the launcher unwraps it to the underlying
+<code class="docutils literal notranslate"><span class="pre">CUgraphConditionalHandle</span></code> value. Previously, <code class="docutils literal notranslate"><span class="pre">.handle</span></code> had to be
+extracted explicitly.</p></li>
+</ul>
+</li>
 <li><p><a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker.backend" title="cuda.core.Linker.backend"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Linker.backend()</span></code></a> is now a classmethod instead of an instance property.
 Call sites must use <code class="docutils literal notranslate"><span class="pre">Linker.backend()</span></code> (with parentheses) instead of
 <code class="docutils literal notranslate"><span class="pre">linker.backend</span></code>. This allows querying the linking backend without
 constructing a <code class="docutils literal notranslate"><span class="pre">Linker</span></code> instance — for example, to choose between PTX and
 LTOIR input before linking.</p></li>
+</ul>
+</section>
+<section id="new-features">
+<h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>TBD</p></li>
+</ul>
+</section>
+<section id="fixes-and-enhancements">
+<h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> now provides a fast path for <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>
+objects via PyTorch’s AOT Inductor (AOTI) stable C ABI. When a <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>
+is passed to any <code class="docutils literal notranslate"><span class="pre">from_*</span></code> classmethod (<code class="docutils literal notranslate"><span class="pre">from_dlpack</span></code>,
+<code class="docutils literal notranslate"><span class="pre">from_cuda_array_interface</span></code>, <code class="docutils literal notranslate"><span class="pre">from_array_interface</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">from_any_interface</span></code>), tensor metadata is read directly from the underlying
+C struct, bypassing the DLPack and CUDA Array Interface protocol overhead.
+This yields ~7-20x faster <code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> construction for PyTorch
+tensors (depending on whether stream ordering is required).  Proper CUDA stream ordering is established between PyTorch’s current
+stream and the consumer stream, matching the DLPack synchronization contract.
+Requires PyTorch &gt;= 2.3.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/749">#749</a>)</p></li>
 </ul>
 </section>
 </section>
@@ -716,7 +842,10 @@ LTOIR input before linking.</p></li>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking Changes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking changes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
 </ul>
   </nav></div>
 
