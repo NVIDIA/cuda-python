@@ -17,12 +17,6 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._memory._managed_location import _coerce_location
-from cuda.core._memory._managed_memory_options import (
-    AdviseOptions,
-    DiscardOptions,
-    DiscardPrefetchOptions,
-    PrefetchOptions,
-)
 
 
 cdef dict _MANAGED_ADVICE_ALIASES = {
@@ -96,22 +90,30 @@ cdef void _require_managed_buffer(Buffer self, str what):
         raise ValueError(f"{what} requires a managed-memory allocation")
 
 
-cdef tuple _coerce_buffer_targets(object targets, str what):
+cdef tuple _coerce_batch_buffers(object buffers, str what):
+    """Coerce ``buffers`` to a tuple[Buffer, ...]; rejects a single Buffer.
+
+    For single-buffer operations, use the corresponding ManagedBuffer
+    instance method instead.
+    """
     cdef Buffer buf
     cdef list out
-    if isinstance(targets, Buffer):
-        return (<Buffer>targets,)
-    if isinstance(targets, Sequence):
-        if not targets:
-            raise ValueError(f"{what}: empty targets sequence")
+    if isinstance(buffers, Buffer):
+        raise TypeError(
+            f"{what}: pass a sequence of Buffers; for a single buffer use "
+            f"the ManagedBuffer instance method"
+        )
+    if isinstance(buffers, Sequence):
+        if not buffers:
+            raise ValueError(f"{what}: empty buffers sequence")
         out = []
-        for t in targets:
+        for t in buffers:
             buf = <Buffer?>t
             out.append(buf)
         return tuple(out)
     raise TypeError(
-        f"{what}: targets must be a Buffer or sequence of Buffer, "
-        f"got {type(targets).__name__}"
+        f"{what}: buffers must be a sequence of Buffer, "
+        f"got {type(buffers).__name__}"
     )
 
 
@@ -159,43 +161,43 @@ ELSE:
         )
 
 
-def discard(
-    targets,
-    *,
-    options=None,
-    stream,
-):
-    """Discard one or more managed-memory ranges.
+def discard_batch(buffers, *, stream):
+    """Discard a batch of managed-memory ranges.
+
+    Requires CUDA 13+. For a single buffer, use
+    :meth:`ManagedBuffer.discard` instead.
 
     Parameters
     ----------
-    targets : :class:`Buffer` | Sequence[:class:`Buffer`]
-        One or more managed allocations to discard. Their resident pages
-        are released without prefetching new contents; subsequent access
-        is satisfied by lazy migration.
-    options : :class:`DiscardOptions`, optional
-        Reserved for future per-call flags. ``None`` (default) and
-        ``DiscardOptions()`` are equivalent.
+    buffers : Sequence[:class:`Buffer`]
+        Two or more managed allocations to discard. Resident pages are
+        released without prefetching new contents; subsequent access is
+        satisfied by lazy migration.
     stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
         Stream for the asynchronous discard (keyword-only).
 
     Raises
     ------
     NotImplementedError
-        On a CUDA 12 build of ``cuda.core``. Discard requires CUDA 13+.
+        On a CUDA 12 build of ``cuda.core``.
     """
-    if options is not None and not isinstance(options, DiscardOptions):
-        raise TypeError(
-            "discard options must be a DiscardOptions instance or None, "
-            f"got {type(options).__name__}"
-        )
-    cdef tuple bufs = _coerce_buffer_targets(targets, "discard")
+    cdef tuple bufs = _coerce_batch_buffers(buffers, "discard_batch")
     cdef Stream s = Stream_accept(stream)
 
     cdef Buffer buf
     for buf in bufs:
-        _require_managed_buffer(buf, "discard")
+        _require_managed_buffer(buf, "discard_batch")
 
+    _do_batch_discard(bufs, s)
+
+
+def _do_single_discard_py(Buffer buf, stream):
+    """Internal: single-buffer discard for ManagedBuffer.discard()."""
+    _require_managed_buffer(buf, "discard")
+    cdef Stream s = Stream_accept(stream)
+    # No single-range cuMemDiscard exists; route through the batched call
+    # with count=1.
+    cdef tuple bufs = (buf,)
     _do_batch_discard(bufs, s)
 
 
@@ -223,61 +225,24 @@ cdef void _do_batch_discard(tuple bufs, Stream s):
         )
 
 
-def advise(
-    targets,
-    advice,
-    location=None,
-    *,
-    options=None,
-):
-    """Apply managed-memory advice to one or more allocation ranges.
+def _advise_one(Buffer buf, advice, location):
+    """Internal: apply managed-memory advice to a single buffer.
 
-    Parameters
-    ----------
-    targets : :class:`Buffer` | Sequence[:class:`Buffer`]
-        One or more managed allocations to advise.
-    advice : str | :obj:`~driver.CUmem_advise`
-        Managed-memory advice. String aliases (``"set_read_mostly"``,
-        ``"unset_read_mostly"``, ``"set_preferred_location"``,
-        ``"unset_preferred_location"``, ``"set_accessed_by"``,
-        ``"unset_accessed_by"``) and ``CUmem_advise`` enum values are accepted.
-    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | Sequence[...]
-        Target location(s). Required for advice values that consult a
-        location; ignored (may be ``None``) for ``set_read_mostly``,
-        ``unset_read_mostly``, and ``unset_preferred_location``. A sequence
-        must match ``len(targets)``.
-    options : :class:`AdviseOptions`, optional
-        Reserved for future per-call flags. ``None`` (default) and
-        ``AdviseOptions()`` are equivalent.
+    Used by :class:`ManagedBuffer` property setters. Not part of the
+    public API.
     """
-    if options is not None and not isinstance(options, AdviseOptions):
-        raise TypeError(
-            "advise options must be an AdviseOptions instance or None, "
-            f"got {type(options).__name__}"
-        )
     cdef str advice_name
     cdef object advice_value
     advice_name, advice_value = _normalize_managed_advice(advice)
     cdef bint allow_none = advice_name in _MANAGED_ADVICE_IGNORE_LOCATION
     cdef frozenset allowed_kinds = _MANAGED_ADVICE_ALLOWED_LOCTYPES[advice_name]
-
-    cdef tuple bufs = _coerce_buffer_targets(targets, "advise")
-    cdef Py_ssize_t n = len(bufs)
-    cdef tuple locs = _broadcast_locations(location, n, allow_none, "advise")
-
-    cdef Buffer buf
-    cdef object loc
-    for buf in bufs:
-        _require_managed_buffer(buf, "advise")
-    for loc in locs:
-        if loc is not None and loc.kind not in allowed_kinds:
-            raise ValueError(
-                f"advise '{advice_name}' does not support location_type='{loc.kind}'"
-            )
-
-    cdef Py_ssize_t i
-    for i in range(n):
-        _do_single_advise(<Buffer>bufs[i], advice_value, locs[i], allow_none)
+    cdef object loc = _coerce_location(location, allow_none=allow_none)
+    if loc is not None and loc.kind not in allowed_kinds:
+        raise ValueError(
+            f"advise '{advice_name}' does not support location_type='{loc.kind}'"
+        )
+    _require_managed_buffer(buf, "advise")
+    _do_single_advise(buf, advice_value, loc, allow_none)
 
 
 cdef void _do_single_advise(Buffer buf, object advice_value, object loc, bint allow_none):
@@ -302,52 +267,48 @@ cdef void _do_single_advise(Buffer buf, object advice_value, object loc, bint al
             HANDLE_RETURN(cydriver.cuMemAdvise(cu_ptr, nbytes, advice_enum, dev_int))
 
 
-def prefetch(
-    targets,
-    location=None,
-    *,
-    options=None,
-    stream,
-):
-    """Prefetch one or more managed-memory ranges to a target location.
+def prefetch_batch(buffers, locations, *, stream):
+    """Prefetch a batch of managed-memory ranges to target locations.
+
+    Requires CUDA 13+. For a single buffer, use
+    :meth:`ManagedBuffer.prefetch` instead.
 
     Parameters
     ----------
-    targets : :class:`Buffer` | Sequence[:class:`Buffer`]
-        One or more managed allocations to operate on.
-    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | Sequence[...]
-        Target location(s). A single location applies to all targets; a
-        sequence must match ``len(targets)``. ``int`` values are coerced
-        to a location (``-1`` maps to host, ``>=0`` to that device ordinal).
-    options : :class:`PrefetchOptions`, optional
-        Reserved for future per-call flags. ``None`` (default) and
-        ``PrefetchOptions()`` are equivalent.
+    buffers : Sequence[:class:`Buffer`]
+        Two or more managed allocations to operate on.
+    locations : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | Sequence[...]
+        Target location(s). A single location applies to all buffers; a
+        sequence must match ``len(buffers)``.
     stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
         Stream for the asynchronous prefetch (keyword-only).
 
     Raises
     ------
     NotImplementedError
-        If ``len(targets) > 1`` on a CUDA 12 build of ``cuda.core``.
+        On a CUDA 12 build of ``cuda.core``.
     """
-    if options is not None and not isinstance(options, PrefetchOptions):
-        raise TypeError(
-            "prefetch options must be a PrefetchOptions instance or None, "
-            f"got {type(options).__name__}"
-        )
-    cdef tuple bufs = _coerce_buffer_targets(targets, "prefetch")
+    cdef tuple bufs = _coerce_batch_buffers(buffers, "prefetch_batch")
     cdef Py_ssize_t n = len(bufs)
-    cdef tuple locs = _broadcast_locations(location, n, False, "prefetch")
+    cdef tuple locs = _broadcast_locations(locations, n, False, "prefetch_batch")
     cdef Stream s = Stream_accept(stream)
 
     cdef Buffer buf
     for buf in bufs:
-        _require_managed_buffer(buf, "prefetch")
+        _require_managed_buffer(buf, "prefetch_batch")
 
-    if n == 1:
-        _do_single_prefetch(<Buffer>bufs[0], locs[0], s)
-    else:
-        _do_batch_prefetch(bufs, locs, s)
+    _do_batch_prefetch(bufs, locs, s)
+
+
+def _do_single_prefetch_py(Buffer buf, location, stream):
+    """Internal: single-buffer prefetch for ManagedBuffer.prefetch().
+
+    Uses cuMemPrefetchAsync (works on CUDA 12 and 13).
+    """
+    _require_managed_buffer(buf, "prefetch")
+    cdef object loc = _coerce_location(location, allow_none=False)
+    cdef Stream s = Stream_accept(stream)
+    _do_single_prefetch(buf, loc, s)
 
 
 cdef void _do_single_prefetch(Buffer buf, object loc, Stream s):
@@ -396,48 +357,47 @@ cdef void _do_batch_prefetch(tuple bufs, tuple locs, Stream s):
         )
 
 
-def discard_prefetch(
-    targets,
-    location=None,
-    *,
-    options=None,
-    stream,
-):
-    """Discard one or more managed-memory ranges and prefetch them to a target location.
+def discard_prefetch_batch(buffers, locations, *, stream):
+    """Discard a batch of managed-memory ranges and prefetch them to target locations.
+
+    Requires CUDA 13+. For a single buffer, use
+    :meth:`ManagedBuffer.discard_prefetch` instead.
 
     Parameters
     ----------
-    targets : :class:`Buffer` | Sequence[:class:`Buffer`]
-        One or more managed allocations to discard and re-prefetch.
-    location : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | Sequence[...]
-        Target location(s). A single location applies to all targets;
-        a sequence must match ``len(targets)``.
-    options : :class:`DiscardPrefetchOptions`, optional
-        Reserved for future per-call flags. ``None`` (default) and
-        ``DiscardPrefetchOptions()`` are equivalent.
+    buffers : Sequence[:class:`Buffer`]
+        Two or more managed allocations to discard and re-prefetch.
+    locations : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | Sequence[...]
+        Target location(s). A single location applies to all buffers;
+        a sequence must match ``len(buffers)``.
     stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
         Stream for the asynchronous operation (keyword-only).
 
     Raises
     ------
     NotImplementedError
-        On a CUDA 12 build of ``cuda.core``. Discard-and-prefetch
-        requires CUDA 13+.
+        On a CUDA 12 build of ``cuda.core``.
     """
-    if options is not None and not isinstance(options, DiscardPrefetchOptions):
-        raise TypeError(
-            "discard_prefetch options must be a DiscardPrefetchOptions "
-            f"instance or None, got {type(options).__name__}"
-        )
-    cdef tuple bufs = _coerce_buffer_targets(targets, "discard_prefetch")
+    cdef tuple bufs = _coerce_batch_buffers(buffers, "discard_prefetch_batch")
     cdef Py_ssize_t n = len(bufs)
-    cdef tuple locs = _broadcast_locations(location, n, False, "discard_prefetch")
+    cdef tuple locs = _broadcast_locations(locations, n, False, "discard_prefetch_batch")
     cdef Stream s = Stream_accept(stream)
 
     cdef Buffer buf
     for buf in bufs:
-        _require_managed_buffer(buf, "discard_prefetch")
+        _require_managed_buffer(buf, "discard_prefetch_batch")
 
+    _do_batch_discard_prefetch(bufs, locs, s)
+
+
+def _do_single_discard_prefetch_py(Buffer buf, location, stream):
+    """Internal: single-buffer discard+prefetch for
+    ManagedBuffer.discard_prefetch()."""
+    _require_managed_buffer(buf, "discard_prefetch")
+    cdef object loc = _coerce_location(location, allow_none=False)
+    cdef Stream s = Stream_accept(stream)
+    cdef tuple bufs = (buf,)
+    cdef tuple locs = (loc,)
     _do_batch_discard_prefetch(bufs, locs, s)
 
 

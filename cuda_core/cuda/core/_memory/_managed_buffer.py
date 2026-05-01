@@ -8,7 +8,12 @@ from typing import TYPE_CHECKING
 from cuda.core._device import Device
 from cuda.core._host import Host
 from cuda.core._memory._buffer import Buffer
-from cuda.core._memory._managed_memory_ops import advise, discard, discard_prefetch, prefetch
+from cuda.core._memory._managed_memory_ops import (
+    _advise_one,
+    _do_single_discard_prefetch_py,
+    _do_single_discard_py,
+    _do_single_prefetch_py,
+)
 from cuda.core._utils.cuda_utils import driver, handle_return
 
 if TYPE_CHECKING:
@@ -91,11 +96,11 @@ class AccessedBySet:
 
     def add(self, location: Device | Host) -> None:
         """Apply ``set_accessed_by`` advice for ``location``."""
-        advise(self._buf, _SET_ACCESSED_BY, location)
+        _advise_one(self._buf, _SET_ACCESSED_BY, location)
 
     def discard(self, location: Device | Host) -> None:
         """Apply ``unset_accessed_by`` advice for ``location``."""
-        advise(self._buf, _UNSET_ACCESSED_BY, location)
+        _advise_one(self._buf, _UNSET_ACCESSED_BY, location)
 
 
 class ManagedBuffer(Buffer):
@@ -156,7 +161,7 @@ class ManagedBuffer(Buffer):
 
     @read_mostly.setter
     def read_mostly(self, value: bool) -> None:
-        advise(self, _SET_READ_MOSTLY if value else _UNSET_READ_MOSTLY)
+        _advise_one(self, _SET_READ_MOSTLY if value else _UNSET_READ_MOSTLY, None)
 
     @property
     def preferred_location(self) -> Device | Host | None:
@@ -182,9 +187,9 @@ class ManagedBuffer(Buffer):
     @preferred_location.setter
     def preferred_location(self, value: Device | Host | None) -> None:
         if value is None:
-            advise(self, _UNSET_PREFERRED)
+            _advise_one(self, _UNSET_PREFERRED, None)
         else:
-            advise(self, _SET_PREFERRED, value)
+            _advise_one(self, _SET_PREFERRED, value)
 
     @property
     def accessed_by(self) -> AccessedBySet:
@@ -197,18 +202,18 @@ class ManagedBuffer(Buffer):
         current = set(_query_accessed_by(self))
         target = set(locations)
         for loc in current - target:
-            advise(self, _UNSET_ACCESSED_BY, loc)
+            _advise_one(self, _UNSET_ACCESSED_BY, loc)
         for loc in target - current:
-            advise(self, _SET_ACCESSED_BY, loc)
+            _advise_one(self, _SET_ACCESSED_BY, loc)
 
     def prefetch(self, location: Device | Host, *, stream: Stream | GraphBuilder) -> None:
         """Prefetch this range to ``location`` on ``stream``."""
-        prefetch(self, location, stream=stream)
+        _do_single_prefetch_py(self, location, stream)
 
     def discard(self, *, stream: Stream | GraphBuilder) -> None:
         """Discard this range's resident pages on ``stream`` (CUDA 13+)."""
-        discard(self, stream=stream)
+        _do_single_discard_py(self, stream)
 
     def discard_prefetch(self, location: Device | Host, *, stream: Stream | GraphBuilder) -> None:
         """Discard this range and prefetch to ``location`` on ``stream`` (CUDA 13+)."""
-        discard_prefetch(self, location, stream=stream)
+        _do_single_discard_prefetch_py(self, location, stream)
