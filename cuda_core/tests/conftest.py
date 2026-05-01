@@ -62,7 +62,7 @@ def skip_if_managed_memory_unsupported(device):
     try:
         ManagedMemoryResource()
     except CUDAError as e:
-        xfail_if_mempool_oom(e)
+        xfail_if_mempool_oom(e, device)
         raise
     except RuntimeError as e:
         if "requires CUDA 13.0" in str(e):
@@ -70,11 +70,11 @@ def skip_if_managed_memory_unsupported(device):
         raise
 
 
-def create_managed_memory_resource_or_xfail(*args, **kwargs):
+def create_managed_memory_resource_or_xfail(*args, xfail_device=None, **kwargs):
     try:
         return ManagedMemoryResource(*args, **kwargs)
     except CUDAError as e:
-        xfail_if_mempool_oom(e)
+        xfail_if_mempool_oom(e, _device_id_from_resource_options(xfail_device, args, kwargs))
         raise
     except RuntimeError as e:
         if "requires CUDA 13.0" in str(e):
@@ -82,17 +82,62 @@ def create_managed_memory_resource_or_xfail(*args, **kwargs):
         raise
 
 
-def create_pinned_memory_resource_or_skip(*args, **kwargs):
+def create_pinned_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
     try:
         return PinnedMemoryResource(*args, **kwargs)
     except CUDAError as e:
-        xfail_if_mempool_oom(e)
+        xfail_if_mempool_oom(e, xfail_device)
         raise
 
 
-def xfail_if_mempool_oom(exc):
-    if sys.platform == "win32" and "CUDA_ERROR_OUT_OF_MEMORY" in str(exc):
-        pytest.xfail("Driver could not reserve VA for mempool operations on this Windows platform")
+def is_windows_mcdm_device(device=0):
+    if sys.platform != "win32":
+        return False
+    try:
+        import cuda.bindings.nvml as nvml
+
+        device_id = int(device.device_id if hasattr(device, "device_id") else device)
+        (err,) = driver.cuInit(0)
+        if err != driver.CUresult.CUDA_SUCCESS:
+            return False
+        err, pci_bus_id = driver.cuDeviceGetPCIBusId(13, device_id)
+        if err != driver.CUresult.CUDA_SUCCESS:
+            return False
+        pci_bus_id = pci_bus_id.split(b"\x00", 1)[0].decode("ascii")
+        nvml.init_v2()
+        try:
+            handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
+            current, _ = nvml.device_get_driver_model_v2(handle)
+            return current == nvml.DriverModel.DRIVER_MCDM
+        finally:
+            nvml.shutdown()
+    except Exception:
+        # If MCDM detection fails, leave the primary test failure visible.
+        return False
+
+
+def xfail_if_mempool_oom(exc, device=0):
+    if "CUDA_ERROR_OUT_OF_MEMORY" in str(exc) and is_windows_mcdm_device(device):
+        pytest.xfail("Driver could not reserve VA for mempool operations on Windows MCDM")
+
+
+def _device_id_from_resource_options(device, args, kwargs):
+    if device is not None:
+        return device
+    options = kwargs.get("options")
+    if options is None and args:
+        options = args[0]
+    if options is None:
+        return 0
+    if isinstance(options, dict):
+        preferred_location = options.get("preferred_location")
+        preferred_location_type = options.get("preferred_location_type")
+    else:
+        preferred_location = getattr(options, "preferred_location", None)
+        preferred_location_type = getattr(options, "preferred_location_type", None)
+    if preferred_location_type in (None, "device") and isinstance(preferred_location, int) and preferred_location >= 0:
+        return preferred_location
+    return 0
 
 
 @pytest.fixture(scope="session", autouse=True)

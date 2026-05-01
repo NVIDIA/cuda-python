@@ -32,9 +32,34 @@ def supportsManagedMemory():
     return err == cudart.cudaError_t.cudaSuccess and isSupported
 
 
-def xfail_if_mempool_oom(err, api_name):
-    if platform.system() == "Windows" and err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY:
-        pytest.xfail(f"{api_name} could not reserve VA for mempool operations on this Windows platform")
+def is_windows_mcdm_device(device):
+    if platform.system() != "Windows":
+        return False
+    try:
+        import cuda.bindings.nvml as nvml
+
+        (err,) = cuda.cuInit(0)
+        if err != cuda.CUresult.CUDA_SUCCESS:
+            return False
+        err, pci_bus_id = cuda.cuDeviceGetPCIBusId(13, device)
+        if err != cuda.CUresult.CUDA_SUCCESS:
+            return False
+        pci_bus_id = pci_bus_id.split(b"\x00", 1)[0].decode("ascii")
+        nvml.init_v2()
+        try:
+            handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
+            current, _ = nvml.device_get_driver_model_v2(handle)
+            return current == nvml.DriverModel.DRIVER_MCDM
+        finally:
+            nvml.shutdown()
+    except Exception:
+        # If MCDM detection fails, leave the primary test failure visible.
+        return False
+
+
+def xfail_if_mempool_oom(err, api_name, device=0):
+    if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY and is_windows_mcdm_device(device):
+        pytest.xfail(f"{api_name} could not reserve VA for mempool operations on Windows MCDM")
 
 
 def supportsCudaAPI(name):
@@ -275,7 +300,7 @@ def test_cuda_memPool_attr():
 
     attr_list = [None] * 8
     err, pool = cuda.cuMemPoolCreate(poolProps)
-    xfail_if_mempool_oom(err, "cuMemPoolCreate")
+    xfail_if_mempool_oom(err, "cuMemPoolCreate", poolProps.location.id)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     for idx, attr in enumerate(
@@ -479,7 +504,7 @@ def test_cuda_graphMem_attr(device):
         assert destroy_err == cuda.CUresult.CUDA_SUCCESS
         (destroy_err,) = cuda.cuStreamDestroy(stream)
         assert destroy_err == cuda.CUresult.CUDA_SUCCESS
-        xfail_if_mempool_oom(err, "cuGraphAddMemAllocNode")
+        xfail_if_mempool_oom(err, "cuGraphAddMemAllocNode", device)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
     assert err == cuda.CUresult.CUDA_SUCCESS

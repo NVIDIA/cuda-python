@@ -53,7 +53,7 @@ def test_default_pool_error_without_concurrent_access(device_without_concurrent_
         with pytest.raises(RuntimeError, match="does not support managed allocations"):
             ManagedMemoryResource()
     except CUDAError as exc:
-        xfail_if_mempool_oom(exc)
+        xfail_if_mempool_oom(exc, device_without_concurrent_managed_access)
         raise
 
 
