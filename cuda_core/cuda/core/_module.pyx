@@ -307,7 +307,7 @@ cdef class KernelOccupancy:
         Returns
         -------
         :obj:`~MaxPotentialBlockSizeOccupancyResult`
-            An object with `min_grid_size` amd `max_block_size` attributes encoding
+            An object with `min_grid_size` and `max_block_size` attributes encoding
             the suggested launch configuration.
 
         Note

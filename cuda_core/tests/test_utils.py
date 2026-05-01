@@ -102,7 +102,7 @@ def _arr_size(arr):
 def _arr_is_c_contiguous(arr):
     if torch is not None and isinstance(arr, torch.Tensor):
         return arr.is_contiguous()
-    return arr.flags.c_contiguous if hasattr(arr, "flags") else arr.flags["C_CONTIGUOUS"]
+    return arr.flags.c_contiguous if hasattr(arr.flags, "c_contiguous") else arr.flags["C_CONTIGUOUS"]
 
 
 def _arr_is_writeable(arr):

@@ -168,15 +168,17 @@ def _build_cuda_core(debug=False):
     extra_link_args = []
     extra_cythonize_kwargs = {}
     if sys.platform == "win32":
+        extra_compile_args += ["/std:c++17"]
         if debug:
             raise RuntimeError("Debuggable builds are not supported on Windows.")
     else:
+        extra_compile_args += ["-std=c++17"]
         if debug:
             extra_cythonize_kwargs["gdb_debug"] = True
             extra_compile_args += ["-g", "-O0"]
             extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
         else:
-            extra_compile_args += ["-O3"]
+            extra_compile_args += ["-O2"]
             extra_link_args += ["-Wl,--strip-all"]
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
