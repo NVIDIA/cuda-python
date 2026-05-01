@@ -85,7 +85,7 @@ def create_managed_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
         raise
 
 
-def create_pinned_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
+def create_pinned_memory_resource_or_xfail(*args, xfail_device=None, **kwargs):
     try:
         return PinnedMemoryResource(*args, **kwargs)
     except CUDAError as e:
