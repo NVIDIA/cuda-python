@@ -252,7 +252,7 @@ cdef class Stream:
     def record(self, event: Event = None, options: EventOptions = None) -> Event:
         """Record an event onto the stream.
 
-        Creates an Event object (or reuses the given one) by
+        Creates an :obj:`~_event.Event` object (or reuses the given one) by
         recording on the stream.
 
         Parameters
@@ -293,6 +293,13 @@ cdef class Stream:
         If a :obj:`~_stream.Stream` is provided, then wait until the stream's
         work is completed. This is done by recording a new :obj:`~_event.Event`
         on the stream and then waiting on it.
+
+        Parameters
+        ----------
+        event_or_stream : :obj:`~_event.Event` | :obj:`~_stream.Stream`
+            The event or stream to wait for. Objects supporting the
+            ``__cuda_stream__`` protocol are also accepted and treated as
+            streams.
 
         """
         cdef Stream stream
@@ -369,7 +376,7 @@ cdef class Stream:
         Note
         ----
         Stream lifetime is not managed, foreign object must remain
-        alive while this steam is active.
+        alive while this stream is active.
 
         Parameters
         ----------

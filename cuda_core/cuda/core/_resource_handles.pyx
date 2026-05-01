@@ -84,19 +84,19 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Event handles (note: _create_event_handle* are internal due to C++ overloading)
     EventHandle create_event_handle "cuda_core::create_event_handle" (
         const ContextHandle& h_ctx, unsigned int flags,
-        bint timing_disabled, bint busy_waited,
+        bint timing_enabled, bint is_blocking_sync,
         bint ipc_enabled, int device_id) except+ nogil
     EventHandle create_event_handle_noctx "cuda_core::create_event_handle_noctx" (
         unsigned int flags) except+ nogil
     EventHandle create_event_handle_ref "cuda_core::create_event_handle_ref" (
         cydriver.CUevent event) except+ nogil
     EventHandle create_event_handle_ipc "cuda_core::create_event_handle_ipc" (
-        const cydriver.CUipcEventHandle& ipc_handle, bint busy_waited) except+ nogil
+        const cydriver.CUipcEventHandle& ipc_handle, bint is_blocking_sync) except+ nogil
 
     # Event metadata getters
-    bint get_event_timing_disabled "cuda_core::get_event_timing_disabled" (
+    bint get_event_timing_enabled "cuda_core::get_event_timing_enabled" (
         const EventHandle& h) noexcept nogil
-    bint get_event_busy_waited "cuda_core::get_event_busy_waited" (
+    bint get_event_is_blocking_sync "cuda_core::get_event_is_blocking_sync" (
         const EventHandle& h) noexcept nogil
     bint get_event_ipc_enabled "cuda_core::get_event_ipc_enabled" (
         const EventHandle& h) noexcept nogil

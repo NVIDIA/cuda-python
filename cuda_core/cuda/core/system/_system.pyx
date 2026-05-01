@@ -88,6 +88,11 @@ def get_driver_version_full(kernel_mode: bool = False) -> tuple[int, int, int]:
 def get_nvml_version() -> tuple[int, ...]:
     """
     The version of the NVML library.
+
+    Returns
+    -------
+    version: tuple[int, ...]
+        Tuple of integers representing the NVML version components.
     """
     if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         raise RuntimeError("NVML library is not available")
@@ -97,6 +102,11 @@ def get_nvml_version() -> tuple[int, ...]:
 def get_driver_branch() -> str:
     """
     Retrieves the driver branch of the NVIDIA driver installed on the system.
+
+    Returns
+    -------
+    branch: str
+        The driver branch string (e.g., ``"560"``, ``"open"``, etc.).
     """
     if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         raise RuntimeError("NVML library is not available")

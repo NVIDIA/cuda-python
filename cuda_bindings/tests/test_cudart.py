@@ -11,6 +11,7 @@ import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda import pathfinder
 from cuda.bindings import runtime
+from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 
 
 def isSuccess(err):
@@ -432,6 +433,7 @@ def test_cudart_MemPool_attr():
 
     attr_list = [None] * 8
     err, pool = cudart.cudaMemPoolCreate(poolProps)
+    xfail_if_mempool_oom(err, "cudaMemPoolCreate", poolProps.location.id)
     assertSuccess(err)
 
     for idx, attr in enumerate(

@@ -77,6 +77,25 @@ int main(int argc, char** argv) {
         });
     }
 
+    // --- device_primary_ctx_retain ---
+    // Outer retain so the benchmarked retain/release pair just bumps the refcount.
+    CUcontext primary_outer = nullptr;
+    check_cu(
+        cuDevicePrimaryCtxRetain(&primary_outer, device),
+        "cuDevicePrimaryCtxRetain (setup) failed"
+    );
+    {
+        CUcontext primary = nullptr;
+        suite.run("ctx_device.device_primary_ctx_retain", [&]() {
+            check_cu(cuDevicePrimaryCtxRetain(&primary, device), "cuDevicePrimaryCtxRetain failed");
+            check_cu(cuDevicePrimaryCtxRelease(device), "cuDevicePrimaryCtxRelease failed");
+        });
+    }
+    check_cu(
+        cuDevicePrimaryCtxRelease(device),
+        "cuDevicePrimaryCtxRelease (teardown) failed"
+    );
+
     // Cleanup
     check_cu(cuCtxDestroy(ctx), "cuCtxDestroy failed");
 

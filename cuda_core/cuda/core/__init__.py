@@ -71,11 +71,11 @@ from cuda.core._stream import (
 )
 from cuda.core._tensor_map import TensorMapDescriptor, TensorMapDescriptorOptions
 from cuda.core.graph import (
-    Condition,
     Graph,
     GraphAllocOptions,
     GraphBuilder,
     GraphCompleteOptions,
+    GraphCondition,
     GraphDebugPrintOptions,
-    GraphDef,
+    GraphDefinition,
 )
