@@ -171,7 +171,10 @@ class TestViewCPU:
         assert view.shape == expected_shape
         assert view.size == _arr_size(in_arr)
         strides_in_counts = _arr_strides_in_counts(in_arr)
-        assert (_arr_is_c_contiguous(in_arr) and view.strides is None) or view.strides == strides_in_counts
+        if _arr_is_c_contiguous(in_arr):
+            assert view.strides in (None, strides_in_counts)
+        else:
+            assert view.strides == strides_in_counts
         assert view.device_id == -1
         assert view.is_device_accessible is False
         assert view.exporting_obj is in_arr
@@ -348,7 +351,10 @@ class TestViewCudaArrayInterfaceGPU:
         assert view.shape == expected_shape
         assert view.size == _arr_size(in_arr)
         strides_in_counts = _arr_strides_in_counts(in_arr)
-        assert (_arr_is_c_contiguous(in_arr) and view.strides is None) or view.strides == strides_in_counts
+        if _arr_is_c_contiguous(in_arr):
+            assert view.strides in (None, strides_in_counts)
+        else:
+            assert view.strides == strides_in_counts
         assert view.device_id == dev.device_id
         assert view.is_device_accessible is True
         assert view.exporting_obj is in_arr
