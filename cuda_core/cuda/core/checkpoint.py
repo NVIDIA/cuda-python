@@ -207,8 +207,8 @@ def _make_restore_args(driver, gpu_mapping: _Mapping[_Any, _Any] | None):
     pairs = []
     for old_uuid, new_uuid in gpu_mapping.items():
         pair = driver.CUcheckpointGpuPair()
-        pair.oldUuid = old_uuid
-        pair.newUuid = new_uuid
+        pair.oldUuid = _as_cuuuid(driver, old_uuid)
+        pair.newUuid = _as_cuuuid(driver, new_uuid)
         pairs.append(pair)
 
     if not pairs:
@@ -218,6 +218,27 @@ def _make_restore_args(driver, gpu_mapping: _Mapping[_Any, _Any] | None):
     args.gpuPairs = pairs
     args.gpuPairsCount = len(pairs)
     return args
+
+
+def _as_cuuuid(driver, value):
+    """Convert *value* to a ``CUuuid``.
+
+    Accepts a ``CUuuid`` instance (returned as-is) or a UUID string in
+    the ``"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"`` format returned by
+    :attr:`Device.uuid`.
+    """
+    if isinstance(value, str):
+        import ctypes
+
+        raw = bytes.fromhex(value.replace("-", ""))
+        if len(raw) != 16:
+            raise ValueError(
+                "GPU UUID string must be 32 hex characters "
+                f"(with optional hyphens), got {value!r}"
+            )
+        buf = ctypes.create_string_buffer(raw, 16)
+        return driver.CUuuid(ctypes.addressof(buf))
+    return value
 
 
 __all__ = [

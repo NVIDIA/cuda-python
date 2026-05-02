@@ -17,13 +17,8 @@ import sys
 
 import pytest
 
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
-
 from cuda.core import Device, checkpoint
-from cuda.core._utils.cuda_utils import CUDAError, handle_return
+from cuda.core._utils.cuda_utils import CUDAError
 
 
 # -- Skip condition -------------------------------------------------------
@@ -45,24 +40,14 @@ needs_checkpoint = pytest.mark.skipif(
 
 # -- Helpers ---------------------------------------------------------------
 
-def _get_context_device_uuid():
-    """Return the UUID string of the device owning the current CUDA context."""
-    dev_id = int(handle_return(driver.cuCtxGetDevice()))
-    return Device(dev_id).uuid
-
-
 def _build_rotation_mapping(devices):
     """GPU i UUID -> GPU (i+1) % N UUID for every visible device.
 
-    Returns a dict of CUuuid -> CUuuid suitable for Process.restore().
+    Returns a ``{str: str}`` dict of UUID strings suitable for
+    :meth:`~checkpoint.Process.restore`.
     """
     n = len(devices)
-    mapping = {}
-    for i in range(n):
-        old_uuid = handle_return(driver.cuDeviceGetUuid(devices[i].device_id))
-        new_uuid = handle_return(driver.cuDeviceGetUuid(devices[(i + 1) % n].device_id))
-        mapping[old_uuid] = new_uuid
-    return mapping
+    return {devices[i].uuid: devices[(i + 1) % n].uuid for i in range(n)}
 
 
 def _find_same_chip_pair(devices):
@@ -212,20 +197,20 @@ class TestCheckpointGpuMigration:
             pytest.skip("GPU migration requires at least 2 GPUs of the same chip type")
 
         gpu_mapping = _build_rotation_mapping(devices)
-        uuid_origin = _get_context_device_uuid()
+        uuid_origin = Device().uuid
 
         for step in range(len(devices)):
             expected_uuid = devices[(step + 1) % len(devices)].uuid
 
             self._try_migration(self_process, gpu_mapping)
 
-            assert _get_context_device_uuid() == expected_uuid, (
+            assert Device().uuid == expected_uuid, (
                 f"Step {step}: expected UUID {expected_uuid}, "
-                f"got {_get_context_device_uuid()}"
+                f"got {Device().uuid}"
             )
 
         # After N rotations, back at the origin.
-        assert _get_context_device_uuid() == uuid_origin
+        assert Device().uuid == uuid_origin
 
     def test_swap_identical_gpus(self, self_process):
         """Swap context between two GPUs of the same chip type.
@@ -242,17 +227,15 @@ class TestCheckpointGpuMigration:
         # Place context on device i so the swap is observable.
         devices[i].set_current()
 
-        # Build an identity mapping, then swap the pair.
-        n = len(devices)
-        uuids_cu = [handle_return(driver.cuDeviceGetUuid(devices[k].device_id)) for k in range(n)]
-        gpu_mapping = {uuids_cu[k]: uuids_cu[k] for k in range(n)}
-        gpu_mapping[uuids_cu[i]] = uuids_cu[j]
-        gpu_mapping[uuids_cu[j]] = uuids_cu[i]
+        # Build an identity mapping, then swap the pair (using UUID strings).
+        gpu_mapping = {d.uuid: d.uuid for d in devices}
+        gpu_mapping[devices[i].uuid] = devices[j].uuid
+        gpu_mapping[devices[j].uuid] = devices[i].uuid
 
-        assert _get_context_device_uuid() == devices[i].uuid
+        assert Device().uuid == devices[i].uuid
 
         self._try_migration(self_process, gpu_mapping)
-        uuid_after = _get_context_device_uuid()
+        uuid_after = Device().uuid
 
         if uuid_after == devices[i].uuid:
             pytest.skip(
