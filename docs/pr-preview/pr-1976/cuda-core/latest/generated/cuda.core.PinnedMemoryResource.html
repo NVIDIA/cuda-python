@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d838460c"></script>
+    <script src="../_static/documentation_options.js?v=350435d0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev71';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev95';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -526,9 +526,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -600,6 +600,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.0.0-notes.html">1.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
@@ -810,25 +811,6 @@ handle. It is the caller’s responsibility to close that handle.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.get_allocation_handle">
-<span class="sig-name descname"><span class="pre">get_allocation_handle</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.get_allocation_handle" title="Link to this definition">#</a></dt>
-<dd><p>Export the memory pool handle to be shared (requires IPC).</p>
-<p>The handle can be used to share the memory pool with other processes.
-The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The shareable handle for the memory pool.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.register">
 <span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span>
 
@@ -851,6 +833,14 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.allocation_handle">
+<span class="sig-name descname"><span class="pre">allocation_handle</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.allocation_handle" title="Link to this definition">#</a></dt>
+<dd><p>Shareable handle for this memory pool (requires IPC).</p>
+<p>The handle can be used to share the memory pool with other processes.
+The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.attributes">
 <span class="sig-name descname"><span class="pre">attributes</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.attributes" title="Link to this definition">#</a></dt>
@@ -1021,8 +1011,8 @@ only for IPC-enabled memory resources.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.deallocate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.from_allocation_handle"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.from_allocation_handle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.from_registry"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.from_registry()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.get_allocation_handle"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.get_allocation_handle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.register"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.register()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.allocation_handle"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.allocation_handle</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.attributes"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.attributes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.handle"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.handle</span></code></a></li>
