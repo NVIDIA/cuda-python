@@ -34,7 +34,12 @@ from cuda.pathfinder._headers.find_nvidia_headers import (
     locate_nvidia_header_directory as locate_nvidia_header_directory_raw,
 )
 from cuda.pathfinder._utils import driver_info
-from cuda.pathfinder._utils.driver_info import DriverCudaVersion, QueryDriverCudaVersionError
+from cuda.pathfinder._utils.driver_info import (
+    DriverCudaVersion,
+    DriverReleaseVersion,
+    QueryDriverCudaVersionError,
+    QueryDriverReleaseVersionError,
+)
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.toolkit_info import read_cuda_header_version
 
@@ -61,6 +66,7 @@ def clear_real_host_probe_caches():
     read_cuda_header_version.cache_clear()
     driver_info._load_nvidia_dynamic_lib.cache_clear()
     driver_info.query_driver_cuda_version.cache_clear()
+    driver_info.query_driver_release_version.cache_clear()
     yield
     have_distribution.cache_clear()
     locate_real_cuda_toolkit_version_from_cuda_h.cache_clear()
@@ -70,6 +76,7 @@ def clear_real_host_probe_caches():
     read_cuda_header_version.cache_clear()
     driver_info._load_nvidia_dynamic_lib.cache_clear()
     driver_info.query_driver_cuda_version.cache_clear()
+    driver_info.query_driver_release_version.cache_clear()
 
 
 def _write_cuda_h(
@@ -125,6 +132,10 @@ def _located_bitcode_lib(name: str, abs_path: str) -> LocatedBitcodeLib:
 
 def _driver_cuda_version(encoded: int) -> DriverCudaVersion:
     return DriverCudaVersion.from_encoded(encoded)
+
+
+def _driver_release_version(text: str) -> DriverReleaseVersion:
+    return DriverReleaseVersion.from_text(text)
 
 
 class _FakeDistribution:
@@ -917,6 +928,11 @@ def test_guard_rails_query_driver_cuda_version_by_default(monkeypatch, tmp_path)
         return _driver_cuda_version(13000)
 
     monkeypatch.setattr(compatibility_module, "query_driver_cuda_version", fake_query_driver_cuda_version)
+    monkeypatch.setattr(
+        compatibility_module,
+        "query_driver_release_version",
+        lambda: pytest.fail("backward-compatible driver should not need display-driver release metadata"),
+    )
 
     guard_rails = CompatibilityGuardRails()
 
@@ -947,6 +963,69 @@ def test_guard_rails_wrap_driver_query_failures(monkeypatch, tmp_path):
         guard_rails.load_nvidia_dynamic_lib("nvrtc")
 
     assert isinstance(exc_info.value.__cause__, QueryDriverCudaVersionError)
+
+
+def test_guard_rails_accept_minor_version_compatibility_with_driver_release_branch(monkeypatch, tmp_path):
+    ctk_root = tmp_path / "cuda-12.9"
+    _write_cuda_h(ctk_root, "12.9.20250531")
+    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
+
+    guard_rails = CompatibilityGuardRails(
+        driver_cuda_version=_driver_cuda_version(12000),
+        driver_release_version=_driver_release_version("525.60.13"),
+    )
+
+    loaded = guard_rails.load_nvidia_dynamic_lib("nvrtc")
+
+    assert loaded.abs_path == lib_path
+
+
+def test_guard_rails_reject_same_major_older_driver_when_release_branch_too_old(monkeypatch, tmp_path):
+    ctk_root = tmp_path / "cuda-12.9"
+    _write_cuda_h(ctk_root, "12.9.20250531")
+    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
+
+    guard_rails = CompatibilityGuardRails(
+        driver_cuda_version=_driver_cuda_version(12000),
+        driver_release_version=_driver_release_version("520.30.01"),
+    )
+
+    with pytest.raises(
+        CompatibilityCheckError,
+        match=r"branch 520\) is below NVIDIA's published CUDA 12\.x minimum branch >= 525",
+    ):
+        guard_rails.load_nvidia_dynamic_lib("nvrtc")
+
+
+def test_guard_rails_require_driver_release_metadata_for_same_major_older_driver(monkeypatch, tmp_path):
+    ctk_root = tmp_path / "cuda-12.9"
+    _write_cuda_h(ctk_root, "12.9.20250531")
+    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
+
+    def fail_query_driver_release_version() -> DriverReleaseVersion:
+        raise QueryDriverReleaseVersionError("release query failed")
+
+    monkeypatch.setattr(
+        compatibility_module,
+        "query_driver_release_version",
+        fail_query_driver_release_version,
+    )
+
+    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(12000))
+
+    with pytest.raises(
+        CompatibilityInsufficientMetadataError,
+        match="Failed to query the display-driver release version needed for compatibility checks",
+    ) as exc_info:
+        guard_rails.load_nvidia_dynamic_lib("nvrtc")
+
+    assert isinstance(exc_info.value.__cause__, QueryDriverReleaseVersionError)
 
 
 def test_find_nvidia_header_directory_returns_none_when_unresolved(monkeypatch):

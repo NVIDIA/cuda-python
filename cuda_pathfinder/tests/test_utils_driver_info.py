@@ -12,8 +12,10 @@ from cuda.pathfinder._utils import driver_info
 @pytest.fixture(autouse=True)
 def _clear_driver_cuda_version_query_cache():
     driver_info.query_driver_cuda_version.cache_clear()
+    driver_info.query_driver_release_version.cache_clear()
     yield
     driver_info.query_driver_cuda_version.cache_clear()
+    driver_info.query_driver_release_version.cache_clear()
 
 
 class _FakeCuDriverGetVersion:
@@ -33,6 +35,47 @@ class _FakeDriverLib:
         self.cuDriverGetVersion = _FakeCuDriverGetVersion(status=status, version=version)
 
 
+class _FakeNvmlFunction:
+    def __init__(self, func):
+        self.argtypes = None
+        self.restype = None
+        self._func = func
+
+    def __call__(self, *args):
+        return self._func(*args)
+
+
+class _FakeNvmlLib:
+    def __init__(
+        self,
+        *,
+        init_status: int = 0,
+        driver_release_version: str = "595.58.03",
+        query_status: int = 0,
+        shutdown_statuses: tuple[int, ...] = (0,),
+    ):
+        self.shutdown_calls = 0
+        remaining_shutdown_statuses = list(shutdown_statuses)
+
+        self.nvmlInit_v2 = _FakeNvmlFunction(lambda: init_status)
+
+        def nvml_system_get_driver_version(version_buffer, _buffer_length) -> int:
+            if query_status != 0:
+                return query_status
+            version_buffer.value = driver_release_version.encode()
+            return 0
+
+        self.nvmlSystemGetDriverVersion = _FakeNvmlFunction(nvml_system_get_driver_version)
+
+        def nvml_shutdown() -> int:
+            self.shutdown_calls += 1
+            if remaining_shutdown_statuses:
+                return remaining_shutdown_statuses.pop(0)
+            return 0
+
+        self.nvmlShutdown = _FakeNvmlFunction(nvml_shutdown)
+
+
 def _loaded_cuda(abs_path: str) -> LoadedDL:
     return LoadedDL(
         abs_path=abs_path,
@@ -40,6 +83,86 @@ def _loaded_cuda(abs_path: str) -> LoadedDL:
         _handle_uint=0xBEEF,
         found_via="system-search",
     )
+
+
+def _loaded_nvml(abs_path: str) -> LoadedDL:
+    return LoadedDL(
+        abs_path=abs_path,
+        was_already_loaded_from_elsewhere=False,
+        _handle_uint=0xCAFE,
+        found_via="system-search",
+    )
+
+
+def test_driver_release_version_from_text_parses_branch():
+    assert driver_info.DriverReleaseVersion.from_text("595.58.03") == driver_info.DriverReleaseVersion(
+        text="595.58.03",
+        components=(595, 58, 3),
+        branch=595,
+    )
+
+
+def test_query_driver_release_version_returns_parsed_dataclass(monkeypatch):
+    monkeypatch.setattr(driver_info, "_query_driver_release_version_text", lambda: "595.58.03")
+
+    assert driver_info.query_driver_release_version() == driver_info.DriverReleaseVersion(
+        text="595.58.03",
+        components=(595, 58, 3),
+        branch=595,
+    )
+
+
+def test_query_driver_release_version_wraps_internal_failures(monkeypatch):
+    root_cause = RuntimeError("low-level release query failed")
+
+    def fail_query_driver_release_version_text() -> str:
+        raise root_cause
+
+    monkeypatch.setattr(driver_info, "_query_driver_release_version_text", fail_query_driver_release_version_text)
+
+    with pytest.raises(
+        driver_info.QueryDriverReleaseVersionError,
+        match="Failed to query the display-driver release version",
+    ) as exc_info:
+        driver_info.query_driver_release_version()
+
+    assert exc_info.value.__cause__ is root_cause
+
+
+def test_query_driver_release_version_text_uses_nvml(monkeypatch):
+    fake_nvml_lib = _FakeNvmlLib(driver_release_version="595.58.03")
+    loaded_paths: list[str] = []
+
+    monkeypatch.setattr(
+        driver_info,
+        "_load_nvidia_dynamic_lib",
+        lambda _libname: _loaded_nvml("/usr/lib/libnvidia-ml.so.1"),
+    )
+
+    def fake_cdll(abs_path: str):
+        loaded_paths.append(abs_path)
+        return fake_nvml_lib
+
+    monkeypatch.setattr(driver_info.ctypes, "CDLL", fake_cdll)
+
+    assert driver_info._query_driver_release_version_text() == "595.58.03"
+    assert loaded_paths == ["/usr/lib/libnvidia-ml.so.1"]
+    assert fake_nvml_lib.shutdown_calls == 1
+
+
+def test_query_driver_release_version_text_raises_when_nvml_call_fails(monkeypatch):
+    fake_nvml_lib = _FakeNvmlLib(query_status=1)
+
+    monkeypatch.setattr(
+        driver_info,
+        "_load_nvidia_dynamic_lib",
+        lambda _libname: _loaded_nvml("/usr/lib/libnvidia-ml.so.1"),
+    )
+    monkeypatch.setattr(driver_info.ctypes, "CDLL", lambda _abs_path: fake_nvml_lib)
+
+    with pytest.raises(RuntimeError, match=r"nvmlSystemGetDriverVersion\(\) \(status=1\)"):
+        driver_info._query_driver_release_version_text()
+    assert fake_nvml_lib.shutdown_calls == 1
 
 
 def test_query_driver_cuda_version_uses_windll_on_windows(monkeypatch):

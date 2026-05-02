@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import ctypes
 import functools
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import cast
@@ -15,9 +16,17 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.toolkit_info import EncodedCudaVersion
 
+_NVML_SUCCESS = 0
+_NVML_SYSTEM_DRIVER_VERSION_BUFFER_LENGTH = 80
+_DRIVER_RELEASE_VERSION_RE = re.compile(r"^\d+(?:\.\d+){1,2}$")
+
 
 class QueryDriverCudaVersionError(RuntimeError):
     """Raised when ``query_driver_cuda_version()`` cannot determine the CUDA driver version."""
+
+
+class QueryDriverReleaseVersionError(RuntimeError):
+    """Raised when ``query_driver_release_version()`` cannot determine the display-driver release version."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,6 +53,37 @@ class DriverCudaVersion(EncodedCudaVersion):
     """
 
 
+@dataclass(frozen=True, slots=True)
+class DriverReleaseVersion:
+    """
+    Display-driver release version shown as ``Driver Version`` in ``nvidia-smi``.
+
+    Example ``nvidia-smi`` output::
+
+        +---------------------------------------------------------------------+
+        | NVIDIA-SMI 595.58.03  Driver Version: 595.58.03  CUDA Version: 13.2 |
+        +---------------------------------------------------------------------+
+
+    For the example above, ``DriverReleaseVersion(text="595.58.03",
+    components=(595, 58, 3), branch=595)`` corresponds to ``Driver Version:
+    595.58.03``. The ``branch`` field is the first numeric component because
+    NVIDIA's compatibility docs publish minimum display-driver requirements in
+    branch form such as ``>= 580`` for CUDA 13.x minor-version compatibility.
+    """
+
+    text: str
+    components: tuple[int, ...]
+    branch: int
+
+    @classmethod
+    def from_text(cls, text: str) -> DriverReleaseVersion:
+        normalized_text = text.strip()
+        if not _DRIVER_RELEASE_VERSION_RE.fullmatch(normalized_text):
+            raise ValueError(f"Invalid driver release version text: {text!r}")
+        components = tuple(int(component) for component in normalized_text.split("."))
+        return cls(text=normalized_text, components=components, branch=components[0])
+
+
 @functools.cache
 def query_driver_cuda_version() -> DriverCudaVersion:
     """Return the CUDA driver version parsed into its major/minor components."""
@@ -52,6 +92,15 @@ def query_driver_cuda_version() -> DriverCudaVersion:
         return cast(DriverCudaVersion, DriverCudaVersion.from_encoded(encoded))
     except Exception as exc:
         raise QueryDriverCudaVersionError("Failed to query the CUDA driver version.") from exc
+
+
+@functools.cache
+def query_driver_release_version() -> DriverReleaseVersion:
+    """Return the display-driver release version parsed into branch/components."""
+    try:
+        return DriverReleaseVersion.from_text(_query_driver_release_version_text())
+    except Exception as exc:
+        raise QueryDriverReleaseVersionError("Failed to query the display-driver release version.") from exc
 
 
 def _query_driver_cuda_version_int() -> int:
@@ -72,3 +121,44 @@ def _query_driver_cuda_version_int() -> int:
     if status != 0:
         raise RuntimeError(f"Failed to query CUDA driver version via cuDriverGetVersion() (status={status}).")
     return version.value
+
+
+def _query_driver_release_version_text() -> str:
+    """Return the display-driver release version from ``nvmlSystemGetDriverVersion()``."""
+    loaded_nvml = _load_nvidia_dynamic_lib("nvml")
+    nvml_lib = ctypes.CDLL(loaded_nvml.abs_path)
+
+    nvml_init_v2 = nvml_lib.nvmlInit_v2
+    nvml_init_v2.argtypes = []
+    nvml_init_v2.restype = ctypes.c_int
+
+    nvml_system_get_driver_version = nvml_lib.nvmlSystemGetDriverVersion
+    nvml_system_get_driver_version.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_uint]
+    nvml_system_get_driver_version.restype = ctypes.c_int
+
+    nvml_shutdown = nvml_lib.nvmlShutdown
+    nvml_shutdown.argtypes = []
+    nvml_shutdown.restype = ctypes.c_int
+
+    init_status = nvml_init_v2()
+    if init_status != _NVML_SUCCESS:
+        raise RuntimeError(f"Failed to initialize NVML via nvmlInit_v2() (status={init_status}).")
+
+    try:
+        version_buffer = ctypes.create_string_buffer(_NVML_SYSTEM_DRIVER_VERSION_BUFFER_LENGTH)
+        status = nvml_system_get_driver_version(version_buffer, _NVML_SYSTEM_DRIVER_VERSION_BUFFER_LENGTH)
+        if status != _NVML_SUCCESS:
+            raise RuntimeError(
+                f"Failed to query driver release version via nvmlSystemGetDriverVersion() (status={status})."
+            )
+        release_version = version_buffer.value.decode()
+    except BaseException as exc:
+        shutdown_status = nvml_shutdown()
+        if shutdown_status != _NVML_SUCCESS:
+            raise RuntimeError(f"Failed to shut down NVML via nvmlShutdown() (status={shutdown_status}).") from exc
+        raise
+
+    shutdown_status = nvml_shutdown()
+    if shutdown_status != _NVML_SUCCESS:
+        raise RuntimeError(f"Failed to shut down NVML via nvmlShutdown() (status={shutdown_status}).")
+    return release_version

@@ -51,8 +51,11 @@ from cuda.pathfinder._static_libs.find_static_lib import (
 )
 from cuda.pathfinder._utils.driver_info import (
     DriverCudaVersion,
+    DriverReleaseVersion,
     QueryDriverCudaVersionError,
+    QueryDriverReleaseVersionError,
     query_driver_cuda_version,
+    query_driver_release_version,
 )
 from cuda.pathfinder._utils.toolkit_info import ReadCudaHeaderVersionError, read_cuda_header_version
 
@@ -60,6 +63,7 @@ ItemKind: TypeAlias = str
 PackagedWith: TypeAlias = str
 CtkVersionConstraintArg: TypeAlias = str | SpecifierSet | None
 PairwiseItemRelationKind: TypeAlias = str
+DriverCompatibilityKind: TypeAlias = str
 
 _CTK_VERSION_RE = re.compile(r"^(?P<major>\d+)\.(?P<minor>\d+)")
 _CTK_VERSION_CONSTRAINT_ERROR = (
@@ -68,12 +72,25 @@ _CTK_VERSION_CONSTRAINT_ERROR = (
 )
 _PAIRWISE_ITEM_RELATION_NONE = "none"
 _PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED = "exact-ctk-match-required"
+_DRIVER_COMPATIBILITY_BACKWARD = "backward-compatibility"
+_DRIVER_COMPATIBILITY_MINOR_VERSION = "minor-version-compatibility"
+_MIN_DRIVER_BRANCH_FOR_MINOR_VERSION_COMPATIBILITY_BY_CTK_MAJOR = {
+    11: 450,
+    12: 525,
+    13: 580,
+}
 
 
 @dataclass(frozen=True, slots=True)
 class PairwiseItemRelation:
     kind: PairwiseItemRelationKind
     reason: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class DriverCompatibilityDecision:
+    kind: DriverCompatibilityKind
+    detail: str
 
 
 _STATIC_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
@@ -446,6 +463,30 @@ def _ctk_constraint_failure_message(item: ResolvedItem, constraint: CtkVersionCo
     return f"{item.describe()} resolves to CTK {item.ctk_version}, which does not satisfy ctk_version{constraint}."
 
 
+def _driver_backward_compatibility_detail(driver_cuda_version: DriverCudaVersion, item: ResolvedItem) -> str:
+    assert item.ctk_version is not None
+    return (
+        f"the driver satisfies backward compatibility because cuDriverGetVersion() reports "
+        f"CUDA {driver_cuda_version.major}.{driver_cuda_version.minor}, which is not older than CTK {item.ctk_version}"
+    )
+
+
+def _driver_minor_version_compatibility_detail(
+    driver_cuda_version: DriverCudaVersion,
+    driver_release_version: DriverReleaseVersion,
+    item: ResolvedItem,
+    *,
+    required_branch: int,
+) -> str:
+    assert item.ctk_version is not None
+    return (
+        "the driver satisfies NVIDIA's same-major minor-version compatibility because "
+        f"cuDriverGetVersion() reports older CUDA {driver_cuda_version.major}.{driver_cuda_version.minor}, "
+        f"but display-driver release {driver_release_version.text} meets the published CUDA "
+        f"{item.ctk_version.major}.x minimum branch >= {required_branch}"
+    )
+
+
 def _ctk_pair_mismatch_message(
     item1: ResolvedItem,
     item2: ResolvedItem,
@@ -471,8 +512,44 @@ def _driver_major_mismatch_message(driver_cuda_version: DriverCudaVersion, item:
     )
 
 
-def _compatible_pair_message(
+def _driver_cuda_version_too_old_message(driver_cuda_version: DriverCudaVersion, item: ResolvedItem) -> str:
+    assert item.ctk_version is not None
+    return (
+        f"cuDriverGetVersion() reports CUDA {driver_cuda_version.major}.{driver_cuda_version.minor}, "
+        f"but {item.describe()} requires CTK {item.ctk_version}. "
+        "NVIDIA's published minor-version compatibility starts with CUDA 11, so v1 requires "
+        "the driver CUDA version to be at least the CTK version for older CTK majors."
+    )
+
+
+def _missing_driver_release_version_message(driver_cuda_version: DriverCudaVersion, item: ResolvedItem) -> str:
+    assert item.ctk_version is not None
+    return (
+        f"cuDriverGetVersion() reports older CUDA {driver_cuda_version.major}.{driver_cuda_version.minor} for "
+        f"{item.describe()}, which requires CTK {item.ctk_version}. Determining whether NVIDIA's same-major "
+        "minor-version compatibility applies requires the display-driver release version (for example "
+        "'535.54.03' or branch '535')."
+    )
+
+
+def _driver_release_branch_too_old_message(
     driver_cuda_version: DriverCudaVersion,
+    driver_release_version: DriverReleaseVersion,
+    item: ResolvedItem,
+    *,
+    required_branch: int,
+) -> str:
+    assert item.ctk_version is not None
+    return (
+        f"cuDriverGetVersion() reports older CUDA {driver_cuda_version.major}.{driver_cuda_version.minor}, "
+        f"and display-driver release {driver_release_version.text} (branch {driver_release_version.branch}) "
+        f"is below NVIDIA's published CUDA {item.ctk_version.major}.x minimum branch >= {required_branch} "
+        f"for {item.describe()}."
+    )
+
+
+def _compatible_pair_message(
+    driver_decision: DriverCompatibilityDecision,
     item1: ResolvedItem,
     item2: ResolvedItem,
     relation: PairwiseItemRelation,
@@ -484,13 +561,12 @@ def _compatible_pair_message(
             f"{item1.describe()} resolves to CTK {item1.ctk_version}, "
             f"{item2.describe()} resolves to CTK {item2.ctk_version}, "
             "and v1 does not require exact CTK lockstep for this pair. "
-            f"Driver version {driver_cuda_version.encoded} satisfies the v1 driver guard rail."
+            f"Separately, {driver_decision.detail}."
         )
     assert relation.reason is not None
     return (
         f"{item1.describe()} and {item2.describe()} both resolve to CTK {item1.ctk_version}. "
-        f"{relation.reason[:1].upper() + relation.reason[1:]}, and driver version "
-        f"{driver_cuda_version.encoded} satisfies the v1 driver guard rail."
+        f"{relation.reason[:1].upper() + relation.reason[1:]}. Separately, {driver_decision.detail}."
     )
 
 
@@ -565,21 +641,71 @@ def _pairwise_policy_result(
     raise AssertionError(f"Unhandled pairwise item relation: {relation.kind!r}")
 
 
-def _driver_compatibility_result(
-    driver_cuda_version: DriverCudaVersion, item: ResolvedItem
-) -> CompatibilityResult | None:
+def _driver_cuda_version_supports_ctk_by_backward_compatibility(
+    driver_cuda_version: DriverCudaVersion,
+    ctk_version: CtkVersion,
+) -> bool:
+    return (driver_cuda_version.major, driver_cuda_version.minor) >= (ctk_version.major, ctk_version.minor)
+
+
+def _driver_compatibility_outcome(
+    driver_cuda_version: DriverCudaVersion,
+    item: ResolvedItem,
+    *,
+    driver_release_version: DriverReleaseVersion | None = None,
+) -> DriverCompatibilityDecision | CompatibilityResult:
     assert item.ctk_version is not None
-    if driver_cuda_version.major >= item.ctk_version.major:
-        return None
+    if _driver_cuda_version_supports_ctk_by_backward_compatibility(driver_cuda_version, item.ctk_version):
+        return DriverCompatibilityDecision(
+            kind=_DRIVER_COMPATIBILITY_BACKWARD,
+            detail=_driver_backward_compatibility_detail(driver_cuda_version, item),
+        )
+    if driver_cuda_version.major != item.ctk_version.major:
+        return CompatibilityResult(
+            status="incompatible",
+            message=_driver_major_mismatch_message(driver_cuda_version, item),
+            error_type=DriverCtkCompatibilityError,
+        )
+    required_branch = _MIN_DRIVER_BRANCH_FOR_MINOR_VERSION_COMPATIBILITY_BY_CTK_MAJOR.get(item.ctk_version.major)
+    if required_branch is None:
+        return CompatibilityResult(
+            status="incompatible",
+            message=_driver_cuda_version_too_old_message(driver_cuda_version, item),
+            error_type=DriverCtkCompatibilityError,
+        )
+    if driver_release_version is None:
+        return CompatibilityResult(
+            status="insufficient_metadata",
+            message=_missing_driver_release_version_message(driver_cuda_version, item),
+        )
+    if driver_release_version.branch >= required_branch:
+        return DriverCompatibilityDecision(
+            kind=_DRIVER_COMPATIBILITY_MINOR_VERSION,
+            detail=_driver_minor_version_compatibility_detail(
+                driver_cuda_version,
+                driver_release_version,
+                item,
+                required_branch=required_branch,
+            ),
+        )
     return CompatibilityResult(
         status="incompatible",
-        message=_driver_major_mismatch_message(driver_cuda_version, item),
+        message=_driver_release_branch_too_old_message(
+            driver_cuda_version,
+            driver_release_version,
+            item,
+            required_branch=required_branch,
+        ),
         error_type=DriverCtkCompatibilityError,
     )
 
 
 def compatibility_check(
-    driver_cuda_version: DriverCudaVersion, item1: ResolvedItem, item2: ResolvedItem
+    driver_cuda_version: DriverCudaVersion,
+    item1: ResolvedItem,
+    item2: ResolvedItem,
+    *,
+    driver_release_version: DriverReleaseVersion | None = None,
 ) -> CompatibilityResult:
     for item in (item1, item2):
         result = _supported_packaging_result(item)
@@ -594,13 +720,17 @@ def compatibility_check(
     if result is not None:
         return result
 
-    result = _driver_compatibility_result(driver_cuda_version, item1)
-    if result is not None:
-        return result
+    driver_outcome = _driver_compatibility_outcome(
+        driver_cuda_version,
+        item1,
+        driver_release_version=driver_release_version,
+    )
+    if isinstance(driver_outcome, CompatibilityResult):
+        return driver_outcome
 
     return CompatibilityResult(
         status="compatible",
-        message=_compatible_pair_message(driver_cuda_version, item1, item2, relation),
+        message=_compatible_pair_message(driver_outcome, item1, item2, relation),
     )
 
 
@@ -612,10 +742,13 @@ class CompatibilityGuardRails:
         *,
         ctk_version: CtkVersionConstraintArg = None,
         driver_cuda_version: DriverCudaVersion | None = None,
+        driver_release_version: DriverReleaseVersion | None = None,
     ) -> None:
         self._ctk_version_constraint = _coerce_ctk_version_constraint(ctk_version)
         self._configured_driver_cuda_version = driver_cuda_version
         self._driver_cuda_version = driver_cuda_version
+        self._configured_driver_release_version = driver_release_version
+        self._driver_release_version = driver_release_version
         self._resolved_items: list[ResolvedItem] = []
 
     def _get_driver_cuda_version(self) -> DriverCudaVersion:
@@ -627,6 +760,16 @@ class CompatibilityGuardRails:
                     "Failed to query the CUDA driver version needed for compatibility checks."
                 ) from exc
         return self._driver_cuda_version
+
+    def _get_driver_release_version(self) -> DriverReleaseVersion:
+        if self._driver_release_version is None:
+            try:
+                self._driver_release_version = query_driver_release_version()
+            except QueryDriverReleaseVersionError as exc:
+                raise CompatibilityInsufficientMetadataError(
+                    "Failed to query the display-driver release version needed for compatibility checks."
+                ) from exc
+        return self._driver_release_version
 
     def _enforce_supported_packaging(self, item: ResolvedItem) -> None:
         if item.packaged_with == "ctk":
@@ -647,10 +790,20 @@ class CompatibilityGuardRails:
             raise CompatibilityCheckError(_ctk_constraint_failure_message(item, self._ctk_version_constraint))
 
     def _enforce_driver_compatibility(self, item: ResolvedItem) -> None:
-        result = _driver_compatibility_result(self._get_driver_cuda_version(), item)
-        if result is None:
-            return
-        result.require_compatible()
+        driver_cuda_version = self._get_driver_cuda_version()
+        assert item.ctk_version is not None
+        driver_release_version = (
+            None
+            if _driver_cuda_version_supports_ctk_by_backward_compatibility(driver_cuda_version, item.ctk_version)
+            else self._get_driver_release_version()
+        )
+        outcome = _driver_compatibility_outcome(
+            driver_cuda_version,
+            item,
+            driver_release_version=driver_release_version,
+        )
+        if isinstance(outcome, CompatibilityResult):
+            outcome.require_compatible()
 
     def _enforce_pairwise_compatibility(self, prior_item: ResolvedItem, item: ResolvedItem) -> None:
         result = _pairwise_policy_result(prior_item, item)
@@ -664,6 +817,7 @@ class CompatibilityGuardRails:
 
     def _reset_for_testing(self) -> None:
         self._driver_cuda_version = self._configured_driver_cuda_version
+        self._driver_release_version = self._configured_driver_release_version
         self._resolved_items.clear()
 
     def _register_and_check(self, item: ResolvedItem) -> None:
