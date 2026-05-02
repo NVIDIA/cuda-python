@@ -14,14 +14,8 @@ examples_path = os.path.join(os.path.dirname(__file__), "..", "examples")
 examples_files = glob.glob(os.path.join(examples_path, "**/*.py"), recursive=True)
 
 
-BROKEN_EXAMPLES = {"numba_emm_plugin.py"}
-
-
 @pytest.mark.parametrize("example", examples_files)
 def test_example(example):
-    if os.path.basename(example) in BROKEN_EXAMPLES:
-        pytest.skip(f"Skipping broken example: {example}")
-
     has_package_requirements_or_skip(example)
 
     env = os.environ.copy()

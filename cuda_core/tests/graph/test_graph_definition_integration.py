@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""End-to-end integration tests exercising all GraphDef node types in realistic scenarios."""
+"""End-to-end integration tests exercising all GraphDefinition node types in realistic scenarios."""
 
 import ctypes
 
@@ -10,7 +10,7 @@ import pytest
 
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import driver, handle_return
-from cuda.core.graph import GraphDef
+from cuda.core.graph import GraphDefinition
 
 SIZEOF_FLOAT = 4
 SIZEOF_INT = 4
@@ -213,10 +213,10 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
     """Build, instantiate, launch, and verify the heat-diffusion graph."""
 
     # Definitions
-    g = GraphDef()
+    g = GraphDefinition()
     condition = g.create_condition(default_value=1)
-    event_start = dev.create_event(EventOptions(enable_timing=True))
-    event_end = dev.create_event(EventOptions(enable_timing=True))
+    event_start = dev.create_event(EventOptions(timing_enabled=True))
+    event_end = dev.create_event(EventOptions(timing_enabled=True))
     results = {}
 
     def capture_result():
@@ -230,9 +230,9 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
 
     # fmt: off
     # Phase 1 — Allocate device memory
-    a_curr = g.alloc(_HEAT_N * SIZEOF_FLOAT)
-    a_next = g.alloc(_HEAT_N * SIZEOF_FLOAT)
-    a_ctr  = g.alloc(SIZEOF_INT)
+    a_curr = g.allocate(_HEAT_N * SIZEOF_FLOAT)
+    a_next = g.allocate(_HEAT_N * SIZEOF_FLOAT)
+    a_ctr  = g.allocate(SIZEOF_INT)
 
     # Phase 2 — Initialise buffers
     m_curr = a_curr.memset(a_curr.dptr, 0, _HEAT_N * SIZEOF_FLOAT)
@@ -240,30 +240,30 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
     m_ctr  = a_ctr.memset(a_ctr.dptr, np.int32(_HEAT_ITERS), 1)
 
     # Phase 3 — Boundary conditions (child graph)
-    bc = GraphDef() \
+    bc = GraphDefinition() \
          .memset(a_curr.dptr, np.float32(_HEAT_T_LEFT), 1) \
          .memset(a_curr.dptr + (_HEAT_N - 1) * SIZEOF_FLOAT,
                  np.float32(_HEAT_T_RIGHT), 1) \
          .graph
     p = g.join(m_curr, m_next, m_ctr) \
          .embed(bc) \
-         .record_event(event_start)
+         .record(event_start)
 
     # Phase 4 — Iterate
     loop = p.while_loop(condition)
     loop.body.launch(heat_cfg, k_heat, a_next.dptr, a_curr.dptr,
                      np.int32(_HEAT_N), _HEAT_ALPHA) \
              .memcpy(a_curr.dptr, a_next.dptr, _HEAT_N * SIZEOF_FLOAT) \
-             .launch(tick_cfg, k_countdown, condition.handle, a_ctr.dptr)
+             .launch(tick_cfg, k_countdown, condition, a_ctr.dptr)
 
     # Phase 5 — After loop: timing end, readback, verify, free memory
-    loop.wait_event(event_start) \
-        .record_event(event_end) \
+    loop.wait(event_start) \
+        .record(event_end) \
         .memcpy(host_ptr, a_curr.dptr, _HEAT_N * SIZEOF_FLOAT) \
         .callback(capture_result) \
-        .free(a_curr.dptr) \
-        .free(a_next.dptr) \
-        .free(a_ctr.dptr)
+        .deallocate(a_curr.dptr) \
+        .deallocate(a_next.dptr) \
+        .deallocate(a_ctr.dptr)
     # fmt: on
 
     # Phase 6 — Instantiate, launch, verify
@@ -323,7 +323,7 @@ def _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_
     """Build, instantiate, launch, and verify the bisection graph."""
 
     # Definitions
-    g = GraphDef()
+    g = GraphDefinition()
     cfg = LaunchConfig(grid=1, block=1)
     results = {}
 
@@ -332,9 +332,9 @@ def _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_
 
     # fmt: off
     # Allocate and initialise: a = 0.0, b = 2.0, counter = ITERS
-    a   = g.alloc(SIZEOF_FLOAT)
-    b   = g.alloc(SIZEOF_FLOAT)
-    ctr = g.alloc(SIZEOF_INT)
+    a   = g.allocate(SIZEOF_FLOAT)
+    b   = g.allocate(SIZEOF_FLOAT)
+    ctr = g.allocate(SIZEOF_INT)
 
     p = g.join(a.memset(a.dptr, np.float32(0.0), 1),
                b.memset(b.dptr, np.float32(2.0), 1),
@@ -345,23 +345,23 @@ def _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_
     ie_cond    = g.create_condition(default_value=0)
     loop = p.while_loop(while_cond)
 
-    ie = loop.body.launch(cfg, k_eval, a.dptr, b.dptr, ie_cond.handle) \
+    ie = loop.body.launch(cfg, k_eval, a.dptr, b.dptr, ie_cond) \
                   .if_else(ie_cond)
     ie.then.launch(cfg, k_hi, a.dptr, b.dptr)
     ie.else_.launch(cfg, k_lo, a.dptr, b.dptr)
-    ie.launch(cfg, k_cd, while_cond.handle, ctr.dptr)
+    ie.launch(cfg, k_cd, while_cond, ctr.dptr)
 
     # Post-loop: Newton refinement (IfNode), readback, free
     if_cond = g.create_condition(default_value=0)
-    if_node = loop.launch(cfg, k_check, a.dptr, b.dptr, if_cond.handle) \
-                  .if_cond(if_cond)
+    if_node = loop.launch(cfg, k_check, a.dptr, b.dptr, if_cond) \
+                  .if_then(if_cond)
     if_node.then.launch(cfg, k_newton, a.dptr, b.dptr)
 
     if_node.memcpy(host_ptr, a.dptr, SIZEOF_FLOAT) \
            .callback(capture_result) \
-           .free(a.dptr) \
-           .free(b.dptr) \
-           .free(ctr.dptr)
+           .deallocate(a.dptr) \
+           .deallocate(b.dptr) \
+           .deallocate(ctr.dptr)
     # fmt: on
 
     # Instantiate, launch, verify
@@ -426,11 +426,11 @@ def test_switch_dispatch(init_cuda, mode, expected):
 
 def _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr):
     """Build, instantiate, launch, and verify the switch-dispatch graph."""
-    g = GraphDef()
+    g = GraphDefinition()
     cfg = LaunchConfig(grid=1, block=1)
 
     # fmt: off
-    x = g.alloc(SIZEOF_INT)
+    x = g.allocate(SIZEOF_INT)
     sw_cond = g.create_condition(default_value=mode)
     sw = x.memset(x.dptr, np.int32(_SWITCH_VALUE), 1) \
           .switch(sw_cond, 4)
@@ -441,7 +441,7 @@ def _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr):
     # branch 3: identity (no kernel — value unchanged)
 
     sw.memcpy(host_ptr, x.dptr, SIZEOF_INT) \
-      .free(x.dptr)
+      .deallocate(x.dptr)
     # fmt: on
 
     graph = g.instantiate()

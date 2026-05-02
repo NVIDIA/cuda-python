@@ -52,10 +52,13 @@ typedef struct AtenTensorOpaque* AtenTensorHandle;
 
 /*
  * IMPORTANT: Keep the AOTI_SHIM_API declaration list below in sync with
- * aoti_shim.def. On Windows, build_hooks.py turns that .def file into the
+ * aoti_shim.def.  On Windows, build_hooks.py turns that .def file into the
  * stub import library that MSVC needs to link _tensor_bridge without making
- * PyTorch a build-time dependency. If you add, remove, or rename an imported
- * AOTI symbol here, update aoti_shim.def in the same change.
+ * PyTorch a build-time dependency.  If you add, remove, or rename an
+ * imported AOTI symbol here, update aoti_shim.def in the same change.
+ *
+ * Exception: aoti_torch_get_current_cuda_stream lives in torch_cuda (not
+ * torch_cpu) and is resolved lazily at runtime — see _tensor_bridge.pyx.
  */
 
 /* ---- tensor metadata --------------------------------------------------- */
@@ -105,10 +108,11 @@ AOTI_SHIM_API AOTITorchError aoti_torch_get_device_index(
 AOTI_SHIM_API int32_t aoti_torch_device_type_cpu(void);
 AOTI_SHIM_API int32_t aoti_torch_device_type_cuda(void);
 
-/* ---- stream -------------------------------------------------------------- */
-
-AOTI_SHIM_API AOTITorchError aoti_torch_get_current_cuda_stream(
-    int32_t device_index, void** ret_stream);
+/* ---- stream --------------------------------------------------------------
+ * aoti_torch_get_current_cuda_stream is NOT declared here — it lives in
+ * torch_cuda (not torch_cpu) and is resolved at runtime.  See the inline
+ * C helper _resolve_cuda_stream_fn() in _tensor_bridge.pyx.
+ * ---------------------------------------------------------------------- */
 
 #ifdef __cplusplus
 }  /* extern "C" */

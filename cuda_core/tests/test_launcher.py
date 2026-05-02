@@ -262,7 +262,7 @@ def test_cooperative_launch():
     prog = Program(code, code_type="c++", options=pro_opts)
     ker = prog.compile("cubin").get_kernel("test_grid_sync")
 
-    # # Launch without setting cooperative_launch
+    # # Launch without setting is_cooperative
     # # Commented out as this seems to be a sticky error...
     # config = LaunchConfig(grid=1, block=1)
     # launch(s, config, ker)
@@ -273,12 +273,12 @@ def test_cooperative_launch():
 
     # Crazy grid sizes would not work
     block = 128
-    config = LaunchConfig(grid=dev.properties.max_grid_dim_x // block + 1, block=block, cooperative_launch=True)
+    config = LaunchConfig(grid=dev.properties.max_grid_dim_x // block + 1, block=block, is_cooperative=True)
     with pytest.raises(ValueError):
         launch(s, config, ker)
 
     # This works just fine
-    config = LaunchConfig(grid=1, block=1, cooperative_launch=True)
+    config = LaunchConfig(grid=1, block=1, is_cooperative=True)
     launch(s, config, ker)
     s.sync()
 

@@ -85,7 +85,7 @@ class TestImportWrongMR(ChildErrorHarness):
         mr2 = DeviceMemoryResource(self.device, options=options)
         self._extra_mrs.append(mr2)
         buffer = mr2.allocate(NBYTES)
-        queue.put([self.mr, buffer.get_ipc_descriptor()])  # Note: mr does not own this buffer
+        queue.put([self.mr, buffer.ipc_descriptor])  # Note: mr does not own this buffer
 
     def CHILD_ACTION(self, queue):
         mr, buffer_desc = queue.get(timeout=CHILD_TIMEOUT_SEC)

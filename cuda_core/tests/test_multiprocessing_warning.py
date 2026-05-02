@@ -52,7 +52,7 @@ def test_warn_on_fork_method_allocation_handle(ipc_device):
     device.set_current()
     options = DeviceMemoryResourceOptions(max_size=2097152, ipc_enabled=True)
     mr = DeviceMemoryResource(device, options=options)
-    alloc_handle = mr.get_allocation_handle()
+    alloc_handle = mr.allocation_handle
 
     with patch("multiprocessing.get_start_method", return_value="fork"), warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
