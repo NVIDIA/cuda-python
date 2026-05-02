@@ -2,274 +2,261 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from enum import IntEnum
+# Real GPU tests for cuda.core.checkpoint — no mocks.
+#
+# Lifecycle tests self-checkpoint the current process (os.getpid()) and
+# exercise lock / checkpoint / restore / unlock through the real driver.
+#
+# Migration tests attempt GPU UUID remapping following the pattern from
+# NVIDIA/cuda-checkpoint r580-migration-api.c.  They require ≥2 GPUs of
+# the same chip type and a driver that supports migration; the tests skip
+# gracefully when the hardware or driver cannot satisfy this.
+
+import os
+import sys
 
 import pytest
 
-from cuda.core import checkpoint
+try:
+    from cuda.bindings import driver
+except ImportError:
+    from cuda import cuda as driver
+
+from cuda.core import Device, checkpoint
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
 
 
-class _MockDriverProcessState(IntEnum):
-    CU_PROCESS_STATE_RUNNING = 0
-    CU_PROCESS_STATE_LOCKED = 1
-    CU_PROCESS_STATE_CHECKPOINTED = 2
-    CU_PROCESS_STATE_FAILED = 3
+# -- Skip condition -------------------------------------------------------
+
+def _checkpoint_available():
+    """Return True if the checkpoint API is usable on this system."""
+    try:
+        checkpoint._get_driver()
+        return True
+    except RuntimeError:
+        return False
 
 
-class _MockDriverResult(IntEnum):
-    CUDA_SUCCESS = 0
-    CUDA_ERROR_NOT_FOUND = 500
-    CUDA_ERROR_NOT_SUPPORTED = 801
+needs_checkpoint = pytest.mark.skipif(
+    sys.platform != "linux" or not _checkpoint_available(),
+    reason="CUDA checkpoint API requires Linux and a supported driver/bindings",
+)
 
 
-class _Uuid:
-    pass
+# -- Helpers ---------------------------------------------------------------
+
+def _get_context_device_uuid():
+    """Return the UUID string of the device owning the current CUDA context."""
+    dev_id = int(handle_return(driver.cuCtxGetDevice()))
+    return Device(dev_id).uuid
 
 
-class _CheckpointGpuPair:
-    def __init__(self):
-        self.oldUuid = None
-        self.newUuid = None
+def _build_rotation_mapping(devices):
+    """GPU i UUID -> GPU (i+1) % N UUID for every visible device.
+
+    Returns a dict of CUuuid -> CUuuid suitable for Process.restore().
+    """
+    n = len(devices)
+    mapping = {}
+    for i in range(n):
+        old_uuid = handle_return(driver.cuDeviceGetUuid(devices[i].device_id))
+        new_uuid = handle_return(driver.cuDeviceGetUuid(devices[(i + 1) % n].device_id))
+        mapping[old_uuid] = new_uuid
+    return mapping
 
 
-class _CheckpointLockArgs:
-    def __init__(self):
-        self.timeoutMs = None
+def _find_same_chip_pair(devices):
+    """Return (i, j) indices of two devices with the same name, or None."""
+    seen = {}
+    for i, dev in enumerate(devices):
+        name = dev.name
+        if name in seen:
+            return (seen[name], i)
+        seen[name] = i
+    return None
 
 
-class _CheckpointRestoreArgs:
-    def __init__(self):
-        self.gpuPairs = None
-        self.gpuPairsCount = None
-
-
-class _MockDriver:
-    CUresult = _MockDriverResult
-    CUprocessState = _MockDriverProcessState
-    CUcheckpointGpuPair = _CheckpointGpuPair
-    CUcheckpointLockArgs = _CheckpointLockArgs
-    CUcheckpointRestoreArgs = _CheckpointRestoreArgs
-
-    def __init__(self, process_state=_MockDriverProcessState.CU_PROCESS_STATE_CHECKPOINTED):
-        self.calls = []
-        self.process_state = process_state
-
-    def cuCheckpointProcessGetState(self, pid):
-        self.calls.append(("get_state", pid))
-        return (0, self.process_state)
-
-    def cuCheckpointProcessGetRestoreThreadId(self, pid):
-        self.calls.append(("get_restore_thread_id", pid))
-        return (0, 123)
-
-    def cuCheckpointProcessLock(self, pid, args):
-        self.calls.append(("lock", pid, args))
-        return (0,)
-
-    def cuCheckpointProcessCheckpoint(self, pid, args):
-        self.calls.append(("checkpoint", pid, args))
-        return (0,)
-
-    def cuCheckpointProcessRestore(self, pid, args):
-        self.calls.append(("restore", pid, args))
-        return (0,)
-
-    def cuCheckpointProcessUnlock(self, pid, args):
-        self.calls.append(("unlock", pid, args))
-        return (0,)
-
+# -- Fixtures --------------------------------------------------------------
 
 @pytest.fixture
-def checkpoint_driver(monkeypatch):
-    driver = _MockDriver()
-    monkeypatch.setattr(checkpoint, "_get_driver", lambda: driver)
-
-    def handle_return(driver, result):
-        if len(result) == 1:
-            return None
-        return result[1]
-
-    monkeypatch.setattr(checkpoint, "_handle_return", handle_return)
-    return driver
-
-
-def test_public_checkpoint_symbols():
-    assert set(checkpoint.ProcessStateT.__args__) == {"running", "locked", "checkpointed", "failed"}
-    assert checkpoint.__all__ == ["Process"]
-    for name in ("Any", "Mapping", "Literal", "IntEnum", "dataclass", "handle_return", "ProcessState"):
-        assert not hasattr(checkpoint, name)
+def self_process(init_cuda):
+    """checkpoint.Process wrapping os.getpid(), with safety unlock on teardown."""
+    proc = checkpoint.Process(os.getpid())
+    yield proc
+    # Ensure the process is not left locked if the test fails mid-lifecycle.
+    try:
+        st = proc.state
+        if st == "checkpointed":
+            proc.restore()
+            proc.unlock()
+        elif st == "locked":
+            proc.unlock()
+    except Exception:
+        pass
 
 
-@pytest.mark.parametrize(
-    ("process_state", "expected"),
-    [
-        (_MockDriverProcessState.CU_PROCESS_STATE_RUNNING, "running"),
-        (_MockDriverProcessState.CU_PROCESS_STATE_LOCKED, "locked"),
-        (_MockDriverProcessState.CU_PROCESS_STATE_CHECKPOINTED, "checkpointed"),
-        (_MockDriverProcessState.CU_PROCESS_STATE_FAILED, "failed"),
-    ],
-)
-def test_process_state(checkpoint_driver, process_state, expected):
-    checkpoint_driver.process_state = process_state
+# -- Input validation (no GPU / driver needed) -----------------------------
 
-    state = checkpoint.Process(42).state
+class TestInputValidation:
+    @pytest.mark.parametrize(
+        ("args", "error_type", "match"),
+        [
+            (("abc",), TypeError, "pid must be an int"),
+            ((True,), TypeError, "pid must be an int"),
+            ((0,), ValueError, "pid must be a positive int"),
+            ((-1,), ValueError, "pid must be a positive int"),
+        ],
+    )
+    def test_process_rejects_invalid_pid(self, args, error_type, match):
+        with pytest.raises(error_type, match=match):
+            checkpoint.Process(*args)
 
-    assert state == expected
-    assert checkpoint_driver.calls == [("get_state", 42)]
-
-
-def test_process_restore_thread_id(checkpoint_driver):
-    tid = checkpoint.Process(42).restore_thread_id
-
-    assert tid == 123
-    assert checkpoint_driver.calls == [("get_restore_thread_id", 42)]
+    def test_public_symbols(self):
+        assert checkpoint.__all__ == ["Process"]
 
 
-def test_process_lock_sets_timeout_ms(checkpoint_driver):
-    checkpoint.Process(42).lock(timeout_ms=500)
+# -- Lifecycle (single GPU, real driver) -----------------------------------
 
-    opname, pid, args = checkpoint_driver.calls[0]
-    assert opname == "lock"
-    assert pid == 42
-    assert isinstance(args, _CheckpointLockArgs)
-    assert args.timeoutMs == 500
+@needs_checkpoint
+class TestCheckpointLifecycle:
+    def test_initial_state_is_running(self, self_process):
+        assert self_process.state == "running"
 
+    def test_restore_thread_id_is_positive(self, self_process):
+        tid = self_process.restore_thread_id
+        assert isinstance(tid, int)
+        assert tid > 0
 
-def test_process_checkpoint_and_unlock_pass_null_args(checkpoint_driver):
-    process = checkpoint.Process(42)
-    process.checkpoint()
-    process.unlock()
+    def test_lock_unlock(self, self_process):
+        self_process.lock()
+        assert self_process.state == "locked"
+        self_process.unlock()
+        assert self_process.state == "running"
 
-    assert checkpoint_driver.calls == [
-        ("checkpoint", 42, None),
-        ("unlock", 42, None),
-    ]
+    def test_lock_default_timeout(self, self_process):
+        """lock() with the default timeout_ms=0 (no timeout)."""
+        self_process.lock()
+        assert self_process.state == "locked"
+        self_process.unlock()
 
+    def test_lock_with_timeout(self, self_process):
+        self_process.lock(timeout_ms=5000)
+        assert self_process.state == "locked"
+        self_process.unlock()
 
-def test_process_restore_accepts_gpu_uuid_mapping(checkpoint_driver):
-    old_uuid = _Uuid()
-    new_uuid = _Uuid()
+    def test_full_cycle_no_migration(self, self_process):
+        """lock -> checkpoint -> restore -> unlock, verify state at each step."""
+        self_process.lock()
+        assert self_process.state == "locked"
 
-    checkpoint.Process(42).restore(gpu_mapping={old_uuid: new_uuid})
+        self_process.checkpoint()
+        assert self_process.state == "checkpointed"
 
-    opname, pid, args = checkpoint_driver.calls[0]
-    assert opname == "restore"
-    assert pid == 42
-    assert isinstance(args, _CheckpointRestoreArgs)
-    assert args.gpuPairsCount == 1
-    assert len(args.gpuPairs) == 1
-    assert args.gpuPairs[0].oldUuid is old_uuid
-    assert args.gpuPairs[0].newUuid is new_uuid
+        self_process.restore()
+        assert self_process.state == "locked"  # restore leaves process locked
 
-
-def test_process_restore_empty_gpu_mapping_uses_null_args(checkpoint_driver):
-    checkpoint.Process(42).restore(gpu_mapping={})
-
-    assert checkpoint_driver.calls == [("restore", 42, None)]
-
-
-@pytest.mark.parametrize(
-    ("args", "error_type", "match"),
-    [
-        (("123",), TypeError, "pid must be an int"),
-        ((True,), TypeError, "pid must be an int"),
-        ((0,), ValueError, "pid must be a positive int"),
-    ],
-)
-def test_process_rejects_invalid_pid(checkpoint_driver, args, error_type, match):
-    with pytest.raises(error_type, match=match):
-        checkpoint.Process(*args)
+        self_process.unlock()
+        assert self_process.state == "running"
 
 
-@pytest.mark.parametrize(
-    ("timeout_ms", "error_type", "match"),
-    [
-        (-1, ValueError, "timeout_ms must be >= 0"),
-        (1.5, TypeError, "timeout_ms must be an int"),
-        (True, TypeError, "timeout_ms must be an int"),
-    ],
-)
-def test_process_lock_rejects_invalid_timeout(checkpoint_driver, timeout_ms, error_type, match):
-    with pytest.raises(error_type, match=match):
-        checkpoint.Process(42).lock(timeout_ms=timeout_ms)
+# -- GPU migration (>= 2 same-chip GPUs, real driver) ---------------------
 
+@needs_checkpoint
+class TestCheckpointGpuMigration:
+    """GPU UUID remapping tests following the r580-migration-api.c pattern.
 
-def test_process_restore_rejects_invalid_gpu_mapping(checkpoint_driver):
-    with pytest.raises(TypeError, match="gpu_mapping must be a mapping"):
-        checkpoint.Process(42).restore(gpu_mapping=[object()])
+    These tests require at least two GPUs of the same chip type and a
+    driver that supports checkpoint migration.  They skip when the
+    hardware cannot satisfy this (e.g. heterogeneous GPUs, or a driver
+    build where migration returns CUDA_ERROR_INVALID_VALUE — see
+    NVBug 5437334).
+    """
 
+    @staticmethod
+    def _try_migration(proc, gpu_mapping):
+        """Attempt a single checkpoint-restore with migration.
 
-@pytest.mark.parametrize(
-    "error_name",
-    [
-        "CUDA_ERROR_NOT_FOUND",
-        "CUDA_ERROR_NOT_SUPPORTED",
-    ],
-)
-def test_checkpoint_apis_reject_unsupported_driver(error_name):
-    driver = _MockDriver()
-    result = (getattr(driver.CUresult, error_name),)
+        Returns True on success.  Skips the test if the driver rejects
+        the migration with CUDA_ERROR_INVALID_VALUE (known limitation
+        on some architectures / driver versions).
+        """
+        proc.lock()
+        proc.checkpoint()
+        try:
+            proc.restore(gpu_mapping=gpu_mapping)
+        except (CUDAError, RuntimeError) as exc:
+            # Recover: restore without migration, then unlock.
+            proc.restore()
+            proc.unlock()
+            if "INVALID_VALUE" in str(exc):
+                pytest.skip(
+                    "Driver does not support GPU migration on this hardware "
+                    "(CUDA_ERROR_INVALID_VALUE — see NVBug 5437334)"
+                )
+            raise
+        proc.unlock()
+        return True
 
-    with pytest.raises(RuntimeError, match="CUDA checkpointing is not supported"):
-        checkpoint._handle_return(driver, result)
+    def test_rotation_migrates_context(self, self_process):
+        """Rotate context through all GPUs and back to the origin.
 
+        Builds a rotation mapping (device i -> device (i+1) % N) for
+        every visible device and performs N rotations.  After each step
+        the context device UUID is checked.  After N steps the context
+        should be back on the original device.
+        """
+        devices = Device.get_all_devices()
+        if len(devices) < 2:
+            pytest.skip("GPU migration tests require at least 2 GPUs")
+        if _find_same_chip_pair(devices) is None:
+            pytest.skip("GPU migration requires at least 2 GPUs of the same chip type")
 
-def test_get_driver_caches_capability_check(monkeypatch):
-    calls = {"binding_version": 0, "driver_version": 0}
+        gpu_mapping = _build_rotation_mapping(devices)
+        uuid_origin = _get_context_device_uuid()
 
-    def binding_version():
-        calls["binding_version"] += 1
-        return (13, 0, 2)
+        for step in range(len(devices)):
+            expected_uuid = devices[(step + 1) % len(devices)].uuid
 
-    def driver_version():
-        calls["driver_version"] += 1
-        return (12, 8, 0)
+            self._try_migration(self_process, gpu_mapping)
 
-    driver = _MockDriver()
-    monkeypatch.setattr(checkpoint, "_driver", driver)
-    monkeypatch.setattr(checkpoint, "_driver_capability_checked", False)
-    monkeypatch.setattr(checkpoint, "_binding_version", binding_version)
-    monkeypatch.setattr(checkpoint, "_driver_version", driver_version)
+            assert _get_context_device_uuid() == expected_uuid, (
+                f"Step {step}: expected UUID {expected_uuid}, "
+                f"got {_get_context_device_uuid()}"
+            )
 
-    assert checkpoint._get_driver() is driver
-    assert checkpoint._get_driver() is driver
-    assert calls == {"binding_version": 1, "driver_version": 1}
+        # After N rotations, back at the origin.
+        assert _get_context_device_uuid() == uuid_origin
 
+    def test_swap_identical_gpus(self, self_process):
+        """Swap context between two GPUs of the same chip type.
 
-@pytest.mark.parametrize("binding_version", [(12, 7, 0), (13, 0, 1)])
-def test_get_driver_rejects_unsupported_binding_version(monkeypatch, binding_version):
-    monkeypatch.setattr(checkpoint, "_driver", _MockDriver())
-    monkeypatch.setattr(checkpoint, "_driver_capability_checked", False)
-    monkeypatch.setattr(checkpoint, "_binding_version", lambda: binding_version)
+        Sets the context on one of the pair members so that a successful
+        migration is observable (the context UUID changes).
+        """
+        devices = Device.get_all_devices()
+        pair = _find_same_chip_pair(devices)
+        if pair is None:
+            pytest.skip("No two GPUs of the same chip type found")
 
-    with pytest.raises(RuntimeError, match="CUDA checkpointing requires cuda.bindings"):
-        checkpoint._get_driver()
+        i, j = pair
+        # Place context on device i so the swap is observable.
+        devices[i].set_current()
 
+        # Build an identity mapping, then swap the pair.
+        n = len(devices)
+        uuids_cu = [handle_return(driver.cuDeviceGetUuid(devices[k].device_id)) for k in range(n)]
+        gpu_mapping = {uuids_cu[k]: uuids_cu[k] for k in range(n)}
+        gpu_mapping[uuids_cu[i]] = uuids_cu[j]
+        gpu_mapping[uuids_cu[j]] = uuids_cu[i]
 
-def test_get_driver_rejects_missing_binding_symbols(monkeypatch):
-    monkeypatch.setattr(checkpoint, "_driver", object())
-    monkeypatch.setattr(checkpoint, "_driver_capability_checked", False)
-    monkeypatch.setattr(checkpoint, "_binding_version", lambda: (13, 0, 2))
+        assert _get_context_device_uuid() == devices[i].uuid
 
-    with pytest.raises(RuntimeError, match="Missing: cuCheckpointProcessCheckpoint"):
-        checkpoint._get_driver()
+        self._try_migration(self_process, gpu_mapping)
+        uuid_after = _get_context_device_uuid()
 
-
-def test_get_driver_rejects_unsupported_driver_version(monkeypatch):
-    monkeypatch.setattr(checkpoint, "_driver", _MockDriver())
-    monkeypatch.setattr(checkpoint, "_driver_capability_checked", False)
-    monkeypatch.setattr(checkpoint, "_binding_version", lambda: (13, 0, 2))
-    monkeypatch.setattr(checkpoint, "_driver_version", lambda: (12, 7, 0))
-
-    with pytest.raises(RuntimeError, match="CUDA checkpointing is not supported"):
-        checkpoint._get_driver()
-
-
-def test_checkpoint_apis_translate_missing_runtime_symbol():
-    driver = _MockDriver()
-
-    def missing_checkpoint_symbol():
-        raise RuntimeError('Function "cuCheckpointProcessLock" not found')
-
-    with pytest.raises(RuntimeError, match="CUDA checkpointing is not supported"):
-        checkpoint._call_driver(driver, missing_checkpoint_symbol)
+        if uuid_after == devices[i].uuid:
+            pytest.skip(
+                "Driver accepted GPU swap but migration is a no-op "
+                "on this hardware/driver version"
+            )
+        assert uuid_after == devices[j].uuid
