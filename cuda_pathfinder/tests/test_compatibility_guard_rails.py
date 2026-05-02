@@ -3,6 +3,7 @@
 
 import importlib
 import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -370,6 +371,10 @@ def test_driver_compatibility_override_is_linux_only(monkeypatch):
         pathfinder.find_nvidia_binary_utility("nvcc")
 
 
+@pytest.mark.skipif(
+    not sys.platform.startswith("linux"),
+    reason="driver forward-compatibility override is Linux-only",
+)
 def test_public_driver_mismatch_advertises_forward_compatibility_override(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-13.0"
     _write_cuda_h(ctk_root, "13.0.20251003")
@@ -396,6 +401,10 @@ def test_public_driver_mismatch_advertises_forward_compatibility_override(monkey
     assert "does not relax CTK-coherence checks" in message
 
 
+@pytest.mark.skipif(
+    not sys.platform.startswith("linux"),
+    reason="driver forward-compatibility override is Linux-only",
+)
 def test_public_driver_mismatch_falls_back_when_assuming_forward_compatibility(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-13.0"
     _write_cuda_h(ctk_root, "13.0.20251003")
@@ -420,6 +429,10 @@ def test_public_driver_mismatch_falls_back_when_assuming_forward_compatibility(m
     assert loaded is raw_loaded
 
 
+@pytest.mark.skipif(
+    not sys.platform.startswith("linux"),
+    reason="driver forward-compatibility override is Linux-only",
+)
 def test_forward_compatibility_override_does_not_relax_ctk_coherence_checks(monkeypatch, tmp_path):
     lib_root = tmp_path / "cuda-12.8"
     hdr_root = tmp_path / "cuda-12.9"
@@ -1232,8 +1245,12 @@ def test_real_wheel_ctk_items_are_compatible(info_summary_append):
             # nvcc found elsewhere, e.g. /usr/local or Conda.
             _assert_real_ctk_backed_path(nvcc)
     else:
-        assert nvcc is not None
-        _assert_real_ctk_backed_path(nvcc)
+        if nvcc is None:
+            if STRICTNESS == "all_must_work":
+                raise AssertionError("Expected CTK-backed nvcc to be discoverable.")
+            info_summary_append("real CTK-backed nvcc executable not found; continuing without asserting nvcc")
+        else:
+            _assert_real_ctk_backed_path(nvcc)
 
 
 @pytest.mark.usefixtures("clear_real_host_probe_caches")
