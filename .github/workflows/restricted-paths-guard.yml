@@ -29,6 +29,7 @@ jobs:
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_URL: ${{ github.event.pull_request.html_url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
           # Workflow policy inputs
           REVIEW_LABEL: Needs-Restricted-Paths-Review
@@ -113,9 +114,25 @@ jobs:
             echo '```'
           }
 
+          post_review_label_comment() {
+            local comment_body
+            printf -v comment_body '%s\n\n%s\n' \
+              "\`$REVIEW_LABEL\` was assigned by \`CI: Restricted Paths Guard\`." \
+              "For details, open [this workflow run]($RUN_URL) and click **Summary**."
+
+            if gh api "repos/$REPO/issues/$PR_NUMBER/comments" \
+              -f body="$comment_body" >/dev/null; then
+              COMMENT_ACTION="posted"
+            else
+              COMMENT_ACTION="failed (non-fatal)"
+              echo "::warning::Failed to post PR comment about newly added $REVIEW_LABEL."
+            fi
+          }
+
           HAS_TRUSTED_SIGNAL=false
           LABEL_ACTION="not needed (no restricted paths)"
           TRUSTED_SIGNALS="(none)"
+          COMMENT_ACTION="not needed"
 
           if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
             # Distinguish a legitimate 404 "not a collaborator" response from
@@ -189,6 +206,7 @@ jobs:
               exit 1
             else
               LABEL_ACTION="added"
+              post_review_label_comment
             fi
           elif [ "$LABEL_ALREADY_PRESENT" = "true" ]; then
             LABEL_ACTION="left in place (manual removal required)"
@@ -203,6 +221,7 @@ jobs:
             echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
             echo "- **Trusted signals**: $TRUSTED_SIGNALS"
             echo "- **Label action**: $LABEL_ACTION"
+            echo "- **Comment action**: $COMMENT_ACTION"
             if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
               echo ""
               write_matching_restricted_paths
