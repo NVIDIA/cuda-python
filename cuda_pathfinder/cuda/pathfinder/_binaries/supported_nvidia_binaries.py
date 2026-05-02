@@ -31,4 +31,14 @@ SITE_PACKAGES_BINDIRS = {
     "nsight-compute": (_NSIGHT_COMPUTE_BIN,),
 }
 
+SUPPORTED_BINARIES_CTK_COMPANION_TAGS = {
+    "bin2c": ("toolchain_cuda_nvcc",),
+    "cuobjdump": ("toolchain_cuda_nvcc",),
+    "fatbinary": ("toolchain_cuda_nvcc",),
+    "nvcc": ("toolchain_cuda_nvcc",),
+    "nvdisasm": ("toolchain_cuda_nvcc",),
+    "nvlink": ("toolchain_cuda_nvcc",),
+    "nvprune": ("toolchain_cuda_nvcc",),
+}
+
 SUPPORTED_BINARIES_ALL = SUPPORTED_BINARIES = tuple(SITE_PACKAGES_BINDIRS.keys())

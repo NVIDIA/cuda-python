@@ -19,7 +19,10 @@ from packaging.version import InvalidVersion, Version
 from cuda.pathfinder._binaries.find_nvidia_binary_utility import (
     find_nvidia_binary_utility as _find_nvidia_binary_utility,
 )
-from cuda.pathfinder._binaries.supported_nvidia_binaries import SUPPORTED_BINARIES_ALL
+from cuda.pathfinder._binaries.supported_nvidia_binaries import (
+    SUPPORTED_BINARIES_ALL,
+    SUPPORTED_BINARIES_CTK_COMPANION_TAGS,
+)
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
@@ -33,12 +36,14 @@ from cuda.pathfinder._headers.find_nvidia_headers import (
 )
 from cuda.pathfinder._headers.header_descriptor import HEADER_DESCRIPTORS
 from cuda.pathfinder._static_libs.find_bitcode_lib import (
+    SUPPORTED_BITCODE_LIBS_CTK_COMPANION_TAGS,
     LocatedBitcodeLib,
 )
 from cuda.pathfinder._static_libs.find_bitcode_lib import (
     locate_bitcode_lib as _locate_bitcode_lib,
 )
 from cuda.pathfinder._static_libs.find_static_lib import (
+    SUPPORTED_STATIC_LIBS_CTK_COMPANION_TAGS,
     LocatedStaticLib,
 )
 from cuda.pathfinder._static_libs.find_static_lib import (
@@ -123,6 +128,8 @@ class ResolvedItem:
     ctk_root: str | None
     ctk_version: CtkVersion | None
     ctk_version_source: str | None
+    dynamic_link_component: str | None
+    ctk_companion_tags: tuple[str, ...]
 
     def describe(self) -> str:
         found_via = "" if self.found_via is None else f" via {self.found_via}"
@@ -317,6 +324,8 @@ def _resolve_item(
     packaged_with: PackagedWith,
     abs_path: str,
     found_via: str | None,
+    dynamic_link_component: str | None = None,
+    ctk_companion_tags: tuple[str, ...] = (),
 ) -> ResolvedItem:
     ctk_metadata = _ctk_metadata_for_abs_path(abs_path)
     return ResolvedItem(
@@ -328,6 +337,8 @@ def _resolve_item(
         ctk_root=None if ctk_metadata is None else ctk_metadata.ctk_root,
         ctk_version=None if ctk_metadata is None else ctk_metadata.ctk_version,
         ctk_version_source=None if ctk_metadata is None else ctk_metadata.source,
+        dynamic_link_component=dynamic_link_component,
+        ctk_companion_tags=ctk_companion_tags,
     )
 
 
@@ -343,6 +354,8 @@ def _resolve_dynamic_lib_item(libname: str, loaded: LoadedDL) -> ResolvedItem:
         packaged_with=desc.packaged_with,
         abs_path=loaded.abs_path,
         found_via=loaded.found_via,
+        dynamic_link_component=desc.dynamic_link_component,
+        ctk_companion_tags=desc.ctk_companion_tags,
     )
 
 
@@ -359,6 +372,7 @@ def _resolve_header_item(libname: str, located: LocatedHeaderDir) -> ResolvedIte
         packaged_with=desc.packaged_with,
         abs_path=metadata_abs_path,
         found_via=located.found_via,
+        ctk_companion_tags=desc.ctk_companion_tags,
     )
 
 
@@ -370,6 +384,7 @@ def _resolve_static_lib_item(located: LocatedStaticLib) -> ResolvedItem:
         packaged_with=packaged_with,
         abs_path=located.abs_path,
         found_via=located.found_via,
+        ctk_companion_tags=SUPPORTED_STATIC_LIBS_CTK_COMPANION_TAGS.get(located.name, ()),
     )
 
 
@@ -381,6 +396,7 @@ def _resolve_bitcode_lib_item(located: LocatedBitcodeLib) -> ResolvedItem:
         packaged_with=packaged_with,
         abs_path=located.abs_path,
         found_via=located.found_via,
+        ctk_companion_tags=SUPPORTED_BITCODE_LIBS_CTK_COMPANION_TAGS.get(located.name, ()),
     )
 
 
@@ -392,6 +408,7 @@ def _resolve_binary_item(utility_name: str, abs_path: str) -> ResolvedItem:
         packaged_with=packaged_with,
         abs_path=abs_path,
         found_via=None,
+        ctk_companion_tags=SUPPORTED_BINARIES_CTK_COMPANION_TAGS.get(utility_name, ()),
     )
 
 

@@ -621,6 +621,37 @@ def test_ctk_version_constraint_rejects_invalid_specifier():
         CompatibilityGuardRails(ctk_version="13.2")
 
 
+def test_resolved_items_capture_relation_metadata(tmp_path):
+    ctk_root = tmp_path / "cuda-12.9"
+    _write_cuda_h(ctk_root, "12.9.20250531")
+
+    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    header_dir = ctk_root / "targets" / "x86_64-linux" / "include"
+    _touch(header_dir / "fatbinary_section.h")
+    static_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libcudadevrt.a")
+    bitcode_path = _touch(ctk_root / "nvvm" / "libdevice" / "libdevice.10.bc")
+    binary_path = _touch(ctk_root / "bin" / "nvcc")
+
+    dynamic_item = compatibility_module._resolve_dynamic_lib_item("nvrtc", _loaded_dl(lib_path))
+    header_item = compatibility_module._resolve_header_item(
+        "nvcc",
+        LocatedHeaderDir(abs_path=str(header_dir), found_via="CUDA_PATH"),
+    )
+    static_item = compatibility_module._resolve_static_lib_item(_located_static_lib("cudadevrt", static_path))
+    bitcode_item = compatibility_module._resolve_bitcode_lib_item(_located_bitcode_lib("device", bitcode_path))
+    binary_item = compatibility_module._resolve_binary_item("nvcc", binary_path)
+
+    assert dynamic_item.dynamic_link_component == "nvrtc_mathdx"
+    assert dynamic_item.ctk_companion_tags == ("api_nvrtc",)
+    assert header_item.dynamic_link_component is None
+    assert header_item.ctk_companion_tags == ("toolchain_cuda_nvcc",)
+    assert static_item.ctk_companion_tags == ("toolchain_cuda_nvcc",)
+    assert bitcode_item.ctk_companion_tags == ("toolchain_cuda_nvcc",)
+    assert binary_item.ctk_companion_tags == ("toolchain_cuda_nvcc",)
+    assert dynamic_item.ctk_version == header_item.ctk_version == static_item.ctk_version == bitcode_item.ctk_version
+    assert binary_item.ctk_version == dynamic_item.ctk_version
+
+
 def test_static_bitcode_and_binary_methods_participate_in_checks(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-12.9"
     _write_cuda_h(ctk_root, "12.9.20250531")

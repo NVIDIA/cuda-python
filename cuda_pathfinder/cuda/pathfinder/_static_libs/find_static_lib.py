@@ -30,6 +30,7 @@ class _StaticLibInfo(TypedDict):
     ctk_rel_paths: tuple[str, ...]
     conda_rel_paths: tuple[str, ...]
     site_packages_dirs: tuple[str, ...]
+    ctk_companion_tags: tuple[str, ...]
 
 
 _SUPPORTED_STATIC_LIBS_INFO: dict[str, _StaticLibInfo] = {
@@ -42,10 +43,14 @@ _SUPPORTED_STATIC_LIBS_INFO: dict[str, _StaticLibInfo] = {
             if IS_WINDOWS
             else ("nvidia/cu13/lib", "nvidia/cuda_runtime/lib")
         ),
+        "ctk_companion_tags": ("toolchain_cuda_nvcc",),
     },
 }
 
 SUPPORTED_STATIC_LIBS: tuple[str, ...] = tuple(sorted(_SUPPORTED_STATIC_LIBS_INFO.keys()))
+SUPPORTED_STATIC_LIBS_CTK_COMPANION_TAGS = {
+    name: info["ctk_companion_tags"] for name, info in _SUPPORTED_STATIC_LIBS_INFO.items()
+}
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
