@@ -641,6 +641,142 @@ def test_toolchain_companions_require_exact_ctk_major_minor_match(monkeypatch, t
         guard_rails.find_nvidia_binary_utility("nvcc")
 
 
+def test_declared_ltoir_pipeline_requires_nvjitlink_not_older_than_nvrtc(monkeypatch, tmp_path):
+    nvrtc_root = tmp_path / "cuda-12.9"
+    nvjitlink_root = tmp_path / "cuda-12.8"
+    _write_cuda_h(nvrtc_root, "12.9.20250531")
+    _write_cuda_h(nvjitlink_root, "12.8.20250303")
+
+    nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
+
+    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
+        if libname == "nvrtc":
+            return _loaded_dl(nvrtc_path)
+        if libname == "nvJitLink":
+            return _loaded_dl(nvjitlink_path)
+        raise AssertionError(f"Unexpected libname: {libname!r}")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+
+    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
+    guard_rails.load_nvidia_dynamic_lib("nvrtc")
+    guard_rails._declare_dynamic_lib_pipeline(
+        producer_libname="nvrtc",
+        consumer_libname="nvJitLink",
+        artifact_kind="ltoir",
+    )
+
+    with pytest.raises(CompatibilityCheckError, match=r"nvJitLink must be >= the producer version"):
+        guard_rails.load_nvidia_dynamic_lib("nvJitLink")
+
+
+def test_declared_ltoir_pipeline_allows_same_major_newer_nvjitlink(monkeypatch, tmp_path):
+    nvrtc_root = tmp_path / "cuda-12.8"
+    nvjitlink_root = tmp_path / "cuda-12.9"
+    _write_cuda_h(nvrtc_root, "12.8.20250303")
+    _write_cuda_h(nvjitlink_root, "12.9.20250531")
+
+    nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
+
+    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
+        if libname == "nvrtc":
+            return _loaded_dl(nvrtc_path)
+        if libname == "nvJitLink":
+            return _loaded_dl(nvjitlink_path)
+        raise AssertionError(f"Unexpected libname: {libname!r}")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+
+    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
+    loaded_nvrtc = guard_rails.load_nvidia_dynamic_lib("nvrtc")
+    loaded_nvjitlink = guard_rails.load_nvidia_dynamic_lib("nvJitLink")
+    guard_rails._declare_dynamic_lib_pipeline(
+        producer_libname="nvrtc",
+        consumer_libname="nvJitLink",
+        artifact_kind="ltoir",
+    )
+
+    assert loaded_nvrtc.abs_path == nvrtc_path
+    assert loaded_nvjitlink.abs_path == nvjitlink_path
+
+
+def test_declared_ptx_pipeline_allows_cross_major_nvrtc_to_nvjitlink(monkeypatch, tmp_path):
+    nvrtc_root = tmp_path / "cuda-12.8"
+    nvjitlink_root = tmp_path / "cuda-13.0"
+    _write_cuda_h(nvrtc_root, "12.8.20250303")
+    _write_cuda_h(nvjitlink_root, "13.0.20251003")
+
+    nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.13")
+
+    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
+        if libname == "nvrtc":
+            return _loaded_dl(nvrtc_path)
+        if libname == "nvJitLink":
+            return _loaded_dl(nvjitlink_path)
+        raise AssertionError(f"Unexpected libname: {libname!r}")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+
+    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
+    loaded_nvrtc = guard_rails.load_nvidia_dynamic_lib("nvrtc")
+    loaded_nvjitlink = guard_rails.load_nvidia_dynamic_lib("nvJitLink")
+    guard_rails._declare_dynamic_lib_pipeline(
+        producer_libname="nvrtc",
+        consumer_libname="nvJitLink",
+        artifact_kind="ptx",
+    )
+
+    assert loaded_nvrtc.abs_path == nvrtc_path
+    assert loaded_nvjitlink.abs_path == nvjitlink_path
+
+
+def test_declared_nvvm_pipeline_remains_conservative(monkeypatch, tmp_path):
+    nvvm_root = tmp_path / "cuda-12.8"
+    nvjitlink_root = tmp_path / "cuda-12.9"
+    _write_cuda_h(nvvm_root, "12.8.20250303")
+    _write_cuda_h(nvjitlink_root, "12.9.20250531")
+
+    nvvm_path = _touch(nvvm_root / "nvvm" / "lib64" / "libnvvm.so.4")
+    nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
+
+    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
+        if libname == "nvvm":
+            return _loaded_dl(nvvm_path)
+        if libname == "nvJitLink":
+            return _loaded_dl(nvjitlink_path)
+        raise AssertionError(f"Unexpected libname: {libname!r}")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+
+    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
+    guard_rails.load_nvidia_dynamic_lib("nvvm")
+    guard_rails.load_nvidia_dynamic_lib("nvJitLink")
+
+    with pytest.raises(
+        CompatibilityCheckError,
+        match=r"remains conservative for explicit nvvm pipeline contexts",
+    ):
+        guard_rails._declare_dynamic_lib_pipeline(
+            producer_libname="nvvm",
+            consumer_libname="nvJitLink",
+            artifact_kind="ptx",
+        )
+
+
+def test_declared_dynamic_lib_pipeline_rejects_invalid_artifact_kind():
+    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
+
+    with pytest.raises(ValueError, match="Invalid pipeline artifact kind"):
+        guard_rails._declare_dynamic_lib_pipeline(
+            producer_libname="nvrtc",
+            consumer_libname="nvJitLink",
+            artifact_kind="fatbin",
+        )
+
+
 def test_driver_major_must_not_be_older_than_ctk_major(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-13.0"
     _write_cuda_h(ctk_root, "13.0.20251003")

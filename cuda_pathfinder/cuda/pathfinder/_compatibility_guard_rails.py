@@ -64,6 +64,7 @@ PackagedWith: TypeAlias = str
 CtkVersionConstraintArg: TypeAlias = str | SpecifierSet | None
 PairwiseItemRelationKind: TypeAlias = str
 DriverCompatibilityKind: TypeAlias = str
+PipelineArtifactKind: TypeAlias = str
 
 _CTK_VERSION_RE = re.compile(r"^(?P<major>\d+)\.(?P<minor>\d+)")
 _CTK_VERSION_CONSTRAINT_ERROR = (
@@ -74,6 +75,16 @@ _PAIRWISE_ITEM_RELATION_NONE = "none"
 _PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED = "exact-ctk-match-required"
 _DRIVER_COMPATIBILITY_BACKWARD = "backward-compatibility"
 _DRIVER_COMPATIBILITY_MINOR_VERSION = "minor-version-compatibility"
+_PIPELINE_ARTIFACT_KIND_LTOIR = "ltoir"
+_PIPELINE_ARTIFACT_KIND_PTX = "ptx"
+_PIPELINE_ARTIFACT_KIND_ELF = "elf"
+_PIPELINE_ARTIFACT_KIND_CUBIN = "cubin"
+_PIPELINE_ARTIFACT_KINDS = (
+    _PIPELINE_ARTIFACT_KIND_LTOIR,
+    _PIPELINE_ARTIFACT_KIND_PTX,
+    _PIPELINE_ARTIFACT_KIND_ELF,
+    _PIPELINE_ARTIFACT_KIND_CUBIN,
+)
 _MIN_DRIVER_BRANCH_FOR_MINOR_VERSION_COMPATIBILITY_BY_CTK_MAJOR = {
     11: 450,
     12: 525,
@@ -91,6 +102,13 @@ class PairwiseItemRelation:
 class DriverCompatibilityDecision:
     kind: DriverCompatibilityKind
     detail: str
+
+
+@dataclass(frozen=True, slots=True)
+class DeclaredDynamicLibPipeline:
+    producer_libname: str
+    consumer_libname: str
+    artifact_kind: PipelineArtifactKind
 
 
 _STATIC_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
@@ -548,6 +566,58 @@ def _driver_release_branch_too_old_message(
     )
 
 
+def _declared_dynamic_lib_pipeline_description(pipeline: DeclaredDynamicLibPipeline) -> str:
+    return (
+        f"declared dynamic-lib pipeline {pipeline.producer_libname!r} -> {pipeline.consumer_libname!r} "
+        f"for artifact kind {pipeline.artifact_kind!r}"
+    )
+
+
+def _nvjitlink_ltoir_major_mismatch_message(
+    producer_item: ResolvedItem,
+    consumer_item: ResolvedItem,
+    pipeline: DeclaredDynamicLibPipeline,
+) -> str:
+    assert producer_item.ctk_version is not None
+    assert consumer_item.ctk_version is not None
+    return (
+        f"{_declared_dynamic_lib_pipeline_description(pipeline)} uses producer {producer_item.describe()} at "
+        f"CTK {producer_item.ctk_version} and consumer {consumer_item.describe()} at CTK {consumer_item.ctk_version}. "
+        "For LTOIR inputs, NVIDIA documents nvJitLink compatibility only within a major release family, "
+        "so v1 requires the producer and consumer CTK majors to match."
+    )
+
+
+def _nvjitlink_ltoir_consumer_too_old_message(
+    producer_item: ResolvedItem,
+    consumer_item: ResolvedItem,
+    pipeline: DeclaredDynamicLibPipeline,
+) -> str:
+    assert producer_item.ctk_version is not None
+    assert consumer_item.ctk_version is not None
+    return (
+        f"{_declared_dynamic_lib_pipeline_description(pipeline)} uses producer {producer_item.describe()} at "
+        f"CTK {producer_item.ctk_version} and consumer {consumer_item.describe()} at CTK {consumer_item.ctk_version}. "
+        "For LTOIR inputs, NVIDIA documents that nvJitLink must be >= the producer version, "
+        "so v1 rejects an older nvJitLink consumer."
+    )
+
+
+def _nvvm_pipeline_conservative_message(
+    producer_item: ResolvedItem,
+    consumer_item: ResolvedItem,
+    pipeline: DeclaredDynamicLibPipeline,
+) -> str:
+    assert producer_item.ctk_version is not None
+    assert consumer_item.ctk_version is not None
+    return (
+        f"{_declared_dynamic_lib_pipeline_description(pipeline)} involves {producer_item.describe()} at "
+        f"CTK {producer_item.ctk_version} and {consumer_item.describe()} at CTK {consumer_item.ctk_version}. "
+        "v1 remains conservative for explicit nvvm pipeline contexts until NVVM IR version and dialect are modeled, "
+        "so it requires an exact CTK major.minor match."
+    )
+
+
 def _compatible_pair_message(
     driver_decision: DriverCompatibilityDecision,
     item1: ResolvedItem,
@@ -619,8 +689,10 @@ def _ctk_coherence_result(
 
 
 def _pipeline_compatibility_result(_item1: ResolvedItem, _item2: ResolvedItem) -> CompatibilityResult | None:
-    # v1 has no pipeline-sensitive rules yet, but this separate hook keeps the
-    # policy surface ready for nvrtc/nvJitLink and nvvm work.
+    # Generic pairwise policy stays artifact-coherence-only. Milestone 6 adds
+    # explicit pipeline-aware rules via declared dynamic-lib pipeline contexts,
+    # because producer/consumer direction and artifact kind are not inferable
+    # from bare item pairs alone.
     return None
 
 
@@ -639,6 +711,62 @@ def _pairwise_policy_result(
             return result
         return _pipeline_compatibility_result(item1, item2)
     raise AssertionError(f"Unhandled pairwise item relation: {relation.kind!r}")
+
+
+def _dynamic_lib_pipeline_items(
+    item1: ResolvedItem,
+    item2: ResolvedItem,
+    pipeline: DeclaredDynamicLibPipeline,
+) -> tuple[ResolvedItem, ResolvedItem] | None:
+    if item1.kind != "dynamic-lib" or item2.kind != "dynamic-lib":
+        return None
+    if item1.name == pipeline.producer_libname and item2.name == pipeline.consumer_libname:
+        return item1, item2
+    if item2.name == pipeline.producer_libname and item1.name == pipeline.consumer_libname:
+        return item2, item1
+    return None
+
+
+def _declared_dynamic_lib_pipeline_result(
+    producer_item: ResolvedItem,
+    consumer_item: ResolvedItem,
+    pipeline: DeclaredDynamicLibPipeline,
+) -> CompatibilityResult | None:
+    assert producer_item.ctk_version is not None
+    assert consumer_item.ctk_version is not None
+    if "nvvm" in (producer_item.name, consumer_item.name):
+        if producer_item.ctk_version == consumer_item.ctk_version:
+            return None
+        return CompatibilityResult(
+            status="incompatible",
+            message=_nvvm_pipeline_conservative_message(producer_item, consumer_item, pipeline),
+        )
+    if producer_item.name == "nvrtc" and consumer_item.name == "nvJitLink":
+        if pipeline.artifact_kind in (
+            _PIPELINE_ARTIFACT_KIND_PTX,
+            _PIPELINE_ARTIFACT_KIND_ELF,
+            _PIPELINE_ARTIFACT_KIND_CUBIN,
+        ):
+            # NVIDIA documents broader compatibility for PTX/ELF/CUBIN inputs than for LTOIR.
+            return None
+        assert pipeline.artifact_kind == _PIPELINE_ARTIFACT_KIND_LTOIR
+        if producer_item.ctk_version.major != consumer_item.ctk_version.major:
+            return CompatibilityResult(
+                status="incompatible",
+                message=_nvjitlink_ltoir_major_mismatch_message(producer_item, consumer_item, pipeline),
+            )
+        if (
+            consumer_item.ctk_version.major,
+            consumer_item.ctk_version.minor,
+        ) < (
+            producer_item.ctk_version.major,
+            producer_item.ctk_version.minor,
+        ):
+            return CompatibilityResult(
+                status="incompatible",
+                message=_nvjitlink_ltoir_consumer_too_old_message(producer_item, consumer_item, pipeline),
+            )
+    return None
 
 
 def _driver_cuda_version_supports_ctk_by_backward_compatibility(
@@ -750,6 +878,8 @@ class CompatibilityGuardRails:
         self._configured_driver_release_version = driver_release_version
         self._driver_release_version = driver_release_version
         self._resolved_items: list[ResolvedItem] = []
+        self._declared_dynamic_lib_pipelines: set[DeclaredDynamicLibPipeline] = set()
+        self._checked_dynamic_lib_pipelines: set[DeclaredDynamicLibPipeline] = set()
 
     def _get_driver_cuda_version(self) -> DriverCudaVersion:
         if self._driver_cuda_version is None:
@@ -807,18 +937,77 @@ class CompatibilityGuardRails:
 
     def _enforce_pairwise_compatibility(self, prior_item: ResolvedItem, item: ResolvedItem) -> None:
         result = _pairwise_policy_result(prior_item, item)
-        if result is None:
+        if result is not None:
+            result.require_compatible()
+        self._enforce_declared_dynamic_lib_pipelines_for_pair(prior_item, item)
+
+    def _remembered_item(self, *, kind: ItemKind, name: str) -> ResolvedItem | None:
+        for item in reversed(self._resolved_items):
+            if item.kind == kind and item.name == name:
+                return item
+        return None
+
+    def _enforce_declared_dynamic_lib_pipeline_if_ready(self, pipeline: DeclaredDynamicLibPipeline) -> None:
+        if pipeline in self._checked_dynamic_lib_pipelines:
             return
-        result.require_compatible()
+        producer_item = self._remembered_item(kind="dynamic-lib", name=pipeline.producer_libname)
+        if producer_item is None:
+            return
+        consumer_item = self._remembered_item(kind="dynamic-lib", name=pipeline.consumer_libname)
+        if consumer_item is None:
+            return
+        result = _declared_dynamic_lib_pipeline_result(producer_item, consumer_item, pipeline)
+        if result is not None:
+            result.require_compatible()
+        self._checked_dynamic_lib_pipelines.add(pipeline)
+
+    def _enforce_declared_dynamic_lib_pipelines_for_pair(self, item1: ResolvedItem, item2: ResolvedItem) -> None:
+        for pipeline in self._declared_dynamic_lib_pipelines:
+            if _dynamic_lib_pipeline_items(item1, item2, pipeline) is None:
+                continue
+            self._enforce_declared_dynamic_lib_pipeline_if_ready(pipeline)
+
+    def _enforce_declared_dynamic_lib_pipelines_for_item(self, item: ResolvedItem) -> None:
+        if item.kind != "dynamic-lib":
+            return
+        for pipeline in self._declared_dynamic_lib_pipelines:
+            if item.name not in (pipeline.producer_libname, pipeline.consumer_libname):
+                continue
+            self._enforce_declared_dynamic_lib_pipeline_if_ready(pipeline)
 
     def _remember(self, item: ResolvedItem) -> None:
         if item not in self._resolved_items:
             self._resolved_items.append(item)
+        self._enforce_declared_dynamic_lib_pipelines_for_item(item)
+
+    def _declare_dynamic_lib_pipeline(
+        self,
+        *,
+        producer_libname: str,
+        consumer_libname: str,
+        artifact_kind: PipelineArtifactKind,
+    ) -> None:
+        if producer_libname not in LIB_DESCRIPTORS:
+            raise ValueError(f"Unknown dynamic library producer: {producer_libname!r}")
+        if consumer_libname not in LIB_DESCRIPTORS:
+            raise ValueError(f"Unknown dynamic library consumer: {consumer_libname!r}")
+        if artifact_kind not in _PIPELINE_ARTIFACT_KINDS:
+            allowed_values = ", ".join(repr(kind) for kind in _PIPELINE_ARTIFACT_KINDS)
+            raise ValueError(f"Invalid pipeline artifact kind {artifact_kind!r}. Allowed values: {allowed_values}.")
+        pipeline = DeclaredDynamicLibPipeline(
+            producer_libname=producer_libname,
+            consumer_libname=consumer_libname,
+            artifact_kind=artifact_kind,
+        )
+        self._declared_dynamic_lib_pipelines.add(pipeline)
+        self._enforce_declared_dynamic_lib_pipeline_if_ready(pipeline)
 
     def _reset_for_testing(self) -> None:
         self._driver_cuda_version = self._configured_driver_cuda_version
         self._driver_release_version = self._configured_driver_release_version
         self._resolved_items.clear()
+        self._declared_dynamic_lib_pipelines.clear()
+        self._checked_dynamic_lib_pipelines.clear()
 
     def _register_and_check(self, item: ResolvedItem) -> None:
         # Driver libraries come from the installed display driver rather than a
