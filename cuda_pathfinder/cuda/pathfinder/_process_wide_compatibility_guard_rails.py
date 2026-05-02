@@ -14,6 +14,7 @@ from cuda.pathfinder._binaries.find_nvidia_binary_utility import (
 from cuda.pathfinder._compatibility_guard_rails import (
     CompatibilityGuardRails,
     CompatibilityInsufficientMetadataError,
+    DriverCtkCompatibilityError,
 )
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
@@ -52,6 +53,10 @@ _COMPATIBILITY_GUARD_RAILS_ENV_VAR = "CUDA_PATHFINDER_COMPATIBILITY_GUARD_RAILS"
 _COMPATIBILITY_GUARD_RAILS_MODES = ("off", "best_effort", "strict")
 _COMPATIBILITY_GUARD_RAILS_DEFAULT_MODE = "strict"
 assert _COMPATIBILITY_GUARD_RAILS_DEFAULT_MODE in _COMPATIBILITY_GUARD_RAILS_MODES
+_DRIVER_COMPATIBILITY_ENV_VAR = "CUDA_PATHFINDER_DRIVER_COMPATIBILITY"
+_DRIVER_COMPATIBILITY_MODES = ("default", "assume_forward_compatibility")
+_DRIVER_COMPATIBILITY_DEFAULT_MODE = "default"
+assert _DRIVER_COMPATIBILITY_DEFAULT_MODE in _DRIVER_COMPATIBILITY_MODES
 
 
 class _ProcessWideGuardRailsApi(Protocol):
@@ -93,6 +98,37 @@ def _compatibility_guard_rails_mode() -> str:
     )
 
 
+def _driver_compatibility_mode() -> str:
+    value = os.environ.get(_DRIVER_COMPATIBILITY_ENV_VAR)
+    if not value:
+        return _DRIVER_COMPATIBILITY_DEFAULT_MODE
+    if value not in _DRIVER_COMPATIBILITY_MODES:
+        allowed_values = ", ".join(repr(mode) for mode in _DRIVER_COMPATIBILITY_MODES)
+        raise RuntimeError(
+            f"Invalid {_DRIVER_COMPATIBILITY_ENV_VAR}={value!r}. "
+            f"Allowed values: {allowed_values}. "
+            f"Unset or empty defaults to {_DRIVER_COMPATIBILITY_DEFAULT_MODE!r}."
+        )
+    if value == "assume_forward_compatibility" and not sys.platform.startswith("linux"):
+        raise RuntimeError(f"{_DRIVER_COMPATIBILITY_ENV_VAR}={value!r} is only supported on Linux.")
+    return value
+
+
+def _driver_compatibility_override_hint() -> str:
+    return (
+        "On supported Linux systems that intentionally rely on NVIDIA forward compatibility "
+        f"(`cuda-compat-*`), set {_DRIVER_COMPATIBILITY_ENV_VAR}=assume_forward_compatibility "
+        "to bypass this driver-vs-CTK check. This does not relax CTK-coherence checks "
+        "between headers, libraries, and compiler/JIT components."
+    )
+
+
+def _with_driver_compatibility_hint(message: str) -> str:
+    if _DRIVER_COMPATIBILITY_ENV_VAR in message:
+        return message
+    return f"{message} {_driver_compatibility_override_hint()}"
+
+
 def _public_module() -> _PublicPathfinderModule | None:
     public_module = sys.modules.get("cuda.pathfinder")
     if public_module is None:
@@ -121,6 +157,7 @@ def _reset_process_wide_compatibility_guard_rails() -> None:
 
 
 def _try_process_wide_guard_rails_then_fallback(guard_rails_call: Callable[[], _T], raw_call: Callable[[], _T]) -> _T:
+    driver_compatibility_mode = _driver_compatibility_mode()
     mode = _compatibility_guard_rails_mode()
     if mode == "off":
         return raw_call()
@@ -129,6 +166,12 @@ def _try_process_wide_guard_rails_then_fallback(guard_rails_call: Callable[[], _
     except CompatibilityInsufficientMetadataError:
         if mode == "best_effort":
             return raw_call()
+        raise
+    except DriverCtkCompatibilityError as exc:
+        if driver_compatibility_mode == "assume_forward_compatibility":
+            return raw_call()
+        if sys.platform.startswith("linux"):
+            raise DriverCtkCompatibilityError(_with_driver_compatibility_hint(str(exc))) from exc
         raise
 
 

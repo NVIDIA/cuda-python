@@ -33,11 +33,7 @@ def test_ctk_companion_tags_are_unique_and_valid(spec: HeaderDescriptorSpec):
 
 def test_known_toolchain_headers_share_toolchain_tag():
     expected = {"cccl", "cudart", "cutlass", "cute", "nvcc", "nvfatbin", "nvvm"}
-    actual = {
-        spec.name
-        for spec in HEADER_DESCRIPTOR_CATALOG
-        if "toolchain_cuda_nvcc" in spec.ctk_companion_tags
-    }
+    actual = {spec.name for spec in HEADER_DESCRIPTOR_CATALOG if "toolchain_cuda_nvcc" in spec.ctk_companion_tags}
     assert actual == expected
 
 
@@ -54,9 +50,5 @@ def test_supported_runtime_headers_keep_companion_tags():
         "nvrtc": ("api_nvrtc",),
         "nvvm": ("api_nvvm", "toolchain_cuda_nvcc"),
     }
-    actual = {
-        spec.name: spec.ctk_companion_tags
-        for spec in HEADER_DESCRIPTOR_CATALOG
-        if spec.name in expected
-    }
+    actual = {spec.name: spec.ctk_companion_tags for spec in HEADER_DESCRIPTOR_CATALOG if spec.name in expected}
     assert actual == expected

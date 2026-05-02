@@ -59,7 +59,7 @@ from cuda.pathfinder._utils.toolkit_info import ReadCudaHeaderVersionError, read
 ItemKind: TypeAlias = str
 PackagedWith: TypeAlias = str
 CtkVersionConstraintArg: TypeAlias = str | SpecifierSet | None
-PairwiseItemRelation: TypeAlias = str
+PairwiseItemRelationKind: TypeAlias = str
 
 _CTK_VERSION_RE = re.compile(r"^(?P<major>\d+)\.(?P<minor>\d+)")
 _CTK_VERSION_CONSTRAINT_ERROR = (
@@ -68,6 +68,13 @@ _CTK_VERSION_CONSTRAINT_ERROR = (
 )
 _PAIRWISE_ITEM_RELATION_NONE = "none"
 _PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED = "exact-ctk-match-required"
+
+
+@dataclass(frozen=True, slots=True)
+class PairwiseItemRelation:
+    kind: PairwiseItemRelationKind
+    reason: str | None = None
+
 
 _STATIC_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
     "cudadevrt": "ctk",
@@ -85,6 +92,10 @@ class CompatibilityCheckError(RuntimeError):
 
 class CompatibilityInsufficientMetadataError(CompatibilityCheckError):
     """Raised when v1 compatibility checks cannot reach a definitive answer."""
+
+
+class DriverCtkCompatibilityError(CompatibilityCheckError):
+    """Raised when driver-vs-CTK policy rejects a resolved item."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -140,13 +151,14 @@ class ResolvedItem:
 class CompatibilityResult:
     status: str
     message: str
+    error_type: type[CompatibilityCheckError] = CompatibilityCheckError
 
     def require_compatible(self) -> None:
         if self.status == "compatible":
             return
         if self.status == "insufficient_metadata":
             raise CompatibilityInsufficientMetadataError(self.message)
-        raise CompatibilityCheckError(self.message)
+        raise self.error_type(self.message)
 
 
 def _parse_ctk_version(cuda_version: str) -> CtkVersion | None:
@@ -434,13 +446,19 @@ def _ctk_constraint_failure_message(item: ResolvedItem, constraint: CtkVersionCo
     return f"{item.describe()} resolves to CTK {item.ctk_version}, which does not satisfy ctk_version{constraint}."
 
 
-def _ctk_pair_mismatch_message(item1: ResolvedItem, item2: ResolvedItem) -> str:
+def _ctk_pair_mismatch_message(
+    item1: ResolvedItem,
+    item2: ResolvedItem,
+    relation: PairwiseItemRelation,
+) -> str:
     assert item1.ctk_version is not None
     assert item2.ctk_version is not None
+    assert relation.reason is not None
+    requirement_reason = relation.reason[:1].upper() + relation.reason[1:]
     return (
         f"{item1.describe()} resolves to CTK {item1.ctk_version}, while "
         f"{item2.describe()} resolves to CTK {item2.ctk_version}. "
-        "v1 requires an exact CTK major.minor match."
+        f"{requirement_reason}, so v1 requires an exact CTK major.minor match."
     )
 
 
@@ -453,11 +471,26 @@ def _driver_major_mismatch_message(driver_cuda_version: DriverCudaVersion, item:
     )
 
 
-def _compatible_pair_message(driver_cuda_version: DriverCudaVersion, item1: ResolvedItem, item2: ResolvedItem) -> str:
+def _compatible_pair_message(
+    driver_cuda_version: DriverCudaVersion,
+    item1: ResolvedItem,
+    item2: ResolvedItem,
+    relation: PairwiseItemRelation,
+) -> str:
     assert item1.ctk_version is not None
+    assert item2.ctk_version is not None
+    if relation.kind == _PAIRWISE_ITEM_RELATION_NONE:
+        return (
+            f"{item1.describe()} resolves to CTK {item1.ctk_version}, "
+            f"{item2.describe()} resolves to CTK {item2.ctk_version}, "
+            "and v1 does not require exact CTK lockstep for this pair. "
+            f"Driver version {driver_cuda_version.encoded} satisfies the v1 driver guard rail."
+        )
+    assert relation.reason is not None
     return (
-        f"{item1.describe()} and {item2.describe()} both resolve to CTK {item1.ctk_version}, "
-        f"and driver version {driver_cuda_version.encoded} satisfies the v1 driver guard rail."
+        f"{item1.describe()} and {item2.describe()} both resolve to CTK {item1.ctk_version}. "
+        f"{relation.reason[:1].upper() + relation.reason[1:]}, and driver version "
+        f"{driver_cuda_version.encoded} satisfies the v1 driver guard rail."
     )
 
 
@@ -473,18 +506,40 @@ def _ctk_metadata_result(item: ResolvedItem) -> CompatibilityResult | None:
     return CompatibilityResult(status="insufficient_metadata", message=_missing_ctk_metadata_message(item))
 
 
+def _shared_ctk_companion_tags(item1: ResolvedItem, item2: ResolvedItem) -> tuple[str, ...]:
+    return tuple(sorted(set(item1.ctk_companion_tags).intersection(item2.ctk_companion_tags)))
+
+
 def _classify_pairwise_item_relation(item1: ResolvedItem, item2: ResolvedItem) -> PairwiseItemRelation:
     if item1.packaged_with == "driver" or item2.packaged_with == "driver":
-        return _PAIRWISE_ITEM_RELATION_NONE
-    return _PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED
+        return PairwiseItemRelation(_PAIRWISE_ITEM_RELATION_NONE)
+    if item1.dynamic_link_component is not None and item1.dynamic_link_component == item2.dynamic_link_component:
+        return PairwiseItemRelation(
+            _PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED,
+            reason=f"they are in the same authored dynamic-link component {item1.dynamic_link_component!r}",
+        )
+    shared_companion_tags = _shared_ctk_companion_tags(item1, item2)
+    if shared_companion_tags:
+        if len(shared_companion_tags) == 1:
+            tag_description = repr(shared_companion_tags[0])
+            reason = f"they share the authored companion tag {tag_description}"
+        else:
+            tags_description = ", ".join(repr(tag) for tag in shared_companion_tags)
+            reason = f"they share the authored companion tags {tags_description}"
+        return PairwiseItemRelation(_PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED, reason=reason)
+    return PairwiseItemRelation(_PAIRWISE_ITEM_RELATION_NONE)
 
 
-def _ctk_coherence_result(item1: ResolvedItem, item2: ResolvedItem) -> CompatibilityResult | None:
+def _ctk_coherence_result(
+    item1: ResolvedItem,
+    item2: ResolvedItem,
+    relation: PairwiseItemRelation,
+) -> CompatibilityResult | None:
     assert item1.ctk_version is not None
     assert item2.ctk_version is not None
     if item1.ctk_version == item2.ctk_version:
         return None
-    return CompatibilityResult(status="incompatible", message=_ctk_pair_mismatch_message(item1, item2))
+    return CompatibilityResult(status="incompatible", message=_ctk_pair_mismatch_message(item1, item2, relation))
 
 
 def _pipeline_compatibility_result(_item1: ResolvedItem, _item2: ResolvedItem) -> CompatibilityResult | None:
@@ -493,16 +548,21 @@ def _pipeline_compatibility_result(_item1: ResolvedItem, _item2: ResolvedItem) -
     return None
 
 
-def _pairwise_policy_result(item1: ResolvedItem, item2: ResolvedItem) -> CompatibilityResult | None:
-    relation = _classify_pairwise_item_relation(item1, item2)
-    if relation == _PAIRWISE_ITEM_RELATION_NONE:
+def _pairwise_policy_result(
+    item1: ResolvedItem,
+    item2: ResolvedItem,
+    relation: PairwiseItemRelation | None = None,
+) -> CompatibilityResult | None:
+    if relation is None:
+        relation = _classify_pairwise_item_relation(item1, item2)
+    if relation.kind == _PAIRWISE_ITEM_RELATION_NONE:
         return None
-    if relation == _PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED:
-        result = _ctk_coherence_result(item1, item2)
+    if relation.kind == _PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED:
+        result = _ctk_coherence_result(item1, item2, relation)
         if result is not None:
             return result
         return _pipeline_compatibility_result(item1, item2)
-    raise AssertionError(f"Unhandled pairwise item relation: {relation!r}")
+    raise AssertionError(f"Unhandled pairwise item relation: {relation.kind!r}")
 
 
 def _driver_compatibility_result(
@@ -514,6 +574,7 @@ def _driver_compatibility_result(
     return CompatibilityResult(
         status="incompatible",
         message=_driver_major_mismatch_message(driver_cuda_version, item),
+        error_type=DriverCtkCompatibilityError,
     )
 
 
@@ -528,7 +589,8 @@ def compatibility_check(
         if result is not None:
             return result
 
-    result = _pairwise_policy_result(item1, item2)
+    relation = _classify_pairwise_item_relation(item1, item2)
+    result = _pairwise_policy_result(item1, item2, relation)
     if result is not None:
         return result
 
@@ -538,7 +600,7 @@ def compatibility_check(
 
     return CompatibilityResult(
         status="compatible",
-        message=_compatible_pair_message(driver_cuda_version, item1, item2),
+        message=_compatible_pair_message(driver_cuda_version, item1, item2, relation),
     )
 
 
@@ -606,8 +668,8 @@ class CompatibilityGuardRails:
 
     def _register_and_check(self, item: ResolvedItem) -> None:
         # Driver libraries come from the installed display driver rather than a
-        # CUDA Toolkit line, so they do not need CTK metadata and must not lock
-        # the process-wide CTK anchor.
+        # CUDA Toolkit line, so they do not need CTK metadata and must not
+        # create CTK coherence relations by themselves.
         if item.packaged_with == "driver":
             self._remember(item)
             return
