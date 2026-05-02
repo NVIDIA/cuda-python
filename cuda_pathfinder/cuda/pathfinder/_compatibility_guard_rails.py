@@ -54,12 +54,15 @@ from cuda.pathfinder._utils.toolkit_info import ReadCudaHeaderVersionError, read
 ItemKind: TypeAlias = str
 PackagedWith: TypeAlias = str
 CtkVersionConstraintArg: TypeAlias = str | SpecifierSet | None
+PairwiseItemRelation: TypeAlias = str
 
 _CTK_VERSION_RE = re.compile(r"^(?P<major>\d+)\.(?P<minor>\d+)")
 _CTK_VERSION_CONSTRAINT_ERROR = (
     "ctk_version must be None, a non-empty PEP 440 specifier string like '>=13.2,<14', "
     "or a packaging.specifiers.SpecifierSet."
 )
+_PAIRWISE_ITEM_RELATION_NONE = "none"
+_PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED = "exact-ctk-match-required"
 
 _STATIC_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
     "cudadevrt": "ctk",
@@ -392,57 +395,133 @@ def _resolve_binary_item(utility_name: str, abs_path: str) -> ResolvedItem:
     )
 
 
+def _unsupported_packaging_message(
+    item: ResolvedItem, *, allow_compatibility_neutral_driver_libraries: bool = False
+) -> str:
+    message = "v1 compatibility checks only give definitive answers for packaged_with='ctk' items"
+    if allow_compatibility_neutral_driver_libraries:
+        message += ", plus compatibility-neutral driver libraries"
+    return f"{message}. {item.describe()} is packaged_with={item.packaged_with!r}."
+
+
+def _missing_ctk_metadata_message(item: ResolvedItem) -> str:
+    return (
+        "v1 compatibility checks require either an enclosing CUDA Toolkit root "
+        "with cuda.h or wheel metadata that can be traced to an installed "
+        f"cuda-toolkit distribution. Could not determine the CTK version for {item.describe()}."
+    )
+
+
+def _ctk_constraint_failure_message(item: ResolvedItem, constraint: CtkVersionConstraint) -> str:
+    assert item.ctk_version is not None
+    return f"{item.describe()} resolves to CTK {item.ctk_version}, which does not satisfy ctk_version{constraint}."
+
+
+def _ctk_pair_mismatch_message(item1: ResolvedItem, item2: ResolvedItem) -> str:
+    assert item1.ctk_version is not None
+    assert item2.ctk_version is not None
+    return (
+        f"{item1.describe()} resolves to CTK {item1.ctk_version}, while "
+        f"{item2.describe()} resolves to CTK {item2.ctk_version}. "
+        "v1 requires an exact CTK major.minor match."
+    )
+
+
+def _driver_major_mismatch_message(driver_cuda_version: DriverCudaVersion, item: ResolvedItem) -> str:
+    assert item.ctk_version is not None
+    return (
+        f"Driver version {driver_cuda_version.encoded} only supports CUDA major version {driver_cuda_version.major}, "
+        f"but {item.describe()} requires CTK {item.ctk_version}. "
+        "v1 requires driver_major >= ctk_major."
+    )
+
+
+def _compatible_pair_message(driver_cuda_version: DriverCudaVersion, item1: ResolvedItem, item2: ResolvedItem) -> str:
+    assert item1.ctk_version is not None
+    return (
+        f"{item1.describe()} and {item2.describe()} both resolve to CTK {item1.ctk_version}, "
+        f"and driver version {driver_cuda_version.encoded} satisfies the v1 driver guard rail."
+    )
+
+
+def _supported_packaging_result(item: ResolvedItem) -> CompatibilityResult | None:
+    if item.packaged_with == "ctk":
+        return None
+    return CompatibilityResult(status="insufficient_metadata", message=_unsupported_packaging_message(item))
+
+
+def _ctk_metadata_result(item: ResolvedItem) -> CompatibilityResult | None:
+    if item.ctk_version is not None and item.ctk_version_source is not None:
+        return None
+    return CompatibilityResult(status="insufficient_metadata", message=_missing_ctk_metadata_message(item))
+
+
+def _classify_pairwise_item_relation(item1: ResolvedItem, item2: ResolvedItem) -> PairwiseItemRelation:
+    if item1.packaged_with == "driver" or item2.packaged_with == "driver":
+        return _PAIRWISE_ITEM_RELATION_NONE
+    return _PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED
+
+
+def _ctk_coherence_result(item1: ResolvedItem, item2: ResolvedItem) -> CompatibilityResult | None:
+    assert item1.ctk_version is not None
+    assert item2.ctk_version is not None
+    if item1.ctk_version == item2.ctk_version:
+        return None
+    return CompatibilityResult(status="incompatible", message=_ctk_pair_mismatch_message(item1, item2))
+
+
+def _pipeline_compatibility_result(_item1: ResolvedItem, _item2: ResolvedItem) -> CompatibilityResult | None:
+    # v1 has no pipeline-sensitive rules yet, but this separate hook keeps the
+    # policy surface ready for nvrtc/nvJitLink and nvvm work.
+    return None
+
+
+def _pairwise_policy_result(item1: ResolvedItem, item2: ResolvedItem) -> CompatibilityResult | None:
+    relation = _classify_pairwise_item_relation(item1, item2)
+    if relation == _PAIRWISE_ITEM_RELATION_NONE:
+        return None
+    if relation == _PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED:
+        result = _ctk_coherence_result(item1, item2)
+        if result is not None:
+            return result
+        return _pipeline_compatibility_result(item1, item2)
+    raise AssertionError(f"Unhandled pairwise item relation: {relation!r}")
+
+
+def _driver_compatibility_result(
+    driver_cuda_version: DriverCudaVersion, item: ResolvedItem
+) -> CompatibilityResult | None:
+    assert item.ctk_version is not None
+    if driver_cuda_version.major >= item.ctk_version.major:
+        return None
+    return CompatibilityResult(
+        status="incompatible",
+        message=_driver_major_mismatch_message(driver_cuda_version, item),
+    )
+
+
 def compatibility_check(
     driver_cuda_version: DriverCudaVersion, item1: ResolvedItem, item2: ResolvedItem
 ) -> CompatibilityResult:
     for item in (item1, item2):
-        if item.packaged_with != "ctk":
-            return CompatibilityResult(
-                status="insufficient_metadata",
-                message=(
-                    "v1 compatibility checks only give definitive answers for "
-                    f"packaged_with='ctk' items. {item.describe()} is packaged_with={item.packaged_with!r}."
-                ),
-            )
-        if item.ctk_version is None or item.ctk_version_source is None:
-            return CompatibilityResult(
-                status="insufficient_metadata",
-                message=(
-                    "v1 compatibility checks require either an enclosing CUDA Toolkit root "
-                    "with cuda.h or wheel metadata that can be traced to an installed "
-                    f"cuda-toolkit distribution. Could not determine the CTK version for {item.describe()}."
-                ),
-            )
+        result = _supported_packaging_result(item)
+        if result is not None:
+            return result
+        result = _ctk_metadata_result(item)
+        if result is not None:
+            return result
 
-    assert item1.ctk_version is not None
-    assert item2.ctk_version is not None
+    result = _pairwise_policy_result(item1, item2)
+    if result is not None:
+        return result
 
-    if item1.ctk_version != item2.ctk_version:
-        return CompatibilityResult(
-            status="incompatible",
-            message=(
-                f"{item1.describe()} resolves to CTK {item1.ctk_version}, while "
-                f"{item2.describe()} resolves to CTK {item2.ctk_version}. "
-                "v1 requires an exact CTK major.minor match."
-            ),
-        )
-
-    if driver_cuda_version.major < item1.ctk_version.major:
-        return CompatibilityResult(
-            status="incompatible",
-            message=(
-                f"Driver version {driver_cuda_version.encoded} only supports CUDA major version {driver_cuda_version.major}, "
-                f"but {item1.describe()} requires CTK {item1.ctk_version}. "
-                "v1 requires driver_major >= ctk_major."
-            ),
-        )
+    result = _driver_compatibility_result(driver_cuda_version, item1)
+    if result is not None:
+        return result
 
     return CompatibilityResult(
         status="compatible",
-        message=(
-            f"{item1.describe()} and {item2.describe()} both resolve to CTK {item1.ctk_version}, "
-            f"and driver version {driver_cuda_version.encoded} satisfies the v1 driver guard rail."
-        ),
+        message=_compatible_pair_message(driver_cuda_version, item1, item2),
     )
 
 
@@ -474,33 +553,31 @@ class CompatibilityGuardRails:
         if item.packaged_with == "ctk":
             return
         raise CompatibilityInsufficientMetadataError(
-            "v1 compatibility checks only give definitive answers for "
-            f"packaged_with='ctk' items, plus compatibility-neutral driver libraries. "
-            f"{item.describe()} is packaged_with={item.packaged_with!r}."
+            _unsupported_packaging_message(item, allow_compatibility_neutral_driver_libraries=True)
         )
 
     def _enforce_ctk_metadata(self, item: ResolvedItem) -> None:
-        if item.ctk_version is not None and item.ctk_version_source is not None:
+        result = _ctk_metadata_result(item)
+        if result is None:
             return
-        raise CompatibilityInsufficientMetadataError(
-            "v1 compatibility checks require either an enclosing CUDA Toolkit root "
-            "with cuda.h or wheel metadata that can be traced to an installed "
-            f"cuda-toolkit distribution. Could not determine the CTK version for {item.describe()}."
-        )
+        result.require_compatible()
 
     def _enforce_constraints(self, item: ResolvedItem) -> None:
         assert item.ctk_version is not None
         if self._ctk_version_constraint is not None and not self._ctk_version_constraint.matches(item.ctk_version):
-            raise CompatibilityCheckError(
-                f"{item.describe()} resolves to CTK {item.ctk_version}, which does not satisfy "
-                f"ctk_version{self._ctk_version_constraint}."
-            )
+            raise CompatibilityCheckError(_ctk_constraint_failure_message(item, self._ctk_version_constraint))
 
-    def _anchor_item(self) -> ResolvedItem | None:
-        for item in self._resolved_items:
-            if item.packaged_with == "ctk":
-                return item
-        return None
+    def _enforce_driver_compatibility(self, item: ResolvedItem) -> None:
+        result = _driver_compatibility_result(self._get_driver_cuda_version(), item)
+        if result is None:
+            return
+        result.require_compatible()
+
+    def _enforce_pairwise_compatibility(self, prior_item: ResolvedItem, item: ResolvedItem) -> None:
+        result = _pairwise_policy_result(prior_item, item)
+        if result is None:
+            return
+        result.require_compatible()
 
     def _remember(self, item: ResolvedItem) -> None:
         if item not in self._resolved_items:
@@ -520,10 +597,9 @@ class CompatibilityGuardRails:
         self._enforce_supported_packaging(item)
         self._enforce_ctk_metadata(item)
         self._enforce_constraints(item)
-        anchor = self._anchor_item()
-        if anchor is None:
-            anchor = item
-        compatibility_check(self._get_driver_cuda_version(), anchor, item).require_compatible()
+        for prior_item in self._resolved_items:
+            self._enforce_pairwise_compatibility(prior_item, item)
+        self._enforce_driver_compatibility(item)
         self._remember(item)
 
     def load_nvidia_dynamic_lib(self, libname: str) -> LoadedDL:
