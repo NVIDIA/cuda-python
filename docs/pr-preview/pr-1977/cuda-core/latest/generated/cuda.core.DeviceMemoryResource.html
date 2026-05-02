@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=24495cab"></script>
+    <script src="../_static/documentation_options.js?v=1e5e89d4"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev75';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev112';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -520,9 +520,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -594,6 +594,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.0.0-notes.html">1.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
@@ -699,18 +700,18 @@ memory resource” (MMR). An MMR cannot allocate memory buffers and can only
 receive shared buffers. MRs and MMRs are both of type
 <a class="reference internal" href="#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a> and can be distinguished via
 <a class="reference internal" href="#cuda.core.DeviceMemoryResource.is_mapped" title="cuda.core.DeviceMemoryResource.is_mapped"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DeviceMemoryResource.is_mapped</span></code></a>.</p>
-<p>An MR is shared via an allocation handle obtained by calling
-<a class="reference internal" href="#cuda.core.DeviceMemoryResource.get_allocation_handle" title="cuda.core.DeviceMemoryResource.get_allocation_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.get_allocation_handle()</span></code></a>. The allocation handle
-has a platform-specific interpretation; however, memory IPC is currently
-only supported for Linux, and in that case allocation handles are file
-descriptors. After sending an allocation handle to another process, it can
-be used to create an MMR by invoking
+<p>An MR is shared via an allocation handle accessed through the
+<a class="reference internal" href="#cuda.core.DeviceMemoryResource.allocation_handle" title="cuda.core.DeviceMemoryResource.allocation_handle"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DeviceMemoryResource.allocation_handle</span></code></a> property. The allocation
+handle has a platform-specific interpretation; however, memory IPC is
+currently only supported for Linux, and in that case allocation handles
+are file descriptors. After sending an allocation handle to another
+process, it can be used to create an MMR by invoking
 <a class="reference internal" href="#cuda.core.DeviceMemoryResource.from_allocation_handle" title="cuda.core.DeviceMemoryResource.from_allocation_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.from_allocation_handle()</span></code></a>.</p>
-<p>Buffers can be shared as serializable descriptors obtained by calling
-<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.get_ipc_descriptor" title="cuda.core.Buffer.get_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.get_ipc_descriptor()</span></code></a>. In a receiving process, a shared buffer is
-created by invoking <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> with an MMR and
-buffer descriptor, where the MMR corresponds to the MR that created the
-described buffer.</p>
+<p>Buffers can be shared as serializable descriptors accessed through the
+<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.ipc_descriptor" title="cuda.core.Buffer.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a> property. In a receiving process, a shared
+buffer is created by invoking <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> with an
+MMR and buffer descriptor, where the MMR corresponds to the MR that
+created the described buffer.</p>
 <p>To help manage the association between memory resources and buffers, a
 registry is provided. Every MR has a unique identifier (UUID). MMRs can be
 registered by calling <a class="reference internal" href="#cuda.core.DeviceMemoryResource.register" title="cuda.core.DeviceMemoryResource.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.register()</span></code></a> with the UUID
@@ -851,25 +852,6 @@ handle. It is the caller’s responsibility to close that handle.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.get_allocation_handle">
-<span class="sig-name descname"><span class="pre">get_allocation_handle</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.get_allocation_handle" title="Link to this definition">#</a></dt>
-<dd><p>Export the memory pool handle to be shared (requires IPC).</p>
-<p>The handle can be used to share the memory pool with other processes.
-The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The shareable handle for the memory pool.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.register">
 <span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span>
 
@@ -892,6 +874,14 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.allocation_handle">
+<span class="sig-name descname"><span class="pre">allocation_handle</span></span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.allocation_handle" title="Link to this definition">#</a></dt>
+<dd><p>Shareable handle for this memory pool (requires IPC).</p>
+<p>The handle can be used to share the memory pool with other processes.
+The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.attributes">
 <span class="sig-name descname"><span class="pre">attributes</span></span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.attributes" title="Link to this definition">#</a></dt>
@@ -991,7 +981,7 @@ pool. Access can be modified at any time and affects all allocations
 from this memory pool.</p>
 <p>Returns a tuple of sorted device IDs that currently have peer access to
 allocations from this memory pool.</p>
-<p>When setting, accepts a sequence of Device objects or device IDs.
+<p>When setting, accepts a sequence of <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> objects or device IDs.
 Setting to an empty sequence revokes all peer access.</p>
 <p>For non-owned pools (the default or current device pool), the state
 is always queried from the driver to reflect changes made by other
@@ -1078,8 +1068,8 @@ only for IPC-enabled memory resources.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.deallocate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.from_allocation_handle"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.from_allocation_handle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.from_registry"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.from_registry()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.get_allocation_handle"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.get_allocation_handle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.register"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.register()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.allocation_handle"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.allocation_handle</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.attributes"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.attributes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.handle"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.handle</span></code></a></li>

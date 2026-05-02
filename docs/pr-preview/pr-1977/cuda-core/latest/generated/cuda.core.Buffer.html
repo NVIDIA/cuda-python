@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=24495cab"></script>
+    <script src="../_static/documentation_options.js?v=1e5e89d4"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev75';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev112';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -520,9 +520,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -594,6 +594,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.0.0-notes.html">1.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
@@ -736,7 +737,8 @@ allocated using the associated memory resource before the copy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dst</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code>) – Source buffer to copy data from</p></li>
+<li><p><strong>dst</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code>, optional) – Destination buffer to copy data to. If not provided, a new buffer
+is allocated using this buffer’s memory resource.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 </ul>
@@ -829,12 +831,6 @@ non-owning reference.  The pointer will NOT be freed when the
 <dd><p>Import a buffer that was exported from another process.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.get_ipc_descriptor">
-<span class="sig-name descname"><span class="pre">get_ipc_descriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor" title="cuda.core._memory._ipc.IPCBufferDescriptor"><span class="pre">IPCBufferDescriptor</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.get_ipc_descriptor" title="Link to this definition">#</a></dt>
-<dd><p>Export a buffer allocated for sharing between processes.</p>
-</dd></dl>
-
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Buffer.device_id">
@@ -851,6 +847,12 @@ non-owning reference.  The pointer will NOT be freed when the
 <p>This handle is a Python object. To get the memory address of the underlying C
 handle, call <code class="docutils literal notranslate"><span class="pre">int(Buffer.handle)</span></code>.</p>
 </div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Buffer.ipc_descriptor">
+<span class="sig-name descname"><span class="pre">ipc_descriptor</span></span><a class="headerlink" href="#cuda.core.Buffer.ipc_descriptor" title="Link to this definition">#</a></dt>
+<dd><p>Descriptor for sharing this buffer with other processes.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -956,9 +958,9 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.fill"><code class="docutils literal notranslate"><span class="pre">Buffer.fill()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.from_handle"><code class="docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.from_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.get_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.get_ipc_descriptor()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.device_id"><code class="docutils literal notranslate"><span class="pre">Buffer.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.handle"><code class="docutils literal notranslate"><span class="pre">Buffer.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_device_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_host_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_managed"><code class="docutils literal notranslate"><span class="pre">Buffer.is_managed</span></code></a></li>
