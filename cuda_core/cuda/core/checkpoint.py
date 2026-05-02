@@ -232,10 +232,7 @@ def _as_cuuuid(driver, value):
 
         raw = bytes.fromhex(value.replace("-", ""))
         if len(raw) != 16:
-            raise ValueError(
-                "GPU UUID string must be 32 hex characters "
-                f"(with optional hyphens), got {value!r}"
-            )
+            raise ValueError(f"GPU UUID string must be 32 hex characters (with optional hyphens), got {value!r}")
         buf = ctypes.create_string_buffer(raw, 16)
         return driver.CUuuid(ctypes.addressof(buf))
     return value

@@ -20,8 +20,8 @@ import pytest
 from cuda.core import Device, checkpoint
 from cuda.core._utils.cuda_utils import CUDAError
 
-
 # -- Skip condition -------------------------------------------------------
+
 
 def _checkpoint_available():
     """Return True if the checkpoint API is usable on this system."""
@@ -39,6 +39,7 @@ needs_checkpoint = pytest.mark.skipif(
 
 
 # -- Helpers ---------------------------------------------------------------
+
 
 def _build_rotation_mapping(devices):
     """GPU i UUID -> GPU (i+1) % N UUID for every visible device.
@@ -63,6 +64,7 @@ def _find_same_chip_pair(devices):
 
 # -- Fixtures --------------------------------------------------------------
 
+
 @pytest.fixture
 def self_process(init_cuda):
     """checkpoint.Process wrapping os.getpid(), with safety unlock on teardown."""
@@ -76,11 +78,12 @@ def self_process(init_cuda):
             proc.unlock()
         elif st == "locked":
             proc.unlock()
-    except Exception:
+    except Exception:  # noqa: S110 — best-effort teardown, nothing useful to log
         pass
 
 
 # -- Input validation (no GPU / driver needed) -----------------------------
+
 
 class TestInputValidation:
     @pytest.mark.parametrize(
@@ -101,6 +104,7 @@ class TestInputValidation:
 
 
 # -- Lifecycle (single GPU, real driver) -----------------------------------
+
 
 @needs_checkpoint
 class TestCheckpointLifecycle:
@@ -145,6 +149,7 @@ class TestCheckpointLifecycle:
 
 
 # -- GPU migration (>= 2 same-chip GPUs, real driver) ---------------------
+
 
 @needs_checkpoint
 class TestCheckpointGpuMigration:
@@ -204,10 +209,7 @@ class TestCheckpointGpuMigration:
 
             self._try_migration(self_process, gpu_mapping)
 
-            assert Device().uuid == expected_uuid, (
-                f"Step {step}: expected UUID {expected_uuid}, "
-                f"got {Device().uuid}"
-            )
+            assert Device().uuid == expected_uuid, f"Step {step}: expected UUID {expected_uuid}, got {Device().uuid}"
 
         # After N rotations, back at the origin.
         assert Device().uuid == uuid_origin
@@ -238,8 +240,5 @@ class TestCheckpointGpuMigration:
         uuid_after = Device().uuid
 
         if uuid_after == devices[i].uuid:
-            pytest.skip(
-                "Driver accepted GPU swap but migration is a no-op "
-                "on this hardware/driver version"
-            )
+            pytest.skip("Driver accepted GPU swap but migration is a no-op on this hardware/driver version")
         assert uuid_after == devices[j].uuid
