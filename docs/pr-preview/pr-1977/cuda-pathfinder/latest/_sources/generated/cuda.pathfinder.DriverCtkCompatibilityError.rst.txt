@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.DriverCtkCompatibilityError
+===========================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autoexception:: DriverCtkCompatibilityError

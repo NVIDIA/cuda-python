@@ -22,6 +22,7 @@ CUDA bitcode and static libraries.
    process_wide_compatibility_guard_rails
    CompatibilityCheckError
    CompatibilityInsufficientMetadataError
+   DriverCtkCompatibilityError
    SUPPORTED_NVIDIA_LIBNAMES
    load_nvidia_dynamic_lib
    LoadedDL
