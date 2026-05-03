@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 import pytest
 from compatibility_guard_rails_test_utils import (
@@ -21,6 +22,8 @@ from compatibility_guard_rails_test_utils import (
     process_wide_module,
 )
 
+import cuda.pathfinder._static_libs.find_bitcode_lib as find_bitcode_lib_module
+import cuda.pathfinder._static_libs.find_static_lib as find_static_lib_module
 from cuda import pathfinder
 from cuda.pathfinder import (
     CompatibilityCheckError,
@@ -30,6 +33,7 @@ from cuda.pathfinder import (
     LocatedHeaderDir,
     process_wide_compatibility_guard_rails,
 )
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 
 
 def test_process_wide_compatibility_guard_rails_is_public_singleton():
@@ -313,3 +317,76 @@ def test_public_apis_share_process_wide_guard_rails_state(monkeypatch, tmp_path)
     assert loaded.abs_path == lib_path
     with pytest.raises(CompatibilityCheckError, match=r"companion tag 'api_nvrtc'"):
         pathfinder.find_nvidia_header_directory("nvrtc")
+
+
+@pytest.mark.parametrize(
+    ("public_find_name", "public_locate_name", "raw_module", "finder_class_name", "name", "relative_path"),
+    [
+        (
+            "find_static_lib",
+            "locate_static_lib",
+            find_static_lib_module,
+            "_FindStaticLib",
+            "cudadevrt",
+            Path(find_static_lib_module._SUPPORTED_STATIC_LIBS_INFO["cudadevrt"]["ctk_rel_paths"][0])
+            / find_static_lib_module._SUPPORTED_STATIC_LIBS_INFO["cudadevrt"]["filename"],
+        ),
+        (
+            "find_bitcode_lib",
+            "locate_bitcode_lib",
+            find_bitcode_lib_module,
+            "_FindBitcodeLib",
+            "device",
+            Path(find_bitcode_lib_module._SUPPORTED_BITCODE_LIBS_INFO["device"]["rel_path"])
+            / find_bitcode_lib_module._SUPPORTED_BITCODE_LIBS_INFO["device"]["filename"],
+        ),
+    ],
+)
+def test_public_strict_mode_static_and_bitcode_reuse_cached_locate_path(
+    monkeypatch,
+    tmp_path,
+    public_find_name,
+    public_locate_name,
+    raw_module,
+    finder_class_name,
+    name,
+    relative_path,
+):
+    ctk_root = tmp_path / "cuda-12.9"
+    abs_path = _touch_ctk_file(ctk_root, "12.9.20250531", relative_path)
+    finder_class = getattr(raw_module, finder_class_name)
+    original_try_with_cuda_home = finder_class.try_with_cuda_home
+    try_with_cuda_home_calls: list[str] = []
+
+    def counting_try_with_cuda_home(self):
+        try_with_cuda_home_calls.append(self.name)
+        return original_try_with_cuda_home(self)
+
+    monkeypatch.setattr(raw_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+    monkeypatch.setattr(finder_class, "try_with_cuda_home", counting_try_with_cuda_home)
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+    monkeypatch.setenv("CUDA_HOME", str(ctk_root))
+    monkeypatch.setattr(
+        pathfinder,
+        "process_wide_compatibility_guard_rails",
+        CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000)),
+    )
+
+    public_find = getattr(pathfinder, public_find_name)
+    public_locate = getattr(pathfinder, public_locate_name)
+
+    public_locate.cache_clear()
+    get_cuda_path_or_home.cache_clear()
+    try:
+        assert public_find(name) == abs_path
+        assert public_find(name) == abs_path
+        assert try_with_cuda_home_calls == [name]
+
+        public_find.cache_clear()
+        assert public_locate(name).abs_path == abs_path
+        assert try_with_cuda_home_calls == [name, name]
+    finally:
+        public_find.cache_clear()
+        public_locate.cache_clear()
+        get_cuda_path_or_home.cache_clear()

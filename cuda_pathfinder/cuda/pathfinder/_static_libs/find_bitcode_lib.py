@@ -137,6 +137,7 @@ class _FindBitcodeLib:
         raise BitcodeLibNotFoundError(f'Failure finding "{self.filename}": {err}\n{att}')
 
 
+@functools.cache
 def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
     """Locate a bitcode library by name.
 
@@ -176,7 +177,6 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
     finder.raise_not_found_error()
 
 
-@functools.cache
 def find_bitcode_lib(name: str) -> str:
     """Find the absolute path to a bitcode library.
 
@@ -185,3 +185,6 @@ def find_bitcode_lib(name: str) -> str:
         BitcodeLibNotFoundError: If the bitcode library cannot be found.
     """
     return locate_bitcode_lib(name).abs_path
+
+
+find_bitcode_lib.cache_clear = locate_bitcode_lib.cache_clear  # type: ignore[attr-defined]

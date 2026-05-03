@@ -122,6 +122,7 @@ class _FindStaticLib:
         raise StaticLibNotFoundError(f'Failure finding "{self.filename}": {err}\n{att}')
 
 
+@functools.cache
 def locate_static_lib(name: str) -> LocatedStaticLib:
     """Locate a static library by name.
 
@@ -161,7 +162,6 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
     finder.raise_not_found_error()
 
 
-@functools.cache
 def find_static_lib(name: str) -> str:
     """Find the absolute path to a static library.
 
@@ -170,3 +170,6 @@ def find_static_lib(name: str) -> str:
         StaticLibNotFoundError: If the static library cannot be found.
     """
     return locate_static_lib(name).abs_path
+
+
+find_static_lib.cache_clear = locate_static_lib.cache_clear  # type: ignore[attr-defined]

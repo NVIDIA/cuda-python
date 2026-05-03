@@ -261,6 +261,12 @@ load_nvidia_dynamic_lib.cache_clear = _cache_clear_with_process_state_reset(  # 
 locate_nvidia_header_directory.cache_clear = _cache_clear_with_process_state_reset(  # type: ignore[attr-defined]
     _locate_nvidia_header_directory.cache_clear
 )
+_locate_static_lib_cache_clear = _cache_clear_with_process_state_reset(_locate_static_lib.cache_clear)
+locate_static_lib.cache_clear = _locate_static_lib_cache_clear  # type: ignore[attr-defined]
+find_static_lib.cache_clear = _locate_static_lib_cache_clear  # type: ignore[attr-defined]
+_locate_bitcode_lib_cache_clear = _cache_clear_with_process_state_reset(_locate_bitcode_lib.cache_clear)
+locate_bitcode_lib.cache_clear = _locate_bitcode_lib_cache_clear  # type: ignore[attr-defined]
+find_bitcode_lib.cache_clear = _locate_bitcode_lib_cache_clear  # type: ignore[attr-defined]
 find_nvidia_binary_utility.cache_clear = _cache_clear_with_process_state_reset(  # type: ignore[attr-defined]
     _find_nvidia_binary_utility.cache_clear
 )
