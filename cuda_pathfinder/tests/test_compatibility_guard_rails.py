@@ -25,6 +25,7 @@ from cuda.pathfinder import (
     CompatibilityCheckError,
     CompatibilityGuardRails,
     CompatibilityInsufficientMetadataError,
+    DriverCtkCompatibilityError,
     LocatedHeaderDir,
 )
 from cuda.pathfinder._binaries.supported_nvidia_binaries import SUPPORTED_BINARIES_ALL
@@ -625,3 +626,37 @@ def test_find_nvidia_header_directory_returns_none_when_unresolved(monkeypatch):
     guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
 
     assert guard_rails.find_nvidia_header_directory("nvrtc") is None
+
+
+def test_register_and_check_is_idempotent_for_repeated_items(monkeypatch, tmp_path):
+    lib_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
+
+    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
+
+    item = compatibility_module._resolve_dynamic_lib_item("nvrtc", _loaded_dl(lib_path))
+
+    guard_rails._register_and_check(item)
+    guard_rails._register_and_check(item)
+    guard_rails._register_and_check(item)
+
+    matching = [resolved for resolved in guard_rails._resolved_items if resolved == item]
+    assert len(matching) == 1
+
+
+def test_driver_ctk_compatibility_error_is_typed_catchable(monkeypatch, tmp_path):
+    lib_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
+
+    guard_rails = CompatibilityGuardRails(
+        driver_cuda_version=_driver_cuda_version(12000),
+        driver_release_version=_driver_release_version("520.30.01"),
+    )
+
+    with pytest.raises(DriverCtkCompatibilityError) as exc_info:
+        guard_rails.load_nvidia_dynamic_lib("nvrtc")
+
+    assert isinstance(exc_info.value, CompatibilityCheckError)
+    assert "OS handle remains live" in str(exc_info.value)

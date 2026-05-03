@@ -111,6 +111,14 @@ class DeclaredDynamicLibPipeline:
     artifact_kind: PipelineArtifactKind
 
 
+# NOTE: Any new entry added to ``SUPPORTED_STATIC_LIBS`` (e.g. ``culibos``)
+# or ``SUPPORTED_BITCODE_LIBS`` (e.g. a future ``device``-style bitcode lib)
+# must be registered in the dicts below in the same change. The packaging
+# classification is required by ``_resolve_static_lib_item`` and
+# ``_resolve_bitcode_lib_item``; missing entries raise ``KeyError`` at runtime
+# instead of producing a guarded ``CompatibilityInsufficientMetadataError``.
+# Coverage is enforced by the parametrized resolver tests in
+# ``tests/test_compatibility_guard_rails.py``.
 _STATIC_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
     "cudadevrt": "ctk",
 }
@@ -235,6 +243,11 @@ def _distribution_name(dist: importlib.metadata.Distribution) -> str | None:
 
 @functools.cache
 def _owned_distribution_candidates(abs_path: str) -> tuple[tuple[str, str], ...]:
+    # Symlinks are intentionally not chased: ``os.path.realpath`` is omitted on
+    # both sides of the comparison, so editable installs that route through a
+    # wheel-cache symlink are not matched. This keeps the wheel-metadata path
+    # tied to the path the search actually returned, not to a different on-disk
+    # location that happens to share inodes.
     normalized_abs_path = os.path.normpath(os.path.abspath(abs_path))
     matches: set[tuple[str, str]] = set()
     for dist in importlib.metadata.distributions():
@@ -282,7 +295,7 @@ def _cuda_toolkit_requirement_maps() -> tuple[tuple[str, CtkVersion, dict[str, t
     return tuple(results)
 
 
-def _wheel_metadata_for_abs_path(abs_path: str) -> CtkMetadata | None:
+def _wheel_metadata_matches_for_abs_path(abs_path: str) -> dict[CtkVersion, str]:
     matched_versions: dict[CtkVersion, str] = {}
     for owner_name, owner_version in _owned_distribution_candidates(abs_path):
         try:
@@ -300,6 +313,11 @@ def _wheel_metadata_for_abs_path(abs_path: str) -> CtkMetadata | None:
             matched_versions[ctk_version] = (
                 f"wheel metadata via {owner_name}=={owner_version} pinned by cuda-toolkit=={toolkit_dist_version}"
             )
+    return matched_versions
+
+
+def _wheel_metadata_for_abs_path(abs_path: str) -> CtkMetadata | None:
+    matched_versions = _wheel_metadata_matches_for_abs_path(abs_path)
     if len(matched_versions) != 1:
         return None
     [(ctk_version, source)] = matched_versions.items()
@@ -470,11 +488,19 @@ def _unsupported_packaging_message(
 
 
 def _missing_ctk_metadata_message(item: ResolvedItem) -> str:
-    return (
+    base = (
         "v1 compatibility checks require either an enclosing CUDA Toolkit root "
         "with cuda.h or wheel metadata that can be traced to an installed "
         f"cuda-toolkit distribution. Could not determine the CTK version for {item.describe()}."
     )
+    matches = _wheel_metadata_matches_for_abs_path(item.abs_path)
+    if len(matches) > 1:
+        # Multiple cuda-toolkit distributions claim the same wheel-installed
+        # file; surface them so users can disambiguate (typically by removing
+        # one of the conflicting cuda-toolkit==X.Y wheels).
+        rendered = ", ".join(f"CTK {ctk_version} ({source})" for ctk_version, source in sorted(matches.items()))
+        base += f" Wheel metadata matched multiple incompatible CTK versions: {rendered}."
+    return base
 
 
 def _ctk_constraint_failure_message(item: ResolvedItem, constraint: CtkVersionConstraint) -> str:
@@ -628,12 +654,18 @@ def _compatible_pair_message(
     assert item1.ctk_version is not None
     assert item2.ctk_version is not None
     if relation.kind == _PAIRWISE_ITEM_RELATION_NONE:
-        return (
-            f"{item1.describe()} resolves to CTK {item1.ctk_version}, "
-            f"{item2.describe()} resolves to CTK {item2.ctk_version}, "
-            "and v1 does not require exact CTK lockstep for this pair. "
-            f"Separately, {driver_decision.detail}."
-        )
+        if item1.ctk_version == item2.ctk_version:
+            shared_clause = (
+                f"{item1.describe()} and {item2.describe()} both resolve to CTK {item1.ctk_version}, "
+                "and v1 does not require any direct relation between them"
+            )
+        else:
+            shared_clause = (
+                f"{item1.describe()} resolves to CTK {item1.ctk_version}, "
+                f"{item2.describe()} resolves to CTK {item2.ctk_version}, "
+                "and v1 does not require exact CTK lockstep for this pair"
+            )
+        return f"{shared_clause}. Separately, {driver_decision.detail}."
     assert relation.reason is not None
     return (
         f"{item1.describe()} and {item2.describe()} both resolve to CTK {item1.ctk_version}. "
@@ -956,6 +988,14 @@ class CompatibilityGuardRails:
         consumer_libname: str,
         artifact_kind: PipelineArtifactKind,
     ) -> None:
+        """Register a producer/consumer pipeline so v1 can enforce its policy.
+
+        Intentionally single-underscored: the pipeline API stays private in v1
+        because the artifact taxonomy and policy matrix are expected to evolve
+        before they are promoted to a public surface. Internal callers (e.g.
+        ``cuda_bindings``' nvJitLink/nvrtc pairings) reach into this method
+        directly via the ``CompatibilityGuardRails`` instance.
+        """
         if producer_libname not in LIB_DESCRIPTORS:
             raise ValueError(f"Unknown dynamic library producer: {producer_libname!r}")
         if consumer_libname not in LIB_DESCRIPTORS:
@@ -1002,9 +1042,28 @@ class CompatibilityGuardRails:
         self._remember(item)
 
     def load_nvidia_dynamic_lib(self, libname: str) -> LoadedDL:
-        """Load a CUDA dynamic library and reject v1-incompatible resolutions."""
+        """Load a CUDA dynamic library and reject v1-incompatible resolutions.
+
+        ``_load_nvidia_dynamic_lib`` is ``functools.cache``d, so the underlying
+        OS-level load (``dlopen`` / ``LoadLibraryW``) has already happened by
+        the time we raise. Subsequent calls for the same library will short-
+        circuit and never re-trigger the loader, even after this rejection.
+        """
         loaded = _load_nvidia_dynamic_lib(libname)
-        self._register_and_check(_resolve_dynamic_lib_item(libname, loaded))
+        try:
+            self._register_and_check(_resolve_dynamic_lib_item(libname, loaded))
+        except CompatibilityCheckError as exc:
+            # Surface the irreversibility so callers don't assume the rejection
+            # also unwound the underlying OS load. Mutate the same exception
+            # instance in place so subclass typing (e.g.
+            # DriverCtkCompatibilityError) and the original ``__cause__`` are
+            # preserved.
+            augmented = (
+                f"{exc} Note: the underlying dynamic-library load already happened, "
+                "and the resulting OS handle remains live for the rest of this process."
+            )
+            exc.args = (augmented, *exc.args[1:])
+            raise
         return loaded
 
     def locate_nvidia_header_directory(self, libname: str) -> LocatedHeaderDir | None:

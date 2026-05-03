@@ -181,6 +181,12 @@ def _try_process_wide_guard_rails_then_fallback(guard_rails_call: Callable[[], _
     except DriverCtkCompatibilityError as exc:
         if driver_compatibility_mode == "assume_forward_compatibility":
             return raw_call()
+        # The forward-compat hint is appended only on Linux because the
+        # underlying ``cuda-compat-*`` packages (and the
+        # ``CUDA_PATHFINDER_DRIVER_COMPATIBILITY=assume_forward_compatibility``
+        # override they justify) are NVIDIA's Linux-only forward-compat
+        # contract; there is no equivalent on Windows / macOS, so suggesting
+        # the override on those platforms would be misleading.
         if sys.platform.startswith("linux"):
             raise DriverCtkCompatibilityError(_with_driver_compatibility_hint(str(exc))) from exc
         raise
