@@ -206,6 +206,19 @@ def test_driver_compatibility_override_is_linux_only(monkeypatch):
         pathfinder.find_nvidia_binary_utility("nvcc")
 
 
+def test_driver_compatibility_override_is_not_validated_when_guard_rails_off(monkeypatch):
+    raw_loaded = _loaded_dl("/opt/mock/libnvrtc.so.12", found_via="system-search")
+
+    monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, "off")
+    monkeypatch.setenv(DRIVER_COMPATIBILITY_ENV_VAR, "assume_forward_compatibility")
+    monkeypatch.setattr(process_wide_module.sys, "platform", "win32")
+    monkeypatch.setattr(process_wide_module, "_load_nvidia_dynamic_lib", lambda _libname: raw_loaded)
+
+    loaded = pathfinder.load_nvidia_dynamic_lib("nvrtc")
+
+    assert loaded is raw_loaded
+
+
 @pytest.mark.skipif(
     not sys.platform.startswith("linux"),
     reason="driver forward-compatibility override is Linux-only",

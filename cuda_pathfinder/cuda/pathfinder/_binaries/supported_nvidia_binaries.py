@@ -41,4 +41,14 @@ SUPPORTED_BINARIES_CTK_COMPANION_TAGS = {
     "nvprune": ("toolchain_cuda_nvcc",),
 }
 
+# Nsight Systems and Nsight Compute ship in their own PyPI/Conda packages
+# (`nvidia/nsight_systems`, `nvidia/nsight_compute`) and are not pinned by the
+# `cuda-toolkit` distribution, so they cannot participate in CTK-coherence
+# checks. They are tagged "other" so the guard rails treat them as separately
+# packaged tools rather than reporting them as missing CTK metadata.
+SUPPORTED_BINARIES_PACKAGED_WITH = {
+    name: ("other" if name in {"nsys", "nsight-sys", "ncu", "nsight-compute"} else "ctk")
+    for name in SITE_PACKAGES_BINDIRS
+}
+
 SUPPORTED_BINARIES_ALL = SUPPORTED_BINARIES = tuple(SITE_PACKAGES_BINDIRS.keys())

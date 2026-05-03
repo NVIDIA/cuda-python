@@ -99,6 +99,13 @@ def _compatibility_guard_rails_mode() -> str:
 
 
 def _driver_compatibility_mode() -> str:
+    """Return the configured driver-compatibility mode after validating its value.
+
+    The platform-specific restriction for ``assume_forward_compatibility`` is
+    deferred to ``_enforce_driver_compatibility_platform``: if guard rails are
+    turned off entirely, an unsupported platform should not raise just because
+    this env var happens to be set.
+    """
     value = os.environ.get(_DRIVER_COMPATIBILITY_ENV_VAR)
     if not value:
         return _DRIVER_COMPATIBILITY_DEFAULT_MODE
@@ -109,9 +116,12 @@ def _driver_compatibility_mode() -> str:
             f"Allowed values: {allowed_values}. "
             f"Unset or empty defaults to {_DRIVER_COMPATIBILITY_DEFAULT_MODE!r}."
         )
-    if value == "assume_forward_compatibility" and not sys.platform.startswith("linux"):
-        raise RuntimeError(f"{_DRIVER_COMPATIBILITY_ENV_VAR}={value!r} is only supported on Linux.")
     return value
+
+
+def _enforce_driver_compatibility_platform(driver_compatibility_mode: str) -> None:
+    if driver_compatibility_mode == "assume_forward_compatibility" and not sys.platform.startswith("linux"):
+        raise RuntimeError(f"{_DRIVER_COMPATIBILITY_ENV_VAR}={driver_compatibility_mode!r} is only supported on Linux.")
 
 
 def _driver_compatibility_override_hint() -> str:
@@ -146,7 +156,7 @@ def _current_process_wide_compatibility_guard_rails() -> _ProcessWideGuardRailsA
 def _reset_process_wide_compatibility_guard_rails() -> None:
     current = _current_process_wide_compatibility_guard_rails()
     if isinstance(current, CompatibilityGuardRails):
-        current._reset_for_testing()
+        current._reset_state()
         return
     public_module = _public_module()
     if public_module is None:
@@ -161,6 +171,7 @@ def _try_process_wide_guard_rails_then_fallback(guard_rails_call: Callable[[], _
     mode = _compatibility_guard_rails_mode()
     if mode == "off":
         return raw_call()
+    _enforce_driver_compatibility_platform(driver_compatibility_mode)
     try:
         return guard_rails_call()
     except CompatibilityInsufficientMetadataError:

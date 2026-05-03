@@ -20,8 +20,8 @@ from cuda.pathfinder._binaries.find_nvidia_binary_utility import (
     find_nvidia_binary_utility as _find_nvidia_binary_utility,
 )
 from cuda.pathfinder._binaries.supported_nvidia_binaries import (
-    SUPPORTED_BINARIES_ALL,
     SUPPORTED_BINARIES_CTK_COMPANION_TAGS,
+    SUPPORTED_BINARIES_PACKAGED_WITH,
 )
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
@@ -119,7 +119,7 @@ _BITCODE_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
     "nccl_device": "other",
     "nvshmem_device": "other",
 }
-_BINARY_PACKAGED_WITH: dict[str, PackagedWith] = dict.fromkeys(SUPPORTED_BINARIES_ALL, "ctk")
+_BINARY_PACKAGED_WITH: dict[str, PackagedWith] = dict(SUPPORTED_BINARIES_PACKAGED_WITH)
 
 
 class CompatibilityCheckError(RuntimeError):
@@ -971,7 +971,15 @@ class CompatibilityGuardRails:
         self._declared_dynamic_lib_pipelines.add(pipeline)
         self._enforce_declared_dynamic_lib_pipeline_if_ready(pipeline)
 
-    def _reset_for_testing(self) -> None:
+    def _reset_state(self) -> None:
+        """Clear remembered items and pipelines while preserving constructor overrides.
+
+        Called both from tests and from the public ``cache_clear`` helpers in
+        ``_process_wide_compatibility_guard_rails`` so a fresh search cycle does
+        not see leftover compatibility state. Driver versions that the caller
+        explicitly passed to ``__init__`` are intentionally re-applied; only the
+        lazily-queried values are dropped.
+        """
         self._driver_cuda_version = self._configured_driver_cuda_version
         self._driver_release_version = self._configured_driver_release_version
         self._resolved_items.clear()

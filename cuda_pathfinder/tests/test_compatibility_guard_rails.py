@@ -474,7 +474,8 @@ def test_resolve_binary_item_covers_every_supported_name(tmp_path, utility_name)
     item = compatibility_module._resolve_binary_item(utility_name, abs_path)
     assert item.name == utility_name
     assert item.kind == "binary"
-    assert item.packaged_with in ("ctk", "other")
+    expected_packaged_with = "other" if utility_name in {"nsys", "nsight-sys", "ncu", "nsight-compute"} else "ctk"
+    assert item.packaged_with == expected_packaged_with
 
 
 def test_static_bitcode_and_binary_methods_participate_in_checks(monkeypatch, tmp_path):
