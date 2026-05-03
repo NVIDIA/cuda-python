@@ -67,7 +67,12 @@ def _find_same_chip_pair(devices):
 
 @pytest.fixture
 def self_process(init_cuda):
-    """checkpoint.Process wrapping os.getpid(), with safety unlock on teardown."""
+    """checkpoint.Process wrapping os.getpid(), with safety unlock on teardown.
+
+    Records the initial device so tests that call ``set_current()`` on a
+    different device (e.g. migration tests) are side-effect free.
+    """
+    original_device = init_cuda
     proc = checkpoint.Process(os.getpid())
     yield proc
     # Ensure the process is not left locked if the test fails mid-lifecycle.
@@ -80,6 +85,8 @@ def self_process(init_cuda):
             proc.unlock()
     except Exception:  # noqa: S110 — best-effort teardown, nothing useful to log
         pass
+    # Restore the original device so init_cuda's teardown pops the right context.
+    original_device.set_current()
 
 
 # -- Input validation (no GPU / driver needed) -----------------------------
