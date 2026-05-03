@@ -116,6 +116,7 @@ _STATIC_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
 }
 _BITCODE_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
     "device": "ctk",
+    "nccl_device": "other",
     "nvshmem_device": "other",
 }
 _BINARY_PACKAGED_WITH: dict[str, PackagedWith] = dict.fromkeys(SUPPORTED_BINARIES_ALL, "ctk")
@@ -688,14 +689,6 @@ def _ctk_coherence_result(
     return CompatibilityResult(status="incompatible", message=_ctk_pair_mismatch_message(item1, item2, relation))
 
 
-def _pipeline_compatibility_result(_item1: ResolvedItem, _item2: ResolvedItem) -> CompatibilityResult | None:
-    # Generic pairwise policy stays artifact-coherence-only. Milestone 6 adds
-    # explicit pipeline-aware rules via declared dynamic-lib pipeline contexts,
-    # because producer/consumer direction and artifact kind are not inferable
-    # from bare item pairs alone.
-    return None
-
-
 def _pairwise_policy_result(
     item1: ResolvedItem,
     item2: ResolvedItem,
@@ -706,25 +699,8 @@ def _pairwise_policy_result(
     if relation.kind == _PAIRWISE_ITEM_RELATION_NONE:
         return None
     if relation.kind == _PAIRWISE_ITEM_RELATION_EXACT_CTK_MATCH_REQUIRED:
-        result = _ctk_coherence_result(item1, item2, relation)
-        if result is not None:
-            return result
-        return _pipeline_compatibility_result(item1, item2)
+        return _ctk_coherence_result(item1, item2, relation)
     raise AssertionError(f"Unhandled pairwise item relation: {relation.kind!r}")
-
-
-def _dynamic_lib_pipeline_items(
-    item1: ResolvedItem,
-    item2: ResolvedItem,
-    pipeline: DeclaredDynamicLibPipeline,
-) -> tuple[ResolvedItem, ResolvedItem] | None:
-    if item1.kind != "dynamic-lib" or item2.kind != "dynamic-lib":
-        return None
-    if item1.name == pipeline.producer_libname and item2.name == pipeline.consumer_libname:
-        return item1, item2
-    if item2.name == pipeline.producer_libname and item1.name == pipeline.consumer_libname:
-        return item2, item1
-    return None
 
 
 def _declared_dynamic_lib_pipeline_result(
@@ -939,7 +915,6 @@ class CompatibilityGuardRails:
         result = _pairwise_policy_result(prior_item, item)
         if result is not None:
             result.require_compatible()
-        self._enforce_declared_dynamic_lib_pipelines_for_pair(prior_item, item)
 
     def _remembered_item(self, *, kind: ItemKind, name: str) -> ResolvedItem | None:
         for item in reversed(self._resolved_items):
@@ -960,12 +935,6 @@ class CompatibilityGuardRails:
         if result is not None:
             result.require_compatible()
         self._checked_dynamic_lib_pipelines.add(pipeline)
-
-    def _enforce_declared_dynamic_lib_pipelines_for_pair(self, item1: ResolvedItem, item2: ResolvedItem) -> None:
-        for pipeline in self._declared_dynamic_lib_pipelines:
-            if _dynamic_lib_pipeline_items(item1, item2, pipeline) is None:
-                continue
-            self._enforce_declared_dynamic_lib_pipeline_if_ready(pipeline)
 
     def _enforce_declared_dynamic_lib_pipelines_for_item(self, item: ResolvedItem) -> None:
         if item.kind != "dynamic-lib":

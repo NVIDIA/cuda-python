@@ -17,6 +17,9 @@ from cuda.pathfinder._compatibility_guard_rails import (
 from cuda.pathfinder._compatibility_guard_rails import (
     CompatibilityInsufficientMetadataError as CompatibilityInsufficientMetadataError,
 )
+from cuda.pathfinder._compatibility_guard_rails import (
+    DriverCtkCompatibilityError as DriverCtkCompatibilityError,
+)
 from cuda.pathfinder._dynamic_libs.load_dl_common import (
     DynamicLibNotAvailableError as DynamicLibNotAvailableError,
 )

@@ -27,6 +27,9 @@ from cuda.pathfinder import (
     CompatibilityInsufficientMetadataError,
     LocatedHeaderDir,
 )
+from cuda.pathfinder._binaries.supported_nvidia_binaries import SUPPORTED_BINARIES_ALL
+from cuda.pathfinder._static_libs.find_bitcode_lib import SUPPORTED_BITCODE_LIBS
+from cuda.pathfinder._static_libs.find_static_lib import SUPPORTED_STATIC_LIBS
 from cuda.pathfinder._utils.driver_info import (
     DriverCudaVersion,
     DriverReleaseVersion,
@@ -445,6 +448,33 @@ def test_resolved_items_capture_relation_metadata(tmp_path):
     assert binary_item.ctk_companion_tags == ("toolchain_cuda_nvcc",)
     assert dynamic_item.ctk_version == header_item.ctk_version == static_item.ctk_version == bitcode_item.ctk_version
     assert binary_item.ctk_version == dynamic_item.ctk_version
+
+
+@pytest.mark.parametrize("name", SUPPORTED_BITCODE_LIBS)
+def test_resolve_bitcode_lib_item_covers_every_supported_name(tmp_path, name):
+    abs_path = _touch(tmp_path / "site-packages" / f"{name}.bc")
+    item = compatibility_module._resolve_bitcode_lib_item(_located_bitcode_lib(name, abs_path))
+    assert item.name == name
+    assert item.kind == "bitcode-lib"
+    assert item.packaged_with in ("ctk", "other")
+
+
+@pytest.mark.parametrize("name", SUPPORTED_STATIC_LIBS)
+def test_resolve_static_lib_item_covers_every_supported_name(tmp_path, name):
+    abs_path = _touch(tmp_path / "site-packages" / f"{name}.a")
+    item = compatibility_module._resolve_static_lib_item(_located_static_lib(name, abs_path))
+    assert item.name == name
+    assert item.kind == "static-lib"
+    assert item.packaged_with in ("ctk", "other")
+
+
+@pytest.mark.parametrize("utility_name", SUPPORTED_BINARIES_ALL)
+def test_resolve_binary_item_covers_every_supported_name(tmp_path, utility_name):
+    abs_path = _touch(tmp_path / "bin" / utility_name)
+    item = compatibility_module._resolve_binary_item(utility_name, abs_path)
+    assert item.name == utility_name
+    assert item.kind == "binary"
+    assert item.packaged_with in ("ctk", "other")
 
 
 def test_static_bitcode_and_binary_methods_participate_in_checks(monkeypatch, tmp_path):
