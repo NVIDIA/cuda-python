@@ -12,8 +12,10 @@ from compatibility_guard_rails_test_utils import (
     _loaded_dl,
     _located_bitcode_lib,
     _located_static_lib,
+    _make_ctk_root,
     _patch_dynamic_lib_loader,
     _touch,
+    _touch_ctk_file,
     _write_cuda_h,
 )
 from packaging.specifiers import SpecifierSet
@@ -34,13 +36,12 @@ from cuda.pathfinder._utils.driver_info import (
 
 
 def test_same_dynamic_link_component_requires_exact_ctk_major_minor_match(monkeypatch, tmp_path):
-    cublas_root = tmp_path / "cuda-12.8"
-    cusolver_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(cublas_root, "12.8.20250303")
-    _write_cuda_h(cusolver_root, "12.9.20250531")
-
-    cublas_path = _touch(cublas_root / "targets" / "x86_64-linux" / "lib" / "libcublas.so.12")
-    cusolver_path = _touch(cusolver_root / "targets" / "x86_64-linux" / "lib" / "libcusolver.so.12")
+    cublas_path = _touch_ctk_file(tmp_path / "cuda-12.8", "12.8.20250303", "targets/x86_64-linux/lib/libcublas.so.12")
+    cusolver_path = _touch_ctk_file(
+        tmp_path / "cuda-12.9",
+        "12.9.20250531",
+        "targets/x86_64-linux/lib/libcusolver.so.12",
+    )
 
     _patch_dynamic_lib_loader(
         monkeypatch,
@@ -59,13 +60,12 @@ def test_same_dynamic_link_component_requires_exact_ctk_major_minor_match(monkey
 
 
 def test_independent_dynamic_libs_may_resolve_to_different_ctk_minors(monkeypatch, tmp_path):
-    nvrtc_root = tmp_path / "cuda-12.8"
-    nvjitlink_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(nvrtc_root, "12.8.20250303")
-    _write_cuda_h(nvjitlink_root, "12.9.20250531")
-
-    nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
-    nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
+    nvrtc_path = _touch_ctk_file(tmp_path / "cuda-12.8", "12.8.20250303", "targets/x86_64-linux/lib/libnvrtc.so.12")
+    nvjitlink_path = _touch_ctk_file(
+        tmp_path / "cuda-12.9",
+        "12.9.20250531",
+        "targets/x86_64-linux/lib/libnvJitLink.so.12",
+    )
 
     _patch_dynamic_lib_loader(
         monkeypatch,
@@ -83,13 +83,8 @@ def test_independent_dynamic_libs_may_resolve_to_different_ctk_minors(monkeypatc
 
 
 def test_toolchain_companions_require_exact_ctk_major_minor_match(monkeypatch, tmp_path):
-    static_root = tmp_path / "cuda-12.8"
-    binary_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(static_root, "12.8.20250303")
-    _write_cuda_h(binary_root, "12.9.20250531")
-
-    static_path = _touch(static_root / "targets" / "x86_64-linux" / "lib" / "libcudadevrt.a")
-    binary_path = _touch(binary_root / "bin" / "nvcc")
+    static_path = _touch_ctk_file(tmp_path / "cuda-12.8", "12.8.20250303", "targets/x86_64-linux/lib/libcudadevrt.a")
+    binary_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "bin/nvcc")
 
     monkeypatch.setattr(
         compatibility_module,
@@ -113,13 +108,12 @@ def test_toolchain_companions_require_exact_ctk_major_minor_match(monkeypatch, t
 
 
 def test_declared_ltoir_pipeline_requires_nvjitlink_not_older_than_nvrtc(monkeypatch, tmp_path):
-    nvrtc_root = tmp_path / "cuda-12.9"
-    nvjitlink_root = tmp_path / "cuda-12.8"
-    _write_cuda_h(nvrtc_root, "12.9.20250531")
-    _write_cuda_h(nvjitlink_root, "12.8.20250303")
-
-    nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
-    nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
+    nvrtc_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
+    nvjitlink_path = _touch_ctk_file(
+        tmp_path / "cuda-12.8",
+        "12.8.20250303",
+        "targets/x86_64-linux/lib/libnvJitLink.so.12",
+    )
 
     _patch_dynamic_lib_loader(
         monkeypatch,
@@ -140,13 +134,12 @@ def test_declared_ltoir_pipeline_requires_nvjitlink_not_older_than_nvrtc(monkeyp
 
 
 def test_declared_ltoir_pipeline_allows_same_major_newer_nvjitlink(monkeypatch, tmp_path):
-    nvrtc_root = tmp_path / "cuda-12.8"
-    nvjitlink_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(nvrtc_root, "12.8.20250303")
-    _write_cuda_h(nvjitlink_root, "12.9.20250531")
-
-    nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
-    nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
+    nvrtc_path = _touch_ctk_file(tmp_path / "cuda-12.8", "12.8.20250303", "targets/x86_64-linux/lib/libnvrtc.so.12")
+    nvjitlink_path = _touch_ctk_file(
+        tmp_path / "cuda-12.9",
+        "12.9.20250531",
+        "targets/x86_64-linux/lib/libnvJitLink.so.12",
+    )
 
     _patch_dynamic_lib_loader(
         monkeypatch,
@@ -169,13 +162,12 @@ def test_declared_ltoir_pipeline_allows_same_major_newer_nvjitlink(monkeypatch, 
 
 @pytest.mark.parametrize("artifact_kind", ("ptx", "elf", "cubin"))
 def test_declared_non_lto_pipeline_allows_cross_major_nvrtc_to_nvjitlink(monkeypatch, tmp_path, artifact_kind):
-    nvrtc_root = tmp_path / "cuda-12.8"
-    nvjitlink_root = tmp_path / "cuda-13.0"
-    _write_cuda_h(nvrtc_root, "12.8.20250303")
-    _write_cuda_h(nvjitlink_root, "13.0.20251003")
-
-    nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
-    nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.13")
+    nvrtc_path = _touch_ctk_file(tmp_path / "cuda-12.8", "12.8.20250303", "targets/x86_64-linux/lib/libnvrtc.so.12")
+    nvjitlink_path = _touch_ctk_file(
+        tmp_path / "cuda-13.0",
+        "13.0.20251003",
+        "targets/x86_64-linux/lib/libnvJitLink.so.13",
+    )
 
     _patch_dynamic_lib_loader(
         monkeypatch,
@@ -197,13 +189,12 @@ def test_declared_non_lto_pipeline_allows_cross_major_nvrtc_to_nvjitlink(monkeyp
 
 
 def test_declared_nvvm_pipeline_remains_conservative(monkeypatch, tmp_path):
-    nvvm_root = tmp_path / "cuda-12.8"
-    nvjitlink_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(nvvm_root, "12.8.20250303")
-    _write_cuda_h(nvjitlink_root, "12.9.20250531")
-
-    nvvm_path = _touch(nvvm_root / "nvvm" / "lib64" / "libnvvm.so.4")
-    nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
+    nvvm_path = _touch_ctk_file(tmp_path / "cuda-12.8", "12.8.20250303", "nvvm/lib64/libnvvm.so.4")
+    nvjitlink_path = _touch_ctk_file(
+        tmp_path / "cuda-12.9",
+        "12.9.20250531",
+        "targets/x86_64-linux/lib/libnvJitLink.so.12",
+    )
 
     _patch_dynamic_lib_loader(
         monkeypatch,
@@ -238,9 +229,7 @@ def test_declared_dynamic_lib_pipeline_rejects_invalid_artifact_kind():
 
 
 def test_driver_major_must_not_be_older_than_ctk_major(monkeypatch, tmp_path):
-    ctk_root = tmp_path / "cuda-13.0"
-    _write_cuda_h(ctk_root, "13.0.20251003")
-    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.13")
+    lib_path = _touch_ctk_file(tmp_path / "cuda-13.0", "13.0.20251003", "targets/x86_64-linux/lib/libnvrtc.so.13")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
@@ -292,9 +281,7 @@ def test_other_packaging_raises_insufficient_metadata(monkeypatch, tmp_path):
 
 def test_driver_libs_do_not_lock_ctk_anchor(monkeypatch, tmp_path):
     driver_lib_path = _touch(tmp_path / "driver-root" / "libnvidia-ml.so.1")
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
-    ctk_lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    ctk_lib_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
 
     _patch_dynamic_lib_loader(
         monkeypatch,
@@ -315,12 +302,9 @@ def test_driver_libs_do_not_mask_later_ctk_mismatch(monkeypatch, tmp_path):
     driver_lib_path = _touch(tmp_path / "driver-root" / "libnvidia-ml.so.1")
     lib_root = tmp_path / "cuda-12.8"
     hdr_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(lib_root, "12.8.20250303")
-    _write_cuda_h(hdr_root, "12.9.20250531")
-
-    lib_path = _touch(lib_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch_ctk_file(lib_root, "12.8.20250303", "targets/x86_64-linux/lib/libnvrtc.so.12")
     hdr_dir = hdr_root / "targets" / "x86_64-linux" / "include"
-    _touch(hdr_dir / "nvrtc.h")
+    _touch_ctk_file(hdr_root, "12.9.20250531", "targets/x86_64-linux/include/nvrtc.h")
 
     _patch_dynamic_lib_loader(
         monkeypatch,
@@ -385,9 +369,7 @@ def test_wheel_metadata_accepts_exact_and_range_requirements(monkeypatch, tmp_pa
 
 
 def test_ctk_version_constraint_accepts_pep440_string(monkeypatch, tmp_path):
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
-    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
@@ -402,9 +384,7 @@ def test_ctk_version_constraint_accepts_pep440_string(monkeypatch, tmp_path):
 
 
 def test_ctk_version_constraint_accepts_specifier_set_instance(monkeypatch, tmp_path):
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
-    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
@@ -419,9 +399,7 @@ def test_ctk_version_constraint_accepts_specifier_set_instance(monkeypatch, tmp_
 
 
 def test_ctk_version_constraint_failure_raises(monkeypatch, tmp_path):
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
-    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
@@ -440,8 +418,7 @@ def test_ctk_version_constraint_rejects_invalid_specifier():
 
 
 def test_resolved_items_capture_relation_metadata(tmp_path):
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
+    ctk_root = _make_ctk_root(tmp_path / "cuda-12.9", "12.9.20250531")
 
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     header_dir = ctk_root / "targets" / "x86_64-linux" / "include"
@@ -471,8 +448,7 @@ def test_resolved_items_capture_relation_metadata(tmp_path):
 
 
 def test_static_bitcode_and_binary_methods_participate_in_checks(monkeypatch, tmp_path):
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
+    ctk_root = _make_ctk_root(tmp_path / "cuda-12.9", "12.9.20250531")
 
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     static_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libcudadevrt.a")
@@ -505,9 +481,7 @@ def test_static_bitcode_and_binary_methods_participate_in_checks(monkeypatch, tm
 
 
 def test_guard_rails_query_driver_cuda_version_by_default(monkeypatch, tmp_path):
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
-    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
 
     query_calls: list[int] = []
 
@@ -533,9 +507,7 @@ def test_guard_rails_query_driver_cuda_version_by_default(monkeypatch, tmp_path)
 
 
 def test_guard_rails_wrap_driver_query_failures(monkeypatch, tmp_path):
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
-    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
@@ -556,9 +528,7 @@ def test_guard_rails_wrap_driver_query_failures(monkeypatch, tmp_path):
 
 
 def test_guard_rails_accept_minor_version_compatibility_with_driver_release_branch(monkeypatch, tmp_path):
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
-    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
@@ -573,9 +543,7 @@ def test_guard_rails_accept_minor_version_compatibility_with_driver_release_bran
 
 
 def test_guard_rails_reject_same_major_older_driver_when_release_branch_too_old(monkeypatch, tmp_path):
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
-    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
@@ -592,9 +560,7 @@ def test_guard_rails_reject_same_major_older_driver_when_release_branch_too_old(
 
 
 def test_guard_rails_require_driver_release_metadata_for_same_major_older_driver(monkeypatch, tmp_path):
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
-    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch_ctk_file(tmp_path / "cuda-12.9", "12.9.20250531", "targets/x86_64-linux/lib/libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 

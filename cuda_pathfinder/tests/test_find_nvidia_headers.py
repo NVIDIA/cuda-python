@@ -39,12 +39,8 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
-COMPATIBILITY_GUARD_RAILS_ENV_VAR = "CUDA_PATHFINDER_COMPATIBILITY_GUARD_RAILS"
 
-
-@pytest.fixture(autouse=True)
-def _disable_process_wide_compatibility_guard_rails(monkeypatch):
-    monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, "off")
+pytestmark = pytest.mark.usefixtures("disable_process_wide_compatibility_guard_rails")
 
 
 NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {

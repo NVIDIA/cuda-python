@@ -16,7 +16,7 @@ from compatibility_guard_rails_test_utils import (
     _located_bitcode_lib,
     _located_static_lib,
     _touch,
-    _write_cuda_h,
+    _touch_ctk_file,
     compatibility_module,
     process_wide_module,
 )
@@ -208,8 +208,7 @@ def test_driver_compatibility_override_is_linux_only(monkeypatch):
 )
 def test_public_driver_mismatch_advertises_forward_compatibility_override(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-13.0"
-    _write_cuda_h(ctk_root, "13.0.20251003")
-    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.13")
+    lib_path = _touch_ctk_file(ctk_root, "13.0.20251003", "targets/x86_64-linux/lib/libnvrtc.so.13")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
     monkeypatch.setattr(
@@ -238,8 +237,7 @@ def test_public_driver_mismatch_advertises_forward_compatibility_override(monkey
 )
 def test_public_driver_mismatch_falls_back_when_assuming_forward_compatibility(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-13.0"
-    _write_cuda_h(ctk_root, "13.0.20251003")
-    guarded_lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.13")
+    guarded_lib_path = _touch_ctk_file(ctk_root, "13.0.20251003", "targets/x86_64-linux/lib/libnvrtc.so.13")
     raw_loaded = _loaded_dl("/opt/mock/libnvrtc.so.13", found_via="system-search")
 
     monkeypatch.setenv(DRIVER_COMPATIBILITY_ENV_VAR, "assume_forward_compatibility")
@@ -267,12 +265,9 @@ def test_public_driver_mismatch_falls_back_when_assuming_forward_compatibility(m
 def test_forward_compatibility_override_does_not_relax_ctk_coherence_checks(monkeypatch, tmp_path):
     lib_root = tmp_path / "cuda-12.8"
     hdr_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(lib_root, "12.8.20250303")
-    _write_cuda_h(hdr_root, "12.9.20250531")
-
-    lib_path = _touch(lib_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch_ctk_file(lib_root, "12.8.20250303", "targets/x86_64-linux/lib/libnvrtc.so.12")
     hdr_dir = hdr_root / "targets" / "x86_64-linux" / "include"
-    _touch(hdr_dir / "nvrtc.h")
+    _touch_ctk_file(hdr_root, "12.9.20250531", "targets/x86_64-linux/include/nvrtc.h")
 
     monkeypatch.setenv(DRIVER_COMPATIBILITY_ENV_VAR, "assume_forward_compatibility")
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
@@ -297,12 +292,9 @@ def test_forward_compatibility_override_does_not_relax_ctk_coherence_checks(monk
 def test_public_apis_share_process_wide_guard_rails_state(monkeypatch, tmp_path):
     lib_root = tmp_path / "cuda-12.8"
     hdr_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(lib_root, "12.8.20250303")
-    _write_cuda_h(hdr_root, "12.9.20250531")
-
-    lib_path = _touch(lib_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch_ctk_file(lib_root, "12.8.20250303", "targets/x86_64-linux/lib/libnvrtc.so.12")
     hdr_dir = hdr_root / "targets" / "x86_64-linux" / "include"
-    _touch(hdr_dir / "nvrtc.h")
+    _touch_ctk_file(hdr_root, "12.9.20250531", "targets/x86_64-linux/include/nvrtc.h")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
     monkeypatch.setattr(

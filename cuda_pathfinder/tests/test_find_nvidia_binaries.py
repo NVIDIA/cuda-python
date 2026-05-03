@@ -14,12 +14,7 @@ from cuda.pathfinder._binaries.supported_nvidia_binaries import (
     SUPPORTED_BINARIES_ALL,
 )
 
-COMPATIBILITY_GUARD_RAILS_ENV_VAR = "CUDA_PATHFINDER_COMPATIBILITY_GUARD_RAILS"
-
-
-@pytest.fixture(autouse=True)
-def _disable_process_wide_compatibility_guard_rails(monkeypatch):
-    monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, "off")
+pytestmark = pytest.mark.usefixtures("disable_process_wide_compatibility_guard_rails")
 
 
 def test_unknown_utility_name():

@@ -78,10 +78,31 @@ def _write_cuda_h(
     )
 
 
+def _make_ctk_root(
+    ctk_root: Path,
+    toolkit_version: str,
+    *,
+    include_dir_parts: tuple[str, ...] = ("targets", "x86_64-linux", "include"),
+) -> Path:
+    _write_cuda_h(ctk_root, toolkit_version, include_dir_parts=include_dir_parts)
+    return ctk_root
+
+
 def _touch(path: Path) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.touch()
     return str(path)
+
+
+def _touch_ctk_file(
+    ctk_root: Path,
+    toolkit_version: str,
+    relative_path: str | Path,
+    *,
+    include_dir_parts: tuple[str, ...] = ("targets", "x86_64-linux", "include"),
+) -> str:
+    _make_ctk_root(ctk_root, toolkit_version, include_dir_parts=include_dir_parts)
+    return _touch(ctk_root / Path(relative_path))
 
 
 def _loaded_dl(abs_path: str, *, found_via: str = "CUDA_PATH") -> LoadedDL:
