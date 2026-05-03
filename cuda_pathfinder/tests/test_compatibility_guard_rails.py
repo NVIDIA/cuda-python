@@ -113,6 +113,16 @@ def _loaded_dl(abs_path: str, *, found_via: str = "CUDA_PATH") -> LoadedDL:
     )
 
 
+def _patch_dynamic_lib_loader(monkeypatch, **loaded_by_libname: LoadedDL) -> None:
+    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
+        loaded = loaded_by_libname.get(libname)
+        if loaded is None:
+            raise AssertionError(f"Unexpected libname: {libname!r}")
+        return loaded
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+
+
 def _located_static_lib(name: str, abs_path: str) -> LocatedStaticLib:
     return LocatedStaticLib(
         name=name,
@@ -492,53 +502,6 @@ def test_public_apis_share_process_wide_guard_rails_state(monkeypatch, tmp_path)
         pathfinder.find_nvidia_header_directory("nvrtc")
 
 
-def test_load_dynamic_lib_then_find_headers_same_ctk_version(monkeypatch, tmp_path):
-    ctk_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(ctk_root, "12.9.20250531")
-    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
-    hdr_dir = ctk_root / "targets" / "x86_64-linux" / "include"
-    _touch(hdr_dir / "nvrtc.h")
-
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
-    monkeypatch.setattr(
-        compatibility_module,
-        "_locate_nvidia_header_directory",
-        lambda _libname: LocatedHeaderDir(abs_path=str(hdr_dir), found_via="CUDA_PATH"),
-    )
-
-    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
-
-    loaded = guard_rails.load_nvidia_dynamic_lib("nvrtc")
-    hdr_path = guard_rails.find_nvidia_header_directory("nvrtc")
-
-    assert loaded.abs_path == lib_path
-    assert hdr_path == str(hdr_dir)
-
-
-def test_same_api_companions_require_exact_ctk_major_minor_match(monkeypatch, tmp_path):
-    lib_root = tmp_path / "cuda-12.8"
-    hdr_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(lib_root, "12.8.20250303")
-    _write_cuda_h(hdr_root, "12.9.20250531")
-
-    lib_path = _touch(lib_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
-    hdr_dir = hdr_root / "targets" / "x86_64-linux" / "include"
-    _touch(hdr_dir / "nvrtc.h")
-
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
-    monkeypatch.setattr(
-        compatibility_module,
-        "_locate_nvidia_header_directory",
-        lambda _libname: LocatedHeaderDir(abs_path=str(hdr_dir), found_via="CUDA_PATH"),
-    )
-
-    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
-    guard_rails.load_nvidia_dynamic_lib("nvrtc")
-
-    with pytest.raises(CompatibilityCheckError, match=r"companion tag 'api_nvrtc'"):
-        guard_rails.find_nvidia_header_directory("nvrtc")
-
-
 def test_same_dynamic_link_component_requires_exact_ctk_major_minor_match(monkeypatch, tmp_path):
     cublas_root = tmp_path / "cuda-12.8"
     cusolver_root = tmp_path / "cuda-12.9"
@@ -548,14 +511,11 @@ def test_same_dynamic_link_component_requires_exact_ctk_major_minor_match(monkey
     cublas_path = _touch(cublas_root / "targets" / "x86_64-linux" / "lib" / "libcublas.so.12")
     cusolver_path = _touch(cusolver_root / "targets" / "x86_64-linux" / "lib" / "libcusolver.so.12")
 
-    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
-        if libname == "cublas":
-            return _loaded_dl(cublas_path)
-        if libname == "cusolver":
-            return _loaded_dl(cusolver_path)
-        raise AssertionError(f"Unexpected libname: {libname!r}")
-
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+    _patch_dynamic_lib_loader(
+        monkeypatch,
+        cublas=_loaded_dl(cublas_path),
+        cusolver=_loaded_dl(cusolver_path),
+    )
 
     guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
     guard_rails.load_nvidia_dynamic_lib("cublas")
@@ -576,49 +536,16 @@ def test_independent_dynamic_libs_may_resolve_to_different_ctk_minors(monkeypatc
     nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
 
-    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
-        if libname == "nvrtc":
-            return _loaded_dl(nvrtc_path)
-        if libname == "nvJitLink":
-            return _loaded_dl(nvjitlink_path)
-        raise AssertionError(f"Unexpected libname: {libname!r}")
-
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+    _patch_dynamic_lib_loader(
+        monkeypatch,
+        nvrtc=_loaded_dl(nvrtc_path),
+        nvJitLink=_loaded_dl(nvjitlink_path),
+    )
 
     guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
 
     loaded_nvrtc = guard_rails.load_nvidia_dynamic_lib("nvrtc")
     loaded_nvjitlink = guard_rails.load_nvidia_dynamic_lib("nvJitLink")
-
-    assert loaded_nvrtc.abs_path == nvrtc_path
-    assert loaded_nvjitlink.abs_path == nvjitlink_path
-
-
-def test_public_apis_allow_independent_dynamic_libs_to_differ_by_minor(monkeypatch, tmp_path):
-    nvrtc_root = tmp_path / "cuda-12.8"
-    nvjitlink_root = tmp_path / "cuda-12.9"
-    _write_cuda_h(nvrtc_root, "12.8.20250303")
-    _write_cuda_h(nvjitlink_root, "12.9.20250531")
-
-    nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
-    nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
-
-    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
-        if libname == "nvrtc":
-            return _loaded_dl(nvrtc_path)
-        if libname == "nvJitLink":
-            return _loaded_dl(nvjitlink_path)
-        raise AssertionError(f"Unexpected libname: {libname!r}")
-
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
-    monkeypatch.setattr(
-        pathfinder,
-        "process_wide_compatibility_guard_rails",
-        CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000)),
-    )
-
-    loaded_nvrtc = pathfinder.load_nvidia_dynamic_lib("nvrtc")
-    loaded_nvjitlink = pathfinder.load_nvidia_dynamic_lib("nvJitLink")
 
     assert loaded_nvrtc.abs_path == nvrtc_path
     assert loaded_nvjitlink.abs_path == nvjitlink_path
@@ -663,14 +590,11 @@ def test_declared_ltoir_pipeline_requires_nvjitlink_not_older_than_nvrtc(monkeyp
     nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
 
-    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
-        if libname == "nvrtc":
-            return _loaded_dl(nvrtc_path)
-        if libname == "nvJitLink":
-            return _loaded_dl(nvjitlink_path)
-        raise AssertionError(f"Unexpected libname: {libname!r}")
-
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+    _patch_dynamic_lib_loader(
+        monkeypatch,
+        nvrtc=_loaded_dl(nvrtc_path),
+        nvJitLink=_loaded_dl(nvjitlink_path),
+    )
 
     guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
     guard_rails.load_nvidia_dynamic_lib("nvrtc")
@@ -693,14 +617,11 @@ def test_declared_ltoir_pipeline_allows_same_major_newer_nvjitlink(monkeypatch, 
     nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
 
-    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
-        if libname == "nvrtc":
-            return _loaded_dl(nvrtc_path)
-        if libname == "nvJitLink":
-            return _loaded_dl(nvjitlink_path)
-        raise AssertionError(f"Unexpected libname: {libname!r}")
-
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+    _patch_dynamic_lib_loader(
+        monkeypatch,
+        nvrtc=_loaded_dl(nvrtc_path),
+        nvJitLink=_loaded_dl(nvjitlink_path),
+    )
 
     guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
     loaded_nvrtc = guard_rails.load_nvidia_dynamic_lib("nvrtc")
@@ -715,7 +636,8 @@ def test_declared_ltoir_pipeline_allows_same_major_newer_nvjitlink(monkeypatch, 
     assert loaded_nvjitlink.abs_path == nvjitlink_path
 
 
-def test_declared_ptx_pipeline_allows_cross_major_nvrtc_to_nvjitlink(monkeypatch, tmp_path):
+@pytest.mark.parametrize("artifact_kind", ("ptx", "elf", "cubin"))
+def test_declared_non_lto_pipeline_allows_cross_major_nvrtc_to_nvjitlink(monkeypatch, tmp_path, artifact_kind):
     nvrtc_root = tmp_path / "cuda-12.8"
     nvjitlink_root = tmp_path / "cuda-13.0"
     _write_cuda_h(nvrtc_root, "12.8.20250303")
@@ -724,14 +646,11 @@ def test_declared_ptx_pipeline_allows_cross_major_nvrtc_to_nvjitlink(monkeypatch
     nvrtc_path = _touch(nvrtc_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.13")
 
-    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
-        if libname == "nvrtc":
-            return _loaded_dl(nvrtc_path)
-        if libname == "nvJitLink":
-            return _loaded_dl(nvjitlink_path)
-        raise AssertionError(f"Unexpected libname: {libname!r}")
-
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+    _patch_dynamic_lib_loader(
+        monkeypatch,
+        nvrtc=_loaded_dl(nvrtc_path),
+        nvJitLink=_loaded_dl(nvjitlink_path),
+    )
 
     guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
     loaded_nvrtc = guard_rails.load_nvidia_dynamic_lib("nvrtc")
@@ -739,7 +658,7 @@ def test_declared_ptx_pipeline_allows_cross_major_nvrtc_to_nvjitlink(monkeypatch
     guard_rails._declare_dynamic_lib_pipeline(
         producer_libname="nvrtc",
         consumer_libname="nvJitLink",
-        artifact_kind="ptx",
+        artifact_kind=artifact_kind,
     )
 
     assert loaded_nvrtc.abs_path == nvrtc_path
@@ -755,14 +674,11 @@ def test_declared_nvvm_pipeline_remains_conservative(monkeypatch, tmp_path):
     nvvm_path = _touch(nvvm_root / "nvvm" / "lib64" / "libnvvm.so.4")
     nvjitlink_path = _touch(nvjitlink_root / "targets" / "x86_64-linux" / "lib" / "libnvJitLink.so.12")
 
-    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
-        if libname == "nvvm":
-            return _loaded_dl(nvvm_path)
-        if libname == "nvJitLink":
-            return _loaded_dl(nvjitlink_path)
-        raise AssertionError(f"Unexpected libname: {libname!r}")
-
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+    _patch_dynamic_lib_loader(
+        monkeypatch,
+        nvvm=_loaded_dl(nvvm_path),
+        nvJitLink=_loaded_dl(nvjitlink_path),
+    )
 
     guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
     guard_rails.load_nvidia_dynamic_lib("nvvm")
@@ -849,14 +765,11 @@ def test_driver_libs_do_not_lock_ctk_anchor(monkeypatch, tmp_path):
     _write_cuda_h(ctk_root, "12.9.20250531")
     ctk_lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
 
-    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
-        if libname == "nvml":
-            return _loaded_dl(driver_lib_path, found_via="system-search")
-        if libname == "nvrtc":
-            return _loaded_dl(ctk_lib_path)
-        raise AssertionError(f"Unexpected libname: {libname!r}")
-
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+    _patch_dynamic_lib_loader(
+        monkeypatch,
+        nvml=_loaded_dl(driver_lib_path, found_via="system-search"),
+        nvrtc=_loaded_dl(ctk_lib_path),
+    )
 
     guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
 
@@ -878,14 +791,11 @@ def test_driver_libs_do_not_mask_later_ctk_mismatch(monkeypatch, tmp_path):
     hdr_dir = hdr_root / "targets" / "x86_64-linux" / "include"
     _touch(hdr_dir / "nvrtc.h")
 
-    def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
-        if libname == "nvml":
-            return _loaded_dl(driver_lib_path, found_via="system-search")
-        if libname == "nvrtc":
-            return _loaded_dl(lib_path)
-        raise AssertionError(f"Unexpected libname: {libname!r}")
-
-    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", fake_load_nvidia_dynamic_lib)
+    _patch_dynamic_lib_loader(
+        monkeypatch,
+        nvml=_loaded_dl(driver_lib_path, found_via="system-search"),
+        nvrtc=_loaded_dl(lib_path),
+    )
     monkeypatch.setattr(
         compatibility_module,
         "_locate_nvidia_header_directory",

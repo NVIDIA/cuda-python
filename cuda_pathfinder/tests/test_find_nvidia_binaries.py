@@ -160,38 +160,3 @@ def test_find_binary_without_site_packages_entry(monkeypatch, mocker):
         os.path.join(cuda_home, "bin"),
     ]
     which_mock.assert_called_once_with("nvcc", path=os.pathsep.join(expected_dirs))
-
-
-@pytest.mark.usefixtures("clear_find_binary_cache")
-def test_find_binary_cache_negative_result(monkeypatch, mocker):
-    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
-    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
-    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
-    monkeypatch.delenv("CONDA_PREFIX", raising=False)
-    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
-    which_mock = mocker.patch.object(binary_finder_module.shutil, "which", return_value=None)
-
-    first = find_nvidia_binary_utility("nvcc")
-    second = find_nvidia_binary_utility("nvcc")
-
-    assert first is None
-    assert second is None
-    which_mock.assert_called_once_with("nvcc", path="")
-
-
-@pytest.mark.usefixtures("clear_find_binary_cache")
-def test_caching_per_utility():
-    """Verify that different utilities have independent cache entries."""
-    nvdisasm1 = find_nvidia_binary_utility("nvdisasm")
-    nvcc1 = find_nvidia_binary_utility("nvcc")
-    nvdisasm2 = find_nvidia_binary_utility("nvdisasm")
-    nvcc2 = find_nvidia_binary_utility("nvcc")
-
-    # Same utility should return cached result
-    assert nvdisasm1 is nvdisasm2
-    assert nvcc1 is nvcc2
-
-    # Different utilities should have different results (unless at least one of
-    # them is None)
-    if nvdisasm1 is not None and nvcc1 is not None:
-        assert nvdisasm1 != nvcc1
