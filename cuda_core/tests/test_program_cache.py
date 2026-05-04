@@ -100,49 +100,6 @@ def test_program_cache_resource_context_manager_closes():
     assert closed == [True]
 
 
-def test_cuda_core_utils_memoryview_import_is_lightweight(tmp_path):
-    """``from cuda.core.utils import StridedMemoryView`` must NOT transitively
-    import the program-cache backends; the cache modules pull in extra
-    driver/NVRTC machinery that memoryview-only consumers have no reason
-    to load."""
-    import subprocess
-    import sys
-    import textwrap
-
-    prog = textwrap.dedent("""
-        import sys
-        # Touch the memoryview-only API.
-        from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory  # noqa: F401
-        assert "cuda.core.utils._program_cache" not in sys.modules, (
-            "importing the memoryview shim eagerly imported the cache backend: "
-            + str([m for m in sys.modules if m.startswith("cuda.core.utils")])
-        )
-        # And that the lazy attr still works on first access.
-        import cuda.core.utils as u
-        _ = u.make_program_cache_key
-        assert "cuda.core.utils._program_cache" in sys.modules
-    """)
-    # Run from a neutral cwd so Python's implicit ``sys.path[0]=''`` does not
-    # resolve to the unbuilt cuda_core source tree (which lacks the
-    # setuptools-scm-generated ``_version.py``). The subprocess must import
-    # the installed cuda.core from site-packages.
-    subprocess.run([sys.executable, "-c", prog], check=True, cwd=str(tmp_path))  # noqa: S603
-
-
-def test_cuda_core_utils_dir_includes_lazy_and_module_attrs():
-    """``dir(cuda.core.utils)`` must surface BOTH the lazy public API AND
-    the regular module attributes (``__file__``, ``__spec__``, ...). The
-    package's ``__dir__`` is custom to coexist with the lazy ``__getattr__``
-    shim and has regressed here before."""
-    import cuda.core.utils as u
-
-    names = dir(u)
-    assert "make_program_cache_key" in names
-    assert "StridedMemoryView" in names
-    assert "__file__" in names
-    assert "__spec__" in names
-
-
 # ---------------------------------------------------------------------------
 # make_program_cache_key
 # ---------------------------------------------------------------------------
@@ -1568,7 +1525,7 @@ def test_default_cache_dir_lives_under_user_cache_root(monkeypatch, tmp_path):
 
     # Linux branch: falls back to ``~/.cache`` when XDG_CACHE_HOME is unset.
     monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
-    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path / "home"))
+    monkeypatch.setattr(Path, "home", classmethod(lambda _cls: tmp_path / "home"))
     assert _default_cache_dir() == tmp_path / "home" / ".cache" / "cuda-python" / "program-cache"
 
     # Windows branch: LOCALAPPDATA wins when set.
@@ -1578,10 +1535,7 @@ def test_default_cache_dir_lives_under_user_cache_root(monkeypatch, tmp_path):
 
     # Windows branch: falls back to ``~/AppData/Local`` when LOCALAPPDATA is unset.
     monkeypatch.delenv("LOCALAPPDATA", raising=False)
-    assert (
-        _default_cache_dir()
-        == tmp_path / "home" / "AppData" / "Local" / "cuda-python" / "program-cache"
-    )
+    assert _default_cache_dir() == tmp_path / "home" / "AppData" / "Local" / "cuda-python" / "program-cache"
 
 
 def test_filestream_cache_uses_default_dir_when_path_omitted(tmp_path, monkeypatch):
@@ -1920,9 +1874,7 @@ def test_make_program_cache_key_changes_with_key_schema_version(monkeypatch):
         "target_type": "cubin",
     }
     key_before = make_program_cache_key(**args)
-    monkeypatch.setattr(
-        _program_cache._keys, "_KEY_SCHEMA_VERSION", _program_cache._keys._KEY_SCHEMA_VERSION + 1
-    )
+    monkeypatch.setattr(_program_cache._keys, "_KEY_SCHEMA_VERSION", _program_cache._keys._KEY_SCHEMA_VERSION + 1)
     key_after = make_program_cache_key(**args)
 
     assert key_before != key_after

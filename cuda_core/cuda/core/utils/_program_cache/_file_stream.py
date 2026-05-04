@@ -25,7 +25,6 @@ from cuda.core._module import ObjectCode
 
 from ._abc import ProgramCacheResource, _as_key_bytes, _extract_bytes
 
-
 _ENTRIES_SUBDIR = "entries"
 _TMP_SUBDIR = "tmp"
 # Temp files older than this are assumed to belong to a crashed writer and
