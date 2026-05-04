@@ -68,7 +68,7 @@ class TestObjectSerializationDirect:
         # Receive the buffers.
         buffer1 = conn.recv()  # directly
         buffer_desc = conn.recv()
-        buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc)  # by descriptor
+        buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc, stream=device.default_stream)  # by descriptor
 
         # Modify the buffers.
         pgen = PatternGen(device, NBYTES)

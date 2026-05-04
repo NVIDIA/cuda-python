@@ -89,7 +89,7 @@ class TestImportWrongMR(ChildErrorHarness):
 
     def CHILD_ACTION(self, queue):
         mr, buffer_desc = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        Buffer.from_ipc_descriptor(mr, buffer_desc)
+        Buffer.from_ipc_descriptor(mr, buffer_desc, stream=self.device.default_stream)
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is CUDAError
@@ -107,7 +107,7 @@ class TestImportBuffer(ChildErrorHarness):
 
     def CHILD_ACTION(self, queue):
         buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        Buffer.from_ipc_descriptor(self.mr, buffer)
+        Buffer.from_ipc_descriptor(self.mr, buffer, stream=self.device.default_stream)
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is TypeError

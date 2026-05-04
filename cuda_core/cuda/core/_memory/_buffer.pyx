@@ -163,9 +163,22 @@ cdef class Buffer:
     @classmethod
     def from_ipc_descriptor(
         cls, mr: DeviceMemoryResource | PinnedMemoryResource, ipc_descriptor: IPCBufferDescriptor,
-        stream: Stream = None
+        *, stream: Stream
     ) -> Buffer:
-        """Import a buffer that was exported from another process."""
+        """Import a buffer that was exported from another process.
+
+        Parameters
+        ----------
+        mr : :obj:`~_memory.DeviceMemoryResource` | :obj:`~_memory.PinnedMemoryResource`
+            The IPC-enabled memory resource matching the exporting process.
+        ipc_descriptor : :obj:`~_memory.IPCBufferDescriptor`
+            The descriptor exported from another process.
+        stream : :obj:`~_stream.Stream`
+            Keyword-only. The stream stored in the imported buffer's handle
+            and used for asynchronous deallocation when the buffer is closed
+            or garbage collected. Pass ``device.default_stream`` to use the
+            default stream.
+        """
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
     @property

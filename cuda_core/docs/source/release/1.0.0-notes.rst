@@ -128,6 +128,7 @@ Breaking changes
   - :meth:`GraphicsResource.map`.
   - :meth:`KernelOccupancy.max_potential_cluster_size` and
     :meth:`KernelOccupancy.max_active_clusters`.
+  - :meth:`Buffer.from_ipc_descriptor` (``stream`` was previously positional).
   - :meth:`graph.Graph.launch` (``stream`` was previously positional).
 
   :class:`VirtualMemoryResource` is exempt; it now accepts and validates

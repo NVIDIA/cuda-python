@@ -97,7 +97,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         mr = self.mrs[mr_idx]
         device = Device(mr.device_id)
         device.set_current()
-        buffer = Buffer.from_ipc_descriptor(mr, buffer_desc)
+        buffer = Buffer.from_ipc_descriptor(mr, buffer_desc, stream=device.default_stream)
         pgen = PatternGen(device, NBYTES)
         pgen.fill_buffer(buffer, seed=True)
         buffer.close()

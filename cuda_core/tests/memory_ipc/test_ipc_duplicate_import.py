@@ -34,8 +34,8 @@ def child_main(log, queue):
     buffer_desc2 = queue.get()
 
     # Import the same buffer twice - should return same handle due to cache
-    buffer1 = Buffer.from_ipc_descriptor(mr, buffer_desc1)
-    buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc2)
+    buffer1 = Buffer.from_ipc_descriptor(mr, buffer_desc1, stream=device.default_stream)
+    buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc2, stream=device.default_stream)
 
     log(f"buffer1.handle = {buffer1.handle}")
     log(f"buffer2.handle = {buffer2.handle}")

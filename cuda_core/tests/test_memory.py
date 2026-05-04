@@ -1231,7 +1231,7 @@ def test_mempool_ipc_errors(mempool_device):
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
-        Buffer.from_ipc_descriptor(mr, handle)
+        Buffer.from_ipc_descriptor(mr, handle, stream=device.default_stream)
 
     buffer.close()
 
@@ -1302,7 +1302,7 @@ def test_pinned_mempool_ipc_errors():
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
-        Buffer.from_ipc_descriptor(mr, handle)
+        Buffer.from_ipc_descriptor(mr, handle, stream=device.default_stream)
 
     buffer.close()
     mr.close()

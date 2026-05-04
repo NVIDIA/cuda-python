@@ -152,7 +152,7 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         device.set_current()
         mr = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
         buffer_descriptor = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        buffer = Buffer.from_ipc_descriptor(mr, buffer_descriptor)
+        buffer = Buffer.from_ipc_descriptor(mr, buffer_descriptor, stream=device.default_stream)
         pgen = PatternGen(device, NBYTES)
         pgen.fill_buffer(buffer, seed=seed)
         buffer.close()
