@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=66336ffe"></script>
+    <script src="../_static/documentation_options.js?v=c24bebe7"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev86';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev87';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1065,8 +1065,8 @@ pre-CUDA 13.2.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.SwitchNode.cond_type">
 <span class="sig-name descname"><span class="pre">cond_type</span></span><a class="headerlink" href="#cuda.core.graph.SwitchNode.cond_type" title="Link to this definition">#</a></dt>
-<dd><p>str | None</p>
-<p>The conditional type as a string: ‘if’, ‘while’, or ‘switch’.</p>
+<dd><p>ConditionalType | None</p>
+<p>The conditional type: ConditionalType.IF, .WHILE, or .SWITCH</p>
 <p>Returns None when reconstructed from the driver pre-CUDA 13.2,
 as the conditional type cannot be determined.</p>
 <dl class="field-list simple">
