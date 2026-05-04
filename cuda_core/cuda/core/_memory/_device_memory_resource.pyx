@@ -18,18 +18,12 @@ from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
-from cpython.mem cimport PyMem_Malloc, PyMem_Free
-
 from dataclasses import dataclass
 import multiprocessing
 import platform  # no-cython-lint
 import uuid
 
-from ._peer_access_utils import (
-    PeerAccessibleBySetProxy,
-    _resolve_peer_device_id,
-    plan_peer_access_update,
-)
+from ._peer_access_utils import PeerAccessibleBySetProxy, replace_peer_accessible_by
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
@@ -215,60 +209,27 @@ cdef class DeviceMemoryResource(_MemPool):
     @property
     def peer_accessible_by(self):
         """
-        Live driver-backed set view of the devices that can access allocations
+        Get or set the devices that can access allocations from this memory
+        pool. Access can be modified at any time and affects all allocations
         from this memory pool.
 
-        Returns a :class:`PeerAccessibleBySetProxy` (a
-        :class:`collections.abc.MutableSet`) whose reads call
-        ``cuMemPoolGetAccess`` and whose writes call ``cuMemPoolSetAccess``.
-        Iteration yields :class:`Device` objects; ``add``, ``discard``, and
-        ``__contains__`` accept either a :class:`Device` or a device-ordinal
-        ``int``. There is no in-memory cache, so the view always reflects the
-        current driver state and stays consistent across multiple wrappers
-        around the same pool.
-
-        When setting, accepts an iterable of :obj:`~_device.Device` objects or
-        device IDs. Setting replaces the full set in a single batched driver call.
-
-        Bulk operations (``update``, ``|=``, ``&=``, ``-=``, ``^=``, ``clear``,
-        and the property setter) each issue exactly one ``cuMemPoolSetAccess``
-        call so the toolkit can update existing memory mappings in parallel.
+        Returns a set-like proxy of :obj:`~_device.Device` objects that manages
+        peer access. Inputs are accepted as either :obj:`~_device.Device`
+        objects or device-ordinal :class:`int` values.
 
         Examples
         --------
         >>> dmr = DeviceMemoryResource(0)
-        >>> dmr.peer_accessible_by.add(1)            # grant access to device 1
-        >>> assert dmr.peer_accessible_by == {Device(1)}
-        >>> dmr.peer_accessible_by |= {Device(2)}    # batched grant via |=
-        >>> dmr.peer_accessible_by = []              # revoke all in one call
+        >>> dmr.peer_accessible_by = {1}   # grant access to device 1
+        >>> assert 1 in dmr.peer_accessible_by
+        >>> dmr.peer_accessible_by.add(2)  # update access to include device 2
+        >>> dmr.peer_accessible_by = []    # revoke peer access
         """
         return PeerAccessibleBySetProxy(self)
 
     @peer_accessible_by.setter
     def peer_accessible_by(self, devices):
-        _DMR_replace_peer_accessible_by(self, devices)
-
-    def _query_peer_access_ids(self):
-        """Return the current peer device IDs as a sorted tuple of ints.
-
-        Always queries the driver via ``cuMemPoolGetAccess`` for every visible
-        device. Used by :class:`PeerAccessibleBySetProxy` for ``__iter__`` and
-        ``__len__``.
-        """
-        return _DMR_query_peer_access_ids(self)
-
-    def _peer_access_includes(self, int dev_id) -> bool:
-        """Return True if peer access from ``dev_id`` is currently granted."""
-        return _DMR_peer_access_includes(self, dev_id)
-
-    def _apply_peer_access_diff(self, to_add, to_remove):
-        """Issue a single ``cuMemPoolSetAccess`` for the given add/remove deltas.
-
-        ``to_add`` and ``to_remove`` are iterables of device-ordinal ints.
-        Both must already be filtered (no owner, no overlap, no duplicates).
-        Used by :class:`PeerAccessibleBySetProxy` for batched writes.
-        """
-        _DMR_apply_peer_access_diff(self, tuple(to_add), tuple(to_remove))
+        replace_peer_accessible_by(self, devices)
 
     @property
     def is_device_accessible(self) -> bool:
@@ -279,96 +240,6 @@ cdef class DeviceMemoryResource(_MemPool):
     def is_host_accessible(self) -> bool:
         """Return False. This memory resource does not provide host-accessible buffers."""
         return False
-
-
-cdef inline tuple _DMR_query_peer_access_ids(DeviceMemoryResource self):
-    """Return the current peer device IDs as a sorted tuple of ints."""
-    cdef int total
-    cdef cydriver.CUmemAccess_flags flags
-    cdef cydriver.CUmemLocation location
-    cdef list peers = []
-
-    with nogil:
-        HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
-
-    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    for dev_id in range(total):
-        if dev_id == self._dev_id:
-            continue
-        location.id = dev_id
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(self._h_pool), &location))
-        if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:
-            peers.append(dev_id)
-
-    return tuple(sorted(peers))
-
-
-cdef inline bint _DMR_peer_access_includes(DeviceMemoryResource self, int dev_id):
-    """Return True if peer access from ``dev_id`` is currently granted."""
-    cdef cydriver.CUmemAccess_flags flags
-    cdef cydriver.CUmemLocation location
-
-    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    location.id = dev_id
-    with nogil:
-        HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(self._h_pool), &location))
-    return flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-
-
-cdef inline _DMR_apply_peer_access_diff(
-    DeviceMemoryResource self, tuple to_add, tuple to_remove
-):
-    """Issue one ``cuMemPoolSetAccess`` for the given add/remove deltas."""
-    cdef size_t count = len(to_add) + len(to_remove)
-    cdef cydriver.CUmemAccessDesc* access_desc = NULL
-    cdef size_t i = 0
-
-    if count == 0:
-        return
-
-    access_desc = <cydriver.CUmemAccessDesc*>PyMem_Malloc(count * sizeof(cydriver.CUmemAccessDesc))
-    if access_desc == NULL:
-        raise MemoryError("Failed to allocate memory for access descriptors")
-
-    try:
-        for dev_id in to_add:
-            access_desc[i].flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-            access_desc[i].location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-            access_desc[i].location.id = dev_id
-            i += 1
-        for dev_id in to_remove:
-            access_desc[i].flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_NONE
-            access_desc[i].location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-            access_desc[i].location.id = dev_id
-            i += 1
-
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), access_desc, count))
-    finally:
-        if access_desc != NULL:
-            PyMem_Free(access_desc)
-
-
-cdef inline _DMR_replace_peer_accessible_by(DeviceMemoryResource self, devices):
-    """Replace the full peer-access set in a single batched driver call.
-
-    Backs the ``mr.peer_accessible_by = [...]`` setter. Uses the same planner
-    as the proxy's bulk ops; the only difference is that adds and removes are
-    derived from the symmetric difference between current driver state and the
-    requested target set.
-    """
-    from .._device import Device
-
-    this_dev = Device(self._dev_id)
-    plan = plan_peer_access_update(
-        owner_device_id=self._dev_id,
-        current_peer_ids=_DMR_query_peer_access_ids(self),
-        requested_devices=devices,
-        resolve_device_id=_resolve_peer_device_id,
-        can_access_peer=this_dev.can_access_peer,
-    )
-    _DMR_apply_peer_access_diff(self, plan.to_add, plan.to_remove)
 
 
 cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):

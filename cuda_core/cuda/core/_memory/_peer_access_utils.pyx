@@ -8,9 +8,14 @@ from collections.abc import Callable, Iterable, MutableSet
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from cuda.bindings cimport cydriver
+from cuda.core._memory._device_memory_resource cimport DeviceMemoryResource
+from cuda.core._resource_handles cimport as_cu
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cpython.mem cimport PyMem_Malloc, PyMem_Free
+
 if TYPE_CHECKING:
     from cuda.core._device import Device
-    from cuda.core._memory._device_memory_resource import DeviceMemoryResource
 
 
 @dataclass(frozen=True)
@@ -64,12 +69,106 @@ def plan_peer_access_update(
     )
 
 
-def _resolve_peer_device_id(value: Device | int) -> int:
+def _resolve_peer_device_id(value):
     """Coerce ``Device | int`` into a device-ordinal int."""
     from cuda.core._device import Device
 
     return Device(value).device_id
 
+
+# ---- driver-touching helpers (cdef inline, called from .pyx code) -----------
+
+cdef inline tuple _query_peer_access_ids(DeviceMemoryResource mr):
+    """Return the current peer device IDs as a sorted tuple of ints."""
+    cdef int total
+    cdef cydriver.CUmemAccess_flags flags
+    cdef cydriver.CUmemLocation location
+    cdef list peers = []
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
+
+    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    for dev_id in range(total):
+        if dev_id == mr._dev_id:
+            continue
+        location.id = dev_id
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(mr._h_pool), &location))
+        if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:
+            peers.append(dev_id)
+
+    return tuple(sorted(peers))
+
+
+cdef inline bint _peer_access_includes(DeviceMemoryResource mr, int dev_id):
+    """Return True if peer access from ``dev_id`` is currently granted."""
+    cdef cydriver.CUmemAccess_flags flags
+    cdef cydriver.CUmemLocation location
+
+    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    location.id = dev_id
+    with nogil:
+        HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(mr._h_pool), &location))
+    return flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+
+
+cdef inline _apply_peer_access_diff(
+    DeviceMemoryResource mr, tuple to_add, tuple to_remove
+):
+    """Issue one ``cuMemPoolSetAccess`` for the given add/remove deltas."""
+    cdef size_t count = len(to_add) + len(to_remove)
+    cdef cydriver.CUmemAccessDesc* access_desc = NULL
+    cdef size_t i = 0
+
+    if count == 0:
+        return
+
+    access_desc = <cydriver.CUmemAccessDesc*>PyMem_Malloc(count * sizeof(cydriver.CUmemAccessDesc))
+    if access_desc == NULL:
+        raise MemoryError("Failed to allocate memory for access descriptors")
+
+    try:
+        for dev_id in to_add:
+            access_desc[i].flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+            access_desc[i].location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+            access_desc[i].location.id = dev_id
+            i += 1
+        for dev_id in to_remove:
+            access_desc[i].flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_NONE
+            access_desc[i].location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+            access_desc[i].location.id = dev_id
+            i += 1
+
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(mr._h_pool), access_desc, count))
+    finally:
+        if access_desc != NULL:
+            PyMem_Free(access_desc)
+
+
+cpdef replace_peer_accessible_by(DeviceMemoryResource mr, devices):
+    """Replace the full peer-access set in a single batched driver call.
+
+    Backs the ``mr.peer_accessible_by = [...]`` setter. Uses the same planner
+    as the proxy's bulk ops; the only difference is that adds and removes are
+    derived from the symmetric difference between current driver state and the
+    requested target set.
+    """
+    from cuda.core._device import Device
+
+    this_dev = Device(mr._dev_id)
+    plan = plan_peer_access_update(
+        owner_device_id=mr._dev_id,
+        current_peer_ids=_query_peer_access_ids(mr),
+        requested_devices=devices,
+        resolve_device_id=_resolve_peer_device_id,
+        can_access_peer=this_dev.can_access_peer,
+    )
+    _apply_peer_access_diff(mr, plan.to_add, plan.to_remove)
+
+
+# ---- Python MutableSet proxy ------------------------------------------------
 
 class PeerAccessibleBySetProxy(MutableSet):
     """Live driver-backed view of the peer devices granted access to a memory pool.
@@ -92,7 +191,7 @@ class PeerAccessibleBySetProxy(MutableSet):
 
     __slots__ = ("_mr",)
 
-    def __init__(self, mr: DeviceMemoryResource):
+    def __init__(self, mr):
         self._mr = mr
 
     @classmethod
@@ -109,23 +208,24 @@ class PeerAccessibleBySetProxy(MutableSet):
             dev_id = _resolve_peer_device_id(value)
         except (TypeError, ValueError):
             return False
-        if dev_id == self._mr._dev_id:
+        cdef DeviceMemoryResource mr = <DeviceMemoryResource>self._mr
+        if dev_id == mr._dev_id:
             return False
-        return self._mr._peer_access_includes(dev_id)
+        return _peer_access_includes(mr, dev_id)
 
     def __iter__(self):
         from cuda.core._device import Device
 
-        return iter(Device(dev_id) for dev_id in self._mr._query_peer_access_ids())
+        return iter(Device(dev_id) for dev_id in _query_peer_access_ids(self._mr))
 
     def __len__(self) -> int:
-        return len(self._mr._query_peer_access_ids())
+        return len(_query_peer_access_ids(self._mr))
 
-    def add(self, value: Device | int) -> None:
+    def add(self, value) -> None:
         """Grant peer access from ``value`` to allocations in this pool."""
         self._apply([value], ())
 
-    def discard(self, value: Device | int) -> None:
+    def discard(self, value) -> None:
         """Revoke peer access from ``value`` to allocations in this pool."""
         try:
             dev_id = _resolve_peer_device_id(value)
@@ -137,7 +237,7 @@ class PeerAccessibleBySetProxy(MutableSet):
 
     def clear(self) -> None:
         """Revoke all peer access in a single driver call."""
-        self._apply((), self._mr._query_peer_access_ids())
+        self._apply((), _query_peer_access_ids(self._mr))
 
     def update(self, *others) -> None:
         """Grant peer access to every device in ``others`` in one driver call."""
@@ -149,23 +249,23 @@ class PeerAccessibleBySetProxy(MutableSet):
 
     def difference_update(self, *others) -> None:
         """Revoke peer access for every device in ``others`` in one driver call."""
-        revoke_ids: set[int] = set()
+        revoke_ids = set()
         for other in others:
             for value in other:
                 try:
                     revoke_ids.add(_resolve_peer_device_id(value))
                 except (TypeError, ValueError):
                     continue
-        current = set(self._mr._query_peer_access_ids())
+        current = set(_query_peer_access_ids(self._mr))
         to_remove = revoke_ids & current
         if to_remove:
             self._apply((), to_remove)
 
     def intersection_update(self, *others) -> None:
         """Restrict peer access to the intersection in a single driver call."""
-        keep_ids: set[int] | None = None
+        keep_ids = None
         for other in others:
-            ids: set[int] = set()
+            ids = set()
             for value in other:
                 try:
                     ids.add(_resolve_peer_device_id(value))
@@ -174,20 +274,20 @@ class PeerAccessibleBySetProxy(MutableSet):
             keep_ids = ids if keep_ids is None else keep_ids & ids
         if keep_ids is None:
             return  # ``set.intersection_update()`` with no args is a no-op
-        current = set(self._mr._query_peer_access_ids())
+        current = set(_query_peer_access_ids(self._mr))
         to_remove = current - keep_ids
         if to_remove:
             self._apply((), to_remove)
 
     def symmetric_difference_update(self, other) -> None:
         """Toggle peer access for every device in ``other`` in one driver call."""
-        toggle_ids: set[int] = set()
+        toggle_ids = set()
         for value in other:
             try:
                 toggle_ids.add(_resolve_peer_device_id(value))
             except (TypeError, ValueError):
                 continue
-        current = set(self._mr._query_peer_access_ids())
+        current = set(_query_peer_access_ids(self._mr))
         to_add = toggle_ids - current
         to_remove = toggle_ids & current
         if to_add or to_remove:
@@ -217,7 +317,7 @@ class PeerAccessibleBySetProxy(MutableSet):
 
     # --- internal: route every write through one batched driver call ---
 
-    def _apply(self, additions: Iterable[object], removals: Iterable[object]) -> None:
+    def _apply(self, additions, removals) -> None:
         """Compute the diff and issue a single ``cuMemPoolSetAccess``.
 
         ``additions`` and ``removals`` are user-supplied (``Device | int``);
@@ -227,9 +327,10 @@ class PeerAccessibleBySetProxy(MutableSet):
         """
         from cuda.core._device import Device
 
-        owner_id = self._mr._dev_id
+        cdef DeviceMemoryResource mr = <DeviceMemoryResource>self._mr
+        owner_id = mr._dev_id
         owner = Device(owner_id)
-        current = self._mr._query_peer_access_ids()
+        current = _query_peer_access_ids(mr)
 
         # Plan additions through the existing helper (validates can_access_peer).
         plan = plan_peer_access_update(
@@ -245,7 +346,7 @@ class PeerAccessibleBySetProxy(MutableSet):
 
         # Removals: resolve, drop owner and unknowns, intersect with current.
         current_set = set(current)
-        revoke_ids: set[int] = set()
+        revoke_ids = set()
         for value in removals:
             try:
                 dev_id = _resolve_peer_device_id(value)
@@ -259,4 +360,4 @@ class PeerAccessibleBySetProxy(MutableSet):
 
         if not to_add and not to_remove:
             return
-        self._mr._apply_peer_access_diff(to_add, to_remove)
+        _apply_peer_access_diff(mr, to_add, to_remove)
