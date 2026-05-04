@@ -172,6 +172,8 @@ cdef class Program:
            use the NVRTC backend. For PTX and NVVM programs this property
            always returns ``None``.
         """
+        if self._pch_status is None:
+            return None
         return PchStatus(self._pch_status)
 
     @property
