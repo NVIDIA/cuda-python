@@ -457,8 +457,7 @@ StreamHandle create_stream_handle_ref(CUstream stream) {
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
     if (auto h = stream_registry.lookup(stream)) {
         // Reuse handles that already carry structural context metadata, e.g.
-        // cuda-core-owned streams. Owner-backed foreign streams still need a
-        // fresh handle so the supplied owner is retained.
+        // cuda-core-owned streams.
         if (get_box(h)->h_context) {
             return h;
         }
@@ -473,10 +472,12 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
         return create_stream_handle_ref(stream);
     }
     Py_INCREF(owner);
+    // Owner-backed handles are NOT registered in the stream registry to avoid
+    // corruption when multiple owners wrap the same CUstream (each stacks its
+    // own Py_INCREF/Py_DECREF independently).
     auto box = std::shared_ptr<const StreamBox>(
         new StreamBox{stream, {}},
         [owner](const StreamBox* b) {
-            stream_registry.unregister_handle(b->resource);
             GILAcquireGuard gil;
             if (gil.acquired()) {
                 Py_DECREF(owner);
@@ -484,9 +485,7 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
             delete b;
         }
     );
-    StreamHandle h(box, &box->resource);
-    stream_registry.register_handle(stream, h);
-    return h;
+    return StreamHandle(box, &box->resource);
 }
 
 ContextHandle get_stream_context(const StreamHandle& h) noexcept {
