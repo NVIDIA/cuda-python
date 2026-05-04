@@ -341,18 +341,19 @@ def test_c2c_mode_enabled():
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
-def test_persistence_mode_enabled():
+def test_persistence_mode_enabled(subtests):
     for device in system.Device.get_all_devices():
-        is_enabled = device.is_persistence_mode_enabled
-        assert isinstance(is_enabled, bool)
-        try:
-            device.is_persistence_mode_enabled = False
-        except nvml.NoPermissionError as e:
-            pytest.xfail(f"nvml.NoPermissionError: {e}")
-        try:
-            assert device.is_persistence_mode_enabled is False
-        finally:
-            device.is_persistence_mode_enabled = is_enabled
+        with subtests.test(device_index=device.index):
+            is_enabled = device.is_persistence_mode_enabled
+            assert isinstance(is_enabled, bool)
+            try:
+                device.is_persistence_mode_enabled = False
+            except nvml.NoPermissionError as e:
+                pytest.xfail(f"nvml.NoPermissionError: {e}")
+            try:
+                assert device.is_persistence_mode_enabled is False
+            finally:
+                device.is_persistence_mode_enabled = is_enabled
 
 
 def test_field_values():
@@ -615,63 +616,66 @@ def test_clock_event_reasons():
         assert all(isinstance(reason, system.ClocksEventReasons) for reason in reasons)
 
 
-def test_fan():
+def test_fan(subtests):
     for device in system.Device.get_all_devices():
         # The fan APIs are only supported on discrete devices with fans,
         # but when they are not available `device.num_fans` returns 0.
         if device.num_fans == 0:
-            pytest.skip("Device has no fans to test")
+            with subtests.test(device_index=device.index):
+                pytest.skip("Device has no fans to test")
 
         for fan_idx in range(device.num_fans):
-            fan_info = device.get_fan(fan_idx)
-            assert isinstance(fan_info, _device.FanInfo)
+            with subtests.test(device_index=device.index, fan_idx=fan_idx):
+                fan_info = device.get_fan(fan_idx)
+                assert isinstance(fan_info, _device.FanInfo)
 
-            speed = fan_info.speed
-            assert isinstance(speed, int)
-            assert 0 <= speed <= 200
-            try:
-                fan_info.speed = 50
-            except nvml.NoPermissionError as e:
-                pytest.xfail(f"nvml.NoPermissionError: {e}")
-            try:
-                fan_info.speed = speed
+                speed = fan_info.speed
+                assert isinstance(speed, int)
+                assert 0 <= speed <= 200
+                try:
+                    fan_info.speed = 50
+                except nvml.NoPermissionError as e:
+                    pytest.xfail(f"nvml.NoPermissionError: {e}")
+                try:
+                    fan_info.speed = speed
 
-                speed_rpm = fan_info.speed_rpm
-                assert isinstance(speed_rpm, int)
-                assert speed_rpm >= 0
+                    speed_rpm = fan_info.speed_rpm
+                    assert isinstance(speed_rpm, int)
+                    assert speed_rpm >= 0
 
-                target_speed = fan_info.target_speed
-                assert isinstance(target_speed, int)
-                assert speed <= target_speed * 2
+                    target_speed = fan_info.target_speed
+                    assert isinstance(target_speed, int)
+                    assert speed <= target_speed * 2
 
-                min_, max_ = fan_info.min_max_speed
-                assert isinstance(min_, int)
-                assert isinstance(max_, int)
-                assert min_ <= max_
+                    min_, max_ = fan_info.min_max_speed
+                    assert isinstance(min_, int)
+                    assert isinstance(max_, int)
+                    assert min_ <= max_
 
-                control_policy = fan_info.control_policy
-                assert isinstance(control_policy, system.FanControlPolicy)
-            finally:
-                fan_info.set_default_speed()
+                    control_policy = fan_info.control_policy
+                    assert isinstance(control_policy, system.FanControlPolicy)
+                finally:
+                    fan_info.set_default_speed()
 
 
-def test_cooler():
+def test_cooler(subtests):
     for device in system.Device.get_all_devices():
-        # The cooler APIs are only supported on discrete devices with fans,
-        # but when they are not available `device.num_fans` returns 0.
-        if device.num_fans == 0:
-            pytest.skip("Device has no coolers to test")
+        with subtests.test(device_index=device.index):
+            # The cooler APIs are only supported on discrete devices with fans,
+            # but when they are not available `device.num_fans` returns 0.
+            if device.num_fans == 0:
+                pytest.skip("Device has no coolers to test")
 
-        with unsupported_before(device, DeviceArch.MAXWELL):
-            cooler_info = device.cooler
+            with unsupported_before(device, DeviceArch.MAXWELL):
+                cooler_info = device.cooler
 
-        assert isinstance(cooler_info, _device.CoolerInfo)
+            assert isinstance(cooler_info, _device.CoolerInfo)
 
-        signal_type = cooler_info.signal_type
-        assert isinstance(signal_type, system.CoolerControl)
+            signal_type = cooler_info.signal_type
+            assert isinstance(signal_type, system.CoolerControl)
 
-        target = cooler_info.target
-        assert all(isinstance(t, system.CoolerTarget) for t in target)
+            target = cooler_info.target
+            assert all(isinstance(t, system.CoolerTarget) for t in target)
 
 
 def test_temperature():
