@@ -13,19 +13,22 @@ if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument. You provided ${#}"
   exit 1
 fi
-if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" ]]; then
-  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', or 'pathfinder'"
+if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" && "${1}" != "nightly-pytorch" && "${1}" != "nightly-numba-cuda" ]]; then
+  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', 'pathfinder', 'nightly-pytorch', or 'nightly-numba-cuda'"
   exit 1
 fi
 
 test_module=${1}
 
-# Unconditionally install pathfinder wheel
-# (it is a direct dependency of bindings, and a transitive dependency of core)
-pushd ./cuda_pathfinder
-echo "Installing pathfinder wheel"
-pip install ./*.whl --group test
-popd
+# For standard modes, install pathfinder up front (it is a direct dependency
+# of bindings, and a transitive dependency of core).  Nightly modes install
+# all wheels together in a single pip call further below.
+if [[ "${test_module}" != "nightly-pytorch" && "${test_module}" != "nightly-numba-cuda" ]]; then
+  pushd ./cuda_pathfinder
+  echo "Installing pathfinder wheel"
+  pip install ./*.whl --group test
+  popd
+fi
 
 if [[ "${test_module}" == "pathfinder" ]]; then
   pushd ./cuda_pathfinder
@@ -91,4 +94,72 @@ elif [[ "${test_module}" == "core" ]]; then
     ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
   fi
   popd
+elif [[ "${test_module}" == "nightly-pytorch" || "${test_module}" == "nightly-numba-cuda" ]]; then
+  # Nightly optional-dependency testing.
+  # Install ALL wheels (pathfinder + bindings + core) and the optional dep
+  # in a single pip call so pip resolves version constraints in one shot
+  # and avoids costly uninstall/reinstall cycles.
+
+  TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
+  CUDA_VER_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
+
+  FREE_THREADING=""
+  if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
+    FREE_THREADING+="-ft"
+  fi
+
+  # Resolve pathfinder wheel to absolute path before pushd.
+  # CUDA_BINDINGS_ARTIFACTS_DIR and CUDA_CORE_ARTIFACTS_DIR are already
+  # absolute (set via realpath in env-vars).
+  PATHFINDER_WHL=($(realpath ./cuda_pathfinder/*.whl))
+
+  BINDINGS_WHL=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
+  if [[ "${LOCAL_CTK}" != 1 ]]; then
+    BINDINGS_WHL=("${BINDINGS_WHL[0]}[all]")
+  fi
+
+  CORE_WHL=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
+  if [[ "${LOCAL_CTK}" != 1 ]]; then
+    CORE_WHL=("${CORE_WHL[0]}[cu${TEST_CUDA_MAJOR}]")
+  fi
+
+  # pushd so --group reads test dependency groups from cuda_core/pyproject.toml.
+  # The explicit cuda-toolkit[...]==X.Y.* pin overrides the group's looser ==X.*.
+  pushd ./cuda_core
+
+  PIP_ARGS=(
+    "${PATHFINDER_WHL[@]}"
+    "${BINDINGS_WHL[@]}"
+    "${CORE_WHL[@]}"
+    --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
+  )
+
+  if [[ "${test_module}" == "nightly-pytorch" ]]; then
+    # TORCH_VER and TORCH_CUDA must be set by the caller.
+    # Use cuda-toolkit[cudart] only — torch brings its own nvcc/nvrtc/etc.
+    # This avoids version conflicts between our nvidia-* pins and torch's.
+    echo "Installing pathfinder + bindings + core + test deps + PyTorch ${TORCH_VER} (${TORCH_CUDA})"
+    PIP_ARGS+=("cuda-toolkit[cudart]==${CUDA_VER_MINOR}.*")
+    if [[ "${TORCH_VER}" == "latest" ]]; then
+      PIP_ARGS+=(torch)
+    else
+      PIP_ARGS+=("torch==${TORCH_VER}")
+    fi
+    PIP_ARGS+=(--extra-index-url "https://download.pytorch.org/whl/${TORCH_CUDA}")
+  elif [[ "${test_module}" == "nightly-numba-cuda" ]]; then
+    echo "Installing pathfinder + bindings + core + test deps + numba-cuda"
+    # numba-cuda's test-cuXX group deps (can't use --group for a wheel install):
+    PIP_ARGS+=(
+      "cuda-toolkit[curand,cublas]==${CUDA_VER_MINOR}.*"
+      "numba-cuda[cu${TEST_CUDA_MAJOR}]"
+      "cupy-cuda${TEST_CUDA_MAJOR}x"
+      psutil cffi pytest-xdist pytest-benchmark filecheck ml_dtypes statistics
+    )
+  fi
+
+  pip install "${PIP_ARGS[@]}"
+  popd
+
+  echo "Nightly install complete — installed packages:"
+  pip list
 fi

@@ -29,6 +29,24 @@ on:
       skip-bindings-test:
         type: boolean
         default: false
+      run-id:
+        description: >
+          Workflow run ID to download artifacts from.
+          Defaults to the current run when empty.
+        type: string
+        default: ''
+      test-mode:
+        description: >
+          Test mode: 'standard' (default), 'nightly-pytorch', or
+          'nightly-numba-cuda'.
+        type: string
+        default: 'standard'
+      sha:
+        description: >
+          Commit SHA used to construct artifact names.
+          Defaults to github.sha (current run) when empty.
+        type: string
+        default: ''
 
 jobs:
   compute-matrix:
@@ -113,7 +131,7 @@ jobs:
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
           PY_VER: ${{ matrix.PY_VER }}
-          SHA: ${{ github.sha }}
+          SHA: ${{ inputs.sha || github.sha }}
           SKIP_BINDINGS_TEST_OVERRIDE: ${{ inputs.skip-bindings-test && '1' || '0' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: ./ci/tools/env-vars test
@@ -123,6 +141,8 @@ jobs:
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python build artifacts
         if: ${{ env.USE_BACKPORT_BINDINGS == '0' }}
@@ -130,6 +150,8 @@ jobs:
         with:
           name: cuda-python-wheel
           path: .
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda.bindings build artifacts
         if: ${{ env.USE_BACKPORT_BINDINGS == '0' }}
@@ -137,6 +159,8 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
         if: ${{ env.USE_BACKPORT_BINDINGS == '1' }}
@@ -167,7 +191,8 @@ jobs:
       - name: Display structure of downloaded cuda-python artifacts
         run: |
           Get-Location
-          Get-ChildItem -Recurse -Force | Select-Object Mode, LastWriteTime, Length, FullName
+          Get-ChildItem cuda_python*.whl | Select-Object Mode, LastWriteTime, Length, FullName
+          Get-ChildItem cuda_pathfinder/ | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
@@ -180,6 +205,8 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.bindings Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
@@ -192,6 +219,8 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core build artifacts
         run: |
@@ -204,6 +233,8 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
@@ -237,7 +268,9 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
+      # ── Standard test steps (skipped for nightly modes) ──
       - name: Run cuda.pathfinder tests with see_what_works
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
@@ -246,7 +279,7 @@ jobs:
         run: run-tests pathfinder
 
       - name: Run cuda.bindings tests
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ inputs.test-mode == 'standard' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
@@ -254,6 +287,7 @@ jobs:
         run: run-tests bindings
 
       - name: Run cuda.core tests
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
@@ -261,6 +295,7 @@ jobs:
         run: run-tests core
 
       - name: Ensure cuda-python installable
+        if: ${{ inputs.test-mode == 'standard' }}
         run: |
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
             pip install --only-binary=:all: (Get-ChildItem -Filter cuda_python*.whl).FullName
@@ -269,6 +304,7 @@ jobs:
           }
 
       - name: Install cuda.pathfinder extra wheels for testing
+        if: ${{ inputs.test-mode == 'standard' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
@@ -277,9 +313,50 @@ jobs:
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests pathfinder
+
+      # ── Nightly: install wheels + optional dep together ──
+      - name: Install Visual C++ Redistributable (required by PyTorch on Windows)
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        run: |
+          Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" -OutFile "vc_redist.x64.exe"
+          Start-Process -FilePath ".\vc_redist.x64.exe" -ArgumentList "/install", "/quiet", "/norestart" -Wait
+          Remove-Item "vc_redist.x64.exe"
+
+      - name: Install cuda-python wheels + PyTorch
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          TORCH_VER: ${{ matrix.TORCH_VER }}
+          TORCH_CUDA: ${{ matrix.TORCH_CUDA }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests nightly-pytorch
+
+      - name: Install cuda-python wheels + numba-cuda
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests nightly-numba-cuda
+
+      # ── Nightly: run tests ──
+      - name: Run PyTorch interop tests
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          pushd cuda_core
+          pytest -rxXs -v --durations=0 tests/test_utils.py tests/example_tests/
+          popd
+
+      - name: Run numba-cuda tests
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: python -m numba.runtests numba.cuda.tests

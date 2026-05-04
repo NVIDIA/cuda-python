@@ -1,0 +1,214 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Nightly CI pipeline that tests optional dependencies (PyTorch, numba-cuda)
+# against the latest cuda-python wheels built on main.
+#
+# This workflow does NOT build wheels — it downloads them from the latest
+# successful CI run on main and runs integration tests with optional deps.
+
+name: "CI: Nightly optional-deps"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - "main"
+      - "pull-request/[0-9]+"
+  schedule:
+    # 2 AM UTC daily, after the midnight main CI build finishes
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      run-id:
+        description: >
+          Override the CI run ID to download artifacts from.
+          Leave empty to auto-detect the latest successful main run.
+        type: string
+        default: ''
+
+jobs:
+  find-wheels:
+    runs-on: ubuntu-latest
+    outputs:
+      RUN_ID: ${{ steps.find.outputs.run_id }}
+      HEAD_SHA: ${{ steps.find.outputs.head_sha }}
+      CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 1
+
+      - name: Get CUDA build versions
+        id: get-vars
+        run: |
+          cuda_build_ver=$(yq '.cuda.build.version' ci/versions.yml)
+          echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
+
+      - name: Find latest successful CI run on main
+        id: find
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ -n "${{ inputs.run-id }}" ]]; then
+            RUN_ID="${{ inputs.run-id }}"
+            echo "Using manually specified run ID: $RUN_ID"
+          else
+            RUN_ID=$(gh run list \
+              -b main \
+              -L 1 \
+              -w "CI" \
+              -s success \
+              -R "${{ github.repository }}" \
+              --json databaseId \
+              | jq -r '.[0].databaseId')
+
+            if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
+              echo "::error::No successful CI run found on main"
+              exit 1
+            fi
+            echo "Using latest successful CI run: $RUN_ID"
+          fi
+
+          # Resolve the head SHA from the CI run — artifact names embed this.
+          HEAD_SHA=$(gh run view "$RUN_ID" \
+            -R "${{ github.repository }}" \
+            --json headSha \
+            | jq -r '.headSha')
+
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+          echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
+          echo "Source commit: $HEAD_SHA"
+
+  # ── PyTorch interop tests ──
+
+  test-pytorch-linux:
+    name: "Nightly PyTorch (linux-64)"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: find-wheels
+    permissions:
+      contents: read
+      actions: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: nightly
+      host-platform: linux-64
+      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      test-mode: nightly-pytorch
+      matrix_filter: 'map(select(.MODE == "nightly-pytorch"))'
+
+  test-pytorch-windows:
+    name: "Nightly PyTorch (win-64)"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: find-wheels
+    permissions:
+      contents: read
+      actions: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-windows.yml
+    with:
+      build-type: nightly
+      host-platform: win-64
+      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      test-mode: nightly-pytorch
+      matrix_filter: 'map(select(.MODE == "nightly-pytorch"))'
+
+  # ── numba-cuda tests ──
+
+  test-numba-cuda-linux-64:
+    name: "Nightly numba-cuda (linux-64)"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: find-wheels
+    permissions:
+      contents: read
+      actions: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: nightly
+      host-platform: linux-64
+      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      test-mode: nightly-numba-cuda
+      matrix_filter: 'map(select(.MODE == "nightly-numba-cuda"))'
+
+  test-numba-cuda-linux-aarch64:
+    name: "Nightly numba-cuda (linux-aarch64)"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: find-wheels
+    permissions:
+      contents: read
+      actions: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: nightly
+      host-platform: linux-aarch64
+      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      test-mode: nightly-numba-cuda
+      matrix_filter: 'map(select(.MODE == "nightly-numba-cuda"))'
+
+  test-numba-cuda-windows:
+    name: "Nightly numba-cuda (win-64)"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: find-wheels
+    permissions:
+      contents: read
+      actions: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-windows.yml
+    with:
+      build-type: nightly
+      host-platform: win-64
+      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      test-mode: nightly-numba-cuda
+      matrix_filter: 'map(select(.MODE == "nightly-numba-cuda"))'
+
+  # ── Status check ──
+
+  checks:
+    name: Nightly check status
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - test-pytorch-linux
+      - test-pytorch-windows
+      - test-numba-cuda-linux-64
+      - test-numba-cuda-linux-aarch64
+      - test-numba-cuda-windows
+    steps:
+      - name: Exit
+        run: |
+          # If any dependency was cancelled or failed, that's a failure.
+          #
+          # See ci.yml for the full rationale on why we must use always()
+          # and explicitly check each result rather than relying on the
+          # default behaviour.
+          if ${{ needs.test-pytorch-linux.result == 'cancelled' ||
+                 needs.test-pytorch-linux.result == 'failure' ||
+                 needs.test-pytorch-windows.result == 'cancelled' ||
+                 needs.test-pytorch-windows.result == 'failure' ||
+                 needs.test-numba-cuda-linux-64.result == 'cancelled' ||
+                 needs.test-numba-cuda-linux-64.result == 'failure' ||
+                 needs.test-numba-cuda-linux-aarch64.result == 'cancelled' ||
+                 needs.test-numba-cuda-linux-aarch64.result == 'failure' ||
+                 needs.test-numba-cuda-windows.result == 'cancelled' ||
+                 needs.test-numba-cuda-windows.result == 'failure' }}; then
+            exit 1
+          fi
+          exit 0
