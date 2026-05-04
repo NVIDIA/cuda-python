@@ -1361,7 +1361,7 @@ class Device:
         self._check_context_initialized()
         handle_return(runtime.cudaDeviceSynchronize())
 
-    def create_graph_builder(self) -> "GraphBuilder":
+    def create_graph_builder(self) -> GraphBuilder:
         """Create a new :obj:`~graph.GraphBuilder` object.
 
         Returns
@@ -1373,7 +1373,7 @@ class Device:
         from cuda.core.graph._graph_builder import GraphBuilder
 
         self._check_context_initialized()
-        return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
+        return GraphBuilder._init(self.create_stream())
 
 
 cdef inline int Device_ensure_cuda_initialized() except? -1:

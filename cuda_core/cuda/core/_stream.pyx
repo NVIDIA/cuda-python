@@ -360,7 +360,7 @@ cdef class Stream:
 
         return Stream._init(obj=_stream_holder())
 
-    def create_graph_builder(self) -> "GraphBuilder":
+    def create_graph_builder(self) -> GraphBuilder:
         """Create a new :obj:`~graph.GraphBuilder` object.
 
         The new graph builder will be associated with this stream.
@@ -373,7 +373,7 @@ cdef class Stream:
         """
         from cuda.core.graph._graph_builder import GraphBuilder
 
-        return GraphBuilder._init(stream=self, is_stream_owner=False)
+        return GraphBuilder._init(self)
 
 
 # c-only python objects, not public

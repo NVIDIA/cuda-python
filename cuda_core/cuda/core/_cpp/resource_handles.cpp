@@ -63,6 +63,7 @@ decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
 // Graph
 decltype(&cuGraphDestroy) p_cuGraphDestroy = nullptr;
+decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy = nullptr;
 
 // Linker
 decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
@@ -950,6 +951,28 @@ GraphHandle create_graph_handle(CUgraph graph) {
 GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) {
     auto box = std::make_shared<const GraphBox>(GraphBox{graph, h_parent});
     return GraphHandle(box, &box->resource);
+}
+
+// ============================================================================
+// Graph Exec Handles
+// ============================================================================
+
+namespace {
+struct GraphExecBox {
+    CUgraphExec resource;
+};
+}  // namespace
+
+GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec) {
+    auto box = std::shared_ptr<const GraphExecBox>(
+        new GraphExecBox{graph_exec},
+        [](const GraphExecBox* b) {
+            GILReleaseGuard gil;
+            p_cuGraphExecDestroy(b->resource);
+            delete b;
+        }
+    );
+    return GraphExecHandle(box, &box->resource);
 }
 
 namespace {
