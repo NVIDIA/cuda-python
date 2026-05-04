@@ -85,7 +85,7 @@ class VirtualMemoryResourceOptions:
         Use `None` if you don't need an exportable handle.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
-    granularity: :obj:`~_memory.VirtualMemoryGranularityType`
+    granularity: :obj:`~_memory.VirtualMemoryGranularityType` | str
         Controls granularity query and size rounding.
     addr_hint: int
         A (optional) virtual address hint to try to reserve at. Setting it to 0 lets the CUDA driver decide.

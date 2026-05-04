@@ -44,7 +44,14 @@ from cuda.core._utils.cuda_utils import (
 )
 from cuda.core._utils.version import binding_version, driver_version
 
-__all__ = ["CodeType", "Program", "ProgramOptions", "SourceType", "CompilerBackend", "PchStatus"]
+__all__ = [
+    "CodeType",
+    "CompilerBackend",
+    "PchStatus",
+    "Program",
+    "ProgramOptions",
+    "SourceType",
+]
 
 ProgramHandleT = nvrtc.nvrtcProgram | int | LinkerHandleT
 """Type alias for program handle types across different backends.

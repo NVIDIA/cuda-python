@@ -60,7 +60,14 @@ from cuda.core._memoryview import (
     args_viewable_as_strided_memory,
 )
 from cuda.core._module import Kernel, ObjectCode
-from cuda.core._program import CodeType, CompilerBackend, PchStatus, Program, ProgramOptions, SourceType
+from cuda.core._program import (
+    CodeType,
+    CompilerBackend,
+    PchStatus,
+    Program,
+    ProgramOptions,
+    SourceType,
+)
 from cuda.core._stream import (
     LEGACY_DEFAULT_STREAM,
     PER_THREAD_DEFAULT_STREAM,
