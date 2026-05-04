@@ -16,12 +16,14 @@ import pytest
 
 from conftest import skipif_need_cuda_headers
 from cuda.core import (
+    CodeType,
     Device,
     DeviceMemoryResource,
     LaunchConfig,
     LegacyPinnedMemoryResource,
     Program,
     ProgramOptions,
+    SourceType,
     launch,
 )
 from cuda.core._memory._legacy import _SynchronousMemoryResource
@@ -126,8 +128,8 @@ def test_launch_config_native_conversion(init_cuda):
 
 def test_launch_invalid_values(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
-    program = Program(code, "c++")
-    mod = program.compile("cubin")
+    program = Program(code, SourceType.CXX)
+    mod = program.compile(CodeType.CUBIN)
 
     stream = Device().create_stream()
     ker = mod.get_kernel("my_kernel")

@@ -15,6 +15,7 @@ from cuda.core.graph import (
     AllocNode,
     ChildGraphNode,
     ConditionalNode,
+    ConditionalType,
     EmptyNode,
     EventRecordNode,
     EventWaitNode,
@@ -23,6 +24,7 @@ from cuda.core.graph import (
     GraphCompleteOptions,
     GraphDebugPrintOptions,
     GraphDefinition,
+    GraphMemoryType,
     GraphNode,
     HostCallbackNode,
     IfElseNode,
@@ -275,7 +277,7 @@ def _build_alloc_node(g):
 def _build_alloc_managed_node(g):
     _skip_if_no_managed_mempool()
     device_id = Device().device_id
-    options = GraphAllocOptions(memory_type="managed")
+    options = GraphAllocOptions(memory_type=GraphMemoryType.MANAGED)
     entry = g.allocate(ALLOC_SIZE)
     node = entry.allocate(ALLOC_SIZE, options)
     return node, {
@@ -421,7 +423,7 @@ def _build_if_then_node(g):
     node = g.if_then(condition)
     return node, {
         "condition": condition,
-        "cond_type": "if",
+        "cond_type": lambda v: isinstance(v, ConditionalType) and v == "if",
         "branches": lambda v: isinstance(v, tuple) and len(v) == 1,
         "then": lambda v: isinstance(v, GraphDefinition),
     }
@@ -432,7 +434,7 @@ def _build_if_else_node(g):
     node = g.if_else(condition)
     return node, {
         "condition": condition,
-        "cond_type": "if",
+        "cond_type": lambda v: isinstance(v, ConditionalType) and v == "if",
         "branches": lambda v: isinstance(v, tuple) and len(v) == 2,
         "then": lambda v: isinstance(v, GraphDefinition),
         "else_": lambda v: isinstance(v, GraphDefinition),
@@ -444,7 +446,7 @@ def _build_while_loop_node(g):
     node = g.while_loop(condition)
     return node, {
         "condition": condition,
-        "cond_type": "while",
+        "cond_type": lambda v: isinstance(v, ConditionalType) and v == "while",
         "branches": lambda v: isinstance(v, tuple) and len(v) == 1,
         "body": lambda v: isinstance(v, GraphDefinition),
     }
@@ -455,7 +457,7 @@ def _build_switch_node(g):
     node = g.switch(condition, 3)
     return node, {
         "condition": condition,
-        "cond_type": "switch",
+        "cond_type": lambda v: isinstance(v, ConditionalType) and v == "switch",
         "branches": lambda v: isinstance(v, tuple) and len(v) == 3,
     }
 

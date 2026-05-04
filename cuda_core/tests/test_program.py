@@ -11,7 +11,7 @@ import pytest
 from cuda.core import _linker
 from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
-from cuda.core._program import Program, ProgramOptions
+from cuda.core._program import CompilerBackend, PchStatus, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
@@ -241,6 +241,7 @@ def test_cpp_program_with_various_options(init_cuda, options):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++", options)
     assert program.backend == "NVRTC"
+    assert isinstance(program.backend, CompilerBackend)
     program.compile("ptx")
     program.close()
 
@@ -281,6 +282,7 @@ def test_cpp_program_pch_auto_creates(init_cuda, tmp_path):
     assert program.pch_status is None  # not compiled yet
     program.compile("ptx")
     assert program.pch_status in ("created", "not_attempted", "failed")
+    assert isinstance(program.pch_status, PchStatus)
     program.close()
 
 
@@ -326,7 +328,8 @@ def test_program_init_valid_code_type():
 def test_program_init_invalid_code_type():
     code = "goto 100"
     with pytest.raises(
-        RuntimeError, match=r"^Unsupported code_type='fortran' \(supported_code_types=\('c\+\+', 'ptx', 'nvvm'\)\)$"
+        RuntimeError,
+        match=r"^Unsupported code_type='fortran' \(supported_code_types=[[(]'c\+\+', 'ptx', 'nvvm'[\])]\)$",
     ):
         Program(code, "FORTRAN")
 
@@ -681,7 +684,7 @@ def test_cpp_program_with_extra_sources():
 def test_program_options_as_bytes_nvrtc():
     """Test ProgramOptions.as_bytes() for NVRTC backend"""
     options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True)
-    nvrtc_options = options.as_bytes("nvrtc")
+    nvrtc_options = options.as_bytes(CompilerBackend.NVRTC)
     assert isinstance(nvrtc_options, list)
     assert all(isinstance(opt, bytes) for opt in nvrtc_options)
     options_str = [opt.decode() for opt in nvrtc_options]

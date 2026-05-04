@@ -10,6 +10,10 @@ This module provides :class:`Program` for compiling source code into
 from __future__ import annotations
 
 from dataclasses import dataclass
+try:
+    from enum import StrEnum
+except ImportError:
+    from backports.strenum import StrEnum
 import threading
 from warnings import warn
 
@@ -40,13 +44,52 @@ from cuda.core._utils.cuda_utils import (
 )
 from cuda.core._utils.version import binding_version, driver_version
 
-__all__ = ["Program", "ProgramOptions"]
+__all__ = [
+    "CodeType",
+    "CompilerBackend",
+    "PchStatus",
+    "Program",
+    "ProgramOptions",
+    "SourceType",
+]
 
 ProgramHandleT = nvrtc.nvrtcProgram | int | LinkerHandleT
 """Type alias for program handle types across different backends.
 
 The ``int`` type covers NVVM handles, which don't have a wrapper class.
 """
+
+
+class SourceType(StrEnum):
+    CXX = "c++"
+    PTX = "ptx"
+    NVVM = "nvvm"
+
+
+SourceType.CXX.__doc__ = "C++ source code."
+
+
+class CodeType(StrEnum):
+    PTX = "ptx"
+    CUBIN = "cubin"
+    LTOIR = "ltoir"
+    FATBIN = "fatbin"
+    OBJECT = "object"
+    LIBRARY = "library"
+
+
+class CompilerBackend(StrEnum):
+    NVRTC = "NVRTC"
+    NVVM = "NVVM"
+    NVJITLINK = "nvJitLink"
+    DRIVER = "driver"
+
+
+class PchStatus(StrEnum):
+    CREATED = "created"
+    NOT_ATTEMPTED = "not_attempted"
+    FAILED = "failed"
+
 
 
 # =============================================================================
@@ -67,14 +110,13 @@ cdef class Program:
     code : str | bytes | bytearray
         The source code to compile. For C++ and PTX, must be a string.
         For NVVM IR, can be str, bytes, or bytearray.
-    code_type : str
+    code_type : SourceType | str
         The type of source code. Must be one of ``"c++"``, ``"ptx"``, or ``"nvvm"``.
     options : :class:`ProgramOptions`, optional
         Options to customize the compilation process.
     """
-
-    def __init__(self, code: str | bytes | bytearray, code_type: str, options: ProgramOptions | None = None):
-        Program_init(self, code, code_type, options)
+    def __init__(self, code: str | bytes | bytearray, code_type: SourceType | str, options: ProgramOptions | None = None):
+        Program_init(self, code, str(code_type), options)
 
     def close(self):
         """Destroy this program."""
@@ -85,13 +127,13 @@ cdef class Program:
         self._h_nvvm.reset()
 
     def compile(
-        self, target_type: str, name_expressions: tuple | list = (), logs = None
+        self, target_type: CodeType | str, name_expressions: tuple | list = (), logs = None
     ) -> ObjectCode:
         """Compile the program to the specified target type.
 
         Parameters
         ----------
-        target_type : str
+        target_type : CodeType | str
             The compilation target. Must be one of ``"ptx"``, ``"cubin"``, or ``"ltoir"``.
         name_expressions : tuple | list, optional
             Sequence of name expressions to make accessible in the compiled code.
@@ -104,10 +146,10 @@ cdef class Program:
         :class:`~cuda.core.ObjectCode`
             The compiled object code.
         """
-        return Program_compile(self, target_type, name_expressions, logs)
+        return Program_compile(self, str(target_type), name_expressions, logs)
 
     @property
-    def pch_status(self) -> str | None:
+    def pch_status(self) -> PchStatus | None:
         """PCH creation outcome from the most recent :meth:`compile` call.
 
         Possible values:
@@ -130,12 +172,14 @@ cdef class Program:
            use the NVRTC backend. For PTX and NVVM programs this property
            always returns ``None``.
         """
-        return self._pch_status
+        if self._pch_status is None:
+            return None
+        return PchStatus(self._pch_status)
 
     @property
-    def backend(self) -> str:
-        """Return this Program instance's underlying backend."""
-        return self._backend
+    def backend(self) -> CompilerBackend:
+        """Return this Program instance's underlying :class:`CompilerBackend`."""
+        return CompilerBackend(self._backend)
 
     @property
     def handle(self) -> ProgramHandleT:
@@ -435,7 +479,7 @@ class ProgramOptions:
     def _prepare_nvvm_options(self, as_bytes: bool = True) -> list[bytes] | list[str]:
         return _prepare_nvvm_options_impl(self, as_bytes)
 
-    def as_bytes(self, backend: str, target_type: str | None = None) -> list[bytes]:
+    def as_bytes(self, backend: CompilerBackend | str, target_type: CodeType | str | None = None) -> list[bytes]:
         """Convert program options to bytes format for the specified backend.
 
         This method transforms the program options into a format suitable for the
@@ -444,9 +488,9 @@ class ProgramOptions:
 
         Parameters
         ----------
-        backend : str
+        backend : CompilerBackend | str
             The compiler backend to prepare options for. Must be either "nvrtc" or "nvvm".
-        target_type : str, optional
+        target_type : CodeType | str, optional
             The compilation target type (e.g., "ptx", "cubin", "ltoir"). Some backends
             require additional options based on the target type.
 
@@ -467,7 +511,7 @@ class ProgramOptions:
         >>> options = ProgramOptions(arch="sm_80", debug=True)
         >>> nvrtc_options = options.as_bytes("nvrtc")
         """
-        backend = backend.lower()
+        backend = str(backend).lower()
         if backend == "nvrtc":
             return self._prepare_nvrtc_options()
         elif backend == "nvvm":
@@ -639,7 +683,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
                 &nvrtc_prog, code_ptr, name_ptr, 0, NULL, NULL))
         self._h_nvrtc = create_nvrtc_program_handle(nvrtc_prog)
         self._nvrtc_code = code_bytes
-        self._backend = "NVRTC"
+        self._backend = str(CompilerBackend.NVRTC)
         self._linker = None
 
     elif code_type == "ptx":
@@ -649,7 +693,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         self._linker = Linker(
             ObjectCode._init(code.encode(), code_type), options=_translate_program_options(options)
         )
-        self._backend = self._linker.backend
+        self._backend = str(self._linker.backend)
 
     elif code_type == "nvvm":
         _get_nvvm_module()  # Validate NVVM availability
@@ -683,12 +727,11 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         if options.use_libdevice:
             self._use_libdevice = True
 
-        self._backend = "NVVM"
+        self._backend = str(CompilerBackend.NVVM)
         self._linker = None
 
     else:
-        supported_code_types = ("c++", "ptx", "nvvm")
-        assert code_type not in supported_code_types, f"{code_type=}"
+        supported_code_types = tuple(x.value for x in SourceType)
         if options.use_libdevice:
             raise ValueError("use_libdevice is only supported by the NVVM backend")
         raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
@@ -780,23 +823,18 @@ cdef bint _has_nvrtc_pch_apis():
     return _nvrtc_pch_apis_cached
 
 
-cdef str _PCH_STATUS_CREATED = "created"
-cdef str _PCH_STATUS_NOT_ATTEMPTED = "not_attempted"
-cdef str _PCH_STATUS_FAILED = "failed"
-
-
-cdef str _read_pch_status(cynvrtc.nvrtcProgram prog):
+cdef object _read_pch_status(cynvrtc.nvrtcProgram prog):
     """Query nvrtcGetPCHCreateStatus and translate to a high-level string."""
     cdef cynvrtc.nvrtcResult err
     with nogil:
         err = cynvrtc.nvrtcGetPCHCreateStatus(prog)
     if err == cynvrtc.nvrtcResult.NVRTC_SUCCESS:
-        return _PCH_STATUS_CREATED
+        return PchStatus.CREATED
     if err == cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED:
         return None  # sentinel: caller should auto-retry
     if err == cynvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED:
-        return _PCH_STATUS_NOT_ATTEMPTED
-    return _PCH_STATUS_FAILED
+        return PchStatus.NOT_ATTEMPTED
+    return PchStatus.FAILED
 
 
 cdef object Program_compile_nvrtc(Program self, str target_type, object name_expressions, object logs):
@@ -822,7 +860,7 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
         ) from e
 
     if status is not None:
-        self._pch_status = status
+        self._pch_status = str(status)
         return result
 
     # Heap exhausted — auto-resize and retry with a fresh program
@@ -844,7 +882,7 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
     )
 
     status = _read_pch_status(retry_prog)
-    self._pch_status = status if status is not None else _PCH_STATUS_FAILED
+    self._pch_status = status if status is not None else PchStatus.FAILED
     return result
 
 
@@ -904,10 +942,10 @@ cdef object Program_compile_nvvm(Program self, str target_type, object logs):
 
 # Supported target types per backend
 cdef dict SUPPORTED_TARGETS = {
-    "NVRTC": ("ptx", "cubin", "ltoir"),
-    "NVVM": ("ptx", "ltoir"),
-    "nvJitLink": ("cubin", "ptx"),
-    "driver": ("cubin", "ptx"),
+    CompilerBackend.NVRTC: (CodeType.PTX, CodeType.CUBIN, CodeType.LTOIR),
+    CompilerBackend.NVVM: (CodeType.PTX, CodeType.LTOIR),
+    CompilerBackend.NVJITLINK: (CodeType.CUBIN, CodeType.PTX),
+    CompilerBackend.DRIVER: (CodeType.CUBIN, CodeType.PTX),
 }
 
 

@@ -24,10 +24,22 @@ from cuda.core._resource_handles cimport (
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from dataclasses import dataclass
+try:
+    from enum import StrEnum
+except ImportError:
+    from backports.strenum import StrEnum
 
 from cuda.core._utils.cuda_utils import driver
 
-__all__ = ['GraphCondition', 'GraphAllocOptions', 'GraphDefinition']
+from cuda.core.graph._conditional_type import ConditionalType
+
+__all__ = ['ConditionalType', 'GraphCondition', 'GraphAllocOptions', 'GraphDefinition', 'GraphMemoryType']
+
+
+class GraphMemoryType(StrEnum):
+    DEVICE = "device"
+    HOST = "host"
+    MANAGED = "managed"
 
 
 cdef class GraphCondition:
@@ -78,7 +90,7 @@ class GraphAllocOptions:
     device : int or Device, optional
         The device on which to allocate memory. If None (default),
         uses the current CUDA context's device.
-    memory_type : str, optional
+    memory_type : GraphMemoryType | str, optional
         Type of memory to allocate. One of:
 
         - ``"device"`` (default): Pinned device memory, optimal for GPU kernels.
@@ -101,7 +113,7 @@ class GraphAllocOptions:
     """
 
     device: int | "Device" | None = None
-    memory_type: str = "device"
+    memory_type: GraphMemoryType = GraphMemoryType.DEVICE
     peer_access: list | None = None
 
 

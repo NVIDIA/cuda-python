@@ -32,11 +32,17 @@ from cuda.core import (
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
+    ManagedMemoryLocationType,
     ManagedMemoryResource,
     ManagedMemoryResourceOptions,
     MemoryResource,
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,
+    VirtualMemoryAccessType,
+    VirtualMemoryAllocationType,
+    VirtualMemoryGranularityType,
+    VirtualMemoryHandleType,
+    VirtualMemoryLocationType,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
@@ -134,19 +140,25 @@ class NullMemoryResource(DummyHostMemoryResource):
 def test_package_contents():
     expected = [
         "Buffer",
-        "MemoryResource",
         "DeviceMemoryResource",
         "DeviceMemoryResourceOptions",
         "GraphMemoryResource",
-        "IPCBufferDescriptor",
         "IPCAllocationHandle",
+        "IPCBufferDescriptor",
         "LegacyPinnedMemoryResource",
+        "ManagedMemoryLocationType",
         "ManagedMemoryResource",
         "ManagedMemoryResourceOptions",
-        "PinnedMemoryResourceOptions",
+        "MemoryResource",
         "PinnedMemoryResource",
-        "VirtualMemoryResourceOptions",
+        "PinnedMemoryResourceOptions",
+        "VirtualMemoryAccessType",
+        "VirtualMemoryAllocationType",
+        "VirtualMemoryGranularityType",
+        "VirtualMemoryHandleType",
+        "VirtualMemoryLocationType",
         "VirtualMemoryResource",
+        "VirtualMemoryResourceOptions",
     ]
     d = {}
     exec("from cuda.core._memory import *", d)  # noqa: S102
@@ -800,14 +812,14 @@ def test_vmm_allocator_policy_configuration():
 
     # Test with custom VMM config
     custom_config = VirtualMemoryResourceOptions(
-        allocation_type="pinned",
-        location_type="device",
-        granularity="minimum",
+        allocation_type=VirtualMemoryAllocationType.PINNED,
+        location_type=VirtualMemoryLocationType.DEVICE,
+        granularity=VirtualMemoryGranularityType.MINIMUM,
         gpu_direct_rdma=True,
-        handle_type="posix_fd" if not IS_WINDOWS else "win32_kmt",
+        handle_type=VirtualMemoryHandleType.POSIX_FD if not IS_WINDOWS else VirtualMemoryHandleType.WIN32_KMT,
         peers=(),
-        self_access="rw",
-        peer_access="rw",
+        self_access=VirtualMemoryAccessType.READ_WRITE,
+        peer_access=VirtualMemoryAccessType.READ_WRITE,
     )
 
     vmm_mr = VirtualMemoryResource(device, config=custom_config)
@@ -1090,7 +1102,7 @@ def test_managed_memory_resource_preferred_location_device(init_cuda):
     # Explicit style
     opts = ManagedMemoryResourceOptions(
         preferred_location=device.device_id,
-        preferred_location_type="device",
+        preferred_location_type=ManagedMemoryLocationType.DEVICE,
     )
     mr = create_managed_memory_resource_or_skip(opts)
     assert mr.preferred_location == ("device", device.device_id)
