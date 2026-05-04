@@ -5,22 +5,27 @@
 from libc.stdint cimport intptr_t, uint64_t
 from libc.math cimport ceil
 
+from enum import StrEnum
 from multiprocessing import cpu_count
 from typing import Iterable
+import warnings
 
 from cuda.bindings import nvml
+from cuda.bindings._internal._fast_enum import FastEnum
 
 from ._nvml_context cimport initialize
 
 
-AddressingMode = nvml.DeviceAddressingModeType
-AffinityScope = nvml.AffinityScope
-BrandType = nvml.BrandType
-DeviceArch = nvml.DeviceArch
-GpuP2PCapsIndex = nvml.GpuP2PCapsIndex
-GpuP2PStatus = nvml.GpuP2PStatus
-GpuTopologyLevel = nvml.GpuTopologyLevel
-Pstates = nvml.Pstates
+cdef object _pstate_to_int(object pstate):
+    if pstate == nvml.Pstates.PSTATE_UNKNOWN:
+        return None
+    return int(pstate) - int(nvml.Pstates.PSTATE_0)
+
+
+cdef int _pstate_to_enum(int pstate):
+    if pstate < 0 or pstate > 15:
+        raise ValueError(f"Invalid P-state: {pstate}. Must be between 0 and 15 inclusive.")
+    return int(pstate) + int(nvml.Pstates.PSTATE_0)
 
 
 include "_clock.pxi"
@@ -40,6 +45,151 @@ include "_process.pxi"
 include "_repair_status.pxi"
 include "_temperature.pxi"
 include "_utilization.pxi"
+
+
+class AddressingMode(StrEnum):
+    """
+    Addressing mode of a device.
+
+    For Kepler™ or newer fully supported devices.
+    """
+    HMM = "hmm"
+    ATS = "ats"
+AddressingMode.HMM.__doc__ = """
+    System allocated memory (``malloc``, ``mmap``) is addressable from the device
+    (GPU), via software-based mirroring of the CPU's page tables, on the GPU.
+"""
+AddressingMode.ATS.__doc__ = """
+    System allocated memory (``malloc``, ``mmap``) is addressable from the device
+    (GPU), via Address Translation Services. This means that there is (effectively)
+    a single set of page tables, and the CPU and GPU both use them.
+"""
+cdef dict _ADDRESSING_MODE_MAPPING = {
+    nvml.DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_HMM: AddressingMode.HMM,
+    nvml.DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_ATS: AddressingMode.ATS,
+}
+
+
+class AffinityScope(StrEnum):
+    """
+    Scope for affinity queries.
+    """
+    NODE = "node"
+    SOCKET = "socket"
+AffinityScope.NODE.__doc__ = """
+    The NUMA node is the scope of the affinity query.  This is the default scope.
+"""
+AffinityScope.SOCKET.__doc__ = """
+    The CPU socket is the scope of the affinity query.
+"""
+cdef dict _AFFINITY_SCOPE_MAPPING = {
+    AffinityScope.NODE: nvml.AffinityScope.NODE,
+    AffinityScope.SOCKET: nvml.AffinityScope.SOCKET,
+}
+
+
+cdef dict _BRAND_TYPE_MAPPING = {
+    nvml.BrandType.BRAND_UNKNOWN: "Unknown",
+    nvml.BrandType.BRAND_QUADRO: "Quadro",
+    nvml.BrandType.BRAND_TESLA: "Tesla",
+    nvml.BrandType.BRAND_NVS: "NVS",
+    nvml.BrandType.BRAND_GRID: "GRID",
+    nvml.BrandType.BRAND_GEFORCE: "GeForce",
+    nvml.BrandType.BRAND_TITAN: "Titan",
+    nvml.BrandType.BRAND_NVIDIA_VAPPS: "NVIDIA vApps",
+    nvml.BrandType.BRAND_NVIDIA_VPC: "NVIDIA VPC",
+    nvml.BrandType.BRAND_NVIDIA_VCS: "NVIDIA VCS",
+    nvml.BrandType.BRAND_NVIDIA_VWS: "NVIDIA VWS",
+    nvml.BrandType.BRAND_NVIDIA_CLOUD_GAMING: "NVIDIA Cloud Gaming",
+    nvml.BrandType.BRAND_NVIDIA_VGAMING: "NVIDIA vGaming",
+    nvml.BrandType.BRAND_GEFORCE_RTX: "GeForce RTX",
+    nvml.BrandType.BRAND_TITAN_RTX: "Titan RTX",
+}
+
+
+# This uses FastEnum instead of StrEnum because the ordering of the values is
+# meaningful, e.g. Kepler "or later"
+class DeviceArch(FastEnum):
+    """
+    Device architecture.
+    """
+    KEPLER = int(nvml.DeviceArch.KEPLER)
+    MAXWELL = int(nvml.DeviceArch.MAXWELL)
+    PASCAL = int(nvml.DeviceArch.PASCAL)
+    VOLTA = int(nvml.DeviceArch.VOLTA)
+    TURING = int(nvml.DeviceArch.TURING)
+    AMPERE = int(nvml.DeviceArch.AMPERE)
+    ADA = int(nvml.DeviceArch.ADA)
+    HOPPER = int(nvml.DeviceArch.HOPPER)
+    BLACKWELL = int(nvml.DeviceArch.BLACKWELL)
+    UNKNOWN = int(nvml.DeviceArch.UNKNOWN)
+
+
+class GpuP2PCapsIndex(StrEnum):
+    """
+    GPU peer-to-peer capabilities index.
+    """
+    READ = "read"
+    WRITE = "write"
+    NVLINK = "nvlink"
+    ATOMICS = "atomics"
+    PCI = "pci"
+    PROP = "prop"
+    UNKNOWN = "unknown"
+cdef dict _GPU_P2P_CAPS_INDEX_MAPPING = {
+    GpuP2PCapsIndex.READ: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_READ,
+    GpuP2PCapsIndex.WRITE: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_WRITE,
+    GpuP2PCapsIndex.NVLINK: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_NVLINK,
+    GpuP2PCapsIndex.ATOMICS: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_ATOMICS,
+    GpuP2PCapsIndex.PCI: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_PCI,
+    GpuP2PCapsIndex.PROP: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_PROP,
+}
+
+
+class GpuP2PStatus(StrEnum):
+    """
+    GPU peer-to-peer status.
+    """
+    OK = "ok"
+    CHIPSET_NOT_SUPPORTED = "chipset not supported"
+    GPU_NOT_SUPPORTED = "GPU not supported"
+    IOH_TOPOLOGY_NOT_SUPPORTED = "IOH topology not supported"
+    DISABLED_BY_REGKEY = "disabled by regkey"
+    NOT_SUPPORTED = "not supported"
+    UNKNOWN = "unknown"
+cdef dict _GPU_P2P_STATUS_MAPPING = {
+    nvml.GpuP2PStatus.P2P_STATUS_OK: GpuP2PStatus.OK,
+    # Typo in upstream library
+    nvml.GpuP2PStatus.P2P_STATUS_CHIPSET_NOT_SUPPORED: GpuP2PStatus.CHIPSET_NOT_SUPPORTED,
+    nvml.GpuP2PStatus.P2P_STATUS_CHIPSET_NOT_SUPPORTED: GpuP2PStatus.CHIPSET_NOT_SUPPORTED,
+    nvml.GpuP2PStatus.P2P_STATUS_GPU_NOT_SUPPORTED: GpuP2PStatus.GPU_NOT_SUPPORTED,
+    nvml.GpuP2PStatus.P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED: GpuP2PStatus.IOH_TOPOLOGY_NOT_SUPPORTED,
+    nvml.GpuP2PStatus.P2P_STATUS_DISABLED_BY_REGKEY: GpuP2PStatus.DISABLED_BY_REGKEY,
+    nvml.GpuP2PStatus.P2P_STATUS_NOT_SUPPORTED: GpuP2PStatus.NOT_SUPPORTED,
+    nvml.GpuP2PStatus.P2P_STATUS_UNKNOWN: GpuP2PStatus.UNKNOWN,
+}
+
+
+class GpuTopologyLevel(StrEnum):
+    """
+    Represents level relationships within a system between two GPUs.
+    """
+    INTERNAL = "internal"
+    SINGLE = "single"
+    MULTIPLE = "multiple"
+    HOSTBRIDGE = "hostbridge"
+    NODE = "node"
+    SYSTEM = "system"
+cdef dict _GPU_TOPOLOGY_LEVEL_MAPPING = {
+    GpuTopologyLevel.INTERNAL: nvml.GpuTopologyLevel.TOPOLOGY_INTERNAL,
+    GpuTopologyLevel.SINGLE: nvml.GpuTopologyLevel.TOPOLOGY_SINGLE,
+    GpuTopologyLevel.MULTIPLE: nvml.GpuTopologyLevel.TOPOLOGY_MULTIPLE,
+    GpuTopologyLevel.HOSTBRIDGE: nvml.GpuTopologyLevel.TOPOLOGY_HOSTBRIDGE,
+    GpuTopologyLevel.NODE: nvml.GpuTopologyLevel.TOPOLOGY_NODE,
+    GpuTopologyLevel.SYSTEM: nvml.GpuTopologyLevel.TOPOLOGY_SYSTEM,
+}
+cdef dict _GPU_TOPOLOGY_LEVEL_INV_MAPPING = {v: k for k, v in _GPU_TOPOLOGY_LEVEL_MAPPING.items()}
+
 
 
 cdef class Device:
@@ -184,7 +334,7 @@ cdef class Device:
         try:
             return DeviceArch(arch)
         except ValueError:
-            return nvml.DeviceArch.UNKNOWN
+            return DeviceArch.UNKNOWN
 
     @property
     def name(self) -> str:
@@ -194,11 +344,13 @@ cdef class Device:
         return nvml.device_get_name(self._handle)
 
     @property
-    def brand(self) -> BrandType:
+    def brand(self) -> str:
         """
-        :obj:`~BrandType` brand of the device
+        The brand of the device.
+
+        Returns "Unknown" if the brand is unknown.
         """
-        return BrandType(nvml.device_get_brand(self._handle))
+        return _BRAND_TYPE_MAPPING.get(nvml.device_get_brand(self._handle), "Unknown")
 
     @property
     def serial(self) -> str:
@@ -322,23 +474,11 @@ cdef class Device:
     # ADDRESSING MODE
 
     @property
-    def addressing_mode(self) -> AddressingMode:
+    def addressing_mode(self) -> AddressingMode | None:
         """
         Get the :obj:`~AddressingMode` of the device.
-
-        Addressing modes can be one of:
-
-        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_HMM`: System allocated
-          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
-          software-based mirroring of the CPU's page tables, on the GPU.
-        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_ATS`: System allocated
-          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
-          Address Translation Services. This means that there is (effectively) a
-          single set of page tables, and the CPU and GPU both use them.
-        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_NONE`: Neither HMM nor ATS
-          is active.
         """
-        return AddressingMode(nvml.device_get_addressing_mode(self._handle).value)
+        return _ADDRESSING_MODE_MAPPING.get(nvml.device_get_addressing_mode(self._handle).value, None)
 
     #########################################################################
     # MIG (MULTI-INSTANCE GPU) DEVICES
@@ -378,7 +518,7 @@ cdef class Device:
             device._handle = handle
             yield device
 
-    def get_memory_affinity(self, scope: AffinityScope=AffinityScope.NODE) -> list[int]:
+    def get_memory_affinity(self, scope: AffinityScope | str=AffinityScope.NODE) -> list[int]:
         """
         Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
         memory affinity for the device.
@@ -390,16 +530,35 @@ cdef class Device:
         If requested scope is not applicable to the target topology, the API
         will fall back to reporting the memory affinity for the immediate non-I/O
         ancestor of the device.
+
+        Parameters
+        ----------
+        scope: AffinityScope | str, optional
+            The scope of the affinity query.  Must be one of the values of
+            :class:`AffinityScope`.  Default is :attr:`AffinityScope.NODE`.
+
+        Returns
+        -------
+        list[int]
+            A list of indices of NUMA nodes or CPU sockets with the ideal memory
+            affinity for the device.
         """
+        try:
+            scope = _AFFINITY_SCOPE_MAPPING[scope]
+        except KeyError:
+            raise ValueError(
+                f"Invalid affinity scope: {scope}. "
+                f"Must be one of {list(AffinityScope.__members__.values())}"
+            ) from None
         return _unpack_bitmask(
             nvml.device_get_memory_affinity(
                 self._handle,
                 <unsigned int>ceil(cpu_count() / 64),
-                scope
+                scope,
             )
         )
 
-    def get_cpu_affinity(self, scope: AffinityScope=AffinityScope.NODE) -> list[int]:
+    def get_cpu_affinity(self, scope: AffinityScope | str=AffinityScope.NODE) -> list[int]:
         """
         Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
         CPU affinity for the device.
@@ -411,7 +570,26 @@ cdef class Device:
         If requested scope is not applicable to the target topology, the API
         will fall back to reporting the memory affinity for the immediate non-I/O
         ancestor of the device.
+
+        Parameters
+        ----------
+        scope: AffinityScope | str, optional
+            The scope of the affinity query.  Must be one of the values of
+            :class:`AffinityScope`.  Default is :attr:`AffinityScope.NODE`.
+
+        Returns
+        -------
+        list[int]
+            A list of indices of NUMA nodes or CPU sockets with the ideal memory
+            affinity for the device.
         """
+        try:
+            scope = _AFFINITY_SCOPE_MAPPING[scope]
+        except KeyError:
+            raise ValueError(
+                f"Invalid affinity scope: {scope}. "
+                f"Must be one of {list(AffinityScope.__members__.values())}"
+            ) from None
         return _unpack_bitmask(
             nvml.device_get_cpu_affinity_within_scope(
                 self._handle,
@@ -444,7 +622,7 @@ cdef class Device:
     # CLOCK
     # See external class definitions in _clock.pxi
 
-    def get_clock(self, clock_type: ClockType) -> ClockInfo:
+    def get_clock(self, clock_type: ClockType | str) -> ClockInfo:
         """
         :obj:`~_device.ClockInfo` object to get information about and manage a specific clock on a device.
         """
@@ -485,7 +663,14 @@ cdef class Device:
         """
         cdef uint64_t[1] reasons
         reasons[0] = nvml.device_get_current_clocks_event_reasons(self._handle)
-        return [ClocksEventReasons(1 << reason) for reason in _unpack_bitmask(reasons)]
+        output_reasons = []
+        for reason in _unpack_bitmask(reasons):
+            try:
+                output_reason = _CLOCKS_EVENT_REASONS_MAPPING[1 << reason]
+            except KeyError:
+                raise ValueError(f"Unknown clock event reason bit: {reason}")
+            output_reasons.append(output_reason)
+        return output_reasons
 
     @property
     def supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
@@ -499,7 +684,14 @@ cdef class Device:
         """
         cdef uint64_t[1] reasons
         reasons[0] = nvml.device_get_supported_clocks_event_reasons(self._handle)
-        return [ClocksEventReasons(1 << reason) for reason in _unpack_bitmask(reasons)]
+        output_reasons = []
+        for reason in _unpack_bitmask(reasons):
+            try:
+                output_reason = _CLOCKS_EVENT_REASONS_MAPPING[1 << reason]
+            except KeyError:
+                raise ValueError(f"Unknown clock event reason bit: {reason}")
+            output_reasons.append(output_reason)
+        return output_reasons
 
     ##########################################################################
     # COOLER
@@ -556,7 +748,7 @@ cdef class Device:
     # EVENTS
     # See external class definitions in _event.pxi
 
-    def register_events(self, events: EventType | int | list[EventType | int]) -> DeviceEvents:
+    def register_events(self, events: EventType | str | list[EventType | str]) -> DeviceEvents:
         """
         Starts recording events on this device.
 
@@ -575,14 +767,14 @@ cdef class Device:
         --------
         >>> device = Device(index=0)
         >>> events = device.register_events([
-        ...     EventType.EVENT_TYPE_XID_CRITICAL_ERROR,
+        ...     EventType.XID_CRITICAL_ERROR,
         ... ])
         >>> while event := events.wait(timeout_ms=10000):
         ...     print(f"Event {event.event_type} occurred on device {event.device.uuid}")
 
         Parameters
         ----------
-        events: EventType, int, or list of EventType or int
+        events: EventType, str, or list of EventType or str
             The event type or list of event types to register for this device.
 
         Returns
@@ -612,7 +804,14 @@ cdef class Device:
         """
         cdef uint64_t[1] bitmask
         bitmask[0] = nvml.device_get_supported_event_types(self._handle)
-        return [EventType(1 << ev) for ev in _unpack_bitmask(bitmask)]
+        events = []
+        for ev in _unpack_bitmask(bitmask):
+            try:
+                ev_enum = _EVENT_TYPE_MAPPING[1 << ev]
+            except KeyError:
+                raise ValueError(f"Unknown event type bit: {1 << ev}")
+            events.append(ev_enum)
+        return events
 
     ##########################################################################
     # FAN
@@ -752,15 +951,20 @@ cdef class Device:
     # See external class definitions in _performance.pxi
 
     @property
-    def performance_state(self) -> Pstates:
+    def performance_state(self) -> int | None:
         """
         The current performance state of the device.
 
         For Fermi™ or newer fully supported devices.
 
-        See :class:`Pstates` for possible performance states.
+        Returns
+        -------
+        int | None
+            The current performance state of the device, as an integer between 0 and 15,
+            where 0 is maximum performance and higher numbers are lower performance.
+            Returns `None` if the performance state is unknown.
         """
-        return Pstates(nvml.device_get_performance_state(self._handle))
+        return _pstate_to_int(nvml.device_get_performance_state(self._handle))
 
     @property
     def dynamic_pstates_info(self) -> GpuDynamicPstatesInfo:
@@ -770,7 +974,7 @@ cdef class Device:
         return GpuDynamicPstatesInfo(nvml.device_get_dynamic_pstates_info(self._handle))
 
     @property
-    def supported_pstates(self) -> list[Pstates]:
+    def supported_pstates(self) -> list[int]:
         """
         Get all supported Performance States (P-States) for the device.
 
@@ -779,10 +983,23 @@ cdef class Device:
 
         Return
         ------
-        list[Pstates]
-            A list of supported P-States for the device.
+        list[int]
+            A list of supported performance state of the device, as an integer
+            between 0 and 15, where 0 is maximum performance and higher numbers
+            are lower performance.
         """
-        return [Pstates(x) for x in nvml.device_get_supported_performance_states(self._handle)]
+        # From nvml.h:
+        # The returned array would contain a contiguous list of valid P-States
+        # supported by the device. If the number of supported P-States is fewer
+        # than the size of the array supplied missing elements would contain \a
+        # NVML_PSTATE_UNKNOWN.
+
+        pstates = []
+        for pstate in nvml.device_get_supported_performance_states(self._handle):
+            pstate_value = _pstate_to_int(pstate)
+            if pstate_value is not None:
+                pstates.append(pstate_value)
+        return pstates
 
     ##########################################################################
     # PROCESS
@@ -838,7 +1055,7 @@ cdef class Device:
     #######################################################################
     # TOPOLOGY
 
-    def get_topology_nearest_gpus(self, level: GpuTopologyLevel) -> Iterable[Device]:
+    def get_topology_nearest_gpus(self, level: GpuTopologyLevel | str) -> Iterable[Device]:
         """
         Retrieve the GPUs that are nearest to this device at a specific interconnectivity level.
 
@@ -855,6 +1072,13 @@ cdef class Device:
             The nearest devices at the given topology level.
         """
         cdef Device device
+        try:
+            level = _GPU_TOPOLOGY_LEVEL_MAPPING[level]
+        except KeyError:
+            raise ValueError(
+                f"Invalid topology level: {level}. "
+                f"Must be one of {list(GpuTopologyLevel.__members__.values())}"
+            ) from None
         for handle in nvml.device_get_topology_nearest_gpus(self._handle, level):
             device = Device.__new__(Device)
             device._handle = handle
@@ -904,15 +1128,15 @@ def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopolog
     :class:`GpuTopologyLevel`
         The common ancestor level of the two devices.
     """
-    return GpuTopologyLevel(
+    return _GPU_TOPOLOGY_LEVEL_INV_MAPPING[
         nvml.device_get_topology_common_ancestor(
             device1._handle,
             device2._handle,
         )
-    )
+    ]
 
 
-def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex) -> GpuP2PStatus:
+def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex | str) -> GpuP2PStatus:
     """
     Retrieve the P2P status between two devices.
 
@@ -922,7 +1146,7 @@ def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex) -> 
         The first device.
     device2: :class:`Device`
         The second device.
-    index: :class:`GpuP2PCapsIndex`
+    index: :class:`GpuP2PCapsIndex` | str
         The P2P capability index being looked for between ``device1`` and ``device2``.
 
     Returns
@@ -930,19 +1154,26 @@ def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex) -> 
     :class:`GpuP2PStatus`
         The P2P status between the two devices.
     """
-    return GpuP2PStatus(
+    try:
+        index_enum = _GPU_P2P_CAPS_INDEX_MAPPING[index]
+    except KeyError:
+        raise ValueError(
+            f"Invalid P2P caps index: {index}. "
+            f"Must be one of {list(GpuP2PCapsIndex.__members__.values())}"
+        ) from None
+    return _GPU_P2P_STATUS_MAPPING.get(
         nvml.device_get_p2p_status(
             device1._handle,
             device2._handle,
-            index,
-        )
+            index_enum,
+        ),
+        GpuP2PStatus.UNKNOWN
     )
 
 
 __all__ = [
     "AddressingMode",
     "AffinityScope",
-    "BrandType",
     "ClockId",
     "ClocksEventReasons",
     "ClockType",
@@ -959,10 +1190,7 @@ __all__ = [
     "GpuP2PStatus",
     "GpuTopologyLevel",
     "InforomObject",
-    "NvlinkVersion",
-    "PcieUtilCounter",
-    "Pstates",
-    "TemperatureSensors",
+    "NvlinkInfo",
     "TemperatureThresholds",
     "ThermalController",
     "ThermalTarget",

@@ -20,7 +20,8 @@ from cuda.core import system
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.bindings import nvml
-    from cuda.core.system import DeviceArch, _device
+    from cuda.bindings.nvml import DeviceArch
+    from cuda.core.system import _device
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -107,7 +108,7 @@ def test_device_cpu_affinity():
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_affinity():
     for device in system.Device.get_all_devices():
-        for scope in (system.AffinityScope.NODE, system.AffinityScope.SOCKET):
+        for scope in system.AffinityScope.__members__.values():
             with unsupported_before(device, DeviceArch.KEPLER):
                 affinity = device.get_cpu_affinity(scope)
             assert isinstance(affinity, list)
@@ -214,7 +215,8 @@ def test_device_pci_info():
         assert 0 <= pci_info.current_link_width <= 0xFF
 
         with unsupported_before(device, None):
-            assert isinstance(pci_info.get_throughput(system.PcieUtilCounter.PCIE_UTIL_TX_BYTES), int)
+            assert isinstance(pci_info.tx_throughput, int)
+            assert isinstance(pci_info.rx_throughput, int)
 
         assert isinstance(pci_info.replay_counter, int)
 
@@ -280,25 +282,14 @@ def test_register_events():
             events.wait(timeout_ms=500)
 
     for device in system.Device.get_all_devices():
-        events = device.register_events(0)
-        with pytest.raises(system.TimeoutError):
-            events.wait(timeout_ms=500)
-
-
-def test_event_type_parsing():
-    events = [system.EventType(1 << ev) for ev in _device._unpack_bitmask(array.array("Q", [3]))]
-    assert events == [
-        system.EventType.SINGLE_BIT_ECC_ERROR,
-        system.EventType.DOUBLE_BIT_ECC_ERROR,
-    ]
+        with pytest.raises(TypeError):
+            events = device.register_events(0)
 
 
 def test_device_brand():
     for device in system.Device.get_all_devices():
         brand = device.brand
-        assert isinstance(brand, system.BrandType)
-        assert isinstance(brand.name, str)
-        assert isinstance(brand.value, int)
+        assert isinstance(brand, str)
 
 
 def test_device_pci_bus_id():
@@ -437,7 +428,7 @@ def test_addressing_mode():
         # is also unsupported on other hardware.
         with unsupported_before(device, None):
             addressing_mode = device.addressing_mode
-        assert isinstance(addressing_mode, system.AddressingMode)
+        assert addressing_mode is None or addressing_mode in system.AddressingMode.__members__.values()
 
 
 def test_display_mode():
@@ -487,7 +478,7 @@ def test_get_p2p_status():
 
     devices = list(system.Device.get_all_devices())
 
-    status = system.get_p2p_status(devices[0], devices[1], system.GpuP2PCapsIndex.P2P_CAPS_INDEX_READ)
+    status = system.get_p2p_status(devices[0], devices[1], system.GpuP2PCapsIndex.READ)
     assert isinstance(status, system.GpuP2PStatus)
 
 
@@ -497,7 +488,7 @@ def test_get_nearest_gpus():
     # in practice on our CI.
 
     for device in system.Device.get_all_devices():
-        for near_device in device.get_topology_nearest_gpus(system.GpuTopologyLevel.TOPOLOGY_SINGLE):
+        for near_device in device.get_topology_nearest_gpus(system.GpuTopologyLevel.SINGLE):
             assert isinstance(near_device, system.Device)
 
 
@@ -519,7 +510,7 @@ def test_get_inforom_version():
         assert isinstance(inforom_image_version, str)
         assert len(inforom_image_version) > 0
 
-        inforom_version = inforom.get_version(system.InforomObject.INFOROM_OEM)
+        inforom_version = inforom.get_version(system.InforomObject.OEM)
         assert isinstance(inforom_version, str)
         assert len(inforom_version) > 0
 
@@ -668,7 +659,7 @@ def test_cooler():
         assert isinstance(cooler_info, _device.CoolerInfo)
 
         signal_type = cooler_info.signal_type
-        assert isinstance(signal_type, system.CoolerControl)
+        assert isinstance(signal_type, (system.CoolerControl, type(None)))
 
         target = cooler_info.target
         assert all(isinstance(t, system.CoolerTarget) for t in target)
@@ -716,10 +707,10 @@ def test_pstates():
     for device in system.Device.get_all_devices():
         with unsupported_before(device, None):
             pstate = device.performance_state
-        assert isinstance(pstate, system.Pstates)
+        assert isinstance(pstate, int)
 
         pstates = device.supported_pstates
-        assert all(isinstance(p, system.Pstates) for p in pstates)
+        assert all(isinstance(p, int) for p in pstates)
 
         dynamic_pstates_info = device.dynamic_pstates_info
         assert isinstance(dynamic_pstates_info, _device.GpuDynamicPstatesInfo)
