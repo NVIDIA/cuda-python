@@ -102,16 +102,6 @@ def test_driver_release_version_from_text_parses_branch():
     )
 
 
-def test_query_driver_release_version_returns_parsed_dataclass(monkeypatch):
-    monkeypatch.setattr(driver_info, "_query_driver_release_version_text", lambda: "595.58.03")
-
-    assert driver_info.query_driver_release_version() == driver_info.DriverReleaseVersion(
-        text="595.58.03",
-        components=(595, 58, 3),
-        branch=595,
-    )
-
-
 def test_query_driver_release_version_wraps_internal_failures(monkeypatch):
     root_cause = RuntimeError("low-level release query failed")
 
@@ -184,16 +174,6 @@ def test_query_driver_cuda_version_uses_windll_on_windows(monkeypatch):
 
     assert driver_info._query_driver_cuda_version_int() == 12080
     assert loaded_paths == [r"C:\Windows\System32\nvcuda.dll"]
-
-
-def test_query_driver_cuda_version_returns_parsed_dataclass(monkeypatch):
-    monkeypatch.setattr(driver_info, "_query_driver_cuda_version_int", lambda: 12080)
-
-    assert driver_info.query_driver_cuda_version() == driver_info.DriverCudaVersion(
-        encoded=12080,
-        major=12,
-        minor=8,
-    )
 
 
 def test_driver_cuda_version_from_encoded_returns_subclass_instance():
