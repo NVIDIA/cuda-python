@@ -186,7 +186,7 @@ cdef class Temperature:
         """
         # NOTE: nvml.device_get_temperature_v takes a sensor type from the
         # TemperatorSensors enum, but there is only one value in that enum.  For
-        # future compatibility if there are other values for that enum, this if
+        # future compatibility if there are other values for that enum, this is
         # a method, not a property
         return nvml.device_get_temperature_v(self._handle, nvml.TemperatureSensors.TEMPERATURE_GPU)
 
