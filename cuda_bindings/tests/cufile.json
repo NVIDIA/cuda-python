@@ -3,6 +3,10 @@
     // e.g : export CUFILE_ENV_PATH_JSON="/home/<xxx>/cufile.json"
 
 
+            "properties" : {
+                    "allow_compat_mode" : true
+            },
+
             "execution" : {
                     // max number of workitems in the queue;
                     "max_io_queue_depth": 128,
