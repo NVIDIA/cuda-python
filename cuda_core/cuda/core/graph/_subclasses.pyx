@@ -15,6 +15,7 @@ from cuda.core._event cimport Event
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
+from cuda.core.graph._conditional_type import ConditionalType
 from cuda.core.graph._graph_node cimport GraphNode
 from cuda.core._resource_handles cimport (
     EventHandle,
@@ -698,8 +699,8 @@ cdef class ConditionalNode(GraphNode):
         return self._condition
 
     @property
-    def cond_type(self) -> str | None:
-        """The conditional type as a string: 'if', 'while', or 'switch'.
+    def cond_type(self) -> ConditionalType | None:
+        """The conditional type: ConditionalType.IF, .WHILE, or .SWITCH
 
         Returns None when reconstructed from the driver pre-CUDA 13.2,
         as the conditional type cannot be determined.
@@ -707,11 +708,11 @@ cdef class ConditionalNode(GraphNode):
         if self._condition is None:
             return None
         if self._cond_type == cydriver.CU_GRAPH_COND_TYPE_IF:
-            return "if"
+            return ConditionalType("if")
         elif self._cond_type == cydriver.CU_GRAPH_COND_TYPE_WHILE:
-            return "while"
+            return ConditionalType("while")
         else:
-            return "switch"
+            return ConditionalType("switch")
 
     @property
     def branches(self) -> tuple:

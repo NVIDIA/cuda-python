@@ -31,7 +31,9 @@ except ImportError:
 
 from cuda.core._utils.cuda_utils import driver
 
-__all__ = ['GraphCondition', 'GraphAllocOptions', 'GraphDefinition', 'GraphMemoryType']
+from cuda.core.graph._conditional_type import ConditionalType
+
+__all__ = ['ConditionalType', 'GraphCondition', 'GraphAllocOptions', 'GraphDefinition', 'GraphMemoryType']
 
 
 class GraphMemoryType(StrEnum):

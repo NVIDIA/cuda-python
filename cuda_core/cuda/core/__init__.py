@@ -76,6 +76,7 @@ from cuda.core._stream import (
 )
 from cuda.core._tensor_map import TensorMapDescriptor, TensorMapDescriptorOptions
 from cuda.core.graph import (
+    ConditionalType,
     Graph,
     GraphAllocOptions,
     GraphBuilder,
