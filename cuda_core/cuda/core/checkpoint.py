@@ -50,10 +50,17 @@ class Process:
         Process ID of the CUDA process.
     """
 
-    __slots__ = ("pid",)
+    __slots__ = ("_pid",)
 
     def __init__(self, pid: int):
-        self.pid = _check_pid(pid)
+        self._pid = _check_pid(pid)
+
+    @property
+    def pid(self) -> int:
+        """
+        Process ID of the CUDA process.
+        """
+        return self._pid
 
     @property
     def state(self) -> _ProcessStateT:
@@ -61,7 +68,7 @@ class Process:
         CUDA checkpoint state for this process.
         """
         driver = _get_driver()
-        state = _call_driver(driver, driver.cuCheckpointProcessGetState, self.pid)
+        state = _call_driver(driver, driver.cuCheckpointProcessGetState, self._pid)
         state_names = _get_process_state_names(driver)
         try:
             return state_names[state]
@@ -75,7 +82,7 @@ class Process:
         CUDA restore thread ID for this process.
         """
         driver = _get_driver()
-        return _call_driver(driver, driver.cuCheckpointProcessGetRestoreThreadId, self.pid)
+        return _call_driver(driver, driver.cuCheckpointProcessGetRestoreThreadId, self._pid)
 
     def lock(self, timeout_ms: int = 0) -> None:
         """
@@ -89,14 +96,14 @@ class Process:
         driver = _get_driver()
         args = driver.CUcheckpointLockArgs()
         args.timeoutMs = _check_timeout_ms(timeout_ms)
-        _call_driver(driver, driver.cuCheckpointProcessLock, self.pid, args)
+        _call_driver(driver, driver.cuCheckpointProcessLock, self._pid, args)
 
     def checkpoint(self) -> None:
         """
         Checkpoint the GPU memory contents of this locked process.
         """
         driver = _get_driver()
-        _call_driver(driver, driver.cuCheckpointProcessCheckpoint, self.pid, None)
+        _call_driver(driver, driver.cuCheckpointProcessCheckpoint, self._pid, None)
 
     def restore(self, gpu_mapping: _Mapping[_Any, _Any] | None = None) -> None:
         """
@@ -107,18 +114,20 @@ class Process:
         gpu_mapping : mapping, optional
             GPU UUID remapping from each checkpointed GPU UUID to the GPU UUID
             to restore onto. For migration workflows, provide mappings for
-            every CUDA-visible GPU.
+            every GPU visible to the kernel-mode driver. User-space masking
+            such as ``CUDA_VISIBLE_DEVICES`` does not reduce this mapping
+            requirement.
         """
         driver = _get_driver()
         args = _make_restore_args(driver, gpu_mapping)
-        _call_driver(driver, driver.cuCheckpointProcessRestore, self.pid, args)
+        _call_driver(driver, driver.cuCheckpointProcessRestore, self._pid, args)
 
     def unlock(self) -> None:
         """
         Unlock this locked process so it can resume CUDA API calls.
         """
         driver = _get_driver()
-        _call_driver(driver, driver.cuCheckpointProcessUnlock, self.pid, None)
+        _call_driver(driver, driver.cuCheckpointProcessUnlock, self._pid, None)
 
 
 def _get_driver():
@@ -169,10 +178,7 @@ def _call_driver(driver, func, *args):
                 "Upgrade to a driver version with CUDA checkpoint API support."
             ) from e
         raise
-    return _handle_return(driver, result)
 
-
-def _handle_return(driver, result):
     err = result[0]
     not_supported_errors = (
         getattr(driver.CUresult, "CUDA_ERROR_NOT_FOUND", None),

@@ -4,14 +4,14 @@
 
 # Real GPU tests for cuda.core.checkpoint — no mocks.
 #
-# Lifecycle tests exercise lightweight state/lock operations in-process and
-# mutating checkpoint / restore cycles through an isolated coordinator/target
-# process pair.
+# Driver-backed lifecycle tests run through an isolated coordinator/target
+# process pair so hangs can be timed out without wedging the pytest process.
 #
 # Migration tests attempt GPU UUID remapping following the pattern from
 # NVIDIA/cuda-checkpoint r580-migration-api.c.  They require ≥2 GPUs of
-# the same chip type and a driver that supports migration; the tests skip
-# gracefully when the hardware or driver cannot satisfy this.
+# the same chip type, an unmasked CUDA device view, and a driver that supports
+# migration; the tests skip gracefully when the hardware or driver cannot
+# satisfy this.
 
 import os
 import signal
@@ -37,26 +37,18 @@ def _checkpoint_available():
 
 
 needs_checkpoint = pytest.mark.skipif(
-    sys.platform != "linux" or os.environ.get("CI") is not None or not _checkpoint_available(),
-    reason="CUDA checkpoint API requires Linux, a supported driver/bindings, and a non-CI environment",
+    sys.platform != "linux" or not _checkpoint_available(),
+    reason="CUDA checkpoint API requires Linux and a supported driver/bindings",
 )
 
 
 # -- Helpers ---------------------------------------------------------------
 
 
-def _run_or_skip_unsupported(func, *args, **kwargs):
-    try:
-        return func(*args, **kwargs)
-    except RuntimeError as exc:
-        if "CUDA checkpointing is not supported" in str(exc):
-            pytest.skip(str(exc))
-        raise
-
-
 _SCENARIO_SKIP_EXIT_CODE = 77
 
 _SCENARIO_COMMON = r"""
+import os
 import subprocess
 import sys
 from contextlib import suppress
@@ -214,36 +206,6 @@ def _run_checkpoint_scenario_or_skip(body: str, *, timeout: int = 90) -> None:
         )
 
 
-# -- Fixtures --------------------------------------------------------------
-
-
-@pytest.fixture
-def self_process(init_cuda):
-    """checkpoint.Process wrapping os.getpid(), with safety unlock on teardown.
-
-    Records the initial device so tests that call ``set_current()`` on a
-    different device (e.g. migration tests) are side-effect free.
-    """
-    original_device = init_cuda
-    proc = checkpoint.Process(os.getpid())
-    yield proc
-    # Ensure the process is not left locked if the test fails mid-lifecycle.
-    try:
-        st = proc.state
-    except Exception:
-        st = None
-    if st == "checkpointed":
-        with suppress(Exception):
-            proc.restore()
-        with suppress(Exception):
-            proc.unlock()
-    elif st == "locked":
-        with suppress(Exception):
-            proc.unlock()
-    # Restore the original device so init_cuda's teardown pops the right context.
-    original_device.set_current()
-
-
 # -- Input validation (no GPU / driver needed) -----------------------------
 
 
@@ -265,36 +227,87 @@ class TestInputValidation:
         assert checkpoint.__all__ == ["Process"]
         assert not hasattr(checkpoint, "ProcessStateT")
 
+    def test_pid_is_read_only(self):
+        proc = checkpoint.Process(1)
+        assert proc.pid == 1
+        with pytest.raises(AttributeError):
+            proc.pid = 2
+
 
 # -- Lifecycle (single GPU, real driver) -----------------------------------
 
 
 @needs_checkpoint
 class TestCheckpointLifecycle:
-    def test_initial_state_is_running(self, self_process):
-        assert self_process.state == "running"
+    def test_initial_state_is_running(self):
+        _run_checkpoint_scenario_or_skip(
+            """
+            target, _ = start_target()
+            proc = checkpoint.Process(target.pid)
+            try:
+                assert proc.state == "running"
+            finally:
+                stop_target(target)
+            """
+        )
 
-    def test_restore_thread_id_is_positive(self, self_process):
-        tid = self_process.restore_thread_id
-        assert isinstance(tid, int)
-        assert tid > 0
+    def test_restore_thread_id_is_positive(self):
+        _run_checkpoint_scenario_or_skip(
+            """
+            target, _ = start_target()
+            proc = checkpoint.Process(target.pid)
+            try:
+                tid = proc.restore_thread_id
+                assert isinstance(tid, int)
+                assert tid > 0
+            finally:
+                stop_target(target)
+            """
+        )
 
-    def test_lock_unlock(self, self_process):
-        _run_or_skip_unsupported(self_process.lock)
-        assert self_process.state == "locked"
-        self_process.unlock()
-        assert self_process.state == "running"
+    def test_lock_unlock(self):
+        _run_checkpoint_scenario_or_skip(
+            """
+            target, _ = start_target()
+            proc = checkpoint.Process(target.pid)
+            try:
+                run_or_skip_unsupported(proc.lock)
+                assert proc.state == "locked"
+                proc.unlock()
+                assert proc.state == "running"
+            finally:
+                stop_target(target)
+            """
+        )
 
-    def test_lock_default_timeout(self, self_process):
+    def test_lock_default_timeout(self):
         """lock() with the default timeout_ms=0 (no timeout)."""
-        _run_or_skip_unsupported(self_process.lock)
-        assert self_process.state == "locked"
-        self_process.unlock()
+        _run_checkpoint_scenario_or_skip(
+            """
+            target, _ = start_target()
+            proc = checkpoint.Process(target.pid)
+            try:
+                run_or_skip_unsupported(proc.lock)
+                assert proc.state == "locked"
+                proc.unlock()
+            finally:
+                stop_target(target)
+            """
+        )
 
-    def test_lock_with_timeout(self, self_process):
-        _run_or_skip_unsupported(self_process.lock, timeout_ms=5000)
-        assert self_process.state == "locked"
-        self_process.unlock()
+    def test_lock_with_timeout(self):
+        _run_checkpoint_scenario_or_skip(
+            """
+            target, _ = start_target()
+            proc = checkpoint.Process(target.pid)
+            try:
+                run_or_skip_unsupported(proc.lock, timeout_ms=5000)
+                assert proc.state == "locked"
+                proc.unlock()
+            finally:
+                stop_target(target)
+            """
+        )
 
     def test_full_cycle_no_migration(self):
         """lock -> checkpoint -> restore -> unlock, verify state at each step."""
@@ -345,6 +358,11 @@ class TestCheckpointGpuMigration:
         _run_checkpoint_scenario_or_skip(
             """
             devices = Device.get_all_devices()
+            if "CUDA_VISIBLE_DEVICES" in os.environ:
+                skip(
+                    "GPU migration tests require an unmasked CUDA device view because "
+                    "the checkpoint mapping must cover every GPU visible to the kernel-mode driver"
+                )
             if len(devices) < 2:
                 skip("GPU migration tests require at least 2 GPUs")
             if find_same_chip_pair(devices) is None:
@@ -378,6 +396,11 @@ class TestCheckpointGpuMigration:
         _run_checkpoint_scenario_or_skip(
             """
             devices = Device.get_all_devices()
+            if "CUDA_VISIBLE_DEVICES" in os.environ:
+                skip(
+                    "GPU migration tests require an unmasked CUDA device view because "
+                    "the checkpoint mapping must cover every GPU visible to the kernel-mode driver"
+                )
             pair = find_same_chip_pair(devices)
             if pair is None:
                 skip("No two GPUs of the same chip type found")
