@@ -20,6 +20,7 @@ CUDA bitcode and static libraries.
 
    SUPPORTED_NVIDIA_LIBNAMES
    load_nvidia_dynamic_lib
+   find_nvidia_dynamic_lib
    LoadedDL
    DynamicLibNotFoundError
    DynamicLibUnknownError
