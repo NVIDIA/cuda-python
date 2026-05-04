@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from collections.abc import MutableSet
 from typing import TYPE_CHECKING
 
 from cuda.core._device import Device
@@ -56,7 +57,7 @@ def _query_accessed_by(buf: Buffer) -> list[Device | Host]:
     return [Host() if v == -1 else Device(v) for v in raw if v != -2]
 
 
-class AccessedBySet:
+class AccessedBySetProxy(MutableSet):
     """Live driver-backed view of ``set_accessed_by`` advice for a managed buffer.
 
     Reads (``__contains__``, ``__iter__``, ``len(...)``) call
@@ -76,7 +77,16 @@ class AccessedBySet:
     def __init__(self, buf: ManagedBuffer):
         self._buf = buf
 
+    # Operators such as &|^ produce a plain set, not another proxy.
+    @classmethod
+    def _from_iterable(cls, it):
+        return set(it)
+
+    # --- abstract methods required by MutableSet ---
+
     def __contains__(self, location) -> bool:
+        if not isinstance(location, (Device, Host)):
+            return False
         return location in _query_accessed_by(self._buf)
 
     def __iter__(self):
@@ -85,23 +95,20 @@ class AccessedBySet:
     def __len__(self) -> int:
         return len(_query_accessed_by(self._buf))
 
-    def __eq__(self, other) -> bool:
-        if isinstance(other, AccessedBySet):
-            return set(_query_accessed_by(self._buf)) == set(_query_accessed_by(other._buf))
-        if isinstance(other, (set, frozenset)):
-            return set(_query_accessed_by(self._buf)) == other
-        return NotImplemented
-
-    def __repr__(self) -> str:
-        return f"AccessedBySet({set(_query_accessed_by(self._buf))!r})"
-
     def add(self, location: Device | Host) -> None:
         """Apply ``set_accessed_by`` advice for ``location``."""
+        if not isinstance(location, (Device, Host)):
+            raise TypeError(f"expected Device or Host, got {type(location).__name__}")
         _advise_one(self._buf, _SET_ACCESSED_BY, location)
 
     def discard(self, location: Device | Host) -> None:
         """Apply ``unset_accessed_by`` advice for ``location``."""
+        if not isinstance(location, (Device, Host)):
+            return
         _advise_one(self._buf, _UNSET_ACCESSED_BY, location)
+
+    def __repr__(self) -> str:
+        return f"AccessedBySetProxy({set(_query_accessed_by(self._buf))!r})"
 
 
 class ManagedBuffer(Buffer):
@@ -194,9 +201,9 @@ class ManagedBuffer(Buffer):
             _advise_one(self, _SET_PREFERRED, value)
 
     @property
-    def accessed_by(self) -> AccessedBySet:
+    def accessed_by(self) -> AccessedBySetProxy:
         """Live set-like view of ``set_accessed_by`` locations."""
-        return AccessedBySet(self)
+        return AccessedBySetProxy(self)
 
     @accessed_by.setter
     def accessed_by(self, locations) -> None:
