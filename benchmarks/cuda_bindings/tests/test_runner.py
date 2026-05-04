@@ -135,7 +135,7 @@ def test_discover_benchmarks_is_lazy(monkeypatch, tmp_path):
 def test_ensure_pyperf_worker_env_preserves_existing_args(monkeypatch):
     runner_main = load_runner_main(monkeypatch)
 
-    for env_var in runner_main.PYPERF_INHERITED_ENV_VARS:
+    for env_var in runner_main.BASE_PYPERF_INHERITED_ENV_VARS:
         monkeypatch.delenv(env_var, raising=False)
     monkeypatch.setenv("CUDA_PATH", "/opt/cuda")
     monkeypatch.setenv("LD_LIBRARY_PATH", "/opt/cuda/lib64")
