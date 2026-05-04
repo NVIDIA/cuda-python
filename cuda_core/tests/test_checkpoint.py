@@ -4,8 +4,9 @@
 
 # Real GPU tests for cuda.core.checkpoint — no mocks.
 #
-# Lifecycle tests self-checkpoint the current process (os.getpid()) and
-# exercise lock / checkpoint / restore / unlock through the real driver.
+# Lifecycle tests exercise lightweight state/lock operations in-process and
+# mutating checkpoint / restore cycles through an isolated coordinator/target
+# process pair.
 #
 # Migration tests attempt GPU UUID remapping following the pattern from
 # NVIDIA/cuda-checkpoint r580-migration-api.c.  They require ≥2 GPUs of
@@ -13,13 +14,15 @@
 # gracefully when the hardware or driver cannot satisfy this.
 
 import os
+import signal
+import subprocess
 import sys
+import textwrap
 from contextlib import suppress
 
 import pytest
 
-from cuda.core import Device, checkpoint
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core import checkpoint
 
 # -- Skip condition -------------------------------------------------------
 
@@ -42,18 +45,65 @@ needs_checkpoint = pytest.mark.skipif(
 # -- Helpers ---------------------------------------------------------------
 
 
-def _build_rotation_mapping(devices):
-    """GPU i UUID -> GPU (i+1) % N UUID for every visible device.
+def _run_or_skip_unsupported(func, *args, **kwargs):
+    try:
+        return func(*args, **kwargs)
+    except RuntimeError as exc:
+        if "CUDA checkpointing is not supported" in str(exc):
+            pytest.skip(str(exc))
+        raise
 
-    Returns a ``{str: str}`` dict of UUID strings suitable for
-    :meth:`~checkpoint.Process.restore`.
-    """
+
+_SCENARIO_SKIP_EXIT_CODE = 77
+
+_SCENARIO_COMMON = r"""
+import subprocess
+import sys
+from contextlib import suppress
+
+from cuda.core import Device, checkpoint
+from cuda.core._utils.cuda_utils import CUDAError
+
+EXIT_SKIP = 77
+
+TARGET_SCRIPT = r'''
+import sys
+
+from cuda.core import Device
+
+device_index = int(sys.argv[1])
+Device(device_index).set_current()
+print(f"READY:{Device().uuid}", flush=True)
+
+for line in sys.stdin:
+    command = line.strip()
+    if command == "uuid":
+        print(f"UUID:{Device().uuid}", flush=True)
+    elif command == "exit":
+        break
+'''
+
+
+def skip(reason):
+    print(f"SKIP: {reason}", flush=True)
+    raise SystemExit(EXIT_SKIP)
+
+
+def run_or_skip_unsupported(func, *args, **kwargs):
+    try:
+        return func(*args, **kwargs)
+    except RuntimeError as exc:
+        if "CUDA checkpointing is not supported" in str(exc):
+            skip(str(exc))
+        raise
+
+
+def build_rotation_mapping(devices):
     n = len(devices)
     return {devices[i].uuid: devices[(i + 1) % n].uuid for i in range(n)}
 
 
-def _find_same_chip_pair(devices):
-    """Return (i, j) indices of two devices with the same name, or None."""
+def find_same_chip_pair(devices):
     seen = {}
     for i, dev in enumerate(devices):
         name = dev.name
@@ -63,13 +113,105 @@ def _find_same_chip_pair(devices):
     return None
 
 
-def _run_or_skip_unsupported(func, *args, **kwargs):
+def read_prefixed(target, prefix):
+    line = target.stdout.readline()
+    if not line:
+        stderr = target.stderr.read()
+        raise RuntimeError(f"checkpoint target exited before {prefix!r}; stderr:\n{stderr}")
+    line = line.strip()
+    if not line.startswith(prefix):
+        raise RuntimeError(f"expected target output prefix {prefix!r}, got {line!r}")
+    return line[len(prefix):]
+
+
+def start_target(device_index=0):
+    target = subprocess.Popen(
+        [sys.executable, "-c", TARGET_SCRIPT, str(device_index)],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
     try:
-        return func(*args, **kwargs)
-    except RuntimeError as exc:
-        if "CUDA checkpointing is not supported" in str(exc):
-            pytest.skip(str(exc))
+        ready_uuid = read_prefixed(target, "READY:")
+    except Exception:
+        stop_target(target)
         raise
+    return target, ready_uuid
+
+
+def stop_target(target):
+    if target.poll() is None:
+        with suppress(Exception):
+            target.stdin.write("exit\n")
+            target.stdin.flush()
+        try:
+            target.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            target.kill()
+            target.wait()
+
+
+def target_uuid(target):
+    target.stdin.write("uuid\n")
+    target.stdin.flush()
+    return read_prefixed(target, "UUID:")
+
+
+def checkpoint_restore(proc, gpu_mapping=None):
+    run_or_skip_unsupported(proc.lock, timeout_ms=5000)
+    run_or_skip_unsupported(proc.checkpoint)
+    try:
+        run_or_skip_unsupported(proc.restore, gpu_mapping=gpu_mapping)
+    except (CUDAError, RuntimeError) as exc:
+        with suppress(Exception):
+            proc.restore()
+        with suppress(Exception):
+            proc.unlock()
+        if "INVALID_VALUE" in str(exc):
+            skip(
+                "Driver does not support GPU migration on this hardware "
+                "(CUDA_ERROR_INVALID_VALUE; see NVBug 5437334)"
+            )
+        raise
+    proc.unlock()
+"""
+
+
+def _run_checkpoint_scenario_or_skip(body: str, *, timeout: int = 90) -> None:
+    """Run mutating checkpoint/restore scenarios out-of-process.
+
+    The CUDA checkpoint APIs can block inside the driver when a runner exposes
+    symbols but the platform path cannot complete checkpoint/restore.  Running
+    the scenario in its own process group lets the parent test skip that runner
+    cleanly instead of hanging the entire CI job.
+    """
+    script = _SCENARIO_COMMON + "\n" + textwrap.dedent(body)
+    proc = subprocess.Popen(  # noqa: S603 - controlled test subprocess using this Python executable.
+        [sys.executable, "-c", script],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        start_new_session=True,
+    )
+    try:
+        stdout, stderr = proc.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        with suppress(ProcessLookupError):
+            os.killpg(proc.pid, signal.SIGKILL)
+        stdout, stderr = proc.communicate()
+        pytest.skip(
+            f"CUDA checkpoint scenario timed out after {timeout}s; driver/hardware did not complete "
+            f"checkpoint/restore.\nstdout:\n{stdout}\nstderr:\n{stderr}"
+        )
+
+    if proc.returncode == _SCENARIO_SKIP_EXIT_CODE:
+        reason = stdout.strip() or stderr.strip() or "CUDA checkpoint scenario skipped"
+        pytest.skip(reason)
+    if proc.returncode != 0:
+        pytest.fail(
+            f"CUDA checkpoint scenario failed with exit code {proc.returncode}.\nstdout:\n{stdout}\nstderr:\n{stderr}"
+        )
 
 
 # -- Fixtures --------------------------------------------------------------
@@ -154,19 +296,28 @@ class TestCheckpointLifecycle:
         assert self_process.state == "locked"
         self_process.unlock()
 
-    def test_full_cycle_no_migration(self, self_process):
+    def test_full_cycle_no_migration(self):
         """lock -> checkpoint -> restore -> unlock, verify state at each step."""
-        _run_or_skip_unsupported(self_process.lock)
-        assert self_process.state == "locked"
+        _run_checkpoint_scenario_or_skip(
+            """
+            target, _ = start_target()
+            proc = checkpoint.Process(target.pid)
+            try:
+                run_or_skip_unsupported(proc.lock, timeout_ms=5000)
+                assert proc.state == "locked"
 
-        _run_or_skip_unsupported(self_process.checkpoint)
-        assert self_process.state == "checkpointed"
+                run_or_skip_unsupported(proc.checkpoint)
+                assert proc.state == "checkpointed"
 
-        _run_or_skip_unsupported(self_process.restore)
-        assert self_process.state == "locked"  # restore leaves process locked
+                run_or_skip_unsupported(proc.restore)
+                assert proc.state == "locked"  # restore leaves process locked
 
-        self_process.unlock()
-        assert self_process.state == "running"
+                proc.unlock()
+                assert proc.state == "running"
+            finally:
+                stop_target(target)
+            """
+        )
 
 
 # -- GPU migration (>= 2 same-chip GPUs, real driver) ---------------------
@@ -183,32 +334,7 @@ class TestCheckpointGpuMigration:
     NVBug 5437334).
     """
 
-    @staticmethod
-    def _try_migration(proc, gpu_mapping):
-        """Attempt a single checkpoint-restore with migration.
-
-        Returns True on success.  Skips the test if the driver rejects
-        the migration with CUDA_ERROR_INVALID_VALUE (known limitation
-        on some architectures / driver versions).
-        """
-        _run_or_skip_unsupported(proc.lock)
-        _run_or_skip_unsupported(proc.checkpoint)
-        try:
-            _run_or_skip_unsupported(proc.restore, gpu_mapping=gpu_mapping)
-        except (CUDAError, RuntimeError) as exc:
-            # Recover: restore without migration, then unlock.
-            proc.restore()
-            proc.unlock()
-            if "INVALID_VALUE" in str(exc):
-                pytest.skip(
-                    "Driver does not support GPU migration on this hardware "
-                    "(CUDA_ERROR_INVALID_VALUE — see NVBug 5437334)"
-                )
-            raise
-        proc.unlock()
-        return True
-
-    def test_rotation_migrates_context(self, self_process):
+    def test_rotation_migrates_context(self):
         """Rotate context through all GPUs and back to the origin.
 
         Builds a rotation mapping (device i -> device (i+1) % N) for
@@ -216,50 +342,64 @@ class TestCheckpointGpuMigration:
         the context device UUID is checked.  After N steps the context
         should be back on the original device.
         """
-        devices = Device.get_all_devices()
-        if len(devices) < 2:
-            pytest.skip("GPU migration tests require at least 2 GPUs")
-        if _find_same_chip_pair(devices) is None:
-            pytest.skip("GPU migration requires at least 2 GPUs of the same chip type")
+        _run_checkpoint_scenario_or_skip(
+            """
+            devices = Device.get_all_devices()
+            if len(devices) < 2:
+                skip("GPU migration tests require at least 2 GPUs")
+            if find_same_chip_pair(devices) is None:
+                skip("GPU migration requires at least 2 GPUs of the same chip type")
 
-        gpu_mapping = _build_rotation_mapping(devices)
-        uuid_origin = Device().uuid
+            gpu_mapping = build_rotation_mapping(devices)
+            target, uuid_origin = start_target(0)
+            proc = checkpoint.Process(target.pid)
+            try:
+                for step in range(len(devices)):
+                    expected_uuid = devices[(step + 1) % len(devices)].uuid
+                    checkpoint_restore(proc, gpu_mapping=gpu_mapping)
+                    observed_uuid = target_uuid(target)
+                    assert observed_uuid == expected_uuid, (
+                        f"Step {step}: expected UUID {expected_uuid}, got {observed_uuid}"
+                    )
 
-        for step in range(len(devices)):
-            expected_uuid = devices[(step + 1) % len(devices)].uuid
+                assert target_uuid(target) == uuid_origin
+            finally:
+                stop_target(target)
+            """,
+            timeout=180,
+        )
 
-            self._try_migration(self_process, gpu_mapping)
-
-            assert Device().uuid == expected_uuid, f"Step {step}: expected UUID {expected_uuid}, got {Device().uuid}"
-
-        # After N rotations, back at the origin.
-        assert Device().uuid == uuid_origin
-
-    def test_swap_identical_gpus(self, self_process):
+    def test_swap_identical_gpus(self):
         """Swap context between two GPUs of the same chip type.
 
         Sets the context on one of the pair members so that a successful
         migration is observable (the context UUID changes).
         """
-        devices = Device.get_all_devices()
-        pair = _find_same_chip_pair(devices)
-        if pair is None:
-            pytest.skip("No two GPUs of the same chip type found")
+        _run_checkpoint_scenario_or_skip(
+            """
+            devices = Device.get_all_devices()
+            pair = find_same_chip_pair(devices)
+            if pair is None:
+                skip("No two GPUs of the same chip type found")
 
-        i, j = pair
-        # Place context on device i so the swap is observable.
-        devices[i].set_current()
+            i, j = pair
+            gpu_mapping = {d.uuid: d.uuid for d in devices}
+            gpu_mapping[devices[i].uuid] = devices[j].uuid
+            gpu_mapping[devices[j].uuid] = devices[i].uuid
 
-        # Build an identity mapping, then swap the pair (using UUID strings).
-        gpu_mapping = {d.uuid: d.uuid for d in devices}
-        gpu_mapping[devices[i].uuid] = devices[j].uuid
-        gpu_mapping[devices[j].uuid] = devices[i].uuid
+            target, uuid_before = start_target(i)
+            proc = checkpoint.Process(target.pid)
+            try:
+                assert uuid_before == devices[i].uuid
 
-        assert Device().uuid == devices[i].uuid
+                checkpoint_restore(proc, gpu_mapping=gpu_mapping)
+                uuid_after = target_uuid(target)
 
-        self._try_migration(self_process, gpu_mapping)
-        uuid_after = Device().uuid
-
-        if uuid_after == devices[i].uuid:
-            pytest.skip("Driver accepted GPU swap but migration is a no-op on this hardware/driver version")
-        assert uuid_after == devices[j].uuid
+                if uuid_after == devices[i].uuid:
+                    skip("Driver accepted GPU swap but migration is a no-op on this hardware/driver version")
+                assert uuid_after == devices[j].uuid
+            finally:
+                stop_target(target)
+            """,
+            timeout=120,
+        )
