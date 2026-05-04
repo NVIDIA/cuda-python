@@ -416,6 +416,9 @@ jobs:
     name: Check job status
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     needs:
       - should-skip
       - detect-changes
@@ -426,6 +429,19 @@ jobs:
       - test-windows
       - doc
     steps:
+      - name: Checkout universally-skipped test reporter
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            ci/tools
+
+      - name: Report universally-skipped tests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python ci/tools/report_universally_skipped_tests.py
+
       - name: Exit
         run: |
           # if any dependencies were cancelled or failed, that's a failure
