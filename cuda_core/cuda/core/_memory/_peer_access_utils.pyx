@@ -122,7 +122,7 @@ cdef inline bint _peer_access_includes(DeviceMemoryResource mr, int dev_id):
     return flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
 
 
-cdef inline _apply_peer_access_diff(
+cdef inline _apply_peer_access_diff_cython(
     DeviceMemoryResource mr, tuple to_add, tuple to_remove
 ):
     """Issue one ``cuMemPoolSetAccess`` for the given add/remove deltas."""
@@ -154,6 +154,17 @@ cdef inline _apply_peer_access_diff(
     finally:
         if access_desc != NULL:
             PyMem_Free(access_desc)
+
+
+def _apply_peer_access_diff(mr, to_add, to_remove):
+    """Python-visible wrapper around the cdef inline implementation.
+
+    Every write path on :class:`PeerAccessibleBySetProxy` and the
+    ``peer_accessible_by`` setter route through this function so tests can
+    intercept it via ``monkeypatch.setattr`` on the module to assert the
+    "exactly one ``cuMemPoolSetAccess`` per bulk op" batching contract.
+    """
+    _apply_peer_access_diff_cython(<DeviceMemoryResource>mr, tuple(to_add), tuple(to_remove))
 
 
 cpdef replace_peer_accessible_by(DeviceMemoryResource mr, devices):
