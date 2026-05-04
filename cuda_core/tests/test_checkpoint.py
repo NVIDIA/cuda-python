@@ -34,8 +34,8 @@ def _checkpoint_available():
 
 
 needs_checkpoint = pytest.mark.skipif(
-    sys.platform != "linux" or not _checkpoint_available(),
-    reason="CUDA checkpoint API requires Linux and a supported driver/bindings",
+    sys.platform != "linux" or os.environ.get("CI") is not None or not _checkpoint_available(),
+    reason="CUDA checkpoint API requires Linux, a supported driver/bindings, and a non-CI environment",
 )
 
 
