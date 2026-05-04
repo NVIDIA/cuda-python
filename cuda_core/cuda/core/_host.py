@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import threading
+from typing import ClassVar
 
 
 class Host:
@@ -28,11 +29,11 @@ class Host:
     than a fixed one.
     """
 
-    __slots__ = ("_is_numa_current", "_numa_id", "__weakref__")
+    __slots__ = ("__weakref__", "_is_numa_current", "_numa_id")
 
     # Singleton cache keyed by (numa_id, is_numa_current).
-    _instances: dict[tuple[int | None, bool], Host] = {}
-    _instances_lock = threading.Lock()
+    _instances: ClassVar[dict[tuple[int | None, bool], Host]] = {}
+    _instances_lock: ClassVar[threading.Lock] = threading.Lock()
 
     def __new__(cls, numa_id: int | None = None) -> Host:
         if numa_id is not None and (not isinstance(numa_id, int) or numa_id < 0):
