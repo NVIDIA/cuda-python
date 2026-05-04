@@ -13,6 +13,7 @@ from cuda.core._memory._device_memory_resource cimport DeviceMemoryResource
 from cuda.core._resource_handles cimport as_cu
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
+from libcpp.vector cimport vector
 
 if TYPE_CHECKING:
     from cuda.core._device import Device
@@ -79,26 +80,34 @@ def _resolve_peer_device_id(value):
 # ---- driver-touching helpers (cdef inline, called from .pyx code) -----------
 
 cdef inline tuple _query_peer_access_ids(DeviceMemoryResource mr):
-    """Return the current peer device IDs as a sorted tuple of ints."""
+    """Return the current peer device IDs as a sorted tuple of ints.
+
+    The full driver loop runs inside a single ``nogil`` block. Because
+    ``range(total)`` ascends, the result is already sorted.
+    """
     cdef int total
+    cdef int dev_id
+    cdef int owner_id = mr._dev_id
     cdef cydriver.CUmemAccess_flags flags
     cdef cydriver.CUmemLocation location
-    cdef list peers = []
+    cdef cydriver.CUmemoryPool h_pool = as_cu(mr._h_pool)
+    cdef vector[int] peers
+    cdef size_t i, n
+
+    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
 
     with nogil:
         HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
+        for dev_id in range(total):
+            if dev_id == owner_id:
+                continue
+            location.id = dev_id
+            HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, h_pool, &location))
+            if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:
+                peers.push_back(dev_id)
 
-    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    for dev_id in range(total):
-        if dev_id == mr._dev_id:
-            continue
-        location.id = dev_id
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(mr._h_pool), &location))
-        if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:
-            peers.append(dev_id)
-
-    return tuple(sorted(peers))
+    n = peers.size()
+    return tuple(peers[i] for i in range(n))
 
 
 cdef inline bint _peer_access_includes(DeviceMemoryResource mr, int dev_id):
