@@ -6,13 +6,20 @@ from helpers.misc import StreamWrapper
 
 from cuda.core import Device, Stream, StreamOptions
 from cuda.core._event import Event
-from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
+from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM, Stream_accept
 from cuda.core._utils.cuda_utils import driver
 
 
 def test_stream_init_disabled():
     with pytest.raises(RuntimeError, match=r"^Stream objects cannot be instantiated directly\."):
         Stream()  # Reject at front door.
+
+
+def test_stream_accept_rejects_none():
+    """Stream_accept(None) raises TypeError so APIs cannot silently fall back
+    to the default stream (issue #2001)."""
+    with pytest.raises(TypeError, match=r"stream is required and must not be None"):
+        Stream_accept(None)
 
 
 def test_stream_init_with_options(init_cuda):
