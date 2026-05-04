@@ -79,7 +79,7 @@ class YRig:
             self.stream = Device().create_stream()
         graph = self.graph_def.instantiate()
         self.reset()
-        graph.launch(stream=self.stream)
+        graph.launch(self.stream)
         self.stream.sync()
 
     def reset(self):
@@ -387,7 +387,7 @@ def test_convert_linear_to_fan_in(init_cuda):
 
     stream = Device().create_stream()
     graph = g.instantiate()
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
     assert arr[4] == sum(2 * values + 1)
 

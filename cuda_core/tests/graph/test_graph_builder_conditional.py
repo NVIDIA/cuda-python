@@ -63,7 +63,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
     # Left path increments first value, right path increments second value
     assert arr[0] == 0
     assert arr[1] == 0
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     if condition_value:
         assert arr[0] == 4
@@ -137,7 +137,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
     # True condition increments both values, while False increments only second value
     assert arr[0] == 0
     assert arr[1] == 0
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     if condition_value:
         assert arr[0] == 4
@@ -217,7 +217,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
     assert arr[0] == 0
     assert arr[1] == 0
     assert arr[2] == 0
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     if condition_value == 0:
         assert arr[0] == 4
@@ -279,7 +279,7 @@ def test_graph_conditional_while(init_cuda, condition_value):
 
     # Default value is used to start the loop
     assert arr[0] == 0
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     if condition_value:
         assert arr[0] == 20

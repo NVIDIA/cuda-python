@@ -174,10 +174,8 @@ cdef class Buffer:
         ipc_descriptor : :obj:`~_memory.IPCBufferDescriptor`
             The descriptor exported from another process.
         stream : :obj:`~_stream.Stream`
-            Keyword-only. The stream stored in the imported buffer's handle
-            and used for asynchronous deallocation when the buffer is closed
-            or garbage collected. Pass ``device.default_stream`` to use the
-            default stream.
+            Keyword-only. The stream used for asynchronous deallocation when
+            the buffer is closed or garbage collected.
         """
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 

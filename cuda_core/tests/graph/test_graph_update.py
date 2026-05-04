@@ -46,13 +46,13 @@ def test_graph_update_kernel_args(init_cuda, builder):
     graph, _ = build(arr[0:].ctypes.data)
     _, source1 = build(arr[1:].ctypes.data)
 
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     assert arr[0] == 2
     assert arr[1] == 0
 
     graph.update(source1)
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     assert arr[0] == 2
     assert arr[1] == 2
@@ -123,7 +123,7 @@ def test_graph_update_conditional(init_cuda):
 
     # Launch the first graph
     graph = graph_variants[0].complete()
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     assert arr[0] == 3
     assert arr[1] == 0
@@ -131,7 +131,7 @@ def test_graph_update_conditional(init_cuda):
 
     # Update with second variant and launch again
     graph.update(graph_variants[1])
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     assert arr[0] == 3
     assert arr[1] == 3
@@ -139,7 +139,7 @@ def test_graph_update_conditional(init_cuda):
 
     # Update with third variant and launch again
     graph.update(graph_variants[2])
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     assert arr[0] == 3
     assert arr[1] == 3

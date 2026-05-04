@@ -34,7 +34,7 @@ def test_graph_straight(init_cuda):
 
     # Sanity upload and launch
     graph.upload(launch_stream)
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
 
 
@@ -66,7 +66,7 @@ def test_graph_fork_join(init_cuda):
 
     # Sanity upload and launch
     graph.upload(launch_stream)
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
 
 
@@ -135,7 +135,7 @@ def test_graph_repeat_capture(init_cuda):
     graph = gb.end_building().complete()
 
     # Run the graph once
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     assert arr[0] == 1
 
@@ -144,9 +144,9 @@ def test_graph_repeat_capture(init_cuda):
         gb.begin_building()
 
     # Graph can be re-launched
-    graph.launch(stream=launch_stream)
-    graph.launch(stream=launch_stream)
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
+    graph.launch(launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     assert arr[0] == 4
 
@@ -181,7 +181,7 @@ def test_graph_capture_callback_python(init_cuda):
     gb.callback(my_callback)
     graph = gb.end_building().complete()
 
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
 
     assert results == [42]
@@ -202,7 +202,7 @@ def test_graph_capture_callback_ctypes(init_cuda):
     gb.callback(read_byte, user_data=bytes([0xAB]))
     graph = gb.end_building().complete()
 
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
 
     assert result[0] == 0xAB
@@ -251,7 +251,7 @@ def test_graph_child_graph(init_cuda):
     # Parent updates first value, child updates second value
     assert arr[0] == 0
     assert arr[1] == 0
-    graph.launch(stream=launch_stream)
+    graph.launch(launch_stream)
     launch_stream.sync()
     assert arr[0] == 2
     assert arr[1] == 3

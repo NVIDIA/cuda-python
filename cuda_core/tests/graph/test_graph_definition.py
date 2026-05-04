@@ -981,7 +981,7 @@ def test_instantiate_and_execute_kernel_device_launch(sample_graphdef):
 
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
 
@@ -995,7 +995,7 @@ def test_instantiate_and_execute_kernel(sample_graphdef, inst_kwargs):
 
     stream = Device().create_stream()
     graph = _instantiate_and_upload(sample_graphdef, inst_kwargs, stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
 
@@ -1008,7 +1008,7 @@ def test_instantiate_and_execute_alloc_free(sample_graphdef, inst_kwargs):
 
     stream = Device().create_stream()
     graph = _instantiate_and_upload(sample_graphdef, inst_kwargs, stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
 
@@ -1022,7 +1022,7 @@ def test_instantiate_and_execute_memset(sample_graphdef, inst_kwargs):
 
     stream = Device().create_stream()
     graph = _instantiate_and_upload(sample_graphdef, inst_kwargs, stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
 
@@ -1041,7 +1041,7 @@ def test_instantiate_and_execute_memcpy(sample_graphdef, inst_kwargs):
 
     stream = Device().create_stream()
     graph = _instantiate_and_upload(sample_graphdef, inst_kwargs, stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
     host_buf = (ctypes.c_ubyte * ALLOC_SIZE)()
@@ -1064,7 +1064,7 @@ def test_instantiate_and_execute_child_graph(sample_graphdef):
 
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
 
@@ -1080,7 +1080,7 @@ def test_instantiate_and_execute_host_callback(sample_graphdef):
 
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
     assert results == [42]
@@ -1102,7 +1102,7 @@ def test_instantiate_and_execute_host_callback_cfunc(sample_graphdef):
 
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
     assert called[0]
@@ -1124,7 +1124,7 @@ def test_host_callback_cfunc_with_user_data(sample_graphdef):
 
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
     assert result[0] == 0xAB
@@ -1145,7 +1145,7 @@ def test_instantiate_and_execute_event_record_wait(sample_graphdef):
 
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
 
@@ -1181,7 +1181,7 @@ def test_instantiate_and_execute_if_then(sample_graphdef):
     graph = sample_graphdef.instantiate()
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
     result = (ctypes.c_int * 1)()
@@ -1215,7 +1215,7 @@ def test_instantiate_and_execute_if_else(sample_graphdef):
     graph = sample_graphdef.instantiate()
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
     result = (ctypes.c_int * 1)()
@@ -1248,7 +1248,7 @@ def test_instantiate_and_execute_switch(sample_graphdef):
     graph = sample_graphdef.instantiate()
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
     result = (ctypes.c_int * 1)()

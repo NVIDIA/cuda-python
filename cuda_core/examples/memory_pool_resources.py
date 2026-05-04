@@ -108,7 +108,7 @@ def main():
         graph_capture = graph_builder.end_building()
         graph = graph_capture.complete()
         graph.upload(stream)
-        graph.launch(stream=stream)
+        graph.launch(stream)
         stream.sync()
 
         np.testing.assert_allclose(managed_array, managed_original * 2 + 1)

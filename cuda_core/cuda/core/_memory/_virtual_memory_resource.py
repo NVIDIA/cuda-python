@@ -479,9 +479,8 @@ class VirtualMemoryResource(MemoryResource):
         size : int
             The size in bytes of the buffer to allocate.
         stream : Stream, optional
-            Keyword-only. VMR uses ``cuMemCreate`` / ``cuMemMap`` which are
-            synchronous and not stream-ordered, so a stream is not needed.
-            If one is provided, it is validated and otherwise unused.
+            Keyword-only. Unused because virtual memory operations are
+            synchronous.
 
         Returns
         -------
@@ -556,13 +555,19 @@ class VirtualMemoryResource(MemoryResource):
         buf = Buffer.from_handle(ptr=ptr, size=aligned_size, mr=self)
         return buf
 
-    def deallocate(self, ptr: int, size: int, stream: Stream | None = None) -> None:
+    def deallocate(self, ptr: int, size: int, *, stream: Stream | None = None) -> None:
         """
         Deallocate memory on the device using CUDA VMM APIs.
 
-        ``stream`` is unused (VMR is synchronous) but is validated when
-        provided; ``None`` is accepted because the C++ GC callback passes it
-        when no allocation stream was recorded.
+        Parameters
+        ----------
+        ptr : int
+            The pointer to the memory to deallocate.
+        size : int
+            The size in bytes of the memory to deallocate.
+        stream : Stream, optional
+            Keyword-only. Unused because virtual memory operations are
+            synchronous.
         """
         if stream is not None:
             from cuda.core._stream import Stream_accept

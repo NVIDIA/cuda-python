@@ -261,7 +261,7 @@ def test_event_survives_graph_instantiation_and_execution(init_cuda):
 
     graph = g.instantiate()
     stream = dev.create_stream()
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
 
@@ -313,7 +313,7 @@ def test_python_callable_callback_survives_del(init_cuda):
     graph = g.instantiate()
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
     assert called[0]
@@ -339,7 +339,7 @@ def test_cfunc_callback_survives_del(init_cuda):
     graph = g.instantiate()
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
     assert called[0]
@@ -366,7 +366,7 @@ def test_cfunc_bytes_user_data_survives_del(init_cuda):
     graph = g.instantiate()
     stream = Device().create_stream()
     graph.upload(stream)
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
     assert result[0] == 0xCD
@@ -407,7 +407,7 @@ def test_kernel_survives_graph_instantiation_and_execution(init_cuda):
 
     graph = g.instantiate()
     stream = Device().create_stream()
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()
 
 
@@ -483,5 +483,5 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
 
     graph = g.instantiate()
     stream = Device().create_stream()
-    graph.launch(stream=stream)
+    graph.launch(stream)
     stream.sync()

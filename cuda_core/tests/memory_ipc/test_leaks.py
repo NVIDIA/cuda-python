@@ -84,8 +84,8 @@ class Irreducible:
 @pytest.mark.parametrize(
     "getobject",
     [
-        lambda mr, stream: mr.allocation_handle,
-        lambda mr, stream: mr,
+        lambda mr, _stream: mr.allocation_handle,
+        lambda mr, _stream: mr,
         lambda mr, stream: mr.allocate(NBYTES, stream=stream),
         lambda mr, stream: mr.allocate(NBYTES, stream=stream).ipc_descriptor,
     ],

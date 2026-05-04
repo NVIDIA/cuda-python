@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from cuda.core._memory._buffer import DevicePointerT
+    from cuda.core._stream import Stream
 
 from cuda.core._memory._buffer import Buffer, MemoryResource
 from cuda.core._utils.cuda_utils import (
@@ -35,8 +36,8 @@ class LegacyPinnedMemoryResource(MemoryResource):
         size : int
             The size of the buffer to allocate, in bytes.
         stream : Stream
-            Keyword-only. Currently ignored, but must be passed explicitly;
-            pass ``device.default_stream`` to use the default stream.
+            Keyword-only. Currently ignored; pass ``device.default_stream`` to
+            use the default stream.
 
         Returns
         -------
@@ -53,7 +54,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
             ptr = 0
         return Buffer._init(ptr, size, self)
 
-    def deallocate(self, ptr: DevicePointerT, size, stream):
+    def deallocate(self, ptr: DevicePointerT, size, *, stream: Stream | None = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -62,8 +63,9 @@ class LegacyPinnedMemoryResource(MemoryResource):
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : Stream
-            The stream on which to perform the deallocation synchronously.
+        stream : Stream, optional
+            Keyword-only. If provided, ``stream.sync()`` is called before the
+            host allocation is freed. ``None`` skips the sync.
         """
         if stream is not None:
             stream.sync()
@@ -107,7 +109,7 @@ class _SynchronousMemoryResource(MemoryResource):
             ptr = 0
         return Buffer._init(ptr, size, self)
 
-    def deallocate(self, ptr, size, stream):
+    def deallocate(self, ptr, size, *, stream: Stream | None = None):
         if stream is not None:
             stream.sync()
         if size:

@@ -115,7 +115,7 @@ def test_device_launch_basic(init_cuda):
     outer_graph = gb_outer.end_building().complete()
 
     # Launch outer graph (which triggers device-side launch of inner graph)
-    outer_graph.launch(stream=stream)
+    outer_graph.launch(stream)
     stream.sync()
 
     # Verify result
@@ -167,7 +167,7 @@ def test_device_launch_multiple(init_cuda):
     # Launch multiple times
     num_launches = 5
     for _ in range(num_launches):
-        outer_graph.launch(stream=stream)
+        outer_graph.launch(stream)
     stream.sync()
 
     # Verify result

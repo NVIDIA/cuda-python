@@ -72,13 +72,13 @@ def main():
         graph = initial_capture.complete()
 
         graph.upload(stream)
-        graph.launch(stream=stream)
+        graph.launch(stream)
         stream.sync()
         assert tuple(values) == (2, 0)
 
         graph.update(update_capture)
         graph.upload(stream)
-        graph.launch(stream=stream)
+        graph.launch(stream)
         stream.sync()
         assert tuple(values) == (2, 2)
 

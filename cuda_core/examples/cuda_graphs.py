@@ -120,7 +120,7 @@ def main():
         # Execute the entire graph with a single launch
         print("Executing graph...", file=sys.stderr)
         start_time = time.time()
-        graph.launch(stream=stream)
+        graph.launch(stream)
         stream.sync()
         end_time = time.time()
 
