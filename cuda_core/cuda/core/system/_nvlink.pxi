@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-cdef dict _NVLINK_VERSION_MAPPING = {
+_NVLINK_VERSION_MAPPING = {
     nvml.NvlinkVersion.VERSION_1_0: (1, 0),
     nvml.NvlinkVersion.VERSION_2_0: (2, 0),
     nvml.NvlinkVersion.VERSION_2_2: (2, 2),

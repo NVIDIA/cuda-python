@@ -16,7 +16,7 @@ Current actual clock value.
 ClockId.CUSTOMER_BOOST_MAX.__doc__ = """
 OEM-defined maximum clock rate
 """
-cdef dict _CLOCK_ID_MAPPING = {
+_CLOCK_ID_MAPPING = {
     ClockId.CURRENT: nvml.ClockId.CURRENT,
     ClockId.CUSTOMER_BOOST_MAX: nvml.ClockId.CUSTOMER_BOOST_MAX,
 }
@@ -36,7 +36,7 @@ class ClocksEventReasons(StrEnum):
     HW_THERMAL_SLOWDOWN = "hw_thermal_slowdown"
     HW_POWER_BRAKE_SLOWDOWN = "hw_power_brake_slowdown"
     DISPLAY_CLOCK_SETTING = "display_clock_setting"
-cdef dict _CLOCKS_EVENT_REASONS_MAPPING = {
+_CLOCKS_EVENT_REASONS_MAPPING = {
     nvml.ClocksEventReasons.EVENT_REASON_NONE: ClocksEventReasons.NONE,
     nvml.ClocksEventReasons.EVENT_REASON_GPU_IDLE: ClocksEventReasons.GPU_IDLE,
     nvml.ClocksEventReasons.EVENT_REASON_APPLICATIONS_CLOCKS_SETTING: ClocksEventReasons.APPLICATIONS_CLOCKS_SETTING,
@@ -58,7 +58,7 @@ class ClockType(StrEnum):
     SM = "sm"
     MEMORY = "memory"
     VIDEO = "video"
-cdef dict _CLOCK_TYPE_MAPPING = {
+_CLOCK_TYPE_MAPPING = {
     ClockType.GRAPHICS: nvml.ClockType.CLOCK_GRAPHICS,
     ClockType.SM: nvml.ClockType.CLOCK_SM,
     ClockType.MEMORY: nvml.ClockType.CLOCK_MEM,

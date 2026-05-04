@@ -23,7 +23,7 @@ The power management object.
 InforomObject.DEN.__doc__ = """
 DRAM Encryption object.
 """
-cdef dict _INFOROM_OBJECT_MAPPING = {
+_INFOROM_OBJECT_MAPPING = {
     InforomObject.OEM: nvml.InforomObject.INFOROM_OEM,
     InforomObject.ECC: nvml.InforomObject.INFOROM_ECC,
     InforomObject.POWER: nvml.InforomObject.INFOROM_POWER,

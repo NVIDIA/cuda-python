@@ -24,11 +24,11 @@ class SystemEventType(StrEnum):
     """
     UNBIND = "unbind"
     BIND = "bind"
-cdef dict _SYSTEM_EVENT_TYPE_MAPPING = {
+_SYSTEM_EVENT_TYPE_MAPPING = {
     nvml.SystemEventType.GPU_DRIVER_UNBIND: SystemEventType.UNBIND,
     nvml.SystemEventType.GPU_DRIVER_BIND: SystemEventType.BIND,
 }
-cdef dict _SYSTEM_EVENT_TYPE_INV_MAPPING = {v: k for k, v in _SYSTEM_EVENT_TYPE_MAPPING.items()}
+_SYSTEM_EVENT_TYPE_INV_MAPPING = {v: k for k, v in _SYSTEM_EVENT_TYPE_MAPPING.items()}
 
 
 cdef class SystemEvent:

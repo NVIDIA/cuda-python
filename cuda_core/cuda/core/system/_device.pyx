@@ -71,7 +71,7 @@ AddressingMode.ATS.__doc__ = """
     (GPU), via Address Translation Services. This means that there is (effectively)
     a single set of page tables, and the CPU and GPU both use them.
 """
-cdef dict _ADDRESSING_MODE_MAPPING = {
+_ADDRESSING_MODE_MAPPING = {
     nvml.DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_HMM: AddressingMode.HMM,
     nvml.DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_ATS: AddressingMode.ATS,
 }
@@ -89,13 +89,13 @@ AffinityScope.NODE.__doc__ = """
 AffinityScope.SOCKET.__doc__ = """
     The CPU socket is the scope of the affinity query.
 """
-cdef dict _AFFINITY_SCOPE_MAPPING = {
+_AFFINITY_SCOPE_MAPPING = {
     AffinityScope.NODE: nvml.AffinityScope.NODE,
     AffinityScope.SOCKET: nvml.AffinityScope.SOCKET,
 }
 
 
-cdef dict _BRAND_TYPE_MAPPING = {
+_BRAND_TYPE_MAPPING = {
     nvml.BrandType.BRAND_UNKNOWN: "Unknown",
     nvml.BrandType.BRAND_QUADRO: "Quadro",
     nvml.BrandType.BRAND_TESLA: "Tesla",
@@ -146,7 +146,7 @@ class GpuP2PCapsIndex(StrEnum):
     PCI = "pci"
     PROP = "prop"
     UNKNOWN = "unknown"
-cdef dict _GPU_P2P_CAPS_INDEX_MAPPING = {
+_GPU_P2P_CAPS_INDEX_MAPPING = {
     GpuP2PCapsIndex.READ: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_READ,
     GpuP2PCapsIndex.WRITE: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_WRITE,
     GpuP2PCapsIndex.NVLINK: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_NVLINK,
@@ -167,7 +167,7 @@ class GpuP2PStatus(StrEnum):
     DISABLED_BY_REGKEY = "disabled by regkey"
     NOT_SUPPORTED = "not supported"
     UNKNOWN = "unknown"
-cdef dict _GPU_P2P_STATUS_MAPPING = {
+_GPU_P2P_STATUS_MAPPING = {
     nvml.GpuP2PStatus.P2P_STATUS_OK: GpuP2PStatus.OK,
     # Typo in upstream library
     nvml.GpuP2PStatus.P2P_STATUS_CHIPSET_NOT_SUPPORED: GpuP2PStatus.CHIPSET_NOT_SUPPORTED,
@@ -190,7 +190,7 @@ class GpuTopologyLevel(StrEnum):
     HOSTBRIDGE = "hostbridge"
     NODE = "node"
     SYSTEM = "system"
-cdef dict _GPU_TOPOLOGY_LEVEL_MAPPING = {
+_GPU_TOPOLOGY_LEVEL_MAPPING = {
     GpuTopologyLevel.INTERNAL: nvml.GpuTopologyLevel.TOPOLOGY_INTERNAL,
     GpuTopologyLevel.SINGLE: nvml.GpuTopologyLevel.TOPOLOGY_SINGLE,
     GpuTopologyLevel.MULTIPLE: nvml.GpuTopologyLevel.TOPOLOGY_MULTIPLE,
@@ -198,7 +198,7 @@ cdef dict _GPU_TOPOLOGY_LEVEL_MAPPING = {
     GpuTopologyLevel.NODE: nvml.GpuTopologyLevel.TOPOLOGY_NODE,
     GpuTopologyLevel.SYSTEM: nvml.GpuTopologyLevel.TOPOLOGY_SYSTEM,
 }
-cdef dict _GPU_TOPOLOGY_LEVEL_INV_MAPPING = {v: k for k, v in _GPU_TOPOLOGY_LEVEL_MAPPING.items()}
+_GPU_TOPOLOGY_LEVEL_INV_MAPPING = {v: k for k, v in _GPU_TOPOLOGY_LEVEL_MAPPING.items()}
 
 
 

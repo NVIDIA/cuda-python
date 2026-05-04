@@ -15,7 +15,7 @@ This cooler can only be toggled either ON or OFF (e.g. a switch).
 CoolerControl.VARIABLE.__doc__ = """
 This cooler's level can be adjusted from some minimum to some maximum (e.g. a knob).
 """
-cdef dict _COOLER_CONTROL_MAPPING = {
+_COOLER_CONTROL_MAPPING = {
     nvml.CoolerControl.THERMAL_COOLER_SIGNAL_TOGGLE: CoolerControl.TOGGLE,
     nvml.CoolerControl.THERMAL_COOLER_SIGNAL_VARIABLE: CoolerControl.VARIABLE,
 }
@@ -43,7 +43,7 @@ This cooler can cool the memory.
 CoolerTarget.POWER_SUPPLY.__doc__ = """
 This cooler can cool the power supply.
 """
-cdef dict _COOLER_TARGET_MAPPING = {
+_COOLER_TARGET_MAPPING = {
     nvml.CoolerTarget.THERMAL_NONE: CoolerTarget.NONE,
     nvml.CoolerTarget.THERMAL_GPU: CoolerTarget.GPU,
     nvml.CoolerTarget.THERMAL_MEMORY: CoolerTarget.MEMORY,
