@@ -40,6 +40,9 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
 
+pytestmark = pytest.mark.usefixtures("disable_process_wide_compatibility_guard_rails")
+
+
 NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
     "cusolverMp": r"^nvidia-cusolvermp-.*$",
     "cusparseLt": r"^nvidia-cusparselt-.*$",

@@ -28,24 +28,29 @@ class LocatedStaticLib:
 class _StaticLibInfo(TypedDict):
     filename: str
     ctk_rel_paths: tuple[str, ...]
-    conda_rel_path: str
+    conda_rel_paths: tuple[str, ...]
     site_packages_dirs: tuple[str, ...]
+    ctk_companion_tags: tuple[str, ...]
 
 
 _SUPPORTED_STATIC_LIBS_INFO: dict[str, _StaticLibInfo] = {
     "cudadevrt": {
         "filename": "cudadevrt.lib" if IS_WINDOWS else "libcudadevrt.a",
         "ctk_rel_paths": (os.path.join("lib", "x64"),) if IS_WINDOWS else ("lib64", "lib"),
-        "conda_rel_path": os.path.join("lib", "x64") if IS_WINDOWS else "lib",
+        "conda_rel_paths": ((os.path.join("lib", "x64"), "lib") if IS_WINDOWS else ("lib",)),
         "site_packages_dirs": (
             ("nvidia/cu13/lib/x64", "nvidia/cuda_runtime/lib/x64")
             if IS_WINDOWS
             else ("nvidia/cu13/lib", "nvidia/cuda_runtime/lib")
         ),
+        "ctk_companion_tags": ("toolchain_cuda_nvcc",),
     },
 }
 
 SUPPORTED_STATIC_LIBS: tuple[str, ...] = tuple(sorted(_SUPPORTED_STATIC_LIBS_INFO.keys()))
+SUPPORTED_STATIC_LIBS_CTK_COMPANION_TAGS = {
+    name: info["ctk_companion_tags"] for name, info in _SUPPORTED_STATIC_LIBS_INFO.items()
+}
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
@@ -66,7 +71,7 @@ class _FindStaticLib:
         self.config: _StaticLibInfo = _SUPPORTED_STATIC_LIBS_INFO[name]
         self.filename: str = self.config["filename"]
         self.ctk_rel_paths: tuple[str, ...] = self.config["ctk_rel_paths"]
-        self.conda_rel_path: str = self.config["conda_rel_path"]
+        self.conda_rel_paths: tuple[str, ...] = self.config["conda_rel_paths"]
         self.site_packages_dirs: tuple[str, ...] = self.config["site_packages_dirs"]
         self.error_messages: list[str] = []
         self.attachments: list[str] = []
@@ -86,9 +91,10 @@ class _FindStaticLib:
             return None
 
         anchor = os.path.join(conda_prefix, "Library") if IS_WINDOWS else conda_prefix
-        file_path = os.path.join(anchor, self.conda_rel_path, self.filename)
-        if os.path.isfile(file_path):
-            return file_path
+        for rel_path in self.conda_rel_paths:
+            file_path = os.path.join(anchor, rel_path, self.filename)
+            if os.path.isfile(file_path):
+                return file_path
         return None
 
     def try_with_cuda_home(self) -> str | None:
@@ -116,6 +122,7 @@ class _FindStaticLib:
         raise StaticLibNotFoundError(f'Failure finding "{self.filename}": {err}\n{att}')
 
 
+@functools.cache
 def locate_static_lib(name: str) -> LocatedStaticLib:
     """Locate a static library by name.
 
@@ -155,7 +162,6 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
     finder.raise_not_found_error()
 
 
-@functools.cache
 def find_static_lib(name: str) -> str:
     """Find the absolute path to a static library.
 
@@ -164,3 +170,6 @@ def find_static_lib(name: str) -> str:
         StaticLibNotFoundError: If the static library cannot be found.
     """
     return locate_static_lib(name).abs_path
+
+
+find_static_lib.cache_clear = locate_static_lib.cache_clear  # type: ignore[attr-defined]

@@ -24,10 +24,10 @@ CUDADEVRT_INFO = find_static_lib_module._SUPPORTED_STATIC_LIBS_INFO["cudadevrt"]
 
 @pytest.fixture
 def clear_find_static_lib_cache():
-    find_static_lib_module.find_static_lib.cache_clear()
+    find_static_lib_module.locate_static_lib.cache_clear()
     get_cuda_path_or_home.cache_clear()
     yield
-    find_static_lib_module.find_static_lib.cache_clear()
+    find_static_lib_module.locate_static_lib.cache_clear()
     get_cuda_path_or_home.cache_clear()
 
 
@@ -78,7 +78,7 @@ def test_locate_static_lib(info_summary_append, libname):
 @pytest.mark.usefixtures("clear_find_static_lib_cache")
 def test_locate_static_lib_search_order(monkeypatch, tmp_path):
     filename = CUDADEVRT_INFO["filename"]
-    conda_rel_path = CUDADEVRT_INFO["conda_rel_path"]
+    conda_rel_path = CUDADEVRT_INFO["conda_rel_paths"][0]
 
     site_pkg_rel = CUDADEVRT_INFO["site_packages_dirs"][0]
     site_packages_lib_dir = tmp_path / "site-packages" / Path(site_pkg_rel.replace("/", os.sep))
@@ -106,15 +106,43 @@ def test_locate_static_lib_search_order(monkeypatch, tmp_path):
     assert located_lib.abs_path == site_packages_path
     assert located_lib.found_via == "site-packages"
     os.remove(site_packages_path)
+    find_static_lib_module.locate_static_lib.cache_clear()
 
     located_lib = locate_static_lib("cudadevrt")
     assert located_lib.abs_path == conda_path
     assert located_lib.found_via == "conda"
     os.remove(conda_path)
+    find_static_lib_module.locate_static_lib.cache_clear()
 
     located_lib = locate_static_lib("cudadevrt")
     assert located_lib.abs_path == cuda_home_path
     assert located_lib.found_via == "CUDA_PATH"
+
+
+@pytest.mark.usefixtures("clear_find_static_lib_cache")
+def test_locate_static_lib_conda_rel_path_fallback(monkeypatch, tmp_path):
+    filename = CUDADEVRT_INFO["filename"]
+    conda_rel_paths = CUDADEVRT_INFO["conda_rel_paths"]
+    if len(conda_rel_paths) == 1:
+        monkeypatch.setitem(CUDADEVRT_INFO, "conda_rel_paths", ("missing-first", conda_rel_paths[0]))
+        conda_rel_paths = CUDADEVRT_INFO["conda_rel_paths"]
+
+    conda_prefix = tmp_path / "conda-prefix"
+    conda_lib_dir = _conda_anchor(conda_prefix) / Path(conda_rel_paths[1])
+    conda_path = _make_static_lib_file(conda_lib_dir, filename)
+
+    monkeypatch.setattr(
+        find_static_lib_module,
+        "find_sub_dirs_all_sitepackages",
+        lambda _sub_dir: [],
+    )
+    monkeypatch.setenv("CONDA_PREFIX", str(conda_prefix))
+    monkeypatch.delenv("CUDA_HOME", raising=False)
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+
+    located_lib = locate_static_lib("cudadevrt")
+    assert located_lib.abs_path == conda_path
+    assert located_lib.found_via == "conda"
 
 
 @pytest.mark.usefixtures("clear_find_static_lib_cache")
