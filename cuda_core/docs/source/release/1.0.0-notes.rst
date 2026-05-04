@@ -16,7 +16,39 @@ Highlights
 New features
 ------------
 
-- TBD
+- Added :class:`Host` as the symmetric counterpart of :class:`Device` for
+  expressing managed-memory locations: ``Host()`` (any host),
+  ``Host(numa_id=N)`` (specific NUMA node), and ``Host.numa_current()``
+  (calling thread's NUMA node).
+
+- Added :class:`ManagedBuffer`, a :class:`Buffer` subclass returned by
+  :meth:`ManagedMemoryResource.allocate` that exposes a property-style
+  advice API:
+
+  - ``buf.read_mostly`` (bool) — driver-backed get/set.
+  - ``buf.preferred_location`` (:class:`Device` | :class:`Host` | None) —
+    driver-backed get/set; assigning ``None`` unsets.
+  - ``buf.accessed_by`` — a live, set-like view; ``add()`` / ``discard()``
+    issue advice, iteration queries the driver.
+  - ``buf.prefetch(location, *, stream)``, ``buf.discard(*, stream)``,
+    ``buf.discard_prefetch(location, *, stream)`` — instance methods that
+    delegate to the matching free functions.
+
+  Use :meth:`ManagedBuffer.from_handle` to wrap an existing managed-memory
+  pointer.
+
+- Added batched managed-memory range operations to :mod:`cuda.core.utils`
+  (CUDA 13+): :func:`~utils.prefetch_batch`, :func:`~utils.discard_batch`,
+  and :func:`~utils.discard_prefetch_batch`. Each takes a sequence of
+  managed :class:`Buffer` instances and dispatches to the corresponding
+  ``cuMem*BatchAsync`` driver entry point, addressing the managed-memory
+  portion of #1333. Single-buffer operations are exposed as instance
+  methods on :class:`ManagedBuffer` (:meth:`~ManagedBuffer.prefetch`,
+  :meth:`~ManagedBuffer.discard`, :meth:`~ManagedBuffer.discard_prefetch`)
+  and as property setters (:attr:`~ManagedBuffer.read_mostly`,
+  :attr:`~ManagedBuffer.preferred_location`,
+  :attr:`~ManagedBuffer.accessed_by`). Locations are expressed via
+  :class:`Device` or :class:`Host`.
 
 
 Breaking changes

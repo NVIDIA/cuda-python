@@ -32,6 +32,7 @@ from cuda.core import system, utils
 from cuda.core._device import Device
 from cuda.core._event import Event, EventOptions
 from cuda.core._graphics import GraphicsResource
+from cuda.core._host import Host
 from cuda.core._launch_config import LaunchConfig
 from cuda.core._launcher import launch
 from cuda.core._linker import Linker, LinkerOptions
@@ -41,6 +42,7 @@ from cuda.core._memory import (
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
     LegacyPinnedMemoryResource,
+    ManagedBuffer,
     ManagedMemoryResource,
     ManagedMemoryResourceOptions,
     MemoryResource,

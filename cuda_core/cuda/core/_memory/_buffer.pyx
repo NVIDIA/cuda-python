@@ -71,6 +71,7 @@ A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting
 :attr:`Buffer.handle`.
 """
 
+
 cdef class Buffer:
     """Represent a handle to allocated memory.
 
@@ -457,12 +458,15 @@ cdef inline int _query_memory_attrs(
         ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
     HANDLE_RETURN(ret)
 
+    # TODO: HMM/ATS-enabled sysmem should also report is_managed=True; the
+    # CU_POINTER_ATTRIBUTE_IS_MANAGED query does not capture that yet.
+    out.is_managed = is_managed != 0
+
     if memory_type == 0:
         # unregistered host pointer
         out.is_host_accessible = True
         out.is_device_accessible = False
         out.device_id = -1
-        out.is_managed = False
     elif (
         is_managed
         or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
@@ -471,12 +475,10 @@ cdef inline int _query_memory_attrs(
         out.is_host_accessible = True
         out.is_device_accessible = True
         out.device_id = device_id
-        out.is_managed = is_managed
     elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
         out.is_host_accessible = False
         out.is_device_accessible = True
         out.device_id = device_id
-        out.is_managed = False
     else:
         with cython.gil:
             raise ValueError(f"Unsupported memory type: {memory_type}")
@@ -554,14 +556,15 @@ cdef class MemoryResource:
 
 # Buffer Implementation Helpers
 # -----------------------------
-cdef inline Buffer Buffer_from_deviceptr_handle(
+cdef Buffer Buffer_from_deviceptr_handle(
     DevicePtrHandle h_ptr,
     size_t size,
     MemoryResource mr,
-    object ipc_descriptor = None
+    object ipc_descriptor = None,
+    type cls = Buffer,
 ):
-    """Create a Buffer from an existing DevicePtrHandle."""
-    cdef Buffer buf = Buffer.__new__(Buffer)
+    """Create a Buffer (or subclass instance) from an existing DevicePtrHandle."""
+    cdef Buffer buf = cls.__new__(cls)
     buf._h_ptr = h_ptr
     buf._size = size
     buf._memory_resource = mr

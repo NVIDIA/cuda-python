@@ -7,6 +7,7 @@ from ._device_memory_resource import *
 from ._graph_memory_resource import *
 from ._ipc import *
 from ._legacy import *
+from ._managed_buffer import ManagedBuffer
 from ._managed_memory_resource import *
 from ._pinned_memory_resource import *
 from ._virtual_memory_resource import *

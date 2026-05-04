@@ -4,6 +4,7 @@
 
 from libc.stdint cimport uintptr_t
 
+from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport DevicePtrHandle
 from cuda.core._stream cimport Stream
 
@@ -31,10 +32,20 @@ cdef class MemoryResource:
     pass
 
 
-# Helper function to create a Buffer from a DevicePtrHandle
+# Helper function to create a Buffer from a DevicePtrHandle.
+# `cls` lets callers materialize Buffer subclasses (e.g. ManagedBuffer for
+# managed-memory allocations); defaults to Buffer.
 cdef Buffer Buffer_from_deviceptr_handle(
     DevicePtrHandle h_ptr,
     size_t size,
     MemoryResource mr,
-    object ipc_descriptor = *
+    object ipc_descriptor = *,
+    type cls = *,
 )
+
+# Memory attribute query helpers (used by _managed_memory_ops)
+cdef void _init_mem_attrs(Buffer self)
+cdef int _query_memory_attrs(
+    _MemAttrs& out,
+    cydriver.CUdeviceptr ptr,
+) except -1 nogil

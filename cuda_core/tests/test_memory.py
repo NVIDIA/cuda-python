@@ -18,7 +18,7 @@ import re
 
 import pytest
 from helpers import IS_WINDOWS, supports_ipc_mempool
-from helpers.buffers import DummyUnifiedMemoryResource, TrackingMR
+from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR
 
 from conftest import (
     create_managed_memory_resource_or_skip,
@@ -49,30 +49,6 @@ from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.utils import StridedMemoryView
 
 POOL_SIZE = 2097152  # 2MB size
-
-
-class DummyDeviceMemoryResource(MemoryResource):
-    def __init__(self, device):
-        self.device = device
-
-    def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(driver.cuMemAlloc(size))
-        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
-
-    def deallocate(self, ptr, size, stream=None):
-        handle_return(driver.cuMemFree(ptr))
-
-    @property
-    def is_device_accessible(self) -> bool:
-        return True
-
-    @property
-    def is_host_accessible(self) -> bool:
-        return False
-
-    @property
-    def device_id(self) -> int:
-        return 0
 
 
 class DummyHostMemoryResource(MemoryResource):
@@ -141,6 +117,7 @@ def test_package_contents():
         "IPCBufferDescriptor",
         "IPCAllocationHandle",
         "LegacyPinnedMemoryResource",
+        "ManagedBuffer",
         "ManagedMemoryResource",
         "ManagedMemoryResourceOptions",
         "PinnedMemoryResourceOptions",

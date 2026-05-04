@@ -6,8 +6,9 @@ from __future__ import annotations
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._memory._memory_pool cimport _MemPool
+from cuda.core._memory._memory_pool cimport _MemPool, _MP_allocate
 from cuda.core._memory._memory_pool cimport MP_init_create_pool, MP_init_current_pool  # no-cython-lint
+from cuda.core._stream cimport Stream, Stream_accept, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils cimport check_or_create_options  # no-cython-lint
 from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
@@ -88,6 +89,22 @@ cdef class ManagedMemoryResource(_MemPool):
 
     def __init__(self, options=None):
         _MMR_init(self, options)
+
+    def allocate(self, size_t size, stream: Stream | None = None):
+        """Allocate a managed-memory buffer of the requested size.
+
+        Returns a :class:`ManagedBuffer` (a :class:`Buffer` subclass) that
+        exposes the property-style advice API
+        (``read_mostly``, ``preferred_location``, ``accessed_by``) and
+        instance methods (``prefetch``, ``discard``, ``discard_prefetch``).
+        """
+        # Lazy import: ManagedBuffer is pure Python and lives outside this
+        # Cython module.
+        from cuda.core._memory._managed_buffer import ManagedBuffer
+        if self.is_mapped:
+            raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
+        cdef Stream s = Stream_accept(stream) if stream is not None else default_stream()
+        return _MP_allocate(self, size, s, ManagedBuffer)
 
     @property
     def device_id(self) -> int:
