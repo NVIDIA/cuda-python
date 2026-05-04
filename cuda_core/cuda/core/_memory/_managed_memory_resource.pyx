@@ -118,7 +118,7 @@ cdef class ManagedMemoryResource(_MemPool):
         if self._pref_loc_type is None:
             return None
         if self._pref_loc_type == "host":
-            return ("host", None)
+            return (ManagedMemoryLocationType.HOST, None)
         return (ManagedMemoryLocationType(self._pref_loc_type), self._pref_loc_id)
 
     @property
