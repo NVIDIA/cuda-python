@@ -23,6 +23,7 @@ from cuda.core.graph import (
     GraphCompleteOptions,
     GraphDebugPrintOptions,
     GraphDefinition,
+    GraphMemoryType,
     GraphNode,
     HostCallbackNode,
     IfElseNode,
@@ -275,7 +276,7 @@ def _build_alloc_node(g):
 def _build_alloc_managed_node(g):
     _skip_if_no_managed_mempool()
     device_id = Device().device_id
-    options = GraphAllocOptions(memory_type="managed")
+    options = GraphAllocOptions(memory_type=GraphMemoryType.MANAGED)
     entry = g.allocate(ALLOC_SIZE)
     node = entry.allocate(ALLOC_SIZE, options)
     return node, {

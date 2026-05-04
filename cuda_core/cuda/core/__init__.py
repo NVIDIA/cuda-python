@@ -41,11 +41,17 @@ from cuda.core._memory import (
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
     LegacyPinnedMemoryResource,
+    ManagedMemoryLocationType,
     ManagedMemoryResource,
     ManagedMemoryResourceOptions,
     MemoryResource,
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,
+    VirtualMemoryAccessType,
+    VirtualMemoryAllocationType,
+    VirtualMemoryGranularityType,
+    VirtualMemoryHandleType,
+    VirtualMemoryLocationType,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
@@ -54,7 +60,7 @@ from cuda.core._memoryview import (
     args_viewable_as_strided_memory,
 )
 from cuda.core._module import Kernel, ObjectCode
-from cuda.core._program import Program, ProgramOptions
+from cuda.core._program import CodeType, CompilerBackend, PchStatus, Program, ProgramOptions, SourceType
 from cuda.core._stream import (
     LEGACY_DEFAULT_STREAM,
     PER_THREAD_DEFAULT_STREAM,
@@ -70,4 +76,5 @@ from cuda.core.graph import (
     GraphCondition,
     GraphDebugPrintOptions,
     GraphDefinition,
+    GraphMemoryType,
 )

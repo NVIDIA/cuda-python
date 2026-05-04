@@ -169,7 +169,7 @@ cdef class AllocNode(GraphNode):
         The number of bytes allocated.
     device_id : int
         The device on which the allocation was made.
-    memory_type : str
+    memory_type : GraphMemoryType | str
         The type of memory allocated (``"device"``, ``"host"``, or ``"managed"``).
     peer_access : tuple of int
         Device IDs that have read-write access to this allocation.

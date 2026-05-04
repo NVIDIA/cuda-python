@@ -13,10 +13,20 @@ from cuda.core._utils.cuda_utils cimport check_or_create_options  # no-cython-li
 from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
 from dataclasses import dataclass
+try:
+    from enum import StrEnum
+except ImportError:
+    from backports.strenum import StrEnum
 import threading
 import warnings
 
-__all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
+__all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions', 'ManagedMemoryLocationType']
+
+
+class ManagedMemoryLocationType(StrEnum):
+    DEVICE = "device"
+    HOST = "host"
+    HOST_NUMA = "host_numa"
 
 
 @dataclass
@@ -30,7 +40,7 @@ cdef class ManagedMemoryResourceOptions:
         meaning depends on ``preferred_location_type``.
         (Default to ``None``)
 
-    preferred_location_type : ``"device"`` | ``"host"`` | ``"host_numa"`` | None, optional
+    preferred_location_type : ManagedMemoryLocationType | str | None, optional
         Controls how ``preferred_location`` is interpreted.
 
         When set to ``None`` (the default), legacy behavior is used:
@@ -54,7 +64,7 @@ cdef class ManagedMemoryResourceOptions:
         (Default to ``None``)
     """
     preferred_location: int | None = None
-    preferred_location_type: str | None = None
+    preferred_location_type: ManagedMemoryLocationType | None = None
 
 
 cdef class ManagedMemoryResource(_MemPool):
@@ -97,7 +107,7 @@ cdef class ManagedMemoryResource(_MemPool):
         return -1
 
     @property
-    def preferred_location(self) -> tuple | None:
+    def preferred_location(self) -> tuple[MemoryLocationType, int | None] | None:
         """The preferred location for managed memory allocations.
 
         Returns ``None`` if no preferred location is set (driver decides),

@@ -17,15 +17,21 @@ CUDA runtime
    :toctree: generated/
 
    typing.DevicePointerT
-   _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryGranularityT
-   _memory._virtual_memory_resource.VirtualMemoryAccessTypeT
-   _memory._virtual_memory_resource.VirtualMemoryHandleTypeT
    _module.KernelAttributes
    _module.KernelOccupancy
    _module.ParamInfo
    _module.MaxPotentialBlockSizeOccupancyResult
+   CodeType
+   CompilerBackend
+   GraphMemoryType
+   ManagedMemoryLocationType
+   PchStatus
+   SourceType
+   VirtualMemoryAccessType
+   VirtualMemoryAllocationType
+   VirtualMemoryGranularityType
+   VirtualMemoryHandleType
+   VirtualMemoryLocationType
 
    :template: autosummary/cyclass.rst
 

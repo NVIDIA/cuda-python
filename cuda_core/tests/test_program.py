@@ -326,7 +326,8 @@ def test_program_init_valid_code_type():
 def test_program_init_invalid_code_type():
     code = "goto 100"
     with pytest.raises(
-        RuntimeError, match=r"^Unsupported code_type='fortran' \(supported_code_types=\('c\+\+', 'ptx', 'nvvm'\)\)$"
+        RuntimeError,
+        match=r"^Unsupported code_type='fortran' \(supported_code_types=[[(]'c\+\+', 'ptx', 'nvvm'[\])]\)$",
     ):
         Program(code, "FORTRAN")
 
