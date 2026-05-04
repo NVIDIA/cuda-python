@@ -13,12 +13,6 @@ Highlights
 - TBD
 
 
-New features
-------------
-
-- TBD
-
-
 Breaking changes
 ----------------
 
@@ -112,6 +106,18 @@ Breaking changes
     argument to ``launch()``; the launcher unwraps it to the underlying
     ``CUgraphConditionalHandle`` value. Previously, ``.handle`` had to be
     extracted explicitly.
+
+- :meth:`Linker.backend` is now a classmethod instead of an instance property.
+  Call sites must use ``Linker.backend()`` (with parentheses) instead of
+  ``linker.backend``. This allows querying the linking backend without
+  constructing a ``Linker`` instance — for example, to choose between PTX and
+  LTOIR input before linking.
+
+
+New features
+------------
+
+- TBD
 
 
 Fixes and enhancements

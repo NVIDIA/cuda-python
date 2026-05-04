@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import inspect
+
 import pytest
 
 from cuda.core import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
@@ -92,7 +94,7 @@ def test_linker_init(compile_ptx_functions, options):
     linker = Linker(*compile_ptx_functions, options=options)
     object_code = linker.link("cubin")
     assert isinstance(object_code, ObjectCode)
-    assert linker.backend == ("driver" if is_culink_backend else "nvJitLink")
+    assert linker.backend() == ("driver" if is_culink_backend else "nvJitLink")
 
 
 def test_linker_init_invalid_arch(compile_ptx_functions):
@@ -242,3 +244,40 @@ def test_linker_options_nvjitlink_options_as_str():
     assert f"-arch={ARCH}" in options
     assert "-g" in options
     assert "-lineinfo" in options
+
+
+class TestBackendClassmethod:
+    def test_backend_returns_nvjitlink(self, monkeypatch):
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", True)
+        assert Linker.backend() == "nvJitLink"
+
+    def test_backend_returns_driver(self, monkeypatch):
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", False)
+        assert Linker.backend() == "driver"
+
+    def test_backend_invokes_probe_when_not_memoised(self, monkeypatch):
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
+        called = []
+
+        def fake_decide():
+            called.append(True)
+            return False  # False = not falling back to driver = nvJitLink
+
+        monkeypatch.setattr(_linker, "_decide_nvjitlink_or_driver", fake_decide)
+        result = Linker.backend()
+        assert result == "nvJitLink"
+        assert called, "_decide_nvjitlink_or_driver was not called"
+
+    def test_backend_is_classmethod(self):
+        attr = inspect.getattr_static(Linker, "backend")
+        assert isinstance(attr, classmethod)
+
+    def test_backend_is_not_property(self):
+        """backend is a classmethod, not a property.
+
+        This is an intentional breaking change from the prior property API.
+        Attribute-style access (``linker.backend``) now returns a bound method,
+        not a string. All call sites must use parens: ``Linker.backend()``.
+        """
+        attr = inspect.getattr_static(Linker, "backend")
+        assert not isinstance(attr, property)
