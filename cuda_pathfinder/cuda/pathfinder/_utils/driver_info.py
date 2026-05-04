@@ -6,6 +6,7 @@ from __future__ import annotations
 import ctypes
 import functools
 import re
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import cast
@@ -140,6 +141,9 @@ def _query_driver_release_version_text() -> str:
     nvml_shutdown.argtypes = []
     nvml_shutdown.restype = ctypes.c_int
 
+    # NVML's init/shutdown pair is reference-counted (see "Initialization and
+    # Cleanup" in the NVML API docs), so this balanced pair is safe even when
+    # the caller has already initialized NVML elsewhere in the process.
     init_status = nvml_init_v2()
     if init_status != _NVML_SUCCESS:
         raise RuntimeError(f"Failed to initialize NVML via nvmlInit_v2() (status={init_status}).")
@@ -152,13 +156,13 @@ def _query_driver_release_version_text() -> str:
                 f"Failed to query driver release version via nvmlSystemGetDriverVersion() (status={status})."
             )
         release_version = version_buffer.value.decode()
-    except BaseException as exc:
+    finally:
+        # Balance the init_v2() above unconditionally. If the body already
+        # raised, let that error win; a non-zero shutdown status here would
+        # only mask the more useful root cause (Python keeps it on
+        # ``__context__`` for debugging). ``sys.exc_info()[1]`` is the
+        # currently-propagating exception inside the finally, or None.
         shutdown_status = nvml_shutdown()
-        if shutdown_status != _NVML_SUCCESS:
-            raise RuntimeError(f"Failed to shut down NVML via nvmlShutdown() (status={shutdown_status}).") from exc
-        raise
-
-    shutdown_status = nvml_shutdown()
-    if shutdown_status != _NVML_SUCCESS:
-        raise RuntimeError(f"Failed to shut down NVML via nvmlShutdown() (status={shutdown_status}).")
+        if shutdown_status != _NVML_SUCCESS and sys.exc_info()[1] is None:
+            raise RuntimeError(f"Failed to shut down NVML via nvmlShutdown() (status={shutdown_status}).")
     return release_version
