@@ -182,30 +182,48 @@ checkpoint APIs. These APIs are intended for Linux process checkpoint and
 restore workflows, and require a CUDA driver with checkpoint API support and
 a ``cuda-bindings`` version that exposes those driver entry points.
 
-A checkpoint workflow operates on a CUDA process by process ID. The typical
-sequence is to lock the process, capture its GPU memory state, restore it
-when needed, and then unlock it so CUDA API calls can resume:
+Checkpointing is typically driven by a coordinator process acting on a target
+CUDA process, similar to attaching a debugger or sending a signal. The target
+process is identified by process ID. Linux and the CUDA driver enforce process
+permissions; checkpointing another user's process may require elevated
+permissions such as ``CAP_SYS_PTRACE`` or administrator privileges.
+
+The CUDA checkpoint APIs prepare CUDA-managed GPU state for process-level
+checkpoint and restore. They do not capture the CPU process image by
+themselves; full process checkpoint workflows still need a CPU-side process
+checkpointing tool such as CRIU. A minimal coordinator-side sequence looks like
+this:
 
 .. code-block:: python
 
+   import os
+
    from cuda.core import checkpoint
 
-   process = checkpoint.Process(pid)
+   target_pid = os.getpid()  # or the PID of another CUDA process
+   process = checkpoint.Process(target_pid)
    process.lock(timeout_ms=5000)
    process.checkpoint()
+
+   # Capture or restore the CPU process image outside cuda.core.
+
    process.restore()
    process.unlock()
 
 ``Process.state`` returns one of ``"running"``, ``"locked"``,
 ``"checkpointed"``, or ``"failed"``. Restore may optionally remap GPUs by
 passing ``gpu_mapping`` from each checkpointed GPU UUID to the GPU UUID that
-should be used during restore. A successful restore returns the process to
-the locked state; call ``Process.unlock`` after restore to allow CUDA API
-calls to resume.
+should be used during restore. For migration workflows, provide mappings for
+every CUDA-visible GPU. The mapping may use ``CUuuid`` objects or the UUID
+strings returned by :attr:`Device.uuid`. A successful restore returns the
+process to the locked state; call ``Process.unlock`` after restore to allow
+CUDA API calls to resume.
 
 The CUDA driver requires restore to run from the process restore thread.
 Use ``Process.restore_thread_id`` to discover that thread before calling
-``Process.restore`` from a checkpoint coordinator.
+``Process.restore`` from a checkpoint coordinator. Restore also requires
+persistence mode to be enabled or ``cuInit`` to have been called before
+execution.
 
 .. autosummary::
    :toctree: generated/

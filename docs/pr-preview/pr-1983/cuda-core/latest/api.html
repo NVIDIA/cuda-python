@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=40868cef"></script>
+    <script src="_static/documentation_options.js?v=7c40c215"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev65';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev70';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -910,14 +910,27 @@ Each subclass exposes attributes unique to its operation type.</p>
 checkpoint APIs. These APIs are intended for Linux process checkpoint and
 restore workflows, and require a CUDA driver with checkpoint API support and
 a <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version that exposes those driver entry points.</p>
-<p>A checkpoint workflow operates on a CUDA process by process ID. The typical
-sequence is to lock the process, capture its GPU memory state, restore it
-when needed, and then unlock it so CUDA API calls can resume:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">checkpoint</span>
+<p>Checkpointing is typically driven by a coordinator process acting on a target
+CUDA process, similar to attaching a debugger or sending a signal. The target
+process is identified by process ID. Linux and the CUDA driver enforce process
+permissions; checkpointing another user’s process may require elevated
+permissions such as <code class="docutils literal notranslate"><span class="pre">CAP_SYS_PTRACE</span></code> or administrator privileges.</p>
+<p>The CUDA checkpoint APIs prepare CUDA-managed GPU state for process-level
+checkpoint and restore. They do not capture the CPU process image by
+themselves; full process checkpoint workflows still need a CPU-side process
+checkpointing tool such as CRIU. A minimal coordinator-side sequence looks like
+this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="n">process</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">checkpoint</span>
+
+<span class="n">target_pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>  <span class="c1"># or the PID of another CUDA process</span>
+<span class="n">process</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target_pid</span><span class="p">)</span>
 <span class="n">process</span><span class="o">.</span><span class="n">lock</span><span class="p">(</span><span class="n">timeout_ms</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
 <span class="n">process</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">()</span>
+
+<span class="c1"># Capture or restore the CPU process image outside cuda.core.</span>
+
 <span class="n">process</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
 <span class="n">process</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
 </pre></div>
@@ -925,12 +938,16 @@ when needed, and then unlock it so CUDA API calls can resume:</p>
 <p><code class="docutils literal notranslate"><span class="pre">Process.state</span></code> returns one of <code class="docutils literal notranslate"><span class="pre">&quot;running&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;locked&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">&quot;checkpointed&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;failed&quot;</span></code>. Restore may optionally remap GPUs by
 passing <code class="docutils literal notranslate"><span class="pre">gpu_mapping</span></code> from each checkpointed GPU UUID to the GPU UUID that
-should be used during restore. A successful restore returns the process to
-the locked state; call <code class="docutils literal notranslate"><span class="pre">Process.unlock</span></code> after restore to allow CUDA API
-calls to resume.</p>
+should be used during restore. For migration workflows, provide mappings for
+every CUDA-visible GPU. The mapping may use <code class="docutils literal notranslate"><span class="pre">CUuuid</span></code> objects or the UUID
+strings returned by <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.uuid" title="cuda.core.Device.uuid"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.uuid</span></code></a>. A successful restore returns the
+process to the locked state; call <code class="docutils literal notranslate"><span class="pre">Process.unlock</span></code> after restore to allow
+CUDA API calls to resume.</p>
 <p>The CUDA driver requires restore to run from the process restore thread.
 Use <code class="docutils literal notranslate"><span class="pre">Process.restore_thread_id</span></code> to discover that thread before calling
-<code class="docutils literal notranslate"><span class="pre">Process.restore</span></code> from a checkpoint coordinator.</p>
+<code class="docutils literal notranslate"><span class="pre">Process.restore</span></code> from a checkpoint coordinator. Restore also requires
+persistence mode to be enabled or <code class="docutils literal notranslate"><span class="pre">cuInit</span></code> to have been called before
+execution.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html#cuda.core.checkpoint.Process" title="cuda.core.checkpoint.Process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">checkpoint.Process</span></code></a>(pid)</p></td>
