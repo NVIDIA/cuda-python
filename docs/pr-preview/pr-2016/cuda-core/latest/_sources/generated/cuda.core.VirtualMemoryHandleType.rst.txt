@@ -1,0 +1,6 @@
+﻿cuda.core.VirtualMemoryHandleType
+=================================
+
+.. currentmodule:: cuda.core
+
+.. autoenum:: VirtualMemoryHandleType

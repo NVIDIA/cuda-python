@@ -1,0 +1,6 @@
+﻿cuda.core.PchStatus
+===================
+
+.. currentmodule:: cuda.core
+
+.. autoenum:: PchStatus
