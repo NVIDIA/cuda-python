@@ -29,6 +29,8 @@ class CoolerTarget(StrEnum):
     GPU = "gpu"
     MEMORY = "memory"
     POWER_SUPPLY = "power_supply"
+    # THERMAL_GPU_RELATED is a composite target, so it is omitted here and will
+    # get returned as 3 separate targets: GPU, MEMORY, and POWER_SUPPLY.
 CoolerTarget.NONE.__doc__ = """
 This cooler controls nothing.
 """

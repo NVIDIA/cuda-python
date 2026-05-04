@@ -106,6 +106,9 @@ cdef dict _BRAND_TYPE_MAPPING = {
     nvml.BrandType.BRAND_NVIDIA_VWS: "NVIDIA VWS",
     nvml.BrandType.BRAND_NVIDIA_CLOUD_GAMING: "NVIDIA Cloud Gaming",
     nvml.BrandType.BRAND_NVIDIA_VGAMING: "NVIDIA vGaming",
+    nvml.BrandType.BRAND_QUADRO_RTX: "Quadro RTX",
+    nvml.BrandType.BRAND_NVIDIA_RTX: "NVIDIA RTX",
+    nvml.BrandType.BRAND_NVIDIA: "NVIDIA",
     nvml.BrandType.BRAND_GEFORCE_RTX: "GeForce RTX",
     nvml.BrandType.BRAND_TITAN_RTX: "Titan RTX",
 }
@@ -672,7 +675,7 @@ cdef class Device:
             try:
                 output_reason = _CLOCKS_EVENT_REASONS_MAPPING[1 << reason]
             except KeyError:
-                raise ValueError(f"Unknown clock event reason bit: {reason}")
+                raise ValueError(f"Unknown clock event reason bit: {1 << reason}")
             output_reasons.append(output_reason)
         return output_reasons
 
@@ -693,7 +696,7 @@ cdef class Device:
             try:
                 output_reason = _CLOCKS_EVENT_REASONS_MAPPING[1 << reason]
             except KeyError:
-                raise ValueError(f"Unknown clock event reason bit: {reason}")
+                raise ValueError(f"Unknown clock event reason bit: {1 << reason}")
             output_reasons.append(output_reason)
         return output_reasons
 

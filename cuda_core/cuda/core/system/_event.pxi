@@ -61,7 +61,7 @@ cdef class EventData:
         """
         The device on which the event occurred.
         """
-        device = Device.__new__()
+        device = Device.__new__(Device)
         device._handle = self._event_data.device
         return device
 
@@ -76,7 +76,7 @@ cdef class EventData:
     def event_data(self) -> int:
         """
         Returns Xid error for the device in the event of
-        :attr:`~cuda.core.system.EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+        :attr:`~cuda.core.system.EventType.XID_CRITICAL_ERROR`.
 
         Raises :class:`ValueError` for other event types.
         """
@@ -89,7 +89,7 @@ cdef class EventData:
         """
         The GPU instance ID for MIG devices.
 
-        Only valid for events of type :attr:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+        Only valid for events of type :attr:`EventType.XID_CRITICAL_ERROR`.
 
         Raises :class:`ValueError` for other event types.
         """
@@ -102,7 +102,7 @@ cdef class EventData:
         """
         The Compute instance ID for MIG devices.
 
-        Only valid for events of type :attr:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+        Only valid for events of type :attr:`EventType.XID_CRITICAL_ERROR`.
 
         Raises :class:`ValueError` for other event types.
         """

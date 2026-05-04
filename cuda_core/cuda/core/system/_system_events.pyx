@@ -164,9 +164,7 @@ def register_events(events: SystemEventType | str | list[SystemEventType | str])
     Examples
     --------
     >>> from cuda.core import system
-    >>> events = system.register_events([
-    ...     SystemEventType.SYSTEM_EVENT_TYPE_GPU_DRIVER_UNBIND,
-    ... ])
+    >>> events = system.register_events([SystemEventType.UNBIND])
     >>> while event := events.wait(timeout_ms=10000):
     ...     print(f"Event {event.event_type} occurred.")
 

@@ -277,6 +277,16 @@ def test_register_events():
         assert all(isinstance(ev, system.EventType) for ev in supported_events)
 
     for device in system.Device.get_all_devices():
+        events = device.register_events(["xid_critical_error"])
+        with pytest.raises(system.TimeoutError):
+            events.wait(timeout_ms=500)
+
+    for device in system.Device.get_all_devices():
+        events = device.register_events([system.EventType.XID_CRITICAL_ERROR])
+        with pytest.raises(system.TimeoutError):
+            events.wait(timeout_ms=500)
+
+    for device in system.Device.get_all_devices():
         events = device.register_events([])
         with pytest.raises(system.TimeoutError):
             events.wait(timeout_ms=500)
@@ -677,7 +687,7 @@ def test_temperature():
         # By docs, should be supported on KEPLER or newer, but experimentally,
         # is also unsupported on other hardware.
         with unsupported_before(device, None):
-            for threshold in list(system.TemperatureThresholds)[:-1]:
+            for threshold in list(system.TemperatureThresholds):
                 t = temperature.get_threshold(threshold)
                 assert isinstance(t, int)
                 assert t >= 0
