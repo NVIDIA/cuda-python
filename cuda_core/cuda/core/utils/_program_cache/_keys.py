@@ -27,7 +27,6 @@ from cuda.core._utils.cuda_utils import (
     nvrtc as _nvrtc,
 )
 
-
 # Bump when the key schema changes in a way that invalidates existing caches.
 _KEY_SCHEMA_VERSION = 1
 
