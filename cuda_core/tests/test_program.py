@@ -435,6 +435,23 @@ def test_nvvm_compile_invalid_target(nvvm_ir):
 
 
 @nvvm_available
+def test_nvvm_accepts_bytearray_input(nvvm_ir):
+    """Program(..., 'nvvm') must accept bytearray input.
+
+    Regression for a bug where the NVVM init branch retained the coerced
+    ``self._code`` as bytes but still cast the original ``code`` object to
+    ``<bytes>`` for the C pointer -- tripping a runtime type error for
+    bytearray inputs before nvvmAddModuleToProgram was called.
+    """
+    program = Program(bytearray(nvvm_ir, "utf-8"), "nvvm")
+    try:
+        assert program.backend == "NVVM"
+        assert program.handle is not None
+    finally:
+        program.close()
+
+
+@nvvm_available
 def test_nvvm_compile_invalid_ir():
     """Compiling invalid NVVM IR exercises the HANDLE_RETURN_NVVM error path."""
     from cuda.bindings.nvvm import nvvmError
