@@ -5,7 +5,11 @@
 
 from libc.stdint cimport intptr_t
 
-from enum import StrEnum
+import sys
+if sys.version_info >= (3, 11):
+    from enum import StrEnum
+else:
+    from backports.strenum import StrEnum
 
 from cuda.bindings import nvml
 

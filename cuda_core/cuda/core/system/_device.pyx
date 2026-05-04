@@ -5,7 +5,11 @@
 from libc.stdint cimport intptr_t, uint64_t
 from libc.math cimport ceil
 
-from enum import StrEnum
+import sys
+if sys.version_info >= (3, 11):
+    from enum import StrEnum
+else:
+    from backports.strenum import StrEnum
 from multiprocessing import cpu_count
 from typing import Iterable
 import warnings
