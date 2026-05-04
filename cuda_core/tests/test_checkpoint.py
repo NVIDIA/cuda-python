@@ -14,6 +14,7 @@
 
 import os
 import sys
+from contextlib import suppress
 
 import pytest
 
@@ -62,6 +63,15 @@ def _find_same_chip_pair(devices):
     return None
 
 
+def _run_or_skip_unsupported(func, *args, **kwargs):
+    try:
+        return func(*args, **kwargs)
+    except RuntimeError as exc:
+        if "CUDA checkpointing is not supported" in str(exc):
+            pytest.skip(str(exc))
+        raise
+
+
 # -- Fixtures --------------------------------------------------------------
 
 
@@ -78,13 +88,16 @@ def self_process(init_cuda):
     # Ensure the process is not left locked if the test fails mid-lifecycle.
     try:
         st = proc.state
-        if st == "checkpointed":
+    except Exception:
+        st = None
+    if st == "checkpointed":
+        with suppress(Exception):
             proc.restore()
+        with suppress(Exception):
             proc.unlock()
-        elif st == "locked":
+    elif st == "locked":
+        with suppress(Exception):
             proc.unlock()
-    except Exception:  # noqa: S110 — best-effort teardown, nothing useful to log
-        pass
     # Restore the original device so init_cuda's teardown pops the right context.
     original_device.set_current()
 
@@ -108,6 +121,7 @@ class TestInputValidation:
 
     def test_public_symbols(self):
         assert checkpoint.__all__ == ["Process"]
+        assert not hasattr(checkpoint, "ProcessStateT")
 
 
 # -- Lifecycle (single GPU, real driver) -----------------------------------
@@ -124,31 +138,31 @@ class TestCheckpointLifecycle:
         assert tid > 0
 
     def test_lock_unlock(self, self_process):
-        self_process.lock()
+        _run_or_skip_unsupported(self_process.lock)
         assert self_process.state == "locked"
         self_process.unlock()
         assert self_process.state == "running"
 
     def test_lock_default_timeout(self, self_process):
         """lock() with the default timeout_ms=0 (no timeout)."""
-        self_process.lock()
+        _run_or_skip_unsupported(self_process.lock)
         assert self_process.state == "locked"
         self_process.unlock()
 
     def test_lock_with_timeout(self, self_process):
-        self_process.lock(timeout_ms=5000)
+        _run_or_skip_unsupported(self_process.lock, timeout_ms=5000)
         assert self_process.state == "locked"
         self_process.unlock()
 
     def test_full_cycle_no_migration(self, self_process):
         """lock -> checkpoint -> restore -> unlock, verify state at each step."""
-        self_process.lock()
+        _run_or_skip_unsupported(self_process.lock)
         assert self_process.state == "locked"
 
-        self_process.checkpoint()
+        _run_or_skip_unsupported(self_process.checkpoint)
         assert self_process.state == "checkpointed"
 
-        self_process.restore()
+        _run_or_skip_unsupported(self_process.restore)
         assert self_process.state == "locked"  # restore leaves process locked
 
         self_process.unlock()
@@ -177,10 +191,10 @@ class TestCheckpointGpuMigration:
         the migration with CUDA_ERROR_INVALID_VALUE (known limitation
         on some architectures / driver versions).
         """
-        proc.lock()
-        proc.checkpoint()
+        _run_or_skip_unsupported(proc.lock)
+        _run_or_skip_unsupported(proc.checkpoint)
         try:
-            proc.restore(gpu_mapping=gpu_mapping)
+            _run_or_skip_unsupported(proc.restore, gpu_mapping=gpu_mapping)
         except (CUDAError, RuntimeError) as exc:
             # Recover: restore without migration, then unlock.
             proc.restore()
