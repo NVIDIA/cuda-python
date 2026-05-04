@@ -23,6 +23,9 @@ from ._nvml_context cimport initialize
 cdef object _pstate_to_int(object pstate):
     if pstate == nvml.Pstates.PSTATE_UNKNOWN:
         return None
+    assert (
+        int(pstate) >= 0 and int(pstate) <= 15
+    ), f"Invalid P-state: {pstate}. Must be between 0 and 15 inclusive, or PSTATE_UNKNOWN."
     return int(pstate) - int(nvml.Pstates.PSTATE_0)
 
 
