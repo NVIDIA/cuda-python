@@ -113,6 +113,19 @@ Breaking changes
     ``CUgraphConditionalHandle`` value. Previously, ``.handle`` had to be
     extracted explicitly.
 
+- :attr:`DeviceMemoryResource.peer_accessible_by` now returns a live
+  driver-backed :class:`collections.abc.MutableSet` view
+  (:class:`~_memory._peer_access_utils.PeerAccessibleBySetProxy`) instead of a
+  sorted ``tuple[int, ...]``. Iteration yields :obj:`~_device.Device` objects;
+  ``add``, ``discard``, and ``__contains__`` accept either a
+  :obj:`~_device.Device` or a device-ordinal ``int``. Callers comparing against
+  tuples must update to set comparisons (e.g.
+  ``mr.peer_accessible_by == {Device(0)}``). The property setter
+  (``mr.peer_accessible_by = [...]``) is unchanged. Bulk operations on the
+  proxy (``update``, ``|=``, ``&=``, ``-=``, ``^=``, ``clear``) each issue
+  exactly one ``cuMemPoolSetAccess`` call so the toolkit can update existing
+  memory mappings in parallel.
+
 
 Fixes and enhancements
 -----------------------

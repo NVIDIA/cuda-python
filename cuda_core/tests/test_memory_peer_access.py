@@ -1,10 +1,10 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
 from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch_buffer
 
-from cuda.core import DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._utils.cuda_utils import CUDAError
 
 NBYTES = 1024
@@ -100,18 +100,18 @@ def test_peer_access_transitions(mempool_device_x3):
     transitions = [(s0, s1) for s0 in states for s1 in states if s0 != s1]
     for init_state, final_state in transitions:
         dmrs[0].peer_accessible_by = init_state
-        assert dmrs[0].peer_accessible_by == init_state
+        assert dmrs[0].peer_accessible_by == {Device(i) for i in init_state}
         verify_state(init_state, pattern_seed)
         pattern_seed += 1
 
         dmrs[0].peer_accessible_by = final_state
-        assert dmrs[0].peer_accessible_by == final_state
+        assert dmrs[0].peer_accessible_by == {Device(i) for i in final_state}
         verify_state(final_state, pattern_seed)
         pattern_seed += 1
 
 
 def test_peer_access_shared_pool_queries_driver(mempool_device_x2):
-    """Non-owned pools always query the driver for peer access state."""
+    """All pools always query the driver, so wrappers see consistent state."""
     dev0, dev1 = mempool_device_x2
 
     # Grant peer access via one wrapper; a second wrapper must see it.
@@ -122,18 +122,18 @@ def test_peer_access_shared_pool_queries_driver(mempool_device_x2):
 
     # Revoke via dmr2; dmr1 must reflect the change immediately.
     dmr2.peer_accessible_by = []
-    assert dmr1.peer_accessible_by == ()
+    assert dmr1.peer_accessible_by == set()
 
     # Re-grant via dmr1. A fresh wrapper that has never read the
     # property must still query the driver before computing diffs
     # in the setter, so setting [] must discover and revoke the access.
     dmr1.peer_accessible_by = [dev1]
     dmr3 = DeviceMemoryResource(dev0)
-    assert dmr1.peer_accessible_by == (dev1.device_id,)
-    assert dmr2.peer_accessible_by == (dev1.device_id,)
-    assert dmr3.peer_accessible_by == (dev1.device_id,)
+    assert dmr1.peer_accessible_by == {dev1}
+    assert dmr2.peer_accessible_by == {dev1}
+    assert dmr3.peer_accessible_by == {dev1}
     dmr3.peer_accessible_by = []
-    assert DeviceMemoryResource(dev0).peer_accessible_by == ()
-    assert dmr1.peer_accessible_by == ()
-    assert dmr2.peer_accessible_by == ()
-    assert dmr3.peer_accessible_by == ()
+    assert DeviceMemoryResource(dev0).peer_accessible_by == set()
+    assert dmr1.peer_accessible_by == set()
+    assert dmr2.peer_accessible_by == set()
+    assert dmr3.peer_accessible_by == set()
