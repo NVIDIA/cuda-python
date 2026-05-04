@@ -128,7 +128,7 @@ Breaking changes
   - :meth:`GraphicsResource.map`.
   - :meth:`KernelOccupancy.max_potential_cluster_size` and
     :meth:`KernelOccupancy.max_active_clusters`.
-  - :meth:`graph.Graph.launch` (``stream`` was previously positional).
+  - :meth:`Buffer.from_ipc_descriptor` (``stream`` was previously positional).
 
   :class:`VirtualMemoryResource` is exempt; it now accepts and validates
   an optional stream instead of rejecting any non-``None`` value.
