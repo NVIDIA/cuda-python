@@ -13,10 +13,26 @@ from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
+from cuda.core._utils.version import driver_version
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
 
-is_culink_backend = _linker._decide_nvjitlink_or_driver()
+
+def _default_linker_backend() -> str:
+    """Backend a default (PTX input, no LTO) Linker picks on this machine."""
+    try:
+        drv_major = driver_version()[0]
+    except Exception:
+        drv_major = None
+    return _linker._choose_backend(
+        drv_major,
+        _linker._probe_nvjitlink(),
+        inputs_have_ltoir=False,
+        lto_requested=False,
+    )
+
+
+is_culink_backend = _default_linker_backend() == "driver"
 
 
 def _is_nvvm_available():
