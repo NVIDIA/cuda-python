@@ -227,7 +227,9 @@ cdef class Temperature:
             device_arch = nvml.DeviceArch(nvml.device_get_architecture(self._handle))
             if device_arch >= nvml.DeviceArch.ADA:
                 warnings.warn(
-                    f"{threshold_type} is no longer recommended for Ada and later architectures.  Use get_field_values with NVML_FI_DEV_TEMPERATURE_* fields to retrieve this threshold on these architectures.",
+                    f"{threshold_type} is no longer recommended for Ada and later architectures. "
+                    "Use get_field_values with NVML_FI_DEV_TEMPERATURE_* fields to retrieve this "
+                    "threshold on these architectures.",
                     DeprecationWarning,
                     stacklevel=2
                 )
