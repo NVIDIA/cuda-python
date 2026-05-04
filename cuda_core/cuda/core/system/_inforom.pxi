@@ -11,18 +11,14 @@ class InforomObject(StrEnum):
     ECC = "ecc"
     POWER = "power"
     DEN = "den"
-InforomObject.OEM.__doc__ = """
-An object defined by OEM.
-"""
-InforomObject.ECC.__doc__ = """
-The ECC object determining the level of ECC support.
-"""
-InforomObject.POWER.__doc__ = """
-The power management object.
-"""
-InforomObject.DEN.__doc__ = """
-DRAM Encryption object.
-"""
+
+
+InforomObject.OEM.__doc__ = "An object defined by OEM."
+InforomObject.ECC.__doc__ = "The ECC object determining the level of ECC support."
+InforomObject.POWER.__doc__ = "The power management object."
+InforomObject.DEN.__doc__ = "DRAM Encryption object."
+
+
 _INFOROM_OBJECT_MAPPING = {
     InforomObject.OEM: nvml.InforomObject.INFOROM_OEM,
     InforomObject.ECC: nvml.InforomObject.INFOROM_ECC,

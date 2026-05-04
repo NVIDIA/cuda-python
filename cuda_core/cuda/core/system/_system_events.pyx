@@ -24,10 +24,14 @@ class SystemEventType(StrEnum):
     """
     UNBIND = "unbind"
     BIND = "bind"
+
+
 _SYSTEM_EVENT_TYPE_MAPPING = {
     nvml.SystemEventType.GPU_DRIVER_UNBIND: SystemEventType.UNBIND,
     nvml.SystemEventType.GPU_DRIVER_BIND: SystemEventType.BIND,
 }
+
+
 _SYSTEM_EVENT_TYPE_INV_MAPPING = {v: k for k, v in _SYSTEM_EVENT_TYPE_MAPPING.items()}
 
 

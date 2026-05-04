@@ -15,7 +15,10 @@ from typing import Iterable
 import warnings
 
 from cuda.bindings import nvml
-from cuda.bindings._internal._fast_enum import FastEnum
+try:
+    from cuda.bindings._internal._fast_enum import FastEnum
+except ImportError:
+    from enum import IntEnum as FastEnum
 
 from ._nvml_context cimport initialize
 
@@ -62,15 +65,21 @@ class AddressingMode(StrEnum):
     """
     HMM = "hmm"
     ATS = "ats"
+
+
 AddressingMode.HMM.__doc__ = """
     System allocated memory (``malloc``, ``mmap``) is addressable from the device
     (GPU), via software-based mirroring of the CPU's page tables, on the GPU.
 """
+
+
 AddressingMode.ATS.__doc__ = """
     System allocated memory (``malloc``, ``mmap``) is addressable from the device
     (GPU), via Address Translation Services. This means that there is (effectively)
     a single set of page tables, and the CPU and GPU both use them.
 """
+
+
 _ADDRESSING_MODE_MAPPING = {
     nvml.DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_HMM: AddressingMode.HMM,
     nvml.DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_ATS: AddressingMode.ATS,
@@ -83,12 +92,18 @@ class AffinityScope(StrEnum):
     """
     NODE = "node"
     SOCKET = "socket"
+
+
 AffinityScope.NODE.__doc__ = """
-    The NUMA node is the scope of the affinity query.  This is the default scope.
+The NUMA node is the scope of the affinity query.  This is the default scope.
 """
+
+
 AffinityScope.SOCKET.__doc__ = """
-    The CPU socket is the scope of the affinity query.
+The CPU socket is the scope of the affinity query.
 """
+
+
 _AFFINITY_SCOPE_MAPPING = {
     AffinityScope.NODE: nvml.AffinityScope.NODE,
     AffinityScope.SOCKET: nvml.AffinityScope.SOCKET,
@@ -146,6 +161,8 @@ class GpuP2PCapsIndex(StrEnum):
     PCI = "pci"
     PROP = "prop"
     UNKNOWN = "unknown"
+
+
 _GPU_P2P_CAPS_INDEX_MAPPING = {
     GpuP2PCapsIndex.READ: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_READ,
     GpuP2PCapsIndex.WRITE: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_WRITE,
@@ -167,6 +184,8 @@ class GpuP2PStatus(StrEnum):
     DISABLED_BY_REGKEY = "disabled by regkey"
     NOT_SUPPORTED = "not supported"
     UNKNOWN = "unknown"
+
+
 _GPU_P2P_STATUS_MAPPING = {
     nvml.GpuP2PStatus.P2P_STATUS_OK: GpuP2PStatus.OK,
     # Typo in upstream library
@@ -190,6 +209,8 @@ class GpuTopologyLevel(StrEnum):
     HOSTBRIDGE = "hostbridge"
     NODE = "node"
     SYSTEM = "system"
+
+
 _GPU_TOPOLOGY_LEVEL_MAPPING = {
     GpuTopologyLevel.INTERNAL: nvml.GpuTopologyLevel.TOPOLOGY_INTERNAL,
     GpuTopologyLevel.SINGLE: nvml.GpuTopologyLevel.TOPOLOGY_SINGLE,
@@ -198,6 +219,8 @@ _GPU_TOPOLOGY_LEVEL_MAPPING = {
     GpuTopologyLevel.NODE: nvml.GpuTopologyLevel.TOPOLOGY_NODE,
     GpuTopologyLevel.SYSTEM: nvml.GpuTopologyLevel.TOPOLOGY_SYSTEM,
 }
+
+
 _GPU_TOPOLOGY_LEVEL_INV_MAPPING = {v: k for k, v in _GPU_TOPOLOGY_LEVEL_MAPPING.items()}
 
 

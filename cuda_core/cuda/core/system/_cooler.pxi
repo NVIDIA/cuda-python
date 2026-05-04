@@ -9,12 +9,16 @@ class CoolerControl(StrEnum):
     """
     TOGGLE = "toggle"
     VARIABLE = "variable"
+
+
 CoolerControl.TOGGLE.__doc__ = """
 This cooler can only be toggled either ON or OFF (e.g. a switch).
 """
 CoolerControl.VARIABLE.__doc__ = """
 This cooler's level can be adjusted from some minimum to some maximum (e.g. a knob).
 """
+
+
 _COOLER_CONTROL_MAPPING = {
     nvml.CoolerControl.THERMAL_COOLER_SIGNAL_TOGGLE: CoolerControl.TOGGLE,
     nvml.CoolerControl.THERMAL_COOLER_SIGNAL_VARIABLE: CoolerControl.VARIABLE,
@@ -31,18 +35,14 @@ class CoolerTarget(StrEnum):
     POWER_SUPPLY = "power_supply"
     # THERMAL_GPU_RELATED is a composite target, so it is omitted here and will
     # get returned as 3 separate targets: GPU, MEMORY, and POWER_SUPPLY.
-CoolerTarget.NONE.__doc__ = """
-This cooler controls nothing.
-"""
-CoolerTarget.GPU.__doc__ = """
-This cooler can cool the GPU.
-"""
-CoolerTarget.MEMORY.__doc__ = """
-This cooler can cool the memory.
-"""
-CoolerTarget.POWER_SUPPLY.__doc__ = """
-This cooler can cool the power supply.
-"""
+
+
+CoolerTarget.NONE.__doc__ = "This cooler controls nothing."
+CoolerTarget.GPU.__doc__ = "This cooler can cool the GPU."
+CoolerTarget.MEMORY.__doc__ = "This cooler can cool the memory."
+CoolerTarget.POWER_SUPPLY.__doc__ = "This cooler can cool the power supply."
+
+
 _COOLER_TARGET_MAPPING = {
     nvml.CoolerTarget.THERMAL_NONE: CoolerTarget.NONE,
     nvml.CoolerTarget.THERMAL_GPU: CoolerTarget.GPU,

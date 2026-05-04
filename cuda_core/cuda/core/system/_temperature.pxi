@@ -15,6 +15,8 @@ class TemperatureThresholds(StrEnum):
     ACOUSTIC_CURR = "acoustic_curr"
     ACOUSTIC_MAX = "acoustic_max"
     GPS_CURR = "gps_curr"
+
+
 _TEMPERATURE_THRESHOLD_MAPPING = {
     TemperatureThresholds.SHUTDOWN: nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_SHUTDOWN,
     TemperatureThresholds.SLOWDOWN: nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_SLOWDOWN,
@@ -49,6 +51,8 @@ class ThermalController(StrEnum):
     MAX6649R = "max6649r"
     ADT7473S = "adt7473s"
     UNKNOWN = "unknown"
+
+
 _THERMAL_CONTROLLER_MAPPING = {
     nvml.ThermalController.GPU_INTERNAL: ThermalController.GPU_INTERNAL,
     nvml.ThermalController.ADM1032: ThermalController.ADM1032,
@@ -83,6 +87,8 @@ class ThermalTarget(StrEnum):
     VCD_INLET = "vcd_inlet"
     VCD_OUTLET = "vcd_outlet"
     ALL = "all"
+
+
 ThermalTarget.GPU.__doc__ = "GPU core temperature requires physical GPU handle."
 ThermalTarget.MEMORY.__doc__ = "GPU memory temperature requires physical GPU handle."
 ThermalTarget.POWER_SUPPLY.__doc__ = "GPU power supply temperature requires physical GPU handle."
@@ -90,6 +96,8 @@ ThermalTarget.BOARD.__doc__ = "GPU board ambient temperature requires physical G
 ThermalTarget.VCD_BOARD.__doc__ = "Visual Computing Device Board temperature requires visual computing device handle."
 ThermalTarget.VCD_INLET.__doc__ = "Visual Computing Device Inlet temperature requires visual computing device handle."
 ThermalTarget.VCD_OUTLET.__doc__ = "Visual Computing Device Outlet temperature requires visual computing device handle."
+
+
 _THERMAL_TARGET_MAPPING = {
     nvml.ThermalTarget.NONE: ThermalTarget.NONE,
     nvml.ThermalTarget.GPU: ThermalTarget.GPU,
@@ -101,6 +109,8 @@ _THERMAL_TARGET_MAPPING = {
     nvml.ThermalTarget.VCD_OUTLET: ThermalTarget.VCD_OUTLET,
     nvml.ThermalTarget.ALL: ThermalTarget.ALL,
 }
+
+
 _THERMAL_TARGET_INV_MAPPING = {v: k for k, v in _THERMAL_TARGET_MAPPING.items()}
 
 

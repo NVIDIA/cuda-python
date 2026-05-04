@@ -10,12 +10,12 @@ class ClockId(StrEnum):
     CURRENT = "current"
     CUSTOMER_BOOST_MAX = "customer_boost_max"
     # APP_CLOCK_TARGET and APP_CLOCK_DEFAULT are deprecated so not included here
-ClockId.CURRENT.__doc__ = """
-Current actual clock value.
-"""
-ClockId.CUSTOMER_BOOST_MAX.__doc__ = """
-OEM-defined maximum clock rate
-"""
+
+
+ClockId.CURRENT.__doc__ = "Current actual clock value."
+ClockId.CUSTOMER_BOOST_MAX.__doc__ = "OEM-defined maximum clock rate"
+
+
 _CLOCK_ID_MAPPING = {
     ClockId.CURRENT: nvml.ClockId.CURRENT,
     ClockId.CUSTOMER_BOOST_MAX: nvml.ClockId.CUSTOMER_BOOST_MAX,
@@ -36,6 +36,8 @@ class ClocksEventReasons(StrEnum):
     HW_THERMAL_SLOWDOWN = "hw_thermal_slowdown"
     HW_POWER_BRAKE_SLOWDOWN = "hw_power_brake_slowdown"
     DISPLAY_CLOCK_SETTING = "display_clock_setting"
+
+
 _CLOCKS_EVENT_REASONS_MAPPING = {
     nvml.ClocksEventReasons.EVENT_REASON_NONE: ClocksEventReasons.NONE,
     nvml.ClocksEventReasons.EVENT_REASON_GPU_IDLE: ClocksEventReasons.GPU_IDLE,
@@ -58,6 +60,8 @@ class ClockType(StrEnum):
     SM = "sm"
     MEMORY = "memory"
     VIDEO = "video"
+
+
 _CLOCK_TYPE_MAPPING = {
     ClockType.GRAPHICS: nvml.ClockType.CLOCK_GRAPHICS,
     ClockType.SM: nvml.ClockType.CLOCK_SM,

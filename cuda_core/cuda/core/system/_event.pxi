@@ -22,6 +22,8 @@ class EventType(StrEnum):
     FATAL_POISON_ERROR = "fatal_poison_error"
     GPU_UNAVAILABLE_ERROR = "gpu_unavailable_error"
     GPU_RECOVERY_ACTION = "gpu_recovery_action"
+
+
 EventType.PSTATE.__doc__ = """
 Event about PState changes
 
@@ -29,6 +31,8 @@ On Fermi™ architecture, PState changes are also an indicator that GPU is throt
 no work being executed on the GPU, power capping or thermal capping. In a typical situation,
 Fermi-based GPU should stay in P0 for the duration of the execution of the compute process.
 """
+
+
 _EVENT_TYPE_MAPPING = {
     nvml.EventType.NONE: EventType.NONE,
     nvml.EventType.SINGLE_BIT_ECC_ERROR: EventType.SINGLE_BIT_ECC_ERROR,
@@ -46,6 +50,8 @@ _EVENT_TYPE_MAPPING = {
     nvml.EventType.GPU_UNAVAILABLE_ERROR: EventType.GPU_UNAVAILABLE_ERROR,
     nvml.EventType.GPU_RECOVERY_ACTION: EventType.GPU_RECOVERY_ACTION,
 }
+
+
 _EVENT_TYPE_INV_MAPPING = {v: k for k, v in _EVENT_TYPE_MAPPING.items()}
 
 
