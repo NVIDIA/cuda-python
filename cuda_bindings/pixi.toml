@@ -151,12 +151,6 @@ libnvfatbin = "*"
 [package.target.linux.run-dependencies]
 libcufile = "*"
 
-[target.linux.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
-
-[target.win-64.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.bat"]
-
 [target.linux.tasks.test]
 cmd = [
     "pytest",
@@ -164,7 +158,6 @@ cmd = [
     "--override-ini",
     "norecursedirs=examples", # include cython tests (ignore by default config)
 ]
-depends-on = [{ task = "build-cython-tests" }]
 
 [target.linux.tasks.build-docs]
 cmd = [

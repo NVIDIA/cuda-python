@@ -1,36 +1,115 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import functools
 import importlib
-import sys
+import os
+from pathlib import Path
+
+import pytest
+from Cython.Build import cythonize
+from setuptools import Extension
+from setuptools.dist import Distribution
+
+TESTS_DIR = Path(__file__).resolve().parent
+CYTHON_TEST_MODULES = ["test_ccuda", "test_ccudart", "test_interoperability_cython"]
 
 
-def py_func(func):
-    """
-    Wraps func in a plain Python function.
-    """
+def _get_cuda_include_dir():
+    cuda_home = os.environ.get("CUDA_PATH") or os.environ.get("CUDA_HOME")
+    if cuda_home:
+        return Path(cuda_home) / "include"
+    return None
 
-    @functools.wraps(func)
-    def wrapped(*args, **kwargs):
-        return func(*args, **kwargs)
 
+def build_cython_test_modules():
+    include_dirs = []
+    cuda_include_dir = _get_cuda_include_dir()
+    if cuda_include_dir:
+        include_dirs.append(str(cuda_include_dir))
+
+    extensions = [
+        Extension(
+            name=module_name,
+            sources=[str(TESTS_DIR / f"{module_name}.pyx")],
+            include_dirs=include_dirs,
+        )
+        for module_name in CYTHON_TEST_MODULES
+    ]
+
+    ext_modules = cythonize(
+        extensions,
+        compiler_directives={"language_level": "3", "freethreading_compatible": True},
+        nthreads=1,
+    )
+
+    distribution = Distribution(
+        {
+            "name": "cuda-bindings-cython-tests",
+            "ext_modules": ext_modules,
+        }
+    )
+    build_ext = distribution.get_command_obj("build_ext")
+    build_ext.inplace = True
+    build_ext.build_temp = str(TESTS_DIR / "build" / "temp")
+
+    # Ensure in-place extension outputs are written into tests/cython.
+    cwd = os.getcwd()
+    os.chdir(TESTS_DIR)
+    try:
+        distribution.run_command("build_ext")
+    finally:
+        os.chdir(cwd)
+
+
+def _import_cython_test_modules():
+    imported_modules = {}
+    build_attempted = False
+
+    for module_name in CYTHON_TEST_MODULES:
+        try:
+            imported_modules[module_name] = importlib.import_module(module_name)
+        except ImportError:
+            if not build_attempted:
+                build_cython_test_modules()
+                importlib.invalidate_caches()
+                build_attempted = True
+
+            imported_modules[module_name] = importlib.import_module(module_name)
+
+    return imported_modules
+
+
+@pytest.fixture(scope="session")
+def cython_test_modules():
+    return _import_cython_test_modules()
+
+
+def _make_wrapped_test(module_name, test_name):
+    def wrapped(cython_test_modules):
+        test_func = getattr(cython_test_modules[module_name], test_name)
+        return test_func()
+
+    wrapped.__name__ = test_name
+    wrapped.__module__ = __name__
     return wrapped
 
 
-cython_test_modules = ["test_ccuda", "test_ccudart", "test_interoperability_cython"]
+registered_tests = set()
+for module_name, module in _import_cython_test_modules().items():
+    for test_name in dir(module):
+        item = getattr(module, test_name)
+        if not callable(item) or not test_name.startswith("test_"):
+            continue
+
+        if test_name in registered_tests:
+            raise RuntimeError(f"duplicate cython test name discovered: {test_name}")
+        registered_tests.add(test_name)
+        globals()[test_name] = _make_wrapped_test(module_name, test_name)
 
 
-for mod in cython_test_modules:
-    try:
-        # For each callable in `mod` with name `test_*`,
-        # wrap the callable in a plain Python function
-        # and set the result as an attribute of this module.
-        mod = importlib.import_module(mod)
-        for name in dir(mod):
-            item = getattr(mod, name)
-            if callable(item) and name.startswith("test_"):
-                item = py_func(item)
-                setattr(sys.modules[__name__], name, item)
-    except ImportError:
-        raise
+def main():
+    build_cython_test_modules()
+
+
+if __name__ == "__main__":
+    main()

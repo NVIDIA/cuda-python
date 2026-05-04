@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 set -euo pipefail
@@ -211,9 +211,9 @@ run_bindings() {
     add_result "bindings-examples" "${rc_ex}"
   fi
   if [ ${RUN_CYTHON} -eq 1 ] && [ -d tests/cython ]; then
-    if [ -x tests/cython/build_tests.sh ]; then
+    if [ -f tests/cython/test_cython.py ]; then
       echo "[build] cuda_bindings cython tests"
-      ( cd tests/cython && ./build_tests.sh ) || true
+      ( cd tests/cython && python test_cython.py ) || true
     fi
     run_pytest tests/cython
     local rc_cy=$?
@@ -236,12 +236,12 @@ run_core() {
     add_result "core-examples" "${rc_ex}"
   fi
   if [ ${RUN_CYTHON} -eq 1 ] && [ -d tests/cython ]; then
-    if [ -x tests/cython/build_tests.sh ]; then
+    if [ -f tests/cython/test_cython.py ]; then
       echo "[build] cuda_core cython tests"
-      if [ -z "${CUDA_HOME-}" ]; then
-        echo "[skip] CUDA_HOME not set; skipping cython tests"
+      if [ -z "${CUDA_HOME-}" ] && [ -z "${CUDA_PATH-}" ]; then
+        echo "[skip] CUDA_HOME/CUDA_PATH not set; skipping cython tests"
       else
-        ( cd tests/cython && ./build_tests.sh ) || true
+        ( cd tests/cython && python test_cython.py ) || true
       fi
     fi
     run_pytest tests/cython
