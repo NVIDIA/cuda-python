@@ -3,16 +3,17 @@
 
 # If we have subcategories of examples in the future, this file can be split along those lines
 
-import glob
 import os
 import platform
-import subprocess
 import sys
 import warnings
+from pathlib import Path
 
 import pytest
 
 from cuda.core import Device, ManagedMemoryResource, system
+
+from .utils import run_example
 
 try:
     from cuda.bindings._test_helpers.pep723 import has_package_requirements_or_skip
@@ -93,23 +94,24 @@ SYSTEM_REQUIREMENTS = {
 }
 
 
-samples_path = os.path.join(os.path.dirname(__file__), "..", "..", "examples")
-sample_files = [os.path.basename(x) for x in glob.glob(samples_path + "**/*.py", recursive=True)]
+# not dividing, but navigating into the "examples" directory.
+EXAMPLES_DIR = Path(__file__).resolve().parents[2] / "examples"
+
+# recursively glob for test files in examples directory, sort for deterministic
+# test runs. Relative paths offer cleaner output when tests fail.
+SAMPLE_FILES = sorted([str(p.relative_to(EXAMPLES_DIR)) for p in EXAMPLES_DIR.glob("**/*.py")])
 
 
-@pytest.mark.parametrize("example", sample_files)
-def test_example(example):
-    example_path = os.path.join(samples_path, example)
+@pytest.mark.parametrize("example_rel_path", SAMPLE_FILES)
+# deinit_cuda is defined in conftest.py and pops the cuda context automatically.
+def test_example(example_rel_path: str, deinit_cuda) -> None:
+    example_path = str(EXAMPLES_DIR / example_rel_path)
     has_package_requirements_or_skip(example_path)
 
-    system_requirement = SYSTEM_REQUIREMENTS.get(example, lambda: True)
+    system_requirement = SYSTEM_REQUIREMENTS.get(example_rel_path, lambda: True)
     if not system_requirement():
-        pytest.skip(f"Skipping {example} due to unmet system requirement")
+        pytest.skip(f"Skipping {example_rel_path} due to unmet system requirement")
 
-    process = subprocess.run([sys.executable, example_path], capture_output=True)  # noqa: S603
-    if process.returncode != 0:
-        if process.stdout:
-            print(process.stdout.decode(errors="replace"))
-        if process.stderr:
-            print(process.stderr.decode(errors="replace"), file=sys.stderr)
-        raise AssertionError(f"`{example}` failed ({process.returncode})")
+    # redundantly set current device to 0 in case previous example was multi-GPU
+    Device(0).set_current()
+    run_example(str(EXAMPLES_DIR), example_rel_path)
