@@ -107,7 +107,7 @@ cdef class ManagedMemoryResource(_MemPool):
         return -1
 
     @property
-    def preferred_location(self) -> tuple[MemoryLocationType, int | None] | None:
+    def preferred_location(self) -> tuple[ManagedMemoryLocationType, int | None] | None:
         """The preferred location for managed memory allocations.
 
         Returns ``None`` if no preferred location is set (driver decides),
@@ -119,7 +119,7 @@ cdef class ManagedMemoryResource(_MemPool):
             return None
         if self._pref_loc_type == "host":
             return ("host", None)
-        return (self._pref_loc_type, self._pref_loc_id)
+        return (ManagedMemoryLocationType(self._pref_loc_type), self._pref_loc_id)
 
     @property
     def is_device_accessible(self) -> bool:

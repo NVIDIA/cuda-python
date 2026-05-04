@@ -172,12 +172,12 @@ cdef class Program:
            use the NVRTC backend. For PTX and NVVM programs this property
            always returns ``None``.
         """
-        return self._pch_status
+        return PchStatus(self._pch_status)
 
     @property
     def backend(self) -> CompilerBackend:
         """Return this Program instance's underlying :class:`CompilerBackend`."""
-        return self._backend
+        return CompilerBackend(self._backend)
 
     @property
     def handle(self) -> ProgramHandleT:
@@ -509,7 +509,7 @@ class ProgramOptions:
         >>> options = ProgramOptions(arch="sm_80", debug=True)
         >>> nvrtc_options = options.as_bytes("nvrtc")
         """
-        backend = backend.lower()
+        backend = str(backend).lower()
         if backend == "nvrtc":
             return self._prepare_nvrtc_options()
         elif backend == "nvvm":
@@ -729,8 +729,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         self._linker = None
 
     else:
-        supported_code_types = [x.value for x in SourceType]
-        assert code_type not in supported_code_types, f"{code_type=}"
+        supported_code_types = tuple(x.value for x in SourceType)
         if options.use_libdevice:
             raise ValueError("use_libdevice is only supported by the NVVM backend")
         raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
@@ -940,7 +939,6 @@ cdef object Program_compile_nvvm(Program self, str target_type, object logs):
         return ObjectCode._init(bytes(data), target_type, name=self._options.name)
 
 # Supported target types per backend
-# Keys here should match `_utils.enum.CompilerBackend`
 cdef dict SUPPORTED_TARGETS = {
     CompilerBackend.NVRTC: (CodeType.PTX, CodeType.CUBIN, CodeType.LTOIR),
     CompilerBackend.NVVM: (CodeType.PTX, CodeType.LTOIR),
