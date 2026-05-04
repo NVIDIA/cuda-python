@@ -17,9 +17,6 @@ cdef class GraphBuilder:
         Stream _stream  # cached to avoid reconstruction from _h_stream handle
         object __weakref__
 
-    @staticmethod
-    cdef GraphBuilder _init(Stream stream)
-
 
 cdef class Graph:
     cdef:

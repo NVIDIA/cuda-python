@@ -250,7 +250,7 @@ cdef class GraphBuilder:
                 cydriver.cuStreamEndCapture(as_cu(self._h_stream), NULL)
 
     @staticmethod
-    cdef GraphBuilder _init(Stream stream):
+    def _init(Stream stream):
         cdef GraphBuilder self = GraphBuilder.__new__(GraphBuilder)
         # _h_graph set by begin_building
         self._h_stream = stream._h_stream
