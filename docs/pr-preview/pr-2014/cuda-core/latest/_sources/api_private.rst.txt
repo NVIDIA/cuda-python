@@ -71,9 +71,6 @@ NVML
    system._device.FieldValues
    system._device.GpuDynamicPstatesInfo
    system._device.GpuDynamicPstatesUtilization
-   system._device.GpuP2PCapsIndex
-   system._device.GpuP2PStatus
-   system._device.GpuTopologyLevel
    system._device.InforomInfo
    system._device.MemoryInfo
    system._device.MigInfo
@@ -103,6 +100,9 @@ NVML
    system.EventType
    system.FanControlPolicy
    system.FieldId
+   system.GpuP2PCapsIndex
+   system.GpuP2PStatus
+   system.GpuTopologyLevel
    system.InforomObject
    system.TemperatureThresholds
    system.ThermalController

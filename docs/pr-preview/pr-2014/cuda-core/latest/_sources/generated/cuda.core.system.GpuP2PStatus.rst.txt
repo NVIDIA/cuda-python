@@ -1,0 +1,6 @@
+﻿cuda.core.system.GpuP2PStatus
+=============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: GpuP2PStatus
