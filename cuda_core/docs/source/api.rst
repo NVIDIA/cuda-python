@@ -26,12 +26,18 @@ Devices and execution
 
    Stream
    Event
+   Context
+   SMResource
+   WorkqueueResource
 
    :template: dataclass.rst
 
    StreamOptions
    EventOptions
    LaunchConfig
+   ContextOptions
+   SMResourceOptions
+   WorkqueueResourceOptions
 
 .. data:: LEGACY_DEFAULT_STREAM
 

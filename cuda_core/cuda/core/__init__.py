@@ -29,7 +29,15 @@ del _import_versioned_module
 
 
 from cuda.core import system, utils
+from cuda.core._context import Context, ContextOptions
 from cuda.core._device import Device
+from cuda.core._device_resources import (
+    DeviceResources,
+    SMResource,
+    SMResourceOptions,
+    WorkqueueResource,
+    WorkqueueResourceOptions,
+)
 from cuda.core._event import Event, EventOptions
 from cuda.core._graphics import GraphicsResource
 from cuda.core._launch_config import LaunchConfig

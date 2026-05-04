@@ -29,7 +29,8 @@ carries timing/IPC flags, `KernelBox` carries the library dependency).
 Without this level, a round-tripped handle would produce a new Box
 with default metadata, losing information that was set at creation.
 
-Instances: `event_registry`, `kernel_registry`, `graph_node_registry`.
+Instances: `context_registry`, `stream_registry`, `event_registry`,
+`kernel_registry`, `graph_node_registry`.
 
 ## Level 2: Resource Handle -> Python Object (Cython)
 

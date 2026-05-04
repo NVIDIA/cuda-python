@@ -17,6 +17,7 @@ CUDA runtime
    :toctree: generated/
 
    typing.DevicePointerT
+   typing.DeviceResourcesT
    _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
    _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
    _memory._virtual_memory_resource.VirtualMemoryGranularityT
@@ -30,6 +31,7 @@ CUDA runtime
    :template: autosummary/cyclass.rst
 
    _device.DeviceProperties
+   _device_resources.DeviceResources
    _memory._ipc.IPCAllocationHandle
    _memory._ipc.IPCBufferDescriptor
 
