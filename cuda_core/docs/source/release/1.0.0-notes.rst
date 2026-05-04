@@ -113,6 +113,26 @@ Breaking changes
     ``CUgraphConditionalHandle`` value. Previously, ``.handle`` had to be
     extracted explicitly.
 
+- ``stream`` is now a required keyword-only argument on APIs that schedule
+  work on a stream
+  (`#2001 <https://github.com/NVIDIA/cuda-python/issues/2001>`__).
+  Pass ``device.default_stream`` (or any :class:`Stream`) explicitly to
+  retain the previous behavior. Affected APIs:
+
+  - :meth:`MemoryResource.allocate` / :meth:`MemoryResource.deallocate`
+    and overrides on :class:`DeviceMemoryResource`,
+    :class:`PinnedMemoryResource`, :class:`ManagedMemoryResource`,
+    :class:`LegacyPinnedMemoryResource`, and
+    :class:`graph.GraphMemoryResource`.
+  - :meth:`Device.allocate`.
+  - :meth:`GraphicsResource.map`.
+  - :meth:`KernelOccupancy.max_potential_cluster_size` and
+    :meth:`KernelOccupancy.max_active_clusters`.
+  - :meth:`graph.Graph.launch` (``stream`` was previously positional).
+
+  :class:`VirtualMemoryResource` is exempt; it now accepts and validates
+  an optional stream instead of rejecting any non-``None`` value.
+
 
 Fixes and enhancements
 -----------------------

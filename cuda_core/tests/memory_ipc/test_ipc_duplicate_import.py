@@ -68,7 +68,7 @@ class TestIpcDuplicateImport:
         mr = ipc_memory_resource
 
         log("allocating buffer")
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=ipc_device.default_stream)
 
         # Start the child process.
         log("starting child")

@@ -488,9 +488,8 @@ def test_occupancy_max_active_clusters(get_saxpy_kernel_cubin, cluster):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.LaunchConfig(grid=128, block=64, cluster=cluster)
     query_fn = kernel.occupancy.max_active_clusters
-    max_active_clusters = query_fn(launch_config)
-    assert isinstance(max_active_clusters, int)
-    assert max_active_clusters >= 0
+    with pytest.raises(TypeError, match="missing .* required keyword-only argument"):
+        query_fn(launch_config)
     max_active_clusters = query_fn(launch_config, stream=dev.default_stream)
     assert isinstance(max_active_clusters, int)
     assert max_active_clusters >= 0
@@ -503,9 +502,8 @@ def test_occupancy_max_potential_cluster_size(get_saxpy_kernel_cubin):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.LaunchConfig(grid=128, block=64)
     query_fn = kernel.occupancy.max_potential_cluster_size
-    max_potential_cluster_size = query_fn(launch_config)
-    assert isinstance(max_potential_cluster_size, int)
-    assert max_potential_cluster_size >= 0
+    with pytest.raises(TypeError, match="missing .* required keyword-only argument"):
+        query_fn(launch_config)
     max_potential_cluster_size = query_fn(launch_config, stream=dev.default_stream)
     assert isinstance(max_potential_cluster_size, int)
     assert max_potential_cluster_size >= 0
@@ -681,11 +679,11 @@ def test_kernel_keeps_library_alive(init_cuda):
 
     # Allocate pinned host buffer and device buffer
     pinned_mr = cuda.core.LegacyPinnedMemoryResource()
-    host_buf = pinned_mr.allocate(4)  # sizeof(int)
+    host_buf = pinned_mr.allocate(4, stream=device.default_stream)  # sizeof(int)
     result = np.from_dlpack(host_buf).view(np.int32)
     result[:] = 0
 
-    dev_buf = device.memory_resource.allocate(4)
+    dev_buf = device.memory_resource.allocate(4, stream=device.default_stream)
 
     # Launch kernel
     config = cuda.core.LaunchConfig(grid=1, block=1)

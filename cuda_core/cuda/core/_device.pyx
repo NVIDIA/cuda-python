@@ -1321,13 +1321,11 @@ class Device:
         cdef Context ctx = self._context
         return cyEvent._init(cyEvent, self._device_id, ctx._h_context, options, True)
 
-    def allocate(self, size, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`
         using the memory resource currently associated with this Device.
-
-        Parameter `stream` is optional, using a default stream by default.
 
         Note
         ----
@@ -1337,9 +1335,10 @@ class Device:
         ----------
         size : int
             Number of bytes to allocate.
-        stream : :obj:`~_stream.Stream`, optional
-            The stream establishing the stream ordering semantic.
-            Default value of `None` uses default stream.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream establishing the stream ordering semantic.
+            Must be passed explicitly; pass ``self.default_stream`` to use
+            the default stream.
 
         Returns
         -------
@@ -1348,7 +1347,7 @@ class Device:
 
         """
         self._check_context_initialized()
-        return self.memory_resource.allocate(size, stream)
+        return self.memory_resource.allocate(size, stream=stream)
 
     def sync(self):
         """Synchronize the device.

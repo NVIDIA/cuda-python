@@ -67,7 +67,7 @@ class GraphMemoryTestManager:
         buffers = [self.gmr.allocate(nbytes, stream=gb) for _ in range(num)]
         graph = gb.end_building().complete()
         graph.upload(self.stream)
-        graph.launch(self.stream)
+        graph.launch(stream=self.stream)
         self.stream.sync()
         return buffers
 
@@ -134,14 +134,14 @@ def test_graph_alloc(mempool_device, mode, action):
 
         # First launch.
         graph.upload(stream)
-        graph.launch(stream)
+        graph.launch(stream=stream)
         stream.sync()
         assert compare_buffer_to_constant(out, 3)
 
         # Second launch.
         if action == "incr":
             graph.upload(stream)
-            graph.launch(stream)
+            graph.launch(stream=stream)
             stream.sync()
             assert compare_buffer_to_constant(out, 6)
 
@@ -166,7 +166,7 @@ def test_graph_alloc_with_output(mempool_device, mode):
     # buffer allocated within the graph.  The auto_free_on_launch option
     # is required to properly use the output buffer.
     gb = device.create_graph_builder().begin_building(mode)
-    out = gmr.allocate(NBYTES, gb)
+    out = gmr.allocate(NBYTES, stream=gb)
     out.copy_from(in_, stream=gb)
     launch(gb, LaunchConfig(grid=1, block=1), add_one, out, NBYTES)
     options = GraphCompleteOptions(auto_free_on_launch=True)
@@ -179,14 +179,14 @@ def test_graph_alloc_with_output(mempool_device, mode):
 
     # Launch the graph. The output buffer is allocated and set to one.
     graph.upload(stream)
-    graph.launch(stream)
+    graph.launch(stream=stream)
     stream.sync()
     assert compare_buffer_to_constant(out, 1)
 
     # Update the input buffer and rerun the graph.
     set_buffer(in_, 5)
     graph.upload(stream)
-    graph.launch(stream)
+    graph.launch(stream=stream)
     stream.sync()
     assert compare_buffer_to_constant(out, 6)
 
@@ -200,7 +200,7 @@ def test_graph_mem_alloc_zero(mempool_device, mode):
     buffer = gmr.allocate(0, stream=gb)
     graph = gb.end_building().complete()
     graph.upload(stream)
-    graph.launch(stream)
+    graph.launch(stream=stream)
     stream.sync()
 
     assert buffer.handle >= 0

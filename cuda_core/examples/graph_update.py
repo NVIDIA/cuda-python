@@ -63,7 +63,7 @@ def main():
         module = program.compile("cubin")
         kernel = module.get_kernel("add_one")
 
-        buffer = pinned_mr.allocate(2 * np.dtype(np.int32).itemsize)
+        buffer = pinned_mr.allocate(2 * np.dtype(np.int32).itemsize, stream=device.default_stream)
         values = np.from_dlpack(buffer).view(np.int32)
         values[:] = 0
 
@@ -72,13 +72,13 @@ def main():
         graph = initial_capture.complete()
 
         graph.upload(stream)
-        graph.launch(stream)
+        graph.launch(stream=stream)
         stream.sync()
         assert tuple(values) == (2, 0)
 
         graph.update(update_capture)
         graph.upload(stream)
-        graph.launch(stream)
+        graph.launch(stream=stream)
         stream.sync()
         assert tuple(values) == (2, 2)
 

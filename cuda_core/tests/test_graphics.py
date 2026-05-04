@@ -337,14 +337,14 @@ class TestMapUnmap:
                 assert buf.size > 0
             resource.close()
 
-    def test_map_with_default_stream(self):
+    def test_map_requires_explicit_stream(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
             resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            with resource.map() as buf:
-                assert isinstance(buf, Buffer)
-                assert buf.size > 0
-            assert not resource.is_mapped
-            resource.close()
+            try:
+                with pytest.raises(TypeError, match="missing .* required keyword-only argument"):
+                    resource.map()
+            finally:
+                resource.close()
 
 
 # ---------------------------------------------------------------------------

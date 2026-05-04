@@ -38,10 +38,10 @@ class TestObjectSerializationDirect:
         mp.reduction.send_handle(parent_conn, alloc_handle.handle, process.pid)
 
         # Send a buffer.
-        buffer1 = mr.allocate(NBYTES)
+        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
         parent_conn.send(buffer1)  # directly
 
-        buffer2 = mr.allocate(NBYTES)
+        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
         parent_conn.send(buffer2.ipc_descriptor)  # by descriptor
 
         # Wait for the child process.
@@ -98,7 +98,7 @@ class TestObjectSerializationWithMR:
         assert uuid == mr.uuid
 
         # Send a buffer.
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=device.default_stream)
         pipe[0].put(buffer)
 
         # Wait for the child process.
@@ -141,7 +141,7 @@ class TestObjectPassing:
         device = ipc_device
         mr = ipc_memory_resource
         alloc_handle = mr.allocation_handle
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=device.default_stream)
         buffer_desc = buffer.ipc_descriptor
 
         pgen = PatternGen(device, NBYTES)

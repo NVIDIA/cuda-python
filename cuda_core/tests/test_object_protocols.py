@@ -68,7 +68,7 @@ def sample_context(sample_device):
 @pytest.fixture
 def sample_buffer(sample_device):
     """A sample Buffer object."""
-    return sample_device.allocate(64)
+    return sample_device.allocate(64, stream=sample_device.default_stream)
 
 
 @pytest.fixture
@@ -197,7 +197,7 @@ def sample_context_alt(sample_device_alt):
 @pytest.fixture
 def sample_buffer_alt(sample_device):
     """An alternate Buffer object."""
-    return sample_device.allocate(1024)
+    return sample_device.allocate(1024, stream=sample_device.default_stream)
 
 
 @pytest.fixture
@@ -231,7 +231,7 @@ def sample_ipc_buffer_descriptor(ipc_device):
     """An IPCBufferDescriptor."""
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
     mr = DeviceMemoryResource(ipc_device, options=options)
-    buf = mr.allocate(64)
+    buf = mr.allocate(64, stream=ipc_device.default_stream)
     return buf.ipc_descriptor
 
 

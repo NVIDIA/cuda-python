@@ -84,19 +84,19 @@ class Irreducible:
 @pytest.mark.parametrize(
     "getobject",
     [
-        lambda mr: mr.allocation_handle,
-        lambda mr: mr,
-        lambda mr: mr.allocate(NBYTES),
-        lambda mr: mr.allocate(NBYTES).ipc_descriptor,
+        lambda mr, stream: mr.allocation_handle,
+        lambda mr, stream: mr,
+        lambda mr, stream: mr.allocate(NBYTES, stream=stream),
+        lambda mr, stream: mr.allocate(NBYTES, stream=stream).ipc_descriptor,
     ],
     ids=["alloc_handle", "mr", "buffer", "buffer_desc"],
 )
 @pytest.mark.parametrize("launcher", [exec_success, exec_launch_failure, exec_reduce_failure])
-def test_pass_object(ipc_memory_resource, launcher, getobject):
+def test_pass_object(ipc_device, ipc_memory_resource, launcher, getobject):
     """Check for fd leaks when an object is sent as a subprocess argument."""
     mr = ipc_memory_resource
     with CheckFDLeaks():
-        obj = getobject(mr)
+        obj = getobject(mr, ipc_device.default_stream)
         try:
             launcher(obj, number=2)
         finally:

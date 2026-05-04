@@ -30,6 +30,16 @@ def dev(init_cuda):
     return Device()
 
 
+def _dev_alloc(dev, size):
+    """Allocate a buffer using the device's default stream (test convenience)."""
+    return _dev_alloc(dev, size, stream=dev.default_stream)
+
+
+def _mr_alloc(mr, dev, size):
+    """Allocate a buffer using the device's default stream (test convenience)."""
+    return mr.allocate(size, stream=dev.default_stream)
+
+
 @pytest.fixture
 def skip_if_no_tma(dev):
     if not dev.properties.tensor_map_access_supported:
@@ -39,7 +49,7 @@ def skip_if_no_tma(dev):
 class _DeviceArray:
     """Wrap a Buffer with explicit shape via __cuda_array_interface__.
 
-    dev.allocate() returns a 1D byte buffer. For multi-dimensional TMA tests
+    _dev_alloc(dev, ) returns a 1D byte buffer. For multi-dimensional TMA tests
     we need the tensor to report a proper shape/dtype so the TMA encoder sees
     the correct rank, dimensions, and strides.
     """
@@ -112,7 +122,7 @@ class TestTensorMapDescriptorCreation:
             TensorMapDescriptor()
 
     def test_from_tiled_1d(self, dev, skip_if_no_tma):
-        buf = dev.allocate(1024 * 4)  # 1024 float32 elements
+        buf = _dev_alloc(dev, 1024 * 4)  # 1024 float32 elements
         desc = _as_view(buf).as_tensor_map(
             box_dim=(64,),
             data_type=TensorMapDataType.FLOAT32,
@@ -121,7 +131,7 @@ class TestTensorMapDescriptorCreation:
         assert repr(desc) == "TensorMapDescriptor(tiled, rank=1, dtype=FLOAT32, swizzle=NONE)"
 
     def test_device_property(self, dev, skip_if_no_tma):
-        buf = dev.allocate(1024 * 4)
+        buf = _dev_alloc(dev, 1024 * 4)
         desc = _as_view(buf).as_tensor_map(
             box_dim=(64,),
             data_type=TensorMapDataType.FLOAT32,
@@ -129,7 +139,7 @@ class TestTensorMapDescriptorCreation:
         assert desc.device.device_id == dev.device_id
 
     def test_from_tiled_2d(self, dev, skip_if_no_tma):
-        buf = dev.allocate(64 * 64 * 4)  # 64x64 float32
+        buf = _dev_alloc(dev, 64 * 64 * 4)  # 64x64 float32
         tensor = _DeviceArray(buf, (64, 64))
         desc = _as_view(tensor).as_tensor_map(
             box_dim=(32, 32),
@@ -138,7 +148,7 @@ class TestTensorMapDescriptorCreation:
         assert desc is not None
 
     def test_strided_memory_view_as_tensor_map(self, dev, skip_if_no_tma):
-        buf = dev.allocate(64 * 64 * 4)
+        buf = _dev_alloc(dev, 64 * 64 * 4)
         tensor = _DeviceArray(buf, (64, 64))
         view = StridedMemoryView.from_any_interface(tensor, stream_ptr=-1)
         desc = view.as_tensor_map(
@@ -148,7 +158,7 @@ class TestTensorMapDescriptorCreation:
         assert desc is not None
 
     def test_strided_memory_view_as_tensor_map_options(self, dev, skip_if_no_tma):
-        buf = dev.allocate(64 * 64 * 4)
+        buf = _dev_alloc(dev, 64 * 64 * 4)
         tensor = _DeviceArray(buf, (64, 64))
         view = StridedMemoryView.from_any_interface(tensor, stream_ptr=-1)
         desc = view.as_tensor_map(
@@ -161,7 +171,7 @@ class TestTensorMapDescriptorCreation:
         assert desc is not None
 
     def test_strided_memory_view_as_tensor_map_options_dict(self, dev, skip_if_no_tma):
-        buf = dev.allocate(1024 * 4)
+        buf = _dev_alloc(dev, 1024 * 4)
         desc = _as_view(buf).as_tensor_map(
             options={
                 "box_dim": (64,),
@@ -172,7 +182,7 @@ class TestTensorMapDescriptorCreation:
         assert desc is not None
 
     def test_strided_memory_view_as_tensor_map_rejects_options_with_kwargs(self, dev, skip_if_no_tma):
-        buf = dev.allocate(1024 * 4)
+        buf = _dev_alloc(dev, 1024 * 4)
         with pytest.raises(TypeError, match="Specify either options or the individual tensor map arguments"):
             _as_view(buf).as_tensor_map(
                 box_dim=(64,),
@@ -180,7 +190,7 @@ class TestTensorMapDescriptorCreation:
             )
 
     def test_from_tiled_3d(self, dev, skip_if_no_tma):
-        buf = dev.allocate(16 * 16 * 16 * 4)  # 16x16x16 float32
+        buf = _dev_alloc(dev, 16 * 16 * 16 * 4)  # 16x16x16 float32
         tensor = _DeviceArray(buf, (16, 16, 16))
         desc = _as_view(tensor).as_tensor_map(
             box_dim=(8, 8, 8),
@@ -192,7 +202,7 @@ class TestTensorMapDescriptorCreation:
         # 5D: exercises all 5 c_global_dim / 4 c_global_strides slots
         shape = (2, 4, 4, 4, 8)
         n_bytes = 2 * 4 * 4 * 4 * 8 * 4  # float32
-        buf = dev.allocate(n_bytes)
+        buf = _dev_alloc(dev, n_bytes)
         tensor = _DeviceArray(buf, shape)
         desc = _as_view(tensor).as_tensor_map(
             box_dim=(1, 2, 2, 2, 8),
@@ -201,7 +211,7 @@ class TestTensorMapDescriptorCreation:
 
     def test_from_tiled_with_element_strides_buffer(self, dev, skip_if_no_tma):
         # Use a Buffer input (DLPack path) and explicit element_strides.
-        buf = dev.allocate(1024 * 4)
+        buf = _dev_alloc(dev, 1024 * 4)
         desc = _as_view(buf).as_tensor_map(
             box_dim=(64,),
             element_strides=(2,),
@@ -211,7 +221,7 @@ class TestTensorMapDescriptorCreation:
 
     def test_from_tiled_with_element_strides_cai(self, dev, skip_if_no_tma):
         # Use a CAI-style tensor wrapper and explicit element_strides.
-        buf = dev.allocate(64 * 64 * 4)
+        buf = _dev_alloc(dev, 64 * 64 * 4)
         tensor = _DeviceArray(buf, (64, 64))
         desc = _as_view(tensor).as_tensor_map(
             box_dim=(32, 32),
@@ -221,7 +231,7 @@ class TestTensorMapDescriptorCreation:
         assert desc is not None
 
     def test_from_tiled_with_swizzle(self, dev, skip_if_no_tma):
-        buf = dev.allocate(64 * 64 * 4)
+        buf = _dev_alloc(dev, 64 * 64 * 4)
         tensor = _DeviceArray(buf, (64, 64))
         desc = _as_view(tensor).as_tensor_map(
             box_dim=(32, 32),
@@ -231,7 +241,7 @@ class TestTensorMapDescriptorCreation:
         assert desc is not None
 
     def test_from_tiled_with_l2_promotion(self, dev, skip_if_no_tma):
-        buf = dev.allocate(64 * 64 * 4)
+        buf = _dev_alloc(dev, 64 * 64 * 4)
         tensor = _DeviceArray(buf, (64, 64))
         desc = _as_view(tensor).as_tensor_map(
             box_dim=(32, 32),
@@ -241,7 +251,7 @@ class TestTensorMapDescriptorCreation:
         assert desc is not None
 
     def test_from_tiled_with_oob_fill(self, dev, skip_if_no_tma):
-        buf = dev.allocate(64 * 64 * 4)
+        buf = _dev_alloc(dev, 64 * 64 * 4)
         tensor = _DeviceArray(buf, (64, 64))
         desc = _as_view(tensor).as_tensor_map(
             box_dim=(32, 32),
@@ -255,7 +265,7 @@ class TestTensorMapDescriptorValidation:
     """Test validation in TensorMapDescriptor factory methods."""
 
     def test_invalid_rank_zero(self, dev, skip_if_no_tma):
-        buf = dev.allocate(64)
+        buf = _dev_alloc(dev, 64)
         tensor = _DeviceArray(buf, ())  # 0-dim tensor
         with pytest.raises(ValueError, match="rank must be between 1 and 5"):
             _as_view(tensor).as_tensor_map(
@@ -268,7 +278,7 @@ class TestTensorMapDescriptorValidation:
         n_elements = 1
         for s in shape:
             n_elements *= s
-        buf = dev.allocate(n_elements * 4)
+        buf = _dev_alloc(dev, n_elements * 4)
         arr = _DeviceArray(buf, shape)
         with pytest.raises(ValueError, match="rank must be between 1 and 5"):
             _as_view(arr).as_tensor_map(
@@ -276,7 +286,7 @@ class TestTensorMapDescriptorValidation:
             )
 
     def test_box_dim_rank_mismatch(self, dev, skip_if_no_tma):
-        buf = dev.allocate(1024 * 4)
+        buf = _dev_alloc(dev, 1024 * 4)
         with pytest.raises(ValueError, match="box_dim must have 1 elements"):
             _as_view(buf).as_tensor_map(
                 box_dim=(32, 32),
@@ -284,7 +294,7 @@ class TestTensorMapDescriptorValidation:
             )
 
     def test_box_dim_out_of_range(self, dev, skip_if_no_tma):
-        buf = dev.allocate(1024 * 4)
+        buf = _dev_alloc(dev, 1024 * 4)
         with pytest.raises(ValueError, match=r"box_dim\[0\] must be in \[1, 256\]"):
             _as_view(buf).as_tensor_map(
                 box_dim=(512,),
@@ -292,7 +302,7 @@ class TestTensorMapDescriptorValidation:
             )
 
     def test_element_strides_rank_mismatch(self, dev, skip_if_no_tma):
-        buf = dev.allocate(1024 * 4)
+        buf = _dev_alloc(dev, 1024 * 4)
         with pytest.raises(ValueError, match="element_strides must have 1 elements"):
             _as_view(buf).as_tensor_map(
                 box_dim=(64,),
@@ -301,7 +311,7 @@ class TestTensorMapDescriptorValidation:
             )
 
     def test_invalid_data_type(self, dev, skip_if_no_tma):
-        buf = dev.allocate(1024 * 4)
+        buf = _dev_alloc(dev, 1024 * 4)
         with pytest.raises(TypeError, match="data_type must be"):
             _as_view(buf).as_tensor_map(
                 box_dim=(64,),
@@ -346,18 +356,18 @@ class TestTensorMapReplaceAddress:
     """Test replace_address functionality."""
 
     def test_replace_address(self, dev, skip_if_no_tma):
-        buf1 = dev.allocate(1024 * 4)
+        buf1 = _dev_alloc(dev, 1024 * 4)
         desc = _as_view(buf1).as_tensor_map(
             box_dim=(64,),
             data_type=TensorMapDataType.FLOAT32,
         )
 
-        buf2 = dev.allocate(1024 * 4)
+        buf2 = _dev_alloc(dev, 1024 * 4)
         desc.replace_address(buf2)
         # No exception means success
 
     def test_replace_address_requires_device_accessible(self, dev, skip_if_no_tma):
-        buf1 = dev.allocate(1024 * 4)
+        buf1 = _dev_alloc(dev, 1024 * 4)
         desc = _as_view(buf1).as_tensor_map(
             box_dim=(64,),
             data_type=TensorMapDataType.FLOAT32,
@@ -375,14 +385,14 @@ class TestTensorMapReplaceAddress:
         dev1 = Device(1)
 
         dev0.set_current()
-        buf0 = dev0.allocate(1024 * 4)
+        buf0 = _dev_alloc(dev0, 1024 * 4)
         desc = _as_view(buf0).as_tensor_map(
             box_dim=(64,),
             data_type=TensorMapDataType.FLOAT32,
         )
 
         dev1.set_current()
-        buf1 = dev1.allocate(1024 * 4)
+        buf1 = _dev_alloc(dev1, 1024 * 4)
         dev0.set_current()
 
         with pytest.raises(ValueError, match=r"replace_address expects tensor on device 0, got 1"):
@@ -398,13 +408,13 @@ class TestTensorMapReplaceAddress:
         skip_if_managed_memory_unsupported(dev1)
 
         dev1.set_current()
-        desc = _as_view(dev1.allocate(1024 * 4)).as_tensor_map(
+        desc = _as_view(_dev_alloc(dev1, 1024 * 4)).as_tensor_map(
             box_dim=(64,),
             data_type=TensorMapDataType.FLOAT32,
         )
 
         mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=dev1.device_id))
-        managed_buf = mr.allocate(1024 * 4)
+        managed_buf = _mr_alloc(mr, dev1, 1024 * 4)
 
         desc.replace_address(managed_buf)
 
@@ -420,7 +430,7 @@ class TestTensorMapMultiDeviceValidation:
         dev1 = Device(1)
 
         dev1.set_current()
-        buf1 = dev1.allocate(1024 * 4)
+        buf1 = _dev_alloc(dev1, 1024 * 4)
         dev0.set_current()
 
         with pytest.raises(
@@ -443,7 +453,7 @@ class TestTensorMapMultiDeviceValidation:
 
         dev1.set_current()
         mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=dev1.device_id))
-        managed_buf = mr.allocate(1024 * 4)
+        managed_buf = _mr_alloc(mr, dev1, 1024 * 4)
 
         desc = _as_view(managed_buf).as_tensor_map(
             box_dim=(64,),
@@ -474,7 +484,7 @@ class TestTensorMapIm2col:
 
     def test_from_im2col_3d(self, dev, skip_if_no_tma):
         # 3D tensor: batch=1, height=32, channels=64
-        buf = dev.allocate(1 * 32 * 64 * 4)
+        buf = _dev_alloc(dev, 1 * 32 * 64 * 4)
         tensor = _DeviceArray(buf, (1, 32, 64))
         desc = TensorMapDescriptor._from_im2col(
             _as_view(tensor),
@@ -487,7 +497,7 @@ class TestTensorMapIm2col:
         assert desc is not None
 
     def test_from_im2col_rank_validation(self, dev, skip_if_no_tma):
-        buf = dev.allocate(1024 * 4)
+        buf = _dev_alloc(dev, 1024 * 4)
         with pytest.raises(ValueError, match="Im2col tensor rank must be between 3 and 5"):
             TensorMapDescriptor._from_im2col(
                 _as_view(buf),
@@ -499,7 +509,7 @@ class TestTensorMapIm2col:
             )
 
     def test_from_im2col_corner_rank_mismatch(self, dev, skip_if_no_tma):
-        buf = dev.allocate(1 * 32 * 64 * 4)
+        buf = _dev_alloc(dev, 1 * 32 * 64 * 4)
         tensor = _DeviceArray(buf, (1, 32, 64))  # 3D: n_spatial = 1
         with pytest.raises(ValueError, match="pixel_box_lower_corner must have 1 elements"):
             TensorMapDescriptor._from_im2col(
@@ -516,7 +526,7 @@ class TestTensorMapIm2col:
         # Exercises spatial corner reversal with n_spatial=2:
         #   Python [H_lower, W_lower] -> driver [W_lower, H_lower]
         shape = (1, 8, 8, 64)
-        buf = dev.allocate(1 * 8 * 8 * 64 * 4)
+        buf = _dev_alloc(dev, 1 * 8 * 8 * 64 * 4)
         tensor = _DeviceArray(buf, shape)
         desc = TensorMapDescriptor._from_im2col(
             _as_view(tensor),
@@ -532,7 +542,7 @@ class TestTensorMapIm2col:
         # Exercises the full spatial corner reversal:
         #   Python [D, H, W] -> driver [W, H, D]
         shape = (1, 4, 8, 8, 64)
-        buf = dev.allocate(1 * 4 * 8 * 8 * 64 * 4)
+        buf = _dev_alloc(dev, 1 * 4 * 8 * 8 * 64 * 4)
         tensor = _DeviceArray(buf, shape)
         desc = TensorMapDescriptor._from_im2col(
             _as_view(tensor),
@@ -558,7 +568,7 @@ class TestTensorMapIm2colWide:
         # or with driver/GPU combinations that reject im2col-wide descriptor
         # encoding for otherwise valid inputs. Probe once per test invocation
         # and skip only for those known unsupported cases.
-        buf = dev.allocate(1 * 32 * 64 * 4)
+        buf = _dev_alloc(dev, 1 * 32 * 64 * 4)
         tensor = _DeviceArray(buf, (1, 32, 64))
         try:
             TensorMapDescriptor._from_im2col_wide(
@@ -580,7 +590,7 @@ class TestTensorMapIm2colWide:
 
     def test_from_im2col_wide_3d(self, dev, skip_if_no_im2col_wide):
         # 3D tensor: batch=1, width=32, channels=64
-        buf = dev.allocate(1 * 32 * 64 * 4)
+        buf = _dev_alloc(dev, 1 * 32 * 64 * 4)
         tensor = _DeviceArray(buf, (1, 32, 64))
         desc = TensorMapDescriptor._from_im2col_wide(
             _as_view(tensor),
@@ -596,7 +606,7 @@ class TestTensorMapIm2colWide:
         # NHWC layout: N=1, H=8, W=8, C=64
         # Wide mode only uses scalar W corners, even with higher rank
         shape = (1, 8, 8, 64)
-        buf = dev.allocate(1 * 8 * 8 * 64 * 4)
+        buf = _dev_alloc(dev, 1 * 8 * 8 * 64 * 4)
         tensor = _DeviceArray(buf, shape)
         desc = TensorMapDescriptor._from_im2col_wide(
             _as_view(tensor),
@@ -611,7 +621,7 @@ class TestTensorMapIm2colWide:
         # NDHWC layout: N=1, D=4, H=8, W=8, C=64
         # Max rank boundary — verifies all 5 dim/stride slots are filled
         shape = (1, 4, 8, 8, 64)
-        buf = dev.allocate(1 * 4 * 8 * 8 * 64 * 4)
+        buf = _dev_alloc(dev, 1 * 4 * 8 * 8 * 64 * 4)
         tensor = _DeviceArray(buf, shape)
         desc = TensorMapDescriptor._from_im2col_wide(
             _as_view(tensor),
@@ -623,7 +633,7 @@ class TestTensorMapIm2colWide:
         assert desc is not None
 
     def test_from_im2col_wide_rank_validation(self, dev, skip_if_no_im2col_wide):
-        buf = dev.allocate(1024 * 4)
+        buf = _dev_alloc(dev, 1024 * 4)
         with pytest.raises(ValueError, match="Im2col-wide tensor rank must be between 3 and 5"):
             TensorMapDescriptor._from_im2col_wide(
                 _as_view(buf),

@@ -862,13 +862,13 @@ class Graph:
         """
         handle_return(driver.cuGraphUpload(self._mnff.graph, stream.handle))
 
-    def launch(self, stream: Stream):
+    def launch(self, *, stream: Stream):
         """Launches the graph in a stream.
 
         Parameters
         ----------
         stream : :obj:`~_stream.Stream`
-            The stream in which to launch the graph
+            Keyword-only. The stream in which to launch the graph.
 
         """
         handle_return(driver.cuGraphLaunch(self._mnff.graph, stream.handle))

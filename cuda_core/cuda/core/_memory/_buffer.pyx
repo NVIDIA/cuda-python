@@ -54,7 +54,7 @@ cdef void _mr_dealloc_callback(
         stream = None
         if h_stream:
             stream = Stream._from_handle(Stream, h_stream)
-        mr.deallocate(int(ptr), size, stream)
+        mr.deallocate(int(ptr), size, stream=stream)
     except Exception as exc:
         print(f"Warning: mr.deallocate() failed during Buffer destruction: {exc}",
               file=sys.stderr)
@@ -220,7 +220,7 @@ cdef class Buffer:
             if self._memory_resource is None:
                 raise ValueError("a destination buffer must be provided (this "
                                  "buffer does not have a memory_resource)")
-            dst = self._memory_resource.allocate(src_size, s)
+            dst = self._memory_resource.allocate(src_size, stream=s)
 
         cdef size_t dst_size = dst._size
         if dst_size != src_size:
@@ -495,17 +495,17 @@ cdef class MemoryResource:
     resource's respective property.)
     """
 
-    def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
-            The stream on which to perform the allocation asynchronously.
-            If None, it is up to each memory resource implementation to decide
-            and document the behavior.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the allocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
 
         Returns
         -------
@@ -515,7 +515,7 @@ cdef class MemoryResource:
         """
         raise TypeError("MemoryResource.allocate must be implemented by subclasses.")
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, *, stream: Stream | GraphBuilder):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -524,10 +524,10 @@ cdef class MemoryResource:
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
-            The stream on which to perform the deallocation asynchronously.
-            If None, it is up to each memory resource implementation to decide
-            and document the behavior.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the deallocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
         """
         raise TypeError("MemoryResource.deallocate must be implemented by subclasses.")
 

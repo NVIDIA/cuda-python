@@ -18,7 +18,7 @@ def test_peer_access_basic(mempool_device_x2):
     stream_on_dev0 = dev0.create_stream()
     # Use owned pool to ensure clean initial state (no stale peer access).
     dmr_on_dev1 = DeviceMemoryResource(dev1, DeviceMemoryResourceOptions())
-    buf_on_dev1 = dmr_on_dev1.allocate(NBYTES)
+    buf_on_dev1 = dmr_on_dev1.allocate(NBYTES, stream=dev1.default_stream)
 
     # No access at first.
     assert 0 not in dmr_on_dev1.peer_accessible_by
@@ -69,7 +69,7 @@ def test_peer_access_transitions(mempool_device_x3):
     # Use owned pools (with options) to ensure clean initial state.
     # Default pools are shared and may have stale peer access from prior tests.
     dmrs = [DeviceMemoryResource(dev, DeviceMemoryResourceOptions()) for dev in devs]
-    bufs = [dmr.allocate(NBYTES) for dmr in dmrs]
+    bufs = [dmr.allocate(NBYTES, stream=dev.default_stream) for dmr, dev in zip(dmrs, devs)]
 
     def verify_state(state, pattern_seed):
         """

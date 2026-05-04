@@ -22,4 +22,4 @@ cdef class Stream:
 
 
 cpdef Stream default_stream()
-cdef Stream Stream_accept(arg, bint allow_stream_protocol=*)
+cpdef Stream Stream_accept(arg, bint allow_stream_protocol=*)

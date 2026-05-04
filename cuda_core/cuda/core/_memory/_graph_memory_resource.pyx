@@ -14,7 +14,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
 )
 
-from cuda.core._stream cimport default_stream, Stream_accept, Stream
+from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from functools import cache
@@ -104,19 +104,19 @@ cdef class cyGraphMemoryResource(MemoryResource):
     def __cinit__(self, int device_id):
         self._device_id = device_id
 
-    def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """
         Allocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """
-        stream = Stream_accept(stream) if stream is not None else default_stream()
-        return GMR_allocate(self, size, <Stream> stream)
+        cdef Stream s = Stream_accept(stream)
+        return GMR_allocate(self, size, s)
 
-    def deallocate(self, ptr: "DevicePointerT", size_t size, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: "DevicePointerT", size_t size, *, stream: Stream | GraphBuilder):
         """
         Deallocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """
-        stream = Stream_accept(stream) if stream is not None else default_stream()
-        return GMR_deallocate(ptr, size, <Stream> stream)
+        cdef Stream s = Stream_accept(stream)
+        return GMR_deallocate(ptr, size, s)
 
     def close(self):
         """No operation (provided for compatibility)."""

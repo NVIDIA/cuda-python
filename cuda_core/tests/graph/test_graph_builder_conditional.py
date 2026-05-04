@@ -25,7 +25,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
     # Allocate memory
     launch_stream = Device().create_stream()
     mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(8)
+    b = mr.allocate(8, stream=launch_stream)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
     arr[1] = 0
@@ -63,7 +63,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
     # Left path increments first value, right path increments second value
     assert arr[0] == 0
     assert arr[1] == 0
-    graph.launch(launch_stream)
+    graph.launch(stream=launch_stream)
     launch_stream.sync()
     if condition_value:
         assert arr[0] == 4
@@ -89,7 +89,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
     # Allocate memory
     launch_stream = Device().create_stream()
     mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(8)
+    b = mr.allocate(8, stream=launch_stream)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
     arr[1] = 0
@@ -137,7 +137,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
     # True condition increments both values, while False increments only second value
     assert arr[0] == 0
     assert arr[1] == 0
-    graph.launch(launch_stream)
+    graph.launch(stream=launch_stream)
     launch_stream.sync()
     if condition_value:
         assert arr[0] == 4
@@ -161,7 +161,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
     # Allocate memory
     launch_stream = Device().create_stream()
     mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(12)
+    b = mr.allocate(12, stream=launch_stream)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
     arr[1] = 0
@@ -217,7 +217,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
     assert arr[0] == 0
     assert arr[1] == 0
     assert arr[2] == 0
-    graph.launch(launch_stream)
+    graph.launch(stream=launch_stream)
     launch_stream.sync()
     if condition_value == 0:
         assert arr[0] == 4
@@ -253,7 +253,7 @@ def test_graph_conditional_while(init_cuda, condition_value):
     # Allocate memory
     launch_stream = Device().create_stream()
     mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(4)
+    b = mr.allocate(4, stream=launch_stream)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
 
@@ -279,7 +279,7 @@ def test_graph_conditional_while(init_cuda, condition_value):
 
     # Default value is used to start the loop
     assert arr[0] == 0
-    graph.launch(launch_stream)
+    graph.launch(stream=launch_stream)
     launch_stream.sync()
     if condition_value:
         assert arr[0] == 20

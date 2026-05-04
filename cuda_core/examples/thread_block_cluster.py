@@ -118,9 +118,9 @@ def main():
 
     try:
         # allocate 3 uint32 values each for grid, cluster, and block dimensions
-        grid_buffer = pinned_mr.allocate(3 * element_size)
-        cluster_buffer = pinned_mr.allocate(3 * element_size)
-        block_buffer = pinned_mr.allocate(3 * element_size)
+        grid_buffer = pinned_mr.allocate(3 * element_size, stream=dev.default_stream)
+        cluster_buffer = pinned_mr.allocate(3 * element_size, stream=dev.default_stream)
+        block_buffer = pinned_mr.allocate(3 * element_size, stream=dev.default_stream)
 
         # create NumPy arrays from the pinned memory
         grid_dims = np.from_dlpack(grid_buffer).view(dtype=np.uint32)

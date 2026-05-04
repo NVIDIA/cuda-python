@@ -35,7 +35,7 @@ class TestIpcWorkerPool:
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
 
         try:
-            buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
 
             with mp.Pool(NWORKERS) as pool:
                 pool.map(self.process_buffer, buffers)
@@ -77,7 +77,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
 
         try:
-            buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
 
             with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
                 pool.starmap(
@@ -127,7 +127,7 @@ class TestIpcWorkerPoolUsingRegistry:
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
 
         try:
-            buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
 
             with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
                 pool.starmap(self.process_buffer, [(device, pickle.dumps(buffer)) for buffer in buffers])

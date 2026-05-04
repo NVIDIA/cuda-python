@@ -172,7 +172,12 @@ cdef Buffer Buffer_from_ipc_descriptor(
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
     if stream is None:
-        # Note: match this behavior to _MemPool.allocate()
+        # Buffer.from_ipc_descriptor's stream is not used to schedule work;
+        # it only seeds the deallocation stream stored in the handle. Like
+        # Buffer.close(stream=None) and GraphicsResource.unmap(stream=None),
+        # this is a legitimate exception to the "explicit stream" rule from
+        # issue #2001: None means "fall back to the default stream when the
+        # buffer is later released".
         stream = default_stream()
     cdef Stream s = <Stream>stream
     cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(

@@ -198,7 +198,7 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
 
     # Prepare pinned host array
     mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(np.dtype(python_type).itemsize)
+    b = mr.allocate(np.dtype(python_type).itemsize, stream=dev.default_stream)
     arr = np.from_dlpack(b).view(python_type)
     arr[:] = 0
 
@@ -418,7 +418,7 @@ def test_launch_scalar_argument_ctypes_subclass_fallback():
     dev.set_current()
 
     mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(np.dtype(np.int32).itemsize)
+    b = mr.allocate(np.dtype(np.int32).itemsize, stream=dev.default_stream)
     arr = np.from_dlpack(b).view(np.int32)
     arr[:] = 0
 
@@ -472,7 +472,7 @@ def test_launch_scalar_argument_numpy_subclass_fallback():
     dev.set_current()
 
     mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(np.dtype(np.float32).itemsize)
+    b = mr.allocate(np.dtype(np.float32).itemsize, stream=dev.default_stream)
     arr = np.from_dlpack(b).view(np.float32)
     arr[:] = 0.0
 

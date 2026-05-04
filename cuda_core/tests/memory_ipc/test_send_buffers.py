@@ -28,7 +28,7 @@ class TestIpcSendBuffers:
 
         try:
             # Allocate and fill memory.
-            buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
             pgen = PatternGen(device, NBYTES)
             for buffer in buffers:
                 pgen.fill_buffer(buffer, seed=False)
@@ -82,7 +82,7 @@ class TestIpcReexport:
         # Allocate, fill a buffer.
         mr = ipc_memory_resource
         pgen = PatternGen(device, NBYTES)
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=device.default_stream)
         pgen.fill_buffer(buffer, seed=0)
 
         # Set up communication.

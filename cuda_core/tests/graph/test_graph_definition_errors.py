@@ -139,7 +139,7 @@ def test_unmatched_alloc_succeeds(init_cuda):
     g.allocate(1024)
     graph = g.instantiate()
     stream = Device().create_stream()
-    graph.launch(stream)
+    graph.launch(stream=stream)
     stream.sync()
 
 
@@ -181,7 +181,7 @@ def test_while_loop_zero_iterations(init_cuda):
 
     graph = g.instantiate()
     stream = Device().create_stream()
-    graph.launch(stream)
+    graph.launch(stream=stream)
     stream.sync()
 
     result = (ctypes.c_int * 1)()
@@ -209,7 +209,7 @@ def test_if_then_false_skips_body(init_cuda):
 
     graph = g.instantiate()
     stream = Device().create_stream()
-    graph.launch(stream)
+    graph.launch(stream=stream)
     stream.sync()
 
     result = (ctypes.c_int * 1)()
@@ -238,7 +238,7 @@ def test_switch_oob_skips_all_branches(init_cuda):
 
     graph = g.instantiate()
     stream = Device().create_stream()
-    graph.launch(stream)
+    graph.launch(stream=stream)
     stream.sync()
 
     result = (ctypes.c_int * 1)()

@@ -59,7 +59,7 @@ class LatchKernel:
         self.kernel = mod.get_kernel("latch")
 
         mr = LegacyPinnedMemoryResource()
-        self.buffer = mr.allocate(4)
+        self.buffer = mr.allocate(4, stream=device.default_stream)
         self.busy_wait_flag[0] = 0
         clock_rate_hz = device.properties.clock_rate * 1000
         self.timeout_cycles = int(timeout_sec * clock_rate_hz)

@@ -73,7 +73,7 @@ class TestBufferPeerAccessAfterImport:
             assert mr.peer_accessible_by == (0,)
         else:
             assert mr.peer_accessible_by == ()
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=dev1.default_stream)
         pgen = PatternGen(dev1, NBYTES)
         pgen.fill_buffer(buffer, seed=False)
 

@@ -269,7 +269,7 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
     # Phase 6 — Instantiate, launch, verify
     graph = g.instantiate()
     stream = dev.create_stream()
-    graph.launch(stream)
+    graph.launch(stream=stream)
     stream.sync()
 
     assert "data" in results, "Host callback did not execute"
@@ -367,7 +367,7 @@ def _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_
     # Instantiate, launch, verify
     graph = g.instantiate()
     stream = dev.create_stream()
-    graph.launch(stream)
+    graph.launch(stream=stream)
     stream.sync()
 
     assert "root" in results, "Host callback did not execute"
@@ -446,5 +446,5 @@ def _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr):
 
     graph = g.instantiate()
     stream = dev.create_stream()
-    graph.launch(stream)
+    graph.launch(stream=stream)
     stream.sync()

@@ -30,7 +30,7 @@ class TestIpcMempool:
         process.start()
 
         # Allocate and fill memory.
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=device.default_stream)
         assert not buffer.is_mapped
         pgen.fill_buffer(buffer, seed=False)
 
@@ -66,10 +66,10 @@ class TestIPCMempoolMultiple:
         q1, q2 = (mp.Queue() for _ in range(2))
 
         # Allocate memory buffers and export them to each child.
-        buffer1 = mr.allocate(NBYTES)
+        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
         q1.put(buffer1)
         q2.put(buffer1)
-        buffer2 = mr.allocate(NBYTES)
+        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
         q1.put(buffer2)
         q2.put(buffer2)
 
@@ -127,8 +127,8 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         p2.start()
 
         # Allocate and share memory.
-        buffer1 = mr.allocate(NBYTES)
-        buffer2 = mr.allocate(NBYTES)
+        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
         q1.put(buffer1.ipc_descriptor)
         q2.put(buffer2.ipc_descriptor)
 
@@ -177,8 +177,8 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         p2.start()
 
         # Allocate and share memory.
-        buffer1 = mr.allocate(NBYTES)
-        buffer2 = mr.allocate(NBYTES)
+        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
         q1.put(buffer1)
         q2.put(buffer2)
 
