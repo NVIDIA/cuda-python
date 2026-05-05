@@ -573,7 +573,7 @@ cdef class HostCallbackNode(GraphNode):
 
     Properties
     ----------
-    callback_fn : callable or None
+    callback : callable or None
         The Python callable (None for ctypes function pointer callbacks).
     """
 
@@ -613,7 +613,7 @@ cdef class HostCallbackNode(GraphNode):
                 f" cfunc=0x{<uintptr_t>self._fn:x}>")
 
     @property
-    def callback_fn(self):
+    def callback(self):
         """The Python callable, or None for ctypes function pointer callbacks."""
         return self._callable
 
