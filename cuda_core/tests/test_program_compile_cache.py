@@ -155,7 +155,11 @@ def test_cache_hit_emits_ptx_loadability_warning_when_driver_too_old(monkeypatch
     program = Program(_KERNEL, "c++", options)
     key = make_program_cache_key(code=_KERNEL, code_type="c++", options=options, target_type="ptx")
 
-    monkeypatch.setattr(_program_module, "_can_load_generated_ptx", lambda: False)
+    # Force _can_load_generated_ptx() to return False by pinning the
+    # driver below any NVRTC version the test machine could plausibly
+    # report. Cython compiles the helper as cpdef, so we mock its inputs
+    # rather than the function itself.
+    monkeypatch.setattr(_program_module, "driver_version", lambda: (0, 0, 0))
 
     def _explode(_program, *_args, **_kwargs):
         raise AssertionError("_program_compile_uncached must not be called on cache hit")
@@ -178,7 +182,10 @@ def test_cache_hit_no_ptx_warning_when_driver_supports_it(monkeypatch):
     program = Program(_KERNEL, "c++", options)
     key = make_program_cache_key(code=_KERNEL, code_type="c++", options=options, target_type="ptx")
 
-    monkeypatch.setattr(_program_module, "_can_load_generated_ptx", lambda: True)
+    # Force _can_load_generated_ptx() to return True by pinning the driver
+    # well above any NVRTC version we could see. Same rationale as the
+    # warning test: mock the helper's inputs, not the cpdef helper itself.
+    monkeypatch.setattr(_program_module, "driver_version", lambda: (999, 0, 0))
 
     def _explode(_program, *_args, **_kwargs):
         raise AssertionError("_program_compile_uncached must not be called on cache hit")
