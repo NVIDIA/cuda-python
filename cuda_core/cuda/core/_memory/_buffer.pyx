@@ -49,11 +49,23 @@ cdef void _mr_dealloc_callback(
     size_t size,
     const StreamHandle& h_stream,
 ) noexcept:
-    """Called by the C++ deleter to deallocate via MemoryResource.deallocate."""
+    """Called by the C++ deleter to deallocate via MemoryResource.deallocate.
+
+    This is the C++ teardown path: there is no Python caller frame from
+    which to obtain a stream. If the device-pointer handle was created
+    without ``set_deallocation_stream`` being called (e.g. buffers minted
+    via ``Buffer.from_handle(ptr, size, mr=mr)`` from DLPack import,
+    third-party adapters, or other foreign sources), ``h_stream`` is
+    empty here. Stream-ordered MR ``deallocate`` overrides reject
+    ``stream=None`` (issue #2001), so without a fallback the destructor
+    would print a warning and leak the allocation. Fall back to the
+    legacy/per-thread default stream so the free still happens; this is
+    the unique exception to the "no implicit default-stream fallback"
+    policy because the teardown has no other source of truth.
+    """
+    cdef Stream stream
     try:
-        stream = None
-        if h_stream:
-            stream = Stream._from_handle(Stream, h_stream)
+        stream = Stream._from_handle(Stream, h_stream) if h_stream else default_stream()
         mr.deallocate(int(ptr), size, stream=stream)
     except Exception as exc:
         print(f"Warning: mr.deallocate() failed during Buffer destruction: {exc}",

@@ -521,6 +521,56 @@ def test_mr_deallocate_receives_stream():
     assert received["stream"].handle == stream.handle
 
 
+def test_mr_dealloc_callback_falls_back_to_default_stream():
+    """When a Buffer's device-pointer handle has no attached deallocation
+    stream (e.g. buffers minted via :meth:`Buffer.from_handle` from DLPack
+    import, IPC import, or third-party adapters), the C++ deleter callback
+    must fall back to the default stream rather than passing ``stream=None``
+    to ``mr.deallocate``. Stream-ordered MRs validate the stream and would
+    otherwise raise ``TypeError`` from inside the ``noexcept`` callback,
+    which only logs a warning and silently leaks the allocation. See
+    `#2001 <https://github.com/NVIDIA/cuda-python/issues/2001>`__.
+    """
+    import gc
+
+    from cuda.core._stream import Stream_accept, default_stream
+
+    device = Device()
+    device.set_current()
+    captured = {}
+
+    class StrictCapturingMR(MemoryResource):
+        # Models a stream-ordered MR: deallocate validates the stream
+        # the same way DeviceMemoryResource.deallocate does.
+        @property
+        def is_device_accessible(self):
+            return True
+
+        @property
+        def is_host_accessible(self):
+            return False
+
+        @property
+        def device_id(self):
+            return device.device_id
+
+        def allocate(self, size, *, stream):
+            raise NotImplementedError  # not used; we use from_handle below
+
+        def deallocate(self, ptr, size, *, stream):
+            captured["stream"] = Stream_accept(stream)
+
+    mr = StrictCapturingMR()
+    # Buffer.from_handle binds mr but does not attach a deallocation stream.
+    # ptr=1 is fine because StrictCapturingMR.deallocate does not free.
+    buf = Buffer.from_handle(1, 1024, mr=mr)
+    del buf
+    gc.collect()
+
+    assert "stream" in captured, "deallocate was not invoked (callback raised and leaked)"
+    assert captured["stream"].handle == default_stream().handle
+
+
 def test_memory_resource_and_owner_disallowed():
     with pytest.raises(ValueError, match="cannot be both specified together"):
         a = (ctypes.c_byte * 20)()
