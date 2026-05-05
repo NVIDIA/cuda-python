@@ -154,7 +154,8 @@ ELSE:
         if kind == "host":
             return -1
         raise RuntimeError(
-            f"location_type={kind!r} requires a CUDA 13 build of cuda.core"
+            "use Host() instead — NUMA-aware host locations "
+            "(Host(numa_id=...), Host.numa_current()) require a CUDA 13 build of cuda.core"
         )
 
 
