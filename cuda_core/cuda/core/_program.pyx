@@ -133,11 +133,11 @@ cdef class Program:
             The compiled object code.
         """
         # Mirror Program_init's code_type normalization so callers can pass
-        # ``ObjectCodeFormatType.PTX`` or ``"PTX"`` and get the same
-        # routing/key as the lowercase string. ``Program_compile_nvrtc``
-        # keys on lowercase target_type and ``make_program_cache_key``
+        # ``ObjectCodeFormatType.PTX`` or ``"PTX"`` and get the same routing
+        # / cache key as the lowercase string. ``Program_compile_nvrtc``
+        # keys on lowercase ``target_type`` and ``make_program_cache_key``
         # lowercases too.
-        target_type = str(target_type)
+        target_type = str(target_type).lower()
 
         if cache is None:
             return _program_compile_uncached(self, target_type, name_expressions, logs)

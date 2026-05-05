@@ -745,10 +745,12 @@ def make_program_cache_key(
     ``ValueError``; compile directly, or disable the flag, for those
     cases.
     """
-    # Mirror Program.compile (_program.pyx Program_init lowercases code_type
-    # before dispatch); a caller that passes "PTX" or "C++" must get the
-    # same routing and the same cache key as the lowercase form.
+    # Mirror Program.compile (_program.pyx lowercases code_type at Program
+    # init and target_type at the top of compile); a caller that passes
+    # "PTX" or "C++" must get the same routing and the same cache key as
+    # the lowercase form.
     code_type = code_type.lower() if isinstance(code_type, str) else code_type
+    target_type = target_type.lower() if isinstance(target_type, str) else target_type
     if code_type not in _VALID_CODE_TYPES:
         raise ValueError(f"code_type={code_type!r} is not supported (must be one of {sorted(_VALID_CODE_TYPES)})")
     if target_type not in _VALID_TARGET_TYPES:

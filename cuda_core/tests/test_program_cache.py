@@ -252,6 +252,15 @@ def test_make_program_cache_key_normalises_code_type_case(code_type):
     assert upper_key == lower_key
 
 
+@pytest.mark.parametrize("target_type", ["PTX", "Cubin", "LTOIR", "PTx"])
+def test_make_program_cache_key_normalises_target_type_case(target_type):
+    """Program.compile normalises target_type to lower; the cache helper
+    must mirror that so the same compile request always lands on one key."""
+    upper_key = _make_key(code="void k(){}", code_type="c++", target_type=target_type)
+    lower_key = _make_key(code="void k(){}", code_type="c++", target_type=target_type.lower())
+    assert upper_key == lower_key
+
+
 def test_make_program_cache_key_name_expressions_str_bytes_distinct():
     """``Program.compile`` records the *original* Python object as the key in
     ``ObjectCode.symbol_mapping``. Returning a cached ObjectCode whose
