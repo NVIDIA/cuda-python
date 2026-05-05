@@ -90,6 +90,7 @@ NVML
    system._device.Temperature
    system._device.ThermalSensor
    system._device.ThermalSettings
+   system._device.Utilization
    system._system_events.RegisteredSystemEvents
    system._system_events.SystemEvent
    system._system_events.SystemEvents
@@ -99,22 +100,22 @@ NVML
 .. autosummary::
    :toctree: generated/
 
-   system.AddressingMode
-   system.AffinityScope
-   system.ClockId
-   system.ClocksEventReasons
-   system.ClockType
-   system.CoolerControl
-   system.CoolerTarget
-   system.DeviceArch
-   system.EventType
-   system.FanControlPolicy
-   system.FieldId
-   system.GpuP2PCapsIndex
-   system.GpuP2PStatus
-   system.GpuTopologyLevel
-   system.InforomObject
-   system.TemperatureThresholds
-   system.ThermalController
-   system.ThermalTarget
-   system.SystemEventType
+   system.typing.AddressingMode
+   system.typing.AffinityScope
+   system.typing.ClockId
+   system.typing.ClocksEventReasons
+   system.typing.ClockType
+   system.typing.CoolerControl
+   system.typing.CoolerTarget
+   system.typing.DeviceArch
+   system.typing.EventType
+   system.typing.FanControlPolicy
+   system.typing.FieldId
+   system.typing.GpuP2PCapsIndex
+   system.typing.GpuP2PStatus
+   system.typing.GpuTopologyLevel
+   system.typing.InforomObject
+   system.typing.SystemEventType
+   system.typing.TemperatureThresholds
+   system.typing.ThermalController
+   system.typing.ThermalTarget

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5af52104"></script>
+    <script src="../_static/documentation_options.js?v=917cb1c9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev93';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev94';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -564,7 +564,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -660,14 +659,14 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system._device.InforomInfo.get_version">
-<span class="sig-name descname"><span class="pre">get_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inforom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.InforomObject.html#cuda.core.system.InforomObject" title="cuda.core.system._device.InforomObject"><span class="pre">InforomObject</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.InforomInfo.get_version" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inforom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.InforomObject.html#cuda.core.system.typing.InforomObject" title="cuda.core.system.typing.InforomObject"><span class="pre">InforomObject</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.InforomInfo.get_version" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves the InfoROM version for a given InfoROM object.</p>
 <p>For all products with an InfoROM.</p>
 <p>Fermi™ and higher parts have non-volatile on-board memory for persisting
 device info, such as aggregate ECC counts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>inforom</strong> (<a class="reference internal" href="cuda.core.system.InforomObject.html#cuda.core.system.InforomObject" title="cuda.core.system._device.InforomObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">InforomObject</span></code></a>) – The InfoROM object to query.</p>
+<dd class="field-odd"><p><strong>inforom</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">InforomObject</span></code>) – The InfoROM object to query.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The InfoROM version.</p>
