@@ -1230,9 +1230,11 @@ def test_filestream_cache_overwrite_replaces_value(tmp_path):
         assert cache[b"k"] == b"y" * 50
         assert len(cache) == 1
 
-    # On disk: the entries directory should hold exactly one entry file.
+    # On disk: exactly one entry file must remain (cache shards into
+    # ``entries/<digest[:2]>/<digest[2:]>`` so we walk the tree, not
+    # just the top-level directory).
     entries_dir = root / "entries"
-    assert sum(1 for p in entries_dir.iterdir() if p.is_file()) == 1
+    assert sum(1 for p in entries_dir.rglob("*") if p.is_file()) == 1
 
 
 def test_filestream_cache_len_counts_all(tmp_path):
