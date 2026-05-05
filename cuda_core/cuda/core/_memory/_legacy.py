@@ -67,8 +67,10 @@ class LegacyPinnedMemoryResource(MemoryResource):
             Keyword-only. If provided, ``stream.sync()`` is called before the
             host allocation is freed. ``None`` skips the sync.
         """
+        from cuda.core._stream import Stream_accept
+
         if stream is not None:
-            stream.sync()
+            Stream_accept(stream).sync()
 
         if size:
             (err,) = driver.cuMemFreeHost(ptr)
@@ -110,8 +112,10 @@ class _SynchronousMemoryResource(MemoryResource):
         return Buffer._init(ptr, size, self)
 
     def deallocate(self, ptr, size, *, stream: Stream | None = None):
+        from cuda.core._stream import Stream_accept
+
         if stream is not None:
-            stream.sync()
+            Stream_accept(stream).sync()
         if size:
             (err,) = driver.cuMemFree(ptr)
             raise_if_driver_error(err)
