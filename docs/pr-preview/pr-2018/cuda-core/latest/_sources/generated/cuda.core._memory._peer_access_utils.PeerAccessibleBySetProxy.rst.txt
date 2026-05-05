@@ -1,0 +1,33 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.\_memory.\_peer\_access\_utils.PeerAccessibleBySetProxy
+=================================================================
+
+.. currentmodule:: cuda.core._memory._peer_access_utils
+
+.. autoclass:: PeerAccessibleBySetProxy
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: add
+   .. automethod:: clear
+   .. automethod:: difference_update
+   .. automethod:: discard
+   .. automethod:: intersection_update
+   .. automethod:: isdisjoint
+   .. automethod:: pop
+   .. automethod:: remove
+   .. automethod:: symmetric_difference_update
+   .. automethod:: update
+
+   
+   
+
+   
+   
+   

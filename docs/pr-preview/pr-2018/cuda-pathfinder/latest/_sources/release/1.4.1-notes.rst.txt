@@ -1,0 +1,49 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. py:currentmodule:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.4.1 Release notes
+=======================================
+
+Released on Mar 6, 2026
+
+Highlights
+----------
+
+* Add CTK canary fallback for header discovery. When CUDA headers cannot be
+  found via site-packages, Conda, or ``CUDA_HOME``/``CUDA_PATH``, the system
+  now attempts to discover the CTK root via canary probing (using a
+  system-loaded ``cudart`` library path) and searches the CTK include layout
+  from that root. This improves header discovery in standard and non-standard
+  CTK installations, including containerized environments.
+  (`PR #1731 <https://github.com/NVIDIA/cuda-python/pull/1731>`_)
+
+* Add support for loading CUPTI (CUDA Profiling Tools Interface) dynamic libs
+  via ``load_nvidia_dynamic_lib("cupti")`` on Linux and Windows. CUPTI libraries
+  are discovered in site-packages (CUDA 12 and 13), Conda environments, and
+  CTK installations (via CUDA_HOME/CUDA_PATH or canary probe).
+  Supports ``libcupti.so.12``, ``libcupti.so.13`` on Linux and versioned
+  ``cupti64_*.dll`` files on Windows.
+  (`PR #1693 <https://github.com/NVIDIA/cuda-python/pull/1693>`_)
+
+* Add support for finding static libraries (e.g., ``libcudadevrt.a`` on Linux,
+  ``cudadevrt.lib`` on Windows) via new ``find_static_lib()`` and
+  ``locate_static_lib()`` APIs. These follow the same search order as bitcode
+  libraries: site-packages, Conda, then CUDA_HOME/CUDA_PATH.
+  (`PR #1690 <https://github.com/NVIDIA/cuda-python/pull/1690>`_)
+
+* Fix site-packages search order for virtual environments created with
+  ``--system-site-packages``. The search now correctly prioritizes the venv's
+  site-packages before user-site-packages, conforming to PEP 405.
+  (`PR #1717 <https://github.com/NVIDIA/cuda-python/pull/1717>`_)
+
+Internal refactoring
+--------------------
+
+* Refactor library discovery and loading to use a descriptor-driven architecture.
+  All library metadata (SONAMEs, DLLs, site-packages paths, dependencies, loader
+  flags) is now consolidated into a single ``LibDescriptor`` registry, improving
+  maintainability and extensibility. This is an internal refactoring with no
+  behavioral changes.
+  (`PR #1685 <https://github.com/NVIDIA/cuda-python/pull/1685>`_)
