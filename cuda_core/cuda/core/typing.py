@@ -32,11 +32,9 @@ __all__ = [
 ]
 
 
+# A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting
+# :attr:`Buffer.handle`.
 DevicePointerType = driver.CUdeviceptr | int | None
-DevicePointerType.__doc__ = """
-A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting
-:attr:`Buffer.handle`.
-"""
 
 
 ProcessStateType = _Literal["running", "locked", "checkpointed", "failed"]
