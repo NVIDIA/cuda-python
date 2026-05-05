@@ -11,10 +11,13 @@ import importlib
 import inspect
 import pkgutil
 import sys
+from typing import Any
 
 import pytest
 
 import cuda.core
+import cuda.core.typing
+from cuda.bindings import driver
 from cuda.core import system
 
 if sys.version_info >= (3, 11):
@@ -38,7 +41,71 @@ else:
 # in binding_unmapped appears as either a key or a value of the mapping dict,
 # and conversely that every str_enum member not in str_enum_unmapped also
 # appears.
-_CASES = []
+
+_CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
+    (
+        driver.CUgraphConditionalNodeType,
+        cuda.core.typing.GraphConditionalType,
+        None,
+        set(),
+        set(),
+    ),
+    (
+        driver.CUmemLocationType,
+        cuda.core.typing.ManagedMemoryLocationType,
+        None,
+        # We have some explicitly unsupported memory location types
+        {
+            "CU_MEM_LOCATION_TYPE_NONE",
+            "CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT",
+            "CU_MEM_LOCATION_TYPE_INVISIBLE",
+            "CU_MEM_LOCATION_TYPE_MAX",
+            "CU_MEM_LOCATION_TYPE_INVALID",
+        },
+        set(),
+    ),
+    (
+        driver.CUmemAccess_flags,
+        cuda.core.typing.VirtualMemoryAccessType,
+        cuda.core.VirtualMemoryResourceOptions._access_flags,
+        {"CU_MEM_ACCESS_FLAGS_PROT_NONE", "CU_MEM_ACCESS_FLAGS_PROT_MAX"},
+        set(),
+    ),
+    (
+        driver.CUmemAllocationType,
+        cuda.core.typing.VirtualMemoryAllocationType,
+        cuda.core.VirtualMemoryResourceOptions._allocation_type,
+        {"CU_MEM_ALLOCATION_TYPE_INVALID", "CU_MEM_ALLOCATION_TYPE_MAX"},
+        set(),
+    ),
+    (
+        driver.CUmemAllocationGranularity_flags,
+        cuda.core.typing.VirtualMemoryGranularityType,
+        cuda.core.VirtualMemoryResourceOptions._granularity,
+        set(),
+        set(),
+    ),
+    (
+        driver.CUmemAllocationHandleType,
+        cuda.core.typing.VirtualMemoryHandleType,
+        cuda.core.VirtualMemoryResourceOptions._handle_types,
+        {"CU_MEM_HANDLE_TYPE_NONE", "CU_MEM_HANDLE_TYPE_WIN32", "CU_MEM_HANDLE_TYPE_MAX"},
+        {"GENERIC"},
+    ),
+    (
+        driver.CUmemLocationType,
+        cuda.core.typing.VirtualMemoryLocationType,
+        None,
+        # We have some explicitly unsupported memory location types
+        {
+            "CU_MEM_LOCATION_TYPE_NONE",
+            "CU_MEM_LOCATION_TYPE_INVISIBLE",
+            "CU_MEM_LOCATION_TYPE_MAX",
+            "CU_MEM_LOCATION_TYPE_INVALID",
+        },
+        set(),
+    ),
+]
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     # Populated below only when NVML bindings are compatible, so that importing
@@ -70,7 +137,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
                 _device._GPU_P2P_STATUS_MAPPING,
                 # Both the typo'd (SUPPORED) and corrected (SUPPORTED) spellings
                 # share the same integer value; the mapping covers both via aliases
-                set(),
+                {"P2P_STATUS_CHIPSET_NOT_SUPPORED"},
                 set(),
             ),
             (
@@ -116,11 +183,8 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
                 nvml.ThermalController,
                 _device.ThermalController,
                 _device._THERMAL_CONTROLLER_MAPPING,
-                # NONE and UNKNOWN are both handled by the .get() fallback that
-                # returns ThermalController.UNKNOWN when the value is not in the mapping
-                {"NONE", "UNKNOWN"},
-                # UNKNOWN is the default returned by .get() for unrecognised controllers
-                {"UNKNOWN"},
+                {"NONE"},
+                {"NONE"},
             ),
             (
                 nvml.ThermalTarget,
@@ -156,11 +220,8 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
                 nvml.GpuP2PCapsIndex,
                 _device.GpuP2PCapsIndex,
                 _device._GPU_P2P_CAPS_INDEX_MAPPING,
-                # UNKNOWN is returned by the driver when an index is unrecognised;
-                # it is not a capability the caller selects
-                {"P2P_CAPS_INDEX_UNKNOWN"},
-                # UNKNOWN is a driver-side fallback, not a caller-selectable index
-                {"UNKNOWN"},
+                set(),
+                set(),
             ),
             (
                 nvml.GpuTopologyLevel,
@@ -208,7 +269,18 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 # StrEnum subclasses that intentionally have no associated cuda_binding.
 # Add classes here (with a comment explaining why) when a new StrEnum is
 # introduced that wraps something other than a cuda_binding enum.
-_UNBOUND_STR_ENUMS: frozenset[type] = frozenset()
+_UNBOUND_STR_ENUMS: set[StrEnum] = {
+    cuda.core.typing.ObjectCodeFormat,
+    cuda.core.typing.CompilerBackend,
+    # This one enum coordinates values in two cuda_binding enums:
+    # CUmemAllocationType and CUmemLocationType
+    cuda.core.typing.GraphMemoryType,
+    # This should support all of the PCH-related values in nvrtcResult, but
+    # there is no easy way to check that since they are mixed in with other
+    # unrelated things
+    cuda.core.typing.PCHStatus,
+    cuda.core.typing.SourceType,
+}
 
 
 @pytest.mark.parametrize(
@@ -223,18 +295,33 @@ def test_wrapper_covers_all_binding_members(binding, str_enum, mapping, binding_
     mapping (or be listed in the per-entry str_enum_unmapped set).
     """
     required = set(binding.__members__) - binding_unmapped
-    # Compare by integer value so that enum aliases (two names, one integer)
-    # are treated as covered when the canonical member appears in the mapping.
-    covered_values = frozenset(int(m) for m in (*mapping.keys(), *mapping.values()) if isinstance(m, binding))
-    missing = {name for name in required if int(binding.__members__[name]) not in covered_values}
-    assert not missing, f"{binding.__name__} has members not covered by the wrapper mapping: {missing}"
+    if mapping is not None:
+        # Compare by integer value so that enum aliases (two names, one integer)
+        # are treated as covered when the canonical member appears in the mapping.
+        covered_values = frozenset(int(m) for m in (*mapping.keys(), *mapping.values()) if isinstance(m, binding))
+        missing = {name for name in required if int(binding.__members__[name]) not in covered_values}
+        assert not missing, f"{binding.__name__} has members not covered by the wrapper mapping: {missing}"
 
     # Reverse check: every StrEnum member must also appear in the mapping.
     if str_enum is not None:
-        required_str = set(str_enum.__members__) - str_enum_unmapped
-        covered_str = {m.name for m in (*mapping.keys(), *mapping.values()) if isinstance(m, str_enum)}
-        missing_str = required_str - covered_str
-        assert not missing_str, f"{str_enum.__name__} has members not covered by the wrapper mapping: {missing_str}"
+        if mapping is not None:
+            required_str = set(str_enum.__members__) - str_enum_unmapped
+            covered_str = {m.name for m in (*mapping.keys(), *mapping.values()) if isinstance(m, str_enum)}
+            missing_str = required_str - covered_str
+            assert not missing_str, f"{str_enum.__name__} has members not covered by the wrapper mapping: {missing_str}"
+
+        # For checking a StrEnum against a cuda_binding enum directly, without a
+        # mapping, the best we can do is count them, since it's reasonable that
+        # they have been renamed for clarity.
+        required_count = len(required)
+        covered_str_enum = set(str_enum.__members__) - str_enum_unmapped
+        covered_count = len(covered_str_enum)
+        if required_count != covered_count:
+            raise AssertionError(
+                f"{str_enum.__name__} has {covered_count} members, but expected {required_count} based on {binding.__name__} "
+                "after accounting for unmapped members. This may indicate that some members are missing from the wrapper, "
+                "or that some wrapper members do not correspond to actual binding members."
+            )
 
 
 def test_all_str_enums_in_cases():
@@ -268,8 +355,9 @@ def test_all_str_enums_in_cases():
 
     covered = {x[1] for x in _CASES if x[1] is not None}
     uncovered = discover_str_enums() - covered - _UNBOUND_STR_ENUMS
+    uncovered_names = sorted({c.__qualname__ for c in uncovered})
     assert not uncovered, (
         f"StrEnum subclasses in cuda.core not covered by _CASES: "
-        f"{sorted(c.__qualname__ for c in uncovered)}\n"
+        f"{uncovered_names}\n"
         "Add a _CASES entry for each, or add to _UNBOUND_STR_ENUMS if it does not wrap a cuda_binding enum."
     )
