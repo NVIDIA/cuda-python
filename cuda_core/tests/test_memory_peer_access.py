@@ -309,18 +309,26 @@ def test_peer_accessible_by_returns_proxy_type(isolated_dmr_x2):
 
 
 class _DiffSpy:
-    """Counts batched driver calls and forwards each call to the real wrapper."""
+    """Counts batched driver calls and forwards each call to the real wrapper.
+
+    Only invocations with non-empty deltas are recorded in :attr:`calls`,
+    because those are the ones that translate to actual ``cuMemPoolSetAccess``
+    work. The wrapper still gets called with empty deltas in a few places
+    (e.g. the property setter when the requested target matches current
+    driver state), but the underlying ``cdef inline`` short-circuits before
+    issuing the driver call, so those invocations do not count against the
+    "one call per bulk op" contract.
+    """
 
     def __init__(self, real):
         self._real = real
         self.calls = []
 
     def __call__(self, mr, to_add, to_remove):
-        # Materialize tuples once so the recorded args reflect what the proxy
-        # passed (they may be sets / lists of mixed Device/int upstream).
         recorded_add = tuple(to_add)
         recorded_remove = tuple(to_remove)
-        self.calls.append((recorded_add, recorded_remove))
+        if recorded_add or recorded_remove:
+            self.calls.append((recorded_add, recorded_remove))
         self._real(mr, to_add, to_remove)
 
 
@@ -350,41 +358,54 @@ def test_peer_accessible_by_setter_batches_one_call(diff_spy, isolated_dmr_x2):
 
 
 def test_peer_accessible_by_bulk_ops_batch_one_call(diff_spy, isolated_dmr_x2):
-    """``|=``, ``&=``, ``-=``, ``^=``, ``clear``, ``update`` each issue at most one call."""
-    dmr, dev0, dev1 = isolated_dmr_x2
+    """``|=``/``&=``/``-=``/``^=``/``update``/``clear`` each issue at most one driver call.
 
-    dmr.peer_accessible_by |= {dev1}
+    .. note::
+       ``proxy = dmr.peer_accessible_by; proxy |= {...}`` is exactly one driver
+       call. Augmented assignment directly on the property
+       (``dmr.peer_accessible_by |= {...}``) is two operations because Python
+       fetches the proxy, mutates it, and then assigns the (already-mutated)
+       proxy back through the setter; that final assignment is a no-op at the
+       driver level (deltas come out empty), but it is two trips through the
+       proxy/setter machinery. The spy filters out empty-delta calls so the
+       invariant under test is "actual driver work" rather than that
+       Python-level quirk.
+    """
+    dmr, dev0, dev1 = isolated_dmr_x2
+    proxy = dmr.peer_accessible_by  # use the local-binding form for predictable counting
+
+    proxy |= {dev1}
     assert len(diff_spy.calls) == 1
     diff_spy.calls.clear()
 
     # &= keeping the lone member: no driver call (no diff).
-    dmr.peer_accessible_by &= {dev1}
+    proxy &= {dev1}
     assert diff_spy.calls == []
 
     # &= dropping the lone member: one removal.
-    dmr.peer_accessible_by &= {dev0}
+    proxy &= {dev0}
     assert len(diff_spy.calls) == 1
     diff_spy.calls.clear()
 
     # ^= toggling the lone peer in then out: two ops, one call each.
-    dmr.peer_accessible_by ^= {dev1}
+    proxy ^= {dev1}
     assert len(diff_spy.calls) == 1
-    dmr.peer_accessible_by ^= {dev1}
+    proxy ^= {dev1}
     assert len(diff_spy.calls) == 2
     diff_spy.calls.clear()
 
     # update() with the peer already absent: one add.
-    dmr.peer_accessible_by.update([dev1])
+    proxy.update([dev1])
     assert len(diff_spy.calls) == 1
     diff_spy.calls.clear()
 
     # clear() with one member: one removal.
-    dmr.peer_accessible_by.clear()
+    proxy.clear()
     assert len(diff_spy.calls) == 1
     diff_spy.calls.clear()
 
     # Already-empty bulk ops are no-ops (nothing to add or remove).
-    dmr.peer_accessible_by.clear()
-    dmr.peer_accessible_by.difference_update([dev1])
-    dmr.peer_accessible_by -= {dev1}
+    proxy.clear()
+    proxy.difference_update([dev1])
+    proxy -= {dev1}
     assert diff_spy.calls == []
