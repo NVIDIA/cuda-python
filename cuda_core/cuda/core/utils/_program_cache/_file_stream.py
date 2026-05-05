@@ -406,9 +406,7 @@ class FileStreamProgramCache(ProgramCacheResource):
         # cryptographic collision resistance for key uniqueness -- two
         # distinct keys hashing to the same path is astronomically unlikely
         # (~2^-128 with the 32-byte digest in use here).
-        digest = hashlib.blake2b(k, digest_size=32).hexdigest() if k else "empty"
-        if len(digest) < 3:
-            digest = digest.rjust(3, "0")
+        digest = hashlib.blake2b(k, digest_size=32).hexdigest()
         return self._entries / digest[:2] / digest[2:]
 
     # -- mapping API ---------------------------------------------------------
