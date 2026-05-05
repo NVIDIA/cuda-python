@@ -324,14 +324,20 @@ class TestLocationCoerce:
 
     def test_host_numa_passthrough(self):
         from cuda.core._memory._managed_location import _coerce_location
+        from cuda.core._utils.version import binding_version
 
+        if binding_version() < (13, 0, 0):
+            pytest.skip("Host(numa_id=N) requires CUDA 13 bindings")
         spec = _coerce_location(Host(numa_id=3))
         assert spec.kind == "host_numa"
         assert spec.id == 3
 
     def test_host_numa_current_passthrough(self):
         from cuda.core._memory._managed_location import _coerce_location
+        from cuda.core._utils.version import binding_version
 
+        if binding_version() < (13, 0, 0):
+            pytest.skip("Host.numa_current() requires CUDA 13 bindings")
         spec = _coerce_location(Host.numa_current())
         assert spec.kind == "host_numa_current"
 
