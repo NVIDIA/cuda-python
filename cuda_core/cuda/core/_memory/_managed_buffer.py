@@ -212,9 +212,7 @@ class ManagedBuffer(Buffer):
         target: set[Device | Host] = set()
         for loc in locations:
             if not isinstance(loc, (Device, Host)):
-                raise TypeError(
-                    f"accessed_by entries must be Device or Host, got {type(loc).__name__}"
-                )
+                raise TypeError(f"accessed_by entries must be Device or Host, got {type(loc).__name__}")
             target.add(loc)
         current = set(_query_accessed_by(self))
         for loc in current - target:

@@ -38,8 +38,7 @@ def _reject_numa_host_on_cuda12(spec: _LocSpec) -> None:
         return
     if spec.kind in ("host_numa", "host_numa_current"):
         raise TypeError(
-            "Host(numa_id=...) / Host.numa_current() require a CUDA 13 "
-            "build of cuda.core; use Host() on CUDA 12"
+            "Host(numa_id=...) / Host.numa_current() require a CUDA 13 build of cuda.core; use Host() on CUDA 12"
         )
 
 

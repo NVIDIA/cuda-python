@@ -36,9 +36,7 @@ class Host:
     _instances_lock: ClassVar[threading.Lock] = threading.Lock()
 
     def __new__(cls, numa_id: int | None = None) -> Host:
-        if numa_id is not None and (
-            isinstance(numa_id, bool) or not isinstance(numa_id, int) or numa_id < 0
-        ):
+        if numa_id is not None and (isinstance(numa_id, bool) or not isinstance(numa_id, int) or numa_id < 0):
             raise ValueError(f"numa_id must be a non-negative int, got {numa_id!r}")
         return cls._get_or_create(numa_id, is_numa_current=False)
 
