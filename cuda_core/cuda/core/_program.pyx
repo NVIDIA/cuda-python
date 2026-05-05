@@ -127,6 +127,13 @@ cdef class Program:
             compiles, use the manual ``make_program_cache_key(...)``
             pattern directly.
 
+            ``cache=`` is independent of ``ProgramOptions.no_cache``: the
+            former controls this program-level cache (compiled-output
+            reuse across calls), while ``no_cache`` is forwarded to the
+            Linker to disable its in-process JIT cache for cuLink/nvJitLink.
+            Setting ``options.no_cache=True`` does not bypass ``cache=``,
+            and vice-versa.
+
         Returns
         -------
         :class:`~cuda.core.ObjectCode`
