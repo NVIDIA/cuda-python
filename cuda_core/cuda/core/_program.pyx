@@ -139,6 +139,23 @@ cdef class Program:
         if cache is None:
             return _program_compile_uncached(self, target_type, name_expressions, logs)
 
+        # Deferred import to avoid a circular import between _program and
+        # cuda.core.utils._program_cache (the cache module already imports
+        # ProgramOptions from this module). Import from the leaf module so
+        # tests that monkeypatch make_program_cache_key via that path
+        # intercept reliably.
+        from cuda.core.utils._program_cache import (
+            ProgramCacheResource,
+            make_program_cache_key,
+        )
+
+        if not isinstance(cache, ProgramCacheResource):
+            raise TypeError(
+                "cache must be an instance of "
+                "cuda.core.utils.ProgramCacheResource; got "
+                f"{type(cache).__name__}"
+            )
+
         # ``name_expressions`` is incompatible with the cache: NVRTC
         # populates ``ObjectCode.symbol_mapping`` from name-expression
         # mangling at compile time, and that mapping isn't carried in
@@ -158,13 +175,6 @@ cdef class Program:
                 "name_expressions are needed, or look up mangled symbols by "
                 "hand from the cached ObjectCode."
             )
-
-        # Deferred import to avoid a circular import between _program and
-        # cuda.core.utils._program_cache (the cache module already imports
-        # ProgramOptions from this module). Import from the leaf module so
-        # tests that monkeypatch make_program_cache_key via that path
-        # intercept reliably.
-        from cuda.core.utils._program_cache import make_program_cache_key
 
         # ``self._code`` is always stored as bytes (see ``Program_init``),
         # but ``make_program_cache_key`` only accepts bytes when

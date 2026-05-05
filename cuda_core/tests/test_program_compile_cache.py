@@ -11,19 +11,18 @@ from cuda.core import _program as _program_module
 from cuda.core._module import ObjectCode
 from cuda.core.utils import (
     FileStreamProgramCache,
+    ProgramCacheResource,
     make_program_cache_key,
 )
 
 
-class _RecordingCache:
-    """Minimal recording stub for the bytes-in / bytes-out cache protocol.
+class _RecordingCache(ProgramCacheResource):
+    """Minimal recording cache with side-effect hooks for the integration tests.
 
-    Mirrors :class:`FileStreamProgramCache`'s contract: ``__setitem__``
-    accepts bytes-like or :class:`ObjectCode` (extracts bytes), and
-    ``get`` returns the stored bytes (or ``None``).
-
-    Intentionally does NOT subclass ``ProgramCacheResource`` -- the wrapper
-    should be duck-typed, so we test the duck-typed surface directly.
+    Wraps a dict and records every ``get`` / ``__setitem__`` so each test
+    can assert exactly which calls the ``Program.compile(cache=...)``
+    wrapper made. ``get_side_effect`` and ``set_side_effect`` let a test
+    inject a raise from either method to exercise error-propagation paths.
     """
 
     def __init__(self, preseed=None):
@@ -49,12 +48,24 @@ class _RecordingCache:
             raise self.get_side_effect
         return self._store.get(key, default)
 
+    def __getitem__(self, key):
+        return self._store[key]
+
     def __setitem__(self, key, value):
         data = self._extract(value)
         self.set_calls.append((key, data))
         if self.set_side_effect is not None:
             raise self.set_side_effect
         self._store[key] = data
+
+    def __delitem__(self, key):
+        del self._store[key]
+
+    def __len__(self):
+        return len(self._store)
+
+    def clear(self):
+        self._store.clear()
 
 
 _KERNEL = 'extern "C" __global__ void k() {}'
@@ -64,6 +75,23 @@ _SENTINEL_BYTES = b"sentinel-cubin-bytes"
 def _make_sentinel_object_code():
     """Construct a cache-safe ``ObjectCode`` that doesn't require compilation."""
     return ObjectCode._init(_SENTINEL_BYTES, "cubin", name="sentinel")
+
+
+def test_cache_must_subclass_program_cache_resource():
+    """``cache=`` must be a ``ProgramCacheResource``. A duck-typed object that
+    only provides ``get``/``__setitem__`` raises ``TypeError`` so the contract
+    error surfaces before any compile work runs."""
+    program = Program(_KERNEL, "c++", ProgramOptions(arch="sm_80"))
+
+    class _DuckCache:
+        def get(self, key, default=None):
+            return None
+
+        def __setitem__(self, key, value):
+            pass
+
+    with pytest.raises(TypeError, match="ProgramCacheResource"):
+        program.compile("cubin", cache=_DuckCache())
 
 
 def test_cache_miss_runs_compile_then_stores(monkeypatch):
