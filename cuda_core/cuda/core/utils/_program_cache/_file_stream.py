@@ -480,11 +480,9 @@ class FileStreamProgramCache(ProgramCacheResource):
         live entry from an orphan without knowing the caller's keying
         scheme.
         """
-        count = 0
-        for path in self._iter_entry_paths():
-            if path.is_file():
-                count += 1
-        return count
+        # ``_iter_entry_paths`` already filters with ``entry.is_file()``,
+        # so don't stat each path a second time here.
+        return sum(1 for _ in self._iter_entry_paths())
 
     def clear(self) -> None:
         # Snapshot stat alongside path so we can refuse to unlink an entry
