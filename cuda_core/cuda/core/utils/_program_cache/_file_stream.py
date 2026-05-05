@@ -43,6 +43,18 @@ _REPLACE_RETRY_DELAYS = (0.0, 0.005, 0.010, 0.020, 0.050, 0.100)  # ~185ms budge
 _IS_WINDOWS = os.name == "nt"
 
 
+def _stat_key(st: os.stat_result) -> tuple:
+    """Stat fingerprint used by every stat-guarded path.
+
+    ``(st_ino, st_size, st_mtime_ns)`` is the smallest triple that
+    distinguishes "same file" from "file replaced under us": ``st_ino``
+    catches replacement, ``st_size`` and ``st_mtime_ns`` catch a write
+    that happens to land on the same inode (e.g. truncate-and-write in
+    place). Centralised so all four readers compare the same fields.
+    """
+    return (st.st_ino, st.st_size, st.st_mtime_ns)
+
+
 def _default_cache_dir() -> Path:
     """OS-conventional default location for the file-stream cache.
 
@@ -187,11 +199,7 @@ def _touch_atime(path: Path, st_before: os.stat_result) -> None:
                 st_now = os.fstat(fd)
             except OSError:
                 return
-            if (st_now.st_ino, st_now.st_size, st_now.st_mtime_ns) != (
-                st_before.st_ino,
-                st_before.st_size,
-                st_before.st_mtime_ns,
-            ):
+            if _stat_key(st_now) != _stat_key(st_before):
                 return
             with contextlib.suppress(OSError):
                 os.utime(fd, ns=(new_atime_ns, st_before.st_mtime_ns))
@@ -205,11 +213,7 @@ def _touch_atime(path: Path, st_before: os.stat_result) -> None:
         st_now = path.stat()
     except OSError:
         return
-    if (st_now.st_ino, st_now.st_size, st_now.st_mtime_ns) != (
-        st_before.st_ino,
-        st_before.st_size,
-        st_before.st_mtime_ns,
-    ):
+    if _stat_key(st_now) != _stat_key(st_before):
         return
     with contextlib.suppress(OSError):
         os.utime(path, ns=(new_atime_ns, st_before.st_mtime_ns))
@@ -297,9 +301,7 @@ def _prune_if_stat_unchanged(path: Path, st_before: os.stat_result) -> None:
         st_now = path.stat()
     except FileNotFoundError:
         return
-    key_before = (st_before.st_ino, st_before.st_size, st_before.st_mtime_ns)
-    key_now = (st_now.st_ino, st_now.st_size, st_now.st_mtime_ns)
-    if key_before != key_now:
+    if _stat_key(st_before) != _stat_key(st_now):
         return
     try:
         _unlink_with_sharing_retry(path)
@@ -594,11 +596,7 @@ class FileStreamProgramCache(ProgramCacheResource):
             except FileNotFoundError:
                 total -= size
                 continue
-            if (stat_now.st_ino, stat_now.st_size, stat_now.st_mtime_ns) != (
-                st_before.st_ino,
-                st_before.st_size,
-                st_before.st_mtime_ns,
-            ):
+            if _stat_key(stat_now) != _stat_key(st_before):
                 # File was replaced -- don't unlink, but update ``total`` to
                 # reflect the replacement's actual size or the cap check
                 # below could declare us done while still over the limit.
