@@ -198,9 +198,9 @@ def test_make_program_cache_key_ptx_linker_probe_changes(first, second, monkeypa
     driver) and its version."""
     from cuda.core.utils import _program_cache
 
-    monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda: first)
+    monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda _use_driver: first)
     k1 = _make_key(code=".version 7.0", code_type="ptx")
-    monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda: second)
+    monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda _use_driver: second)
     k2 = _make_key(code=".version 7.0", code_type="ptx")
     assert k1 != k2
 
@@ -431,7 +431,7 @@ def test_make_program_cache_key_ptx_linker_equivalent_options_hash_same(a, b, mo
     # Pin the linker probe so the only variable is the options gate.
     from cuda.core.utils import _program_cache
 
-    monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda: ("nvJitLink", "12030"))
+    monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda _use_driver: ("nvJitLink", "12030"))
     k_a = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**a))
     k_b = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**b))
     assert k_a == k_b
@@ -1078,7 +1078,7 @@ def test_make_program_cache_key_driver_version_does_not_perturb_ptx_under_nvjitl
     nvJitLink is the active linker backend."""
     from cuda.core.utils import _program_cache
 
-    monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda: ("nvJitLink", "12030"))
+    monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda _use_driver: ("nvJitLink", "12030"))
     monkeypatch.setattr(_program_cache._keys, "_driver_version", lambda: 13200)
     k_a = _make_key(code=".version 7.0", code_type="ptx")
     monkeypatch.setattr(_program_cache._keys, "_driver_version", lambda: 13300)
@@ -1128,7 +1128,7 @@ def test_make_program_cache_key_fails_closed_on_probe_failure(probe_name, code_t
     ``_linker_backend_and_version`` on the cuLink driver path."""
     from cuda.core.utils import _program_cache
 
-    def _broken():
+    def _broken(*args, **kwargs):
         raise RuntimeError("probe failed")
 
     k_ok = _make_key(code=code, code_type=code_type)

@@ -172,8 +172,15 @@ def _nvrtc_version() -> tuple[int, int]:
     return int(major), int(minor)
 
 
-def _linker_backend_and_version() -> tuple[str, str]:
+def _linker_backend_and_version(use_driver: bool) -> tuple[str, str]:
     """Return ``(backend, version)`` for the linker used on PTX inputs.
+
+    ``use_driver`` is the result of ``_decide_nvjitlink_or_driver()`` and
+    must be passed in so a single ``make_program_cache_key`` call shares
+    one probe across :meth:`_LinkerBackend.validate`,
+    :meth:`option_fingerprint`, and :meth:`hash_version_probe` (otherwise
+    a transient probe flap could write inconsistent fields into the same
+    key).
 
     Raises any underlying probe exception. ``make_program_cache_key`` catches
     and mixes the exception's class name into the digest, so the same probe
@@ -188,9 +195,6 @@ def _linker_backend_and_version() -> tuple[str, str]:
     """
     import sys
 
-    from cuda.core._linker import _decide_nvjitlink_or_driver
-
-    use_driver = _decide_nvjitlink_or_driver()
     if use_driver:
         return ("driver", str(_driver_version()))
     nvjitlink = sys.modules.get("cuda.bindings.nvjitlink")
@@ -459,19 +463,35 @@ class _NvrtcBackend(_KeyBackend):
         update("nvrtc", f"{major}.{minor}".encode("ascii"))
 
 
+_DECISION_UNSET = object()
+
+
 class _LinkerBackend(_KeyBackend):
+    def __init__(self):
+        # Cache the linker-backend decision (and any probe failure) for
+        # the duration of one ``make_program_cache_key`` call so
+        # ``validate``, ``option_fingerprint``, and ``hash_version_probe``
+        # all see the same answer; a transient probe flap mid-call
+        # otherwise mints a key whose option fingerprint and version
+        # probe disagree on which linker is in use.
+        self._cached_decision = _DECISION_UNSET
+        self._cached_decision_exc: BaseException | None = None
+
     def _decide_driver(self) -> bool | None:
         """``True`` if the cuLink driver linker will be used, ``False`` if
         nvJitLink, ``None`` if the probe failed (in which case
         :meth:`hash_version_probe` mixes a ``_probe_failed`` taint into
         the digest instead of a backend label).
         """
-        try:
-            from cuda.core._linker import _decide_nvjitlink_or_driver
+        if self._cached_decision is _DECISION_UNSET:
+            try:
+                from cuda.core._linker import _decide_nvjitlink_or_driver
 
-            return _decide_nvjitlink_or_driver()
-        except Exception:
-            return None
+                self._cached_decision = _decide_nvjitlink_or_driver()
+            except Exception as exc:
+                self._cached_decision = None
+                self._cached_decision_exc = exc
+        return self._cached_decision
 
     def validate(self, options, target_type, extra_digest):  # noqa: ARG002
         if getattr(options, "extra_sources", None) is not None:
@@ -515,8 +535,12 @@ class _LinkerBackend(_KeyBackend):
         # driver version there. ``_linker_backend_and_version`` already
         # returns the driver version when the driver backend is active,
         # so the bytes are still in the digest via ``linker_version``.
+        use_driver = self._decide_driver()
+        if use_driver is None:
+            _hash_probe_failure(update, "linker", self._cached_decision_exc)
+            return
         try:
-            lb_name, lb_version = _linker_backend_and_version()
+            lb_name, lb_version = _linker_backend_and_version(use_driver)
         except Exception as exc:
             _hash_probe_failure(update, "linker", exc)
             return
@@ -595,11 +619,13 @@ class _NvvmBackend(_KeyBackend):
             update("use_libdevice", b"1")
 
 
-# Stateless backends; one shared instance per code_type.
-_BACKENDS_BY_CODE_TYPE: dict[str, _KeyBackend] = {
-    "c++": _NvrtcBackend(),
-    "ptx": _LinkerBackend(),
-    "nvvm": _NvvmBackend(),
+# Class registry keyed by code_type. ``make_program_cache_key`` instantiates
+# fresh per call so backends like ``_LinkerBackend`` can cache per-call probe
+# results on ``self`` without leaking that state across calls.
+_BACKENDS_BY_CODE_TYPE: dict[str, type[_KeyBackend]] = {
+    "c++": _NvrtcBackend,
+    "ptx": _LinkerBackend,
+    "nvvm": _NvvmBackend,
 }
 
 
@@ -735,7 +761,7 @@ def make_program_cache_key(
             f" this combination, so caching a key for it is meaningless."
         )
 
-    backend = _BACKENDS_BY_CODE_TYPE[code_type]
+    backend = _BACKENDS_BY_CODE_TYPE[code_type]()
     backend.validate(options, target_type, extra_digest)
 
     code_bytes = backend.encode_code(code, code_type)
