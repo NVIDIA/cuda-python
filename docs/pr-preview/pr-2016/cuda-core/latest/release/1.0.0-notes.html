@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5af52104"></script>
+    <script src="../_static/documentation_options.js?v=dee9dd89"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev93';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev103';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -502,9 +502,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Context.html">cuda.core.Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.SMResource.html">cuda.core.SMResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.WorkqueueResource.html">cuda.core.WorkqueueResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ContextOptions.html">cuda.core.ContextOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.SMResourceOptions.html">cuda.core.SMResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
@@ -549,6 +555,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
@@ -655,7 +662,10 @@
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>TBD</p></li>
+<li><p>Added the <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.checkpoint</span></code> module for CUDA process checkpointing,
+including string process state queries, lock/checkpoint/restore/unlock
+operations, and GPU UUID remapping support for restore.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1343">#1343</a>)</p></li>
 </ul>
 </section>
 <section id="breaking-changes">
@@ -731,6 +741,9 @@ cache is shared across views of the same kernel.</p></li>
 <code class="docutils literal notranslate"><span class="pre">kernel.attributes[some_dev].num_regs</span></code></p></li>
 </ul>
 </li>
+<li><p>Renamed <code class="xref py py-attr docutils literal notranslate"><span class="pre">graph.HostCallbackNode.callback_fn</span></code> to
+<a class="reference internal" href="../generated/cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode.callback" title="cuda.core.graph.HostCallbackNode.callback"><code class="xref py py-attr docutils literal notranslate"><span class="pre">graph.HostCallbackNode.callback</span></code></a> to drop the redundant <code class="docutils literal notranslate"><span class="pre">_fn</span></code> suffix
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>).</p></li>
 <li><p>Unified the conditional graph API on <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a>
 and consistent verbs
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>

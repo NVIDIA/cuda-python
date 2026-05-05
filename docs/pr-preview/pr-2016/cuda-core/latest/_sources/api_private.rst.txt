@@ -22,11 +22,13 @@ CUDA runtime
    _module.ParamInfo
    typing.CompilerBackendType
    typing.DevicePointerType
+   typing.DeviceResourcesType
    typing.GraphConditionalType
    typing.GraphMemoryType
    typing.ManagedMemoryLocationType
    typing.ObjectCodeFormatType
    typing.PCHStatusType
+   typing.ProcessStateType
    typing.SourceCodeType
    typing.VirtualMemoryAccessType
    typing.VirtualMemoryAllocationType
@@ -37,6 +39,7 @@ CUDA runtime
    :template: autosummary/cyclass.rst
 
    _device.DeviceProperties
+   _device_resources.DeviceResources
    _memory._ipc.IPCAllocationHandle
    _memory._ipc.IPCBufferDescriptor
 
