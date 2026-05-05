@@ -12,7 +12,7 @@ import warnings
 from cuda.bindings import nvml
 
 from ._nvml_context cimport initialize
-from .typing import (
+from cuda.core.system.typing import (
     AddressingMode,
     AffinityScope,
     DeviceArch,

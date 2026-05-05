@@ -251,6 +251,7 @@ def test_wrapper_covers_all_binding_members(binding, str_enum, mapping, binding_
             )
 
 
+@pytest.mark.skipif(sys.version_info < (3, 11), reason="Requires Python 3.11+ for StrEnum")
 def test_all_str_enums_in_cases():
     """Every StrEnum subclass in cuda.core must appear in _CASES or _UNBOUND_STR_ENUMS.
 

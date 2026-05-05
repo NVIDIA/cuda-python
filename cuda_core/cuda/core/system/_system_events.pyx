@@ -10,7 +10,7 @@ from cuda.bindings import nvml
 from ._nvml_context cimport initialize
 
 from . import _device
-from .typing import SystemEventType
+from cuda.core.system.typing import SystemEventType
 
 
 _SYSTEM_EVENT_TYPE_MAPPING = {
