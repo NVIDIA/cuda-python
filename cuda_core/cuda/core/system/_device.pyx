@@ -170,6 +170,7 @@ _GPU_P2P_CAPS_INDEX_MAPPING = {
     GpuP2PCapsIndex.ATOMICS: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_ATOMICS,
     GpuP2PCapsIndex.PCI: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_PCI,
     GpuP2PCapsIndex.PROP: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_PROP,
+    GpuP2PCapsIndex.UNKNOWN: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_UNKNOWN,
 }
 
 

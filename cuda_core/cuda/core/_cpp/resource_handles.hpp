@@ -59,6 +59,12 @@ void clear_last_error() noexcept;
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
+extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
+extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
+extern decltype(&cuDevResourceGenerateDesc) p_cuDevResourceGenerateDesc;
+
+extern decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate;
 
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
@@ -142,6 +148,7 @@ extern NvJitLinkDestroyFn p_nvJitLinkDestroy;
 // ============================================================================
 
 using ContextHandle = std::shared_ptr<const CUcontext>;
+using GreenCtxHandle = std::shared_ptr<const CUgreenCtx>;
 using StreamHandle = std::shared_ptr<const CUstream>;
 using EventHandle = std::shared_ptr<const CUevent>;
 using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
@@ -163,6 +170,21 @@ using FileDescriptorHandle = std::shared_ptr<const int>;
 
 // Function to create a non-owning context handle (references existing context).
 ContextHandle create_context_handle_ref(CUcontext ctx);
+
+// Create a context handle for the CUcontext view of the provided green context.
+// The returned ContextHandle keeps the green context alive, but the CUcontext
+// view is non-owning and is not destroyed independently.
+ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx);
+
+// Return the green context dependency associated with a ContextHandle, if any.
+GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept;
+
+// Create an owning green context handle from a list of device resources.
+GreenCtxHandle create_green_ctx_handle(CUdevResource* resources, unsigned int nbResources,
+                                       CUdevice dev, unsigned int flags);
+
+// Create a non-owning green context handle.
+GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx ctx);
 
 // Get handle to the primary context for a device (with thread-local caching)
 // Returns empty handle on error (caller must check)
@@ -192,6 +214,9 @@ StreamHandle create_stream_handle_ref(CUstream stream);
 // The owner's refcount is incremented; decremented when handle is released.
 // The owner is responsible for keeping the stream's context alive.
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
+
+// Return the context dependency associated with a stream handle, if any.
+ContextHandle get_stream_context(const StreamHandle& h) noexcept;
 
 // Get non-owning handle to the legacy default stream (CU_STREAM_LEGACY)
 // Note: Legacy stream has no specific context dependency.
@@ -501,6 +526,10 @@ inline CUcontext as_cu(const ContextHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUgreenCtx as_cu(const GreenCtxHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 inline CUstream as_cu(const StreamHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -556,6 +585,10 @@ inline CUlinkState as_cu(const CuLinkHandle& h) noexcept {
 // as_intptr() - extract handle as intptr_t for Python interop
 // Using signed intptr_t per C standard convention and issue #1342
 inline std::intptr_t as_intptr(const ContextHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const GreenCtxHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -647,6 +680,10 @@ inline PyObject* make_py(const char* module_name, const char* class_name, std::i
 
 inline PyObject* as_py(const ContextHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUcontext", as_intptr(h));
+}
+
+inline PyObject* as_py(const GreenCtxHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgreenCtx", as_intptr(h));
 }
 
 inline PyObject* as_py(const StreamHandle& h) noexcept {
