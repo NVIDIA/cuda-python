@@ -1,0 +1,6 @@
+﻿cuda.core.typing.ProcessStateT
+==============================
+
+.. currentmodule:: cuda.core.typing
+
+.. autodata:: ProcessStateT

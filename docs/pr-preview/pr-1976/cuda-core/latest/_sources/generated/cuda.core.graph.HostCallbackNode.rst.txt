@@ -15,7 +15,6 @@ cuda.core.graph.HostCallbackNode
    
    .. automethod:: __init__
    .. automethod:: allocate
-   .. automethod:: callback
    .. automethod:: deallocate
    .. automethod:: destroy
    .. automethod:: embed
@@ -38,7 +37,7 @@ cuda.core.graph.HostCallbackNode
    .. rubric:: Attributes
 
    
-   .. autoattribute:: callback_fn
+   .. autoattribute:: callback
    .. autoattribute:: graph
    .. autoattribute:: handle
    .. autoattribute:: is_valid

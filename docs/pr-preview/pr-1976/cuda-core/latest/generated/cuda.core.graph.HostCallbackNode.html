@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=dee9dd89"></script>
+    <script src="../_static/documentation_options.js?v=2298c72e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev103';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev107';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -556,6 +556,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
@@ -660,7 +661,7 @@
 <section id="properties">
 <h2>Properties<a class="headerlink" href="#properties" title="Link to this heading">#</a></h2>
 <dl class="simple">
-<dt>callback_fn<span class="classifier">callable or None</span></dt><dd><p>The Python callable (None for ctypes function pointer callbacks).</p>
+<dt>callback<span class="classifier">callable or None</span></dt><dd><p>The Python callable (None for ctypes function pointer callbacks).</p>
 </dd>
 </dl>
 <p class="rubric">Methods</p>
@@ -694,53 +695,6 @@ device pointer via the dptr property.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode" title="cuda.core.graph.AllocNode">AllocNode</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.graph.HostCallbackNode.callback">
-<span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode"><span class="pre">HostCallbackNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.HostCallbackNode.callback" title="Link to this definition">#</a></dt>
-<dd><p>Add a host callback node depending on this node.</p>
-<p>The callback runs on the host CPU when the graph reaches this node.
-Two modes are supported:</p>
-<ul class="simple">
-<li><p><strong>Python callable</strong>: Pass any callable. The GIL is acquired
-automatically. The callable must take no arguments; use closures
-or <code class="docutils literal notranslate"><span class="pre">functools.partial</span></code> to bind state.</p></li>
-<li><p><strong>ctypes function pointer</strong>: Pass a <code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE</span></code> instance.
-The function receives a single <code class="docutils literal notranslate"><span class="pre">void*</span></code> argument (the
-<code class="docutils literal notranslate"><span class="pre">user_data</span></code>). The caller must keep the ctypes wrapper alive
-for the lifetime of the graph.</p></li>
-</ul>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Callbacks must not call CUDA API functions. Doing so may
-deadlock or corrupt driver state.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>fn</strong> (<em>callable</em><em> or </em><em>ctypes function pointer</em>) – The callback function.</p></li>
-<li><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><em>bytes-like</em><em>, </em><em>optional</em>) – Only for ctypes function pointers. If <code class="docutils literal notranslate"><span class="pre">int</span></code>, passed as a raw
-pointer (caller manages lifetime). If bytes-like, the data is
-copied and its lifetime is tied to the graph.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A new HostCallbackNode representing the callback.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode">HostCallbackNode</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1059,8 +1013,8 @@ evaluates to a non-zero value.</p>
 
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.graph.HostCallbackNode.callback_fn">
-<span class="sig-name descname"><span class="pre">callback_fn</span></span><a class="headerlink" href="#cuda.core.graph.HostCallbackNode.callback_fn" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.graph.HostCallbackNode.callback">
+<span class="sig-name descname"><span class="pre">callback</span></span><a class="headerlink" href="#cuda.core.graph.HostCallbackNode.callback" title="Link to this definition">#</a></dt>
 <dd><p>The Python callable, or None for ctypes function pointer callbacks.</p>
 </dd></dl>
 
@@ -1179,7 +1133,6 @@ evaluates to a non-zero value.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.__init__"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.allocate"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.allocate()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.callback"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.callback()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.deallocate"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.deallocate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.destroy"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.destroy()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.embed"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.embed()</span></code></a></li>
@@ -1193,7 +1146,7 @@ evaluates to a non-zero value.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.switch"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.switch()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.wait"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.wait()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.while_loop"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.while_loop()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.callback_fn"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.callback_fn</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.callback"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.callback</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.graph"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.graph</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.handle"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.handle</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.HostCallbackNode.is_valid"><code class="docutils literal notranslate"><span class="pre">HostCallbackNode.is_valid</span></code></a></li>
