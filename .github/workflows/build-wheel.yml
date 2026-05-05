@@ -104,14 +104,14 @@ jobs:
 
       - name: Upload cuda.pathfinder build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: cuda-pathfinder-wheel
           path: cuda_pathfinder/*.whl
           if-no-files-found: error
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@ee02a1537ce3071a004a6b08c41e72f0fdc42d9a  # v3.4.0
+        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
@@ -140,7 +140,7 @@ jobs:
           twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
@@ -154,7 +154,7 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@ee02a1537ce3071a004a6b08c41e72f0fdc42d9a  # v3.4.0
+        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
@@ -188,7 +188,7 @@ jobs:
           twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
@@ -216,7 +216,7 @@ jobs:
 
       - name: Upload cuda-python build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: cuda-python-wheel
           path: cuda_python/*.whl
@@ -257,7 +257,7 @@ jobs:
           popd
 
       - name: Upload cuda.bindings Cython tests
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
@@ -271,7 +271,7 @@ jobs:
           popd
 
       - name: Upload cuda.core Cython tests
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
