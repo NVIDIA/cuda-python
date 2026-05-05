@@ -312,6 +312,7 @@ cdef class GraphBuilder:
 
         cdef cydriver.CUstream c_stream = as_cu(self._h_stream)
         cdef cydriver.CUgraph c_graph
+        cdef cydriver.CUstreamCaptureStatus c_status
         if self._kind == CONDITIONAL_BODY:
             c_graph = as_cu(self._h_graph)
             with nogil:
@@ -320,7 +321,10 @@ cdef class GraphBuilder:
         else:
             with nogil:
                 HANDLE_RETURN(cydriver.cuStreamBeginCapture(c_stream, c_mode))
-                _get_capture_info(c_stream, NULL, &c_graph)
+                # The driver rejects NULL captureStatus_out, so we pass a
+                # stack-local even though begin_capture just succeeded and we
+                # only care about the resulting graph handle.
+                _get_capture_info(c_stream, &c_status, &c_graph)
             self._h_graph = create_graph_handle(c_graph)
         self._state = CAPTURING
         return self
@@ -767,6 +771,13 @@ cdef inline int _get_capture_info(
         cydriver.CUstream stream,
         cydriver.CUstreamCaptureStatus* status,
         cydriver.CUgraph* graph) except?-1 nogil:
+    """Thin wrapper around ``cuStreamGetCaptureInfo`` that papers over the
+    CUDA 12 vs 13 signature change.
+
+    ``status`` must be non-NULL: the driver rejects ``captureStatus_out=NULL``
+    with ``CUDA_ERROR_INVALID_VALUE``. ``graph`` may be NULL when the caller
+    does not need the graph handle.
+    """
     IF CUDA_CORE_BUILD_MAJOR >= 13:
         return HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
             stream, status, NULL, graph, NULL, NULL, NULL))
