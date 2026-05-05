@@ -23,7 +23,7 @@ from cuda.core._resource_handles cimport (
     set_deallocation_stream,
 )
 
-from cuda.core._stream cimport Stream, Stream_accept
+from cuda.core._stream cimport Stream, Stream_accept, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
@@ -124,7 +124,11 @@ cdef class Buffer:
 
     @staticmethod
     def _reduce_helper(mr, ipc_descriptor):
-        return Buffer.from_ipc_descriptor(mr, ipc_descriptor)
+        # The parent process's stream is not portable across processes, so the
+        # pickle path cannot thread an explicit stream through. Seed the
+        # imported buffer's deallocation with the current context's default
+        # stream; the receiver can override via buffer.close(stream).
+        return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self):
         # Must not serialize the parent's stream!
