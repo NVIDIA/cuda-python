@@ -28,16 +28,26 @@ def _worker_write_many(root: str, base: int, n: int) -> None:
             cache[key] = f"payload-{base}-{i}".encode()
 
 
-def _worker_reader(root: str, key: bytes, rounds: int, result_queue) -> None:
+def _worker_reader(root: str, key: bytes, expected: bytes, rounds: int, result_queue) -> None:
+    """Hit ``cache.get(key)`` ``rounds`` times and report (hits, mismatches).
+
+    A mismatch means a read returned non-``None`` but the bytes differed
+    from ``expected`` -- that's the torn-file case the cache must never
+    expose.
+    """
     from cuda.core.utils import FileStreamProgramCache
 
     hits = 0
+    mismatches = 0
     for _ in range(rounds):
         with FileStreamProgramCache(root) as cache:
             got = cache.get(key)
-            if got is not None:
-                hits += 1
-    result_queue.put(hits)
+            if got is None:
+                continue
+            hits += 1
+            if got != expected:
+                mismatches += 1
+    result_queue.put((hits, mismatches))
 
 
 def test_concurrent_writers_same_key_no_corruption(tmp_path):
@@ -93,22 +103,26 @@ def test_concurrent_reader_never_sees_torn_file(tmp_path):
     root = str(tmp_path / "fc")
     # Seed 'k' so the reader can hit; the writer writes unrelated keys so 'k'
     # is never overwritten while the reader is active.
+    seed = b"seed" * 256
     with FileStreamProgramCache(root) as cache:
-        cache[b"k"] = b"seed" * 256
+        cache[b"k"] = seed
 
     ctx = _mp.get_context("spawn")
     queue = ctx.Queue()
     writer = ctx.Process(target=_worker_write_many, args=(root, 99, 50))
-    reader = ctx.Process(target=_worker_reader, args=(root, b"k", 200, queue))
+    reader = ctx.Process(target=_worker_reader, args=(root, b"k", seed, 200, queue))
     reader.start()
     writer.start()
     writer.join(timeout=60)
     reader.join(timeout=60)
     assert writer.exitcode == 0
     assert reader.exitcode == 0
-    hits = queue.get(timeout=5)
-    # 'k' was never overwritten, so every read must hit.
+    hits, mismatches = queue.get(timeout=5)
+    # 'k' was never overwritten, so every read must hit AND every hit must
+    # carry the seeded bytes verbatim -- a half-written file would land in
+    # mismatches.
     assert hits == 200
+    assert mismatches == 0
 
 
 def _worker_size_cap_writer(root: str, prefix: bytes, payload: bytes, count: int, max_size_bytes: int) -> None:
@@ -121,9 +135,7 @@ def _worker_size_cap_writer(root: str, prefix: bytes, payload: bytes, count: int
 
 
 def _worker_size_cap_rewriter(root: str, key: bytes, payload: bytes, max_size_bytes: int, done_event) -> None:
-    """Repeatedly rewrite ``key`` with a fresh value until ``done_event`` fires;
-    afterwards land one final uncontested write so the test's end-state assertion
-    isn't sensitive to scheduler-dependent interleaving."""
+    """Repeatedly rewrite ``key`` with a fresh value until ``done_event`` fires."""
     from cuda.core.utils import FileStreamProgramCache
 
     with FileStreamProgramCache(root, max_size_bytes=max_size_bytes) as cache:
@@ -131,7 +143,6 @@ def _worker_size_cap_rewriter(root: str, key: bytes, payload: bytes, max_size_by
         while not done_event.is_set():
             cache[key] = payload + str(i).encode()
             i += 1
-        cache[key] = payload + b"final"
 
 
 def test_concurrent_eviction_does_not_delete_replaced_file(tmp_path):
@@ -139,7 +150,11 @@ def test_concurrent_eviction_does_not_delete_replaced_file(tmp_path):
     bring the cache under its size cap, another process may have already
     ``os.replace``-d a fresh value into the same path. The evictor must
     refuse to unlink in that case, otherwise the racing rewriter's
-    just-committed entry vanishes."""
+    just-committed entry vanishes.
+
+    The rewriter does NO post-race uncontested write -- the entry's
+    survival has to come from the in-race rewrites being preserved by
+    the stat-guarded eviction path."""
     from cuda.core.utils import FileStreamProgramCache
 
     root = str(tmp_path / "fc")
@@ -166,9 +181,12 @@ def test_concurrent_eviction_does_not_delete_replaced_file(tmp_path):
     assert rewriter.exitcode == 0
     assert churner.exitcode == 0
 
-    # The rewriter's final uncontested write must survive: if eviction
-    # blindly unlinked replaced files, this entry would be gone.
+    # If eviction blindly unlinked replaced files, the rewriter's last
+    # in-race write would be gone -- there is no post-race write to mask
+    # the failure. The value must also start with ``payload`` (not a
+    # ``churn-`` value) because each rewriter iteration writes
+    # ``payload + str(i).encode()``.
     with FileStreamProgramCache(root, max_size_bytes=cap) as cache:
         got = cache.get(b"survivor")
         assert got is not None, "rewriter's entry was evicted by racing churner"
-        assert got.endswith(b"final")
+        assert got.startswith(payload), f"survivor value not from rewriter: {got[:32]!r}..."
