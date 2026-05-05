@@ -1443,6 +1443,11 @@ def test_set_get_parameter_bool():
         (cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, True),
     )
     param_val_pairs = tuple((p, v) for p, v in param_val_pairs if p not in _COMPAT_PARAMS)
+    # PROFILE_NVTX is deprecated (CTK 13.1.0+); cuFile >= 1.16 rejects bool getters for it.
+    if cufile.get_version() >= 1160:
+        param_val_pairs = tuple(
+            (p, v) for p, v in param_val_pairs if p is not cufile.BoolConfigParameter.PROFILE_NVTX
+        )
 
     cufile.driver_open()
     try:
@@ -1457,14 +1462,9 @@ def test_set_get_parameter_bool():
         assert retrieved_val is val
         cufile.set_parameter_bool(param, orig_val)
 
-    try:
-        # Test setting and getting various boolean parameters
-        for param, val in param_val_pairs:
-            test_param(param, val)
-    except cufile.cuFileError:
-        if cufile.get_version() < 1160:
-            raise
-        assert param is cufile.BoolConfigParameter.PROFILE_NVTX  # Deprecated in CTK 13.1.0
+    # Test setting and getting various boolean parameters
+    for param, val in param_val_pairs:
+        test_param(param, val)
 
 
 @pytest.mark.skipif(
