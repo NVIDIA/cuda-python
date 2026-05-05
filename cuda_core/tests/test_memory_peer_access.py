@@ -308,16 +308,15 @@ def test_peer_accessible_by_returns_proxy_type(isolated_dmr_x2):
 # ---------------------------------------------------------------------------
 
 
-class _DiffSpy:
-    """Counts batched driver calls and forwards each call to the real wrapper.
+class _DriverCallSpy:
+    """Records every actual ``cuMemPoolSetAccess`` invocation.
 
-    Only invocations with non-empty deltas are recorded in :attr:`calls`,
-    because those are the ones that translate to actual ``cuMemPoolSetAccess``
-    work. The wrapper still gets called with empty deltas in a few places
-    (e.g. the property setter when the requested target matches current
-    driver state), but the underlying ``cdef inline`` short-circuits before
-    issuing the driver call, so those invocations do not count against the
-    "one call per bulk op" contract.
+    Spies on :func:`cuda.core._memory._peer_access_utils._set_pool_access` —
+    the thin Python-visible wrapper that builds the descriptor array and
+    issues the single driver call. Earlier no-op layers (e.g. the
+    augmented-assignment-on-property quirk that reassigns an already-mutated
+    proxy back through the setter) short-circuit before reaching here, so the
+    recorded count is exactly the number of real ``cuMemPoolSetAccess`` calls.
     """
 
     def __init__(self, real):
@@ -325,87 +324,89 @@ class _DiffSpy:
         self.calls = []
 
     def __call__(self, mr, to_add, to_remove):
-        recorded_add = tuple(to_add)
-        recorded_remove = tuple(to_remove)
-        if recorded_add or recorded_remove:
-            self.calls.append((recorded_add, recorded_remove))
+        self.calls.append((tuple(to_add), tuple(to_remove)))
         self._real(mr, to_add, to_remove)
 
 
 @pytest.fixture
-def diff_spy(monkeypatch):
-    spy = _DiffSpy(_peer_access_utils._apply_peer_access_diff)
-    monkeypatch.setattr(_peer_access_utils, "_apply_peer_access_diff", spy)
+def driver_spy(monkeypatch):
+    spy = _DriverCallSpy(_peer_access_utils._set_pool_access)
+    monkeypatch.setattr(_peer_access_utils, "_set_pool_access", spy)
     return spy
 
 
-def test_peer_accessible_by_setter_batches_one_call(diff_spy, isolated_dmr_x2):
+def test_peer_accessible_by_setter_batches_one_call(driver_spy, isolated_dmr_x2):
     """``mr.peer_accessible_by = [...]`` issues exactly one driver call (or zero on no-op)."""
     dmr, dev0, dev1 = isolated_dmr_x2
     dmr.peer_accessible_by = [dev1]
-    assert len(diff_spy.calls) == 1
-    assert dev1.device_id in diff_spy.calls[-1][0]
+    assert len(driver_spy.calls) == 1
+    assert dev1.device_id in driver_spy.calls[-1][0]
 
     # Reassigning the same set is a no-op (zero driver calls).
-    diff_spy.calls.clear()
+    driver_spy.calls.clear()
     dmr.peer_accessible_by = [dev1]
-    assert diff_spy.calls == []
+    assert driver_spy.calls == []
 
     # Revoking everything is a single call (one removal).
     dmr.peer_accessible_by = []
-    assert len(diff_spy.calls) == 1
-    assert dev1.device_id in diff_spy.calls[-1][1]
+    assert len(driver_spy.calls) == 1
+    assert dev1.device_id in driver_spy.calls[-1][1]
 
 
-def test_peer_accessible_by_bulk_ops_batch_one_call(diff_spy, isolated_dmr_x2):
-    """``|=``/``&=``/``-=``/``^=``/``update``/``clear`` each issue at most one driver call.
+def test_peer_accessible_by_bulk_ops_batch_one_call(driver_spy, isolated_dmr_x2):
+    """Every bulk op issues exactly one ``cuMemPoolSetAccess`` (or zero on no-op).
 
-    .. note::
-       ``proxy = dmr.peer_accessible_by; proxy |= {...}`` is exactly one driver
-       call. Augmented assignment directly on the property
-       (``dmr.peer_accessible_by |= {...}``) is two operations because Python
-       fetches the proxy, mutates it, and then assigns the (already-mutated)
-       proxy back through the setter; that final assignment is a no-op at the
-       driver level (deltas come out empty), but it is two trips through the
-       proxy/setter machinery. The spy filters out empty-delta calls so the
-       invariant under test is "actual driver work" rather than that
-       Python-level quirk.
+    Covers ``|=``, ``&=``, ``^=``, ``update``, ``difference_update``, and
+    ``clear``. Both operand styles are exercised: a locally bound proxy
+    (``proxy |= {...}``) and augmented assignment directly on the property
+    (``dmr.peer_accessible_by |= {...}``). The latter trips Python's
+    augmented-assignment-on-property pattern (fetch proxy, mutate, write
+    back through setter) but the trailing setter call discovers an empty
+    diff and short-circuits before reaching the driver, so the count is
+    still one.
     """
     dmr, dev0, dev1 = isolated_dmr_x2
-    proxy = dmr.peer_accessible_by  # use the local-binding form for predictable counting
+    proxy = dmr.peer_accessible_by
 
     proxy |= {dev1}
-    assert len(diff_spy.calls) == 1
-    diff_spy.calls.clear()
+    assert len(driver_spy.calls) == 1
+    driver_spy.calls.clear()
 
     # &= keeping the lone member: no driver call (no diff).
     proxy &= {dev1}
-    assert diff_spy.calls == []
+    assert driver_spy.calls == []
 
     # &= dropping the lone member: one removal.
     proxy &= {dev0}
-    assert len(diff_spy.calls) == 1
-    diff_spy.calls.clear()
+    assert len(driver_spy.calls) == 1
+    driver_spy.calls.clear()
 
     # ^= toggling the lone peer in then out: two ops, one call each.
     proxy ^= {dev1}
-    assert len(diff_spy.calls) == 1
+    assert len(driver_spy.calls) == 1
     proxy ^= {dev1}
-    assert len(diff_spy.calls) == 2
-    diff_spy.calls.clear()
+    assert len(driver_spy.calls) == 2
+    driver_spy.calls.clear()
 
     # update() with the peer already absent: one add.
     proxy.update([dev1])
-    assert len(diff_spy.calls) == 1
-    diff_spy.calls.clear()
+    assert len(driver_spy.calls) == 1
+    driver_spy.calls.clear()
 
     # clear() with one member: one removal.
     proxy.clear()
-    assert len(diff_spy.calls) == 1
-    diff_spy.calls.clear()
+    assert len(driver_spy.calls) == 1
+    driver_spy.calls.clear()
 
     # Already-empty bulk ops are no-ops (nothing to add or remove).
     proxy.clear()
     proxy.difference_update([dev1])
     proxy -= {dev1}
-    assert diff_spy.calls == []
+    assert driver_spy.calls == []
+
+    # Augmented assignment directly on the property is also one driver call:
+    # the proxy mutates the pool via __ior__, the setter writes back an
+    # already-up-to-date proxy, and the empty-diff short-circuit prevents a
+    # second driver call.
+    dmr.peer_accessible_by |= {dev1}
+    assert len(driver_spy.calls) == 1

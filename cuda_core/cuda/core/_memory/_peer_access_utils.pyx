@@ -122,16 +122,21 @@ cdef inline bint _peer_access_includes(DeviceMemoryResource mr, int dev_id):
     return flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
 
 
-cdef inline _apply_peer_access_diff_cython(
-    DeviceMemoryResource mr, tuple to_add, tuple to_remove
-):
-    """Issue one ``cuMemPoolSetAccess`` for the given add/remove deltas."""
+def _set_pool_access(mr, tuple to_add, tuple to_remove):
+    """Issue one ``cuMemPoolSetAccess`` for the given add/remove deltas.
+
+    The thin Python-callable layer that wraps the actual driver call: building
+    the ``CUmemAccessDesc`` array and invoking ``cuMemPoolSetAccess`` happens
+    in here. Tests monkeypatch this on the module to spy on real driver work
+    without intercepting earlier no-op paths.
+
+    Preconditions: ``len(to_add) + len(to_remove) > 0`` (the caller is
+    responsible for skipping empty diffs).
+    """
+    cdef DeviceMemoryResource mr_typed = <DeviceMemoryResource>mr
     cdef size_t count = len(to_add) + len(to_remove)
     cdef cydriver.CUmemAccessDesc* access_desc = NULL
     cdef size_t i = 0
-
-    if count == 0:
-        return
 
     access_desc = <cydriver.CUmemAccessDesc*>PyMem_Malloc(count * sizeof(cydriver.CUmemAccessDesc))
     if access_desc == NULL:
@@ -150,21 +155,25 @@ cdef inline _apply_peer_access_diff_cython(
             i += 1
 
         with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(mr._h_pool), access_desc, count))
+            HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(mr_typed._h_pool), access_desc, count))
     finally:
         if access_desc != NULL:
             PyMem_Free(access_desc)
 
 
 def _apply_peer_access_diff(mr, to_add, to_remove):
-    """Python-visible wrapper around the cdef inline implementation.
+    """Apply a peer-access diff in at most one driver call.
 
     Every write path on :class:`PeerAccessibleBySetProxy` and the
-    ``peer_accessible_by`` setter route through this function so tests can
-    intercept it via ``monkeypatch.setattr`` on the module to assert the
-    "exactly one ``cuMemPoolSetAccess`` per bulk op" batching contract.
+    ``peer_accessible_by`` setter routes through this function. Empty diffs
+    short-circuit here so the driver-level helper :func:`_set_pool_access` is
+    only invoked when there is actual work for ``cuMemPoolSetAccess`` to do.
     """
-    _apply_peer_access_diff_cython(<DeviceMemoryResource>mr, tuple(to_add), tuple(to_remove))
+    add_tuple = tuple(to_add)
+    remove_tuple = tuple(to_remove)
+    if not add_tuple and not remove_tuple:
+        return
+    _set_pool_access(mr, add_tuple, remove_tuple)
 
 
 cpdef replace_peer_accessible_by(DeviceMemoryResource mr, devices):
