@@ -84,11 +84,11 @@
   "/": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options1]|setup",
   ":": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options2]|setup",
   ";": "tests/test_nvvm.py::test_get_error_string|run",
-  "=": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|run",
+  "=": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|run",
   "?": "tests/test_object_protocols.py::test_repr_format[sample_program_nvvm-<Program backend='NVVM'>]|teardown",
   "@": "tests/test_program.py::test_bitcode_format[bitcode_static]|setup",
   "[": "tests/test_program.py::test_bitcode_format[txt]|setup",
-  "]": "tests/test_program.py::test_nvvm_program_options[options3-ltoir]|setup"
+  "]": "tests/test_program.py::test_nvvm_program_options[options5-ptx]|setup"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -151,7 +151,7 @@
             <a id="nextFileLink" class="nav" href="z_1c6fa6fde3f60f5e_utils_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-04 01:24 +0000
+            created at 2026-05-05 01:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -362,8 +362,8 @@
     <p class="pln"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">cdef inline int _check_or_init_nvvm() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs196" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">    if __py_nvvm_init:</span>&nbsp;</span><input type="checkbox" id="ctxs197"><span class="r"><label for="ctxs197" class="ctx">82 ctx</label></span><span class="ctxs">1a=YZj5k6l7m8noWXb9c!d#e$f%g'h(i)0MN;*23O+P,Q-R.S/T:4?w@x[U1VyzABCDE]FGHIJKLuvpqrst</span></p>
-    <p class="run"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs198"><span class="r"><label for="ctxs198" class="ctx">82 ctx</label></span><span class="ctxs">1a=YZj5k6l7m8noWXb9c!d#e$f%g'h(i)0MN;*23O+P,Q-R.S/T:4?w@x[U1VyzABCDE]FGHIJKLuvpqrst</span></p>
+    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">    if __py_nvvm_init:</span>&nbsp;</span><input type="checkbox" id="ctxs197"><span class="r"><label for="ctxs197" class="ctx">82 ctx</label></span><span class="ctxs">1a=YZj5k6l7m8noWXb9c!d#e$f%g'h(i)0MN;*23O+P,Q-R.S/T:4?w@x[U1VyzABCDEFGHIJ]KLuvpqrst</span></p>
+    <p class="run"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs198"><span class="r"><label for="ctxs198" class="ctx">82 ctx</label></span><span class="ctxs">1a=YZj5k6l7m8noWXb9c!d#e$f%g'h(i)0MN;*23O+P,Q-R.S/T:4?w@x[U1VyzABCDEFGHIJ]KLuvpqrst</span></p>
     <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">    return _init_nvvm()</span>&nbsp;</span><span class="r"><label for="ctxs200" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -583,7 +583,7 @@
             <a class="nav" href="z_1c6fa6fde3f60f5e_utils_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-04 01:24 +0000
+            created at 2026-05-05 01:26 +0000
         </p>
     </div>
 </footer>
