@@ -1,17 +1,6 @@
-﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-.. SPDX-License-Identifier: Apache-2.0
-
-cuda.core.system.GpuP2PCapsIndex
+﻿cuda.core.system.GpuP2PCapsIndex
 ================================
 
 .. currentmodule:: cuda.core.system
 
-.. autoclass:: GpuP2PCapsIndex
-
-   
-   
-   
-
-   
-   
-   
+.. autoenum:: GpuP2PCapsIndex
