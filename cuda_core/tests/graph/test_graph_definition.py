@@ -386,7 +386,7 @@ def _build_host_callback_node(g):
 
     node = g.callback(my_callback)
     return node, {
-        "callback_fn": lambda v: v is my_callback,
+        "callback": lambda v: v is my_callback,
     }
 
 
