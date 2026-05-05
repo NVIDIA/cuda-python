@@ -228,6 +228,7 @@ def _advise_one(Buffer buf, advice, location):
     Used by :class:`ManagedBuffer` property setters. Not part of the
     public API.
     """
+    _require_managed_buffer(buf, "advise")
     cdef str advice_name
     cdef object advice_value
     advice_name, advice_value = _normalize_managed_advice(advice)
@@ -238,7 +239,6 @@ def _advise_one(Buffer buf, advice, location):
         raise ValueError(
             f"advise '{advice_name}' does not support location_type='{loc.kind}'"
         )
-    _require_managed_buffer(buf, "advise")
     _do_single_advise(buf, advice_value, loc, allow_none)
 
 
