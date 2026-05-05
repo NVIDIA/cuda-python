@@ -1,70 +1,63 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Reusable helpers to verify collections.abc protocol conformance."""
+"""Reusable helpers to verify collections.abc protocol conformance.
+
+Two helpers are provided for ``MutableSet``-like subjects, picked by the
+capacity of the backing store:
+
+- :func:`assert_mutable_set_interface` is the standard pass; it requires at
+  least five distinct insertable items so every method (including the
+  multi-element bulk operators) can be exercised.
+- :func:`assert_single_member_mutable_set_interface` is a focused pass for
+  proxies whose backing store admits at most one insertable element at a time
+  (for example, a peer-access view on a system with one valid peer device).
+  It runs every ``MutableSet`` method at least once using a single member and
+  one non-member sentinel.
+
+The two helpers are intentionally separate rather than one helper with a
+mode flag: a single-member proxy is a substantially different contract
+("capacity one, by hardware") and naming it explicitly in the API keeps each
+helper's signature small and its assertions linear.
+"""
 
 from collections.abc import MutableSet, Set
 
 import pytest
 
 
-def assert_mutable_set_interface(
-    subject,
-    items,
-    *,
-    non_members=None,
-    support_multi_insert=True,
-):
+def _assert_empty(subject):
+    """Assertions that hold for any empty MutableSet-like subject."""
+    assert isinstance(subject, Set)
+    assert isinstance(subject, MutableSet)
+    assert len(subject) == 0
+    assert subject == set()
+    assert list(subject) == []
+
+
+def _assert_repr_nonempty(subject):
+    """``__repr__`` produces a non-empty string."""
+    r = repr(subject)
+    assert isinstance(r, str)
+    assert len(r) > 0
+
+
+def assert_mutable_set_interface(subject, items):
     """Exercise every MutableSet method on *subject* against a reference set.
-
-    Two modes are supported:
-
-    - ``support_multi_insert=True`` (default): the standard protocol pass that
-      inserts up to five distinct elements simultaneously. Use this whenever
-      the subject can hold an arbitrary number of items.
-    - ``support_multi_insert=False``: a reduced pass for proxies whose backing
-      store admits at most one insertable element at a time (e.g. a peer-access
-      view on a 2-GPU system). The subject only ever holds ``{}`` or ``{a}``,
-      and ``non_members`` supplies sentinel values used as the *other* side of
-      comparisons, ``isdisjoint``, subset/superset, and binary/in-place
-      operators. Every ``MutableSet`` method is still exercised at least once.
 
     Parameters
     ----------
     subject : MutableSet
         An **empty** mutable-set-like object to test.
     items : sequence
-        Distinct, hashable objects valid for insertion into *subject*. With
-        ``support_multi_insert=True`` at least five are required; with
-        ``support_multi_insert=False`` exactly one is needed (extras ignored).
-    non_members : sequence, optional
-        Distinct, hashable values that compare equal across set semantics but
-        are guaranteed *never* to be inserted into *subject* (typically because
-        the backing store rejects them). Required and used only when
-        ``support_multi_insert=False``; at least two are needed there.
+        At least five distinct, hashable objects valid for insertion into
+        *subject*.
     """
-    if support_multi_insert:
-        _assert_mutable_set_interface_multi(subject, items)
-    else:
-        if non_members is None:
-            raise TypeError("non_members is required when support_multi_insert=False")
-        _assert_mutable_set_interface_single(subject, items, non_members)
-
-
-def _assert_mutable_set_interface_multi(subject, items):
     assert len(items) >= 5
     a, b, c, d, e = items[:5]
     ref = set()
 
-    # -- ABC conformance --
-    assert isinstance(subject, Set)
-    assert isinstance(subject, MutableSet)
-
-    # -- empty state --
-    assert len(subject) == 0
-    assert subject == ref
-    assert subject == set()
-    assert list(subject) == []
+    _assert_empty(subject)
 
     # -- add --
     subject.add(a)
@@ -169,39 +162,37 @@ def _assert_mutable_set_interface_multi(subject, items):
     # -- __iter__ --
     assert set(subject) == ref
 
-    # -- __repr__ --
-    r = repr(subject)
-    assert isinstance(r, str)
-    assert len(r) > 0
+    _assert_repr_nonempty(subject)
 
 
-def _assert_mutable_set_interface_single(subject, items, non_members):
-    """Reduced protocol pass for subjects that admit at most one insertable element.
+def assert_single_member_mutable_set_interface(subject, member, non_member):
+    """Exercise every MutableSet method on a subject with capacity one.
 
-    Invariants:
-    - ``a`` is the lone insertable element; the subject only ever holds ``{}``
-      or ``{a}``.
-    - ``x``, ``y`` are sentinels guaranteed *not* to be inserted; they appear
-      only on the right-hand side of operators and comparisons. They must
-      compare correctly under set semantics (i.e. equality and hashing).
+    Use this for proxies whose backing store admits at most one insertable
+    element at a time (typically because the underlying resource is bounded
+    by hardware, e.g. a peer-access view on a system with a single valid
+    peer device). The subject only ever holds ``set()`` or ``{member}``;
+    *non_member* supplies the right-hand side of comparisons, ``isdisjoint``,
+    subset/superset, and binary/in-place operators so every ``MutableSet``
+    method is exercised at least once.
+
+    Parameters
+    ----------
+    subject : MutableSet
+        An **empty** mutable-set-like object to test.
+    member : hashable
+        A distinct, hashable object valid for insertion into *subject*.
+    non_member : hashable
+        A distinct, hashable object that compares correctly under set
+        semantics but is guaranteed never to be inserted into *subject*
+        (typically because the backing store rejects it).
     """
-    assert len(items) >= 1
-    assert len(non_members) >= 2
-    a = items[0]
-    x, y = non_members[:2]
-    assert a != x and a != y and x != y, "items[0] and non_members[:2] must be distinct"
-
+    assert member != non_member, "member and non_member must be distinct"
+    a = member
+    x = non_member
     ref = set()
 
-    # -- ABC conformance --
-    assert isinstance(subject, Set)
-    assert isinstance(subject, MutableSet)
-
-    # -- empty state --
-    assert len(subject) == 0
-    assert subject == ref
-    assert subject == set()
-    assert list(subject) == []
+    _assert_empty(subject)
 
     # -- add --
     subject.add(a)
@@ -222,7 +213,7 @@ def _assert_mutable_set_interface_single(subject, items, non_members):
     assert subject != set()
 
     # -- isdisjoint --
-    assert subject.isdisjoint({x, y})
+    assert subject.isdisjoint({x})
     assert not subject.isdisjoint({a, x})
 
     # -- subset / superset --
@@ -287,16 +278,13 @@ def _assert_mutable_set_interface_single(subject, items, non_members):
     assert subject == ref
 
     # -- in-place intersection (&=) drops the lone member --
-    subject &= {x, y}
-    ref &= {x, y}
-    assert subject == ref
-
-    # -- in-place union via bulk path again, ahead of -= and ^= --
-    subject |= {a}
-    ref |= {a}
+    subject &= {x}
+    ref &= {x}
     assert subject == ref
 
     # -- in-place difference (-=) on non-member is a no-op --
+    subject |= {a}
+    ref |= {a}
     subject -= {x}
     ref -= {x}
     assert subject == ref
@@ -327,7 +315,4 @@ def _assert_mutable_set_interface_single(subject, items, non_members):
     ref.add(a)
     assert set(subject) == ref
 
-    # -- __repr__ --
-    r = repr(subject)
-    assert isinstance(r, str)
-    assert len(r) > 0
+    _assert_repr_nonempty(subject)

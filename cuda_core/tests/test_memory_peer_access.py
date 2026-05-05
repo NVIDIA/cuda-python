@@ -3,7 +3,7 @@
 
 import pytest
 from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch_buffer
-from helpers.collection_interface_testers import assert_mutable_set_interface
+from helpers.collection_interface_testers import assert_single_member_mutable_set_interface
 
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, system
 from cuda.core._memory import _peer_access_utils
@@ -168,19 +168,18 @@ def isolated_dmr_x2(mempool_device_x2):
 
 
 def test_peer_accessible_by_mutable_set_interface(isolated_dmr_x2):
-    """Run the full MutableSet protocol against a single-peer driver-backed view.
+    """Run the MutableSet protocol against a single-peer driver-backed view.
 
-    On a 2-GPU box the proxy can only ever hold ``{dev1}``. The relaxed helper
-    uses ``dev0`` (the owner, which the proxy refuses to insert) as the
-    non-member sentinel; this exercises every ``MutableSet`` method while
-    respecting the proxy's "insert at most one" hardware reality.
+    On a 2-GPU box the proxy can only ever hold ``{dev1}`` because there is a
+    single valid peer. The capacity-one helper exercises every ``MutableSet``
+    method using ``dev1`` as the lone insertable element and ``dev0`` (the
+    owner, which the proxy refuses to insert) as the non-member sentinel.
     """
     dmr, dev0, dev1 = isolated_dmr_x2
-    assert_mutable_set_interface(
+    assert_single_member_mutable_set_interface(
         dmr.peer_accessible_by,
-        items=[dev1],
-        non_members=[dev0, dev0.device_id],
-        support_multi_insert=False,
+        member=dev1,
+        non_member=dev0,
     )
 
 
