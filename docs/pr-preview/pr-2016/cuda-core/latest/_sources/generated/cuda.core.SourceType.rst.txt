@@ -1,6 +1,0 @@
-﻿cuda.core.SourceType
-====================
-
-.. currentmodule:: cuda.core
-
-.. autoenum:: SourceType

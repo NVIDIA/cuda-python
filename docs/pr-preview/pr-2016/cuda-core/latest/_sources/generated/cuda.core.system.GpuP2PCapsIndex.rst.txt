@@ -1,0 +1,6 @@
+﻿cuda.core.system.GpuP2PCapsIndex
+================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: GpuP2PCapsIndex

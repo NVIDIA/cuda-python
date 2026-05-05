@@ -1,6 +1,0 @@
-﻿cuda.core.ManagedMemoryLocationType
-===================================
-
-.. currentmodule:: cuda.core
-
-.. autoenum:: ManagedMemoryLocationType

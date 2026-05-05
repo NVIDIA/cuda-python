@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8e29cc3c"></script>
+    <script src="../_static/documentation_options.js?v=66336ffe"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev89';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev86';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -560,27 +560,8 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.AddressingMode.html">cuda.core.system.AddressingMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.AffinityScope.html">cuda.core.system.AffinityScope</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ClockId.html">cuda.core.system.ClockId</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ClocksEventReasons.html">cuda.core.system.ClocksEventReasons</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ClockType.html">cuda.core.system.ClockType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CoolerControl.html">cuda.core.system.CoolerControl</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CoolerTarget.html">cuda.core.system.CoolerTarget</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArch.html">cuda.core.system.DeviceArch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.EventType.html">cuda.core.system.EventType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FanControlPolicy.html">cuda.core.system.FanControlPolicy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.InforomObject.html">cuda.core.system.InforomObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkVersion.html">cuda.core.system.NvlinkVersion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.PcieUtilCounter.html">cuda.core.system.PcieUtilCounter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Pstates.html">cuda.core.system.Pstates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.TemperatureSensors.html">cuda.core.system.TemperatureSensors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.TemperatureThresholds.html">cuda.core.system.TemperatureThresholds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ThermalController.html">cuda.core.system.ThermalController</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
@@ -671,16 +652,16 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">VirtualMemoryResourceOptions</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">allocation_type:</span> <span class="pre">~cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryAllocationType.PINNED</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">location_type:</span> <span class="pre">~cuda.core._memory._virtual_memory_resource.VirtualMemoryLocationType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryLocationType.DEVICE</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">handle_type:</span> <span class="pre">~cuda.core._memory._virtual_memory_resource.VirtualMemoryHandleType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryHandleType.POSIX_FD</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">granularity:</span> <span class="pre">~cuda.core._memory._virtual_memory_resource.VirtualMemoryGranularityType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryGranularityType.RECOMMENDED</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">allocation_type:</span> <span class="pre">~cuda.core.typing.VirtualMemoryAllocationType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryAllocationType.PINNED</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">location_type:</span> <span class="pre">~cuda.core.typing.VirtualMemoryLocationType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryLocationType.DEVICE</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">handle_type:</span> <span class="pre">~cuda.core.typing.VirtualMemoryHandleType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryHandleType.POSIX_FD</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">granularity:</span> <span class="pre">~cuda.core.typing.VirtualMemoryGranularityType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryGranularityType.RECOMMENDED</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">gpu_direct_rdma:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">addr_hint:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">0</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">addr_align:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">peers:</span> <span class="pre">~typing.Iterable[int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">self_access:</span> <span class="pre">~cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryAccessType.READ_WRITE</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">peer_access:</span> <span class="pre">~cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryAccessType.READ_WRITE</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">self_access:</span> <span class="pre">~cuda.core.typing.VirtualMemoryAccessType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryAccessType.READ_WRITE</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">peer_access:</span> <span class="pre">~cuda.core.typing.VirtualMemoryAccessType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryAccessType.READ_WRITE</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.VirtualMemoryResourceOptions" title="Link to this definition">#</a></dt>
@@ -785,7 +766,7 @@ Use <cite>None</cite> if you don’t need an exportable handle.</p>
 <dd><p>Access flags for the owning device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAccessType</span></code> | str</p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAccessType</span></code> | None | str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -796,7 +777,7 @@ Use <cite>None</cite> if you don’t need an exportable handle.</p>
 <dd><p>Access flags for peers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAccessType</span></code> | str</p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAccessType</span></code> | None | str</p>
 </dd>
 </dl>
 </dd></dl>

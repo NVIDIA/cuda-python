@@ -1,6 +1,0 @@
-﻿cuda.core.CodeType
-==================
-
-.. currentmodule:: cuda.core
-
-.. autoenum:: CodeType

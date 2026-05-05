@@ -1,0 +1,6 @@
+﻿cuda.core.typing.SourceType
+===========================
+
+.. currentmodule:: cuda.core.typing
+
+.. autoenum:: SourceType

@@ -201,33 +201,6 @@ Events
    system.register_events
    system.SystemEventType
 
-Enums
-`````
-
-.. autosummary::
-   :toctree: generated/
-
-   system.AddressingMode
-   system.AffinityScope
-   system.BrandType
-   system.ClockId
-   system.ClocksEventReasons
-   system.ClockType
-   system.CoolerControl
-   system.CoolerTarget
-   system.DeviceArch
-   system.EventType
-   system.FanControlPolicy
-   system.FieldId
-   system.InforomObject
-   system.NvlinkVersion
-   system.PcieUtilCounter
-   system.Pstates
-   system.TemperatureSensors
-   system.TemperatureThresholds
-   system.ThermalController
-   system.ThermalTarget
-
 Types
 `````
 
@@ -237,6 +210,7 @@ Types
    :template: autosummary/cyclass.rst
 
    system.Device
+   system.NvlinkInfo
 
 .. module:: cuda.core.utils
 
