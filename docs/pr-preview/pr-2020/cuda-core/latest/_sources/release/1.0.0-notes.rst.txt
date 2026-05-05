@@ -122,8 +122,7 @@ Breaking changes
   - :meth:`MemoryResource.allocate` / :meth:`MemoryResource.deallocate`
     and overrides on :class:`DeviceMemoryResource`,
     :class:`PinnedMemoryResource`, :class:`ManagedMemoryResource`,
-    :class:`LegacyPinnedMemoryResource`, and
-    :class:`graph.GraphMemoryResource`.
+    and :class:`graph.GraphMemoryResource`.
   - :meth:`Device.allocate`.
   - :meth:`GraphicsResource.map`.
   - :meth:`KernelOccupancy.max_potential_cluster_size` and
@@ -131,8 +130,10 @@ Breaking changes
   - :meth:`Buffer.from_ipc_descriptor` (no longer falls back to the default
     stream when ``stream=None`` is passed).
 
-  :class:`VirtualMemoryResource` is exempt; it now accepts and validates
-  an optional stream instead of rejecting any non-``None`` value.
+  Synchronous memory resources are exempt: their allocate/deallocate
+  methods accept an optional ``stream`` (validated when non-``None``)
+  but do not use it. This applies to :class:`LegacyPinnedMemoryResource`
+  and :class:`VirtualMemoryResource`.
 
 
 Fixes and enhancements
