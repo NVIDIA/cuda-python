@@ -18,6 +18,7 @@ CUDA runtime
 
    typing.DevicePointerT
    typing.DeviceResourcesT
+   typing.ProcessStateT
    _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
    _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
    _memory._virtual_memory_resource.VirtualMemoryGranularityT

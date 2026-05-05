@@ -28,7 +28,7 @@ _import_versioned_module()
 del _import_versioned_module
 
 
-from cuda.core import system, utils
+from cuda.core import checkpoint, system, utils
 from cuda.core._context import Context, ContextOptions
 from cuda.core._device import Device
 from cuda.core._device_resources import (
