@@ -9,7 +9,7 @@ from typing import Any as _Any
 from cuda.core._utils.cuda_utils import handle_return as _handle_cuda_return
 from cuda.core._utils.version import binding_version as _binding_version
 from cuda.core._utils.version import driver_version as _driver_version
-from cuda.core.typing import ProcessStateT as _ProcessStateT
+from cuda.core.typing import ProcessStateType as _ProcessStateType
 
 try:
     from cuda.bindings import driver as _driver
@@ -17,7 +17,7 @@ except ImportError:
     from cuda import cuda as _driver
 
 
-_PROCESS_STATE_NAME_ATTRS: tuple[tuple[str, _ProcessStateT], ...] = (
+_PROCESS_STATE_NAME_ATTRS: tuple[tuple[str, _ProcessStateType], ...] = (
     ("CU_PROCESS_STATE_RUNNING", "running"),
     ("CU_PROCESS_STATE_LOCKED", "locked"),
     ("CU_PROCESS_STATE_CHECKPOINTED", "checkpointed"),
@@ -63,7 +63,7 @@ class Process:
         return self._pid
 
     @property
-    def state(self) -> _ProcessStateT:
+    def state(self) -> _ProcessStateType:
         """
         CUDA checkpoint state for this process.
         """
@@ -164,7 +164,7 @@ def _binding_version_supports_checkpoint(version) -> bool:
     return (major == 12 and (minor, patch) >= (8, 0)) or (major == 13 and (minor, patch) >= (0, 2)) or major > 13
 
 
-def _get_process_state_names(driver) -> dict[_Any, _ProcessStateT]:
+def _get_process_state_names(driver) -> dict[_Any, _ProcessStateType]:
     return {getattr(driver.CUprocessState, attr): state_name for attr, state_name in _PROCESS_STATE_NAME_ATTRS}
 
 

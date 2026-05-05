@@ -382,7 +382,7 @@ class TestInputValidation:
 
     def test_public_symbols(self):
         assert checkpoint.__all__ == ["Process"]
-        assert not hasattr(checkpoint, "ProcessStateT")
+        assert not hasattr(checkpoint, "ProcessStateType")
 
     def test_pid_is_read_only(self):
         proc = checkpoint.Process(1)

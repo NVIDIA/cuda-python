@@ -15,6 +15,7 @@ import pytest
 
 import cuda.core
 import cuda.core.typing
+from cuda.bindings import driver
 from cuda.core import system
 
 if sys.version_info >= (3, 11):
@@ -41,8 +42,63 @@ _MODULES = [cuda.core.typing]
 # and conversely that every str_enum member not in str_enum_unmapped also
 # appears.
 
-_CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = []
-
+_CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
+    (
+        driver.CUgraphConditionalNodeType,
+        cuda.core.typing.GraphConditionalType,
+        None,
+        set(),
+        set(),
+    ),
+    (
+        driver.CUmemLocationType,
+        cuda.core.typing.ManagedMemoryLocationType,
+        None,
+        # We have some explicitly unsupported memory location types
+        {
+            "CU_MEM_LOCATION_TYPE_NONE",
+            "CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT",
+            "CU_MEM_LOCATION_TYPE_INVISIBLE",
+            "CU_MEM_LOCATION_TYPE_MAX",
+            "CU_MEM_LOCATION_TYPE_INVALID",
+        },
+        set(),
+    ),
+    (
+        driver.CUmemAccess_flags,
+        cuda.core.typing.VirtualMemoryAccessType,
+        cuda.core.VirtualMemoryResourceOptions._access_flags,
+        {"CU_MEM_ACCESS_FLAGS_PROT_NONE", "CU_MEM_ACCESS_FLAGS_PROT_MAX"},
+        set(),
+    ),
+    (
+        driver.CUmemAllocationGranularity_flags,
+        cuda.core.typing.VirtualMemoryGranularityType,
+        cuda.core.VirtualMemoryResourceOptions._granularity,
+        set(),
+        set(),
+    ),
+    (
+        driver.CUmemAllocationHandleType,
+        cuda.core.typing.VirtualMemoryHandleType,
+        cuda.core.VirtualMemoryResourceOptions._handle_types,
+        {"CU_MEM_HANDLE_TYPE_NONE", "CU_MEM_HANDLE_TYPE_WIN32", "CU_MEM_HANDLE_TYPE_MAX"},
+        {"GENERIC"},
+    ),
+    (
+        driver.CUmemLocationType,
+        cuda.core.typing.VirtualMemoryLocationType,
+        None,
+        # We have some explicitly unsupported memory location types
+        {
+            "CU_MEM_LOCATION_TYPE_NONE",
+            "CU_MEM_LOCATION_TYPE_INVISIBLE",
+            "CU_MEM_LOCATION_TYPE_MAX",
+            "CU_MEM_LOCATION_TYPE_INVALID",
+        },
+        set(),
+    ),
+]
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     # Populated below only when NVML bindings are compatible, so that importing
@@ -209,7 +265,20 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 # StrEnum subclasses that intentionally have no associated cuda_binding.
 # Add classes here (with a comment explaining why) when a new StrEnum is
 # introduced that wraps something other than a cuda_binding enum.
-_UNBOUND_STR_ENUMS: set[StrEnum] = set()
+_UNBOUND_STR_ENUMS: set[StrEnum] = {
+    cuda.core.typing.ObjectCodeFormatType,
+    cuda.core.typing.CompilerBackendType,
+    # This one enum coordinates values in two cuda_binding enums:
+    # CUmemAllocationType and CUmemLocationType
+    cuda.core.typing.GraphMemoryType,
+    # This should support all of the PCH-related values in nvrtcResult, but
+    # there is no easy way to check that since they are mixed in with other
+    # unrelated things
+    cuda.core.typing.PCHStatusType,
+    cuda.core.typing.SourceCodeType,
+    # This enum is dynamic depending on the version of CTK installed.
+    cuda.core.typing.VirtualMemoryAllocationType,
+}
 
 
 @pytest.mark.parametrize(
