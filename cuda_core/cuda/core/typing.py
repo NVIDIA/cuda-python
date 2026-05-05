@@ -10,12 +10,14 @@ except ImportError:
     from backports.strenum import StrEnum
 from typing import Literal as _Literal
 
+from cuda.core._context import DeviceResourcesType
 from cuda.core._stream import IsStreamType
 from cuda.core._utils.cuda_utils import driver
 
 __all__ = [
     "CompilerBackendType",
     "DevicePointerType",
+    "DeviceResourcesType",
     "GraphConditionalType",
     "GraphMemoryType",
     "IsStreamType",

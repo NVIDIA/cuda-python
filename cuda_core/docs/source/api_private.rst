@@ -22,6 +22,7 @@ CUDA runtime
    _module.ParamInfo
    typing.CompilerBackendType
    typing.DevicePointerType
+   typing.DeviceResourcesType
    typing.GraphConditionalType
    typing.GraphMemoryType
    typing.ManagedMemoryLocationType
@@ -38,6 +39,7 @@ CUDA runtime
    :template: autosummary/cyclass.rst
 
    _device.DeviceProperties
+   _device_resources.DeviceResources
    _memory._ipc.IPCAllocationHandle
    _memory._ipc.IPCBufferDescriptor
 

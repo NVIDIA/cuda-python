@@ -90,6 +90,10 @@ Breaking changes
   - New: ``kernel.attributes.num_regs`` and
     ``kernel.attributes[some_dev].num_regs``
 
+- Renamed :attr:`graph.HostCallbackNode.callback_fn` to
+  :attr:`graph.HostCallbackNode.callback` to drop the redundant ``_fn`` suffix
+  (`#1945 <https://github.com/NVIDIA/cuda-python/issues/1945>`__).
+
 - Unified the conditional graph API on :class:`~graph.GraphCondition`
   and consistent verbs
   (`#1945 <https://github.com/NVIDIA/cuda-python/issues/1945>`__):
