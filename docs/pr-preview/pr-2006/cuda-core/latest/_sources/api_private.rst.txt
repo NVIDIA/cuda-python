@@ -71,13 +71,9 @@ NVML
    system._device.FieldValues
    system._device.GpuDynamicPstatesInfo
    system._device.GpuDynamicPstatesUtilization
-   system._device.GpuP2PCapsIndex
-   system._device.GpuP2PStatus
-   system._device.GpuTopologyLevel
    system._device.InforomInfo
    system._device.MemoryInfo
    system._device.MigInfo
-   system._device.NvlinkInfo
    system._device.PciInfo
    system._device.ProcessInfo
    system._device.RepairStatus
@@ -87,3 +83,28 @@ NVML
    system._system_events.RegisteredSystemEvents
    system._system_events.SystemEvent
    system._system_events.SystemEvents
+
+.. These are not technically private, but are included here to avoid cluttering the main API reference.
+
+.. autosummary::
+   :toctree: generated/
+
+   system.AddressingMode
+   system.AffinityScope
+   system.ClockId
+   system.ClocksEventReasons
+   system.ClockType
+   system.CoolerControl
+   system.CoolerTarget
+   system.DeviceArch
+   system.EventType
+   system.FanControlPolicy
+   system.FieldId
+   system.GpuP2PCapsIndex
+   system.GpuP2PStatus
+   system.GpuTopologyLevel
+   system.InforomObject
+   system.TemperatureThresholds
+   system.ThermalController
+   system.ThermalTarget
+   system.SystemEventType
