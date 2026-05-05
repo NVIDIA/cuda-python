@@ -178,7 +178,16 @@ class ProgramCacheResource(abc.ABC):
             self[key] = value
 
     def close(self) -> None:  # noqa: B027
-        """Release backend resources. No-op by default."""
+        """Release backend resources.
+
+        The default implementation does nothing. Subclasses that hold
+        long-lived state (open file handles, database connections,
+        network sockets, ...) should override this to release them.
+
+        Callers should use the context-manager form (``with cache:``)
+        or call :meth:`close` explicitly when finished, so code stays
+        portable across backends that do hold resources.
+        """
 
     def __enter__(self) -> ProgramCacheResource:
         return self
