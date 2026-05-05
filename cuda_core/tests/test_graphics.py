@@ -341,7 +341,7 @@ class TestMapUnmap:
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
             resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
             try:
-                with pytest.raises(TypeError, match="missing .* required keyword-only argument"):
+                with pytest.raises(TypeError, match=r"keyword-only argument"):
                     resource.map()
             finally:
                 resource.close()

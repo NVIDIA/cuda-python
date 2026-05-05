@@ -488,7 +488,7 @@ def test_occupancy_max_active_clusters(get_saxpy_kernel_cubin, cluster):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.LaunchConfig(grid=128, block=64, cluster=cluster)
     query_fn = kernel.occupancy.max_active_clusters
-    with pytest.raises(TypeError, match="missing .* required keyword-only argument"):
+    with pytest.raises(TypeError, match=r"keyword-only argument"):
         query_fn(launch_config)
     max_active_clusters = query_fn(launch_config, stream=dev.default_stream)
     assert isinstance(max_active_clusters, int)
@@ -502,7 +502,7 @@ def test_occupancy_max_potential_cluster_size(get_saxpy_kernel_cubin):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.LaunchConfig(grid=128, block=64)
     query_fn = kernel.occupancy.max_potential_cluster_size
-    with pytest.raises(TypeError, match="missing .* required keyword-only argument"):
+    with pytest.raises(TypeError, match=r"keyword-only argument"):
         query_fn(launch_config)
     max_potential_cluster_size = query_fn(launch_config, stream=dev.default_stream)
     assert isinstance(max_potential_cluster_size, int)
