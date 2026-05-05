@@ -199,7 +199,6 @@ Events
    :toctree: generated/
 
    system.register_events
-   system.SystemEventType
 
 Types
 `````

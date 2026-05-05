@@ -3,14 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-class FanControlPolicy(StrEnum):
-    """
-    Fan control policies.
-    """
-    TEMPERATURE_CONTROLLED = "temperature_controlled"
-    MANUAL = "manual"
-
-
 _FAN_CONTROL_POLICY_MAPPING = {
     nvml.FanControlPolicy.TEMPERATURE_CONTINUOUS_SW: FanControlPolicy.TEMPERATURE_CONTROLLED,
     nvml.FanControlPolicy.MANUAL: FanControlPolicy.MANUAL,

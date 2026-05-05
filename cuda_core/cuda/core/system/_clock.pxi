@@ -3,39 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-class ClockId(StrEnum):
-    """
-    Clock Ids. These are used in combination with :class:`ClockType` to specify a single clock value.
-    """
-    CURRENT = "current"
-    CUSTOMER_BOOST_MAX = "customer_boost_max"
-    # APP_CLOCK_TARGET and APP_CLOCK_DEFAULT are deprecated so not included here
-
-
-ClockId.CURRENT.__doc__ = "Current actual clock value."
-ClockId.CUSTOMER_BOOST_MAX.__doc__ = "OEM-defined maximum clock rate"
-
-
 _CLOCK_ID_MAPPING = {
     ClockId.CURRENT: nvml.ClockId.CURRENT,
     ClockId.CUSTOMER_BOOST_MAX: nvml.ClockId.CUSTOMER_BOOST_MAX,
 }
-
-
-class ClocksEventReasons(StrEnum):
-    """
-    Reasons for a clocks event.  These are used in combination with :class:`ClockType` to specify the reason for a clocks event.
-    """
-    NONE = "none"
-    GPU_IDLE = "gpu_idle"
-    APPLICATIONS_CLOCKS_SETTING = "applications_clocks_setting"
-    SW_POWER_CAP = "sw_power_cap"
-    HW_SLOWDOWN = "hw_slowdown"
-    SYNC_BOOST = "sync_boost"
-    SW_THERMAL_SLOWDOWN = "sw_thermal_slowdown"
-    HW_THERMAL_SLOWDOWN = "hw_thermal_slowdown"
-    HW_POWER_BRAKE_SLOWDOWN = "hw_power_brake_slowdown"
-    DISPLAY_CLOCK_SETTING = "display_clock_setting"
 
 
 _CLOCKS_EVENT_REASONS_MAPPING = {
@@ -50,16 +21,6 @@ _CLOCKS_EVENT_REASONS_MAPPING = {
     nvml.ClocksEventReasons.THROTTLE_REASON_HW_POWER_BRAKE_SLOWDOWN: ClocksEventReasons.HW_POWER_BRAKE_SLOWDOWN,
     nvml.ClocksEventReasons.EVENT_REASON_DISPLAY_CLOCK_SETTING: ClocksEventReasons.DISPLAY_CLOCK_SETTING,
 }
-
-
-class ClockType(StrEnum):
-    """
-    Clock types. All speeds are in Mhz.
-    """
-    GRAPHICS = "graphics"
-    SM = "sm"
-    MEMORY = "memory"
-    VIDEO = "video"
 
 
 _CLOCK_TYPE_MAPPING = {
