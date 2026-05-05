@@ -71,6 +71,7 @@ _THERMAL_CONTROLLER_MAPPING = {
     nvml.ThermalController.NVSYSCON_E551: ThermalController.NVSYSCON_E551,
     nvml.ThermalController.MAX6649R: ThermalController.MAX6649R,
     nvml.ThermalController.ADT7473S: ThermalController.ADT7473S,
+    nvml.ThermalController.UNKNOWN: ThermalController.UNKNOWN,
 }
 
 

@@ -20,6 +20,7 @@ from cuda.bindings cimport cynvjitlink
 
 from ._resource_handles cimport (
     ContextHandle,
+    GreenCtxHandle,
     StreamHandle,
     EventHandle,
     MemoryPoolHandle,
@@ -55,6 +56,15 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Context handles
     ContextHandle create_context_handle_ref "cuda_core::create_context_handle_ref" (
         cydriver.CUcontext ctx) except+ nogil
+    ContextHandle create_context_handle_from_green_ctx "cuda_core::create_context_handle_from_green_ctx" (
+        const GreenCtxHandle& h_green_ctx) except+ nogil
+    GreenCtxHandle get_context_green_ctx "cuda_core::get_context_green_ctx" (
+        const ContextHandle& h) noexcept nogil
+    GreenCtxHandle create_green_ctx_handle "cuda_core::create_green_ctx_handle" (
+        cydriver.CUdevResource* resources, unsigned int nbResources,
+        cydriver.CUdevice dev, unsigned int flags) except+ nogil
+    GreenCtxHandle create_green_ctx_handle_ref "cuda_core::create_green_ctx_handle_ref" (
+        cydriver.CUgreenCtx ctx) except+ nogil
     ContextHandle get_primary_context "cuda_core::get_primary_context" (
         int device_id) except+ nogil
     ContextHandle get_current_context "cuda_core::get_current_context" () except+ nogil
@@ -66,6 +76,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUstream stream) except+ nogil
     StreamHandle create_stream_handle_with_owner "cuda_core::create_stream_handle_with_owner" (
         cydriver.CUstream stream, object owner) except+ nogil
+    ContextHandle get_stream_context "cuda_core::get_stream_context" (
+        const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::get_legacy_stream" () except+ nogil
     StreamHandle get_per_thread_stream "cuda_core::get_per_thread_stream" () except+ nogil
 
@@ -223,6 +235,11 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuDevicePrimaryCtxRetain "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRetain)"
     void* p_cuDevicePrimaryCtxRelease "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRelease)"
     void* p_cuCtxGetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetCurrent)"
+    void* p_cuGreenCtxCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxCreate)"
+    void* p_cuGreenCtxDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxDestroy)"
+    void* p_cuCtxFromGreenCtx "reinterpret_cast<void*&>(cuda_core::p_cuCtxFromGreenCtx)"
+    void* p_cuDevResourceGenerateDesc "reinterpret_cast<void*&>(cuda_core::p_cuDevResourceGenerateDesc)"
+    void* p_cuGreenCtxStreamCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxStreamCreate)"
 
     # Stream
     void* p_cuStreamCreateWithPriority "reinterpret_cast<void*&>(cuda_core::p_cuStreamCreateWithPriority)"
@@ -288,10 +305,23 @@ cdef void* _get_driver_fn(str name):
     capsule = cydriver.__pyx_capi__[name]
     return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
 
+
+cdef void* _get_optional_driver_fn(str name):
+    try:
+        capsule = cydriver.__pyx_capi__[name]
+    except KeyError:
+        return NULL
+    return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
+
 # Context
 p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
 p_cuDevicePrimaryCtxRelease = _get_driver_fn("cuDevicePrimaryCtxRelease")
 p_cuCtxGetCurrent = _get_driver_fn("cuCtxGetCurrent")
+p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
+p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
+p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")
+p_cuDevResourceGenerateDesc = _get_optional_driver_fn("cuDevResourceGenerateDesc")
+p_cuGreenCtxStreamCreate = _get_optional_driver_fn("cuGreenCtxStreamCreate")
 
 # Stream
 p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")

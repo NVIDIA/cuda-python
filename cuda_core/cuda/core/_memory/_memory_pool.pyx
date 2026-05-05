@@ -145,12 +145,12 @@ cdef class _MemPool(MemoryResource):
         cdef Stream s = Stream_accept(stream)
         return _MP_allocate(self, size, s)
 
-    def deallocate(self, ptr: "DevicePointerT", size_t size, *, stream: Stream | GraphBuilder):
+    def deallocate(self, ptr: "DevicePointerType", size_t size, *, stream: Stream | GraphBuilder):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
         ----------
-        ptr : :obj:`~_memory.DevicePointerT`
+        ptr : :obj:`~_memory.DevicePointerType`
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.

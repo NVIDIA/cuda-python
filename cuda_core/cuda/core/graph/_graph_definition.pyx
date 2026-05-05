@@ -27,6 +27,8 @@ from dataclasses import dataclass
 
 from cuda.core._utils.cuda_utils import driver
 
+from cuda.core.typing import GraphMemoryType
+
 __all__ = ['GraphCondition', 'GraphAllocOptions', 'GraphDefinition']
 
 
@@ -78,7 +80,7 @@ class GraphAllocOptions:
     device : int or Device, optional
         The device on which to allocate memory. If None (default),
         uses the current CUDA context's device.
-    memory_type : str, optional
+    memory_type : GraphMemoryType | str, optional
         Type of memory to allocate. One of:
 
         - ``"device"`` (default): Pinned device memory, optimal for GPU kernels.
@@ -101,7 +103,7 @@ class GraphAllocOptions:
     """
 
     device: int | "Device" | None = None
-    memory_type: str = "device"
+    memory_type: GraphMemoryType = GraphMemoryType.DEVICE
     peer_access: list | None = None
 
 

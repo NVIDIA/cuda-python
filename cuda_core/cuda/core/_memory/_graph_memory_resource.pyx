@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -111,7 +111,7 @@ cdef class cyGraphMemoryResource(MemoryResource):
         cdef Stream s = Stream_accept(stream)
         return GMR_allocate(self, size, s)
 
-    def deallocate(self, ptr: "DevicePointerT", size_t size, *, stream: Stream | GraphBuilder):
+    def deallocate(self, ptr: "DevicePointerType", size_t size, *, stream: Stream | GraphBuilder):
         """
         Deallocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """

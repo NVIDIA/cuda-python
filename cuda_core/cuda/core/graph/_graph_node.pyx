@@ -689,7 +689,7 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object options):
 
     cdef str memory_type = "device"
     if options is not None and options.memory_type is not None:
-        memory_type = options.memory_type
+        memory_type = str(options.memory_type)
 
     c_memset(&alloc_params, 0, sizeof(alloc_params))
     alloc_params.poolProps.handleTypes = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
