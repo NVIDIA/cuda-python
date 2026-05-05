@@ -39,7 +39,7 @@ cdef class NvlinkInfo:
         """
         version = nvml.device_get_nvlink_version(self._device._handle, self._link)
         if version == nvml.NvlinkVersion.VERSION_INVALID:
-            raise RuntimeError(f"Invalid NvLink version returned for device")
+            raise RuntimeError("Invalid NvLink version returned for device")
         try:
             return _NVLINK_VERSION_MAPPING[version]
         except KeyError:
