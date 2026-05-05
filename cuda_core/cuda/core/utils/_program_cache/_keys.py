@@ -797,7 +797,12 @@ def make_program_cache_key(
     # ObjectCode, so two compiles identical in everything but name produce
     # ObjectCodes that differ in their public ``name`` attribute. The key
     # must reflect that or a cache hit could hand back an entry with the
-    # wrong name. Universal across backends.
+    # wrong name. Universal across backends. PTX additionally hashes
+    # ``name`` via ``_linker_option_fingerprint`` (the linker reads it),
+    # so for the linker path the value is mixed in twice under
+    # different labels. The redundancy is harmless -- distinct labels
+    # mean it cannot collide -- and the universal hash here keeps the
+    # ``options.name`` invariant in one place rather than per-backend.
     options_name = getattr(options, "name", None)
     if options_name is not None:
         _update("options_name", str(options_name).encode("utf-8"))
