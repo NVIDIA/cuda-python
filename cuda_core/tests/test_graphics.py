@@ -18,7 +18,7 @@ from cuda.core import (
     Device,
     GraphicsResource,
 )
-from cuda.core._memoryview import StridedMemoryView
+from cuda.core.utils import StridedMemoryView
 
 # ---------------------------------------------------------------------------
 # GL context + buffer helpers
