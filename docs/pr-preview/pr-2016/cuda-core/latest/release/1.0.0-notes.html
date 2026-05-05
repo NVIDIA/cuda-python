@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=66336ffe"></script>
+    <script src="../_static/documentation_options.js?v=fe8da51d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev86';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev92';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -758,6 +758,10 @@ argument to <code class="docutils literal notranslate"><span class="pre">launch(
 extracted explicitly.</p></li>
 </ul>
 </li>
+<li><p>Consistent naming of types annotation helpers
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2016">#2016</a>):
+- <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuda.core.typing.DevicePointerT</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.typing.DevicePointerType.html#cuda.core.typing.DevicePointerType" title="cuda.core.typing.DevicePointerType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuda.core.typing.DevicePointerType</span></code></a>
+- <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuda.core.typing.IsStreamT</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.typing.IsStreamType.html#cuda.core.typing.IsStreamType" title="cuda.core.typing.IsStreamType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuda.core.typing.IsStreamType</span></code></a></p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
@@ -774,6 +778,26 @@ tensors (depending on whether stream ordering is required).  Proper CUDA stream 
 stream and the consumer stream, matching the DLPack synchronization contract.
 Requires PyTorch &gt;= 2.3.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/749">#749</a>)</p></li>
+<li><p>Enums are not available in places where a small number of string values are
+accepted or returned.  You may continue to use the string values, or use
+enumerations for better linting and type-checking.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2016">#2016</a>)
+The new enums are:</p>
+<ul>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.CompilerBackendType.html#cuda.core.typing.CompilerBackendType" title="cuda.core.typing.CompilerBackendType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.CompilerBackendType</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.GraphConditionalType.html#cuda.core.typing.GraphConditionalType" title="cuda.core.typing.GraphConditionalType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.GraphConditionalType</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.GraphMemoryType.html#cuda.core.typing.GraphMemoryType" title="cuda.core.typing.GraphMemoryType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.GraphMemoryType</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.ManagedMemoryLocationType.html#cuda.core.typing.ManagedMemoryLocationType" title="cuda.core.typing.ManagedMemoryLocationType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.ManagedMemoryLocationType</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.ObjectCodeFormatType.html#cuda.core.typing.ObjectCodeFormatType" title="cuda.core.typing.ObjectCodeFormatType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.ObjectCodeFormatType</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.PCHStatusType.html#cuda.core.typing.PCHStatusType" title="cuda.core.typing.PCHStatusType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.PCHStatusType</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.SourceCodeType.html#cuda.core.typing.SourceCodeType" title="cuda.core.typing.SourceCodeType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.SourceCodeType</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.VirtualMemoryAccessType.html#cuda.core.typing.VirtualMemoryAccessType" title="cuda.core.typing.VirtualMemoryAccessType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.VirtualMemoryAccessType</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.VirtualMemoryAllocationType.html#cuda.core.typing.VirtualMemoryAllocationType" title="cuda.core.typing.VirtualMemoryAllocationType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.VirtualMemoryAllocationType</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.VirtualMemoryGranularityType.html#cuda.core.typing.VirtualMemoryGranularityType" title="cuda.core.typing.VirtualMemoryGranularityType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.VirtualMemoryGranularityType</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.VirtualMemoryHandleType.html#cuda.core.typing.VirtualMemoryHandleType" title="cuda.core.typing.VirtualMemoryHandleType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.VirtualMemoryHandleType</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.typing.VirtualMemoryLocationType.html#cuda.core.typing.VirtualMemoryLocationType" title="cuda.core.typing.VirtualMemoryLocationType"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.typing.VirtualMemoryLocationType</span></code></a></p></li>
+</ul>
+</li>
 </ul>
 </section>
 </section>

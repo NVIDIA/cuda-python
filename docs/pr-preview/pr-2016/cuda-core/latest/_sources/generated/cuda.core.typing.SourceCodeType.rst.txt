@@ -1,6 +1,6 @@
-﻿cuda.core.typing.DevicePointerT
+﻿cuda.core.typing.SourceCodeType
 ===============================
 
 .. currentmodule:: cuda.core.typing
 
-.. autodata:: DevicePointerT
+.. autoenum:: SourceCodeType

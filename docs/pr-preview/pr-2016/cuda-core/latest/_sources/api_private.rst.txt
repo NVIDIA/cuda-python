@@ -20,14 +20,14 @@ CUDA runtime
    _module.KernelOccupancy
    _module.MaxPotentialBlockSizeOccupancyResult
    _module.ParamInfo
-   typing.CompilerBackend
-   typing.DevicePointerT
+   typing.CompilerBackendType
+   typing.DevicePointerType
    typing.GraphConditionalType
    typing.GraphMemoryType
    typing.ManagedMemoryLocationType
-   typing.ObjectCodeFormat
-   typing.PCHStatus
-   typing.SourceType
+   typing.ObjectCodeFormatType
+   typing.PCHStatusType
+   typing.SourceCodeType
    typing.VirtualMemoryAccessType
    typing.VirtualMemoryAllocationType
    typing.VirtualMemoryGranularityType
@@ -57,7 +57,7 @@ CUDA protocols
    :toctree: generated/
    :template: protocol.rst
 
-   typing.IsStreamT
+   typing.IsStreamType
 
 NVML
 ----
