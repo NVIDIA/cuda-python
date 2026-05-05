@@ -186,6 +186,9 @@ numpy = "*"
 cuda-bindings = "*"
 cuda-pathfinder = "*"
 
+[package.target.'python_version < "3.11"'.run-dependencies]
+"backports.strenum" = "*"
+
 [target.linux.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
 
