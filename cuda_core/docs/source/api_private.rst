@@ -80,6 +80,7 @@ NVML
    system._device.Temperature
    system._device.ThermalSensor
    system._device.ThermalSettings
+   system._device.Utilization
    system._system_events.RegisteredSystemEvents
    system._system_events.SystemEvent
    system._system_events.SystemEvents
