@@ -1,6 +1,6 @@
-﻿cuda.core.system.PcieUtilCounter
+﻿cuda.core.system.GpuP2PCapsIndex
 ================================
 
 .. currentmodule:: cuda.core.system
 
-.. autoenum:: PcieUtilCounter
+.. autoenum:: GpuP2PCapsIndex

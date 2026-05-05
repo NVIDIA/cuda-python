@@ -1,10 +1,10 @@
 ﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-cuda.core.system.\_device.NvlinkInfo
-====================================
+cuda.core.system.NvlinkInfo
+===========================
 
-.. currentmodule:: cuda.core.system._device
+.. currentmodule:: cuda.core.system
 
 .. autoclass:: NvlinkInfo
 
