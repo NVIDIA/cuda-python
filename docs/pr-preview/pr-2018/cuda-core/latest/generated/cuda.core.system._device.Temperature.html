@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=dee9dd89"></script>
+    <script src="../_static/documentation_options.js?v=b118c95d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev103';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev105';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -564,7 +564,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -680,14 +679,14 @@ degrees Celsius.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">sensor_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.ThermalTarget.html#cuda.core.system.ThermalTarget" title="cuda.core.system._device.ThermalTarget"><span class="pre">ThermalTarget</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">sensor_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.ThermalTarget.html#cuda.core.system.typing.ThermalTarget" title="cuda.core.system.typing.ThermalTarget"><span class="pre">ThermalTarget</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system._device.ThermalSettings.html#cuda.core.system._device.ThermalSettings" title="cuda.core.system._device.ThermalSettings"><span class="pre">ThermalSettings</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.Temperature.get_thermal_settings" title="Link to this definition">#</a></dt>
 <dd><p>Used to execute a list of thermal system instructions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>sensor_index</strong> (<a class="reference internal" href="cuda.core.system.ThermalTarget.html#cuda.core.system.ThermalTarget" title="cuda.core.system._device.ThermalTarget"><em>ThermalTarget</em></a>) – The index of the thermal sensor.</p>
+<dd class="field-odd"><p><strong>sensor_index</strong> (<a class="reference internal" href="cuda.core.system.typing.ThermalTarget.html#cuda.core.system.typing.ThermalTarget" title="cuda.core.system.typing.ThermalTarget"><em>ThermalTarget</em></a>) – The index of the thermal sensor.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The thermal settings for the specified sensor.</p>
@@ -704,14 +703,14 @@ degrees Celsius.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">threshold_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.TemperatureThresholds.html#cuda.core.system.TemperatureThresholds" title="cuda.core.system._device.TemperatureThresholds"><span class="pre">TemperatureThresholds</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">threshold_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.TemperatureThresholds.html#cuda.core.system.typing.TemperatureThresholds" title="cuda.core.system.typing.TemperatureThresholds"><span class="pre">TemperatureThresholds</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.Temperature.get_threshold" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves the temperature threshold for this GPU with the specified
 threshold type, in degrees Celsius.</p>
 <p>For Kepler™ or newer fully supported devices.</p>
-<p>See <a class="reference internal" href="cuda.core.system.TemperatureThresholds.html#cuda.core.system.TemperatureThresholds" title="cuda.core.system._device.TemperatureThresholds"><code class="xref py py-class docutils literal notranslate"><span class="pre">TemperatureThresholds</span></code></a> for possible threshold types.</p>
+<p>See <code class="xref py py-class docutils literal notranslate"><span class="pre">TemperatureThresholds</span></code> for possible threshold types.</p>
 <p>Note: This API is no longer the preferred interface for retrieving the
 following temperature thresholds on Ada and later architectures:
 <code class="docutils literal notranslate"><span class="pre">NVML_TEMPERATURE_THRESHOLD_SHUTDOWN</span></code>,

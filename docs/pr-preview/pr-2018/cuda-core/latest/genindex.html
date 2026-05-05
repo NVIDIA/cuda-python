@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=dee9dd89"></script>
+    <script src="_static/documentation_options.js?v=b118c95d"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev103';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev105';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -559,7 +559,6 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -787,6 +786,8 @@
 </li>
         <li><a href="generated/cuda.core.system._device.ThermalSettings.html#cuda.core.system._device.ThermalSettings.__init__">(cuda.core.system._device.ThermalSettings method)</a>
 </li>
+        <li><a href="generated/cuda.core.system._device.Utilization.html#cuda.core.system._device.Utilization.__init__">(cuda.core.system._device.Utilization method)</a>
+</li>
         <li><a href="generated/cuda.core.system._system_events.RegisteredSystemEvents.html#cuda.core.system._system_events.RegisteredSystemEvents.__init__">(cuda.core.system._system_events.RegisteredSystemEvents method)</a>
 </li>
         <li><a href="generated/cuda.core.system._system_events.SystemEvent.html#cuda.core.system._system_events.SystemEvent.__init__">(cuda.core.system._system_events.SystemEvent method)</a>
@@ -824,11 +825,11 @@
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.addressing_mode">addressing_mode (cuda.core.system.Device attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.system.AddressingMode.html#cuda.core.system.AddressingMode">AddressingMode (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.AddressingMode.html#cuda.core.system.typing.AddressingMode">AddressingMode (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy">AdjacencySetProxy (class in cuda.core.graph._adjacency_set_proxy)</a>
 </li>
-      <li><a href="generated/cuda.core.system.AffinityScope.html#cuda.core.system.AffinityScope">AffinityScope (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.AffinityScope.html#cuda.core.system.typing.AffinityScope">AffinityScope (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.allocate">allocate() (cuda.core.Device method)</a>
 
@@ -1076,15 +1077,15 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.clock_rate">clock_rate (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.system.ClockId.html#cuda.core.system.ClockId">ClockId (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.ClockId.html#cuda.core.system.typing.ClockId">ClockId (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.ClockInfo.html#cuda.core.system._device.ClockInfo">ClockInfo (class in cuda.core.system._device)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.ClockOffsets.html#cuda.core.system._device.ClockOffsets">ClockOffsets (class in cuda.core.system._device)</a>
 </li>
-      <li><a href="generated/cuda.core.system.ClocksEventReasons.html#cuda.core.system.ClocksEventReasons">ClocksEventReasons (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.ClocksEventReasons.html#cuda.core.system.typing.ClocksEventReasons">ClocksEventReasons (class in cuda.core.system.typing)</a>
 </li>
-      <li><a href="generated/cuda.core.system.ClockType.html#cuda.core.system.ClockType">ClockType (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.ClockType.html#cuda.core.system.typing.ClockType">ClockType (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle.close">close() (cuda.core._memory._ipc.IPCAllocationHandle method)</a>
 
@@ -1208,11 +1209,11 @@
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.cooler">cooler (cuda.core.system.Device attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.system.CoolerControl.html#cuda.core.system.CoolerControl">CoolerControl (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.CoolerControl.html#cuda.core.system.typing.CoolerControl">CoolerControl (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.CoolerInfo.html#cuda.core.system._device.CoolerInfo">CoolerInfo (class in cuda.core.system._device)</a>
 </li>
-      <li><a href="generated/cuda.core.system.CoolerTarget.html#cuda.core.system.CoolerTarget">CoolerTarget (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.CoolerTarget.html#cuda.core.system.typing.CoolerTarget">CoolerTarget (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.cooperative_launch">cooperative_launch (cuda.core._device.DeviceProperties attribute)</a>
 </li>
@@ -1464,7 +1465,7 @@
 </li>
       <li><a href="generated/cuda.core.graph.GraphCompleteOptions.html#cuda.core.graph.GraphCompleteOptions.device_launch">device_launch (cuda.core.graph.GraphCompleteOptions attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.system.DeviceArch.html#cuda.core.system.DeviceArch">DeviceArch (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.DeviceArch.html#cuda.core.system.typing.DeviceArch">DeviceArch (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.DeviceAttributes.html#cuda.core.system._device.DeviceAttributes">DeviceAttributes (class in cuda.core.system._device)</a>
 </li>
@@ -1604,7 +1605,7 @@
 </li>
       <li><a href="generated/cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode">EventRecordNode (class in cuda.core.graph)</a>
 </li>
-      <li><a href="generated/cuda.core.system.EventType.html#cuda.core.system.EventType">EventType (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType">EventType (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode">EventWaitNode (class in cuda.core.graph)</a>
 </li>
@@ -1628,7 +1629,7 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/cuda.core.system.FanControlPolicy.html#cuda.core.system.FanControlPolicy">FanControlPolicy (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.FanControlPolicy.html#cuda.core.system.typing.FanControlPolicy">FanControlPolicy (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.FanInfo.html#cuda.core.system._device.FanInfo">FanInfo (class in cuda.core.system._device)</a>
 </li>
@@ -1638,7 +1639,7 @@
 </li>
       <li><a href="generated/cuda.core.system._device.FieldValue.html#cuda.core.system._device.FieldValue.field_id">field_id (cuda.core.system._device.FieldValue attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.system.FieldId.html#cuda.core.system.FieldId">FieldId (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.FieldId.html#cuda.core.system.typing.FieldId">FieldId (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.FieldValue.html#cuda.core.system._device.FieldValue">FieldValue (class in cuda.core.system._device)</a>
 </li>
@@ -1810,6 +1811,8 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.global_memory_bus_width">global_memory_bus_width (cuda.core._device.DeviceProperties attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.system._device.Utilization.html#cuda.core.system._device.Utilization.gpu">gpu (cuda.core.system._device.Utilization attribute)</a>
+</li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.gpu_direct_rdma">gpu_direct_rdma (cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.gpu_direct_rdma_flush_writes_options">gpu_direct_rdma_flush_writes_options (cuda.core._device.DeviceProperties attribute)</a>
@@ -1842,11 +1845,11 @@
 </li>
       <li><a href="generated/cuda.core.system._device.GpuDynamicPstatesUtilization.html#cuda.core.system._device.GpuDynamicPstatesUtilization">GpuDynamicPstatesUtilization (class in cuda.core.system._device)</a>
 </li>
-      <li><a href="generated/cuda.core.system.GpuP2PCapsIndex.html#cuda.core.system.GpuP2PCapsIndex">GpuP2PCapsIndex (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.GpuP2PCapsIndex.html#cuda.core.system.typing.GpuP2PCapsIndex">GpuP2PCapsIndex (class in cuda.core.system.typing)</a>
 </li>
-      <li><a href="generated/cuda.core.system.GpuP2PStatus.html#cuda.core.system.GpuP2PStatus">GpuP2PStatus (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.GpuP2PStatus.html#cuda.core.system.typing.GpuP2PStatus">GpuP2PStatus (class in cuda.core.system.typing)</a>
 </li>
-      <li><a href="generated/cuda.core.system.GpuTopologyLevel.html#cuda.core.system.GpuTopologyLevel">GpuTopologyLevel (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.GpuTopologyLevel.html#cuda.core.system.typing.GpuTopologyLevel">GpuTopologyLevel (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.granularity">granularity (cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
@@ -2126,7 +2129,7 @@
 </li>
       <li><a href="generated/cuda.core.system._device.InforomInfo.html#cuda.core.system._device.InforomInfo">InforomInfo (class in cuda.core.system._device)</a>
 </li>
-      <li><a href="generated/cuda.core.system.InforomObject.html#cuda.core.system.InforomObject">InforomObject (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.InforomObject.html#cuda.core.system.typing.InforomObject">InforomObject (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.instantiate">instantiate() (cuda.core.graph.GraphDefinition method)</a>
 </li>
@@ -2630,10 +2633,10 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_width">maximum_texturecubemap_layered_width (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texturecubemap_width">maximum_texturecubemap_width (cuda.core._device.DeviceProperties attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._module.MaxPotentialBlockSizeOccupancyResult.html#cuda.core._module.MaxPotentialBlockSizeOccupancyResult">MaxPotentialBlockSizeOccupancyResult (in module cuda.core._module)</a>
 </li>
       <li><a href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions.mem_alloc_node_params">mem_alloc_node_params (cuda.core.graph.GraphDebugPrintOptions attribute)</a>
@@ -2685,6 +2688,8 @@
       <li><a href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions.memcpy_node_params">memcpy_node_params (cuda.core.graph.GraphDebugPrintOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode">MemcpyNode (class in cuda.core.graph)</a>
+</li>
+      <li><a href="generated/cuda.core.system._device.Utilization.html#cuda.core.system._device.Utilization.memory">memory (cuda.core.system._device.Utilization attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.memory_clock_rate">memory_clock_rate (cuda.core._device.DeviceProperties attribute)</a>
 </li>
@@ -3353,7 +3358,7 @@
 </li>
       <li><a href="generated/cuda.core.system._system_events.SystemEvents.html#cuda.core.system._system_events.SystemEvents">SystemEvents (class in cuda.core.system._system_events)</a>
 </li>
-      <li><a href="generated/cuda.core.system.SystemEventType.html#cuda.core.system.SystemEventType">SystemEventType (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.SystemEventType.html#cuda.core.system.typing.SystemEventType">SystemEventType (class in cuda.core.system.typing)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -3375,7 +3380,7 @@
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.temperature">temperature (cuda.core.system.Device attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.system.TemperatureThresholds.html#cuda.core.system.TemperatureThresholds">TemperatureThresholds (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.TemperatureThresholds.html#cuda.core.system.typing.TemperatureThresholds">TemperatureThresholds (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.tensor_map_access_supported">tensor_map_access_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
@@ -3393,13 +3398,13 @@
         <li><a href="generated/cuda.core.graph.IfNode.html#cuda.core.graph.IfNode.then">(cuda.core.graph.IfNode attribute)</a>
 </li>
       </ul></li>
-      <li><a href="generated/cuda.core.system.ThermalController.html#cuda.core.system.ThermalController">ThermalController (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.ThermalController.html#cuda.core.system.typing.ThermalController">ThermalController (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.ThermalSensor.html#cuda.core.system._device.ThermalSensor">ThermalSensor (class in cuda.core.system._device)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.ThermalSettings.html#cuda.core.system._device.ThermalSettings">ThermalSettings (class in cuda.core.system._device)</a>
 </li>
-      <li><a href="generated/cuda.core.system.ThermalTarget.html#cuda.core.system.ThermalTarget">ThermalTarget (class in cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.typing.ThermalTarget.html#cuda.core.system.typing.ThermalTarget">ThermalTarget (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.LinkerOptions.html#cuda.core.LinkerOptions.time">time (cuda.core.LinkerOptions attribute)</a>
 
@@ -3510,6 +3515,8 @@
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.system._device.ProcessInfo.html#cuda.core.system._device.ProcessInfo.used_gpu_memory">used_gpu_memory (cuda.core.system._device.ProcessInfo attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system._device.Utilization.html#cuda.core.system._device.Utilization">Utilization (class in cuda.core.system._device)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.utilization">utilization (cuda.core.system.Device attribute)</a>
 </li>
