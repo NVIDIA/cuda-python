@@ -80,6 +80,37 @@ def _default_cache_dir() -> Path:
     return root / "cuda-python" / "program-cache"
 
 
+def _with_sharing_retry(op, *args, on_exhausted=None, **kwargs):
+    """Run ``op(*args, **kwargs)`` retrying transient Windows sharing
+    violations under the bounded ``_REPLACE_RETRY_DELAYS`` budget.
+
+    On Windows, ``os.replace``/``read_bytes``/``unlink`` can surface
+    winerror 5/32/33 (or bare EACCES via ``_is_windows_sharing_violation``)
+    while another process briefly holds the file open without share-delete
+    rights. The retry hides that contention. Other ``PermissionError``s
+    (real ACLs, unexpected winerror) propagate immediately.
+
+    Successful returns and any non-``PermissionError`` exceptions
+    (including ``FileNotFoundError``) bubble up unchanged. After the
+    budget is exhausted, the helper either calls ``on_exhausted(last_exc)``
+    if provided, or re-raises the last sharing-violation exception.
+    """
+    last_exc: PermissionError | None = None
+    for delay in _REPLACE_RETRY_DELAYS:
+        if delay:
+            time.sleep(delay)
+        try:
+            return op(*args, **kwargs)
+        except PermissionError as exc:
+            if not _is_windows_sharing_violation(exc):
+                raise
+            last_exc = exc
+    if on_exhausted is not None:
+        return on_exhausted(last_exc)
+    assert last_exc is not None  # at least one iteration ran and caught a PermissionError
+    raise last_exc
+
+
 def _replace_with_sharing_retry(tmp_path: Path, target: Path) -> bool:
     """Atomic rename with Windows-specific retry on sharing/lock violations.
 
@@ -93,20 +124,12 @@ def _replace_with_sharing_retry(tmp_path: Path, target: Path) -> bool:
     ``FILE_SHARE_WRITE`` (Python's default for ``open(p, "wb")``) or while
     a previous unlink is in ``PENDING_DELETE`` -- both are transient.
     """
-    for i, delay in enumerate(_REPLACE_RETRY_DELAYS):
-        if delay:
-            time.sleep(delay)
-        try:
-            os.replace(tmp_path, target)
-            return True
-        except PermissionError as exc:
-            if not _IS_WINDOWS or getattr(exc, "winerror", None) not in _SHARING_VIOLATION_WINERRORS:
-                raise
-            # Windows sharing violation; loop and try again unless this was the
-            # last attempt, in which case fall through and return False.
-            if i == len(_REPLACE_RETRY_DELAYS) - 1:
-                return False
-    return False
+
+    def _do_replace() -> bool:
+        os.replace(tmp_path, target)
+        return True
+
+    return _with_sharing_retry(_do_replace, on_exhausted=lambda _exc: False)
 
 
 def _stat_and_read_with_sharing_retry(path: Path) -> tuple[os.stat_result, bytes]:
@@ -128,19 +151,14 @@ def _stat_and_read_with_sharing_retry(path: Path) -> tuple[os.stat_result, bytes
     would surface consistently; the bounded retry budget keeps the cost
     of treating them as transient negligible.
     """
-    last_exc: BaseException | None = None
-    for delay in _REPLACE_RETRY_DELAYS:
-        if delay:
-            time.sleep(delay)
-        try:
-            return path.stat(), path.read_bytes()
-        except FileNotFoundError:
-            raise
-        except PermissionError as exc:
-            if not _is_windows_sharing_violation(exc):
-                raise
-            last_exc = exc
-    raise FileNotFoundError(path) from last_exc
+
+    def _do_stat_and_read() -> tuple[os.stat_result, bytes]:
+        return path.stat(), path.read_bytes()
+
+    def _exhausted(last_exc):
+        raise FileNotFoundError(path) from last_exc
+
+    return _with_sharing_retry(_do_stat_and_read, on_exhausted=_exhausted)
 
 
 _UTIME_SUPPORTS_FD = os.utime in os.supports_fd
@@ -264,21 +282,7 @@ def _unlink_with_sharing_retry(path: Path) -> None:
     :func:`_is_windows_sharing_violation` to filter the exhausted-retry
     case and re-raise any other ``PermissionError``.
     """
-    last_exc: PermissionError | None = None
-    for delay in _REPLACE_RETRY_DELAYS:
-        if delay:
-            time.sleep(delay)
-        try:
-            path.unlink()
-            return
-        except FileNotFoundError:
-            raise
-        except PermissionError as exc:
-            if not _is_windows_sharing_violation(exc):
-                raise
-            last_exc = exc
-    if last_exc is not None:
-        raise last_exc
+    _with_sharing_retry(path.unlink)
 
 
 def _prune_if_stat_unchanged(path: Path, st_before: os.stat_result) -> None:
