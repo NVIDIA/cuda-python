@@ -12,7 +12,7 @@ from cuda.core._device import Device
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._launch_config import LaunchConfig
 from cuda.core._stream cimport Stream
-from cuda.core._program import ObjectCodeFormat
+from cuda.core._program import ObjectCodeFormatType
 from cuda.core._resource_handles cimport (
     LibraryHandle,
     KernelHandle,
@@ -570,7 +570,7 @@ cdef class Kernel:
 
 CodeTypeT = bytes | bytearray | str
 
-cdef tuple _supported_code_type = tuple(ObjectCodeFormat.__members__.values())
+cdef tuple _supported_code_type = tuple(ObjectCodeFormatType.__members__.values())
 
 cdef class ObjectCode:
     """Represent a compiled program to be loaded onto the device.
@@ -630,7 +630,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, ObjectCodeFormat.CUBIN, name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.CUBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_ptx(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -648,7 +648,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, ObjectCodeFormat.PTX, name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.PTX, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_ltoir(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -666,7 +666,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, ObjectCodeFormat.LTOIR, name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.LTOIR, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_fatbin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -684,7 +684,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, ObjectCodeFormat.FATBIN, name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.FATBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -702,7 +702,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, ObjectCodeFormat.OBJECT, name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.OBJECT, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -720,7 +720,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, ObjectCodeFormat.LIBRARY, name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.LIBRARY, name=name, symbol_mapping=symbol_mapping)
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
@@ -759,7 +759,7 @@ cdef class ObjectCode:
 
         """
         self._lazy_load_module()
-        supported_code_types = (ObjectCodeFormat.CUBIN, ObjectCodeFormat.PTX, ObjectCodeFormat.FATBIN)
+        supported_code_types = (ObjectCodeFormatType.CUBIN, ObjectCodeFormatType.PTX, ObjectCodeFormatType.FATBIN)
         if self._code_type not in supported_code_types:
             raise RuntimeError(f'Unsupported code type "{self._code_type}" ({supported_code_types=})')
         try:

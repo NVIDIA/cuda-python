@@ -58,7 +58,7 @@ cdef class StreamOptions:
     priority: int | None = None
 
 
-class IsStreamT(Protocol):
+class IsStreamType(Protocol):
     def __cuda_stream__(self) -> tuple[int, int]:
         """
         For any Python object that is meant to be interpreted as a CUDA stream, the intent
@@ -113,7 +113,7 @@ cdef class Stream:
         return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
-    def _init(cls, obj: IsStreamT | None = None, options=None, device_id: int = None,
+    def _init(cls, obj: IsStreamType | None = None, options=None, device_id: int = None,
               ctx: Context = None):
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed

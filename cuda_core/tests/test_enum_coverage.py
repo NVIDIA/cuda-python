@@ -72,13 +72,6 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
         set(),
     ),
     (
-        driver.CUmemAllocationType,
-        cuda.core.typing.VirtualMemoryAllocationType,
-        cuda.core.VirtualMemoryResourceOptions._allocation_type,
-        {"CU_MEM_ALLOCATION_TYPE_INVALID", "CU_MEM_ALLOCATION_TYPE_MAX"},
-        set(),
-    ),
-    (
         driver.CUmemAllocationGranularity_flags,
         cuda.core.typing.VirtualMemoryGranularityType,
         cuda.core.VirtualMemoryResourceOptions._granularity,
@@ -270,16 +263,18 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 # Add classes here (with a comment explaining why) when a new StrEnum is
 # introduced that wraps something other than a cuda_binding enum.
 _UNBOUND_STR_ENUMS: set[StrEnum] = {
-    cuda.core.typing.ObjectCodeFormat,
-    cuda.core.typing.CompilerBackend,
+    cuda.core.typing.ObjectCodeFormatType,
+    cuda.core.typing.CompilerBackendType,
     # This one enum coordinates values in two cuda_binding enums:
     # CUmemAllocationType and CUmemLocationType
     cuda.core.typing.GraphMemoryType,
     # This should support all of the PCH-related values in nvrtcResult, but
     # there is no easy way to check that since they are mixed in with other
     # unrelated things
-    cuda.core.typing.PCHStatus,
-    cuda.core.typing.SourceType,
+    cuda.core.typing.PCHStatusType,
+    cuda.core.typing.SourceCodeType,
+    # This enum is dynamic depending on the version of CTK installed.
+    cuda.core.typing.VirtualMemoryAllocationType,
 }
 
 
@@ -324,6 +319,7 @@ def test_wrapper_covers_all_binding_members(binding, str_enum, mapping, binding_
             )
 
 
+@pytest.mark.skipif(sys.version_info < (3, 11), reason="Requires Python 3.11+ for StrEnum")
 def test_all_str_enums_in_cases():
     """Every StrEnum subclass in cuda.core must appear in _CASES or _UNBOUND_STR_ENUMS.
 

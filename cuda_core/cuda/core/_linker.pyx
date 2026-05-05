@@ -39,7 +39,7 @@ from cuda.core._utils.cuda_utils import (
     driver,
     is_sequence,
 )
-from cuda.core.typing import CompilerBackend
+from cuda.core.typing import CompilerBackendType
 
 ctypedef const char* const_char_ptr
 ctypedef void* void_ptr
@@ -71,12 +71,12 @@ cdef class Linker:
     def __init__(self, *object_codes: ObjectCode, options: "LinkerOptions" = None):
         Linker_init(self, object_codes, options)
 
-    def link(self, target_type: ObjectCodeFormat | str) -> ObjectCode:
+    def link(self, target_type: ObjectCodeFormatType | str) -> ObjectCode:
         """Link the provided object codes into a single output of the specified target type.
 
         Parameters
         ----------
-        target_type : ObjectCodeFormat | str
+        target_type : ObjectCodeFormatType | str
             The type of the target output. Must be either "cubin" or "ptx".
 
         Returns
@@ -169,9 +169,9 @@ cdef class Linker:
             return as_py(self._culink_handle)
 
     @property
-    def backend(self) -> CompilerBackend:
-        """Return this Linker instance's underlying :class:`CompilerBackend`."""
-        return CompilerBackend.NVJITLINK if self._use_nvjitlink else CompilerBackend.DRIVER
+    def backend(self) -> CompilerBackendType:
+        """Return this Linker instance's underlying :class:`CompilerBackendType`."""
+        return CompilerBackendType.NVJITLINK if self._use_nvjitlink else CompilerBackendType.DRIVER
 
 
 # =============================================================================

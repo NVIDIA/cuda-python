@@ -9,19 +9,19 @@ try:
 except ImportError:
     from backports.strenum import StrEnum
 
-from cuda.core._memory._buffer import DevicePointerT
-from cuda.core._stream import IsStreamT
+from cuda.core._memory._buffer import DevicePointerType
+from cuda.core._stream import IsStreamType
 
 __all__ = [
-    "CompilerBackend",
-    "DevicePointerT",
+    "CompilerBackendType",
+    "DevicePointerType",
     "GraphConditionalType",
     "GraphMemoryType",
-    "IsStreamT",
+    "IsStreamType",
     "ManagedMemoryLocationType",
-    "ObjectCodeFormat",
-    "PCHStatus",
-    "SourceType",
+    "ObjectCodeFormatType",
+    "PCHStatusType",
+    "SourceCodeType",
     "VirtualMemoryAccessType",
     "VirtualMemoryAllocationType",
     "VirtualMemoryGranularityType",
@@ -30,13 +30,13 @@ __all__ = [
 ]
 
 
-class SourceType(StrEnum):
+class SourceCodeType(StrEnum):
     CXX = "c++"
     PTX = "ptx"
     NVVM = "nvvm"
 
 
-class ObjectCodeFormat(StrEnum):
+class ObjectCodeFormatType(StrEnum):
     PTX = "ptx"
     CUBIN = "cubin"
     LTOIR = "ltoir"
@@ -45,14 +45,14 @@ class ObjectCodeFormat(StrEnum):
     LIBRARY = "library"
 
 
-class CompilerBackend(StrEnum):
+class CompilerBackendType(StrEnum):
     NVRTC = "NVRTC"
     NVVM = "NVVM"
     NVJITLINK = "nvJitLink"
     DRIVER = "driver"
 
 
-class PCHStatus(StrEnum):
+class PCHStatusType(StrEnum):
     CREATED = "created"
     NOT_ATTEMPTED = "not_attempted"
     FAILED = "failed"
@@ -102,3 +102,6 @@ class VirtualMemoryAccessType(StrEnum):
 class VirtualMemoryAllocationType(StrEnum):
     PINNED = "pinned"
     MANAGED = "managed"
+
+
+del StrEnum

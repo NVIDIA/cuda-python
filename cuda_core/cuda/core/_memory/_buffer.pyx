@@ -65,7 +65,7 @@ register_mr_dealloc_callback(_mr_dealloc_callback)
 __all__ = ['Buffer', 'MemoryResource']
 
 
-DevicePointerT = driver.CUdeviceptr | int | None
+DevicePointerType = driver.CUdeviceptr | int | None
 """
 A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting
 :attr:`Buffer.handle`.
@@ -97,7 +97,7 @@ cdef class Buffer:
 
     @classmethod
     def _init(
-        cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
+        cls, ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         ipc_descriptor: IPCBufferDescriptor | None = None,
         owner : object | None = None
     ):
@@ -132,14 +132,14 @@ cdef class Buffer:
 
     @staticmethod
     def from_handle(
-        ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
+        ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         owner: object | None = None,
     ) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
         Parameters
         ----------
-        ptr : :obj:`~_memory.DevicePointerT`
+        ptr : :obj:`~_memory.DevicePointerType`
             Allocated buffer handle object
         size : int
             Memory size of the buffer
@@ -347,7 +347,7 @@ cdef class Buffer:
         return self._mem_attrs.device_id
 
     @property
-    def handle(self) -> DevicePointerT:
+    def handle(self) -> DevicePointerType:
         """Return the buffer handle object.
 
         .. caution::
@@ -515,12 +515,12 @@ cdef class MemoryResource:
         """
         raise TypeError("MemoryResource.allocate must be implemented by subclasses.")
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: DevicePointerType, size_t size, stream: Stream | GraphBuilder | None = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
         ----------
-        ptr : :obj:`~_memory.DevicePointerT`
+        ptr : :obj:`~_memory.DevicePointerType`
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
