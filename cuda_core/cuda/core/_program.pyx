@@ -188,10 +188,10 @@ cdef class Program:
 
         # ``self._code`` is always stored as bytes (see ``Program_init``),
         # but ``make_program_cache_key`` only accepts bytes when
-        # ``code_type == "nvvm"`` -- c++/ptx must be ``str``. Decode back
-        # to the original str for the NVRTC/linker paths so the generated
-        # key matches keys callers build by passing the str source
-        # directly.
+        # ``code_type == "nvvm"`` -- c++/ptx must be ``str``. The bytes
+        # came from ``code.encode()`` on a ``str`` Program_init validated
+        # via ``assert_type(code, str)``, so this round-trip is always
+        # safe; no try/except needed.
         code_for_key = self._code if self._code_type == "nvvm" else self._code.decode("utf-8")
 
         key = make_program_cache_key(
