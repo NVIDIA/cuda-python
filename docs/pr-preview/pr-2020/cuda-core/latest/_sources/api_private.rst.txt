@@ -16,20 +16,30 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   typing.DevicePointerT
-   _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryGranularityT
-   _memory._virtual_memory_resource.VirtualMemoryAccessTypeT
-   _memory._virtual_memory_resource.VirtualMemoryHandleTypeT
    _module.KernelAttributes
    _module.KernelOccupancy
-   _module.ParamInfo
    _module.MaxPotentialBlockSizeOccupancyResult
+   _module.ParamInfo
+   typing.CompilerBackendType
+   typing.DevicePointerType
+   typing.DeviceResourcesType
+   typing.GraphConditionalType
+   typing.GraphMemoryType
+   typing.ManagedMemoryLocationType
+   typing.ObjectCodeFormatType
+   typing.PCHStatusType
+   typing.ProcessStateType
+   typing.SourceCodeType
+   typing.VirtualMemoryAccessType
+   typing.VirtualMemoryAllocationType
+   typing.VirtualMemoryGranularityType
+   typing.VirtualMemoryHandleType
+   typing.VirtualMemoryLocationType
 
    :template: autosummary/cyclass.rst
 
    _device.DeviceProperties
+   _device_resources.DeviceResources
    _memory._ipc.IPCAllocationHandle
    _memory._ipc.IPCBufferDescriptor
 
@@ -50,7 +60,7 @@ CUDA protocols
    :toctree: generated/
    :template: protocol.rst
 
-   typing.IsStreamT
+   typing.IsStreamType
 
 NVML
 ----

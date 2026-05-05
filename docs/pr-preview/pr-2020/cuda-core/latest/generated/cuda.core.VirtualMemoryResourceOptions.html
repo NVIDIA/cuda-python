@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4e9e9861"></script>
+    <script src="../_static/documentation_options.js?v=15604d44"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev104';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -503,9 +503,15 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Context.html">cuda.core.Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.SMResource.html">cuda.core.SMResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.WorkqueueResource.html">cuda.core.WorkqueueResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.ContextOptions.html">cuda.core.ContextOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.SMResourceOptions.html">cuda.core.SMResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
@@ -550,6 +556,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
@@ -652,26 +659,16 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">VirtualMemoryResourceOptions</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">allocation_type:</span> <span class="pre">~typing.Literal['pinned'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'managed']</span> <span class="pre">=</span> <span class="pre">'pinned'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">location_type:</span> <span class="pre">~typing.Literal['device'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'host'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'host_numa'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'host_numa_current']</span> <span class="pre">=</span> <span class="pre">'device'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">handle_type:</span> <span class="pre">~typing.Literal['posix_fd'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'generic'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'win32_kmt'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'fabric']</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">'posix_fd'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">granularity:</span> <span class="pre">~typing.Literal['minimum'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'recommended']</span> <span class="pre">=</span> <span class="pre">'recommended'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">allocation_type:</span> <span class="pre">~cuda.core.typing.VirtualMemoryAllocationType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryAllocationType.PINNED</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">location_type:</span> <span class="pre">~cuda.core.typing.VirtualMemoryLocationType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryLocationType.DEVICE</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">handle_type:</span> <span class="pre">~cuda.core.typing.VirtualMemoryHandleType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryHandleType.POSIX_FD</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">granularity:</span> <span class="pre">~cuda.core.typing.VirtualMemoryGranularityType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryGranularityType.RECOMMENDED</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">gpu_direct_rdma:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">addr_hint:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">0</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">addr_align:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">peers:</span> <span class="pre">~typing.Iterable[int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">self_access:</span> <span class="pre">~typing.Literal['rw'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'r']</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">'rw'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">peer_access:</span> <span class="pre">~typing.Literal['rw'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'r']</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">'rw'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">self_access:</span> <span class="pre">~cuda.core.typing.VirtualMemoryAccessType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryAccessType.READ_WRITE</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">peer_access:</span> <span class="pre">~cuda.core.typing.VirtualMemoryAccessType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryAccessType.READ_WRITE</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.VirtualMemoryResourceOptions" title="Link to this definition">#</a></dt>
@@ -685,7 +682,7 @@
 <dd><p>Controls the type of allocation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAllocationTypeT</span></code></p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAllocationType</span></code> | str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -696,7 +693,7 @@
 <dd><p>Controls the location of the allocation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryLocationTypeT</span></code></p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryLocationType</span></code> | str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -710,7 +707,7 @@ import/export the allocation (required for cuMemRetainAllocationHandle).
 Use <cite>None</cite> if you don’t need an exportable handle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryHandleTypeT</span></code></p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryHandleType</span></code> | str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -732,7 +729,7 @@ Use <cite>None</cite> if you don’t need an exportable handle.</p>
 <dd><p>Controls granularity query and size rounding.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryGranularityT</span></code></p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryGranularityType</span></code> | str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -776,7 +773,7 @@ Use <cite>None</cite> if you don’t need an exportable handle.</p>
 <dd><p>Access flags for the owning device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAccessTypeT</span></code></p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAccessType</span></code> | None | str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -787,7 +784,7 @@ Use <cite>None</cite> if you don’t need an exportable handle.</p>
 <dd><p>Access flags for peers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAccessTypeT</span></code></p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAccessType</span></code> | None | str</p>
 </dd>
 </dl>
 </dd></dl>
