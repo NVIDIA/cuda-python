@@ -28,7 +28,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
 )
 
-from cuda.core._stream import IsStreamT, Stream, StreamOptions
+from cuda.core._stream import IsStreamType, Stream, StreamOptions
 from cuda.core._utils.clear_error_support import assert_type
 from cuda.core._utils.cuda_utils import (
     ComputeCapability,
@@ -1341,7 +1341,7 @@ class Device:
 
         return Context._from_green_ctx(Context, h_green, self._device_id)
 
-    def create_stream(self, obj: IsStreamT | None = None, options: StreamOptions | None = None) -> Stream:
+    def create_stream(self, obj: IsStreamType | None = None, options: StreamOptions | None = None) -> Stream:
         """Create a :obj:`~_stream.Stream` object.
 
         New stream objects can be created in two different ways:
@@ -1358,7 +1358,7 @@ class Device:
 
         Parameters
         ----------
-        obj : :obj:`~_stream.IsStreamT`, optional
+        obj : :obj:`~_stream.IsStreamType`, optional
             Any object supporting the ``__cuda_stream__`` protocol.
         options : :obj:`~_stream.StreamOptions`, optional
             Customizable dataclass for stream creation options.

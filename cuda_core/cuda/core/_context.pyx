@@ -27,7 +27,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 __all__ = ['Context', 'ContextOptions']
 
 
-DeviceResourcesT = Sequence[SMResource | WorkqueueResource]
+DeviceResourcesType = Sequence[SMResource | WorkqueueResource]
 
 
 cdef class Context:
@@ -149,7 +149,7 @@ cdef class ContextOptions:
 
     Attributes
     ----------
-    resources : :obj:`~cuda.core.typing.DeviceResourcesT`
+    resources : :obj:`~cuda.core.typing.DeviceResourcesType`
         Device resources used to create a green context.
     """
-    resources: DeviceResourcesT
+    resources: DeviceResourcesType
