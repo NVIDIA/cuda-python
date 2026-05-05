@@ -267,6 +267,14 @@ class TestHost:
         with pytest.raises(ValueError, match="numa_id must be a non-negative int"):
             Host(numa_id=-1)
 
+    def test_numa_id_rejects_bool(self):
+        # bool is an int subclass; reject explicitly so Host(True) doesn't
+        # alias Host(1) (and vice versa) in the singleton cache.
+        with pytest.raises(ValueError, match="numa_id must be a non-negative int"):
+            Host(numa_id=True)
+        with pytest.raises(ValueError, match="numa_id must be a non-negative int"):
+            Host(numa_id=False)
+
     def test_numa_current_only_via_classmethod(self):
         # is_numa_current is internal state, only settable via Host.numa_current()
         with pytest.raises(TypeError):
