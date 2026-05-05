@@ -9,7 +9,7 @@ import pathlib
 import platform
 import subprocess
 import tempfile
-from contextlib import suppress
+from contextlib import contextmanager, suppress
 from functools import cache
 
 import pytest
@@ -26,6 +26,16 @@ logging.basicConfig(
 )
 
 cufile = pytest.importorskip("cuda.bindings.cufile", reason="skipping tests on Windows")
+
+
+@contextmanager
+def _cufile_driver_session():
+    """Open the cuFile driver for a block; always close in a finally (mirrors try/finally)."""
+    cufile.driver_open()
+    try:
+        yield
+    finally:
+        cufile.driver_close()
 
 
 @pytest.fixture
@@ -1396,11 +1406,8 @@ def test_set_get_parameter_size_t():
 
     # Snapshot baselines after driver_open so getters reflect merged config (defaults + JSON),
     # not pre-open pending state that could restore invalid values (e.g. 0 for per-buffer cache).
-    cufile.driver_open()
-    try:
+    with _cufile_driver_session():
         originals = {param: cufile.get_parameter_size_t(param) for param, _ in param_val_pairs}
-    finally:
-        cufile.driver_close()
 
     def test_param(param, val):
         orig_val = originals[param]
@@ -1449,11 +1456,8 @@ def test_set_get_parameter_bool():
             (p, v) for p, v in param_val_pairs if p is not cufile.BoolConfigParameter.PROFILE_NVTX
         )
 
-    cufile.driver_open()
-    try:
+    with _cufile_driver_session():
         originals = {param: cufile.get_parameter_bool(param) for param, _ in param_val_pairs}
-    finally:
-        cufile.driver_close()
 
     def test_param(param, val):
         orig_val = originals[param]
@@ -1491,11 +1495,8 @@ def test_set_get_parameter_string(tmp_path):
         ),  # Test log directory
     )
 
-    cufile.driver_open()
-    try:
+    with _cufile_driver_session():
         originals = {param: cufile.get_parameter_string(param, 256) for param, _, _ in param_val_pairs}
-    finally:
-        cufile.driver_close()
 
     def test_param(param, val, default_val):
         orig_val = originals[param]
@@ -1937,11 +1938,8 @@ def test_set_parameter_posix_pool_slab_array(slab_sizes, slab_counts, driver_con
     retrieved_counts_addr = ctypes.addressof(retrieved_counts)
 
     # Open cuFile driver AFTER setting parameters
-    cufile.driver_open()
-    try:
+    with _cufile_driver_session():
         cufile.get_parameter_posix_pool_slab_array(retrieved_sizes_addr, retrieved_counts_addr, n_slab_sizes)
-    finally:
-        cufile.driver_close()
 
     # Verify they match what we set
     assert list(retrieved_sizes) == slab_sizes
