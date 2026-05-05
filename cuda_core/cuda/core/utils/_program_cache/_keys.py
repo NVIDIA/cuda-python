@@ -80,6 +80,13 @@ def _gate_ptxas_options(v):
     # treats ``str`` as a single-element sequence. Canonicalize to a tuple so
     # ``"-v"`` / ``["-v"]`` / ``("-v",)`` all hash the same. An empty sequence
     # emits no flags, so collapse it to ``None`` too.
+    #
+    # Order is preserved on purpose: ptxas accepts ordering-sensitive flag
+    # pairs (e.g. ``-O2`` after ``-O3`` lowers the active level), so
+    # ``["-v", "-O2"]`` and ``["-O2", "-v"]`` are not guaranteed to produce
+    # identical bytes. We accept the spurious miss when callers reorder
+    # flags; treating order as semantic keeps the cache safe in the
+    # ordering-sensitive case.
     if v is None:
         return None
     if isinstance(v, str):
