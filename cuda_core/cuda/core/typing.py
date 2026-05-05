@@ -6,6 +6,7 @@
 
 from typing import Literal as _Literal
 
+from cuda.core._context import DeviceResourcesT
 from cuda.core._memory._buffer import DevicePointerT
 from cuda.core._stream import IsStreamT
 
@@ -13,6 +14,7 @@ ProcessStateT = _Literal["running", "locked", "checkpointed", "failed"]
 
 __all__ = [
     "DevicePointerT",
+    "DeviceResourcesT",
     "IsStreamT",
     "ProcessStateT",
 ]

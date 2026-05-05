@@ -7,19 +7,24 @@ from __future__ import annotations
 cimport cpython
 
 from cuda.bindings cimport cydriver
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
+from libcpp.vector cimport vector
 
 import threading
 
 from cuda.core._context cimport Context
 from cuda.core._context import ContextOptions
+from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueResource
 from cuda.core._event cimport Event as cyEvent
 from cuda.core._event import Event, EventOptions
 from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._resource_handles cimport (
     ContextHandle,
+    GreenCtxHandle,
     create_context_handle_ref,
+    create_green_ctx_handle,
     get_primary_context,
+    get_last_error,
     as_cu,
 )
 
@@ -954,7 +959,16 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
-    __slots__ = ("_device_id", "_memory_resource", "_has_inited", "_properties", "_uuid", "_context", "__weakref__")
+    __slots__ = (
+        "_device_id",
+        "_memory_resource",
+        "_has_inited",
+        "_properties",
+        "_resources",
+        "_uuid",
+        "_context",
+        "__weakref__",
+    )
 
     def __new__(cls, device_id: Device | int | None = None):
         if isinstance(device_id, Device):
@@ -1101,6 +1115,13 @@ class Device:
         return self._properties
 
     @property
+    def resources(self) -> DeviceResources:
+        """Return the hardware resource query namespace for this device."""
+        if self._resources is None:
+            self._resources = DeviceResources._init(self._device_id)
+        return self._resources
+
+    @property
     def compute_capability(self) -> ComputeCapability:
         """Return a named tuple with 2 fields: major and minor."""
         cdef DeviceProperties prop = self.properties
@@ -1219,6 +1240,7 @@ class Device:
         """
         cdef ContextHandle h_context
         cdef cydriver.CUcontext prev_ctx, curr_ctx
+        cdef Context prev_owned = None
 
         if ctx is not None:
             # TODO: revisit once Context is cythonized
@@ -1228,6 +1250,8 @@ class Device:
                     "the provided context was created on the device with"
                     f" id={ctx._device_id}, which is different from the target id={self._device_id}"
                 )
+            if self._has_inited and self._context is not None:
+                prev_owned = self._context
             # prev_ctx is the previous context
             curr_ctx = as_cu(ctx._h_context)
             prev_ctx = NULL
@@ -1237,6 +1261,8 @@ class Device:
             self._has_inited = True
             self._context = ctx  # Store owning context reference
             if prev_ctx != NULL:
+                if prev_owned is not None and as_cu(prev_owned._h_context) == prev_ctx:
+                    return prev_owned
                 return Context._from_handle(Context, create_context_handle_ref(prev_ctx), self._device_id)
         else:
             # use primary ctx
@@ -1266,7 +1292,54 @@ class Device:
             Newly created context object.
 
         """
-        raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
+        cdef int i
+        cdef object resources
+        cdef object res
+        cdef SMResource sm_res
+        cdef WorkqueueResource wq_res
+        cdef GreenCtxHandle h_green
+
+        if options is None:
+            raise ValueError(
+                "options with device resources must be provided to create a green context"
+            )
+
+        options = check_or_create_options(ContextOptions, options, "Context options")
+        if options.resources is None:
+            raise ValueError(
+                "ContextOptions.resources must be provided to create a green context"
+            )
+
+        resources = tuple(options.resources)
+        if len(resources) == 0:
+            raise ValueError("ContextOptions.resources must not be empty")
+
+        cdef vector[cydriver.CUdevResource] c_resources
+        c_resources.resize(len(resources))
+
+        for i, res in enumerate(resources):
+            if isinstance(res, SMResource):
+                sm_res = <SMResource>res
+                if not sm_res._is_usable:
+                    raise ValueError("dry-run SMResource objects cannot be used to create a context")
+                c_resources[i] = sm_res._resource
+            elif isinstance(res, WorkqueueResource):
+                wq_res = <WorkqueueResource>res
+                c_resources[i] = wq_res._wq_config_resource
+            else:
+                raise TypeError(f"Unsupported context resource type: {type(res)}")
+
+        h_green = create_green_ctx_handle(
+            c_resources.data(),
+            <unsigned int>(c_resources.size()),
+            <cydriver.CUdevice>(self._device_id),
+            <unsigned int>(cydriver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM),
+        )
+        if h_green.get() == NULL:
+            HANDLE_RETURN(get_last_error())
+            raise RuntimeError("Failed to create CUDA green context")
+
+        return Context._from_green_ctx(Context, h_green, self._device_id)
 
     def create_stream(self, obj: IsStreamT | None = None, options: StreamOptions | None = None) -> Stream:
         """Create a :obj:`~_stream.Stream` object.
@@ -1429,6 +1502,7 @@ cdef inline list Device_ensure_tls_devices(cls):
             device._memory_resource = None
             device._has_inited = False
             device._properties = None
+            device._resources = None
             device._uuid = None
             device._context = None
             devices.append(device)
