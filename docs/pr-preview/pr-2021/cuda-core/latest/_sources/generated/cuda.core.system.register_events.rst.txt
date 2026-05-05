@@ -1,6 +1,0 @@
-﻿cuda.core.system.register\_events
-=================================
-
-.. currentmodule:: cuda.core.system
-
-.. autofunction:: register_events
