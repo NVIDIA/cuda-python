@@ -23,7 +23,7 @@ import multiprocessing
 import platform  # no-cython-lint
 import uuid
 
-from ._peer_access_utils import PeerAccessibleBySetProxy, replace_peer_accessible_by
+from cuda.core._memory._peer_access_utils import PeerAccessibleBySetProxy, replace_peer_accessible_by
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']

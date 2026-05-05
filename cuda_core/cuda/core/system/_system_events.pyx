@@ -5,25 +5,12 @@
 
 from libc.stdint cimport intptr_t
 
-import sys
-if sys.version_info >= (3, 11):
-    from enum import StrEnum
-else:
-    from backports.strenum import StrEnum
-
 from cuda.bindings import nvml
 
 from ._nvml_context cimport initialize
 
 from . import _device
-
-
-class SystemEventType(StrEnum):
-    """
-    System event types.
-    """
-    UNBIND = "unbind"
-    BIND = "bind"
+from cuda.core.system.typing import SystemEventType
 
 
 _SYSTEM_EVENT_TYPE_MAPPING = {
@@ -193,5 +180,4 @@ def register_events(events: SystemEventType | str | list[SystemEventType | str])
 
 __all__ = [
     "register_events",
-    "SystemEventType",
 ]

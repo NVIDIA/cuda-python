@@ -5,22 +5,34 @@
 from libc.stdint cimport intptr_t, uint64_t
 from libc.math cimport ceil
 
-import sys
-if sys.version_info >= (3, 11):
-    from enum import StrEnum
-else:
-    from backports.strenum import StrEnum
 from multiprocessing import cpu_count
 from typing import Iterable
 import warnings
 
 from cuda.bindings import nvml
-try:
-    from cuda.bindings._internal._fast_enum import FastEnum
-except ImportError:
-    from enum import IntEnum as FastEnum
 
 from ._nvml_context cimport initialize
+from cuda.core.system.typing import (
+    AddressingMode,
+    AffinityScope,
+    DeviceArch,
+    ClockId,
+    ClocksEventReasons,
+    ClockType,
+    CoolerControl,
+    CoolerTarget,
+    DeviceArch,
+    EventType,
+    FanControlPolicy,
+    FieldId,
+    GpuP2PCapsIndex,
+    GpuP2PStatus,
+    GpuTopologyLevel,
+    InforomObject,
+    TemperatureThresholds,
+    ThermalController,
+    ThermalTarget,
+)
 
 
 cdef object _pstate_to_int(object pstate):
@@ -57,51 +69,10 @@ include "_temperature.pxi"
 include "_utilization.pxi"
 
 
-class AddressingMode(StrEnum):
-    """
-    Addressing mode of a device.
-
-    For Kepler™ or newer fully supported devices.
-    """
-    HMM = "hmm"
-    ATS = "ats"
-
-
-AddressingMode.HMM.__doc__ = """
-    System allocated memory (``malloc``, ``mmap``) is addressable from the device
-    (GPU), via software-based mirroring of the CPU's page tables, on the GPU.
-"""
-
-
-AddressingMode.ATS.__doc__ = """
-    System allocated memory (``malloc``, ``mmap``) is addressable from the device
-    (GPU), via Address Translation Services. This means that there is (effectively)
-    a single set of page tables, and the CPU and GPU both use them.
-"""
-
-
 _ADDRESSING_MODE_MAPPING = {
     nvml.DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_HMM: AddressingMode.HMM,
     nvml.DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_ATS: AddressingMode.ATS,
 }
-
-
-class AffinityScope(StrEnum):
-    """
-    Scope for affinity queries.
-    """
-    NODE = "node"
-    SOCKET = "socket"
-
-
-AffinityScope.NODE.__doc__ = """
-The NUMA node is the scope of the affinity query.  This is the default scope.
-"""
-
-
-AffinityScope.SOCKET.__doc__ = """
-The CPU socket is the scope of the affinity query.
-"""
 
 
 _AFFINITY_SCOPE_MAPPING = {
@@ -132,37 +103,6 @@ _BRAND_TYPE_MAPPING = {
 }
 
 
-# This uses FastEnum instead of StrEnum because the ordering of the values is
-# meaningful, e.g. Kepler "or later"
-class DeviceArch(FastEnum):
-    """
-    Device architecture.
-    """
-    KEPLER = int(nvml.DeviceArch.KEPLER)
-    MAXWELL = int(nvml.DeviceArch.MAXWELL)
-    PASCAL = int(nvml.DeviceArch.PASCAL)
-    VOLTA = int(nvml.DeviceArch.VOLTA)
-    TURING = int(nvml.DeviceArch.TURING)
-    AMPERE = int(nvml.DeviceArch.AMPERE)
-    ADA = int(nvml.DeviceArch.ADA)
-    HOPPER = int(nvml.DeviceArch.HOPPER)
-    BLACKWELL = int(nvml.DeviceArch.BLACKWELL)
-    UNKNOWN = int(nvml.DeviceArch.UNKNOWN)
-
-
-class GpuP2PCapsIndex(StrEnum):
-    """
-    GPU peer-to-peer capabilities index.
-    """
-    READ = "read"
-    WRITE = "write"
-    NVLINK = "nvlink"
-    ATOMICS = "atomics"
-    PCI = "pci"
-    PROP = "prop"
-    UNKNOWN = "unknown"
-
-
 _GPU_P2P_CAPS_INDEX_MAPPING = {
     GpuP2PCapsIndex.READ: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_READ,
     GpuP2PCapsIndex.WRITE: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_WRITE,
@@ -174,19 +114,6 @@ _GPU_P2P_CAPS_INDEX_MAPPING = {
 }
 
 
-class GpuP2PStatus(StrEnum):
-    """
-    GPU peer-to-peer status.
-    """
-    OK = "ok"
-    CHIPSET_NOT_SUPPORTED = "chipset not supported"
-    GPU_NOT_SUPPORTED = "GPU not supported"
-    IOH_TOPOLOGY_NOT_SUPPORTED = "IOH topology not supported"
-    DISABLED_BY_REGKEY = "disabled by regkey"
-    NOT_SUPPORTED = "not supported"
-    UNKNOWN = "unknown"
-
-
 _GPU_P2P_STATUS_MAPPING = {
     nvml.GpuP2PStatus.P2P_STATUS_OK: GpuP2PStatus.OK,
     nvml.GpuP2PStatus.P2P_STATUS_CHIPSET_NOT_SUPPORTED: GpuP2PStatus.CHIPSET_NOT_SUPPORTED,
@@ -196,18 +123,6 @@ _GPU_P2P_STATUS_MAPPING = {
     nvml.GpuP2PStatus.P2P_STATUS_NOT_SUPPORTED: GpuP2PStatus.NOT_SUPPORTED,
     nvml.GpuP2PStatus.P2P_STATUS_UNKNOWN: GpuP2PStatus.UNKNOWN,
 }
-
-
-class GpuTopologyLevel(StrEnum):
-    """
-    Represents level relationships within a system between two GPUs.
-    """
-    INTERNAL = "internal"
-    SINGLE = "single"
-    MULTIPLE = "multiple"
-    HOSTBRIDGE = "hostbridge"
-    NODE = "node"
-    SYSTEM = "system"
 
 
 _GPU_TOPOLOGY_LEVEL_MAPPING = {
@@ -1204,27 +1119,8 @@ def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex | st
 
 
 __all__ = [
-    "AddressingMode",
-    "AffinityScope",
-    "ClockId",
-    "ClocksEventReasons",
-    "ClockType",
-    "CoolerControl",
-    "CoolerTarget",
     "Device",
-    "DeviceArch",
-    "EventType",
-    "FanControlPolicy",
-    "FieldId",
     "get_p2p_status",
     "get_topology_common_ancestor",
-    "GpuP2PCapsIndex",
-    "GpuP2PStatus",
-    "GpuTopologyLevel",
-    "InforomObject",
     "NvlinkInfo",
-    "TemperatureThresholds",
-    "ThermalController",
-    "ThermalTarget",
-    "Utilization",
 ]

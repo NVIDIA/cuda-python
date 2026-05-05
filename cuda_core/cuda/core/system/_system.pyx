@@ -24,7 +24,7 @@ if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     except ImportError:
         CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
 
-    from ._nvml_context import initialize
+    from cuda.core.system._nvml_context import initialize
 else:
     from cuda.core._utils.cuda_utils import driver, handle_return, runtime
 

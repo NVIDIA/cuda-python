@@ -103,14 +103,17 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     # Populated below only when NVML bindings are compatible, so that importing
     # this module on an incompatible host does not raise ImportError.
+    import cuda.core.system.typing as system_typing
     from cuda.bindings import nvml
     from cuda.core.system import _device, _system_events
+
+    _MODULES.append(system_typing)
 
     _CASES.extend(
         [
             (
                 nvml.DeviceAddressingModeType,
-                _device.AddressingMode,
+                system_typing.AddressingMode,
                 _device._ADDRESSING_MODE_MAPPING,
                 # NONE means "no special addressing mode is active"; not a valid target
                 {"DEVICE_ADDRESSING_MODE_NONE"},
@@ -126,7 +129,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.GpuP2PStatus,
-                _device.GpuP2PStatus,
+                system_typing.GpuP2PStatus,
                 _device._GPU_P2P_STATUS_MAPPING,
                 # Both the typo'd (SUPPORED) and corrected (SUPPORTED) spellings
                 # share the same integer value; the mapping covers both via aliases
@@ -135,28 +138,28 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.ClocksEventReasons,
-                _device.ClocksEventReasons,
+                system_typing.ClocksEventReasons,
                 _device._CLOCKS_EVENT_REASONS_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.EventType,
-                _device.EventType,
+                system_typing.EventType,
                 _device._EVENT_TYPE_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.FanControlPolicy,
-                _device.FanControlPolicy,
+                system_typing.FanControlPolicy,
                 _device._FAN_CONTROL_POLICY_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.CoolerControl,
-                _device.CoolerControl,
+                system_typing.CoolerControl,
                 _device._COOLER_CONTROL_MAPPING,
                 # NONE means no signal; COUNT is a sentinel
                 {"THERMAL_COOLER_SIGNAL_NONE", "THERMAL_COOLER_SIGNAL_COUNT"},
@@ -164,7 +167,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.CoolerTarget,
-                _device.CoolerTarget,
+                system_typing.CoolerTarget,
                 _device._COOLER_TARGET_MAPPING,
                 # GPU_RELATED is a composite bitmask (GPU | MEMORY | POWER_SUPPLY);
                 # the wrapper expands it into individual targets instead of mapping
@@ -174,14 +177,14 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.ThermalController,
-                _device.ThermalController,
+                system_typing.ThermalController,
                 _device._THERMAL_CONTROLLER_MAPPING,
                 {"NONE"},
                 {"NONE"},
             ),
             (
                 nvml.ThermalTarget,
-                _device.ThermalTarget,
+                system_typing.ThermalTarget,
                 _device._THERMAL_TARGET_MAPPING,
                 # UNKNOWN is a fallback sentinel; handled by .get()
                 {"UNKNOWN"},
@@ -197,35 +200,35 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.SystemEventType,
-                _system_events.SystemEventType,
+                system_typing.SystemEventType,
                 _system_events._SYSTEM_EVENT_TYPE_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.AffinityScope,
-                _device.AffinityScope,
+                system_typing.AffinityScope,
                 _device._AFFINITY_SCOPE_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.GpuP2PCapsIndex,
-                _device.GpuP2PCapsIndex,
+                system_typing.GpuP2PCapsIndex,
                 _device._GPU_P2P_CAPS_INDEX_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.GpuTopologyLevel,
-                _device.GpuTopologyLevel,
+                system_typing.GpuTopologyLevel,
                 _device._GPU_TOPOLOGY_LEVEL_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.ClockId,
-                _device.ClockId,
+                system_typing.ClockId,
                 _device._CLOCK_ID_MAPPING,
                 # APP_CLOCK_TARGET and APP_CLOCK_DEFAULT are deprecated; COUNT is a sentinel
                 {"APP_CLOCK_TARGET", "APP_CLOCK_DEFAULT", "COUNT"},
@@ -233,7 +236,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.ClockType,
-                _device.ClockType,
+                system_typing.ClockType,
                 _device._CLOCK_TYPE_MAPPING,
                 # COUNT is a sentinel
                 {"CLOCK_COUNT"},
@@ -241,7 +244,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.InforomObject,
-                _device.InforomObject,
+                system_typing.InforomObject,
                 _device._INFOROM_OBJECT_MAPPING,
                 # COUNT is a sentinel
                 {"INFOROM_COUNT"},
@@ -249,7 +252,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.TemperatureThresholds,
-                _device.TemperatureThresholds,
+                system_typing.TemperatureThresholds,
                 _device._TEMPERATURE_THRESHOLD_MAPPING,
                 # COUNT is a sentinel
                 {"TEMPERATURE_THRESHOLD_COUNT"},
