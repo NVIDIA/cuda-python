@@ -42,35 +42,19 @@ _SUPPORTED_TARGETS_BY_CODE_TYPE = {
 }
 
 
-# ProgramOptions fields that reach the Linker via _translate_program_options
-# (see cuda_core/cuda/core/_program.pyx). All other fields on ProgramOptions
-# are NVRTC-only and must NOT perturb a PTX cache key: a PTX compile with a
-# shared ProgramOptions that happens to set include_path/pch/frandom_seed
-# would otherwise miss the cache unnecessarily.
-_LINKER_RELEVANT_FIELDS = (
-    "name",
-    "arch",
-    "max_register_count",
-    "time",
-    "link_time_optimization",
-    "debug",
-    "lineinfo",
-    "ftz",
-    "prec_div",
-    "prec_sqrt",
-    "fma",
-    "split_compile",
-    "ptxas_options",
-    "no_cache",
-)
-
-
-# Map each linker-relevant ProgramOptions field to the gate the Linker uses
-# to turn it into a flag (see ``_prepare_nvjitlink_options`` and
-# ``_prepare_driver_options`` in _linker.pyx). Collapsing inputs through
-# these gates means semantically-equivalent configurations
-# (``debug=False`` vs ``None``, ``time=True`` vs ``time="path"``) hash to
-# the same cache key instead of forcing spurious misses.
+# Map each ProgramOptions field that reaches the Linker via
+# _translate_program_options (see cuda_core/cuda/core/_program.pyx) to the
+# gate the Linker uses to turn it into a flag (see
+# ``_prepare_nvjitlink_options`` and ``_prepare_driver_options`` in
+# _linker.pyx). All other fields on ProgramOptions are NVRTC-only and must
+# NOT perturb a PTX cache key: a PTX compile with a shared ProgramOptions
+# that happens to set include_path/pch/frandom_seed would otherwise miss the
+# cache unnecessarily. Collapsing inputs through these gates means
+# semantically-equivalent configurations (``debug=False`` vs ``None``,
+# ``time=True`` vs ``time="path"``) hash to the same cache key instead of
+# forcing spurious misses. Single source of truth: every reader iterates
+# this dict, so adding a field here is enough -- there is no parallel
+# field-name list to keep in sync.
 def _gate_presence(v):
     return v is not None
 
@@ -146,11 +130,11 @@ def _linker_option_fingerprint(options: ProgramOptions, *, use_driver_linker: bo
     """
     parts = []
     driver_ignored = use_driver_linker is True
-    for name in _LINKER_RELEVANT_FIELDS:
+    for name, gate in _LINKER_FIELD_GATES.items():
         if driver_ignored and name in _DRIVER_IGNORED_LINKER_FIELDS:
             parts.append(f"{name}=<driver-ignored>".encode())
             continue
-        gated = _LINKER_FIELD_GATES[name](getattr(options, name, None))
+        gated = gate(getattr(options, name, None))
         parts.append(f"{name}={gated!r}".encode())
     return parts
 
