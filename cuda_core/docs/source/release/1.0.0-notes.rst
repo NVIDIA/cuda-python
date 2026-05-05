@@ -113,6 +113,10 @@ Breaking changes
     ``CUgraphConditionalHandle`` value. Previously, ``.handle`` had to be
     extracted explicitly.
 
+- :attr:`DeviceMemoryResource.peer_accessible_by` now returns a
+  :class:`collections.abc.MutableSet` of :obj:`~_device.Device` objects instead
+  of a sorted ``tuple[int, ...]``. The property setter is unchanged.
+
 
 Fixes and enhancements
 -----------------------

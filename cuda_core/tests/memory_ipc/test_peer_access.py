@@ -29,7 +29,7 @@ class TestPeerAccessNotPreservedOnImport:
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr = DeviceMemoryResource(dev1, options=options)
         mr.peer_accessible_by = [dev0]
-        assert mr.peer_accessible_by == (0,)
+        assert mr.peer_accessible_by == {dev0}
 
         # Spawn child process
         process = mp.Process(target=self.child_main, args=(mr,))
@@ -38,18 +38,18 @@ class TestPeerAccessNotPreservedOnImport:
         assert process.exitcode == 0
 
         # Verify parent's MR still has peer access set (independent state)
-        assert mr.peer_accessible_by == (0,)
+        assert mr.peer_accessible_by == {dev0}
         mr.close()
 
     def child_main(self, mr):
         Device(1).set_current()
         assert mr.is_mapped is True
         assert mr.device_id == 1
-        assert mr.peer_accessible_by == ()
+        assert mr.peer_accessible_by == set()
         mr.peer_accessible_by = [0]
-        assert mr.peer_accessible_by == (0,)
+        assert mr.peer_accessible_by == {Device(0)}
         mr.peer_accessible_by = []
-        assert mr.peer_accessible_by == ()
+        assert mr.peer_accessible_by == set()
         mr.close()
 
 
@@ -70,9 +70,9 @@ class TestBufferPeerAccessAfterImport:
         mr = DeviceMemoryResource(dev1, options=options)
         if grant_access_in_parent:
             mr.peer_accessible_by = [dev0]
-            assert mr.peer_accessible_by == (0,)
+            assert mr.peer_accessible_by == {dev0}
         else:
-            assert mr.peer_accessible_by == ()
+            assert mr.peer_accessible_by == set()
         buffer = mr.allocate(NBYTES)
         pgen = PatternGen(dev1, NBYTES)
         pgen.fill_buffer(buffer, seed=False)
@@ -108,14 +108,14 @@ class TestBufferPeerAccessAfterImport:
         # Test 3: Set peer access and verify buffer becomes accessible
         dev1.set_current()
         mr.peer_accessible_by = [0]
-        assert mr.peer_accessible_by == (0,)
+        assert mr.peer_accessible_by == {dev0}
         dev0.set_current()
         PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
 
         # Test 4: Revoke peer access and verify buffer becomes inaccessible
         dev1.set_current()
         mr.peer_accessible_by = []
-        assert mr.peer_accessible_by == ()
+        assert mr.peer_accessible_by == set()
         dev0.set_current()
         with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
             PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
