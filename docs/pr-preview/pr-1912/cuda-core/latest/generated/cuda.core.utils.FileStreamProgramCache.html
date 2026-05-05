@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7c40c215"></script>
+    <script src="../_static/documentation_options.js?v=5af52104"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev70';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev93';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -64,7 +64,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Environment Variables" href="../environment_variables.html" />
+    <link rel="next" title="cuda.core.utils.make_program_cache_key" href="cuda.core.utils.make_program_cache_key.html" />
     <link rel="prev" title="cuda.core.utils.InMemoryProgramCache" href="cuda.core.utils.InMemoryProgramCache.html" />
 
 
@@ -550,6 +550,10 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
@@ -582,11 +586,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.utils.FileStreamProgramCache</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
@@ -766,7 +766,13 @@ least-recently-read time (oldest <code class="docutils literal notranslate"><spa
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.FileStreamProgramCache.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.FileStreamProgramCache.close" title="Link to this definition">#</a></dt>
-<dd><p>Release backend resources. No-op by default.</p>
+<dd><p>Release backend resources.</p>
+<p>The default implementation does nothing. Subclasses that hold
+long-lived state (open file handles, database connections,
+network sockets, …) should override this to release them.</p>
+<p>Callers should use the context-manager form (<code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">cache:</span></code>)
+or call <a class="reference internal" href="#cuda.core.utils.FileStreamProgramCache.close" title="cuda.core.utils.FileStreamProgramCache.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> explicitly when finished, so code stays
+portable across backends that do hold resources.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -824,11 +830,11 @@ a failure mid-iteration leaves earlier writes committed.</p>
       </div>
     </a>
     <a class="right-next"
-       href="../environment_variables.html"
+       href="cuda.core.utils.make_program_cache_key.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Environment Variables</p>
+        <p class="prev-next-title">cuda.core.utils.make_program_cache_key</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

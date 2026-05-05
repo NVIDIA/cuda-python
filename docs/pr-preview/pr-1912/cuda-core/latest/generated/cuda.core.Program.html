@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7c40c215"></script>
+    <script src="../_static/documentation_options.js?v=5af52104"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev70';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev93';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -550,6 +550,10 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
@@ -582,11 +586,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
@@ -729,8 +729,11 @@ For NVVM IR, can be str, bytes, or bytearray.</p></li>
 <li><p><strong>target_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The compilation target. Must be one of <code class="docutils literal notranslate"><span class="pre">&quot;ptx&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cubin&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;ltoir&quot;</span></code>.</p></li>
 <li><p><strong>name_expressions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>, </em><em>optional</em>) – Sequence of name expressions to make accessible in the compiled code.
 Used for template instantiation and similar cases.</p></li>
-<li><p><strong>logs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – Object with a <code class="docutils literal notranslate"><span class="pre">write</span></code> method to receive compilation logs.</p></li>
-<li><p><strong>cache</strong> (<a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a>, optional) – If provided, the compiled binary is looked up in <code class="docutils literal notranslate"><span class="pre">cache</span></code> via a
+<li><p><strong>logs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – Object with a <code class="docutils literal notranslate"><span class="pre">write</span></code> method to receive compilation logs.
+On a cache hit no compilation runs and <code class="docutils literal notranslate"><span class="pre">logs</span></code> receives
+nothing – callers that rely on log output to confirm a
+compile happened should compile without <code class="docutils literal notranslate"><span class="pre">cache=</span></code>.</p></li>
+<li><p><strong>cache</strong> (<a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a>, optional) – <p>If provided, the compiled binary is looked up in <code class="docutils literal notranslate"><span class="pre">cache</span></code> via a
 key derived from the program’s code, options, and <code class="docutils literal notranslate"><span class="pre">target_type</span></code>.
 On a hit the cached bytes are wrapped in a fresh
 <a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> (with the same <code class="docutils literal notranslate"><span class="pre">target_type</span></code>
@@ -748,7 +751,14 @@ Options that require an <code class="docutils literal notranslate"><span class="
 directory component) raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> via
 <a class="reference internal" href="cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a>; for those
 compiles, use the manual <code class="docutils literal notranslate"><span class="pre">make_program_cache_key(...)</span></code>
-pattern directly.</p></li>
+pattern directly.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cache=</span></code> is independent of <code class="docutils literal notranslate"><span class="pre">ProgramOptions.no_cache</span></code>: the
+former controls this program-level cache (compiled-output
+reuse across calls), while <code class="docutils literal notranslate"><span class="pre">no_cache</span></code> is forwarded to the
+Linker to disable its in-process JIT cache for cuLink/nvJitLink.
+Setting <code class="docutils literal notranslate"><span class="pre">options.no_cache=True</span></code> does not bypass <code class="docutils literal notranslate"><span class="pre">cache=</span></code>,
+and vice-versa.</p>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
