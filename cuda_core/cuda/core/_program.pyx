@@ -103,6 +103,9 @@ cdef class Program:
             Used for template instantiation and similar cases.
         logs : object, optional
             Object with a ``write`` method to receive compilation logs.
+            On a cache hit no compilation runs and ``logs`` receives
+            nothing -- callers that rely on log output to confirm a
+            compile happened should compile without ``cache=``.
         cache : :class:`~cuda.core.utils.ProgramCacheResource`, optional
             If provided, the compiled binary is looked up in ``cache`` via a
             key derived from the program's code, options, and ``target_type``.
