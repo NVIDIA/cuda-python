@@ -16,20 +16,30 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   typing.DevicePointerT
-   _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryGranularityT
-   _memory._virtual_memory_resource.VirtualMemoryAccessTypeT
-   _memory._virtual_memory_resource.VirtualMemoryHandleTypeT
    _module.KernelAttributes
    _module.KernelOccupancy
-   _module.ParamInfo
    _module.MaxPotentialBlockSizeOccupancyResult
+   _module.ParamInfo
+   typing.CompilerBackendType
+   typing.DevicePointerType
+   typing.DeviceResourcesType
+   typing.GraphConditionalType
+   typing.GraphMemoryType
+   typing.ManagedMemoryLocationType
+   typing.ObjectCodeFormatType
+   typing.PCHStatusType
+   typing.ProcessStateType
+   typing.SourceCodeType
+   typing.VirtualMemoryAccessType
+   typing.VirtualMemoryAllocationType
+   typing.VirtualMemoryGranularityType
+   typing.VirtualMemoryHandleType
+   typing.VirtualMemoryLocationType
 
    :template: autosummary/cyclass.rst
 
    _device.DeviceProperties
+   _device_resources.DeviceResources
    _memory._ipc.IPCAllocationHandle
    _memory._ipc.IPCBufferDescriptor
    _memory._managed_buffer.AccessedBySetProxy
@@ -51,7 +61,7 @@ CUDA protocols
    :toctree: generated/
    :template: protocol.rst
 
-   typing.IsStreamT
+   typing.IsStreamType
 
 NVML
 ----
@@ -72,13 +82,9 @@ NVML
    system._device.FieldValues
    system._device.GpuDynamicPstatesInfo
    system._device.GpuDynamicPstatesUtilization
-   system._device.GpuP2PCapsIndex
-   system._device.GpuP2PStatus
-   system._device.GpuTopologyLevel
    system._device.InforomInfo
    system._device.MemoryInfo
    system._device.MigInfo
-   system._device.NvlinkInfo
    system._device.PciInfo
    system._device.ProcessInfo
    system._device.RepairStatus
@@ -88,3 +94,28 @@ NVML
    system._system_events.RegisteredSystemEvents
    system._system_events.SystemEvent
    system._system_events.SystemEvents
+
+.. These are not technically private, but are included here to avoid cluttering the main API reference.
+
+.. autosummary::
+   :toctree: generated/
+
+   system.AddressingMode
+   system.AffinityScope
+   system.ClockId
+   system.ClocksEventReasons
+   system.ClockType
+   system.CoolerControl
+   system.CoolerTarget
+   system.DeviceArch
+   system.EventType
+   system.FanControlPolicy
+   system.FieldId
+   system.GpuP2PCapsIndex
+   system.GpuP2PStatus
+   system.GpuTopologyLevel
+   system.InforomObject
+   system.TemperatureThresholds
+   system.ThermalController
+   system.ThermalTarget
+   system.SystemEventType

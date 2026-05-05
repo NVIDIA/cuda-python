@@ -22,7 +22,6 @@ cuda.core.ManagedBuffer
    .. automethod:: fill
    .. automethod:: from_handle
    .. automethod:: from_ipc_descriptor
-   .. automethod:: get_ipc_descriptor
    .. automethod:: prefetch
 
    
@@ -36,6 +35,7 @@ cuda.core.ManagedBuffer
    .. autoattribute:: accessed_by
    .. autoattribute:: device_id
    .. autoattribute:: handle
+   .. autoattribute:: ipc_descriptor
    .. autoattribute:: is_device_accessible
    .. autoattribute:: is_host_accessible
    .. autoattribute:: is_managed

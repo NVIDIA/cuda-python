@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=a765407d"></script>
+    <script src="_static/documentation_options.js?v=0731a4ee"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev129';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev166';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -504,9 +504,15 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Context.html">cuda.core.Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.SMResource.html">cuda.core.SMResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.WorkqueueResource.html">cuda.core.WorkqueueResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ContextOptions.html">cuda.core.ContextOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.SMResourceOptions.html">cuda.core.SMResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ManagedBuffer.html">cuda.core.ManagedBuffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
@@ -522,9 +528,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
@@ -552,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
@@ -562,27 +569,8 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.AddressingMode.html">cuda.core.system.AddressingMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.AffinityScope.html">cuda.core.system.AffinityScope</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ClockId.html">cuda.core.system.ClockId</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ClocksEventReasons.html">cuda.core.system.ClocksEventReasons</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ClockType.html">cuda.core.system.ClockType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.CoolerControl.html">cuda.core.system.CoolerControl</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.CoolerTarget.html">cuda.core.system.CoolerTarget</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceArch.html">cuda.core.system.DeviceArch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.EventType.html">cuda.core.system.EventType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FanControlPolicy.html">cuda.core.system.FanControlPolicy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.InforomObject.html">cuda.core.system.InforomObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkVersion.html">cuda.core.system.NvlinkVersion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.PcieUtilCounter.html">cuda.core.system.PcieUtilCounter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Pstates.html">cuda.core.system.Pstates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.TemperatureSensors.html">cuda.core.system.TemperatureSensors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.TemperatureThresholds.html">cuda.core.system.TemperatureThresholds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ThermalController.html">cuda.core.system.ThermalController</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_batch.html">cuda.core.utils.discard_batch</a></li>
@@ -692,14 +680,32 @@ deprecation periods for breaking changes.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a record at a specific point of execution within a CUDA stream.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions" title="cuda.core.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>([nonblocking, priority])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a>(*args, **kwargs)</p></td>
+<td><p>CUDA context wrapper.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.SMResource.html#cuda.core.SMResource" title="cuda.core.SMResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResource</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Represent an SM (streaming multiprocessor) resource partition.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource" title="cuda.core.WorkqueueResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResource</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Represent a workqueue resource for a device or green context.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions" title="cuda.core.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>([nonblocking, priority])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([enable_timing, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([timing_enabled, ...])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> options.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, ...])</p></td>
 <td><p>Customizable launch options.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.ContextOptions.html#cuda.core.ContextOptions" title="cuda.core.ContextOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ContextOptions</span></code></a>(resources)</p></td>
+<td><p>Options for context creation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.SMResourceOptions.html#cuda.core.SMResourceOptions" title="cuda.core.SMResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResourceOptions</span></code></a>([count, ...])</p></td>
+<td><p>Customizable <a class="reference internal" href="generated/cuda.core.SMResource.html#cuda.core.SMResource.split" title="cuda.core.SMResource.split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResource.split</span></code></a> options.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions" title="cuda.core.WorkqueueResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResourceOptions</span></code></a>([sharing_scope])</p></td>
+<td><p>Customizable <a class="reference internal" href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.configure" title="cuda.core.WorkqueueResource.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResource.configure</span></code></a> options.</p></td>
 </tr>
 </tbody>
 </table>
@@ -774,7 +780,7 @@ on other non-blocking streams.</p>
 allowing them to be defined once and launched repeatedly with minimal
 CPU overhead. Graphs can be constructed in two ways:
 <a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> captures operations from a stream, while
-<a class="reference internal" href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef" title="cuda.core.graph.GraphDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDef</span></code></a> builds a graph explicitly by adding nodes and
+<a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code></a> builds a graph explicitly by adding nodes and
 edges. Both produce an executable <a class="reference internal" href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></a> that can be
 launched on a <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a>.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
@@ -785,13 +791,13 @@ launched on a <a class="reference internal" href="generated/cuda.core.Stream.htm
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphBuilder</span></code></a>()</p></td>
 <td><p>A graph under construction by stream capture.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef" title="cuda.core.graph.GraphDef"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphDef</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphDefinition</span></code></a>()</p></td>
 <td><p>A graph definition.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphNode</span></code></a></p></td>
 <td><p>A node in a graph definition.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.Condition.html#cuda.core.graph.Condition" title="cuda.core.graph.Condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.Condition</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphCondition</span></code></a></p></td>
 <td><p>A condition variable for conditional graph nodes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphAllocOptions.html#cuda.core.graph.GraphAllocOptions" title="cuda.core.graph.GraphAllocOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphAllocOptions</span></code></a>([device, ...])</p></td>
@@ -892,7 +898,7 @@ Each subclass exposes attributes unique to its operation type.</p>
 <h2>CUDA compilation toolchain<a class="headerlink" href="#cuda-compilation-toolchain" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Program</span></code></a>(code, str code_type, options)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Program</span></code></a>(code, code_type[, options])</p></td>
 <td><p>Represent a compilation machinery to process programs into <a class="reference internal" href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Linker</span></code></a>([options])</p></td>
@@ -909,6 +915,62 @@ Each subclass exposes attributes unique to its operation type.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.LinkerOptions.html#cuda.core.LinkerOptions" title="cuda.core.LinkerOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinkerOptions</span></code></a>([name, arch, ...])</p></td>
 <td><p>Customizable options for configuring <a class="reference internal" href="generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="cuda-process-checkpointing">
+<h2>CUDA process checkpointing<a class="headerlink" href="#cuda-process-checkpointing" title="Link to this heading">#</a></h2>
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.checkpoint</span></code> module wraps the CUDA driver process
+checkpoint APIs. These APIs are intended for Linux process checkpoint and
+restore workflows, and require a CUDA driver with checkpoint API support and
+a <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version that exposes those driver entry points.</p>
+<p>Checkpointing is typically driven by a coordinator process acting on a target
+CUDA process, similar to attaching a debugger or sending a signal. The target
+process is identified by process ID. Linux and the CUDA driver enforce process
+permissions; checkpointing another user’s process may require elevated
+permissions such as <code class="docutils literal notranslate"><span class="pre">CAP_SYS_PTRACE</span></code> or administrator privileges.</p>
+<p>The CUDA checkpoint APIs prepare CUDA-managed GPU state for process-level
+checkpoint and restore. They do not capture the CPU process image by
+themselves; full process checkpoint workflows still need a CPU-side process
+checkpointing tool such as CRIU. A minimal coordinator-side sequence looks like
+this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">checkpoint</span>
+
+<span class="n">target_pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>  <span class="c1"># or the PID of another CUDA process</span>
+<span class="n">process</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target_pid</span><span class="p">)</span>
+<span class="n">process</span><span class="o">.</span><span class="n">lock</span><span class="p">(</span><span class="n">timeout_ms</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+<span class="n">process</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">()</span>
+
+<span class="c1"># Capture or restore the CPU process image outside cuda.core.</span>
+
+<span class="n">process</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+<span class="n">process</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Process.state</span></code> returns one of <code class="docutils literal notranslate"><span class="pre">&quot;running&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;locked&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;checkpointed&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;failed&quot;</span></code>. Restore may optionally remap GPUs by
+passing <code class="docutils literal notranslate"><span class="pre">gpu_mapping</span></code> from each checkpointed GPU UUID to the GPU UUID that
+should be used during restore. For migration workflows, provide mappings for
+every GPU visible to the NVIDIA kernel-mode driver at checkpoint time.
+User-space masking such as <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> does not reduce this
+mapping requirement, so applications that rely on user-space GPU masking may
+not be valid migration targets. The mapping may use <code class="docutils literal notranslate"><span class="pre">CUuuid</span></code> objects or the
+UUID strings returned by <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.uuid" title="cuda.core.Device.uuid"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.uuid</span></code></a>. A successful restore returns the
+process to the locked state; call <code class="docutils literal notranslate"><span class="pre">Process.unlock</span></code> after restore to allow
+CUDA API calls to resume.</p>
+<p>The CUDA driver requires restore to run from the process restore thread.
+Use <code class="docutils literal notranslate"><span class="pre">Process.restore_thread_id</span></code> to discover that thread before calling
+<code class="docutils literal notranslate"><span class="pre">Process.restore</span></code> from a checkpoint coordinator. Restore also requires
+persistence mode to be enabled or <code class="docutils literal notranslate"><span class="pre">cuInit</span></code> to have been called before
+execution.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html#cuda.core.checkpoint.Process" title="cuda.core.checkpoint.Process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">checkpoint.Process</span></code></a>(pid)</p></td>
+<td><p>CUDA process that can be locked, checkpointed, restored, and unlocked.</p></td>
 </tr>
 </tbody>
 </table>
@@ -955,76 +1017,8 @@ Each subclass exposes attributes unique to its operation type.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.register_events.html#cuda.core.system.register_events" title="cuda.core.system.register_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.register_events</span></code></a>(events)</p></td>
 <td><p>Starts recording of events on test system.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.SystemEventType.html#cuda.core.system.SystemEventType" title="cuda.core.system.SystemEventType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.SystemEventType</span></code></a>(value)</p></td>
-<td><p>SystemEventType</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="enums">
-<h3>Enums<a class="headerlink" href="#enums" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.AddressingMode.html#cuda.core.system.AddressingMode" title="cuda.core.system.AddressingMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.AddressingMode</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/generated/cuda.bindings.nvml.DeviceAddressingModeType.html#cuda.bindings.nvml.DeviceAddressingModeType" title="(in cuda.bindings)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceAddressingModeType</span></code></a></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.AffinityScope.html#cuda.core.system.AffinityScope" title="cuda.core.system.AffinityScope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.AffinityScope</span></code></a>(value)</p></td>
-<td><p>AffinityScope</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.BrandType.html#cuda.core.system.BrandType" title="cuda.core.system.BrandType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.BrandType</span></code></a>(value)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.ClockId.html#cuda.core.system.ClockId" title="cuda.core.system.ClockId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ClockId</span></code></a>(value)</p></td>
-<td><p>Clock Ids.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.ClocksEventReasons.html#cuda.core.system.ClocksEventReasons" title="cuda.core.system.ClocksEventReasons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ClocksEventReasons</span></code></a>(value)</p></td>
-<td><p>ClocksEventReasons</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.ClockType.html#cuda.core.system.ClockType" title="cuda.core.system.ClockType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ClockType</span></code></a>(value)</p></td>
-<td><p>Clock types.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.CoolerControl.html#cuda.core.system.CoolerControl" title="cuda.core.system.CoolerControl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.CoolerControl</span></code></a>(value)</p></td>
-<td><p>Cooler control type</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.CoolerTarget.html#cuda.core.system.CoolerTarget" title="cuda.core.system.CoolerTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.CoolerTarget</span></code></a>(value)</p></td>
-<td><p>Cooler's target</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.DeviceArch.html#cuda.core.system.DeviceArch" title="cuda.core.system.DeviceArch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeviceArch</span></code></a>(value)</p></td>
-<td><p>DeviceArch</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.EventType.html#cuda.core.system.EventType" title="cuda.core.system.EventType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.EventType</span></code></a>(value)</p></td>
-<td><p>EventType</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.FanControlPolicy.html#cuda.core.system.FanControlPolicy" title="cuda.core.system.FanControlPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FanControlPolicy</span></code></a>(value)</p></td>
-<td><p>FanControlPolicy</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldId.html#cuda.core.system.FieldId" title="cuda.core.system.FieldId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldId</span></code></a>(value)</p></td>
-<td><p>FieldId</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.InforomObject.html#cuda.core.system.InforomObject" title="cuda.core.system.InforomObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.InforomObject</span></code></a>(value)</p></td>
-<td><p>Available infoROM objects.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.NvlinkVersion.html#cuda.core.system.NvlinkVersion" title="cuda.core.system.NvlinkVersion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.NvlinkVersion</span></code></a>(value)</p></td>
-<td><p>Represents Nvlink Version</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.PcieUtilCounter.html#cuda.core.system.PcieUtilCounter" title="cuda.core.system.PcieUtilCounter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.PcieUtilCounter</span></code></a>(value)</p></td>
-<td><p>Represents the queryable PCIe utilization counters</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.Pstates.html#cuda.core.system.Pstates" title="cuda.core.system.Pstates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.Pstates</span></code></a>(value)</p></td>
-<td><p>Allowed PStates.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.TemperatureSensors.html#cuda.core.system.TemperatureSensors" title="cuda.core.system.TemperatureSensors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.TemperatureSensors</span></code></a>(value)</p></td>
-<td><p>Temperature sensors.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.TemperatureThresholds.html#cuda.core.system.TemperatureThresholds" title="cuda.core.system.TemperatureThresholds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.TemperatureThresholds</span></code></a>(value)</p></td>
-<td><p>Temperature thresholds.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.ThermalController.html#cuda.core.system.ThermalController" title="cuda.core.system.ThermalController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ThermalController</span></code></a>(value)</p></td>
-<td><p>Represents the thermal sensor controllers</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.ThermalTarget.html#cuda.core.system.ThermalTarget" title="cuda.core.system.ThermalTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ThermalTarget</span></code></a>(value)</p></td>
-<td><p>Represents the thermal sensor targets</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.SystemEventType.html#cuda.core.system.SystemEventType" title="cuda.core.system.SystemEventType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.SystemEventType</span></code></a>(value[, names, ...])</p></td>
+<td><p>System event types.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1036,6 +1030,9 @@ Each subclass exposes attributes unique to its operation type.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.Device</span></code></a>(int index, *, uuid, pci_bus_id)</p></td>
 <td><p>Representation of a device.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html#cuda.core.system.NvlinkInfo" title="cuda.core.system.NvlinkInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.NvlinkInfo</span></code></a>(Device device, int link)</p></td>
+<td><p>Nvlink information for a device.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1129,10 +1126,10 @@ Each subclass exposes attributes unique to its operation type.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphics-interoperability">Graphics interoperability</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tensor-memory-accelerator-tma">Tensor Memory Accelerator (TMA)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-compilation-toolchain">CUDA compilation toolchain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-process-checkpointing">CUDA process checkpointing</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-system-information-and-nvidia-management-library-nvml">CUDA system information and NVIDIA Management Library (NVML)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-functions">Basic functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#events">Events</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enums">Enums</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#types">Types</a></li>
 </ul>
 </li>

@@ -27,12 +27,18 @@ Devices and execution
 
    Stream
    Event
+   Context
+   SMResource
+   WorkqueueResource
 
    :template: dataclass.rst
 
    StreamOptions
    EventOptions
    LaunchConfig
+   ContextOptions
+   SMResourceOptions
+   WorkqueueResourceOptions
 
 .. data:: LEGACY_DEFAULT_STREAM
 
@@ -80,7 +86,7 @@ A CUDA graph captures a set of GPU operations and their dependencies,
 allowing them to be defined once and launched repeatedly with minimal
 CPU overhead. Graphs can be constructed in two ways:
 :class:`~graph.GraphBuilder` captures operations from a stream, while
-:class:`~graph.GraphDef` builds a graph explicitly by adding nodes and
+:class:`~graph.GraphDefinition` builds a graph explicitly by adding nodes and
 edges. Both produce an executable :class:`~graph.Graph` that can be
 launched on a :class:`Stream`.
 
@@ -89,12 +95,12 @@ launched on a :class:`Stream`.
 
    graph.Graph
    graph.GraphBuilder
-   graph.GraphDef
+   graph.GraphDefinition
 
    :template: autosummary/cyclass.rst
 
    graph.GraphNode
-   graph.Condition
+   graph.GraphCondition
 
    :template: dataclass.rst
 
@@ -176,6 +182,68 @@ CUDA compilation toolchain
    LinkerOptions
 
 
+CUDA process checkpointing
+--------------------------
+
+The :mod:`cuda.core.checkpoint` module wraps the CUDA driver process
+checkpoint APIs. These APIs are intended for Linux process checkpoint and
+restore workflows, and require a CUDA driver with checkpoint API support and
+a ``cuda-bindings`` version that exposes those driver entry points.
+
+Checkpointing is typically driven by a coordinator process acting on a target
+CUDA process, similar to attaching a debugger or sending a signal. The target
+process is identified by process ID. Linux and the CUDA driver enforce process
+permissions; checkpointing another user's process may require elevated
+permissions such as ``CAP_SYS_PTRACE`` or administrator privileges.
+
+The CUDA checkpoint APIs prepare CUDA-managed GPU state for process-level
+checkpoint and restore. They do not capture the CPU process image by
+themselves; full process checkpoint workflows still need a CPU-side process
+checkpointing tool such as CRIU. A minimal coordinator-side sequence looks like
+this:
+
+.. code-block:: python
+
+   import os
+
+   from cuda.core import checkpoint
+
+   target_pid = os.getpid()  # or the PID of another CUDA process
+   process = checkpoint.Process(target_pid)
+   process.lock(timeout_ms=5000)
+   process.checkpoint()
+
+   # Capture or restore the CPU process image outside cuda.core.
+
+   process.restore()
+   process.unlock()
+
+``Process.state`` returns one of ``"running"``, ``"locked"``,
+``"checkpointed"``, or ``"failed"``. Restore may optionally remap GPUs by
+passing ``gpu_mapping`` from each checkpointed GPU UUID to the GPU UUID that
+should be used during restore. For migration workflows, provide mappings for
+every GPU visible to the NVIDIA kernel-mode driver at checkpoint time.
+User-space masking such as ``CUDA_VISIBLE_DEVICES`` does not reduce this
+mapping requirement, so applications that rely on user-space GPU masking may
+not be valid migration targets. The mapping may use ``CUuuid`` objects or the
+UUID strings returned by :attr:`Device.uuid`. A successful restore returns the
+process to the locked state; call ``Process.unlock`` after restore to allow
+CUDA API calls to resume.
+
+The CUDA driver requires restore to run from the process restore thread.
+Use ``Process.restore_thread_id`` to discover that thread before calling
+``Process.restore`` from a checkpoint coordinator. Restore also requires
+persistence mode to be enabled or ``cuInit`` to have been called before
+execution.
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: class.rst
+
+   checkpoint.Process
+
+
 CUDA system information and NVIDIA Management Library (NVML)
 ------------------------------------------------------------
 
@@ -203,33 +271,6 @@ Events
    system.register_events
    system.SystemEventType
 
-Enums
-`````
-
-.. autosummary::
-   :toctree: generated/
-
-   system.AddressingMode
-   system.AffinityScope
-   system.BrandType
-   system.ClockId
-   system.ClocksEventReasons
-   system.ClockType
-   system.CoolerControl
-   system.CoolerTarget
-   system.DeviceArch
-   system.EventType
-   system.FanControlPolicy
-   system.FieldId
-   system.InforomObject
-   system.NvlinkVersion
-   system.PcieUtilCounter
-   system.Pstates
-   system.TemperatureSensors
-   system.TemperatureThresholds
-   system.ThermalController
-   system.ThermalTarget
-
 Types
 `````
 
@@ -239,6 +280,7 @@ Types
    :template: autosummary/cyclass.rst
 
    system.Device
+   system.NvlinkInfo
 
 .. module:: cuda.core.utils
 

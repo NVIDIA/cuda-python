@@ -25,12 +25,12 @@ New features
 ------------
 
 - Added the :mod:`cuda.core.graph` public module containing
-  :class:`~graph.GraphDef` for explicit graph construction, typed node
+  ``GraphDef`` for explicit graph construction, typed node
   subclasses, and supporting types. :class:`~graph.GraphBuilder` (stream
   capture) also moves into this module.
 
 - Added :meth:`~graph.GraphBuilder.callback` for CPU callbacks during stream
-  capture, mirroring the existing :meth:`~graph.GraphDef.callback` API.
+  capture, mirroring the existing ``GraphDef.callback`` API.
 
 - Added :class:`GraphicsResource` for CUDA-OpenGL interoperability.
   Factory classmethods :meth:`~GraphicsResource.from_gl_buffer` and
