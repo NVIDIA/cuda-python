@@ -128,10 +128,10 @@ class ManagedBuffer(Buffer):
     Note
     ----
     On CUDA 13 builds, ``preferred_location`` round-trips full NUMA
-    information. On CUDA 12 the legacy ``cuMemRangeGetAttribute`` query
-    path returns integer device ordinals, so ``Host(numa_id=...)``
-    collapses to ``Host()`` on read-back. Setters preserve full NUMA
-    information when issuing advice on both.
+    information. On CUDA 12 builds, ``Host(numa_id=...)`` and
+    ``Host.numa_current()`` are rejected with ``TypeError`` at the call
+    boundary — only ``Device(...)`` and the generic ``Host()`` are
+    accepted. Use ``Host()`` to target the host on CUDA 12.
     """
 
     @classmethod

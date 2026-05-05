@@ -208,7 +208,12 @@ def test_managed_memory_operation_validation(init_cuda):
     with pytest.raises(ValueError, match="location is required"):
         buffer.prefetch(None, stream=stream)
 
-    with pytest.raises(ValueError, match="does not support location_type='host_numa'"):
+    # CUDA 13: kind-allowed check fires (ValueError). CUDA 12: NUMA-host is
+    # rejected at the boundary first (TypeError).
+    with pytest.raises(
+        (ValueError, TypeError),
+        match="does not support location_type='host_numa'|require a CUDA 13 build",
+    ):
         buffer.accessed_by.add(Host(numa_id=_INVALID_HOST_DEVICE_ORDINAL))
 
     buffer.close()
@@ -232,12 +237,18 @@ def test_managed_memory_advise_location_validation(init_cuda):
     # preferred_location accepts Host()
     buffer.preferred_location = Host()
 
-    # accessed_by rejects host_numa
-    with pytest.raises(ValueError, match="does not support location_type='host_numa'"):
+    # accessed_by rejects host_numa (CUDA 13: kind check; CUDA 12: boundary)
+    with pytest.raises(
+        (ValueError, TypeError),
+        match="does not support location_type='host_numa'|require a CUDA 13 build",
+    ):
         buffer.accessed_by.add(Host(numa_id=0))
 
-    # accessed_by rejects host_numa_current
-    with pytest.raises(ValueError, match="does not support location_type='host_numa_current'"):
+    # accessed_by rejects host_numa_current (same reasoning)
+    with pytest.raises(
+        (ValueError, TypeError),
+        match="does not support location_type='host_numa_current'|require a CUDA 13 build",
+    ):
         buffer.accessed_by.add(Host.numa_current())
 
     # Both Host and Device are accepted

@@ -23,26 +23,52 @@ class _LocSpec:
     id: int = 0
 
 
-def _coerce_location(value, *, allow_none: bool = False) -> _LocSpec | None:
-    """Coerce :class:`Device` / :class:`Host` / int / ``None`` to ``_LocSpec``.
+def _reject_numa_host_on_cuda12(spec: _LocSpec) -> None:
+    """Reject NUMA-host kinds on CUDA 12 builds at the public boundary.
 
-    Maps int ``-1`` to host and other non-negative ints to that device
-    ordinal. ``Host()``, ``Host(numa_id=N)``, and ``Host.numa_current()``
-    map to the corresponding NUMA-aware kinds.
+    The CUDA 12 ``cuMemPrefetchAsync`` / ``cuMemAdvise`` ABI takes a
+    plain device ordinal (``-1`` for host), so it cannot represent a
+    specific host NUMA node. Rather than letting the operation fail
+    deep inside the Cython layer with ``RuntimeError``, raise a
+    ``TypeError`` at the call boundary with actionable wording.
+    """
+    from cuda.core._utils.version import binding_version
+
+    if binding_version() >= (13, 0, 0):
+        return
+    if spec.kind in ("host_numa", "host_numa_current"):
+        raise TypeError(
+            "Host(numa_id=...) / Host.numa_current() require a CUDA 13 "
+            "build of cuda.core; use Host() on CUDA 12"
+        )
+
+
+def _coerce_location(value, *, allow_none: bool = False) -> _LocSpec | None:
+    """Coerce :class:`Device` / :class:`Host` / ``None`` to ``_LocSpec``.
+
+    ``Host()``, ``Host(numa_id=N)``, and ``Host.numa_current()`` map to
+    the corresponding NUMA-aware kinds. On a CUDA 12 build of
+    ``cuda.core``, NUMA-host inputs are rejected with ``TypeError``
+    because the legacy ABI cannot represent them.
     """
     # Local imports to avoid import cycles (Device pulls in CUDA init).
     from cuda.core._device import Device
     from cuda.core._host import Host
 
     if isinstance(value, _LocSpec):
+        _reject_numa_host_on_cuda12(value)
         return value
     if isinstance(value, Device):
         return _LocSpec(kind="device", id=value.device_id)
     if isinstance(value, Host):
         if value.is_numa_current:
-            return _LocSpec(kind="host_numa_current")
+            spec = _LocSpec(kind="host_numa_current")
+            _reject_numa_host_on_cuda12(spec)
+            return spec
         if value.numa_id is not None:
-            return _LocSpec(kind="host_numa", id=value.numa_id)
+            spec = _LocSpec(kind="host_numa", id=value.numa_id)
+            _reject_numa_host_on_cuda12(spec)
+            return spec
         return _LocSpec(kind="host")
     if value is None:
         if allow_none:
