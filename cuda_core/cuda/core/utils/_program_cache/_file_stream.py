@@ -382,8 +382,8 @@ class FileStreamProgramCache(ProgramCacheResource):
         *,
         max_size_bytes: int | None = None,
     ) -> None:
-        if max_size_bytes is not None and max_size_bytes < 0:
-            raise ValueError("max_size_bytes must be non-negative or None")
+        if max_size_bytes is not None and max_size_bytes <= 0:
+            raise ValueError("max_size_bytes must be positive or None (0 would evict every write)")
         self._root = Path(path) if path is not None else _default_cache_dir()
         self._entries = self._root / _ENTRIES_SUBDIR
         self._tmp = self._root / _TMP_SUBDIR

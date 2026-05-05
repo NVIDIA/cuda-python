@@ -1543,11 +1543,12 @@ def test_filestream_cache_input_forms_are_byte_equivalent(tmp_path):
             assert on_disk == payload, f"on-disk file for {k!r} is not the raw payload"
 
 
-def test_filestream_cache_rejects_negative_size_cap(tmp_path):
+@pytest.mark.parametrize("bad", [-1, 0])
+def test_filestream_cache_rejects_non_positive_size_cap(tmp_path, bad):
     from cuda.core.utils import FileStreamProgramCache
 
-    with pytest.raises(ValueError, match="non-negative"):
-        FileStreamProgramCache(tmp_path / "fc", max_size_bytes=-1)
+    with pytest.raises(ValueError, match="positive"):
+        FileStreamProgramCache(tmp_path / "fc", max_size_bytes=bad)
 
 
 def test_default_cache_dir_lives_under_user_cache_root(monkeypatch, tmp_path):
@@ -2146,11 +2147,12 @@ def test_inmemory_cache_overwrite_replaces_value_and_updates_size():
     assert cache._total_bytes == 50
 
 
-def test_inmemory_cache_rejects_negative_size_cap():
+@pytest.mark.parametrize("bad", [-1, 0])
+def test_inmemory_cache_rejects_non_positive_size_cap(bad):
     from cuda.core.utils import InMemoryProgramCache
 
-    with pytest.raises(ValueError):
-        InMemoryProgramCache(max_size_bytes=-1)
+    with pytest.raises(ValueError, match="positive"):
+        InMemoryProgramCache(max_size_bytes=bad)
 
 
 def test_inmemory_cache_size_cap_evicts_oldest():

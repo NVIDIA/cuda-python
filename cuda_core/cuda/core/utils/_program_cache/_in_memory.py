@@ -54,8 +54,8 @@ class InMemoryProgramCache(ProgramCacheResource):
         *,
         max_size_bytes: int | None = None,
     ) -> None:
-        if max_size_bytes is not None and max_size_bytes < 0:
-            raise ValueError("max_size_bytes must be non-negative or None")
+        if max_size_bytes is not None and max_size_bytes <= 0:
+            raise ValueError("max_size_bytes must be positive or None (0 would evict every write)")
         self._max_size_bytes = max_size_bytes
         # Key insertion order encodes LRU order: oldest first, newest last.
         # Each value is ``(payload_bytes, payload_size)``; caching the size
