@@ -19,14 +19,16 @@ __all__ = [
 
 
 class DummyUnifiedMemoryResource(MemoryResource):
+    # cuMemAllocManaged / cuMemFree are synchronous; stream is accepted
+    # for interface conformance with stream-ordered MRs but ignored.
     def __init__(self, device):
         self.device = device
 
-    def allocate(self, size, *, stream) -> Buffer:
+    def allocate(self, size, *, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAllocManaged(size, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
         return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
-    def deallocate(self, ptr, size, *, stream):
+    def deallocate(self, ptr, size, *, stream=None):
         handle_return(driver.cuMemFree(ptr))
 
     @property
@@ -51,12 +53,14 @@ class TrackingMR(MemoryResource):
     def __init__(self):
         self.active = {}
 
-    def allocate(self, size, *, stream):
+    # cuMemAlloc / cuMemFree are synchronous; stream is accepted for
+    # interface conformance but ignored.
+    def allocate(self, size, *, stream=None):
         ptr = handle_return(driver.cuMemAlloc(size))
         self.active[int(ptr)] = size
         return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
-    def deallocate(self, ptr, size, *, stream):
+    def deallocate(self, ptr, size, *, stream=None):
         handle_return(driver.cuMemFree(ptr))
         del self.active[int(ptr)]
 
@@ -106,7 +110,7 @@ class PatternGen:
     def verify_buffer(self, buffer, seed=None, value=None):
         """Verify the buffer contents against a sequential pattern."""
         assert buffer.size == self.size
-        scratch_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.size, stream=self.stream)
+        scratch_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.size)
         ptr_test = self._ptr(scratch_buffer)
         pattern_buffer = self._get_pattern_buffer(seed, value)
         ptr_expected = self._ptr(pattern_buffer)
@@ -130,7 +134,7 @@ class PatternGen:
             if value is not None:
                 pattern_buffer = make_scratch_buffer(self.device, value, self.size)
             else:
-                pattern_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.size, stream=self.stream)
+                pattern_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.size)
                 ptr = self._ptr(pattern_buffer)
                 for i in range(self.size):
                     ptr[i] = (seed + i) & 0xFF
@@ -140,7 +144,7 @@ class PatternGen:
 
 def make_scratch_buffer(device, value, nbytes):
     """Create a unified memory buffer with the specified value."""
-    buffer = DummyUnifiedMemoryResource(device).allocate(nbytes, stream=device.default_stream)
+    buffer = DummyUnifiedMemoryResource(device).allocate(nbytes)
     set_buffer(buffer, value)
     return buffer
 

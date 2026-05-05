@@ -63,7 +63,7 @@ def main():
         module = program.compile("cubin")
         kernel = module.get_kernel("add_one")
 
-        buffer = pinned_mr.allocate(2 * np.dtype(np.int32).itemsize, stream=stream)
+        buffer = pinned_mr.allocate(2 * np.dtype(np.int32).itemsize)
         values = np.from_dlpack(buffer).view(np.int32)
         values[:] = 0
 

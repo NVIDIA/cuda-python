@@ -28,16 +28,20 @@ class LegacyPinnedMemoryResource(MemoryResource):
 
     # TODO: support creating this MR with flags that are later passed to cuMemHostAlloc?
 
-    def allocate(self, size, *, stream) -> Buffer:
+    def allocate(self, size, *, stream: Stream | None = None) -> Buffer:
         """Allocate a buffer of the requested size.
+
+        ``cuMemAllocHost`` is synchronous, so this resource ignores any
+        supplied stream. The argument is accepted (and validated when
+        non-``None``) for interface conformance with stream-ordered
+        memory resources.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : Stream
-            Keyword-only. Currently ignored; pass ``device.default_stream`` to
-            use the default stream.
+        stream : Stream, optional
+            Keyword-only. Validated when provided but otherwise unused.
 
         Returns
         -------
@@ -46,7 +50,8 @@ class LegacyPinnedMemoryResource(MemoryResource):
         """
         from cuda.core._stream import Stream_accept
 
-        Stream_accept(stream)
+        if stream is not None:
+            Stream_accept(stream)
         if size:
             err, ptr = driver.cuMemAllocHost(size)
             raise_if_driver_error(err)
@@ -100,10 +105,13 @@ class _SynchronousMemoryResource(MemoryResource):
 
         self._device_id = Device(device_id).device_id
 
-    def allocate(self, size, *, stream) -> Buffer:
+    def allocate(self, size, *, stream: Stream | None = None) -> Buffer:
+        # cuMemAlloc is synchronous; stream is accepted (and validated)
+        # for interface conformance but not used.
         from cuda.core._stream import Stream_accept
 
-        Stream_accept(stream)
+        if stream is not None:
+            Stream_accept(stream)
         if size:
             err, ptr = driver.cuMemAlloc(size)
             raise_if_driver_error(err)

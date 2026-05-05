@@ -679,7 +679,7 @@ def test_kernel_keeps_library_alive(init_cuda):
 
     # Allocate pinned host buffer and device buffer
     pinned_mr = cuda.core.LegacyPinnedMemoryResource()
-    host_buf = pinned_mr.allocate(4, stream=device.default_stream)  # sizeof(int)
+    host_buf = pinned_mr.allocate(4)  # sizeof(int)
     result = np.from_dlpack(host_buf).view(np.int32)
     result[:] = 0
 
