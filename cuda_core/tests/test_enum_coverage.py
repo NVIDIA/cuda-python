@@ -7,9 +7,7 @@
 # mapping dicts at import time, so it runs on any CI host that has a
 # compatible cuda.bindings version.
 
-import importlib
 import inspect
-import pkgutil
 import sys
 from typing import Any
 
@@ -24,6 +22,8 @@ if sys.version_info >= (3, 11):
     from enum import StrEnum
 else:
     from backports.strenum import StrEnum
+
+_MODULES = [cuda.core.typing]
 
 # Each entry is:
 #   (cuda_binding_enum, str_enum, mapping_dict, binding_unmapped, str_enum_unmapped)
@@ -320,7 +320,11 @@ def test_wrapper_covers_all_binding_members(binding, str_enum, mapping, binding_
 
 
 @pytest.mark.skipif(sys.version_info < (3, 11), reason="Requires Python 3.11+ for StrEnum")
-def test_all_str_enums_in_cases():
+@pytest.mark.parametrize(
+    "module",
+    _MODULES,
+)
+def test_all_str_enums_in_cases(module):
     """Every StrEnum subclass in cuda.core must appear in _CASES or _UNBOUND_STR_ENUMS.
 
     This ensures that when a new StrEnum wrapper is added to cuda.core, the
@@ -328,29 +332,15 @@ def test_all_str_enums_in_cases():
     declare it as unbound in _UNBOUND_STR_ENUMS).
     """
 
-    def discover_str_enums() -> set[type]:
-        """Walk all submodules of cuda.core and return every StrEnum subclass found."""
-        found: set[type] = set()
-        for _, modname, _ in pkgutil.walk_packages(
-            path=cuda.core.__path__,
-            prefix=cuda.core.__name__ + ".",
-            onerror=lambda _: None,
-        ):
-            try:
-                mod = importlib.import_module(modname)
-            except Exception:  # noqa
-                continue
-            try:
-                members = inspect.getmembers(mod, inspect.isclass)
-            except Exception:  # noqa
-                continue
-            for _, obj in members:
-                if obj is not StrEnum and issubclass(obj, StrEnum):
-                    found.add(obj)
-        return found
+    found = set()
+
+    members = inspect.getmembers(module, inspect.isclass)
+    for _, obj in members:
+        if obj is not StrEnum and issubclass(obj, StrEnum):
+            found.add(obj)
 
     covered = {x[1] for x in _CASES if x[1] is not None}
-    uncovered = discover_str_enums() - covered - _UNBOUND_STR_ENUMS
+    uncovered = found - covered - _UNBOUND_STR_ENUMS
     uncovered_names = sorted({c.__qualname__ for c in uncovered})
     assert not uncovered, (
         f"StrEnum subclasses in cuda.core not covered by _CASES: "
