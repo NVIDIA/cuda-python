@@ -1,0 +1,6 @@
+﻿cuda.core.system.ClockId
+========================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: ClockId
