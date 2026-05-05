@@ -681,7 +681,7 @@ def make_program_cache_key(
     content on the caller's behalf) -- ``Program.compile(cache=...)``
     refuses those inputs with a ``ValueError`` pointing here::
 
-        from cuda.core._module import ObjectCode
+        from cuda.core import ObjectCode
         from cuda.core.utils import FileStreamProgramCache, make_program_cache_key
 
         with FileStreamProgramCache() as cache:
@@ -697,7 +697,7 @@ def make_program_cache_key(
                 obj = Program(source, "c++", options=options).compile("cubin")
                 cache[key] = obj  # extracts bytes(obj.code)
             else:
-                obj = ObjectCode._init(data, "cubin")
+                obj = ObjectCode.from_cubin(data)
 
     The cache stores raw binary bytes -- cubin / PTX / LTO-IR with no
     pickle, JSON, or framing -- so entry files are directly consumable

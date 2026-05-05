@@ -68,7 +68,7 @@ class ProgramCacheResource(abc.ABC):
     libdevice) -- is to call :func:`make_program_cache_key` yourself
     and use the cache as a plain ``bytes`` mapping::
 
-        from cuda.core._module import ObjectCode
+        from cuda.core import ObjectCode
 
         key = make_program_cache_key(
             code=source,
@@ -82,7 +82,7 @@ class ProgramCacheResource(abc.ABC):
             obj = program.compile("cubin")
             cache[key] = obj  # extracts bytes(obj.code)
         else:
-            obj = ObjectCode._init(data, "cubin")
+            obj = ObjectCode.from_cubin(data)
 
     The cache layer does no payload validation; bytes go in and come
     back out unchanged. Symbol-mapping metadata that
