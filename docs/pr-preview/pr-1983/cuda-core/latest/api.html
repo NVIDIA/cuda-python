@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=efc0cc66"></script>
+    <script src="_static/documentation_options.js?v=8031d8b2"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev72';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev74';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -939,8 +939,11 @@ this:</p>
 <code class="docutils literal notranslate"><span class="pre">&quot;checkpointed&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;failed&quot;</span></code>. Restore may optionally remap GPUs by
 passing <code class="docutils literal notranslate"><span class="pre">gpu_mapping</span></code> from each checkpointed GPU UUID to the GPU UUID that
 should be used during restore. For migration workflows, provide mappings for
-every CUDA-visible GPU. The mapping may use <code class="docutils literal notranslate"><span class="pre">CUuuid</span></code> objects or the UUID
-strings returned by <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.uuid" title="cuda.core.Device.uuid"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.uuid</span></code></a>. A successful restore returns the
+every GPU visible to the NVIDIA kernel-mode driver at checkpoint time.
+User-space masking such as <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> does not reduce this
+mapping requirement, so applications that rely on user-space GPU masking may
+not be valid migration targets. The mapping may use <code class="docutils literal notranslate"><span class="pre">CUuuid</span></code> objects or the
+UUID strings returned by <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.uuid" title="cuda.core.Device.uuid"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.uuid</span></code></a>. A successful restore returns the
 process to the locked state; call <code class="docutils literal notranslate"><span class="pre">Process.unlock</span></code> after restore to allow
 CUDA API calls to resume.</p>
 <p>The CUDA driver requires restore to run from the process restore thread.

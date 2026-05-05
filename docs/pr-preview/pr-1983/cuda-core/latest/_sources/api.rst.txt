@@ -214,8 +214,11 @@ this:
 ``"checkpointed"``, or ``"failed"``. Restore may optionally remap GPUs by
 passing ``gpu_mapping`` from each checkpointed GPU UUID to the GPU UUID that
 should be used during restore. For migration workflows, provide mappings for
-every CUDA-visible GPU. The mapping may use ``CUuuid`` objects or the UUID
-strings returned by :attr:`Device.uuid`. A successful restore returns the
+every GPU visible to the NVIDIA kernel-mode driver at checkpoint time.
+User-space masking such as ``CUDA_VISIBLE_DEVICES`` does not reduce this
+mapping requirement, so applications that rely on user-space GPU masking may
+not be valid migration targets. The mapping may use ``CUuuid`` objects or the
+UUID strings returned by :attr:`Device.uuid`. A successful restore returns the
 process to the locked state; call ``Process.unlock`` after restore to allow
 CUDA API calls to resume.
 
