@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Verify that every NVML enum member has a corresponding entry in the
+# Verify that every cuda_binding enum member has a corresponding entry in the
 # cuda_core wrapper mappings.  No GPU required; the test only inspects
 # mapping dicts at import time, so it runs on any CI host that has a
 # compatible cuda.bindings version.
@@ -25,7 +25,7 @@ else:
 # Each entry is:
 #   (cuda_binding_enum, str_enum, mapping_dict, binding_unmapped, str_enum_unmapped)
 #
-# cuda_binding_enum: the cuda.bindings NVML enum class
+# cuda_binding_enum: the cuda.bindings enum class
 # str_enum: the cuda_core StrEnum wrapper class, or None if the mapping does
 #   not use a StrEnum (e.g. maps to plain str or tuple)
 # mapping_dict: the dict that maps between the two enum types
