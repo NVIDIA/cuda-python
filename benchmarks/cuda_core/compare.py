@@ -24,8 +24,8 @@ DEFAULT_BINDINGS = HERE.parent / "cuda_bindings" / "results-python.json"
 # symbol, makes an additional driver call, or hits a cuda.core-side cache
 # compared to the cuda.bindings bench — i.e. the "Delta" column is NOT
 # pure Python wrapper overhead on top of the same driver call.
-# Unstarred rows compare like-for-like driver calls. See
-# BENCHMARK_PLAN.md's "Audit notes" section for per-row rationale.
+# Unstarred rows compare like-for-like driver calls. Per-row rationale
+# is inlined below as a comment next to each ID.
 DIFFERENT_CODEPATH_BENCHMARKS: frozenset[str] = frozenset(
     {
         # cuCtxGetDevice (core) vs cuCtxGetCurrent (bindings).
@@ -169,7 +169,7 @@ def main() -> None:
         print("  symbol, makes an additional driver call, or hits a cuda.core-side cache")
         print("  — so Delta is not pure Python wrapper overhead on top of the same driver")
         print("  call. Unstarred rows compare like-for-like driver calls; their Delta is")
-        print("  wrapper overhead. See BENCHMARK_PLAN.md (Audit notes) for per-row detail.")
+        print("  wrapper overhead.")
         print()
 
     print(sep)

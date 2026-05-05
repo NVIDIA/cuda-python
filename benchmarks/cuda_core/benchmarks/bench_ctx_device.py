@@ -45,8 +45,7 @@ def bench_device_get_attribute(loops: int) -> float:
     # call. cuda.core caches this attribute in DeviceProperties, so every
     # iteration past the first is a dict lookup rather than a driver call
     # — the bench therefore measures the user-visible cost of the public
-    # API, which is legitimately faster than cuda.bindings here. See
-    # BENCHMARK_PLAN.md for the rationale.
+    # API, which is legitimately faster than cuda.bindings here.
     _props = DEV.properties
 
     t0 = time.perf_counter()
