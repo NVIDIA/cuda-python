@@ -472,10 +472,17 @@ cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
     return <cydriver.CUstream><uintptr_t>(info[1])
 
 # Helper for API functions that accept either Stream or GraphBuilder. Performs
-# needed checks and returns the relevant stream.
-cdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
+# needed checks and returns the relevant stream. Rejects None so that callers
+# cannot rely on an implicit fallback to the default stream; if the default
+# stream is wanted, pass `device.default_stream` explicitly.
+cpdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
     from cuda.core.graph._graph_builder import GraphBuilder
 
+    if arg is None:
+        raise TypeError(
+            "stream is required and must not be None; "
+            "pass device.default_stream explicitly to use the default stream."
+        )
     if isinstance(arg, Stream):
         return <Stream>(arg)
     elif isinstance(arg, GraphBuilder):

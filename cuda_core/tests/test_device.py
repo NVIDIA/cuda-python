@@ -63,7 +63,7 @@ def test_device_repr(deinit_cuda):
 def test_device_alloc(deinit_cuda):
     device = Device()
     device.set_current()
-    buffer = device.allocate(1024)
+    buffer = device.allocate(1024, stream=device.default_stream)
     device.sync()
     assert buffer.handle != 0
     assert buffer.size == 1024
@@ -73,7 +73,7 @@ def test_device_alloc(deinit_cuda):
 def test_device_alloc_zero_bytes(deinit_cuda):
     device = Device()
     device.set_current()
-    buffer = device.allocate(0)
+    buffer = device.allocate(0, stream=device.default_stream)
     device.sync()
     assert buffer.handle >= 0
     assert buffer.size == 0

@@ -7,7 +7,7 @@ cimport cpython
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
 from cuda.core._memory._memory_pool cimport _MemPool
-from cuda.core._stream cimport Stream
+from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     create_fd_handle,
@@ -19,7 +19,6 @@ from cuda.core._resource_handles cimport (
     as_py,
 )
 
-from cuda.core._stream cimport default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
@@ -171,10 +170,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
     """Import a buffer that was exported from another process."""
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
-    if stream is None:
-        # Note: match this behavior to _MemPool.allocate()
-        stream = default_stream()
-    cdef Stream s = <Stream>stream
+    cdef Stream s = Stream_accept(stream)
     cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
         mr._h_pool,
         ipc_descriptor.payload_ptr(),

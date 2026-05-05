@@ -11,7 +11,7 @@ from collections import namedtuple
 from cuda.core._device import Device
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._launch_config import LaunchConfig
-from cuda.core._stream cimport Stream
+from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._resource_handles cimport (
     LibraryHandle,
     KernelHandle,
@@ -367,7 +367,7 @@ cdef class KernelOccupancy:
             ))
         return dynamic_smem_size
 
-    def max_potential_cluster_size(self, config: LaunchConfig, stream: Stream | None = None) -> int:
+    def max_potential_cluster_size(self, config: LaunchConfig, *, stream: Stream) -> int:
         """Maximum potential cluster size.
 
         The maximum potential cluster size for this kernel and given launch configuration.
@@ -376,8 +376,10 @@ cdef class KernelOccupancy:
         ----------
             config: :obj:`~_launch_config.LaunchConfig`
                 Kernel launch configuration. Cluster dimensions in the configuration are ignored.
-            stream: :obj:`~Stream`, optional
-                The stream on which this kernel is to be launched.
+            stream: :obj:`~Stream`
+                Keyword-only. The stream on which this kernel is to be launched.
+                Must be passed explicitly; pass ``device.default_stream`` to
+                use the default stream.
 
         Returns
         -------
@@ -385,17 +387,15 @@ cdef class KernelOccupancy:
             The maximum cluster size that can be launched for this kernel and launch configuration.
         """
         cdef cydriver.CUlaunchConfig drv_cfg = (<LaunchConfig>config)._to_native_launch_config()
-        cdef Stream s
-        if stream is not None:
-            s = <Stream>stream
-            drv_cfg.hStream = as_cu(s._h_stream)
+        cdef Stream s = Stream_accept(stream)
+        drv_cfg.hStream = as_cu(s._h_stream)
         cdef int cluster_size
         cdef cydriver.CUfunction func = <cydriver.CUfunction>as_cu(self._h_kernel)
         with nogil:
             HANDLE_RETURN(cydriver.cuOccupancyMaxPotentialClusterSize(&cluster_size, func, &drv_cfg))
         return cluster_size
 
-    def max_active_clusters(self, config: LaunchConfig, stream: Stream | None = None) -> int:
+    def max_active_clusters(self, config: LaunchConfig, *, stream: Stream) -> int:
         """Maximum number of active clusters on the target device.
 
         The maximum number of clusters that could concurrently execute on the target device.
@@ -404,8 +404,10 @@ cdef class KernelOccupancy:
         ----------
             config: :obj:`~_launch_config.LaunchConfig`
                 Kernel launch configuration.
-            stream: :obj:`~Stream`, optional
-                The stream on which this kernel is to be launched.
+            stream: :obj:`~Stream`
+                Keyword-only. The stream on which this kernel is to be launched.
+                Must be passed explicitly; pass ``device.default_stream`` to
+                use the default stream.
 
         Returns
         -------
@@ -413,10 +415,8 @@ cdef class KernelOccupancy:
             The maximum number of clusters that could co-exist on the target device.
         """
         cdef cydriver.CUlaunchConfig drv_cfg = (<LaunchConfig>config)._to_native_launch_config()
-        cdef Stream s
-        if stream is not None:
-            s = <Stream>stream
-            drv_cfg.hStream = as_cu(s._h_stream)
+        cdef Stream s = Stream_accept(stream)
+        drv_cfg.hStream = as_cu(s._h_stream)
         cdef int num_clusters
         cdef cydriver.CUfunction func = <cydriver.CUfunction>as_cu(self._h_kernel)
         with nogil:

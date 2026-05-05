@@ -470,7 +470,7 @@ class VirtualMemoryResource(MemoryResource):
 
         return descs
 
-    def allocate(self, size: int, stream: Stream | None = None) -> Buffer:
+    def allocate(self, size: int, *, stream: Stream | None = None) -> Buffer:
         """
         Allocate a buffer of the given size using CUDA virtual memory.
 
@@ -479,7 +479,8 @@ class VirtualMemoryResource(MemoryResource):
         size : int
             The size in bytes of the buffer to allocate.
         stream : Stream, optional
-            CUDA stream to associate with the allocation (not currently supported).
+            Keyword-only. Unused because virtual memory operations are
+            synchronous.
 
         Returns
         -------
@@ -488,8 +489,6 @@ class VirtualMemoryResource(MemoryResource):
 
         Raises
         ------
-        NotImplementedError
-            If a stream is provided or if the location type is not device memory.
         CUDAError
             If any CUDA driver API call fails during allocation.
 
@@ -501,7 +500,9 @@ class VirtualMemoryResource(MemoryResource):
         specified in the resource's configuration.
         """
         if stream is not None:
-            raise NotImplementedError("Stream is not supported with VirtualMemoryResource")
+            from cuda.core._stream import Stream_accept
+
+            Stream_accept(stream)
 
         config = self.config
         # ---- Build allocation properties ----
@@ -554,10 +555,24 @@ class VirtualMemoryResource(MemoryResource):
         buf = Buffer.from_handle(ptr=ptr, size=aligned_size, mr=self)
         return buf
 
-    def deallocate(self, ptr: int, size: int, stream: Stream | None = None) -> None:  # noqa: ARG002
+    def deallocate(self, ptr: int, size: int, *, stream: Stream | None = None) -> None:
         """
         Deallocate memory on the device using CUDA VMM APIs.
+
+        Parameters
+        ----------
+        ptr : int
+            The pointer to the memory to deallocate.
+        size : int
+            The size in bytes of the memory to deallocate.
+        stream : Stream, optional
+            Keyword-only. Unused because virtual memory operations are
+            synchronous.
         """
+        if stream is not None:
+            from cuda.core._stream import Stream_accept
+
+            Stream_accept(stream)
         result, handle = driver.cuMemRetainAllocationHandle(ptr)
         raise_if_driver_error(result)
         (result,) = driver.cuMemUnmap(ptr, size)

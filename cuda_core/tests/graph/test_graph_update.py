@@ -22,7 +22,7 @@ def test_graph_update_kernel_args(init_cuda, builder):
 
     launch_stream = Device().create_stream()
     mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(8)
+    b = mr.allocate(8, stream=launch_stream)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
     arr[1] = 0
@@ -68,7 +68,7 @@ def test_graph_update_conditional(init_cuda):
 
     launch_stream = Device().create_stream()
     mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(12)
+    b = mr.allocate(12, stream=launch_stream)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
     arr[1] = 0

@@ -46,7 +46,7 @@ class YRig:
         self.config = LaunchConfig(grid=1, block=1)
 
         self._mr = LegacyPinnedMemoryResource()
-        self._buf = self._mr.allocate(3 * 4)
+        self._buf = self._mr.allocate(3 * 4, stream=Device().default_stream)
         self._arr = np.from_dlpack(self._buf).view(np.int32)
 
         self.ptr_a = self._arr[0:].ctypes.data
@@ -268,7 +268,7 @@ def test_adjacency_set_property_setter(init_cuda):
 def test_destroyed_node(init_cuda):
     """Test that destroy() invalidates a node."""
     mr = LegacyPinnedMemoryResource()
-    buf = mr.allocate(4)
+    buf = mr.allocate(4, stream=init_cuda.default_stream)
     arr = np.from_dlpack(buf).view(np.int32)
     arr[:] = 0
     ptr = arr[0:].ctypes.data
@@ -357,7 +357,7 @@ def test_convert_linear_to_fan_in(init_cuda):
     config = LaunchConfig(grid=1, block=1)
 
     mr = LegacyPinnedMemoryResource()
-    buf = mr.allocate(5 * 4)
+    buf = mr.allocate(5 * 4, stream=Device().default_stream)
     arr = np.from_dlpack(buf).view(np.int32)
     arr[:] = 0
 

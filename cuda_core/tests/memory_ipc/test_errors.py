@@ -70,7 +70,7 @@ class TestAllocFromImportedMr(ChildErrorHarness):
 
     def CHILD_ACTION(self, queue):
         mr = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        mr.allocate(NBYTES)
+        mr.allocate(NBYTES, stream=self.device.default_stream)
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is TypeError
@@ -84,12 +84,12 @@ class TestImportWrongMR(ChildErrorHarness):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
         self._extra_mrs.append(mr2)
-        buffer = mr2.allocate(NBYTES)
+        buffer = mr2.allocate(NBYTES, stream=self.device.default_stream)
         queue.put([self.mr, buffer.ipc_descriptor])  # Note: mr does not own this buffer
 
     def CHILD_ACTION(self, queue):
         mr, buffer_desc = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        Buffer.from_ipc_descriptor(mr, buffer_desc)
+        Buffer.from_ipc_descriptor(mr, buffer_desc, stream=self.device.default_stream)
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is CUDAError
@@ -102,12 +102,12 @@ class TestImportBuffer(ChildErrorHarness):
     def PARENT_ACTION(self, queue):
         # Note: if the buffer is not attached to something to prolong its life,
         # CUDA_ERROR_INVALID_CONTEXT is raised from Buffer.__del__
-        self.buffer = self.mr.allocate(NBYTES)
+        self.buffer = self.mr.allocate(NBYTES, stream=self.device.default_stream)
         queue.put(self.buffer)
 
     def CHILD_ACTION(self, queue):
         buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        Buffer.from_ipc_descriptor(self.mr, buffer)
+        Buffer.from_ipc_descriptor(self.mr, buffer, stream=self.device.default_stream)
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is TypeError
@@ -124,7 +124,7 @@ class TestDanglingBuffer(ChildErrorHarness):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
         self._extra_mrs.append(mr2)
-        self.buffer = mr2.allocate(NBYTES)
+        self.buffer = mr2.allocate(NBYTES, stream=self.device.default_stream)
         buffer_s = pickle.dumps(self.buffer)
         queue.put(buffer_s)  # Note: mr2 not sent
 

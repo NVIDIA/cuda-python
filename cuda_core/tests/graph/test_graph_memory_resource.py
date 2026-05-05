@@ -166,7 +166,7 @@ def test_graph_alloc_with_output(mempool_device, mode):
     # buffer allocated within the graph.  The auto_free_on_launch option
     # is required to properly use the output buffer.
     gb = device.create_graph_builder().begin_building(mode)
-    out = gmr.allocate(NBYTES, gb)
+    out = gmr.allocate(NBYTES, stream=gb)
     out.copy_from(in_, stream=gb)
     launch(gb, LaunchConfig(grid=1, block=1), add_one, out, NBYTES)
     options = GraphCompleteOptions(auto_free_on_launch=True)

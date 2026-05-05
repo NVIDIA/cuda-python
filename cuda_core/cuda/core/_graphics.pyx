@@ -12,7 +12,7 @@ from cuda.core._resource_handles cimport (
     as_intptr,
 )
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
-from cuda.core._stream cimport Stream, Stream_accept, default_stream
+from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 __all__ = ['GraphicsResource']
@@ -206,7 +206,7 @@ cdef class GraphicsResource:
             return None
         return self._mapped_buffer
 
-    def map(self, *, stream: Stream | None = None) -> Buffer:
+    def map(self, *, stream: Stream) -> Buffer:
         """Map this graphics resource for CUDA access.
 
         After mapping, a CUDA device pointer into the underlying graphics
@@ -220,9 +220,10 @@ cdef class GraphicsResource:
 
         Parameters
         ----------
-        stream : :class:`~cuda.core.Stream`, optional
-            The CUDA stream on which to perform the mapping. If ``None``,
-            the current default stream is used.
+        stream : :class:`~cuda.core.Stream`
+            Keyword-only. The CUDA stream on which to perform the mapping.
+            Must be passed explicitly; pass ``device.default_stream`` to use
+            the default stream.
 
         Returns
         -------
@@ -248,7 +249,7 @@ cdef class GraphicsResource:
         if self._get_mapped_buffer() is not None:
             raise RuntimeError("GraphicsResource is already mapped")
 
-        s_obj = default_stream() if stream is None else Stream_accept(stream)
+        s_obj = Stream_accept(stream)
         raw = as_cu(self._handle)
         cy_stream = as_cu(s_obj._h_stream)
         with nogil:

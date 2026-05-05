@@ -30,7 +30,7 @@ class TestIpcMempool:
         process.start()
 
         # Allocate and fill memory.
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=device.default_stream)
         assert not buffer.is_mapped
         pgen.fill_buffer(buffer, seed=False)
 
@@ -66,10 +66,10 @@ class TestIPCMempoolMultiple:
         q1, q2 = (mp.Queue() for _ in range(2))
 
         # Allocate memory buffers and export them to each child.
-        buffer1 = mr.allocate(NBYTES)
+        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
         q1.put(buffer1)
         q2.put(buffer1)
-        buffer2 = mr.allocate(NBYTES)
+        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
         q1.put(buffer2)
         q2.put(buffer2)
 
@@ -127,8 +127,8 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         p2.start()
 
         # Allocate and share memory.
-        buffer1 = mr.allocate(NBYTES)
-        buffer2 = mr.allocate(NBYTES)
+        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
         q1.put(buffer1.ipc_descriptor)
         q2.put(buffer2.ipc_descriptor)
 
@@ -152,7 +152,7 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         device.set_current()
         mr = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
         buffer_descriptor = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        buffer = Buffer.from_ipc_descriptor(mr, buffer_descriptor)
+        buffer = Buffer.from_ipc_descriptor(mr, buffer_descriptor, stream=device.default_stream)
         pgen = PatternGen(device, NBYTES)
         pgen.fill_buffer(buffer, seed=seed)
         buffer.close()
@@ -177,8 +177,8 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         p2.start()
 
         # Allocate and share memory.
-        buffer1 = mr.allocate(NBYTES)
-        buffer2 = mr.allocate(NBYTES)
+        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
         q1.put(buffer1)
         q2.put(buffer2)
 

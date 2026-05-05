@@ -55,11 +55,11 @@ class DummyDeviceMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
 
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size, *, stream) -> Buffer:
         ptr = handle_return(driver.cuMemAlloc(size))
         return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
-    def deallocate(self, ptr, size, stream=None):
+    def deallocate(self, ptr, size, *, stream):
         handle_return(driver.cuMemFree(ptr))
 
     @property
@@ -79,13 +79,13 @@ class DummyHostMemoryResource(MemoryResource):
     def __init__(self):
         pass
 
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size, *, stream) -> Buffer:
         # Allocate a ctypes buffer of size `size`
         ptr = (ctypes.c_byte * size)()
         self._ptr = ptr
         return Buffer.from_handle(ptr=ctypes.addressof(ptr), size=size, mr=self)
 
-    def deallocate(self, ptr, size, stream=None):
+    def deallocate(self, ptr, size, *, stream):
         del self._ptr
 
     @property
@@ -105,11 +105,11 @@ class DummyPinnedMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
 
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size, *, stream) -> Buffer:
         ptr = handle_return(driver.cuMemAllocHost(size))
         return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
-    def deallocate(self, ptr, size, stream=None):
+    def deallocate(self, ptr, size, *, stream):
         handle_return(driver.cuMemFreeHost(ptr))
 
     @property
@@ -154,8 +154,8 @@ def test_package_contents():
     assert sorted(expected) == sorted(d.keys())
 
 
-def buffer_initialization(dummy_mr: MemoryResource):
-    buffer = dummy_mr.allocate(size=1024)
+def buffer_initialization(dummy_mr: MemoryResource, device: Device):
+    buffer = dummy_mr.allocate(size=1024, stream=device.default_stream)
     assert buffer.handle != 0
     assert buffer.size == 1024
     assert buffer.memory_resource == dummy_mr
@@ -168,17 +168,17 @@ def buffer_initialization(dummy_mr: MemoryResource):
 def test_buffer_initialization():
     device = Device()
     device.set_current()
-    buffer_initialization(DummyDeviceMemoryResource(device))
-    buffer_initialization(DummyHostMemoryResource())
-    buffer_initialization(DummyUnifiedMemoryResource(device))
-    buffer_initialization(DummyPinnedMemoryResource(device))
+    buffer_initialization(DummyDeviceMemoryResource(device), device)
+    buffer_initialization(DummyHostMemoryResource(), device)
+    buffer_initialization(DummyUnifiedMemoryResource(device), device)
+    buffer_initialization(DummyPinnedMemoryResource(device), device)
     with pytest.raises(TypeError):
-        buffer_initialization(MemoryResource())
+        buffer_initialization(MemoryResource(), device)
 
 
 def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
-    src_buffer = dummy_mr.allocate(size=1024)
-    dst_buffer = dummy_mr.allocate(size=1024)
+    src_buffer = dummy_mr.allocate(size=1024, stream=device.default_stream)
+    dst_buffer = dummy_mr.allocate(size=1024, stream=device.default_stream)
     stream = device.create_stream()
 
     if check:
@@ -208,8 +208,8 @@ def test_buffer_copy_to():
 
 
 def buffer_copy_from(dummy_mr: MemoryResource, device, check=False):
-    src_buffer = dummy_mr.allocate(size=1024)
-    dst_buffer = dummy_mr.allocate(size=1024)
+    src_buffer = dummy_mr.allocate(size=1024, stream=device.default_stream)
+    dst_buffer = dummy_mr.allocate(size=1024, stream=device.default_stream)
     stream = device.create_stream()
 
     if check:
@@ -320,7 +320,7 @@ if np is not None:
 def test_buffer_fill(fill_env, value, size, exc):
     device, mr = fill_env
     stream = device.create_stream()
-    buffer = mr.allocate(size=size)
+    buffer = mr.allocate(size=size, stream=device.default_stream)
     try:
         if exc is not None:
             with pytest.raises(exc):
@@ -339,8 +339,8 @@ def test_buffer_fill(fill_env, value, size, exc):
         buffer.close()
 
 
-def buffer_close(dummy_mr: MemoryResource):
-    buffer = dummy_mr.allocate(size=1024)
+def buffer_close(dummy_mr: MemoryResource, device: Device):
+    buffer = dummy_mr.allocate(size=1024, stream=device.default_stream)
     buffer.close()
     assert buffer.handle == 0
     assert buffer.memory_resource is None
@@ -349,10 +349,10 @@ def buffer_close(dummy_mr: MemoryResource):
 def test_buffer_close():
     device = Device()
     device.set_current()
-    buffer_close(DummyDeviceMemoryResource(device))
-    buffer_close(DummyHostMemoryResource())
-    buffer_close(DummyUnifiedMemoryResource(device))
-    buffer_close(DummyPinnedMemoryResource(device))
+    buffer_close(DummyDeviceMemoryResource(device), device)
+    buffer_close(DummyHostMemoryResource(), device)
+    buffer_close(DummyUnifiedMemoryResource(device), device)
+    buffer_close(DummyPinnedMemoryResource(device), device)
 
 
 def test_buffer_external_host():
@@ -373,7 +373,7 @@ def test_buffer_external_device(change_device):
     dev_id = n - 1
     d = Device(dev_id)
     d.set_current()
-    buffer_ = d.allocate(size=32)
+    buffer_ = d.allocate(size=32, stream=d.default_stream)
 
     if change_device:
         # let's switch to a different device if possibe
@@ -398,7 +398,7 @@ def test_buffer_external_pinned_alloc(change_device):
     d = Device(dev_id)
     d.set_current()
     mr = DummyPinnedMemoryResource(d)
-    buffer_ = mr.allocate(size=32)
+    buffer_ = mr.allocate(size=32, stream=d.default_stream)
 
     if change_device:
         # let's switch to a different device if possibe
@@ -477,7 +477,7 @@ def test_mr_deallocate_called_on_close():
     device = Device()
     device.set_current()
     mr = TrackingMR()
-    buf = mr.allocate(1024)
+    buf = mr.allocate(1024, stream=device.default_stream)
     assert len(mr.active) == 1
     buf.close()
     assert len(mr.active) == 0
@@ -490,7 +490,7 @@ def test_mr_deallocate_called_on_gc():
     device = Device()
     device.set_current()
     mr = TrackingMR()
-    buf = mr.allocate(1024)
+    buf = mr.allocate(1024, stream=device.default_stream)
     assert len(mr.active) == 1
     del buf
     gc.collect()
@@ -505,12 +505,12 @@ def test_mr_deallocate_receives_stream():
     received = {}
 
     class StreamCaptureMR(TrackingMR):
-        def deallocate(self, ptr, size, stream=None):
+        def deallocate(self, ptr, size, *, stream):
             received["stream"] = stream
-            super().deallocate(ptr, size, stream)
+            super().deallocate(ptr, size, stream=stream)
 
     mr = StreamCaptureMR()
-    buf = mr.allocate(1024)
+    buf = mr.allocate(1024, stream=device.default_stream)
     buf.close(stream)
     assert received["stream"].handle == stream.handle
 
@@ -537,7 +537,7 @@ def test_buffer_dunder_dlpack():
     device = Device()
     device.set_current()
     dummy_mr = DummyDeviceMemoryResource(device)
-    buffer = dummy_mr.allocate(size=1024)
+    buffer = dummy_mr.allocate(size=1024, stream=device.default_stream)
     capsule = buffer.__dlpack__()
     assert "dltensor" in repr(capsule)
     capsule = buffer.__dlpack__(max_version=(1, 0))
@@ -565,20 +565,24 @@ def test_buffer_dunder_dlpack_device_success(DummyMR, expected):
     device = Device()
     device.set_current()
     dummy_mr = DummyMR() if DummyMR is DummyHostMemoryResource else DummyMR(device)
-    buffer = dummy_mr.allocate(size=1024)
+    buffer = dummy_mr.allocate(size=1024, stream=device.default_stream)
     assert buffer.__dlpack_device__() == expected
 
 
 def test_buffer_dunder_dlpack_device_failure():
+    device = Device()
+    device.set_current()
     dummy_mr = NullMemoryResource()
-    buffer = dummy_mr.allocate(size=1024)
+    buffer = dummy_mr.allocate(size=1024, stream=device.default_stream)
     with pytest.raises(BufferError, match=r"^buffer is neither device-accessible nor host-accessible$"):
         buffer.__dlpack_device__()
 
 
 def test_buffer_dlpack_failure_clean_up():
+    device = Device()
+    device.set_current()
     dummy_mr = NullMemoryResource()
-    buffer = dummy_mr.allocate(size=1024)
+    buffer = dummy_mr.allocate(size=1024, stream=device.default_stream)
     before = sys.getrefcount(buffer)
     with pytest.raises(BufferError, match="buffer is neither device-accessible nor host-accessible"):
         buffer.__dlpack__()
@@ -595,7 +599,7 @@ def test_managed_buffer_dlpack_roundtrip_device_type():
     device.set_current()
     skip_if_managed_memory_unsupported(device)
     mr = DummyUnifiedMemoryResource(device)
-    buf = mr.allocate(size=1024)
+    buf = mr.allocate(size=1024, stream=device.default_stream)
 
     # Buffer-level classification should report managed.
     assert buf.__dlpack_device__() == (DLDeviceType.kDLCUDAManaged, 0)
@@ -619,7 +623,7 @@ def test_managed_memory_resource_buffer_dlpack_device_type():
     device.set_current()
     skip_if_managed_memory_unsupported(device)
     mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
-    buf = mr.allocate(1024)
+    buf = mr.allocate(1024, stream=device.default_stream)
 
     assert mr.is_managed
     assert buf.is_managed
@@ -642,7 +646,7 @@ def test_non_managed_resources_report_not_managed(mr_kind):
         skip_if_pinned_memory_unsupported(device)
         mr = create_pinned_memory_resource_or_xfail(xfail_device=device)
     assert mr.is_managed is False
-    buf = mr.allocate(1024)
+    buf = mr.allocate(1024, stream=device.default_stream)
     assert buf.is_managed is False
     buf.close()
 
@@ -673,7 +677,7 @@ def test_device_memory_resource_initialization(use_device_object):
     assert not mr.is_ipc_enabled
 
     # Test allocation/deallocation works
-    buffer = mr.allocate(1024)
+    buffer = mr.allocate(1024, stream=device.default_stream)
     assert buffer.size == 1024
     assert buffer.device_id == device.device_id
     buffer.close()
@@ -691,7 +695,7 @@ def test_pinned_memory_resource_initialization(init_cuda):
 
     # Test allocation/deallocation works
     try:
-        buffer = mr.allocate(1024)
+        buffer = mr.allocate(1024, stream=device.default_stream)
     except CUDAError as exc:
         msg = str(exc)
         if "CUDA_ERROR_OUT_OF_MEMORY" in msg:
@@ -719,7 +723,7 @@ def test_managed_memory_resource_initialization(init_cuda):
     assert mr.is_host_accessible
 
     # Test allocation/deallocation works
-    buffer = mr.allocate(1024)
+    buffer = mr.allocate(1024, stream=device.default_stream)
     assert buffer.size == 1024
     assert buffer.is_host_accessible  # But accessible from host
     assert buffer.memory_resource == mr
@@ -944,15 +948,15 @@ def test_device_memory_resource_with_options(init_cuda):
     assert not mr.is_ipc_enabled
 
     # Test allocation and deallocation
-    buffer1 = mr.allocate(1024)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
     assert buffer1.handle != 0
     assert buffer1.size == 1024
     assert buffer1.memory_resource == mr
     buffer1.close()
 
     # Test multiple allocations
-    buffer1 = mr.allocate(1024)
-    buffer2 = mr.allocate(2048)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
+    buffer2 = mr.allocate(2048, stream=device.default_stream)
     assert buffer1.handle != buffer2.handle
     assert buffer1.size == 1024
     assert buffer2.size == 2048
@@ -966,8 +970,8 @@ def test_device_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64)
-    dst_buffer = mr.allocate(64)
+    src_buffer = mr.allocate(64, stream=device.default_stream)
+    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
@@ -990,15 +994,15 @@ def test_pinned_memory_resource_with_options(init_cuda):
     assert not mr.is_ipc_enabled
 
     # Test allocation and deallocation
-    buffer1 = mr.allocate(1024)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
     assert buffer1.handle != 0
     assert buffer1.size == 1024
     assert buffer1.memory_resource == mr
     buffer1.close()
 
     # Test multiple allocations
-    buffer1 = mr.allocate(1024)
-    buffer2 = mr.allocate(2048)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
+    buffer2 = mr.allocate(2048, stream=device.default_stream)
     assert buffer1.handle != buffer2.handle
     assert buffer1.size == 1024
     assert buffer2.size == 2048
@@ -1012,8 +1016,8 @@ def test_pinned_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64)
-    dst_buffer = mr.allocate(64)
+    src_buffer = mr.allocate(64, stream=device.default_stream)
+    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
@@ -1035,15 +1039,15 @@ def test_managed_memory_resource_with_options(init_cuda):
     assert not mr.is_ipc_enabled
 
     # Test allocation and deallocation
-    buffer1 = mr.allocate(1024)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
     assert buffer1.handle != 0
     assert buffer1.size == 1024
     assert buffer1.memory_resource == mr
     buffer1.close()
 
     # Test multiple allocations
-    buffer1 = mr.allocate(1024)
-    buffer2 = mr.allocate(2048)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
+    buffer2 = mr.allocate(2048, stream=device.default_stream)
     assert buffer1.handle != buffer2.handle
     assert buffer1.size == 1024
     assert buffer2.size == 2048
@@ -1057,8 +1061,8 @@ def test_managed_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64)
-    dst_buffer = mr.allocate(64)
+    src_buffer = mr.allocate(64, stream=device.default_stream)
+    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
@@ -1220,7 +1224,7 @@ def test_mempool_ipc_errors(mempool_device):
     device = mempool_device
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
     mr = DeviceMemoryResource(device, options=options)
-    buffer = mr.allocate(64)
+    buffer = mr.allocate(64, stream=device.default_stream)
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
@@ -1231,7 +1235,7 @@ def test_mempool_ipc_errors(mempool_device):
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
-        Buffer.from_ipc_descriptor(mr, handle)
+        Buffer.from_ipc_descriptor(mr, handle, stream=device.default_stream)
 
     buffer.close()
 
@@ -1263,7 +1267,7 @@ def test_pinned_mempool_ipc_basic():
     assert alloc_handle is not None
 
     # Test buffer allocation
-    buffer = mr.allocate(1024)
+    buffer = mr.allocate(1024, stream=device.default_stream)
     assert buffer.size == 1024
     assert buffer.is_device_accessible
     assert buffer.is_host_accessible
@@ -1291,7 +1295,7 @@ def test_pinned_mempool_ipc_errors():
     assert mr.device_id == -1
     assert mr.numa_id == -1  # Non-IPC uses OS-managed placement
 
-    buffer = mr.allocate(64)
+    buffer = mr.allocate(64, stream=device.default_stream)
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
@@ -1302,7 +1306,7 @@ def test_pinned_mempool_ipc_errors():
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
-        Buffer.from_ipc_descriptor(mr, handle)
+        Buffer.from_ipc_descriptor(mr, handle, stream=device.default_stream)
 
     buffer.close()
     mr.close()
@@ -1443,7 +1447,7 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
         initial_value = value
         buffer = None
         try:
-            buffer = mr.allocate(1024)
+            buffer = mr.allocate(1024, stream=device.default_stream)
             new_value = getattr(mr.attributes, property_name)
             assert new_value >= initial_value, f"{property_name} should increase or stay same after allocation"
         finally:
@@ -1479,8 +1483,8 @@ def test_mempool_attributes_repr(memory_resource_factory):
     elif MR is ManagedMemoryResource:
         mr = create_managed_memory_resource_or_skip(options={})
 
-    buffer1 = mr.allocate(64)
-    buffer2 = mr.allocate(64)
+    buffer1 = mr.allocate(64, stream=device.default_stream)
+    buffer2 = mr.allocate(64, stream=device.default_stream)
     buffer1.close()
     assert re.match(
         r".*Attributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
@@ -1590,7 +1594,7 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
         assert MR is DeviceMemoryResource
         mr = MR(device)
 
-    buffer = mr.allocate(0)
+    buffer = mr.allocate(0, stream=device.default_stream)
     device.sync()
     assert buffer.handle >= 0
     assert buffer.size == 0

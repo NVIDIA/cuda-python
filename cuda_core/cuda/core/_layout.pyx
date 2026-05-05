@@ -460,7 +460,7 @@ cdef class _StridedLayout:
                 required_size = layout.required_size_in_bytes()
                 # allocate the memory on the device
                 device.set_current()
-                mem = device.allocate(required_size)
+                mem = device.allocate(required_size, stream=device.default_stream)
                 # create a view on the newly allocated device memory
                 b_view = StridedMemoryView.from_buffer(mem, layout, a_view.dtype)
                 return b_view
