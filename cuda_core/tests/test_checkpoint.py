@@ -17,8 +17,10 @@ import os
 import signal
 import subprocess
 import sys
+import tempfile
 import textwrap
 from contextlib import suppress
+from pathlib import Path
 
 import pytest
 
@@ -46,6 +48,7 @@ needs_checkpoint = pytest.mark.skipif(
 
 
 _SCENARIO_SKIP_EXIT_CODE = 77
+_CUDA_CORE_SOURCE_ROOT = Path(__file__).resolve().parents[1]
 
 _SCENARIO_COMMON = r"""
 import os
@@ -181,6 +184,8 @@ def _run_checkpoint_scenario_or_skip(body: str, *, timeout: int = 90) -> None:
     script = _SCENARIO_COMMON + "\n" + textwrap.dedent(body)
     proc = subprocess.Popen(  # noqa: S603 - controlled test subprocess using this Python executable.
         [sys.executable, "-c", script],
+        cwd=tempfile.gettempdir(),
+        env=_checkpoint_scenario_env(),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -204,6 +209,28 @@ def _run_checkpoint_scenario_or_skip(body: str, *, timeout: int = 90) -> None:
         pytest.fail(
             f"CUDA checkpoint scenario failed with exit code {proc.returncode}.\nstdout:\n{stdout}\nstderr:\n{stderr}"
         )
+
+
+def _checkpoint_scenario_env() -> dict[str, str]:
+    """Avoid source-tree shadowing when wheel jobs spawn a child Python."""
+    env = os.environ.copy()
+    pythonpath = env.get("PYTHONPATH")
+    if pythonpath is None:
+        return env
+
+    filtered = []
+    for entry in pythonpath.split(os.pathsep):
+        if not entry:
+            continue
+        if Path(entry).resolve() == _CUDA_CORE_SOURCE_ROOT:
+            continue
+        filtered.append(entry)
+
+    if filtered:
+        env["PYTHONPATH"] = os.pathsep.join(filtered)
+    else:
+        env.pop("PYTHONPATH", None)
+    return env
 
 
 # -- Input validation (no GPU / driver needed) -----------------------------
