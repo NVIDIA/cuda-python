@@ -13,6 +13,11 @@ CTX = ensure_context()
 _, DEVICE = cuda.cuDeviceGet(0)
 ATTRIBUTE = cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR
 
+# Outer retain so the benchmarked retain/release pair just bumps the refcount.
+_err, _PRIMARY_CTX = cuda.cuDevicePrimaryCtxRetain(DEVICE)
+if _err != cuda.CUresult.CUDA_SUCCESS:
+    raise RuntimeError(f"cuDevicePrimaryCtxRetain failed during setup: {_err}")
+
 
 def bench_ctx_get_current(loops: int) -> float:
     _fn = cuda.cuCtxGetCurrent
@@ -59,4 +64,16 @@ def bench_device_get_attribute(loops: int) -> float:
     t0 = time.perf_counter()
     for _ in range(loops):
         _fn(_attr, _dev)
+    return time.perf_counter() - t0
+
+
+def bench_device_primary_ctx_retain(loops: int) -> float:
+    _retain = cuda.cuDevicePrimaryCtxRetain
+    _release = cuda.cuDevicePrimaryCtxRelease
+    _dev = DEVICE
+
+    t0 = time.perf_counter()
+    for _ in range(loops):
+        _retain(_dev)
+        _release(_dev)
     return time.perf_counter() - t0

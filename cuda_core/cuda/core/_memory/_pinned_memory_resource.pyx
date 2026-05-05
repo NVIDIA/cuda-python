@@ -148,15 +148,12 @@ cdef class PinnedMemoryResource(_MemPool):
             _ipc.MP_from_allocation_handle(cls, alloc_handle))
         return mr
 
-    def get_allocation_handle(self) -> IPCAllocationHandle:
-        """Export the memory pool handle to be shared (requires IPC).
+    @property
+    def allocation_handle(self) -> IPCAllocationHandle:
+        """Shareable handle for this memory pool (requires IPC).
 
         The handle can be used to share the memory pool with other processes.
         The handle is cached in this `MemoryResource` and owned by it.
-
-        Returns
-        -------
-            The shareable handle for the memory pool.
         """
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
@@ -242,7 +239,7 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
 
 def _deep_reduce_pinned_memory_resource(mr):
     check_multiprocessing_start_method()
-    alloc_handle = mr.get_allocation_handle()
+    alloc_handle = mr.allocation_handle
     return mr.from_allocation_handle, (alloc_handle,)
 
 

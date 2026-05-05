@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from cuda.core._memory._buffer import DevicePointerT
+    from cuda.core._memory._buffer import DevicePointerType
 
 from cuda.core._memory._buffer import Buffer, MemoryResource
 from cuda.core._utils.cuda_utils import (
@@ -53,12 +53,12 @@ class LegacyPinnedMemoryResource(MemoryResource):
             ptr = 0
         return Buffer._init(ptr, size, self)
 
-    def deallocate(self, ptr: DevicePointerT, size, stream):
+    def deallocate(self, ptr: DevicePointerType, size, stream):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
         ----------
-        ptr : :obj:`~_memory.DevicePointerT`
+        ptr : :obj:`~_memory.DevicePointerType`
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.

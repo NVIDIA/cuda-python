@@ -11,7 +11,7 @@ from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
-from cuda.core.graph import GraphDef, KernelNode, MemsetNode
+from cuda.core.graph import GraphDefinition, KernelNode, MemsetNode
 
 
 class YRig:
@@ -53,7 +53,7 @@ class YRig:
         self.ptr_b = self._arr[1:].ctypes.data
         self.ptr_r = self._arr[2:].ctypes.data
 
-        self.graph_def = GraphDef()
+        self.graph_def = GraphDefinition()
         self.stream = None
 
         # Arm A
@@ -210,7 +210,7 @@ class TestMutateYRig:
 
 def test_adjacency_set_interface(init_cuda):
     """Exercise every MutableSet method on AdjacencySetProxy."""
-    g = GraphDef()
+    g = GraphDefinition()
     hub = g.empty()
     items = [g.empty() for _ in range(5)]
     assert_mutable_set_interface(hub.succ, items)
@@ -218,7 +218,7 @@ def test_adjacency_set_interface(init_cuda):
 
 def test_adjacency_set_pred_direction(init_cuda):
     """Verify that pred works symmetrically with succ."""
-    g = GraphDef()
+    g = GraphDefinition()
     target = g.empty()
     x, y, z = (g.empty() for _ in range(3))
 
@@ -241,7 +241,7 @@ def test_adjacency_set_pred_direction(init_cuda):
 
 def test_adjacency_set_property_setter(init_cuda):
     """Verify that assigning to node.pred or node.succ replaces all edges."""
-    g = GraphDef()
+    g = GraphDefinition()
     hub = g.empty()
     a, b, c = (g.empty() for _ in range(3))
 
@@ -273,7 +273,7 @@ def test_destroyed_node(init_cuda):
     arr[:] = 0
     ptr = arr[0:].ctypes.data
 
-    g = GraphDef()
+    g = GraphDefinition()
     a = g.memset(ptr, 0, 4)
     b = a.memset(ptr, 42, 4)
 
@@ -309,7 +309,7 @@ def test_destroyed_node(init_cuda):
 
 def test_add_wrong_type(init_cuda):
     """Adding a non-GraphNode raises TypeError."""
-    g = GraphDef()
+    g = GraphDefinition()
     node = g.empty()
     with pytest.raises(TypeError, match="expected GraphNode"):
         node.succ.add("not a node")
@@ -319,8 +319,8 @@ def test_add_wrong_type(init_cuda):
 
 def test_cross_graph_edge(init_cuda):
     """Adding an edge to a node from a different graph raises CUDAError."""
-    g1 = GraphDef()
-    g2 = GraphDef()
+    g1 = GraphDefinition()
+    g2 = GraphDefinition()
     a = g1.empty()
     b = g2.empty()
     with pytest.raises(CUDAError):
@@ -329,7 +329,7 @@ def test_cross_graph_edge(init_cuda):
 
 def test_self_edge(init_cuda):
     """Adding a self-edge raises CUDAError."""
-    g = GraphDef()
+    g = GraphDefinition()
     node = g.empty()
     with pytest.raises(CUDAError):
         node.succ.add(node)
@@ -365,7 +365,7 @@ def test_convert_linear_to_fan_in(init_cuda):
     ptrs = [arr[i:].ctypes.data for i in range(5)]
 
     # Create the initial graph.
-    g = GraphDef()
+    g = GraphDefinition()
     prev = g
     for i, val in enumerate(values):
         prev = prev.memset(ptrs[i], val, 1)

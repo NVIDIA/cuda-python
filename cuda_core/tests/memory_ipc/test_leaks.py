@@ -26,10 +26,10 @@ skip_if_unrunnable = pytest.mark.skipif(
 @pytest.mark.flaky(reruns=2)
 @skip_if_unrunnable
 def test_alloc_handle(ipc_memory_resource):
-    """Check for fd leaks in get_allocation_handle."""
+    """Check for fd leaks in allocation_handle."""
     mr = ipc_memory_resource
     with CheckFDLeaks():
-        [mr.get_allocation_handle() for _ in range(10)]
+        [mr.allocation_handle for _ in range(10)]
 
 
 def exec_success(obj, number=1):
@@ -84,10 +84,10 @@ class Irreducible:
 @pytest.mark.parametrize(
     "getobject",
     [
-        lambda mr: mr.get_allocation_handle(),
+        lambda mr: mr.allocation_handle,
         lambda mr: mr,
         lambda mr: mr.allocate(NBYTES),
-        lambda mr: mr.allocate(NBYTES).get_ipc_descriptor(),
+        lambda mr: mr.allocate(NBYTES).ipc_descriptor,
     ],
     ids=["alloc_handle", "mr", "buffer", "buffer_desc"],
 )

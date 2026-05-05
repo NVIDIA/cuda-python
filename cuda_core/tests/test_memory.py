@@ -22,6 +22,7 @@ from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResourc
 
 from conftest import (
     create_managed_memory_resource_or_skip,
+    create_pinned_memory_resource_or_xfail,
     skip_if_managed_memory_unsupported,
     skip_if_pinned_memory_unsupported,
 )
@@ -45,6 +46,14 @@ from cuda.core import (
 from cuda.core._dlpack import DLDeviceType
 from cuda.core._memory import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
+from cuda.core.typing import (
+    ManagedMemoryLocationType,
+    VirtualMemoryAccessType,
+    VirtualMemoryAllocationType,
+    VirtualMemoryGranularityType,
+    VirtualMemoryHandleType,
+    VirtualMemoryLocationType,
+)
 from cuda.core.utils import StridedMemoryView
 
 POOL_SIZE = 2097152  # 2MB size
@@ -109,20 +118,20 @@ class NullMemoryResource(DummyHostMemoryResource):
 def test_package_contents():
     expected = [
         "Buffer",
-        "MemoryResource",
         "DeviceMemoryResource",
         "DeviceMemoryResourceOptions",
         "GraphMemoryResource",
-        "IPCBufferDescriptor",
         "IPCAllocationHandle",
+        "IPCBufferDescriptor",
         "LegacyPinnedMemoryResource",
         "ManagedBuffer",
         "ManagedMemoryResource",
         "ManagedMemoryResourceOptions",
-        "PinnedMemoryResourceOptions",
+        "MemoryResource",
         "PinnedMemoryResource",
-        "VirtualMemoryResourceOptions",
+        "PinnedMemoryResourceOptions",
         "VirtualMemoryResource",
+        "VirtualMemoryResourceOptions",
     ]
     d = {}
     exec("from cuda.core._memory import *", d)  # noqa: S102
@@ -616,7 +625,7 @@ def test_non_managed_resources_report_not_managed(mr_kind):
         mr = DeviceMemoryResource(device)
     else:
         skip_if_pinned_memory_unsupported(device)
-        mr = PinnedMemoryResource()
+        mr = create_pinned_memory_resource_or_xfail(xfail_device=device)
     assert mr.is_managed is False
     buf = mr.allocate(1024)
     assert buf.is_managed is False
@@ -661,7 +670,7 @@ def test_pinned_memory_resource_initialization(init_cuda):
 
     device.set_current()
 
-    mr = PinnedMemoryResource()
+    mr = create_pinned_memory_resource_or_xfail(xfail_device=device)
     assert mr.is_device_accessible
     assert mr.is_host_accessible
 
@@ -776,14 +785,14 @@ def test_vmm_allocator_policy_configuration():
 
     # Test with custom VMM config
     custom_config = VirtualMemoryResourceOptions(
-        allocation_type="pinned",
-        location_type="device",
-        granularity="minimum",
+        allocation_type=VirtualMemoryAllocationType.PINNED,
+        location_type=VirtualMemoryLocationType.DEVICE,
+        granularity=VirtualMemoryGranularityType.MINIMUM,
         gpu_direct_rdma=True,
-        handle_type="posix_fd" if not IS_WINDOWS else "win32_kmt",
+        handle_type=VirtualMemoryHandleType.POSIX_FD if not IS_WINDOWS else VirtualMemoryHandleType.WIN32_KMT,
         peers=(),
-        self_access="rw",
-        peer_access="rw",
+        self_access=VirtualMemoryAccessType.READ_WRITE,
+        peer_access=VirtualMemoryAccessType.READ_WRITE,
     )
 
     vmm_mr = VirtualMemoryResource(device, config=custom_config)
@@ -1066,7 +1075,7 @@ def test_managed_memory_resource_preferred_location_device(init_cuda):
     # Explicit style
     opts = ManagedMemoryResourceOptions(
         preferred_location=device.device_id,
-        preferred_location_type="device",
+        preferred_location_type=ManagedMemoryLocationType.DEVICE,
     )
     mr = create_managed_memory_resource_or_skip(opts)
     assert mr.preferred_location == ("device", device.device_id)
@@ -1200,10 +1209,10 @@ def test_mempool_ipc_errors(mempool_device):
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        mr.get_allocation_handle()
+        _ = mr.allocation_handle
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        buffer.get_ipc_descriptor()
+        _ = buffer.ipc_descriptor
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
@@ -1235,7 +1244,7 @@ def test_pinned_mempool_ipc_basic():
     assert mr.numa_id >= 0  # IPC requires a concrete NUMA node
 
     # Test allocation handle export
-    alloc_handle = mr.get_allocation_handle()
+    alloc_handle = mr.allocation_handle
     assert alloc_handle is not None
 
     # Test buffer allocation
@@ -1245,7 +1254,7 @@ def test_pinned_mempool_ipc_basic():
     assert buffer.is_host_accessible
 
     # Test IPC descriptor
-    ipc_desc = buffer.get_ipc_descriptor()
+    ipc_desc = buffer.ipc_descriptor
     assert ipc_desc is not None
     assert ipc_desc.size == 1024
 
@@ -1271,10 +1280,10 @@ def test_pinned_mempool_ipc_errors():
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        mr.get_allocation_handle()
+        _ = mr.allocation_handle
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        buffer.get_ipc_descriptor()
+        _ = buffer.ipc_descriptor
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
@@ -1558,7 +1567,7 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
         pytest.skip("Device does not support mempool operations")
     elif MR is PinnedMemoryResource:
         skip_if_pinned_memory_unsupported(device)
-        mr = MR()
+        mr = create_pinned_memory_resource_or_xfail(xfail_device=device)
     elif MR is ManagedMemoryResource:
         skip_if_managed_memory_unsupported(device)
         mr = create_managed_memory_resource_or_skip(MROps(preferred_location=device.device_id))

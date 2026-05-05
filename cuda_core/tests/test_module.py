@@ -57,6 +57,31 @@ def test_kernel_attributes_init_disabled():
         cuda.core._module.KernelAttributes()  # Ensure back door is locked.
 
 
+def test_kernel_attributes_per_device_view(get_saxpy_kernel_cubin):
+    """kernel.attributes[device] returns a per-device view; values match."""
+    kernel, _ = get_saxpy_kernel_cubin
+    dev = Device()
+
+    default_view = kernel.attributes
+    int_view = kernel.attributes[dev.device_id]
+    dev_view = kernel.attributes[dev]
+
+    # Same value via every access path (default view = current device).
+    assert default_view.num_regs == int_view.num_regs == dev_view.num_regs
+    assert default_view.max_threads_per_block == int_view.max_threads_per_block
+
+    # The bound views are distinct objects from the default view.
+    assert int_view is not default_view
+    assert int_view is not dev_view
+
+
+def test_kernel_attributes_indexing_rejects_invalid_device(get_saxpy_kernel_cubin):
+    """kernel.attributes[bad] raises through the Device(...) constructor."""
+    kernel, _ = get_saxpy_kernel_cubin
+    with pytest.raises((TypeError, ValueError, OverflowError)):
+        kernel.attributes["not a device"]
+
+
 def test_kernel_occupancy_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelOccupancy cannot be instantiated directly\."):
         cuda.core._module.KernelOccupancy()  # Ensure back door is locked.
@@ -182,16 +207,18 @@ def test_get_kernel(init_cuda):
 )
 def test_read_only_kernel_attributes(get_saxpy_kernel_cubin, attr, expected_type):
     kernel, _ = get_saxpy_kernel_cubin
-    method = getattr(kernel.attributes, attr)
-    # get the value without providing a device ordinal
-    value = method()
-    assert value is not None
 
-    # get the value for each device on the system, using either the device object or ordinal
-    for device in Device.get_all_devices():
-        value = method(device)
-        value = method(device.device_id)
+    # Default view: property access on the current-device view.
+    value = getattr(kernel.attributes, attr)
+    assert value is not None
     assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
+
+    # Per-device views via __getitem__: each device, both Device and ordinal forms.
+    for device in Device.get_all_devices():
+        value = getattr(kernel.attributes[device], attr)
+        assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
+        value = getattr(kernel.attributes[device.device_id], attr)
+        assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
 
 
 def test_object_code_load_ptx(get_saxpy_kernel_ptx):
@@ -384,7 +411,7 @@ def test_occupancy_max_active_block_per_multiprocessor(get_saxpy_kernel_cubin, b
     kernel_smem_size_per_sm = num_blocks_per_sm * smem_size_per_block
     assert kernel_threads_per_sm <= dev_props.max_threads_per_multiprocessor
     assert kernel_smem_size_per_sm <= dev_props.max_shared_memory_per_multiprocessor
-    assert kernel.attributes.num_regs() * num_blocks_per_sm <= dev_props.max_registers_per_multiprocessor
+    assert kernel.attributes.num_regs * num_blocks_per_sm <= dev_props.max_registers_per_multiprocessor
 
 
 @pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 256, 0])
@@ -506,7 +533,7 @@ def test_kernel_from_handle(get_saxpy_kernel_cubin):
     assert isinstance(kernel_from_handle, Kernel)
 
     # Verify we can access kernel attributes
-    max_threads = kernel_from_handle.attributes.max_threads_per_block()
+    max_threads = kernel_from_handle.attributes.max_threads_per_block
     assert isinstance(max_threads, int)
     assert max_threads > 0
 
@@ -524,7 +551,7 @@ def test_kernel_from_handle_no_module(get_saxpy_kernel_cubin):
     assert isinstance(kernel_from_handle, Kernel)
 
     # Verify we can still access kernel attributes
-    max_threads = kernel_from_handle.attributes.max_threads_per_block()
+    max_threads = kernel_from_handle.attributes.max_threads_per_block
     assert isinstance(max_threads, int)
     assert max_threads > 0
 
@@ -599,7 +626,7 @@ def test_kernel_from_handle_library_mismatch_warning(init_cuda):
         assert len(w) == 1
         assert "does not match" in str(w[0].message)
 
-    assert k.attributes.max_threads_per_block() > 0
+    assert k.attributes.max_threads_per_block > 0
 
 
 def test_kernel_from_handle_foreign_kernel(init_cuda):
@@ -615,7 +642,7 @@ def test_kernel_from_handle_foreign_kernel(init_cuda):
     handle = int(cu_kernel)
 
     k = Kernel.from_handle(handle)
-    assert k.attributes.max_threads_per_block() > 0
+    assert k.attributes.max_threads_per_block > 0
 
 
 def test_kernel_keeps_library_alive(init_cuda):

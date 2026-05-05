@@ -57,9 +57,6 @@ cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py"]
 [target.linux.tasks.bench-smoke-test]
 cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py", "--debug-single-value"]
 
-[target.linux.tasks.bench-legacy]
-cmd = "pytest --benchmark-only --override-ini 'addopts=' $PIXI_PROJECT_ROOT/pytest-legacy/"
-
 [target.linux.tasks.bench-cpp-configure]
 cmd = [
     "cmake",

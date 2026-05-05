@@ -117,7 +117,7 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         # Set up the IPC-enabled memory pool and share it using one handle.
         device = ipc_device
         mr = ipc_memory_resource
-        alloc_handle = mr.get_allocation_handle()
+        alloc_handle = mr.allocation_handle
 
         # Start children.
         q1, q2 = (mp.Queue() for _ in range(2))
@@ -129,8 +129,8 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         # Allocate and share memory.
         buffer1 = mr.allocate(NBYTES)
         buffer2 = mr.allocate(NBYTES)
-        q1.put(buffer1.get_ipc_descriptor())
-        q2.put(buffer2.get_ipc_descriptor())
+        q1.put(buffer1.ipc_descriptor)
+        q2.put(buffer2.ipc_descriptor)
 
         # Wait for children.
         p1.join(timeout=CHILD_TIMEOUT_SEC)
@@ -167,7 +167,7 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         """
         device = ipc_device
         mr = ipc_memory_resource
-        alloc_handle = mr.get_allocation_handle()
+        alloc_handle = mr.allocation_handle
 
         # Start children.
         q1, q2 = (mp.Queue() for _ in range(2))

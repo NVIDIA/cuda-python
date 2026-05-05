@@ -17,6 +17,8 @@ from dataclasses import dataclass
 import threading
 import warnings
 
+from cuda.core.typing import ManagedMemoryLocationType
+
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
 
 
@@ -31,7 +33,7 @@ cdef class ManagedMemoryResourceOptions:
         meaning depends on ``preferred_location_type``.
         (Default to ``None``)
 
-    preferred_location_type : ``"device"`` | ``"host"`` | ``"host_numa"`` | None, optional
+    preferred_location_type : ManagedMemoryLocationType | str | None, optional
         Controls how ``preferred_location`` is interpreted.
 
         When set to ``None`` (the default), legacy behavior is used:
@@ -55,7 +57,7 @@ cdef class ManagedMemoryResourceOptions:
         (Default to ``None``)
     """
     preferred_location: int | None = None
-    preferred_location_type: str | None = None
+    preferred_location_type: ManagedMemoryLocationType | str | None = None
 
 
 cdef class ManagedMemoryResource(_MemPool):
@@ -114,7 +116,7 @@ cdef class ManagedMemoryResource(_MemPool):
         return -1
 
     @property
-    def preferred_location(self) -> tuple | None:
+    def preferred_location(self) -> tuple[ManagedMemoryLocationType, int | None] | None:
         """The preferred location for managed memory allocations.
 
         Returns ``None`` if no preferred location is set (driver decides),
@@ -125,8 +127,8 @@ cdef class ManagedMemoryResource(_MemPool):
         if self._pref_loc_type is None:
             return None
         if self._pref_loc_type == "host":
-            return ("host", None)
-        return (self._pref_loc_type, self._pref_loc_id)
+            return (ManagedMemoryLocationType.HOST, None)
+        return (ManagedMemoryLocationType(self._pref_loc_type), self._pref_loc_id)
 
     @property
     def is_device_accessible(self) -> bool:

@@ -26,6 +26,7 @@ from cuda.core import (
 )
 from cuda.core._memory._legacy import _SynchronousMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core.typing import ObjectCodeFormatType, SourceCodeType
 
 
 def test_launch_config_init(init_cuda):
@@ -126,8 +127,8 @@ def test_launch_config_native_conversion(init_cuda):
 
 def test_launch_invalid_values(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
-    program = Program(code, "c++")
-    mod = program.compile("cubin")
+    program = Program(code, SourceCodeType.CXX)
+    mod = program.compile(ObjectCodeFormatType.CUBIN)
 
     stream = Device().create_stream()
     ker = mod.get_kernel("my_kernel")
@@ -262,7 +263,7 @@ def test_cooperative_launch():
     prog = Program(code, code_type="c++", options=pro_opts)
     ker = prog.compile("cubin").get_kernel("test_grid_sync")
 
-    # # Launch without setting cooperative_launch
+    # # Launch without setting is_cooperative
     # # Commented out as this seems to be a sticky error...
     # config = LaunchConfig(grid=1, block=1)
     # launch(s, config, ker)
@@ -273,12 +274,12 @@ def test_cooperative_launch():
 
     # Crazy grid sizes would not work
     block = 128
-    config = LaunchConfig(grid=dev.properties.max_grid_dim_x // block + 1, block=block, cooperative_launch=True)
+    config = LaunchConfig(grid=dev.properties.max_grid_dim_x // block + 1, block=block, is_cooperative=True)
     with pytest.raises(ValueError):
         launch(s, config, ker)
 
     # This works just fine
-    config = LaunchConfig(grid=1, block=1, cooperative_launch=True)
+    config = LaunchConfig(grid=1, block=1, is_cooperative=True)
     launch(s, config, ker)
     s.sync()
 

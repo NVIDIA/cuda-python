@@ -14,7 +14,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._event cimport Event
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._module cimport Kernel
-from cuda.core.graph._graph_def cimport Condition, GraphDef
+from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
 from cuda.core.graph._graph_node cimport GraphNode
 from cuda.core._resource_handles cimport (
     EventHandle,
@@ -33,6 +33,25 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core.graph._utils cimport _is_py_host_trampoline
 
 from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core.typing import GraphConditionalType
+
+__all__ = [
+    'AllocNode',
+    'ChildGraphNode',
+    'ConditionalNode',
+    'EmptyNode',
+    'EventRecordNode',
+    'EventWaitNode',
+    'FreeNode',
+    'HostCallbackNode',
+    'IfElseNode',
+    'IfNode',
+    'KernelNode',
+    'MemcpyNode',
+    'MemsetNode',
+    'SwitchNode',
+    'WhileNode',
+]
 
 
 cdef bint _has_cuGraphNodeGetParams = False
@@ -133,7 +152,7 @@ cdef class KernelNode(GraphNode):
     def config(self) -> LaunchConfig:
         """A LaunchConfig reconstructed from this node's grid, block, and shmem_size.
 
-        Note: cluster dimensions and cooperative_launch are not preserved
+        Note: cluster dimensions and is_cooperative are not preserved
         by the CUDA driver's kernel node params, so they are not included.
         """
         return LaunchConfig(grid=self._grid, block=self._block,
@@ -151,8 +170,8 @@ cdef class AllocNode(GraphNode):
         The number of bytes allocated.
     device_id : int
         The device on which the allocation was made.
-    memory_type : str
-        The type of memory allocated (``"device"``, ``"host"``, or ``"managed"``).
+    memory_type : GraphMemoryType | str
+        The type of memory allocated.
     peer_access : tuple of int
         Device IDs that have read-write access to this allocation.
     options : GraphAllocOptions
@@ -163,7 +182,7 @@ cdef class AllocNode(GraphNode):
     cdef AllocNode _create_with_params(GraphNodeHandle h_node,
                                        cydriver.CUdeviceptr dptr, size_t bytesize,
                                        int device_id, str memory_type, tuple peer_access):
-        """Create from known params (called by alloc() builder)."""
+        """Create from known params (called by allocate() builder)."""
         cdef AllocNode n = AllocNode.__new__(AllocNode)
         n._h_node = h_node
         n._dptr = dptr
@@ -237,7 +256,7 @@ cdef class AllocNode(GraphNode):
     @property
     def options(self):
         """A GraphAllocOptions reconstructed from this node's parameters."""
-        from cuda.core.graph._graph_def import GraphAllocOptions
+        from cuda.core.graph._graph_definition import GraphAllocOptions
         return GraphAllocOptions(
             device=self._device_id,
             memory_type=self._memory_type,
@@ -257,7 +276,7 @@ cdef class FreeNode(GraphNode):
     @staticmethod
     cdef FreeNode _create_with_params(GraphNodeHandle h_node,
                                       cydriver.CUdeviceptr dptr):
-        """Create from known params (called by free() builder)."""
+        """Create from known params (called by deallocate() builder)."""
         cdef FreeNode n = FreeNode.__new__(FreeNode)
         n._h_node = h_node
         n._dptr = dptr
@@ -440,7 +459,7 @@ cdef class ChildGraphNode(GraphNode):
 
     Properties
     ----------
-    child_graph : GraphDef
+    child_graph : GraphDefinition
         The embedded graph definition (non-owning wrapper).
     """
 
@@ -469,9 +488,9 @@ cdef class ChildGraphNode(GraphNode):
                 f" child=0x{as_intptr(self._h_child_graph):x}>")
 
     @property
-    def child_graph(self) -> "GraphDef":
+    def child_graph(self) -> "GraphDefinition":
         """The embedded graph definition (non-owning wrapper)."""
-        return GraphDef._from_handle(self._h_child_graph)
+        return GraphDefinition._from_handle(self._h_child_graph)
 
 
 cdef class EventRecordNode(GraphNode):
@@ -486,7 +505,7 @@ cdef class EventRecordNode(GraphNode):
     @staticmethod
     cdef EventRecordNode _create_with_params(GraphNodeHandle h_node,
                                              EventHandle h_event):
-        """Create from known params (called by record_event() builder)."""
+        """Create from known params (called by record() builder)."""
         cdef EventRecordNode n = EventRecordNode.__new__(EventRecordNode)
         n._h_node = h_node
         n._h_event = h_event
@@ -524,7 +543,7 @@ cdef class EventWaitNode(GraphNode):
     @staticmethod
     cdef EventWaitNode _create_with_params(GraphNodeHandle h_node,
                                            EventHandle h_event):
-        """Create from known params (called by wait_event() builder)."""
+        """Create from known params (called by wait() builder)."""
         cdef EventWaitNode n = EventWaitNode.__new__(EventWaitNode)
         n._h_node = h_node
         n._h_event = h_event
@@ -555,7 +574,7 @@ cdef class HostCallbackNode(GraphNode):
 
     Properties
     ----------
-    callback_fn : callable or None
+    callback : callable or None
         The Python callable (None for ctypes function pointer callbacks).
     """
 
@@ -595,7 +614,7 @@ cdef class HostCallbackNode(GraphNode):
                 f" cfunc=0x{<uintptr_t>self._fn:x}>")
 
     @property
-    def callback_fn(self):
+    def callback(self):
         """The Python callable, or None for ctypes function pointer callbacks."""
         return self._callable
 
@@ -603,7 +622,7 @@ cdef class HostCallbackNode(GraphNode):
 cdef class ConditionalNode(GraphNode):
     """Base class for conditional nodes.
 
-    When created via builder methods (if_cond, if_else, while_loop, switch),
+    When created via builder methods (if_then, if_else, while_loop, switch),
     a specific subclass (IfNode, IfElseNode, WhileNode, SwitchNode) is
     returned. When reconstructed from the driver on CUDA 13.2+, the
     correct subclass is determined via cuGraphNodeGetParams. On older
@@ -611,11 +630,11 @@ cdef class ConditionalNode(GraphNode):
 
     Properties
     ----------
-    condition : Condition or None
+    condition : GraphCondition or None
         The condition variable controlling execution (None pre-13.2).
     cond_type : str or None
         The conditional type ("if", "while", or "switch"; None pre-13.2).
-    branches : tuple of GraphDef
+    branches : tuple of GraphDefinition
         The body graphs for each branch (empty pre-13.2).
     """
 
@@ -637,7 +656,7 @@ cdef class ConditionalNode(GraphNode):
         cdef int cond_type_int = int(cond_params.type)
         cdef unsigned int size = int(cond_params.size)
 
-        cdef Condition condition = Condition.__new__(Condition)
+        cdef GraphCondition condition = GraphCondition.__new__(GraphCondition)
         condition._c_handle = <cydriver.CUgraphConditionalHandle>(
             <unsigned long long>int(cond_params.handle))
 
@@ -650,7 +669,7 @@ cdef class ConditionalNode(GraphNode):
                 h_branch = create_graph_handle_ref(
                     <cydriver.CUgraph><uintptr_t>int(cond_params.phGraph_out[i]),
                     h_graph)
-                branch_list.append(GraphDef._from_handle(h_branch))
+                branch_list.append(GraphDefinition._from_handle(h_branch))
         cdef tuple branches = tuple(branch_list)
 
         cdef type cls
@@ -675,13 +694,13 @@ cdef class ConditionalNode(GraphNode):
         return f"<ConditionalNode handle=0x{as_intptr(self._h_node):x}>"
 
     @property
-    def condition(self) -> Condition | None:
+    def condition(self) -> GraphCondition | None:
         """The condition variable controlling execution."""
         return self._condition
 
     @property
-    def cond_type(self) -> str | None:
-        """The conditional type as a string: 'if', 'while', or 'switch'.
+    def cond_type(self) -> GraphConditionalType | None:
+        """The conditional type: GraphConditionalType.IF, .WHILE, or .SWITCH
 
         Returns None when reconstructed from the driver pre-CUDA 13.2,
         as the conditional type cannot be determined.
@@ -689,15 +708,15 @@ cdef class ConditionalNode(GraphNode):
         if self._condition is None:
             return None
         if self._cond_type == cydriver.CU_GRAPH_COND_TYPE_IF:
-            return "if"
+            return GraphConditionalType("if")
         elif self._cond_type == cydriver.CU_GRAPH_COND_TYPE_WHILE:
-            return "while"
+            return GraphConditionalType("while")
         else:
-            return "switch"
+            return GraphConditionalType("switch")
 
     @property
     def branches(self) -> tuple:
-        """The body graphs for each branch as a tuple of GraphDef.
+        """The body graphs for each branch as a tuple of GraphDefinition.
 
         Returns an empty tuple when reconstructed from the driver
         pre-CUDA 13.2.
@@ -713,7 +732,7 @@ cdef class IfNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def then(self) -> "GraphDef":
+    def then(self) -> "GraphDefinition":
         """The 'then' branch graph."""
         return self._branches[0]
 
@@ -726,12 +745,12 @@ cdef class IfElseNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def then(self) -> "GraphDef":
+    def then(self) -> "GraphDefinition":
         """The ``then`` branch graph (executed when condition is non-zero)."""
         return self._branches[0]
 
     @property
-    def else_(self) -> "GraphDef":
+    def else_(self) -> "GraphDefinition":
         """The ``else`` branch graph (executed when condition is zero)."""
         return self._branches[1]
 
@@ -744,7 +763,7 @@ cdef class WhileNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def body(self) -> "GraphDef":
+    def body(self) -> "GraphDefinition":
         """The loop body graph."""
         return self._branches[0]
 

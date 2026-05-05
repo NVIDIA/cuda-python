@@ -5,6 +5,12 @@
 
 from libc.stdint cimport intptr_t
 
+import sys
+if sys.version_info >= (3, 11):
+    from enum import StrEnum
+else:
+    from backports.strenum import StrEnum
+
 from cuda.bindings import nvml
 
 from ._nvml_context cimport initialize
@@ -12,7 +18,21 @@ from ._nvml_context cimport initialize
 from . import _device
 
 
-SystemEventType = nvml.SystemEventType
+class SystemEventType(StrEnum):
+    """
+    System event types.
+    """
+    UNBIND = "unbind"
+    BIND = "bind"
+
+
+_SYSTEM_EVENT_TYPE_MAPPING = {
+    nvml.SystemEventType.GPU_DRIVER_UNBIND: SystemEventType.UNBIND,
+    nvml.SystemEventType.GPU_DRIVER_BIND: SystemEventType.BIND,
+}
+
+
+_SYSTEM_EVENT_TYPE_INV_MAPPING = {v: k for k, v in _SYSTEM_EVENT_TYPE_MAPPING.items()}
 
 
 cdef class SystemEvent:
@@ -28,7 +48,7 @@ cdef class SystemEvent:
         """
         The :obj:`~SystemEventType` that was triggered.
         """
-        return SystemEventType(self._event_data.event_type)
+        return _SYSTEM_EVENT_TYPE_MAPPING[self._event_data.event_type]
 
     @property
     def gpu_id(self) -> int:
@@ -68,26 +88,36 @@ cdef class RegisteredSystemEvents:
     """
     cdef intptr_t _event_set
 
-    def __init__(self, events: SystemEventType | int | list[SystemEventType | int]):
+    def __init__(self, events: SystemEventType | str | list[SystemEventType | str]):
         cdef unsigned long long event_bitmask
-        if isinstance(events, (int, SystemEventType)):
-            event_bitmask = <unsigned long long>int(events)
-        elif isinstance(events, list):
+        if isinstance(events, (str, SystemEventType)):
+            events = [events]
+
+        if isinstance(events, list):
             event_bitmask = 0
             for ev in events:
-                event_bitmask |= <unsigned long long>int(ev)
+                try:
+                    ev_enum = _SYSTEM_EVENT_TYPE_INV_MAPPING[ev]
+                except KeyError:
+                    raise ValueError(
+                        f"Invalid event type: {ev}. "
+                        f"Must be one of {list(SystemEventType.__members__.values())}"
+                    ) from None
+                event_bitmask |= <unsigned long long>int(ev_enum)
         else:
-            raise TypeError("events must be an SystemEventType, int, or list of SystemEventType or int")
+            raise TypeError("events must be an SystemEventType, str, or list of SystemEventType or str")
 
         initialize()
 
+        self._event_set = 0
         self._event_set = nvml.system_event_set_create()
         # If this raises, the event needs to be freed and this is handled by
         # this class's __dealloc__ method.
         nvml.system_register_events(event_bitmask, self._event_set)
 
     def __dealloc__(self):
-        nvml.system_event_set_free(self._event_set)
+        if self._event_set != 0:
+            nvml.system_event_set_free(self._event_set)
 
     def wait(self, timeout_ms: int = 0, buffer_size: int = 1) -> SystemEvents:
         """
@@ -126,7 +156,7 @@ cdef class RegisteredSystemEvents:
         return SystemEvents(nvml.system_event_set_wait(self._event_set, timeout_ms, buffer_size))
 
 
-def register_events(events: SystemEventType | int | list[SystemEventType | int]) -> RegisteredSystemEvents:
+def register_events(events: SystemEventType | str | list[SystemEventType | str]) -> RegisteredSystemEvents:
     """
     Starts recording of events on test system.
 
@@ -138,15 +168,13 @@ def register_events(events: SystemEventType | int | list[SystemEventType | int])
     Examples
     --------
     >>> from cuda.core import system
-    >>> events = system.register_events([
-    ...     SystemEventType.SYSTEM_EVENT_TYPE_GPU_DRIVER_UNBIND,
-    ... ])
+    >>> events = system.register_events([SystemEventType.UNBIND])
     >>> while event := events.wait(timeout_ms=10000):
     ...     print(f"Event {event.event_type} occurred.")
 
     Parameters
     ----------
-    events: SystemEventType, int, or list of SystemEventType or int
+    events: SystemEventType, str, or list of SystemEventType or str
         The event type or list of event types to register for this device.
 
     Returns

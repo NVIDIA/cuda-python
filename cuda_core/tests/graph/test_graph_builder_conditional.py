@@ -35,17 +35,17 @@ def test_graph_conditional_if(init_cuda, condition_value):
 
     # Add Node A (sets condition)
     try:
-        handle = gb.create_conditional_handle()
+        condition = gb.create_condition()
     except RuntimeError as e:
         with pytest.raises(RuntimeError, match="^Driver version"):
             raise e
         gb.end_building()
         b.close()
         pytest.skip("Driver does not support conditional handle")
-    launch(gb, LaunchConfig(grid=1, block=1), set_handle, handle, condition_value)
+    launch(gb, LaunchConfig(grid=1, block=1), set_handle, condition, condition_value)
 
     # Add Node B (if condition)
-    gb_if = gb.if_cond(handle).begin_building()
+    gb_if = gb.if_then(condition).begin_building()
     launch(gb_if, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
     gb_if_0, gb_if_1 = gb_if.split(2)
     launch(gb_if_0, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
@@ -98,12 +98,12 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
     gb = Device().create_graph_builder().begin_building()
 
     # Add Node A (sets condition)
-    handle = gb.create_conditional_handle()
-    launch(gb, LaunchConfig(grid=1, block=1), set_handle, handle, condition_value)
+    condition = gb.create_condition()
+    launch(gb, LaunchConfig(grid=1, block=1), set_handle, condition, condition_value)
 
     # Add Node B (if condition)
     try:
-        gb_if, gb_else = gb.if_else(handle)
+        gb_if, gb_else = gb.if_else(condition)
     except RuntimeError as e:
         with pytest.raises(RuntimeError, match="^(Driver|Binding) version"):
             raise e
@@ -171,12 +171,12 @@ def test_graph_conditional_switch(init_cuda, condition_value):
     gb = Device().create_graph_builder().begin_building()
 
     # Add Node A (sets condition)
-    handle = gb.create_conditional_handle()
-    launch(gb, LaunchConfig(grid=1, block=1), set_handle, handle, condition_value)
+    condition = gb.create_condition()
+    launch(gb, LaunchConfig(grid=1, block=1), set_handle, condition, condition_value)
 
     # Add Node B (while condition)
     try:
-        gb_case = list(gb.switch(handle, 3))
+        gb_case = list(gb.switch(condition, 3))
     except RuntimeError as e:
         with pytest.raises(RuntimeError, match="^(Driver|Binding) version"):
             raise e
@@ -261,14 +261,14 @@ def test_graph_conditional_while(init_cuda, condition_value):
     gb = Device().create_graph_builder().begin_building()
 
     # Node A is skipped because we can instead use a non-zero default value
-    handle = gb.create_conditional_handle(default_value=condition_value)
+    condition = gb.create_condition(default_value=condition_value)
 
     # Add Node B (while condition)
-    gb_while = gb.while_loop(handle)
+    gb_while = gb.while_loop(condition)
     gb_while.begin_building()
     launch(gb_while, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
     launch(gb_while, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
-    launch(gb_while, LaunchConfig(grid=1, block=1), loop_kernel, handle)
+    launch(gb_while, LaunchConfig(grid=1, block=1), loop_kernel, condition)
     gb_while.end_building()
 
     # Add Node C (...)

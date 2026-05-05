@@ -52,6 +52,11 @@ int main(int argc, char** argv) {
     uint8_t host_dst[COPY_SIZE] = {};
 
     bench::BenchmarkSuite suite(options);
+    // Drain the persistent stream after calibration so async benchmarks
+    // (mem_alloc_async_free_async) don't start measurement on a backlogged stream.
+    suite.set_post_calibrate([&]() {
+        check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed");
+    });
 
     // --- mem_alloc_free ---
     {

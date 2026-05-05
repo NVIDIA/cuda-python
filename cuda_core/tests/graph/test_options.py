@@ -18,11 +18,11 @@ def test_graph_dot_print_options(init_cuda, tmp_path):
     gb = Device().create_graph_builder().begin_building()
 
     # Add Node A (sets condition)
-    handle = gb.create_conditional_handle()
-    launch(gb, LaunchConfig(grid=1, block=1), set_handle, handle, False)
+    condition = gb.create_condition()
+    launch(gb, LaunchConfig(grid=1, block=1), set_handle, condition, False)
 
     # Add Node B (if condition)
-    gb_if = gb.if_cond(handle).begin_building()
+    gb_if = gb.if_then(condition).begin_building()
     launch(gb_if, LaunchConfig(grid=1, block=1), empty_kernel)
     gb_if_0, gb_if_1 = gb_if.split(2)
     launch(gb_if_0, LaunchConfig(grid=1, block=1), empty_kernel)

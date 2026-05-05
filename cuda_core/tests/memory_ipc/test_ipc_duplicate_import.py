@@ -79,8 +79,8 @@ class TestIpcDuplicateImport:
         # Send the memory resource and buffer descriptor twice.
         log("sending mr and buffer descriptors")
         queue.put(mr)
-        queue.put(buffer.get_ipc_descriptor())
-        queue.put(buffer.get_ipc_descriptor())
+        queue.put(buffer.ipc_descriptor)
+        queue.put(buffer.ipc_descriptor)
 
         log("waiting for child")
         process.join(timeout=CHILD_TIMEOUT_SEC)

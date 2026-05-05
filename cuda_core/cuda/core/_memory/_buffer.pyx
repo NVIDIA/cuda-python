@@ -22,6 +22,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
     set_deallocation_stream,
 )
+from cuda.core.typing import DevicePointerType
 
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
@@ -35,7 +36,6 @@ else:
     BufferProtocol = object
 
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
-from cuda.core._utils.cuda_utils import driver
 from cuda.core._device import Device
 
 
@@ -65,11 +65,6 @@ register_mr_dealloc_callback(_mr_dealloc_callback)
 __all__ = ['Buffer', 'MemoryResource']
 
 
-DevicePointerT = driver.CUdeviceptr | int | None
-"""
-A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting
-:attr:`Buffer.handle`.
-"""
 
 
 cdef class Buffer:
@@ -98,7 +93,7 @@ cdef class Buffer:
 
     @classmethod
     def _init(
-        cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
+        cls, ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         ipc_descriptor: IPCBufferDescriptor | None = None,
         owner : object | None = None
     ):
@@ -129,18 +124,18 @@ cdef class Buffer:
 
     def __reduce__(self):
         # Must not serialize the parent's stream!
-        return Buffer._reduce_helper, (self.memory_resource, self.get_ipc_descriptor())
+        return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
     @staticmethod
     def from_handle(
-        ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
+        ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         owner: object | None = None,
     ) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
         Parameters
         ----------
-        ptr : :obj:`~_memory.DevicePointerT`
+        ptr : :obj:`~_memory.DevicePointerType`
             Allocated buffer handle object
         size : int
             Memory size of the buffer
@@ -169,8 +164,9 @@ cdef class Buffer:
         """Import a buffer that was exported from another process."""
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
-    def get_ipc_descriptor(self) -> IPCBufferDescriptor:
-        """Export a buffer allocated for sharing between processes."""
+    @property
+    def ipc_descriptor(self) -> IPCBufferDescriptor:
+        """Descriptor for sharing this buffer with other processes."""
         if self._ipc_data is None:
             self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
         return self._ipc_data.ipc_descriptor
@@ -205,8 +201,9 @@ cdef class Buffer:
 
         Parameters
         ----------
-        dst : :obj:`~_memory.Buffer`
-            Source buffer to copy data from
+        dst : :obj:`~_memory.Buffer`, optional
+            Destination buffer to copy data to. If not provided, a new buffer
+            is allocated using this buffer's memory resource.
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
@@ -346,7 +343,7 @@ cdef class Buffer:
         return self._mem_attrs.device_id
 
     @property
-    def handle(self) -> DevicePointerT:
+    def handle(self) -> DevicePointerType:
         """Return the buffer handle object.
 
         .. caution::
@@ -515,12 +512,12 @@ cdef class MemoryResource:
         """
         raise TypeError("MemoryResource.allocate must be implemented by subclasses.")
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: DevicePointerType, size_t size, stream: Stream | GraphBuilder | None = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
         ----------
-        ptr : :obj:`~_memory.DevicePointerT`
+        ptr : :obj:`~_memory.DevicePointerType`
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.

@@ -172,6 +172,15 @@ def main() -> None:
             count = merge_pyperf_json(individual_files, output_path)
             print(f"\nResults saved to {output_path} ({count} benchmark(s))")
 
+    if not individual_files and not failed:
+        print(
+            "No C++ benchmark results were produced. The selected benchmark "
+            "binaries may have skipped every benchmark on this driver/device. "
+            "Existing output file (if any) was left untouched.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     if failed:
         sys.exit(1)
 
