@@ -1492,9 +1492,11 @@ def test_filestream_cache_path_backed_object_code_missing_file_message(tmp_path)
     path_backed = ObjectCode.from_cubin(str(src), name="gone")
     src.unlink()
 
-    with FileStreamProgramCache(tmp_path / "fc-missing") as cache:
-        with pytest.raises(FileNotFoundError, match="path-backed ObjectCode") as excinfo:
-            cache[b"k"] = path_backed
+    with (
+        FileStreamProgramCache(tmp_path / "fc-missing") as cache,
+        pytest.raises(FileNotFoundError, match="path-backed ObjectCode") as excinfo,
+    ):
+        cache[b"k"] = path_backed
     assert str(src) in str(excinfo.value)
 
 
