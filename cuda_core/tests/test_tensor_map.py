@@ -12,7 +12,7 @@ from cuda.core import (
     system,
 )
 from cuda.core._dlpack import DLDeviceType
-from cuda.core._memoryview import StridedMemoryView
+from cuda.core.utils import StridedMemoryView
 from cuda.core._tensor_map import (
     TensorMapDataType,
     TensorMapDescriptorOptions,
