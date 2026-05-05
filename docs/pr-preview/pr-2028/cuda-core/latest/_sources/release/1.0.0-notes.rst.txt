@@ -120,6 +120,10 @@ Breaking changes
     ``CUgraphConditionalHandle`` value. Previously, ``.handle`` had to be
     extracted explicitly.
 
+- Consistent naming of types annotation helpers
+  (`#2016 <https://github.com/NVIDIA/cuda-python/issues/2016>`__):
+  - :obj:`cuda.core.typing.DevicePointerT` -> :obj:`cuda.core.typing.DevicePointerType`
+  - :obj:`cuda.core.typing.IsStreamT` -> :obj:`cuda.core.typing.IsStreamType`
 
 Fixes and enhancements
 -----------------------
@@ -135,3 +139,22 @@ Fixes and enhancements
   stream and the consumer stream, matching the DLPack synchronization contract.
   Requires PyTorch >= 2.3.
   (`#749 <https://github.com/NVIDIA/cuda-python/issues/749>`__)
+
+- Enums are not available in places where a small number of string values are
+  accepted or returned.  You may continue to use the string values, or use
+  enumerations for better linting and type-checking.
+  (`#2016 <https://github.com/NVIDIA/cuda-python/issues/2016>`__)
+  The new enums are:
+
+  - :class:`cuda.core.typing.CompilerBackendType`
+  - :class:`cuda.core.typing.GraphConditionalType`
+  - :class:`cuda.core.typing.GraphMemoryType`
+  - :class:`cuda.core.typing.ManagedMemoryLocationType`
+  - :class:`cuda.core.typing.ObjectCodeFormatType`
+  - :class:`cuda.core.typing.PCHStatusType`
+  - :class:`cuda.core.typing.SourceCodeType`
+  - :class:`cuda.core.typing.VirtualMemoryAccessType`
+  - :class:`cuda.core.typing.VirtualMemoryAllocationType`
+  - :class:`cuda.core.typing.VirtualMemoryGranularityType`
+  - :class:`cuda.core.typing.VirtualMemoryHandleType`
+  - :class:`cuda.core.typing.VirtualMemoryLocationType`
