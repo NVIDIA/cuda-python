@@ -8,11 +8,11 @@ from conftest import create_managed_memory_resource_or_skip, skip_if_managed_mem
 from cuda.core import (
     Device,
     ManagedMemoryResourceOptions,
-    StridedMemoryView,
     TensorMapDescriptor,
     system,
 )
 from cuda.core._dlpack import DLDeviceType
+from cuda.core._memoryview import StridedMemoryView
 from cuda.core._tensor_map import (
     TensorMapDataType,
     TensorMapDescriptorOptions,
