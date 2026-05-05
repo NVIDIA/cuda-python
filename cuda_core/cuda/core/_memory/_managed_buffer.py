@@ -207,9 +207,16 @@ class ManagedBuffer(Buffer):
 
     @accessed_by.setter
     def accessed_by(self, locations) -> None:
-        # Diff against the current driver state and advise only the deltas.
+        # Validate every target before issuing any cuMemAdvise so an invalid
+        # element can't leave accessed_by partially mutated.
+        target: set[Device | Host] = set()
+        for loc in locations:
+            if not isinstance(loc, (Device, Host)):
+                raise TypeError(
+                    f"accessed_by entries must be Device or Host, got {type(loc).__name__}"
+                )
+            target.add(loc)
         current = set(_query_accessed_by(self))
-        target = set(locations)
         for loc in current - target:
             _advise_one(self, _UNSET_ACCESSED_BY, loc)
         for loc in target - current:
