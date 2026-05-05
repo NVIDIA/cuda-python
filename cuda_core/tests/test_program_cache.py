@@ -1214,6 +1214,27 @@ def test_filestream_cache_delete(tmp_path):
             del cache[b"k"]
 
 
+def test_filestream_cache_overwrite_replaces_value(tmp_path):
+    """Mirror of test_inmemory_cache_overwrite_replaces_value_and_updates_size:
+    overwriting a key via os.replace must replace the on-disk file (the
+    second value reads back, not the first), and __len__ must stay at 1
+    instead of double-counting -- a leaked entry file would skew len()
+    or fall out of the size cap calculation."""
+    from cuda.core.utils import FileStreamProgramCache
+
+    root = tmp_path / "fc-overwrite"
+    with FileStreamProgramCache(root) as cache:
+        cache[b"k"] = b"x" * 100
+        assert cache[b"k"] == b"x" * 100
+        cache[b"k"] = b"y" * 50
+        assert cache[b"k"] == b"y" * 50
+        assert len(cache) == 1
+
+    # On disk: the entries directory should hold exactly one entry file.
+    entries_dir = root / "entries"
+    assert sum(1 for p in entries_dir.iterdir() if p.is_file()) == 1
+
+
 def test_filestream_cache_len_counts_all(tmp_path):
     from cuda.core.utils import FileStreamProgramCache
 
@@ -2177,3 +2198,52 @@ def test_inmemory_cache_unbounded_when_max_size_none():
     for i in range(50):
         cache[f"k{i}".encode()] = b"x" * 1024
     assert len(cache) == 50
+
+
+def test_inmemory_cache_concurrent_threads_stay_consistent():
+    """Threaded readers + writers against a size-capped cache must not
+    crash, deadlock (RLock reentrance through __setitem__ -> evict ->
+    popitem), or leave the cache exceeding its size cap. The final
+    len(cache) must match the actual number of stored entries -- a
+    bookkeeping bug would skew one or the other."""
+    import threading
+
+    from cuda.core.utils import InMemoryProgramCache
+
+    cache = InMemoryProgramCache(max_size_bytes=4096)
+    n_writers = 4
+    n_readers = 4
+    ops_per_thread = 200
+    payload = b"v" * 64
+    errors: list[BaseException] = []
+    barrier = threading.Barrier(n_writers + n_readers)
+
+    def writer(tid: int) -> None:
+        try:
+            barrier.wait()
+            for i in range(ops_per_thread):
+                cache[f"w{tid}-{i}".encode()] = payload
+        except BaseException as exc:
+            errors.append(exc)
+
+    def reader(tid: int) -> None:
+        try:
+            barrier.wait()
+            for i in range(ops_per_thread):
+                # Touch a write key so reads sometimes hit and sometimes miss.
+                cache.get(f"w{i % n_writers}-{i}".encode())
+        except BaseException as exc:
+            errors.append(exc)
+
+    threads = [threading.Thread(target=writer, args=(t,)) for t in range(n_writers)]
+    threads += [threading.Thread(target=reader, args=(t,)) for t in range(n_readers)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=30)
+        assert not t.is_alive(), "thread deadlocked"
+
+    assert errors == []
+    # Internal accounting must agree with the cap and with __len__.
+    assert cache._total_bytes <= 4096
+    assert len(cache) == len(cache._entries)  # no orphan entries
