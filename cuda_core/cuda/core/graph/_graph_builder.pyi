@@ -129,6 +129,48 @@ class GraphBuilder:
     def is_join_required(self) -> bool:
         """Returns True if this graph builder must be joined before building is ended."""
 
+    @property
+    def graph_definition(self) -> GraphDefinition:
+        """The captured graph as an explicit :class:`~graph.GraphDefinition`.
+
+        The returned :class:`~graph.GraphDefinition` is a view of the same
+        graph this builder is producing: nodes added through it appear in
+        subsequent :meth:`complete` and :meth:`debug_dot_print` calls, and
+        the view stays valid even after the builder is closed.
+
+        This lets you mix the capture and explicit APIs on a single graph,
+        for example to inspect what was captured, augment it with extra
+        nodes, or build a conditional body entirely with the explicit API.
+
+        Availability:
+
+        - **Primary builders** (created by :meth:`Device.create_graph_builder`
+          or :meth:`Stream.create_graph_builder`): only after
+          :meth:`end_building`.
+
+        - **Conditional-body builders** (returned by :meth:`if_then`,
+          :meth:`if_else`, :meth:`while_loop`, :meth:`switch`): both before
+          :meth:`begin_building` and after :meth:`end_building`. The body
+          graph already exists when the conditional is created, so you may
+          populate it through this view without ever calling
+          :meth:`begin_building` on the body builder.
+
+        - **Forked builders** (returned by :meth:`split`): never. Forked
+          builders share the primary builder's graph; access it through the
+          primary instead.
+
+        Returns
+        -------
+        GraphDefinition
+            A view of the graph being built.
+
+        Raises
+        ------
+        RuntimeError
+            If the builder is forked, currently building, or (for primary
+            builders) has not started building yet.
+        """
+
     def begin_building(self, mode: str | None='relaxed') -> GraphBuilder:
         """Begins the building process.
 
