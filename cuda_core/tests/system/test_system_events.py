@@ -23,7 +23,7 @@ def test_register_events():
     # Also, some hardware doesn't support any event types.
 
     try:
-        events = system.register_events([system.SystemEventType.GPU_DRIVER_UNBIND])
+        events = system.register_events([system.SystemEventType.UNBIND])
     except system.UnknownError:
         pytest.skip("system events may only be registered once per process")
 
