@@ -180,5 +180,4 @@ def register_events(events: SystemEventType | str | list[SystemEventType | str])
 
 __all__ = [
     "register_events",
-    "SystemEventType",
 ]

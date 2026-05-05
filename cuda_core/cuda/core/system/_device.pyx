@@ -1121,27 +1121,8 @@ def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex | st
 
 
 __all__ = [
-    "AddressingMode",
-    "AffinityScope",
-    "ClockId",
-    "ClocksEventReasons",
-    "ClockType",
-    "CoolerControl",
-    "CoolerTarget",
     "Device",
-    "DeviceArch",
-    "EventType",
-    "FanControlPolicy",
-    "FieldId",
     "get_p2p_status",
     "get_topology_common_ancestor",
-    "GpuP2PCapsIndex",
-    "GpuP2PStatus",
-    "GpuTopologyLevel",
-    "InforomObject",
     "NvlinkInfo",
-    "TemperatureThresholds",
-    "ThermalController",
-    "ThermalTarget",
-    "Utilization",
 ]
