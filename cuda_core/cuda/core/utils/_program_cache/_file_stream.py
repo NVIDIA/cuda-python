@@ -550,6 +550,16 @@ class FileStreamProgramCache(ProgramCacheResource):
         # Count both committed entries AND surviving temp files: temp files
         # occupy disk too, even if they're young. Without this the soft cap
         # silently undercounts in-flight writes.
+        #
+        # Trade-off under burst concurrency: many young temp files (each
+        # below the stale-sweep threshold) can push ``total`` above
+        # ``max_size_bytes`` with only committed entries left to evict.
+        # That can over-evict committed entries during the burst; once
+        # the burst subsides and the temps land via ``os.replace`` (or
+        # are reaped by a later sweep), the cap re-stabilises. This is
+        # consistent with the documented soft-cap contract -- callers
+        # that need a hard bound should leave the cap None and prune
+        # externally.
         for path in self._iter_entry_paths():
             try:
                 st = path.stat()
