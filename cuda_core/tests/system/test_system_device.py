@@ -500,7 +500,7 @@ def test_get_nearest_gpus():
 
     for device in system.Device.get_all_devices():
         for near_device in device.get_topology_nearest_gpus(typing.GpuTopologyLevel.SINGLE):
-            assert isinstance(near_device, typing.Device)
+            assert isinstance(near_device, system.Device)
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")

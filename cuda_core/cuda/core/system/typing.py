@@ -362,3 +362,6 @@ try:
 
 except ImportError:
     pass
+
+
+del StrEnum, sys
