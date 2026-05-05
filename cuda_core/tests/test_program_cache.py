@@ -1456,6 +1456,25 @@ def test_filestream_cache_accepts_path_backed_object_code(tmp_path):
         assert cache[b"k"] == b"hello-cubin-bytes"
 
 
+def test_filestream_cache_path_backed_object_code_missing_file_message(tmp_path):
+    """If the path-backed ObjectCode points at a file that has been deleted
+    by the time the cache reads it, the FileNotFoundError must mention the
+    cache + the missing path -- a bare FileNotFoundError leaves users
+    wondering why ``cache[k] = obj`` is doing filesystem I/O at all."""
+    from cuda.core._module import ObjectCode
+    from cuda.core.utils import FileStreamProgramCache
+
+    src = tmp_path / "vanished.cubin"
+    src.write_bytes(b"data")
+    path_backed = ObjectCode.from_cubin(str(src), name="gone")
+    src.unlink()
+
+    with FileStreamProgramCache(tmp_path / "fc-missing") as cache:
+        with pytest.raises(FileNotFoundError, match="path-backed ObjectCode") as excinfo:
+            cache[b"k"] = path_backed
+    assert str(src) in str(excinfo.value)
+
+
 def test_program_cache_resource_update_accepts_mapping_and_pairs(tmp_path):
     """``update`` is a default ABC method; it must accept either a Mapping
     or an iterable of (key, value) pairs and dispatch each item through

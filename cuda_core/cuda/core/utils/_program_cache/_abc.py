@@ -27,7 +27,12 @@ def _extract_bytes(value: object) -> bytes:
     if isinstance(value, ObjectCode):
         code = value.code
         if isinstance(code, str):
-            return Path(code).read_bytes()
+            try:
+                return Path(code).read_bytes()
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    f"cannot store path-backed ObjectCode in cache: {code!r} no longer exists"
+                ) from None
         return bytes(code)
     raise TypeError(f"cache values must be bytes-like or ObjectCode, got {type(value).__name__}")
 
