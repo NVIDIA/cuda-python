@@ -16,6 +16,13 @@ import collections.abc
 import hashlib
 from typing import Sequence
 
+# Mutual-dependency contract: this module imports ProgramOptions from
+# cuda.core._program at module level, and cuda.core._program imports
+# ProgramCacheResource / make_program_cache_key from cuda.core.utils
+# only via deferred imports inside ``Program.compile``. Adding a
+# top-level ``from cuda.core.utils import ...`` to _program.pyx would
+# turn this into a real import cycle -- keep the import in _program.pyx
+# deferred (or import the symbols from the leaf submodule directly).
 from cuda.core._program import ProgramOptions
 from cuda.core._utils.cuda_utils import (
     driver as _driver,
