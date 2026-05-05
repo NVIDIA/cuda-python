@@ -62,7 +62,7 @@ jobs:
       # TODO: This workflow runs on GH-hosted runner and cannot use the proxy cache
 
       - name: Set up miniforge
-        uses: conda-incubator/setup-miniconda@fc2d68f6413eb2d87b895e92f8584b5b94a10167  # v3.3.0
+        uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5  # v4.0.1
         with:
           activate-environment: cuda-python-docs
           environment-file: ./cuda_python/docs/environment-docs.yml
@@ -244,7 +244,7 @@ jobs:
 
       # TODO: Consider removing this step?
       - name: Upload doc artifacts
-        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b  # v4.0.0
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
           path: artifacts/
           retention-days: 3
