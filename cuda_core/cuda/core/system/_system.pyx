@@ -15,7 +15,7 @@ try:
 except ImportError:
     CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
 else:
-    CUDA_BINDINGS_NVML_IS_COMPATIBLE = _BINDINGS_VERSION >= (13, 1, 2) or (_BINDINGS_VERSION[0] == 12 and _BINDINGS_VERSION[1:3] >= (9, 6))
+    CUDA_BINDINGS_NVML_IS_COMPATIBLE = _BINDINGS_VERSION >= (13, 2, 0) or (_BINDINGS_VERSION[0] == 12 and _BINDINGS_VERSION[1:3] >= (9, 6))
 
 
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
@@ -23,15 +23,7 @@ if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         from cuda.bindings import nvml
     except ImportError:
         CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
-    else:
-        # TODO: We need to be even more specific than version numbers for development.
-        # This can be removed once we have a release including everything we need.
-        for member in ["FieldId", "ClocksEventReasons"]:
-            if not hasattr(nvml, member):
-                CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
-                break
 
-if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from ._nvml_context import initialize
 else:
     from cuda.core._utils.cuda_utils import driver, handle_return, runtime
