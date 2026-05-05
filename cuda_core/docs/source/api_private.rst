@@ -27,6 +27,7 @@ CUDA runtime
    typing.ManagedMemoryLocationType
    typing.ObjectCodeFormatType
    typing.PCHStatusType
+   typing.ProcessStateType
    typing.SourceCodeType
    typing.VirtualMemoryAccessType
    typing.VirtualMemoryAllocationType

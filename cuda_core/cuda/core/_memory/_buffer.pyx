@@ -22,6 +22,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
     set_deallocation_stream,
 )
+from cuda.core.typing import DevicePointerType
 
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
@@ -35,7 +36,6 @@ else:
     BufferProtocol = object
 
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
-from cuda.core._utils.cuda_utils import driver
 from cuda.core._device import Device
 
 
@@ -65,11 +65,6 @@ register_mr_dealloc_callback(_mr_dealloc_callback)
 __all__ = ['Buffer', 'MemoryResource']
 
 
-DevicePointerType = driver.CUdeviceptr | int | None
-"""
-A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting
-:attr:`Buffer.handle`.
-"""
 
 cdef class Buffer:
     """Represent a handle to allocated memory.

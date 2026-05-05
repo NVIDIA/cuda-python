@@ -8,9 +8,10 @@ try:
     from enum import StrEnum
 except ImportError:
     from backports.strenum import StrEnum
+from typing import Literal as _Literal
 
-from cuda.core._memory._buffer import DevicePointerType
 from cuda.core._stream import IsStreamType
+from cuda.core._utils.cuda_utils import driver
 
 __all__ = [
     "CompilerBackendType",
@@ -21,6 +22,7 @@ __all__ = [
     "ManagedMemoryLocationType",
     "ObjectCodeFormatType",
     "PCHStatusType",
+    "ProcessStateType",
     "SourceCodeType",
     "VirtualMemoryAccessType",
     "VirtualMemoryAllocationType",
@@ -28,6 +30,16 @@ __all__ = [
     "VirtualMemoryHandleType",
     "VirtualMemoryLocationType",
 ]
+
+
+DevicePointerType = driver.CUdeviceptr | int | None
+DevicePointerType.__doc__ = """
+A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting
+:attr:`Buffer.handle`.
+"""
+
+
+ProcessStateType = _Literal["running", "locked", "checkpointed", "failed"]
 
 
 class SourceCodeType(StrEnum):

@@ -10,10 +10,12 @@ def test_typing_module_imports():
     from cuda.core.typing import (
         DevicePointerType,
         IsStreamType,
+        ProcessStateType,
     )
 
     assert DevicePointerType is not None
     assert IsStreamType is not None
+    assert set(ProcessStateType.__args__) == {"running", "locked", "checkpointed", "failed"}
 
 
 def test_typing_matches_private_definitions():
@@ -23,7 +25,9 @@ def test_typing_matches_private_definitions():
     from cuda.core.typing import (
         DevicePointerType,
         IsStreamType,
+        ProcessStateType,
     )
 
     assert DevicePointerType is _DevicePointerT
     assert IsStreamType is _IsStreamT
+    assert set(ProcessStateType.__args__) == {"running", "locked", "checkpointed", "failed"}
