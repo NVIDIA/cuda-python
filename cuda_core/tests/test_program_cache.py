@@ -1909,6 +1909,80 @@ def test_filestream_cache_unbounded_by_default(tmp_path):
         assert len(cache) == 20
 
 
+def test_filestream_cache_writes_skip_scan_when_under_cap(tmp_path, monkeypatch):
+    """An incremental size tracker keeps writes O(1) while under the cap.
+    Counter-test against a regression that re-introduces a per-write disk
+    walk: if every write triggers the eviction scan, the running total has
+    to be recomputed for entries we never modified, and a cache with
+    thousands of files gets quadratic. Writes that stay under
+    ``max_size_bytes`` must not call ``_enforce_size_cap`` at all."""
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc", max_size_bytes=1_000_000) as cache:
+        # Seed one entry so the tracker has a non-zero starting point.
+        cache[b"k0"] = b"x" * 100
+
+        calls: list[int] = []
+        original = cache._enforce_size_cap
+        monkeypatch.setattr(
+            cache,
+            "_enforce_size_cap",
+            lambda: (calls.append(1), original())[1],
+        )
+
+        # 100 small writes well under the 1MB cap -- none should trigger
+        # the scan-heavy enforcement path.
+        for i in range(1, 101):
+            cache[f"k{i}".encode()] = b"y" * 100
+        assert calls == [], f"_enforce_size_cap called {len(calls)} times under cap"
+
+
+def test_filestream_cache_writes_trigger_scan_when_over_cap(tmp_path, monkeypatch):
+    """Counterpart to ``test_filestream_cache_writes_skip_scan_when_under_cap``:
+    once the tracker reports we crossed the cap, the eviction scan must
+    fire so the cache actually enforces its bound."""
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc", max_size_bytes=300) as cache:
+        calls: list[int] = []
+        original = cache._enforce_size_cap
+        monkeypatch.setattr(
+            cache,
+            "_enforce_size_cap",
+            lambda: (calls.append(1), original())[1],
+        )
+
+        # 200 + 200 > 300 -> second write must trigger enforcement.
+        cache[b"a"] = b"a" * 200
+        cache[b"b"] = b"b" * 200
+        assert len(calls) >= 1
+
+
+def test_filestream_cache_tracker_reconciles_after_external_drift(tmp_path):
+    """If another writer (or this cache reopened) deletes entries on disk
+    out from under us, the running tracker overestimates the on-disk total.
+    The next eviction pass walks the directory and re-seeds the tracker
+    from reality, so the overestimate self-corrects rather than growing
+    without bound and triggering bogus evictions every write thereafter."""
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc", max_size_bytes=1000) as cache:
+        cache[b"a"] = b"A" * 400
+        cache[b"b"] = b"B" * 400
+        assert cache._tracked_size_bytes == 800
+        # Simulate an external deleter (another process, manual rm,
+        # filesystem-level pruning script): unlink an entry behind the
+        # cache's back so the tracker is now stale-high.
+        path_a = cache._path_for_key(b"a")
+        path_a.unlink()
+        # Tracker still believes 800 bytes are on disk; trigger an
+        # eviction by writing one more entry that pushes the tracker
+        # above the cap. The scan should observe ~400 bytes (only 'b'
+        # remains plus the new write) and reset the tracker to that.
+        cache[b"c"] = b"C" * 700  # tracker becomes 800 + 700 = 1500 > cap
+        assert cache._tracked_size_bytes <= 1100  # actual on-disk is 'b' + 'c' or just 'c'
+
+
 def test_make_program_cache_key_changes_with_key_schema_version(monkeypatch):
     """Bumping ``_KEY_SCHEMA_VERSION`` produces a different cache key for
     the same logical inputs. That's what makes a schema bump invalidate

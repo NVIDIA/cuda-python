@@ -17,6 +17,7 @@ import errno
 import hashlib
 import os
 import tempfile
+import threading
 import time
 from pathlib import Path
 from typing import Iterable
@@ -401,6 +402,19 @@ class FileStreamProgramCache(ProgramCacheResource):
         # crashed writers. Age-based so concurrent in-flight writes from
         # other processes are preserved.
         self._sweep_stale_tmp_files()
+        # Incremental size tracker. Without it every ``__setitem__`` would
+        # walk ``entries/`` + ``tmp/`` to compute the total -- O(n) per
+        # write. With it: writes update the tracker by the net delta in O(1)
+        # and only walk on eviction (which already needs the scan to sort
+        # entries by atime). The tracker is seeded by one full scan at open
+        # time and refreshed on every eviction pass; cross-process drift
+        # (other writers/deleters) self-corrects the next time eviction
+        # fires. The lock guards mutations so multi-threaded writers in
+        # the same process don't interleave the read-modify-write on the
+        # int. Skipped entirely when ``max_size_bytes is None`` -- without
+        # a cap the tracker is dead weight.
+        self._size_lock = threading.Lock()
+        self._tracked_size_bytes = self._compute_total_size() if max_size_bytes is not None else 0
 
     # -- key-to-path helpers -------------------------------------------------
 
@@ -445,6 +459,18 @@ class FileStreamProgramCache(ProgramCacheResource):
         # FileNotFoundError even though we could trivially recover.
         self._tmp.mkdir(parents=True, exist_ok=True)
 
+        # Stat the existing entry (if any) BEFORE the replace so we can
+        # update the tracker by the net delta. A racing writer that lands
+        # an ``os.replace`` between this stat and our own makes ``old_size``
+        # slightly off; the next ``_enforce_size_cap`` reconciles by
+        # re-scanning. Skipped when ``max_size_bytes is None`` (no tracker).
+        old_size = 0
+        if self._max_size_bytes is not None:
+            try:
+                old_size = target.stat().st_size
+            except FileNotFoundError:
+                old_size = 0
+
         fd, tmp_name = tempfile.mkstemp(prefix="entry-", dir=self._tmp)
         tmp_path = Path(tmp_name)
         try:
@@ -465,14 +491,39 @@ class FileStreamProgramCache(ProgramCacheResource):
             with contextlib.suppress(FileNotFoundError):
                 tmp_path.unlink()
             raise
-        self._enforce_size_cap()
+
+        if self._max_size_bytes is None:
+            return
+
+        # O(1) tracker update. Only run the scan-heavy ``_enforce_size_cap``
+        # when this write actually pushes the running total above the cap.
+        new_size = len(data)
+        with self._size_lock:
+            self._tracked_size_bytes += new_size - old_size
+            over_cap = self._tracked_size_bytes > self._max_size_bytes
+        if over_cap:
+            self._enforce_size_cap()
 
     def __delitem__(self, key: object) -> None:
         path = self._path_for_key(key)
+        # Stat before unlink so we can decrement the tracker by the actual
+        # on-disk size. Best-effort: if the file vanishes between stat and
+        # unlink (concurrent eviction), we treat the delete as a miss --
+        # matching the behaviour callers expect (KeyError) and leaving the
+        # tracker untouched (the racing eviction already accounted for it).
+        size = 0
+        if self._max_size_bytes is not None:
+            try:
+                size = path.stat().st_size
+            except FileNotFoundError:
+                raise KeyError(key) from None
         try:
             _unlink_with_sharing_retry(path)
         except FileNotFoundError:
             raise KeyError(key) from None
+        if self._max_size_bytes is not None:
+            with self._size_lock:
+                self._tracked_size_bytes -= size
 
     def __len__(self) -> int:
         """Return the number of files currently in ``entries/``.
@@ -513,18 +564,71 @@ class FileStreamProgramCache(ProgramCacheResource):
                 if sub.is_dir():
                     with contextlib.suppress(OSError):
                         sub.rmdir()
+        # The directory is now (almost) empty -- but a concurrent writer may
+        # have landed a fresh entry between the snapshot and the unlink, and
+        # young temp files were intentionally preserved. Re-derive the
+        # tracker from the post-clear state instead of zeroing blindly.
+        if self._max_size_bytes is not None:
+            actual = self._compute_total_size()
+            with self._size_lock:
+                self._tracked_size_bytes = actual
 
     # -- internals -----------------------------------------------------------
 
     def _iter_entry_paths(self) -> Iterable[Path]:
-        if not self._entries.exists():
+        # ``os.scandir`` returns ``DirEntry`` objects whose ``is_dir`` /
+        # ``is_file`` methods consult the cached dirent type from the
+        # ``readdir`` result on filesystems that report it (ext4, NTFS, ...),
+        # avoiding a per-entry ``stat`` syscall. ``Path.iterdir`` also wraps
+        # ``scandir`` but discards the cached type, forcing a separate
+        # ``stat`` for every ``Path.is_dir`` / ``Path.is_file`` -- a real
+        # cost on caches with thousands of entries. ``follow_symlinks=False``
+        # matches the prior behaviour: ``pathlib`` defaults to following,
+        # but our cache layout never creates symlinks, so the choice is
+        # only visible if a user manually points one inside ``entries/``;
+        # treating it as the file/dir it points to is the surprising
+        # outcome, so we don't.
+        try:
+            outer = os.scandir(self._entries)
+        except FileNotFoundError:
             return
-        for sub in self._entries.iterdir():
-            if not sub.is_dir():
+        with outer:
+            for sub in outer:
+                if not sub.is_dir(follow_symlinks=False):
+                    continue
+                try:
+                    inner = os.scandir(sub.path)
+                except FileNotFoundError:
+                    continue
+                with inner:
+                    for entry in inner:
+                        if entry.is_file(follow_symlinks=False):
+                            yield Path(entry.path)
+
+    def _compute_total_size(self) -> int:
+        """Walk ``entries/`` + ``tmp/`` and return the on-disk byte total.
+
+        Used to seed the tracker at open time and to refresh it after every
+        eviction pass. Best-effort: files that vanish under us during the
+        walk (concurrent eviction by this or another process) are skipped.
+        Tracked total may briefly differ from this scan's result under
+        cross-process contention; the next eviction will reconcile.
+        """
+        total = 0
+        for path in self._iter_entry_paths():
+            try:
+                total += path.stat().st_size
+            except FileNotFoundError:
                 continue
-            for entry in sub.iterdir():
-                if entry.is_file():
-                    yield entry
+        if self._tmp.exists():
+            for tmp in self._tmp.iterdir():
+                if not tmp.is_file():
+                    continue
+                try:
+                    total += tmp.stat().st_size
+                except FileNotFoundError:
+                    continue
+        return total
 
     def _sweep_stale_tmp_files(self) -> None:
         """Remove temp files left behind by crashed writers.
@@ -587,11 +691,18 @@ class FileStreamProgramCache(ProgramCacheResource):
                 except FileNotFoundError:
                     continue
         if total <= self._max_size_bytes:
+            # Re-seed the tracker from the scan: catches drift from
+            # cross-process writers/deleters that the per-write delta
+            # accounting wouldn't have observed. Reaching here means the
+            # tracker was over-cap but the disk truth is under-cap, so
+            # this assignment is the cheapest reconciliation point we get.
+            with self._size_lock:
+                self._tracked_size_bytes = total
             return
         entries.sort(key=lambda e: e[0])  # oldest atime first
         for _atime, size, path, st_before in entries:
             if total <= self._max_size_bytes:
-                return
+                break
             # _prune_if_stat_unchanged refuses if a writer replaced the file
             # between snapshot and now, so eviction can't silently delete a
             # freshly-committed entry from another process.
@@ -620,3 +731,8 @@ class FileStreamProgramCache(ProgramCacheResource):
             except PermissionError as exc:
                 if not _is_windows_sharing_violation(exc):
                     raise
+        # Reconcile: after the eviction pass, ``total`` reflects what we
+        # believe the disk now holds. Re-seed the tracker so the next write
+        # accumulates from a fresh baseline.
+        with self._size_lock:
+            self._tracked_size_bytes = total
