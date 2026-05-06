@@ -287,8 +287,8 @@ Utility functions
 .. autosummary::
    :toctree: generated/
 
-   args_viewable_as_strided_memory
+   cuda.core.utils.args_viewable_as_strided_memory
 
    :template: autosummary/cyclass.rst
 
-   StridedMemoryView
+   cuda.core.utils.StridedMemoryView

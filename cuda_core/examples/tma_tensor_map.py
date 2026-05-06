@@ -37,9 +37,9 @@ from cuda.core import (
     LaunchConfig,
     Program,
     ProgramOptions,
-    StridedMemoryView,
     launch,
 )
+from cuda.core.utils import StridedMemoryView
 from cuda.pathfinder import get_cuda_path_or_home
 
 # ---------------------------------------------------------------------------
