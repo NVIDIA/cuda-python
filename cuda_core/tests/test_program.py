@@ -13,7 +13,7 @@ from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
-from cuda.core.typing import CompilerBackendType, PCHStatusType
+from cuda.core.enums import CompilerBackendType, PCHStatusType
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
 

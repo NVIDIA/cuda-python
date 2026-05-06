@@ -21,7 +21,7 @@ from cuda.core._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
 )
 from cuda.core._utils.version import binding_version
-from cuda.core.typing import (
+from cuda.core.enums import (
     VirtualMemoryAccessType,
     VirtualMemoryAllocationType,
     VirtualMemoryGranularityType,

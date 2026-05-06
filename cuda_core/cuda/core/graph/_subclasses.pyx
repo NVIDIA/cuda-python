@@ -33,7 +33,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core.graph._utils cimport _is_py_host_trampoline
 
 from cuda.core._utils.cuda_utils import driver, handle_return
-from cuda.core.typing import GraphConditionalType
+from cuda.core.enums import GraphConditionalType
 
 __all__ = [
     'AllocNode',

@@ -146,15 +146,15 @@ Fixes and enhancements
   (`#2016 <https://github.com/NVIDIA/cuda-python/issues/2016>`__)
   The new enums are:
 
-  - :class:`cuda.core.typing.CompilerBackendType`
-  - :class:`cuda.core.typing.GraphConditionalType`
-  - :class:`cuda.core.typing.GraphMemoryType`
-  - :class:`cuda.core.typing.ManagedMemoryLocationType`
-  - :class:`cuda.core.typing.ObjectCodeFormatType`
-  - :class:`cuda.core.typing.PCHStatusType`
-  - :class:`cuda.core.typing.SourceCodeType`
-  - :class:`cuda.core.typing.VirtualMemoryAccessType`
-  - :class:`cuda.core.typing.VirtualMemoryAllocationType`
-  - :class:`cuda.core.typing.VirtualMemoryGranularityType`
-  - :class:`cuda.core.typing.VirtualMemoryHandleType`
-  - :class:`cuda.core.typing.VirtualMemoryLocationType`
+  - :class:`cuda.core.enums.CompilerBackendType`
+  - :class:`cuda.core.enums.GraphConditionalType`
+  - :class:`cuda.core.enums.GraphMemoryType`
+  - :class:`cuda.core.enums.ManagedMemoryLocationType`
+  - :class:`cuda.core.enums.ObjectCodeFormatType`
+  - :class:`cuda.core.enums.PCHStatusType`
+  - :class:`cuda.core.enums.SourceCodeType`
+  - :class:`cuda.core.enums.VirtualMemoryAccessType`
+  - :class:`cuda.core.enums.VirtualMemoryAllocationType`
+  - :class:`cuda.core.enums.VirtualMemoryGranularityType`
+  - :class:`cuda.core.enums.VirtualMemoryHandleType`
+  - :class:`cuda.core.enums.VirtualMemoryLocationType`

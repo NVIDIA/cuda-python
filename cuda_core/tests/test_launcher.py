@@ -26,7 +26,7 @@ from cuda.core import (
 )
 from cuda.core._memory._legacy import _SynchronousMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
-from cuda.core.typing import ObjectCodeFormatType, SourceCodeType
+from cuda.core.enums import ObjectCodeFormatType, SourceCodeType
 
 
 def test_launch_config_init(init_cuda):

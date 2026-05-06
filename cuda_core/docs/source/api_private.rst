@@ -20,21 +20,22 @@ CUDA runtime
    _module.KernelOccupancy
    _module.MaxPotentialBlockSizeOccupancyResult
    _module.ParamInfo
-   typing.CompilerBackendType
+   enums.CompilerBackendType
+   enums.GraphConditionalType
+   enums.GraphMemoryType
+   enums.ManagedMemoryLocationType
+   enums.ObjectCodeFormatType
+   enums.PCHStatusType
+   enums.SourceCodeType
+   enums.VirtualMemoryAccessType
+   enums.VirtualMemoryAllocationType
+   enums.VirtualMemoryGranularityType
+   enums.VirtualMemoryHandleType
+   enums.VirtualMemoryLocationType
    typing.DevicePointerType
    typing.DeviceResourcesType
-   typing.GraphConditionalType
-   typing.GraphMemoryType
-   typing.ManagedMemoryLocationType
-   typing.ObjectCodeFormatType
-   typing.PCHStatusType
+   typing.IsStreamType
    typing.ProcessStateType
-   typing.SourceCodeType
-   typing.VirtualMemoryAccessType
-   typing.VirtualMemoryAllocationType
-   typing.VirtualMemoryGranularityType
-   typing.VirtualMemoryHandleType
-   typing.VirtualMemoryLocationType
 
    :template: autosummary/cyclass.rst
 
@@ -100,22 +101,22 @@ NVML
 .. autosummary::
    :toctree: generated/
 
-   system.typing.AddressingMode
-   system.typing.AffinityScope
-   system.typing.ClockId
-   system.typing.ClocksEventReasons
-   system.typing.ClockType
-   system.typing.CoolerControl
-   system.typing.CoolerTarget
-   system.typing.DeviceArch
-   system.typing.EventType
-   system.typing.FanControlPolicy
-   system.typing.FieldId
-   system.typing.GpuP2PCapsIndex
-   system.typing.GpuP2PStatus
-   system.typing.GpuTopologyLevel
-   system.typing.InforomObject
-   system.typing.SystemEventType
-   system.typing.TemperatureThresholds
-   system.typing.ThermalController
-   system.typing.ThermalTarget
+   system.enums.AddressingMode
+   system.enums.AffinityScope
+   system.enums.ClockId
+   system.enums.ClocksEventReasons
+   system.enums.ClockType
+   system.enums.CoolerControl
+   system.enums.CoolerTarget
+   system.enums.DeviceArch
+   system.enums.EventType
+   system.enums.FanControlPolicy
+   system.enums.FieldId
+   system.enums.GpuP2PCapsIndex
+   system.enums.GpuP2PStatus
+   system.enums.GpuTopologyLevel
+   system.enums.InforomObject
+   system.enums.SystemEventType
+   system.enums.TemperatureThresholds
+   system.enums.ThermalController
+   system.enums.ThermalTarget

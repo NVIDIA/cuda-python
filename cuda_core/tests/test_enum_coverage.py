@@ -14,7 +14,7 @@ from typing import Any
 import pytest
 
 import cuda.core
-import cuda.core.typing
+import cuda.core.enums
 from cuda.bindings import driver
 from cuda.core import system
 
@@ -23,7 +23,7 @@ if sys.version_info >= (3, 11):
 else:
     from backports.strenum import StrEnum
 
-_MODULES = [cuda.core.typing]
+_MODULES = [cuda.core.enums]
 
 # Each entry is:
 #   (cuda_binding_enum, str_enum, mapping_dict, binding_unmapped, str_enum_unmapped)
@@ -45,14 +45,14 @@ _MODULES = [cuda.core.typing]
 _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
     (
         driver.CUgraphConditionalNodeType,
-        cuda.core.typing.GraphConditionalType,
+        cuda.core.enums.GraphConditionalType,
         None,
         set(),
         set(),
     ),
     (
         driver.CUmemLocationType,
-        cuda.core.typing.ManagedMemoryLocationType,
+        cuda.core.enums.ManagedMemoryLocationType,
         None,
         # We have some explicitly unsupported memory location types
         {
@@ -66,28 +66,28 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
     ),
     (
         driver.CUmemAccess_flags,
-        cuda.core.typing.VirtualMemoryAccessType,
+        cuda.core.enums.VirtualMemoryAccessType,
         cuda.core.VirtualMemoryResourceOptions._access_flags,
         {"CU_MEM_ACCESS_FLAGS_PROT_NONE", "CU_MEM_ACCESS_FLAGS_PROT_MAX"},
         set(),
     ),
     (
         driver.CUmemAllocationGranularity_flags,
-        cuda.core.typing.VirtualMemoryGranularityType,
+        cuda.core.enums.VirtualMemoryGranularityType,
         cuda.core.VirtualMemoryResourceOptions._granularity,
         set(),
         set(),
     ),
     (
         driver.CUmemAllocationHandleType,
-        cuda.core.typing.VirtualMemoryHandleType,
+        cuda.core.enums.VirtualMemoryHandleType,
         cuda.core.VirtualMemoryResourceOptions._handle_types,
         {"CU_MEM_HANDLE_TYPE_NONE", "CU_MEM_HANDLE_TYPE_WIN32", "CU_MEM_HANDLE_TYPE_MAX"},
         {"GENERIC"},
     ),
     (
         driver.CUmemLocationType,
-        cuda.core.typing.VirtualMemoryLocationType,
+        cuda.core.enums.VirtualMemoryLocationType,
         None,
         # We have some explicitly unsupported memory location types
         {
@@ -103,17 +103,17 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     # Populated below only when NVML bindings are compatible, so that importing
     # this module on an incompatible host does not raise ImportError.
-    import cuda.core.system.typing as system_typing
+    import cuda.core.system.enums as system_enums
     from cuda.bindings import nvml
     from cuda.core.system import _device, _system_events
 
-    _MODULES.append(system_typing)
+    _MODULES.append(system_enums)
 
     _CASES.extend(
         [
             (
                 nvml.DeviceAddressingModeType,
-                system_typing.AddressingMode,
+                system_enums.AddressingMode,
                 _device._ADDRESSING_MODE_MAPPING,
                 # NONE means "no special addressing mode is active"; not a valid target
                 {"DEVICE_ADDRESSING_MODE_NONE"},
@@ -129,7 +129,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.GpuP2PStatus,
-                system_typing.GpuP2PStatus,
+                system_enums.GpuP2PStatus,
                 _device._GPU_P2P_STATUS_MAPPING,
                 # Both the typo'd (SUPPORED) and corrected (SUPPORTED) spellings
                 # share the same integer value; the mapping covers both via aliases
@@ -138,28 +138,28 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.ClocksEventReasons,
-                system_typing.ClocksEventReasons,
+                system_enums.ClocksEventReasons,
                 _device._CLOCKS_EVENT_REASONS_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.EventType,
-                system_typing.EventType,
+                system_enums.EventType,
                 _device._EVENT_TYPE_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.FanControlPolicy,
-                system_typing.FanControlPolicy,
+                system_enums.FanControlPolicy,
                 _device._FAN_CONTROL_POLICY_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.CoolerControl,
-                system_typing.CoolerControl,
+                system_enums.CoolerControl,
                 _device._COOLER_CONTROL_MAPPING,
                 # NONE means no signal; COUNT is a sentinel
                 {"THERMAL_COOLER_SIGNAL_NONE", "THERMAL_COOLER_SIGNAL_COUNT"},
@@ -167,7 +167,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.CoolerTarget,
-                system_typing.CoolerTarget,
+                system_enums.CoolerTarget,
                 _device._COOLER_TARGET_MAPPING,
                 # GPU_RELATED is a composite bitmask (GPU | MEMORY | POWER_SUPPLY);
                 # the wrapper expands it into individual targets instead of mapping
@@ -177,14 +177,14 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.ThermalController,
-                system_typing.ThermalController,
+                system_enums.ThermalController,
                 _device._THERMAL_CONTROLLER_MAPPING,
                 {"NONE"},
                 {"NONE"},
             ),
             (
                 nvml.ThermalTarget,
-                system_typing.ThermalTarget,
+                system_enums.ThermalTarget,
                 _device._THERMAL_TARGET_MAPPING,
                 # UNKNOWN is a fallback sentinel; handled by .get()
                 {"UNKNOWN"},
@@ -200,35 +200,35 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.SystemEventType,
-                system_typing.SystemEventType,
+                system_enums.SystemEventType,
                 _system_events._SYSTEM_EVENT_TYPE_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.AffinityScope,
-                system_typing.AffinityScope,
+                system_enums.AffinityScope,
                 _device._AFFINITY_SCOPE_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.GpuP2PCapsIndex,
-                system_typing.GpuP2PCapsIndex,
+                system_enums.GpuP2PCapsIndex,
                 _device._GPU_P2P_CAPS_INDEX_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.GpuTopologyLevel,
-                system_typing.GpuTopologyLevel,
+                system_enums.GpuTopologyLevel,
                 _device._GPU_TOPOLOGY_LEVEL_MAPPING,
                 set(),
                 set(),
             ),
             (
                 nvml.ClockId,
-                system_typing.ClockId,
+                system_enums.ClockId,
                 _device._CLOCK_ID_MAPPING,
                 # APP_CLOCK_TARGET and APP_CLOCK_DEFAULT are deprecated; COUNT is a sentinel
                 {"APP_CLOCK_TARGET", "APP_CLOCK_DEFAULT", "COUNT"},
@@ -236,7 +236,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.ClockType,
-                system_typing.ClockType,
+                system_enums.ClockType,
                 _device._CLOCK_TYPE_MAPPING,
                 # COUNT is a sentinel
                 {"CLOCK_COUNT"},
@@ -244,7 +244,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.InforomObject,
-                system_typing.InforomObject,
+                system_enums.InforomObject,
                 _device._INFOROM_OBJECT_MAPPING,
                 # COUNT is a sentinel
                 {"INFOROM_COUNT"},
@@ -252,7 +252,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             ),
             (
                 nvml.TemperatureThresholds,
-                system_typing.TemperatureThresholds,
+                system_enums.TemperatureThresholds,
                 _device._TEMPERATURE_THRESHOLD_MAPPING,
                 # COUNT is a sentinel
                 {"TEMPERATURE_THRESHOLD_COUNT"},
@@ -266,18 +266,18 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 # Add classes here (with a comment explaining why) when a new StrEnum is
 # introduced that wraps something other than a cuda_binding enum.
 _UNBOUND_STR_ENUMS: set[StrEnum] = {
-    cuda.core.typing.ObjectCodeFormatType,
-    cuda.core.typing.CompilerBackendType,
+    cuda.core.enums.ObjectCodeFormatType,
+    cuda.core.enums.CompilerBackendType,
     # This one enum coordinates values in two cuda_binding enums:
     # CUmemAllocationType and CUmemLocationType
-    cuda.core.typing.GraphMemoryType,
+    cuda.core.enums.GraphMemoryType,
     # This should support all of the PCH-related values in nvrtcResult, but
     # there is no easy way to check that since they are mixed in with other
     # unrelated things
-    cuda.core.typing.PCHStatusType,
-    cuda.core.typing.SourceCodeType,
+    cuda.core.enums.PCHStatusType,
+    cuda.core.enums.SourceCodeType,
     # This enum is dynamic depending on the version of CTK installed.
-    cuda.core.typing.VirtualMemoryAllocationType,
+    cuda.core.enums.VirtualMemoryAllocationType,
 }
 
 

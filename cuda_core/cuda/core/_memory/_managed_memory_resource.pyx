@@ -16,7 +16,7 @@ from dataclasses import dataclass
 import threading
 import warnings
 
-from cuda.core.typing import ManagedMemoryLocationType
+from cuda.core.enums import ManagedMemoryLocationType
 
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
 

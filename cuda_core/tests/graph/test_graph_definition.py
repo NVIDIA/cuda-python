@@ -11,6 +11,7 @@ from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig
+from cuda.core.enums import GraphConditionalType, GraphMemoryType
 from cuda.core.graph import (
     AllocNode,
     ChildGraphNode,
@@ -33,7 +34,6 @@ from cuda.core.graph import (
     SwitchNode,
     WhileNode,
 )
-from cuda.core.typing import GraphConditionalType, GraphMemoryType
 
 ALLOC_SIZE = 1024
 

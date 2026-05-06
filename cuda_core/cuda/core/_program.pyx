@@ -39,7 +39,7 @@ from cuda.core._utils.cuda_utils import (
     is_sequence,
 )
 from cuda.core._utils.version import binding_version, driver_version
-from cuda.core.typing import ObjectCodeFormatType, CompilerBackendType, PCHStatusType, SourceCodeType
+from cuda.core.enums import ObjectCodeFormatType, CompilerBackendType, PCHStatusType, SourceCodeType
 
 __all__ = ["Program", "ProgramOptions"]
 

@@ -39,7 +39,7 @@ from cuda.core._utils.cuda_utils import (
     driver,
     is_sequence,
 )
-from cuda.core.typing import CompilerBackendType
+from cuda.core.enums import CompilerBackendType
 
 ctypedef const char* const_char_ptr
 ctypedef void* void_ptr

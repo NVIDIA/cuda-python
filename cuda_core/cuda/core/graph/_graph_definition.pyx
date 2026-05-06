@@ -27,7 +27,7 @@ from dataclasses import dataclass
 
 from cuda.core._utils.cuda_utils import driver
 
-from cuda.core.typing import GraphMemoryType
+from cuda.core.enums import GraphMemoryType
 
 __all__ = ['GraphCondition', 'GraphAllocOptions', 'GraphDefinition']
 

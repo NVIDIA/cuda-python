@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 
-from cuda.core.system import typing
+from cuda.core.system import enums
 
 from ._system import *
 

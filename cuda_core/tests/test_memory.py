@@ -46,7 +46,7 @@ from cuda.core import (
 from cuda.core._dlpack import DLDeviceType
 from cuda.core._memory import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
-from cuda.core.typing import (
+from cuda.core.enums import (
     ManagedMemoryLocationType,
     VirtualMemoryAccessType,
     VirtualMemoryAllocationType,
