@@ -10,4 +10,4 @@ def ctx():
     context.  cuDLA tests do not require a CUDA context, so this no-op
     prevents ``cuInit`` / ``cuCtxCreate`` from running (and failing on
     machines without a CUDA-capable GPU)."""
-    yield None
+    return None

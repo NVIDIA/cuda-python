@@ -294,9 +294,7 @@ class TestFunctions:
             err, gpu_ptr = runtime.cudaMalloc(buf_size)
             assert err.value == 0, f"cudaMalloc failed: {err}"
             try:
-                registered_ptr = cudla.mem_register(
-                    dev_handle, int(gpu_ptr), buf_size, 0
-                )
+                registered_ptr = cudla.mem_register(dev_handle, int(gpu_ptr), buf_size, 0)
                 assert registered_ptr != 0
                 cudla.mem_unregister(dev_handle, registered_ptr)
             finally:
