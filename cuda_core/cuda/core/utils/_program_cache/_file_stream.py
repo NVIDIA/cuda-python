@@ -523,7 +523,19 @@ class FileStreamProgramCache(ProgramCacheResource):
             raise KeyError(key) from None
         if self._max_size_bytes is not None:
             with self._size_lock:
-                self._tracked_size_bytes -= size
+                # Clamp at zero. A racing ``_enforce_size_cap`` can re-seed the
+                # tracker between our stat and our subtract; if its scan ran
+                # AFTER we unlinked, its reseed value didn't include ``size``,
+                # so subtracting ``size`` again here would undercount reality
+                # by ``size``. Repeated under contention, an unclamped subtract
+                # walks the tracker negative -- and once negative, the
+                # ``tracker > cap`` check that gates ``_enforce_size_cap``
+                # never fires, so eviction dies silently and there is no
+                # self-healing path (the only reseed point is the function
+                # that no longer runs). Clamping leaves us at worst
+                # undercounting (the next reseed corrects it) instead of
+                # entering the permanently-broken negative state.
+                self._tracked_size_bytes = max(0, self._tracked_size_bytes - size)
 
     def __len__(self) -> int:
         """Return the number of files currently in ``entries/``.

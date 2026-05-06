@@ -1927,6 +1927,79 @@ def test_filestream_cache_tracker_reconciles_after_external_drift(tmp_path):
         assert cache._tracked_size_bytes <= 1100  # actual on-disk is 'b' + 'c' or just 'c'
 
 
+def test_filestream_cache_tracker_clamps_at_zero_under_delete_race(tmp_path):
+    """Two-thread reproduction of the ``__delitem__`` vs
+    ``_enforce_size_cap`` race. Thread A is mid-delete: it has stat'd the
+    victim (size=900) and unlinked it but hasn't yet decremented the
+    tracker. Thread B then runs ``_enforce_size_cap``, scans the
+    directory (sees only the survivor), and reseeds tracker = 100.
+    Thread A finally runs its subtract: ``100 - 900 = -800`` without the
+    clamp. Once negative, the ``tracker > cap`` check that gates
+    ``_enforce_size_cap`` never fires again, so eviction silently dies
+    and the cache grows without bound -- there is no self-healing path
+    because the only reseed point is the function that no longer runs.
+    The clamp keeps the tracker in the self-healing range.
+
+    Sequenced via :class:`threading.Event` (not sleeps): A signals when
+    it has unlinked, then waits; B observes the unlinked disk, runs the
+    eviction reseed, and signals back. The interleaving is deterministic."""
+    import threading
+
+    from cuda.core.utils import FileStreamProgramCache
+    from cuda.core.utils._program_cache import _file_stream
+
+    cache = FileStreamProgramCache(tmp_path / "fc", max_size_bytes=10_000)
+    cache[b"victim"] = b"X" * 900
+    cache[b"survivor"] = b"X" * 100
+    assert cache._tracked_size_bytes == 1000
+
+    a_unlinked = threading.Event()
+    b_reseeded = threading.Event()
+    real_unlink = _file_stream._unlink_with_sharing_retry
+
+    def coordinated_unlink(path):
+        # Hook into thread A's __delitem__: do the actual unlink, then
+        # hand control to thread B until it has run its reseed.
+        real_unlink(path)
+        a_unlinked.set()
+        assert b_reseeded.wait(timeout=5), "thread B didn't reseed in time"
+
+    delete_error: list[BaseException] = []
+
+    def thread_a():
+        try:
+            del cache[b"victim"]
+        except BaseException as exc:  # pragma: no cover - surfaces below
+            delete_error.append(exc)
+        finally:
+            # Don't strand thread B if __delitem__ raised before the hook ran.
+            a_unlinked.set()
+
+    def thread_b():
+        assert a_unlinked.wait(timeout=5), "thread A didn't unlink in time"
+        cache._enforce_size_cap()  # reseeds tracker = 100 (only 'survivor' on disk)
+        b_reseeded.set()
+
+    _file_stream._unlink_with_sharing_retry = coordinated_unlink
+    try:
+        ta = threading.Thread(target=thread_a)
+        tb = threading.Thread(target=thread_b)
+        ta.start()
+        tb.start()
+        ta.join(timeout=10)
+        tb.join(timeout=10)
+    finally:
+        _file_stream._unlink_with_sharing_retry = real_unlink
+
+    assert not delete_error, f"__delitem__ raised: {delete_error[0]!r}"
+    assert not ta.is_alive() and not tb.is_alive(), "race threads didn't finish"
+    # Without the clamp, this would be -800. With it, max(0, 100-900) = 0.
+    # The tracker still undercounts disk truth (which holds 'survivor' = 100),
+    # but the next reseed will correct that, whereas a negative tracker would
+    # have permanently disabled eviction.
+    assert cache._tracked_size_bytes == 0, f"tracker went negative: {cache._tracked_size_bytes}"
+
+
 def test_make_program_cache_key_changes_with_key_schema_version(monkeypatch):
     """Bumping ``_KEY_SCHEMA_VERSION`` produces a different cache key for
     the same logical inputs. That's what makes a schema bump invalidate
