@@ -5,8 +5,8 @@ CUDA Python is the home for accessing NVIDIA’s CUDA platform from Python. It c
 * [cuda.core](https://nvidia.github.io/cuda-python/cuda-core/latest): Pythonic access to CUDA Runtime and other core functionality
 * [cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest): Low-level Python bindings to CUDA C APIs
 * [cuda.pathfinder](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest): Utilities for locating CUDA components installed in the user's Python environment
-* [cuda.coop](https://nvidia.github.io/cccl/python/coop): A Python module providing CCCL's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
-* [cuda.compute](https://nvidia.github.io/cccl/python/compute): A Python module for easy access to CCCL's highly efficient and customizable parallel algorithms, like `sort`, `scan`, `reduce`, `transform`, etc. that are callable on the *host*
+* [cuda.coop](https://nvidia.github.io/cccl/unstable/python/coop.html): A Python module providing CCCL's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
+* [cuda.compute](https://nvidia.github.io/cccl/unstable/python/compute/index.html): A Python module for easy access to CCCL's highly efficient and customizable parallel algorithms, like `sort`, `scan`, `reduce`, `transform`, etc. that are callable on the *host*
 * [numba.cuda](https://nvidia.github.io/numba-cuda/): A Python DSL that exposes CUDA **SIMT** programming model and compiles a restricted subset of Python code into CUDA kernels and device functions
 * [cuda.tile](https://docs.nvidia.com/cuda/cutile-python/): A new Python DSL that exposes CUDA **Tile** programming model and allows users to write NumPy-like code in CUDA kernels
 * [nvmath-python](https://docs.nvidia.com/cuda/nvmath-python/latest): Pythonic access to NVIDIA CPU & GPU Math Libraries, with [*host*](https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#host-apis), [*device*](https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#device-apis), and [*distributed*](https://docs.nvidia.com/cuda/nvmath-python/latest/distributed-apis/index.html) APIs. It also provides low-level Python bindings to host C APIs ([nvmath.bindings](https://docs.nvidia.com/cuda/nvmath-python/latest/bindings/index.html)).
@@ -44,4 +44,6 @@ The list of available interfaces is:
 * NVRTC
 * nvJitLink
 * NVVM
+* nvFatbin
 * cuFile
+* NVML
