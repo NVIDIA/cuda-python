@@ -82,11 +82,16 @@ def fill_kernel(init_cuda):
     return mod.get_kernel("fill")
 
 
-def _aligned_half(sm):
-    """Compute half the SM count, rounded down to min_partition_size alignment."""
+def _safe_two_group_count(sm):
+    """Return a safe per-group SM count for a 2-group split.
+
+    Uses min_partition_size which is always a valid split size regardless
+    of hardware topology. Returns None if the device doesn't have enough SMs.
+    """
     min_size = sm.min_partition_size
-    half = (sm.sm_count // 2 // min_size) * min_size
-    return half
+    if sm.sm_count < 2 * min_size:
+        return None
+    return min_size
 
 
 @contextlib.contextmanager
@@ -238,30 +243,33 @@ class TestSMResourceSplit:
             assert groups[0].sm_count % sm_resource.coscheduled_alignment == 0
 
     def test_two_groups(self, sm_resource):
-        """Two-group split with explicit aligned counts."""
-        half = _aligned_half(sm_resource)
-        if half < sm_resource.min_partition_size:
+        """Two-group split with min_partition_size (always topology-safe)."""
+        count = _safe_two_group_count(sm_resource)
+        if count is None:
             pytest.skip("Not enough SMs for a 2-group split")
 
-        groups, rem = sm_resource.split(SMResourceOptions(count=(half, half)))
+        groups, rem = sm_resource.split(SMResourceOptions(count=(count, count)))
 
         assert len(groups) == 2
-        assert groups[0].sm_count > 0
-        assert groups[1].sm_count > 0
+        assert groups[0].sm_count >= count
+        assert groups[1].sm_count >= count
         total = groups[0].sm_count + groups[1].sm_count + rem.sm_count
         assert total <= sm_resource.sm_count
 
-    def test_two_groups_each_meets_request(self, sm_resource):
-        min_size = sm_resource.min_partition_size
-        half = _aligned_half(sm_resource)
-        if half < min_size:
-            pytest.skip("Not enough SMs for a 2-group split")
+    def test_two_groups_backfill(self, sm_resource):
+        """Two-group split with backfill allows larger partitions."""
+        align = sm_resource.coscheduled_alignment
+        if align == 0:
+            align = sm_resource.min_partition_size
+        half = (sm_resource.sm_count // 2 // align) * align
+        if half < sm_resource.min_partition_size:
+            pytest.skip("Not enough SMs for a 2-group backfill split")
 
-        groups, _ = sm_resource.split(SMResourceOptions(count=(min_size, min_size)))
+        groups, rem = sm_resource.split(SMResourceOptions(count=(half, half), backfill=True))
 
         assert len(groups) == 2
-        assert groups[0].sm_count >= min_size
-        assert groups[1].sm_count >= min_size
+        assert groups[0].sm_count >= half
+        assert groups[1].sm_count >= half
 
     def test_dry_run_matches_real(self, sm_resource):
         """Dry-run reports the same SM counts as a real split."""
@@ -352,11 +360,11 @@ class TestContextResources:
 
     def test_green_ctx_resources_reflect_partition(self, init_cuda, sm_resource):
         """Two green contexts should have disjoint SM partitions."""
-        half = _aligned_half(sm_resource)
-        if half < sm_resource.min_partition_size:
+        count = _safe_two_group_count(sm_resource)
+        if count is None:
             pytest.skip("Not enough SMs for a 2-group split")
 
-        groups, _ = sm_resource.split(SMResourceOptions(count=(half, half)))
+        groups, _ = sm_resource.split(SMResourceOptions(count=(count, count)))
 
         ctx_a = ctx_b = None
         try:
@@ -425,11 +433,11 @@ class TestGreenContextKernelLaunch:
     def test_two_green_contexts_independent(self, init_cuda, sm_resource, fill_kernel):
         """Two SM groups -> two green contexts -> two independent kernels."""
         dev = init_cuda
-        half = _aligned_half(sm_resource)
-        if half < sm_resource.min_partition_size:
+        count = _safe_two_group_count(sm_resource)
+        if count is None:
             pytest.skip("Not enough SMs for a 2-group split")
 
-        groups, _ = sm_resource.split(SMResourceOptions(count=(half, half)))
+        groups, _ = sm_resource.split(SMResourceOptions(count=(count, count)))
         assert len(groups) == 2
 
         ctx_a = ctx_b = None

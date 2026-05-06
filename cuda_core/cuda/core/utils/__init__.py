@@ -7,12 +7,25 @@ from cuda.core._memory._managed_memory_ops import (
     discard_prefetch_batch,
     prefetch_batch,
 )
-from cuda.core._memoryview import StridedMemoryView, args_viewable_as_strided_memory
+from cuda.core._memoryview import (
+    StridedMemoryView,
+    args_viewable_as_strided_memory,
+)
+from cuda.core.utils._program_cache import (
+    FileStreamProgramCache,
+    InMemoryProgramCache,
+    ProgramCacheResource,
+    make_program_cache_key,
+)
 
 __all__ = [
+    "FileStreamProgramCache",
+    "InMemoryProgramCache",
+    "ProgramCacheResource",
     "StridedMemoryView",
     "args_viewable_as_strided_memory",
     "discard_batch",
     "discard_prefetch_batch",
+    "make_program_cache_key",
     "prefetch_batch",
 ]

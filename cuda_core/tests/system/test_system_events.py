@@ -11,6 +11,7 @@ import helpers
 import pytest
 
 from cuda.core import system
+from cuda.core.system import typing
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="System events not supported on WSL or Windows")
@@ -23,7 +24,7 @@ def test_register_events():
     # Also, some hardware doesn't support any event types.
 
     try:
-        events = system.register_events([system.SystemEventType.UNBIND])
+        events = system.register_events([typing.SystemEventType.UNBIND])
     except system.UnknownError:
         pytest.skip("system events may only be registered once per process")
 

@@ -3,20 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-class TemperatureThresholds(StrEnum):
-    """
-    Temperature threshold types.
-    """
-    SHUTDOWN = "shutdown"
-    SLOWDOWN = "slowdown"
-    MEM_MAX = "mem_max"
-    GPU_MAX = "gpu_max"
-    ACOUSTIC_MIN = "acoustic_min"
-    ACOUSTIC_CURR = "acoustic_curr"
-    ACOUSTIC_MAX = "acoustic_max"
-    GPS_CURR = "gps_curr"
-
-
 _TEMPERATURE_THRESHOLD_MAPPING = {
     TemperatureThresholds.SHUTDOWN: nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_SHUTDOWN,
     TemperatureThresholds.SLOWDOWN: nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_SLOWDOWN,
@@ -27,30 +13,6 @@ _TEMPERATURE_THRESHOLD_MAPPING = {
     TemperatureThresholds.ACOUSTIC_MAX: nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MAX,
     TemperatureThresholds.GPS_CURR: nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_GPS_CURR,
 }
-
-
-class ThermalController(StrEnum):
-    """
-    Thermal controller types.
-    """
-    GPU_INTERNAL = "gpu_internal"
-    ADM1032 = "adm1032"
-    ADT7461 = "adt7461"
-    MAX6649 = "max6649"
-    MAX1617 = "max1617"
-    LM99 = "lm99"
-    LM89 = "lm89"
-    LM64 = "lm64"
-    G781 = "g781"
-    ADT7473 = "adt7473"
-    SBMAX6649 = "sbmax6649"
-    VBIOSEVT = "vbiosevt"
-    OS = "os"
-    NVSYSCON_CANOAS = "nvsyscon_canoas"
-    NVSYSCON_E551 = "nvsyscon_e551"
-    MAX6649R = "max6649r"
-    ADT7473S = "adt7473s"
-    UNKNOWN = "unknown"
 
 
 _THERMAL_CONTROLLER_MAPPING = {
@@ -73,30 +35,6 @@ _THERMAL_CONTROLLER_MAPPING = {
     nvml.ThermalController.ADT7473S: ThermalController.ADT7473S,
     nvml.ThermalController.UNKNOWN: ThermalController.UNKNOWN,
 }
-
-
-class ThermalTarget(StrEnum):
-    """
-    Thermal sensor targets.
-    """
-    NONE = "none"
-    GPU = "gpu"
-    MEMORY = "memory"
-    POWER_SUPPLY = "power_supply"
-    BOARD = "board"
-    VCD_BOARD = "vcd_board"
-    VCD_INLET = "vcd_inlet"
-    VCD_OUTLET = "vcd_outlet"
-    ALL = "all"
-
-
-ThermalTarget.GPU.__doc__ = "GPU core temperature requires physical GPU handle."
-ThermalTarget.MEMORY.__doc__ = "GPU memory temperature requires physical GPU handle."
-ThermalTarget.POWER_SUPPLY.__doc__ = "GPU power supply temperature requires physical GPU handle."
-ThermalTarget.BOARD.__doc__ = "GPU board ambient temperature requires physical GPU handle."
-ThermalTarget.VCD_BOARD.__doc__ = "Visual Computing Device Board temperature requires visual computing device handle."
-ThermalTarget.VCD_INLET.__doc__ = "Visual Computing Device Inlet temperature requires visual computing device handle."
-ThermalTarget.VCD_OUTLET.__doc__ = "Visual Computing Device Outlet temperature requires visual computing device handle."
 
 
 _THERMAL_TARGET_MAPPING = {

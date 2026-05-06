@@ -181,6 +181,26 @@ CUDA compilation toolchain
    ProgramOptions
    LinkerOptions
 
+Program caches
+``````````````
+
+``Program.compile`` accepts a ``cache=`` keyword argument that integrates
+with any :class:`~cuda.core.utils.ProgramCacheResource`, so callers can
+avoid recompiling identical source + options + target without writing the
+:func:`~cuda.core.utils.make_program_cache_key` lookup by hand.
+
+.. currentmodule:: cuda.core.utils
+
+.. autosummary::
+   :toctree: generated/
+
+   ProgramCacheResource
+   InMemoryProgramCache
+   FileStreamProgramCache
+   make_program_cache_key
+
+.. currentmodule:: cuda.core
+
 
 CUDA process checkpointing
 --------------------------
@@ -247,6 +267,9 @@ execution.
 CUDA system information and NVIDIA Management Library (NVML)
 ------------------------------------------------------------
 
+.. note::
+   ``cuda.core.system`` support requires ``cuda_bindings`` 12.9.6 or later, or 13.2.0 or later.
+
 Basic functions
 ```````````````
 
@@ -269,7 +292,6 @@ Events
    :toctree: generated/
 
    system.register_events
-   system.SystemEventType
 
 Types
 `````
@@ -282,19 +304,17 @@ Types
    system.Device
    system.NvlinkInfo
 
-.. module:: cuda.core.utils
-
 Utility functions
 -----------------
 
 .. autosummary::
    :toctree: generated/
 
-   args_viewable_as_strided_memory
-   prefetch_batch
-   discard_batch
-   discard_prefetch_batch
+   utils.args_viewable_as_strided_memory
+   utils.prefetch_batch
+   utils.discard_batch
+   utils.discard_prefetch_batch
 
    :template: autosummary/cyclass.rst
 
-   StridedMemoryView
+   utils.StridedMemoryView

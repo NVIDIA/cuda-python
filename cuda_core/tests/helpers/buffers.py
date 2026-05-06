@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
@@ -20,14 +20,16 @@ __all__ = [
 
 
 class DummyDeviceMemoryResource(MemoryResource):
+    # cuMemAlloc / cuMemFree are synchronous; stream is accepted for
+    # interface conformance but ignored.
     def __init__(self, device):
         self.device = device
 
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size, *, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAlloc(size))
         return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
-    def deallocate(self, ptr, size, stream=None):
+    def deallocate(self, ptr, size, *, stream=None):
         handle_return(driver.cuMemFree(ptr))
 
     @property
@@ -44,14 +46,16 @@ class DummyDeviceMemoryResource(MemoryResource):
 
 
 class DummyUnifiedMemoryResource(MemoryResource):
+    # cuMemAllocManaged / cuMemFree are synchronous; stream is accepted
+    # for interface conformance with stream-ordered MRs but ignored.
     def __init__(self, device):
         self.device = device
 
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size, *, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAllocManaged(size, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
         return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
-    def deallocate(self, ptr, size, stream=None):
+    def deallocate(self, ptr, size, *, stream=None):
         handle_return(driver.cuMemFree(ptr))
 
     @property
@@ -76,12 +80,14 @@ class TrackingMR(MemoryResource):
     def __init__(self):
         self.active = {}
 
-    def allocate(self, size, stream=None):
+    # cuMemAlloc / cuMemFree are synchronous; stream is accepted for
+    # interface conformance but ignored.
+    def allocate(self, size, *, stream=None):
         ptr = handle_return(driver.cuMemAlloc(size))
         self.active[int(ptr)] = size
         return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
-    def deallocate(self, ptr, size, stream=None):
+    def deallocate(self, ptr, size, *, stream=None):
         handle_return(driver.cuMemFree(ptr))
         del self.active[int(ptr)]
 

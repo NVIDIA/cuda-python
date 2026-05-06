@@ -60,16 +60,18 @@ POOL_SIZE = 2097152  # 2MB size
 
 
 class DummyHostMemoryResource(MemoryResource):
+    # Pure-host ctypes allocation; stream is accepted for interface
+    # conformance but ignored.
     def __init__(self):
         pass
 
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size, *, stream=None) -> Buffer:
         # Allocate a ctypes buffer of size `size`
         ptr = (ctypes.c_byte * size)()
         self._ptr = ptr
         return Buffer.from_handle(ptr=ctypes.addressof(ptr), size=size, mr=self)
 
-    def deallocate(self, ptr, size, stream=None):
+    def deallocate(self, ptr, size, *, stream=None):
         del self._ptr
 
     @property
@@ -86,14 +88,16 @@ class DummyHostMemoryResource(MemoryResource):
 
 
 class DummyPinnedMemoryResource(MemoryResource):
+    # cuMemAllocHost / cuMemFreeHost are synchronous; stream is accepted
+    # for interface conformance but ignored.
     def __init__(self, device):
         self.device = device
 
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size, *, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAllocHost(size))
         return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
-    def deallocate(self, ptr, size, stream=None):
+    def deallocate(self, ptr, size, *, stream=None):
         handle_return(driver.cuMemFreeHost(ptr))
 
     @property
@@ -358,7 +362,7 @@ def test_buffer_external_device(change_device):
     dev_id = n - 1
     d = Device(dev_id)
     d.set_current()
-    buffer_ = d.allocate(size=32)
+    buffer_ = d.allocate(size=32, stream=d.default_stream)
 
     if change_device:
         # let's switch to a different device if possibe
@@ -490,14 +494,64 @@ def test_mr_deallocate_receives_stream():
     received = {}
 
     class StreamCaptureMR(TrackingMR):
-        def deallocate(self, ptr, size, stream=None):
+        def deallocate(self, ptr, size, *, stream=None):
             received["stream"] = stream
-            super().deallocate(ptr, size, stream)
+            super().deallocate(ptr, size, stream=stream)
 
     mr = StreamCaptureMR()
     buf = mr.allocate(1024)
     buf.close(stream)
     assert received["stream"].handle == stream.handle
+
+
+def test_mr_dealloc_callback_falls_back_to_default_stream():
+    """When a Buffer's device-pointer handle has no attached deallocation
+    stream (e.g. buffers minted via :meth:`Buffer.from_handle` from DLPack
+    import, IPC import, or third-party adapters), the C++ deleter callback
+    must fall back to the default stream rather than passing ``stream=None``
+    to ``mr.deallocate``. Stream-ordered MRs validate the stream and would
+    otherwise raise ``TypeError`` from inside the ``noexcept`` callback,
+    which only logs a warning and silently leaks the allocation. See
+    `#2001 <https://github.com/NVIDIA/cuda-python/issues/2001>`__.
+    """
+    import gc
+
+    from cuda.core._stream import Stream_accept, default_stream
+
+    device = Device()
+    device.set_current()
+    captured = {}
+
+    class StrictCapturingMR(MemoryResource):
+        # Models a stream-ordered MR: deallocate validates the stream
+        # the same way DeviceMemoryResource.deallocate does.
+        @property
+        def is_device_accessible(self):
+            return True
+
+        @property
+        def is_host_accessible(self):
+            return False
+
+        @property
+        def device_id(self):
+            return device.device_id
+
+        def allocate(self, size, *, stream):
+            raise NotImplementedError  # not used; we use from_handle below
+
+        def deallocate(self, ptr, size, *, stream):
+            captured["stream"] = Stream_accept(stream)
+
+    mr = StrictCapturingMR()
+    # Buffer.from_handle binds mr but does not attach a deallocation stream.
+    # ptr=1 is fine because StrictCapturingMR.deallocate does not free.
+    buf = Buffer.from_handle(1, 1024, mr=mr)
+    del buf
+    gc.collect()
+
+    assert "stream" in captured, "deallocate was not invoked (callback raised and leaked)"
+    assert captured["stream"].handle == default_stream().handle
 
 
 def test_memory_resource_and_owner_disallowed():
@@ -604,7 +658,7 @@ def test_managed_memory_resource_buffer_dlpack_device_type():
     device.set_current()
     skip_if_managed_memory_unsupported(device)
     mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
-    buf = mr.allocate(1024)
+    buf = mr.allocate(1024, stream=device.default_stream)
 
     assert mr.is_managed
     assert buf.is_managed
@@ -627,7 +681,7 @@ def test_non_managed_resources_report_not_managed(mr_kind):
         skip_if_pinned_memory_unsupported(device)
         mr = create_pinned_memory_resource_or_xfail(xfail_device=device)
     assert mr.is_managed is False
-    buf = mr.allocate(1024)
+    buf = mr.allocate(1024, stream=device.default_stream)
     assert buf.is_managed is False
     buf.close()
 
@@ -658,7 +712,7 @@ def test_device_memory_resource_initialization(use_device_object):
     assert not mr.is_ipc_enabled
 
     # Test allocation/deallocation works
-    buffer = mr.allocate(1024)
+    buffer = mr.allocate(1024, stream=device.default_stream)
     assert buffer.size == 1024
     assert buffer.device_id == device.device_id
     buffer.close()
@@ -676,7 +730,7 @@ def test_pinned_memory_resource_initialization(init_cuda):
 
     # Test allocation/deallocation works
     try:
-        buffer = mr.allocate(1024)
+        buffer = mr.allocate(1024, stream=device.default_stream)
     except CUDAError as exc:
         msg = str(exc)
         if "CUDA_ERROR_OUT_OF_MEMORY" in msg:
@@ -704,7 +758,7 @@ def test_managed_memory_resource_initialization(init_cuda):
     assert mr.is_host_accessible
 
     # Test allocation/deallocation works
-    buffer = mr.allocate(1024)
+    buffer = mr.allocate(1024, stream=device.default_stream)
     assert buffer.size == 1024
     assert buffer.is_host_accessible  # But accessible from host
     assert buffer.memory_resource == mr
@@ -929,15 +983,15 @@ def test_device_memory_resource_with_options(init_cuda):
     assert not mr.is_ipc_enabled
 
     # Test allocation and deallocation
-    buffer1 = mr.allocate(1024)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
     assert buffer1.handle != 0
     assert buffer1.size == 1024
     assert buffer1.memory_resource == mr
     buffer1.close()
 
     # Test multiple allocations
-    buffer1 = mr.allocate(1024)
-    buffer2 = mr.allocate(2048)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
+    buffer2 = mr.allocate(2048, stream=device.default_stream)
     assert buffer1.handle != buffer2.handle
     assert buffer1.size == 1024
     assert buffer2.size == 2048
@@ -951,8 +1005,8 @@ def test_device_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64)
-    dst_buffer = mr.allocate(64)
+    src_buffer = mr.allocate(64, stream=device.default_stream)
+    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
@@ -975,15 +1029,15 @@ def test_pinned_memory_resource_with_options(init_cuda):
     assert not mr.is_ipc_enabled
 
     # Test allocation and deallocation
-    buffer1 = mr.allocate(1024)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
     assert buffer1.handle != 0
     assert buffer1.size == 1024
     assert buffer1.memory_resource == mr
     buffer1.close()
 
     # Test multiple allocations
-    buffer1 = mr.allocate(1024)
-    buffer2 = mr.allocate(2048)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
+    buffer2 = mr.allocate(2048, stream=device.default_stream)
     assert buffer1.handle != buffer2.handle
     assert buffer1.size == 1024
     assert buffer2.size == 2048
@@ -997,8 +1051,8 @@ def test_pinned_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64)
-    dst_buffer = mr.allocate(64)
+    src_buffer = mr.allocate(64, stream=device.default_stream)
+    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
@@ -1020,15 +1074,15 @@ def test_managed_memory_resource_with_options(init_cuda):
     assert not mr.is_ipc_enabled
 
     # Test allocation and deallocation
-    buffer1 = mr.allocate(1024)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
     assert buffer1.handle != 0
     assert buffer1.size == 1024
     assert buffer1.memory_resource == mr
     buffer1.close()
 
     # Test multiple allocations
-    buffer1 = mr.allocate(1024)
-    buffer2 = mr.allocate(2048)
+    buffer1 = mr.allocate(1024, stream=device.default_stream)
+    buffer2 = mr.allocate(2048, stream=device.default_stream)
     assert buffer1.handle != buffer2.handle
     assert buffer1.size == 1024
     assert buffer2.size == 2048
@@ -1042,8 +1096,8 @@ def test_managed_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64)
-    dst_buffer = mr.allocate(64)
+    src_buffer = mr.allocate(64, stream=device.default_stream)
+    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
@@ -1205,7 +1259,7 @@ def test_mempool_ipc_errors(mempool_device):
     device = mempool_device
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
     mr = DeviceMemoryResource(device, options=options)
-    buffer = mr.allocate(64)
+    buffer = mr.allocate(64, stream=device.default_stream)
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
@@ -1216,7 +1270,7 @@ def test_mempool_ipc_errors(mempool_device):
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
-        Buffer.from_ipc_descriptor(mr, handle)
+        Buffer.from_ipc_descriptor(mr, handle, stream=device.default_stream)
 
     buffer.close()
 
@@ -1248,7 +1302,7 @@ def test_pinned_mempool_ipc_basic():
     assert alloc_handle is not None
 
     # Test buffer allocation
-    buffer = mr.allocate(1024)
+    buffer = mr.allocate(1024, stream=device.default_stream)
     assert buffer.size == 1024
     assert buffer.is_device_accessible
     assert buffer.is_host_accessible
@@ -1276,7 +1330,7 @@ def test_pinned_mempool_ipc_errors():
     assert mr.device_id == -1
     assert mr.numa_id == -1  # Non-IPC uses OS-managed placement
 
-    buffer = mr.allocate(64)
+    buffer = mr.allocate(64, stream=device.default_stream)
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
@@ -1287,7 +1341,7 @@ def test_pinned_mempool_ipc_errors():
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
-        Buffer.from_ipc_descriptor(mr, handle)
+        Buffer.from_ipc_descriptor(mr, handle, stream=device.default_stream)
 
     buffer.close()
     mr.close()
@@ -1428,7 +1482,7 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
         initial_value = value
         buffer = None
         try:
-            buffer = mr.allocate(1024)
+            buffer = mr.allocate(1024, stream=device.default_stream)
             new_value = getattr(mr.attributes, property_name)
             assert new_value >= initial_value, f"{property_name} should increase or stay same after allocation"
         finally:
@@ -1464,8 +1518,8 @@ def test_mempool_attributes_repr(memory_resource_factory):
     elif MR is ManagedMemoryResource:
         mr = create_managed_memory_resource_or_skip(options={})
 
-    buffer1 = mr.allocate(64)
-    buffer2 = mr.allocate(64)
+    buffer1 = mr.allocate(64, stream=device.default_stream)
+    buffer2 = mr.allocate(64, stream=device.default_stream)
     buffer1.close()
     assert re.match(
         r".*Attributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
@@ -1575,8 +1629,32 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
         assert MR is DeviceMemoryResource
         mr = MR(device)
 
-    buffer = mr.allocate(0)
+    buffer = mr.allocate(0, stream=device.default_stream)
     device.sync()
     assert buffer.handle >= 0
     assert buffer.size == 0
     assert buffer.device_id == mr.device_id
+
+
+def test_strided_memory_view_not_in_top_level_namespace():
+    # Regression test for issue #2027: StridedMemoryView and
+    # args_viewable_as_strided_memory must only be exposed via
+    # cuda.core.utils, not the top-level cuda.core namespace.
+    import cuda.core
+    import cuda.core.utils
+
+    assert not hasattr(cuda.core, "StridedMemoryView")
+    assert not hasattr(cuda.core, "args_viewable_as_strided_memory")
+
+    assert hasattr(cuda.core.utils, "StridedMemoryView")
+    assert hasattr(cuda.core.utils, "args_viewable_as_strided_memory")
+
+
+def test_top_level_namespace_excludes_known_leaks():
+    # Hardening test: lock the public top-level namespace against
+    # accidental re-introduction of known-leaked symbols.
+    import cuda.core
+
+    public = {n for n in dir(cuda.core) if not n.startswith("_")}
+    leaked = {"StridedMemoryView", "args_viewable_as_strided_memory"}
+    assert not (public & leaked)
