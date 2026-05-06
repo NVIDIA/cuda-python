@@ -1,0 +1,6 @@
+﻿cuda.core.enums.VirtualMemoryAllocationType
+===========================================
+
+.. currentmodule:: cuda.core.enums
+
+.. autoenum:: VirtualMemoryAllocationType

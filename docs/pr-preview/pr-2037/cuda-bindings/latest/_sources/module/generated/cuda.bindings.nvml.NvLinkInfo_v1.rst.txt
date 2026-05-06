@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.NvLinkInfo\_v1
+=================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: NvLinkInfo_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NvLinkInfo_v1.__init__
+      ~NvLinkInfo_v1.from_buffer
+      ~NvLinkInfo_v1.from_data
+      ~NvLinkInfo_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NvLinkInfo_v1.is_nvle_enabled
+      ~NvLinkInfo_v1.ptr
+      ~NvLinkInfo_v1.version
+   
+   

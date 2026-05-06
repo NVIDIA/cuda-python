@@ -1,0 +1,6 @@
+﻿cuda.core.system.enums.DeviceArch
+=================================
+
+.. currentmodule:: cuda.core.system.enums
+
+.. autoenum:: DeviceArch

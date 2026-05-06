@@ -1,0 +1,6 @@
+﻿cuda.core.system.enums.ThermalTarget
+====================================
+
+.. currentmodule:: cuda.core.system.enums
+
+.. autoenum:: ThermalTarget

@@ -1,0 +1,6 @@
+﻿cuda.core.system.enums.CoolerControl
+====================================
+
+.. currentmodule:: cuda.core.system.enums
+
+.. autoenum:: CoolerControl

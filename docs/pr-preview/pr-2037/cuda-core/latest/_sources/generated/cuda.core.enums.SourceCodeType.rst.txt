@@ -1,0 +1,6 @@
+﻿cuda.core.enums.SourceCodeType
+==============================
+
+.. currentmodule:: cuda.core.enums
+
+.. autoenum:: SourceCodeType

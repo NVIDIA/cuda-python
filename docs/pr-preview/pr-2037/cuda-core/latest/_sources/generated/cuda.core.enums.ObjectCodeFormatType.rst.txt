@@ -1,0 +1,6 @@
+﻿cuda.core.enums.ObjectCodeFormatType
+====================================
+
+.. currentmodule:: cuda.core.enums
+
+.. autoenum:: ObjectCodeFormatType

@@ -1,0 +1,6 @@
+﻿cuda.core.enums.VirtualMemoryAccessType
+=======================================
+
+.. currentmodule:: cuda.core.enums
+
+.. autoenum:: VirtualMemoryAccessType

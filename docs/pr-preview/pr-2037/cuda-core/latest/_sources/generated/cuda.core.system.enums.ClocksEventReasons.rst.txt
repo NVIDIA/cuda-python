@@ -1,0 +1,6 @@
+﻿cuda.core.system.enums.ClocksEventReasons
+=========================================
+
+.. currentmodule:: cuda.core.system.enums
+
+.. autoenum:: ClocksEventReasons

@@ -1,0 +1,6 @@
+﻿cuda.core.enums.GraphConditionalType
+====================================
+
+.. currentmodule:: cuda.core.enums
+
+.. autoenum:: GraphConditionalType
