@@ -494,9 +494,10 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
 # =============================================================================
 
 
-def test_kernel_args_buffer_kept_alive_through_execution(init_cuda):
-    """Buffer passed as a kernel arg is kept alive by the graph, and the kernel
-    actually executes against its memory after the original Python ref drops.
+def test_kernel_args_buffer_lifetime(init_cuda):
+    """Buffer passed as a kernel arg is kept alive by the graph, the kernel
+    executes against its memory after the original Python ref drops, and the
+    Buffer is released once the graph is destroyed.
 
     Without the user-object attachment, the ParamHolder is destroyed when the
     kernel node is added, the Buffer is GC'd, and the graph is left with a
@@ -528,6 +529,10 @@ def test_kernel_args_buffer_kept_alive_through_execution(init_cuda):
     out = (ctypes.c_int * 1)(0)
     handle_return(driver.cuMemcpyDtoH(out, dptr, ctypes.sizeof(ctypes.c_int)))
     assert out[0] == 1
+
+    del g
+    gc.collect()
+    assert buf_weak() is None  # graph released, Buffer freed
 
 
 def test_kernel_args_survive_graph_clone(init_cuda):
