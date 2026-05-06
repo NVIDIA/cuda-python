@@ -15,24 +15,49 @@ on:
     types: [opened, assigned]
 
 jobs:
-  claude:
-    # Only trigger when "@claude" is mentioned AND the actor has write access
-    # to the repository (OWNER, MEMBER, or COLLABORATOR). This restricts the
-    # ability to invoke Claude — which can read and modify repository contents
-    # — to repository maintainers only.
+  authorize:
+    # Only start this job for "@claude" mentions. The first step below checks
+    # the triggering actor's actual repository permission before the workflow
+    # grants write permissions or exposes the Anthropic API key.
     if: |
       (github.event_name == 'issue_comment' &&
-        contains(github.event.comment.body, '@claude') &&
-        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)) ||
+        contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review_comment' &&
-        contains(github.event.comment.body, '@claude') &&
-        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)) ||
+        contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review' &&
-        contains(github.event.review.body, '@claude') &&
-        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.review.author_association)) ||
+        contains(github.event.review.body, '@claude')) ||
       (github.event_name == 'issues' &&
-        (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')) &&
-        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association))
+        (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      has_write_access: ${{ steps.actor-permission.outputs.has_write_access }}
+    steps:
+      - name: Check actor repository permission
+        id: actor-permission
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TRIGGERING_ACTOR: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+
+          permission="$(gh api "repos/${GH_REPO}/collaborators/${TRIGGERING_ACTOR}/permission" --jq '.permission' 2>/dev/null || true)"
+
+          case "${permission}" in
+            admin|maintain|write)
+              echo "has_write_access=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "has_write_access=false" >> "$GITHUB_OUTPUT"
+              echo "Skipping Claude because ${TRIGGERING_ACTOR} does not have write access to ${GH_REPO}."
+              ;;
+          esac
+
+  claude:
+    needs: authorize
+    if: needs.authorize.outputs.has_write_access == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -42,7 +67,7 @@ jobs:
       actions: read  # Required for Claude to read CI results on PRs
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-depth: 1
 
