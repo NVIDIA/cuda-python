@@ -241,46 +241,6 @@ execution.
    checkpoint.Process
 
 
-CUDA system information and NVIDIA Management Library (NVML)
-------------------------------------------------------------
-
-.. note::
-   ``cuda.core.system`` support requires ``cuda_bindings`` 12.9.6 or later, or 13.2.0 or later.
-
-Basic functions
-```````````````
-
-.. autosummary::
-   :toctree: generated/
-
-   system.get_driver_version
-   system.get_driver_version_full
-   system.get_driver_branch
-   system.get_num_devices
-   system.get_nvml_version
-   system.get_process_name
-   system.get_topology_common_ancestor
-   system.get_p2p_status
-
-Events
-``````
-
-.. autosummary::
-   :toctree: generated/
-
-   system.register_events
-
-Types
-`````
-
-.. autosummary::
-   :toctree: generated/
-
-   :template: autosummary/cyclass.rst
-
-   system.Device
-   system.NvlinkInfo
-
 Utility functions
 -----------------
 
