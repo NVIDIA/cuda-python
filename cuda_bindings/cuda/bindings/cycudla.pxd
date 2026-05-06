@@ -1,3 +1,7 @@
+# Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+#
 # This code was automatically generated with version 1.5.0, generator version 0.3.1.dev1465+gc5c5c8652. Do not modify it directly.
 # This layer exposes the C header to Cython as-is.
 
@@ -76,7 +80,9 @@ ctypedef enum cudlaDevAttributeType "cudlaDevAttributeType":
 
 # types
 ctypedef void* cudlaDevHandle 'cudlaDevHandle'
+
 ctypedef void* cudlaModule 'cudlaModule'
+
 ctypedef struct cudlaExternalMemoryHandleDesc_t 'cudlaExternalMemoryHandleDesc_t':
     void* extBufObject
     unsigned long long size
@@ -129,7 +135,6 @@ ctypedef struct cudlaTask 'cudlaTask':
     uint64_t** inputTensor
     cudlaWaitEvents* waitEvents
     cudlaSignalEvents* signalEvents
-
 
 # Typedef aliases for struct types (struct has _t, typedef doesn't)
 ctypedef cudlaExternalMemoryHandleDesc_t cudlaExternalMemoryHandleDesc 'cudlaExternalMemoryHandleDesc'

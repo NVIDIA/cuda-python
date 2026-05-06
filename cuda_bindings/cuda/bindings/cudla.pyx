@@ -1,3 +1,7 @@
+# Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+#
 # This code was automatically generated with version 1.5.0, generator version 0.3.1.dev1465+gc5c5c8652. Do not modify it directly.
 
 cimport cython  # NOQA
@@ -761,7 +765,6 @@ dev_attribute_dtype = _numpy.dtype((
     }
     ))
 
-
 cdef class DevAttribute:
     """Empty-initialize an instance of `cudlaDevAttribute`.
 
@@ -900,7 +903,6 @@ module_attribute_dtype = _numpy.dtype((
         "output_tensor_desc": (_numpy.intp, 0),
     }
     ))
-
 
 cdef class ModuleAttribute:
     """Empty-initialize an instance of `cudlaModuleAttribute`.
@@ -1569,7 +1571,6 @@ cdef class Task:
         obj._readonly = readonly
         obj._refs = {}
         return obj
-
 
 
 ###############################################################################
