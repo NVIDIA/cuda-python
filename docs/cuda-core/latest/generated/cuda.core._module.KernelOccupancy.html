@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4e9e9861"></script>
+    <script src="../_static/documentation_options.js?v=eae61c78"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -731,7 +731,8 @@ theoretical multiprocessor utilization (occupancy).</p>
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">LaunchConfig</span> <span class="pre">config:</span> <span class="pre">LaunchConfig</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelOccupancy.max_active_clusters" title="Link to this definition">#</a></dt>
@@ -741,7 +742,9 @@ theoretical multiprocessor utilization (occupancy).</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code>) – Kernel launch configuration.</p></li>
-<li><p><strong>stream</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code>, optional) – The stream on which this kernel is to be launched.</p></li>
+<li><p><strong>stream</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code>) – Keyword-only. The stream on which this kernel is to be launched.
+Must be passed explicitly; pass <code class="docutils literal notranslate"><span class="pre">device.default_stream</span></code> to
+use the default stream.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -801,7 +804,8 @@ Interpreter Lock may lead to deadlocks.</p>
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">LaunchConfig</span> <span class="pre">config:</span> <span class="pre">LaunchConfig</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelOccupancy.max_potential_cluster_size" title="Link to this definition">#</a></dt>
@@ -811,7 +815,9 @@ Interpreter Lock may lead to deadlocks.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code>) – Kernel launch configuration. Cluster dimensions in the configuration are ignored.</p></li>
-<li><p><strong>stream</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code>, optional) – The stream on which this kernel is to be launched.</p></li>
+<li><p><strong>stream</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code>) – Keyword-only. The stream on which this kernel is to be launched.
+Must be passed explicitly; pass <code class="docutils literal notranslate"><span class="pre">device.default_stream</span></code> to
+use the default stream.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
