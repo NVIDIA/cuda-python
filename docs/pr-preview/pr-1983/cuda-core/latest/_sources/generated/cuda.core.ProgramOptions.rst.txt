@@ -1,6 +1,0 @@
-﻿cuda.core.ProgramOptions
-========================
-
-.. currentmodule:: cuda.core
-
-.. autoclass:: ProgramOptions
