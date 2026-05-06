@@ -152,6 +152,14 @@ Breaking changes
   :mod:`cuda.core.utils` module.
   (`#2028 <https://github.com/NVIDIA/cuda-python/issues/2028>`__)
 
+- Consolidated ``system.get_driver_version()`` and
+  ``system.get_driver_version_full()`` into a single
+  :func:`system.get_driver_version` that returns
+  ``(umd_version, kmd_version)`` — a 2-tuple of version tuples
+  (UMD is ``(MAJOR, MINOR)``, KMD is ``(MAJOR, MINOR, PATCH)``).
+  The function now requires NVML support and raises :class:`RuntimeError`
+  if it is not available.
+
 Fixes and enhancements
 -----------------------
 

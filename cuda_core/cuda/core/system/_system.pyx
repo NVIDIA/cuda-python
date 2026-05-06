@@ -29,52 +29,38 @@ else:
     from cuda.core._utils.cuda_utils import driver, handle_return, runtime
 
 
-def get_driver_version(kernel_mode: bool = False) -> tuple[int, int]:
+def get_driver_version() -> tuple[tuple[int, ...], tuple[int, ...]]:
     """
     Get the driver version.
 
-    Parameters
-    ----------
-    kernel_mode: bool
-        When `True`, return the kernel-mode driver version, e.g. 580.65.06.
-        Otherwise, return the user-mode driver version, e.g. 13.0.1.
+    Returns both the user-mode (UMD / CUDA) driver version and the
+    kernel-mode (KMD / GPU) driver version.
 
     Returns
     -------
-    version: tuple[int, int]
-        Tuple in the format `(MAJOR, MINOR)`.
+    version : tuple[tuple[int, ...], tuple[int, ...]]
+        ``(umd_version, kmd_version)`` where ``umd_version`` is typically
+        a 2-tuple ``(MAJOR, MINOR)`` and ``kmd_version`` is typically
+        a 3-tuple ``(MAJOR, MINOR, PATCH)``.
+
+    Raises
+    ------
+    RuntimeError
+        If the NVML library is not available.
     """
-    return get_driver_version_full(kernel_mode)[:2]
+    if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+        raise RuntimeError("get_driver_version requires NVML support")
+    initialize()
 
-
-def get_driver_version_full(kernel_mode: bool = False) -> tuple[int, int, int]:
-    """
-    Get the full driver version.
-
-    Parameters
-    ----------
-    kernel_mode: bool
-        When `True`, return the kernel-mode driver version, e.g. 580.65.06.
-        Otherwise, return the user-mode driver version, e.g. 13.0.1.
-
-    Returns
-    -------
-    version: tuple[int, int, int]
-        Tuple in the format `(MAJOR, MINOR, PATCH)`.
-    """
+    # UMD (user-mode / CUDA toolkit) version
     cdef int v
-    if kernel_mode:
-        if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-            raise ValueError("Kernel-mode driver version requires NVML support")
-        initialize()
-        return tuple(int(v) for v in nvml.system_get_driver_version().split("."))
-    else:
-        if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-            initialize()
-            v = nvml.system_get_cuda_driver_version()
-        else:
-            v = handle_return(driver.cuDriverGetVersion())
-        return (v // 1000, (v // 10) % 100, v % 10)
+    v = nvml.system_get_cuda_driver_version()
+    umd = (v // 1000, (v // 10) % 100)
+
+    # KMD (kernel-mode / GPU driver) version
+    kmd = tuple(int(x) for x in nvml.system_get_driver_version().split("."))
+
+    return (umd, kmd)
 
 
 def get_nvml_version() -> tuple[int, ...]:
@@ -138,7 +124,6 @@ def get_process_name(pid: int) -> str:
 __all__ = [
     "get_driver_branch",
     "get_driver_version",
-    "get_driver_version_full",
     "get_nvml_version",
     "get_num_devices",
     "get_process_name",
