@@ -613,14 +613,33 @@ class FileStreamProgramCache(ProgramCacheResource):
                 total += path.stat().st_size
             except FileNotFoundError:
                 continue
-        if self._tmp.exists():
-            for tmp in self._tmp.iterdir():
-                if not tmp.is_file():
-                    continue
-                try:
-                    total += tmp.stat().st_size
-                except FileNotFoundError:
-                    continue
+        return total + self._sum_tmp_sizes()
+
+    def _iter_tmp_entries(self) -> Iterable[os.DirEntry]:
+        # Mirror ``_iter_entry_paths``: scandir + cached d_type for the
+        # file/dir filter + deterministic handle close on early exit.
+        # Yields ``DirEntry`` (not Path) so callers can use ``entry.stat``
+        # / ``entry.path`` directly without an extra wrap.
+        try:
+            with os.scandir(self._tmp) as it:
+                yield from (entry for entry in it if entry.is_file(follow_symlinks=False))
+        except FileNotFoundError:
+            return
+
+    def _sum_tmp_sizes(self) -> int:
+        """Sum sizes of every file in ``tmp/``, skipping vanished entries.
+
+        Both ``_compute_total_size`` (open-time seed) and
+        ``_enforce_size_cap`` (eviction reconciliation) need this --
+        temp files occupy disk too, so undercounting them would let
+        bursts of in-flight writes silently exceed ``max_size_bytes``.
+        """
+        total = 0
+        for entry in self._iter_tmp_entries():
+            try:
+                total += entry.stat(follow_symlinks=False).st_size
+            except FileNotFoundError:
+                continue
         return total
 
     def _sweep_stale_tmp_files(self) -> None:
@@ -630,15 +649,11 @@ class FileStreamProgramCache(ProgramCacheResource):
         in-flight write from another process is not interrupted. Best
         effort: a missing file or a permission failure is ignored.
         """
-        if not self._tmp.exists():
-            return
         cutoff = time.time() - _TMP_STALE_AGE_SECONDS
-        for tmp in self._tmp.iterdir():
-            if not tmp.is_file():
-                continue
+        for entry in self._iter_tmp_entries():
             try:
-                if tmp.stat().st_mtime < cutoff:
-                    tmp.unlink()
+                if entry.stat(follow_symlinks=False).st_mtime < cutoff:
+                    os.unlink(entry.path)
             except (FileNotFoundError, PermissionError):
                 continue
 
@@ -675,14 +690,7 @@ class FileStreamProgramCache(ProgramCacheResource):
             # write-only churn (true LRU instead of FIFO).
             entries.append((st.st_atime, st.st_size, path, st))
             total += st.st_size
-        if self._tmp.exists():
-            for tmp in self._tmp.iterdir():
-                if not tmp.is_file():
-                    continue
-                try:
-                    total += tmp.stat().st_size
-                except FileNotFoundError:
-                    continue
+        total += self._sum_tmp_sizes()
         if total <= self._max_size_bytes:
             # Re-seed the tracker from the scan: catches drift from
             # cross-process writers/deleters that the per-write delta
