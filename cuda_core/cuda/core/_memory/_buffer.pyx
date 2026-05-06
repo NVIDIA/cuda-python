@@ -24,7 +24,7 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core.typing import DevicePointerType
 
-from cuda.core._stream cimport Stream, Stream_accept
+from cuda.core._stream cimport Stream, Stream_accept, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
@@ -49,12 +49,24 @@ cdef void _mr_dealloc_callback(
     size_t size,
     const StreamHandle& h_stream,
 ) noexcept:
-    """Called by the C++ deleter to deallocate via MemoryResource.deallocate."""
+    """Called by the C++ deleter to deallocate via MemoryResource.deallocate.
+
+    This is the C++ teardown path: there is no Python caller frame from
+    which to obtain a stream. If the device-pointer handle was created
+    without ``set_deallocation_stream`` being called (e.g. buffers minted
+    via ``Buffer.from_handle(ptr, size, mr=mr)`` from DLPack import,
+    third-party adapters, or other foreign sources), ``h_stream`` is
+    empty here. Stream-ordered MR ``deallocate`` overrides reject
+    ``stream=None`` (issue #2001), so without a fallback the destructor
+    would print a warning and leak the allocation. Fall back to the
+    legacy/per-thread default stream so the free still happens; this is
+    the unique exception to the "no implicit default-stream fallback"
+    policy because the teardown has no other source of truth.
+    """
+    cdef Stream stream
     try:
-        stream = None
-        if h_stream:
-            stream = Stream._from_handle(Stream, h_stream)
-        mr.deallocate(int(ptr), size, stream)
+        stream = Stream._from_handle(Stream, h_stream) if h_stream else default_stream()
+        mr.deallocate(int(ptr), size, stream=stream)
     except Exception as exc:
         print(f"Warning: mr.deallocate() failed during Buffer destruction: {exc}",
               file=sys.stderr)
@@ -119,7 +131,11 @@ cdef class Buffer:
 
     @staticmethod
     def _reduce_helper(mr, ipc_descriptor):
-        return Buffer.from_ipc_descriptor(mr, ipc_descriptor)
+        # The parent process's stream is not portable across processes, so the
+        # pickle path cannot thread an explicit stream through. Seed the
+        # imported buffer's deallocation with the current context's default
+        # stream; the receiver can override via buffer.close(stream).
+        return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self):
         # Must not serialize the parent's stream!
@@ -158,9 +174,20 @@ cdef class Buffer:
     @classmethod
     def from_ipc_descriptor(
         cls, mr: DeviceMemoryResource | PinnedMemoryResource, ipc_descriptor: IPCBufferDescriptor,
-        stream: Stream = None
+        *, stream: Stream
     ) -> Buffer:
-        """Import a buffer that was exported from another process."""
+        """Import a buffer that was exported from another process.
+
+        Parameters
+        ----------
+        mr : :obj:`~_memory.DeviceMemoryResource` | :obj:`~_memory.PinnedMemoryResource`
+            The IPC-enabled memory resource matching the exporting process.
+        ipc_descriptor : :obj:`~_memory.IPCBufferDescriptor`
+            The descriptor exported from another process.
+        stream : :obj:`~_stream.Stream`
+            Keyword-only. The stream used for asynchronous deallocation when
+            the buffer is closed or garbage collected.
+        """
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
     @property
@@ -215,7 +242,7 @@ cdef class Buffer:
             if self._memory_resource is None:
                 raise ValueError("a destination buffer must be provided (this "
                                  "buffer does not have a memory_resource)")
-            dst = self._memory_resource.allocate(src_size, s)
+            dst = self._memory_resource.allocate(src_size, stream=s)
 
         cdef size_t dst_size = dst._size
         if dst_size != src_size:
@@ -490,17 +517,17 @@ cdef class MemoryResource:
     resource's respective property.)
     """
 
-    def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
-            The stream on which to perform the allocation asynchronously.
-            If None, it is up to each memory resource implementation to decide
-            and document the behavior.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the allocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
 
         Returns
         -------
@@ -510,7 +537,7 @@ cdef class MemoryResource:
         """
         raise TypeError("MemoryResource.allocate must be implemented by subclasses.")
 
-    def deallocate(self, ptr: DevicePointerType, size_t size, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: DevicePointerType, size_t size, *, stream: Stream | GraphBuilder):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -519,10 +546,10 @@ cdef class MemoryResource:
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
-            The stream on which to perform the deallocation asynchronously.
-            If None, it is up to each memory resource implementation to decide
-            and document the behavior.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the deallocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
         """
         raise TypeError("MemoryResource.deallocate must be implemented by subclasses.")
 
