@@ -10,13 +10,12 @@
   "a": "tests/system/test_system_device.py::test_affinity|run",
   "b": "tests/system/test_system_device.py::test_clock_event_reasons|run",
   "c": "tests/system/test_system_device.py::test_device_cpu_affinity|run",
-  "d": "tests/system/test_system_device.py::test_event_type_parsing|run",
-  "e": "tests/system/test_system_device.py::test_get_all_devices_with_cpu_affinity|run",
-  "f": "tests/system/test_system_device.py::test_register_events|run",
-  "g": "tests/system/test_system_device.py::test_unpack_bitmask[params0]|run",
-  "h": "tests/system/test_system_device.py::test_unpack_bitmask[params1]|run",
-  "i": "tests/system/test_system_device.py::test_unpack_bitmask[params2]|run",
-  "j": "tests/system/test_system_device.py::test_unpack_bitmask[params3]|run"
+  "d": "tests/system/test_system_device.py::test_get_all_devices_with_cpu_affinity|run",
+  "e": "tests/system/test_system_device.py::test_register_events|run",
+  "f": "tests/system/test_system_device.py::test_unpack_bitmask[params0]|run",
+  "g": "tests/system/test_system_device.py::test_unpack_bitmask[params1]|run",
+  "h": "tests/system/test_system_device.py::test_unpack_bitmask[params2]|run",
+  "i": "tests/system/test_system_device.py::test_unpack_bitmask[params3]|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -79,7 +78,7 @@
             <a id="nextFileLink" class="nav" href="z_dbb36602d1591427__event_pxi.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-05 01:26 +0000
+            created at 2026-05-06 01:16 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -106,18 +105,18 @@
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">    Unpack a list of integers containing bitmasks.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">    cdef uint64_t i, j, idx</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">    cdef int mask_bits = 64</span>&nbsp;</span><input type="checkbox" id="ctxs13"><span class="r"><label for="ctxs13" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
+    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">    cdef int mask_bits = 64</span>&nbsp;</span><input type="checkbox" id="ctxs13"><span class="r"><label for="ctxs13" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    res = []</span>&nbsp;</span><input type="checkbox" id="ctxs15"><span class="r"><label for="ctxs15" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
+    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    res = []</span>&nbsp;</span><input type="checkbox" id="ctxs15"><span class="r"><label for="ctxs15" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
     <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">    for i in range(len(arr)):</span>&nbsp;</span><input type="checkbox" id="ctxs17"><span class="r"><label for="ctxs17" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">        cpu_offset = i * mask_bits</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">        idx = 1</span>&nbsp;</span><input type="checkbox" id="ctxs19"><span class="r"><label for="ctxs19" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
-    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">        for j in range(mask_bits):</span>&nbsp;</span><input type="checkbox" id="ctxs20"><span class="r"><label for="ctxs20" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
-    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">            if arr[i] &amp; idx:</span>&nbsp;</span><input type="checkbox" id="ctxs21"><span class="r"><label for="ctxs21" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">                res.append(cpu_offset + j)</span>&nbsp;</span><input type="checkbox" id="ctxs22"><span class="r"><label for="ctxs22" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">            idx &lt;&lt;= 1</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
-    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">    return res</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
+    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">    for i in range(len(arr)):</span>&nbsp;</span><input type="checkbox" id="ctxs17"><span class="r"><label for="ctxs17" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">        cpu_offset = i * mask_bits</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">        idx = 1</span>&nbsp;</span><input type="checkbox" id="ctxs19"><span class="r"><label for="ctxs19" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
+    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">        for j in range(mask_bits):</span>&nbsp;</span><input type="checkbox" id="ctxs20"><span class="r"><label for="ctxs20" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
+    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">            if arr[i] &amp; idx:</span>&nbsp;</span><input type="checkbox" id="ctxs21"><span class="r"><label for="ctxs21" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">                res.append(cpu_offset + j)</span>&nbsp;</span><input type="checkbox" id="ctxs22"><span class="r"><label for="ctxs22" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">            idx &lt;&lt;= 1</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">    return res</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
 </main>
 <footer>
     <div class="content">
@@ -127,7 +126,7 @@
             <a class="nav" href="z_dbb36602d1591427__event_pxi.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-05 01:26 +0000
+            created at 2026-05-06 01:16 +0000
         </p>
     </div>
 </footer>
