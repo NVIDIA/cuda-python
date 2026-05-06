@@ -32,7 +32,7 @@ dependencies are as follows:
 Free-threading Build Support
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As of cuda-core 0.4.0, **experimental** packages for the `free-threaded interpreter`_ are shipped.
+As of cuda-core 1.0.0, **experimental** packages for the `free-threaded interpreter`_ are shipped.
 
 1. Support for these builds is best effort, due to heavy use of `built-in
    modules that are known to be thread-unsafe`_, such as ``ctypes``.
