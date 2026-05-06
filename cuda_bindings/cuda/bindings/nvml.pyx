@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1588+g61faef43a. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -528,7 +528,7 @@ class Return(_FastEnum):
     See `nvmlReturn_t`.
     """
     SUCCESS = (NVML_SUCCESS, 'The operation was successful.')
-    ERROR_UNINITIALIZED = (NVML_ERROR_UNINITIALIZED, 'NVML was not first initialized with nvmlInit()')
+    ERROR_UNINITIALIZED = (NVML_ERROR_UNINITIALIZED, 'NVML was not first initialized with `nvmlInit()`')
     ERROR_INVALID_ARGUMENT = (NVML_ERROR_INVALID_ARGUMENT, 'A supplied argument is invalid.')
     ERROR_NOT_SUPPORTED = (NVML_ERROR_NOT_SUPPORTED, 'The requested operation is not available on target device.')
     ERROR_NO_PERMISSION = (NVML_ERROR_NO_PERMISSION, 'The current user does not have permission for operation.')
@@ -759,7 +759,7 @@ class FBCSessionType(_FastEnum):
 class DetachGpuState(_FastEnum):
     """
     Is the GPU device to be removed from the kernel by
-    nvmlDeviceRemoveGpu()
+    `nvmlDeviceRemoveGpu()`
 
     See `nvmlDetachGpuState_t`.
     """
@@ -768,7 +768,7 @@ class DetachGpuState(_FastEnum):
 
 class PcieLinkState(_FastEnum):
     """
-    Parent bridge PCIe link state requested by nvmlDeviceRemoveGpu()
+    Parent bridge PCIe link state requested by `nvmlDeviceRemoveGpu()`
 
     See `nvmlPcieLinkState_t`.
     """
@@ -1903,97 +1903,66 @@ class NvmlError(Exception):
 
 class UninitializedError(NvmlError):
     pass
-
 class InvalidArgumentError(NvmlError):
     pass
-
 class NotSupportedError(NvmlError):
     pass
-
 class NoPermissionError(NvmlError):
     pass
-
 class AlreadyInitializedError(NvmlError):
     pass
-
 class NotFoundError(NvmlError):
     pass
-
 class InsufficientSizeError(NvmlError):
     pass
-
 class InsufficientPowerError(NvmlError):
     pass
-
 class DriverNotLoadedError(NvmlError):
     pass
-
 class TimeoutError(NvmlError):
     pass
-
 class IrqIssueError(NvmlError):
     pass
-
 class LibraryNotFoundError(NvmlError):
     pass
-
 class FunctionNotFoundError(NvmlError):
     pass
-
 class CorruptedInforomError(NvmlError):
     pass
-
 class GpuIsLostError(NvmlError):
     pass
-
 class ResetRequiredError(NvmlError):
     pass
-
 class OperatingSystemError(NvmlError):
     pass
-
 class LibRmVersionMismatchError(NvmlError):
     pass
-
 class InUseError(NvmlError):
     pass
-
 class MemoryError(NvmlError):
     pass
-
 class NoDataError(NvmlError):
     pass
-
 class VgpuEccNotSupportedError(NvmlError):
     pass
-
 class InsufficientResourcesError(NvmlError):
     pass
-
 class FreqNotSupportedError(NvmlError):
     pass
-
 class ArgumentVersionMismatchError(NvmlError):
     pass
-
 class DeprecatedError(NvmlError):
     pass
-
 class NotReadyError(NvmlError):
     pass
-
 class GpuNotFoundError(NvmlError):
     pass
-
 class InvalidStateError(NvmlError):
     pass
-
 class ResetTypeNotSupportedError(NvmlError):
     pass
-
 class UnknownError(NvmlError):
     pass
-
 cdef object _nvml_error_factory(int status):
     cdef object pystatus = status
     if status == 1:
@@ -2059,7 +2028,6 @@ cdef object _nvml_error_factory(int status):
     elif status == 999:
         return UnknownError(pystatus)
     return NvmlError(status)
-
 
 
 @cython.profile(False)
@@ -3174,20 +3142,16 @@ process_info_dtype = _get_process_info_dtype_offsets()
 
 cdef class ProcessInfo:
     """Empty-initialize an array of `nvmlProcessInfo_t`.
-
     The resulting object is of length `size` and of dtype `process_info_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlProcessInfo_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=process_info_dtype)
@@ -3356,20 +3320,16 @@ process_detail_v1_dtype = _get_process_detail_v1_dtype_offsets()
 
 cdef class ProcessDetail_v1:
     """Empty-initialize an array of `nvmlProcessDetail_v1_t`.
-
     The resulting object is of length `size` and of dtype `process_detail_v1_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlProcessDetail_v1_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=process_detail_v1_dtype)
@@ -4083,20 +4043,16 @@ bridge_chip_info_dtype = _get_bridge_chip_info_dtype_offsets()
 
 cdef class BridgeChipInfo:
     """Empty-initialize an array of `nvmlBridgeChipInfo_t`.
-
     The resulting object is of length `size` and of dtype `bridge_chip_info_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlBridgeChipInfo_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=bridge_chip_info_dtype)
@@ -4236,7 +4192,6 @@ value_dtype = _numpy.dtype((
         "us_val": (_numpy.uint16, 0),
     }
     ))
-
 
 cdef class Value:
     """Empty-initialize an instance of `nvmlValue_t`.
@@ -4423,7 +4378,7 @@ cdef class Value:
 
 
 cdef _get__py_anon_pod0_dtype_offsets():
-    cdef _anon_pod0 pod = _anon_pod0()
+    cdef cuda_bindings_nvml__anon_pod0 pod = cuda_bindings_nvml__anon_pod0()
     return _numpy.dtype({
         'names': ['controller', 'default_min_temp', 'default_max_temp', 'current_temp', 'target'],
         'formats': [_numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32],
@@ -4434,25 +4389,25 @@ cdef _get__py_anon_pod0_dtype_offsets():
             (<intptr_t>&(pod.currentTemp)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.target)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod0),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod0),
     })
 
 _py_anon_pod0_dtype = _get__py_anon_pod0_dtype_offsets()
 
 cdef class _py_anon_pod0:
-    """Empty-initialize an instance of `_anon_pod0`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod0`.
 
 
-    .. seealso:: `_anon_pod0`
+    .. seealso:: `cuda_bindings_nvml__anon_pod0`
     """
     cdef:
-        _anon_pod0 *_ptr
+        cuda_bindings_nvml__anon_pod0 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod0 *>calloc(1, sizeof(_anon_pod0))
+        self._ptr = <cuda_bindings_nvml__anon_pod0 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod0))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod0")
         self._owner = None
@@ -4460,7 +4415,7 @@ cdef class _py_anon_pod0:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod0 *ptr
+        cdef cuda_bindings_nvml__anon_pod0 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -4485,20 +4440,20 @@ cdef class _py_anon_pod0:
         if not isinstance(other, _py_anon_pod0):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod0)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod0)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod0), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod0), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod0 *>malloc(sizeof(_anon_pod0))
+            self._ptr = <cuda_bindings_nvml__anon_pod0 *>malloc(sizeof(cuda_bindings_nvml__anon_pod0))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod0")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod0))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod0))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -4563,7 +4518,7 @@ cdef class _py_anon_pod0:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod0 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod0), _py_anon_pod0)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod0), _py_anon_pod0)
 
     @staticmethod
     def from_data(data):
@@ -4587,14 +4542,14 @@ cdef class _py_anon_pod0:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod0 obj = _py_anon_pod0.__new__(_py_anon_pod0)
         if owner is None:
-            obj._ptr = <_anon_pod0 *>malloc(sizeof(_anon_pod0))
+            obj._ptr = <cuda_bindings_nvml__anon_pod0 *>malloc(sizeof(cuda_bindings_nvml__anon_pod0))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod0")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod0))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod0))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod0 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod0 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -4604,7 +4559,7 @@ cdef class _py_anon_pod0:
 cdef _get_cooler_info_v1_dtype_offsets():
     cdef nvmlCoolerInfo_v1_t pod = nvmlCoolerInfo_v1_t()
     return _numpy.dtype({
-        'names': ['version', 'ind_ex', 'signal_type', 'target'],
+        'names': ['version', 'index', 'signal_type', 'target'],
         'formats': [_numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.int32],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
@@ -4695,12 +4650,12 @@ cdef class CoolerInfo_v1:
         self._ptr[0].version = val
 
     @property
-    def ind_ex(self):
+    def index(self):
         """int: the cooler index"""
         return self._ptr[0].index
 
-    @ind_ex.setter
-    def ind_ex(self, val):
+    @index.setter
+    def index(self, val):
         if self._readonly:
             raise ValueError("This CoolerInfo_v1 instance is read-only")
         self._ptr[0].index = val
@@ -4784,20 +4739,16 @@ clk_mon_fault_info_dtype = _get_clk_mon_fault_info_dtype_offsets()
 
 cdef class ClkMonFaultInfo:
     """Empty-initialize an array of `nvmlClkMonFaultInfo_t`.
-
     The resulting object is of length `size` and of dtype `clk_mon_fault_info_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlClkMonFaultInfo_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=clk_mon_fault_info_dtype)
@@ -5136,20 +5087,16 @@ process_utilization_sample_dtype = _get_process_utilization_sample_dtype_offsets
 
 cdef class ProcessUtilizationSample:
     """Empty-initialize an array of `nvmlProcessUtilizationSample_t`.
-
     The resulting object is of length `size` and of dtype `process_utilization_sample_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlProcessUtilizationSample_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=process_utilization_sample_dtype)
@@ -5343,20 +5290,16 @@ process_utilization_info_v1_dtype = _get_process_utilization_info_v1_dtype_offse
 
 cdef class ProcessUtilizationInfo_v1:
     """Empty-initialize an array of `nvmlProcessUtilizationInfo_v1_t`.
-
     The resulting object is of length `size` and of dtype `process_utilization_info_v1_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlProcessUtilizationInfo_v1_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=process_utilization_info_v1_dtype)
@@ -5828,7 +5771,7 @@ cdef class EccSramErrorStatus_v1:
 cdef _get_platform_info_v1_dtype_offsets():
     cdef nvmlPlatformInfo_v1_t pod = nvmlPlatformInfo_v1_t()
     return _numpy.dtype({
-        'names': ['version', 'ib_guid', 'rack_guid', 'chassis_physical_slot_number', 'compute_slot_ind_ex', 'node_ind_ex', 'peer_type', 'module_id'],
+        'names': ['version', 'ib_guid', 'rack_guid', 'chassis_physical_slot_number', 'compute_slot_index', 'node_index', 'peer_type', 'module_id'],
         'formats': [_numpy.uint32, (_numpy.uint8, 16), (_numpy.uint8, 16), _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
@@ -5968,23 +5911,23 @@ cdef class PlatformInfo_v1:
         self._ptr[0].chassisPhysicalSlotNumber = val
 
     @property
-    def compute_slot_ind_ex(self):
+    def compute_slot_index(self):
         """int: The index within the compute slots in the rack containing this GPU (does not include switches)"""
         return self._ptr[0].computeSlotIndex
 
-    @compute_slot_ind_ex.setter
-    def compute_slot_ind_ex(self, val):
+    @compute_slot_index.setter
+    def compute_slot_index(self, val):
         if self._readonly:
             raise ValueError("This PlatformInfo_v1 instance is read-only")
         self._ptr[0].computeSlotIndex = val
 
     @property
-    def node_ind_ex(self):
+    def node_index(self):
         """int: Index of the node within the slot containing this GPU."""
         return self._ptr[0].nodeIndex
 
-    @node_ind_ex.setter
-    def node_ind_ex(self, val):
+    @node_index.setter
+    def node_index(self, val):
         if self._readonly:
             raise ValueError("This PlatformInfo_v1 instance is read-only")
         self._ptr[0].nodeIndex = val
@@ -6055,7 +5998,7 @@ cdef class PlatformInfo_v1:
 cdef _get_platform_info_v2_dtype_offsets():
     cdef nvmlPlatformInfo_v2_t pod = nvmlPlatformInfo_v2_t()
     return _numpy.dtype({
-        'names': ['version', 'ib_guid', 'chassis_serial_number', 'slot_number', 'tray_ind_ex', 'host_id', 'peer_type', 'module_id'],
+        'names': ['version', 'ib_guid', 'chassis_serial_number', 'slot_number', 'tray_index', 'host_id', 'peer_type', 'module_id'],
         'formats': [_numpy.uint32, (_numpy.uint8, 16), (_numpy.uint8, 16), _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
@@ -6195,12 +6138,12 @@ cdef class PlatformInfo_v2:
         self._ptr[0].slotNumber = val
 
     @property
-    def tray_ind_ex(self):
+    def tray_index(self):
         """int: The tray index within the compute slots in the chassis containing this GPU (does not include switches)"""
         return self._ptr[0].trayIndex
 
-    @tray_ind_ex.setter
-    def tray_ind_ex(self, val):
+    @tray_index.setter
+    def tray_index(self, val):
         if self._readonly:
             raise ValueError("This PlatformInfo_v2 instance is read-only")
         self._ptr[0].trayIndex = val
@@ -6280,7 +6223,7 @@ cdef class PlatformInfo_v2:
 
 
 cdef _get__py_anon_pod1_dtype_offsets():
-    cdef _anon_pod1 pod = _anon_pod1()
+    cdef cuda_bindings_nvml__anon_pod1 pod = cuda_bindings_nvml__anon_pod1()
     return _numpy.dtype({
         'names': ['b_is_present', 'percentage', 'inc_threshold', 'dec_threshold'],
         'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
@@ -6290,25 +6233,25 @@ cdef _get__py_anon_pod1_dtype_offsets():
             (<intptr_t>&(pod.incThreshold)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.decThreshold)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod1),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod1),
     })
 
 _py_anon_pod1_dtype = _get__py_anon_pod1_dtype_offsets()
 
 cdef class _py_anon_pod1:
-    """Empty-initialize an instance of `_anon_pod1`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod1`.
 
 
-    .. seealso:: `_anon_pod1`
+    .. seealso:: `cuda_bindings_nvml__anon_pod1`
     """
     cdef:
-        _anon_pod1 *_ptr
+        cuda_bindings_nvml__anon_pod1 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod1 *>calloc(1, sizeof(_anon_pod1))
+        self._ptr = <cuda_bindings_nvml__anon_pod1 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod1))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod1")
         self._owner = None
@@ -6316,7 +6259,7 @@ cdef class _py_anon_pod1:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod1 *ptr
+        cdef cuda_bindings_nvml__anon_pod1 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -6341,20 +6284,20 @@ cdef class _py_anon_pod1:
         if not isinstance(other, _py_anon_pod1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod1)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod1)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod1), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod1), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod1 *>malloc(sizeof(_anon_pod1))
+            self._ptr = <cuda_bindings_nvml__anon_pod1 *>malloc(sizeof(cuda_bindings_nvml__anon_pod1))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod1))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod1))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -6408,7 +6351,7 @@ cdef class _py_anon_pod1:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod1), _py_anon_pod1)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod1), _py_anon_pod1)
 
     @staticmethod
     def from_data(data):
@@ -6432,14 +6375,14 @@ cdef class _py_anon_pod1:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
         if owner is None:
-            obj._ptr = <_anon_pod1 *>malloc(sizeof(_anon_pod1))
+            obj._ptr = <cuda_bindings_nvml__anon_pod1 *>malloc(sizeof(cuda_bindings_nvml__anon_pod1))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod1))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod1))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod1 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod1 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -6792,20 +6735,16 @@ vgpu_process_utilization_info_v1_dtype = _get_vgpu_process_utilization_info_v1_d
 
 cdef class VgpuProcessUtilizationInfo_v1:
     """Empty-initialize an array of `nvmlVgpuProcessUtilizationInfo_v1_t`.
-
     The resulting object is of length `size` and of dtype `vgpu_process_utilization_info_v1_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlVgpuProcessUtilizationInfo_v1_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=vgpu_process_utilization_info_v1_dtype)
@@ -7020,7 +6959,7 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
 
 cdef _get__py_anon_pod2_dtype_offsets():
-    cdef _anon_pod2 pod = _anon_pod2()
+    cdef cuda_bindings_nvml__anon_pod2 pod = cuda_bindings_nvml__anon_pod2()
     return _numpy.dtype({
         'names': ['avg_factor', 'timeslice'],
         'formats': [_numpy.uint32, _numpy.uint32],
@@ -7028,25 +6967,25 @@ cdef _get__py_anon_pod2_dtype_offsets():
             (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod2),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod2),
     })
 
 _py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
 
 cdef class _py_anon_pod2:
-    """Empty-initialize an instance of `_anon_pod2`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod2`.
 
 
-    .. seealso:: `_anon_pod2`
+    .. seealso:: `cuda_bindings_nvml__anon_pod2`
     """
     cdef:
-        _anon_pod2 *_ptr
+        cuda_bindings_nvml__anon_pod2 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod2 *>calloc(1, sizeof(_anon_pod2))
+        self._ptr = <cuda_bindings_nvml__anon_pod2 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod2))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
         self._owner = None
@@ -7054,7 +6993,7 @@ cdef class _py_anon_pod2:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod2 *ptr
+        cdef cuda_bindings_nvml__anon_pod2 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7079,20 +7018,20 @@ cdef class _py_anon_pod2:
         if not isinstance(other, _py_anon_pod2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod2)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod2)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod2), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod2), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod2 *>malloc(sizeof(_anon_pod2))
+            self._ptr = <cuda_bindings_nvml__anon_pod2 *>malloc(sizeof(cuda_bindings_nvml__anon_pod2))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod2))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod2))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7124,7 +7063,7 @@ cdef class _py_anon_pod2:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod2), _py_anon_pod2)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod2), _py_anon_pod2)
 
     @staticmethod
     def from_data(data):
@@ -7148,14 +7087,14 @@ cdef class _py_anon_pod2:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
         if owner is None:
-            obj._ptr = <_anon_pod2 *>malloc(sizeof(_anon_pod2))
+            obj._ptr = <cuda_bindings_nvml__anon_pod2 *>malloc(sizeof(cuda_bindings_nvml__anon_pod2))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod2))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod2))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod2 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod2 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -7163,32 +7102,32 @@ cdef class _py_anon_pod2:
 
 
 cdef _get__py_anon_pod3_dtype_offsets():
-    cdef _anon_pod3 pod = _anon_pod3()
+    cdef cuda_bindings_nvml__anon_pod3 pod = cuda_bindings_nvml__anon_pod3()
     return _numpy.dtype({
         'names': ['timeslice'],
         'formats': [_numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod3),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod3),
     })
 
 _py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
 
 cdef class _py_anon_pod3:
-    """Empty-initialize an instance of `_anon_pod3`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod3`.
 
 
-    .. seealso:: `_anon_pod3`
+    .. seealso:: `cuda_bindings_nvml__anon_pod3`
     """
     cdef:
-        _anon_pod3 *_ptr
+        cuda_bindings_nvml__anon_pod3 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod3 *>calloc(1, sizeof(_anon_pod3))
+        self._ptr = <cuda_bindings_nvml__anon_pod3 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod3))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
         self._owner = None
@@ -7196,7 +7135,7 @@ cdef class _py_anon_pod3:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod3 *ptr
+        cdef cuda_bindings_nvml__anon_pod3 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7221,20 +7160,20 @@ cdef class _py_anon_pod3:
         if not isinstance(other, _py_anon_pod3):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod3)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod3)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod3), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod3), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod3 *>malloc(sizeof(_anon_pod3))
+            self._ptr = <cuda_bindings_nvml__anon_pod3 *>malloc(sizeof(cuda_bindings_nvml__anon_pod3))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod3))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod3))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7255,7 +7194,7 @@ cdef class _py_anon_pod3:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod3 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod3), _py_anon_pod3)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod3), _py_anon_pod3)
 
     @staticmethod
     def from_data(data):
@@ -7279,14 +7218,14 @@ cdef class _py_anon_pod3:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
         if owner is None:
-            obj._ptr = <_anon_pod3 *>malloc(sizeof(_anon_pod3))
+            obj._ptr = <cuda_bindings_nvml__anon_pod3 *>malloc(sizeof(cuda_bindings_nvml__anon_pod3))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod3))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod3))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod3 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod3 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -7313,20 +7252,16 @@ vgpu_scheduler_log_entry_dtype = _get_vgpu_scheduler_log_entry_dtype_offsets()
 
 cdef class VgpuSchedulerLogEntry:
     """Empty-initialize an array of `nvmlVgpuSchedulerLogEntry_t`.
-
     The resulting object is of length `size` and of dtype `vgpu_scheduler_log_entry_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlVgpuSchedulerLogEntry_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_dtype)
@@ -7499,7 +7434,7 @@ cdef class VgpuSchedulerLogEntry:
 
 
 cdef _get__py_anon_pod4_dtype_offsets():
-    cdef _anon_pod4 pod = _anon_pod4()
+    cdef cuda_bindings_nvml__anon_pod4 pod = cuda_bindings_nvml__anon_pod4()
     return _numpy.dtype({
         'names': ['avg_factor', 'frequency'],
         'formats': [_numpy.uint32, _numpy.uint32],
@@ -7507,25 +7442,25 @@ cdef _get__py_anon_pod4_dtype_offsets():
             (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.frequency)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod4),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod4),
     })
 
 _py_anon_pod4_dtype = _get__py_anon_pod4_dtype_offsets()
 
 cdef class _py_anon_pod4:
-    """Empty-initialize an instance of `_anon_pod4`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod4`.
 
 
-    .. seealso:: `_anon_pod4`
+    .. seealso:: `cuda_bindings_nvml__anon_pod4`
     """
     cdef:
-        _anon_pod4 *_ptr
+        cuda_bindings_nvml__anon_pod4 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod4 *>calloc(1, sizeof(_anon_pod4))
+        self._ptr = <cuda_bindings_nvml__anon_pod4 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod4))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod4")
         self._owner = None
@@ -7533,7 +7468,7 @@ cdef class _py_anon_pod4:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod4 *ptr
+        cdef cuda_bindings_nvml__anon_pod4 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7558,20 +7493,20 @@ cdef class _py_anon_pod4:
         if not isinstance(other, _py_anon_pod4):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod4)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod4)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod4), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod4), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod4 *>malloc(sizeof(_anon_pod4))
+            self._ptr = <cuda_bindings_nvml__anon_pod4 *>malloc(sizeof(cuda_bindings_nvml__anon_pod4))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod4))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod4))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7603,7 +7538,7 @@ cdef class _py_anon_pod4:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod4 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod4), _py_anon_pod4)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod4), _py_anon_pod4)
 
     @staticmethod
     def from_data(data):
@@ -7627,14 +7562,14 @@ cdef class _py_anon_pod4:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod4 obj = _py_anon_pod4.__new__(_py_anon_pod4)
         if owner is None:
-            obj._ptr = <_anon_pod4 *>malloc(sizeof(_anon_pod4))
+            obj._ptr = <cuda_bindings_nvml__anon_pod4 *>malloc(sizeof(cuda_bindings_nvml__anon_pod4))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod4))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod4))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod4 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod4 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -7642,32 +7577,32 @@ cdef class _py_anon_pod4:
 
 
 cdef _get__py_anon_pod5_dtype_offsets():
-    cdef _anon_pod5 pod = _anon_pod5()
+    cdef cuda_bindings_nvml__anon_pod5 pod = cuda_bindings_nvml__anon_pod5()
     return _numpy.dtype({
         'names': ['timeslice'],
         'formats': [_numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod5),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod5),
     })
 
 _py_anon_pod5_dtype = _get__py_anon_pod5_dtype_offsets()
 
 cdef class _py_anon_pod5:
-    """Empty-initialize an instance of `_anon_pod5`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod5`.
 
 
-    .. seealso:: `_anon_pod5`
+    .. seealso:: `cuda_bindings_nvml__anon_pod5`
     """
     cdef:
-        _anon_pod5 *_ptr
+        cuda_bindings_nvml__anon_pod5 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod5 *>calloc(1, sizeof(_anon_pod5))
+        self._ptr = <cuda_bindings_nvml__anon_pod5 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod5))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod5")
         self._owner = None
@@ -7675,7 +7610,7 @@ cdef class _py_anon_pod5:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod5 *ptr
+        cdef cuda_bindings_nvml__anon_pod5 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7700,20 +7635,20 @@ cdef class _py_anon_pod5:
         if not isinstance(other, _py_anon_pod5):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod5)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod5)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod5), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod5), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod5 *>malloc(sizeof(_anon_pod5))
+            self._ptr = <cuda_bindings_nvml__anon_pod5 *>malloc(sizeof(cuda_bindings_nvml__anon_pod5))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod5))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod5))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7734,7 +7669,7 @@ cdef class _py_anon_pod5:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod5 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod5), _py_anon_pod5)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod5), _py_anon_pod5)
 
     @staticmethod
     def from_data(data):
@@ -7758,14 +7693,14 @@ cdef class _py_anon_pod5:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod5 obj = _py_anon_pod5.__new__(_py_anon_pod5)
         if owner is None:
-            obj._ptr = <_anon_pod5 *>malloc(sizeof(_anon_pod5))
+            obj._ptr = <cuda_bindings_nvml__anon_pod5 *>malloc(sizeof(cuda_bindings_nvml__anon_pod5))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod5))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod5))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod5 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod5 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -8425,6 +8360,7 @@ cdef class VgpuTypeIdInfo_v1:
         object _owner
         bint _owned
         bint _readonly
+        dict _refs
 
     def __init__(self):
         self._ptr = <nvmlVgpuTypeIdInfo_v1_t *>calloc(1, sizeof(nvmlVgpuTypeIdInfo_v1_t))
@@ -8433,6 +8369,7 @@ cdef class VgpuTypeIdInfo_v1:
         self._owner = None
         self._owned = True
         self._readonly = False
+        self._refs = {}
 
     def __dealloc__(self):
         cdef nvmlVgpuTypeIdInfo_v1_t *ptr
@@ -8548,6 +8485,7 @@ cdef class VgpuTypeIdInfo_v1:
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
+        obj._refs = {}
         return obj
 
 
@@ -8577,6 +8515,7 @@ cdef class ActiveVgpuInstanceInfo_v1:
         object _owner
         bint _owned
         bint _readonly
+        dict _refs
 
     def __init__(self):
         self._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>calloc(1, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
@@ -8585,6 +8524,7 @@ cdef class ActiveVgpuInstanceInfo_v1:
         self._owner = None
         self._owned = True
         self._readonly = False
+        self._refs = {}
 
     def __dealloc__(self):
         cdef nvmlActiveVgpuInstanceInfo_v1_t *ptr
@@ -8700,6 +8640,7 @@ cdef class ActiveVgpuInstanceInfo_v1:
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
+        obj._refs = {}
         return obj
 
 
@@ -8898,20 +8839,16 @@ hwbc_entry_dtype = _get_hwbc_entry_dtype_offsets()
 
 cdef class HwbcEntry:
     """Empty-initialize an array of `nvmlHwbcEntry_t`.
-
     The resulting object is of length `size` and of dtype `hwbc_entry_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlHwbcEntry_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=hwbc_entry_dtype)
@@ -9554,20 +9491,16 @@ unit_fan_info_dtype = _get_unit_fan_info_dtype_offsets()
 
 cdef class UnitFanInfo:
     """Empty-initialize an array of `nvmlUnitFanInfo_t`.
-
     The resulting object is of length `size` and of dtype `unit_fan_info_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlUnitFanInfo_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=unit_fan_info_dtype)
@@ -9890,20 +9823,16 @@ system_event_data_v1_dtype = _get_system_event_data_v1_dtype_offsets()
 
 cdef class SystemEventData_v1:
     """Empty-initialize an array of `nvmlSystemEventData_v1_t`.
-
     The resulting object is of length `size` and of dtype `system_event_data_v1_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlSystemEventData_v1_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=system_event_data_v1_dtype)
@@ -10245,20 +10174,16 @@ encoder_session_info_dtype = _get_encoder_session_info_dtype_offsets()
 
 cdef class EncoderSessionInfo:
     """Empty-initialize an array of `nvmlEncoderSessionInfo_t`.
-
     The resulting object is of length `size` and of dtype `encoder_session_info_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlEncoderSessionInfo_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=encoder_session_info_dtype)
@@ -10633,20 +10558,16 @@ fbc_session_info_dtype = _get_fbc_session_info_dtype_offsets()
 
 cdef class FBCSessionInfo:
     """Empty-initialize an array of `nvmlFBCSessionInfo_t`.
-
     The resulting object is of length `size` and of dtype `fbc_session_info_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlFBCSessionInfo_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=fbc_session_info_dtype)
@@ -13072,20 +12993,16 @@ gpu_instance_placement_dtype = _get_gpu_instance_placement_dtype_offsets()
 
 cdef class GpuInstancePlacement:
     """Empty-initialize an array of `nvmlGpuInstancePlacement_t`.
-
     The resulting object is of length `size` and of dtype `gpu_instance_placement_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlGpuInstancePlacement_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=gpu_instance_placement_dtype)
@@ -13508,20 +13425,16 @@ compute_instance_placement_dtype = _get_compute_instance_placement_dtype_offsets
 
 cdef class ComputeInstancePlacement:
     """Empty-initialize an array of `nvmlComputeInstancePlacement_t`.
-
     The resulting object is of length `size` and of dtype `compute_instance_placement_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlComputeInstancePlacement_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=compute_instance_placement_dtype)
@@ -14645,20 +14558,16 @@ ecc_sram_unique_uncorrected_error_entry_v1_dtype = _get_ecc_sram_unique_uncorrec
 
 cdef class EccSramUniqueUncorrectedErrorEntry_v1:
     """Empty-initialize an array of `nvmlEccSramUniqueUncorrectedErrorEntry_v1_t`.
-
     The resulting object is of length `size` and of dtype `ecc_sram_unique_uncorrected_error_entry_v1_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlEccSramUniqueUncorrectedErrorEntry_v1_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
@@ -15491,6 +15400,553 @@ cdef class PRMCounterInput_v1:
         return obj
 
 
+cdef _get_vgpu_scheduler_state_info_v2_dtype_offsets():
+    cdef nvmlVgpuSchedulerStateInfo_v2_t pod = nvmlVgpuSchedulerStateInfo_v2_t()
+    return _numpy.dtype({
+        'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'timeslice'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerStateInfo_v2_t),
+    })
+
+vgpu_scheduler_state_info_v2_dtype = _get_vgpu_scheduler_state_info_v2_dtype_offsets()
+
+cdef class VgpuSchedulerStateInfo_v2:
+    """Empty-initialize an instance of `nvmlVgpuSchedulerStateInfo_v2_t`.
+
+
+    .. seealso:: `nvmlVgpuSchedulerStateInfo_v2_t`
+    """
+    cdef:
+        nvmlVgpuSchedulerStateInfo_v2_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>calloc(1, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlVgpuSchedulerStateInfo_v2_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.VgpuSchedulerStateInfo_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef VgpuSchedulerStateInfo_v2 other_
+        if not isinstance(other, VgpuSchedulerStateInfo_v2):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerStateInfo_v2_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerStateInfo_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def engine_id(self):
+        """int: IN: Engine whose software scheduler state info is fetched. One of NVML_VGPU_SCHEDULER_ENGINE_TYPE_*."""
+        return self._ptr[0].engineId
+
+    @engine_id.setter
+    def engine_id(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerStateInfo_v2 instance is read-only")
+        self._ptr[0].engineId = val
+
+    @property
+    def scheduler_policy(self):
+        """int: OUT: Scheduler policy."""
+        return self._ptr[0].schedulerPolicy
+
+    @scheduler_policy.setter
+    def scheduler_policy(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerStateInfo_v2 instance is read-only")
+        self._ptr[0].schedulerPolicy = val
+
+    @property
+    def avg_factor(self):
+        """int: OUT: Average factor in compensating the timeslice for Adaptive Round Robin mode."""
+        return self._ptr[0].avgFactor
+
+    @avg_factor.setter
+    def avg_factor(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerStateInfo_v2 instance is read-only")
+        self._ptr[0].avgFactor = val
+
+    @property
+    def timeslice(self):
+        """int: OUT: The timeslice in ns for each software run list as configured, or the default value otherwise."""
+        return self._ptr[0].timeslice
+
+    @timeslice.setter
+    def timeslice(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerStateInfo_v2 instance is read-only")
+        self._ptr[0].timeslice = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerStateInfo_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerStateInfo_v2_t), VgpuSchedulerStateInfo_v2)
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuSchedulerStateInfo_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_state_info_v2_dtype` holding the data.
+        """
+        return __from_data(data, "vgpu_scheduler_state_info_v2_dtype", vgpu_scheduler_state_info_v2_dtype, VgpuSchedulerStateInfo_v2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an VgpuSchedulerStateInfo_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuSchedulerStateInfo_v2 obj = VgpuSchedulerStateInfo_v2.__new__(VgpuSchedulerStateInfo_v2)
+        if owner is None:
+            obj._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_vgpu_scheduler_log_entry_v2_dtype_offsets():
+    cdef nvmlVgpuSchedulerLogEntry_v2_t pod = nvmlVgpuSchedulerLogEntry_v2_t()
+    return _numpy.dtype({
+        'names': ['timestamp', 'time_run_total', 'time_run', 'sw_runlist_id', 'target_time_slice', 'cumulative_preemption_time', 'weight'],
+        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.timestamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeRunTotal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeRun)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.swRunlistId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.targetTimeSlice)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.cumulativePreemptionTime)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.weight)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerLogEntry_v2_t),
+    })
+
+vgpu_scheduler_log_entry_v2_dtype = _get_vgpu_scheduler_log_entry_v2_dtype_offsets()
+
+cdef class VgpuSchedulerLogEntry_v2:
+    """Empty-initialize an array of `nvmlVgpuSchedulerLogEntry_v2_t`.
+    The resulting object is of length `size` and of dtype `vgpu_scheduler_log_entry_v2_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlVgpuSchedulerLogEntry_v2_t`
+    """
+    cdef:
+        readonly object _data
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_v2_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlVgpuSchedulerLogEntry_v2_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuSchedulerLogEntry_v2_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.VgpuSchedulerLogEntry_v2_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.VgpuSchedulerLogEntry_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, VgpuSchedulerLogEntry_v2)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
+    @property
+    def timestamp(self):
+        """Union[~_numpy.uint64, int]: OUT: Timestamp in ns when this software runlist was preeempted."""
+        if self._data.size == 1:
+            return int(self._data.timestamp[0])
+        return self._data.timestamp
+
+    @timestamp.setter
+    def timestamp(self, val):
+        self._data.timestamp = val
+
+    @property
+    def time_run_total(self):
+        """Union[~_numpy.uint64, int]: OUT: Total time in ns this software runlist has run."""
+        if self._data.size == 1:
+            return int(self._data.time_run_total[0])
+        return self._data.time_run_total
+
+    @time_run_total.setter
+    def time_run_total(self, val):
+        self._data.time_run_total = val
+
+    @property
+    def time_run(self):
+        """Union[~_numpy.uint64, int]: OUT: Time in ns this software runlist ran before preemption."""
+        if self._data.size == 1:
+            return int(self._data.time_run[0])
+        return self._data.time_run
+
+    @time_run.setter
+    def time_run(self, val):
+        self._data.time_run = val
+
+    @property
+    def sw_runlist_id(self):
+        """Union[~_numpy.uint32, int]: OUT: Software runlist Id."""
+        if self._data.size == 1:
+            return int(self._data.sw_runlist_id[0])
+        return self._data.sw_runlist_id
+
+    @sw_runlist_id.setter
+    def sw_runlist_id(self, val):
+        self._data.sw_runlist_id = val
+
+    @property
+    def target_time_slice(self):
+        """Union[~_numpy.uint64, int]: OUT: The actual timeslice after deduction."""
+        if self._data.size == 1:
+            return int(self._data.target_time_slice[0])
+        return self._data.target_time_slice
+
+    @target_time_slice.setter
+    def target_time_slice(self, val):
+        self._data.target_time_slice = val
+
+    @property
+    def cumulative_preemption_time(self):
+        """Union[~_numpy.uint64, int]: OUT: Preemption time in ns for this SW runlist."""
+        if self._data.size == 1:
+            return int(self._data.cumulative_preemption_time[0])
+        return self._data.cumulative_preemption_time
+
+    @cumulative_preemption_time.setter
+    def cumulative_preemption_time(self, val):
+        self._data.cumulative_preemption_time = val
+
+    @property
+    def weight(self):
+        """Union[~_numpy.uint32, int]: OUT: Current weight of this SW runlist."""
+        if self._data.size == 1:
+            return int(self._data.weight[0])
+        return self._data.weight
+
+    @weight.setter
+    def weight(self, val):
+        self._data.weight = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return VgpuSchedulerLogEntry_v2.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_scheduler_log_entry_v2_dtype:
+            return VgpuSchedulerLogEntry_v2.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerLogEntry_v2 instance with the memory from the given buffer."""
+        return VgpuSchedulerLogEntry_v2.from_data(_numpy.frombuffer(buffer, dtype=vgpu_scheduler_log_entry_v2_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuSchedulerLogEntry_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `vgpu_scheduler_log_entry_v2_dtype` holding the data.
+        """
+        cdef VgpuSchedulerLogEntry_v2 obj = VgpuSchedulerLogEntry_v2.__new__(VgpuSchedulerLogEntry_v2)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != vgpu_scheduler_log_entry_v2_dtype:
+            raise ValueError("data array must be of dtype vgpu_scheduler_log_entry_v2_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an VgpuSchedulerLogEntry_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuSchedulerLogEntry_v2 obj = VgpuSchedulerLogEntry_v2.__new__(VgpuSchedulerLogEntry_v2)
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlVgpuSchedulerLogEntry_v2_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_scheduler_log_entry_v2_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
+cdef _get_vgpu_scheduler_state_v2_dtype_offsets():
+    cdef nvmlVgpuSchedulerState_v2_t pod = nvmlVgpuSchedulerState_v2_t()
+    return _numpy.dtype({
+        'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'frequency'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.frequency)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerState_v2_t),
+    })
+
+vgpu_scheduler_state_v2_dtype = _get_vgpu_scheduler_state_v2_dtype_offsets()
+
+cdef class VgpuSchedulerState_v2:
+    """Empty-initialize an instance of `nvmlVgpuSchedulerState_v2_t`.
+
+
+    .. seealso:: `nvmlVgpuSchedulerState_v2_t`
+    """
+    cdef:
+        nvmlVgpuSchedulerState_v2_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlVgpuSchedulerState_v2_t *>calloc(1, sizeof(nvmlVgpuSchedulerState_v2_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating VgpuSchedulerState_v2")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlVgpuSchedulerState_v2_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.VgpuSchedulerState_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef VgpuSchedulerState_v2 other_
+        if not isinstance(other, VgpuSchedulerState_v2):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerState_v2_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerState_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlVgpuSchedulerState_v2_t *>malloc(sizeof(nvmlVgpuSchedulerState_v2_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerState_v2")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerState_v2_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def engine_id(self):
+        """int: IN: One of NVML_VGPU_SCHEDULER_ENGINE_TYPE_*."""
+        return self._ptr[0].engineId
+
+    @engine_id.setter
+    def engine_id(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerState_v2 instance is read-only")
+        self._ptr[0].engineId = val
+
+    @property
+    def scheduler_policy(self):
+        """int: IN: Scheduler policy."""
+        return self._ptr[0].schedulerPolicy
+
+    @scheduler_policy.setter
+    def scheduler_policy(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerState_v2 instance is read-only")
+        self._ptr[0].schedulerPolicy = val
+
+    @property
+    def avg_factor(self):
+        """int: IN: Average factor in compensating the timeslice for Adaptive Round Robin mode. 0 or unspecified uses default."""
+        return self._ptr[0].avgFactor
+
+    @avg_factor.setter
+    def avg_factor(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerState_v2 instance is read-only")
+        self._ptr[0].avgFactor = val
+
+    @property
+    def frequency(self):
+        """int: IN: Frequency for Adaptive Round Robin mode. 0 or unspecified uses default."""
+        return self._ptr[0].frequency
+
+    @frequency.setter
+    def frequency(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerState_v2 instance is read-only")
+        self._ptr[0].frequency = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerState_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerState_v2_t), VgpuSchedulerState_v2)
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuSchedulerState_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_state_v2_dtype` holding the data.
+        """
+        return __from_data(data, "vgpu_scheduler_state_v2_dtype", vgpu_scheduler_state_v2_dtype, VgpuSchedulerState_v2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an VgpuSchedulerState_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuSchedulerState_v2 obj = VgpuSchedulerState_v2.__new__(VgpuSchedulerState_v2)
+        if owner is None:
+            obj._ptr = <nvmlVgpuSchedulerState_v2_t *>malloc(sizeof(nvmlVgpuSchedulerState_v2_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerState_v2")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerState_v2_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlVgpuSchedulerState_v2_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_excluded_device_info_dtype_offsets():
     cdef nvmlExcludedDeviceInfo_t pod = nvmlExcludedDeviceInfo_t()
     return _numpy.dtype({
@@ -15957,20 +16413,16 @@ sample_dtype = _get_sample_dtype_offsets()
 
 cdef class Sample:
     """Empty-initialize an array of `nvmlSample_t`.
-
     The resulting object is of length `size` and of dtype `sample_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlSample_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=sample_dtype)
@@ -16116,20 +16568,16 @@ vgpu_instance_utilization_sample_dtype = _get_vgpu_instance_utilization_sample_d
 
 cdef class VgpuInstanceUtilizationSample:
     """Empty-initialize an array of `nvmlVgpuInstanceUtilizationSample_t`.
-
     The resulting object is of length `size` and of dtype `vgpu_instance_utilization_sample_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlVgpuInstanceUtilizationSample_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=vgpu_instance_utilization_sample_dtype)
@@ -16315,20 +16763,16 @@ vgpu_instance_utilization_info_v1_dtype = _get_vgpu_instance_utilization_info_v1
 
 cdef class VgpuInstanceUtilizationInfo_v1:
     """Empty-initialize an array of `nvmlVgpuInstanceUtilizationInfo_v1_t`.
-
     The resulting object is of length `size` and of dtype `vgpu_instance_utilization_info_v1_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlVgpuInstanceUtilizationInfo_v1_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=vgpu_instance_utilization_info_v1_dtype)
@@ -16531,20 +16975,16 @@ field_value_dtype = _get_field_value_dtype_offsets()
 
 cdef class FieldValue:
     """Empty-initialize an array of `nvmlFieldValue_t`.
-
     The resulting object is of length `size` and of dtype `field_value_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlFieldValue_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=field_value_dtype)
@@ -16973,7 +17413,7 @@ cdef class GpuThermalSettings:
         cdef _py_anon_pod0 val_ = val
         if len(val) != 3:
             raise ValueError(f"Expected length { 3 } for field sensor, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].sensor), <void *>(val_._get_ptr()), sizeof(_anon_pod0) * 3)
+        memcpy(<void *>&(self._ptr[0].sensor), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod0) * 3)
 
     @property
     def count(self):
@@ -17433,7 +17873,7 @@ cdef class GpuDynamicPstatesInfo:
         cdef _py_anon_pod1 val_ = val
         if len(val) != 8:
             raise ValueError(f"Expected length { 8 } for field utilization, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].utilization), <void *>(val_._get_ptr()), sizeof(_anon_pod1) * 8)
+        memcpy(<void *>&(self._ptr[0].utilization), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod1) * 8)
 
     @property
     def flags_(self):
@@ -17659,7 +18099,6 @@ vgpu_scheduler_params_dtype = _numpy.dtype((
     }
     ))
 
-
 cdef class VgpuSchedulerParams:
     """Empty-initialize an instance of `nvmlVgpuSchedulerParams_t`.
 
@@ -17736,7 +18175,7 @@ cdef class VgpuSchedulerParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerParams instance is read-only")
         cdef _py_anon_pod2 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(_anon_pod2) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod2) * 1)
 
     @property
     def vgpu_sched_data(self):
@@ -17748,7 +18187,7 @@ cdef class VgpuSchedulerParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerParams instance is read-only")
         cdef _py_anon_pod3 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(_anon_pod3) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod3) * 1)
 
     @staticmethod
     def from_buffer(buffer):
@@ -17798,7 +18237,6 @@ vgpu_scheduler_set_params_dtype = _numpy.dtype((
         "vgpu_sched_data": (_py_anon_pod5_dtype, 0),
     }
     ))
-
 
 cdef class VgpuSchedulerSetParams:
     """Empty-initialize an instance of `nvmlVgpuSchedulerSetParams_t`.
@@ -17876,7 +18314,7 @@ cdef class VgpuSchedulerSetParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerSetParams instance is read-only")
         cdef _py_anon_pod4 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(_anon_pod4) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod4) * 1)
 
     @property
     def vgpu_sched_data(self):
@@ -17888,7 +18326,7 @@ cdef class VgpuSchedulerSetParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerSetParams instance is read-only")
         cdef _py_anon_pod5 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(_anon_pod5) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod5) * 1)
 
     @staticmethod
     def from_buffer(buffer):
@@ -18107,20 +18545,16 @@ grid_licensable_feature_dtype = _get_grid_licensable_feature_dtype_offsets()
 
 cdef class GridLicensableFeature:
     """Empty-initialize an array of `nvmlGridLicensableFeature_t`.
-
     The resulting object is of length `size` and of dtype `grid_licensable_feature_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlGridLicensableFeature_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=grid_licensable_feature_dtype)
@@ -19291,6 +19725,200 @@ cdef class NvlinkFirmwareInfo:
         return obj
 
 
+cdef _get_vgpu_scheduler_log_info_v2_dtype_offsets():
+    cdef nvmlVgpuSchedulerLogInfo_v2_t pod = nvmlVgpuSchedulerLogInfo_v2_t()
+    return _numpy.dtype({
+        'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'timeslice', 'entries_count', 'log_entries'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (vgpu_scheduler_log_entry_v2_dtype, 200)],
+        'offsets': [
+            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.entriesCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.logEntries)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerLogInfo_v2_t),
+    })
+
+vgpu_scheduler_log_info_v2_dtype = _get_vgpu_scheduler_log_info_v2_dtype_offsets()
+
+cdef class VgpuSchedulerLogInfo_v2:
+    """Empty-initialize an instance of `nvmlVgpuSchedulerLogInfo_v2_t`.
+
+
+    .. seealso:: `nvmlVgpuSchedulerLogInfo_v2_t`
+    """
+    cdef:
+        nvmlVgpuSchedulerLogInfo_v2_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>calloc(1, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlVgpuSchedulerLogInfo_v2_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.VgpuSchedulerLogInfo_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef VgpuSchedulerLogInfo_v2 other_
+        if not isinstance(other, VgpuSchedulerLogInfo_v2):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerLogInfo_v2_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerLogInfo_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def log_entries(self):
+        """VgpuSchedulerLogEntry_v2: OUT: Structure to store the state and logs of a software runlist."""
+        return VgpuSchedulerLogEntry_v2.from_ptr(<intptr_t>&(self._ptr[0].logEntries), 200, self._readonly)
+
+    @log_entries.setter
+    def log_entries(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        cdef VgpuSchedulerLogEntry_v2 val_ = val
+        if len(val) != 200:
+            raise ValueError(f"Expected length { 200 } for field log_entries, got {len(val)}")
+        memcpy(<void *>&(self._ptr[0].logEntries), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerLogEntry_v2_t) * 200)
+
+    @property
+    def engine_id(self):
+        """int: IN: Engine whose software runlist log entries are fetched. One of One of NVML_VGPU_SCHEDULER_ENGINE_TYPE_*."""
+        return self._ptr[0].engineId
+
+    @engine_id.setter
+    def engine_id(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        self._ptr[0].engineId = val
+
+    @property
+    def scheduler_policy(self):
+        """int: OUT: Scheduler policy."""
+        return self._ptr[0].schedulerPolicy
+
+    @scheduler_policy.setter
+    def scheduler_policy(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        self._ptr[0].schedulerPolicy = val
+
+    @property
+    def avg_factor(self):
+        """int: OUT: Average factor in compensating the timeslice for Adaptive Round Robin mode."""
+        return self._ptr[0].avgFactor
+
+    @avg_factor.setter
+    def avg_factor(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        self._ptr[0].avgFactor = val
+
+    @property
+    def timeslice(self):
+        """int: OUT: The timeslice in ns for each software run list as configured, or the default value otherwise."""
+        return self._ptr[0].timeslice
+
+    @timeslice.setter
+    def timeslice(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        self._ptr[0].timeslice = val
+
+    @property
+    def entries_count(self):
+        """int: OUT: Count of log entries fetched."""
+        return self._ptr[0].entriesCount
+
+    @entries_count.setter
+    def entries_count(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        self._ptr[0].entriesCount = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerLogInfo_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerLogInfo_v2_t), VgpuSchedulerLogInfo_v2)
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuSchedulerLogInfo_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_log_info_v2_dtype` holding the data.
+        """
+        return __from_data(data, "vgpu_scheduler_log_info_v2_dtype", vgpu_scheduler_log_info_v2_dtype, VgpuSchedulerLogInfo_v2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an VgpuSchedulerLogInfo_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuSchedulerLogInfo_v2 obj = VgpuSchedulerLogInfo_v2.__new__(VgpuSchedulerLogInfo_v2)
+        if owner is None:
+            obj._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_vgpu_instances_utilization_info_v1_dtype_offsets():
     cdef nvmlVgpuInstancesUtilizationInfo_v1_t pod = nvmlVgpuInstancesUtilizationInfo_v1_t()
     return _numpy.dtype({
@@ -19484,20 +20112,16 @@ prm_counter_v1_dtype = _get_prm_counter_v1_dtype_offsets()
 
 cdef class PRMCounter_v1:
     """Empty-initialize an array of `nvmlPRMCounter_v1_t`.
-
     The resulting object is of length `size` and of dtype `prm_counter_v1_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `nvmlPRMCounter_v1_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=prm_counter_v1_dtype)
@@ -19542,7 +20166,7 @@ cdef class PRMCounter_v1:
 
     @property
     def counter_id(self):
-        """Union[~_numpy.uint32, int]: Counter ID, one of nvmlPRMCounterId_t."""
+        """Union[~_numpy.uint32, int]: Counter ID, one of `nvmlPRMCounterId_t`."""
         if self._data.size == 1:
             return int(self._data.counter_id[0])
         return self._data.counter_id
@@ -20856,7 +21480,6 @@ cdef class NvLinkInfo_v2:
         return obj
 
 
-
 cpdef init_v2():
     """Initialize NVML, but don't initialize any GPUs yet.
 
@@ -20868,7 +21491,7 @@ cpdef init_v2():
 
 
 cpdef init_with_flags(unsigned int flags):
-    """nvmlInitWithFlags is a variant of nvmlInit(), that allows passing a set of boolean values modifying the behaviour of nvmlInit(). Other than the "flags" parameter it is completely similar to ``nvmlInit_v2``.
+    """nvmlInitWithFlags is a variant of ``nvmlInit()``, that allows passing a set of boolean values modifying the behaviour of ``nvmlInit()``. Other than the "flags" parameter it is completely similar to ``nvmlInit_v2``.
 
     Args:
         flags (unsigned int): behaviour modifier flags.
@@ -20906,6 +21529,9 @@ cpdef str error_string(int result):
 cpdef str system_get_driver_version():
     """Retrieves the version of the system's graphics driver.
 
+    Returns:
+        char: Reference in which to return the version identifier.
+
     .. seealso:: `nvmlSystemGetDriverVersion`
     """
     cdef unsigned int length = 80
@@ -20918,6 +21544,9 @@ cpdef str system_get_driver_version():
 
 cpdef str system_get_nvml_version():
     """Retrieves the version of the NVML library.
+
+    Returns:
+        char: Reference in which to return the version identifier.
 
     .. seealso:: `nvmlSystemGetNVMLVersion`
     """
@@ -20965,6 +21594,9 @@ cpdef str system_get_process_name(unsigned int pid):
     Args:
         pid (unsigned int): The identifier of the process.
 
+    Returns:
+        char: Reference in which to return the process name.
+
     .. seealso:: `nvmlSystemGetProcessName`
     """
     cdef unsigned int length = 1024
@@ -20977,6 +21609,9 @@ cpdef str system_get_process_name(unsigned int pid):
 
 cpdef object system_get_hic_version():
     """Retrieves the IDs and firmware versions for any Host Interface Cards (HICs) in the system.
+
+    Returns:
+        nvmlHwbcEntry_t: Array holding information about hwbc.
 
     .. seealso:: `nvmlSystemGetHicVersion`
     """
@@ -21009,11 +21644,11 @@ cpdef unsigned int unit_get_count() except? 0:
     return unit_count
 
 
-cpdef intptr_t unit_get_handle_by_index(unsigned int ind_ex) except? 0:
-    """Acquire the handle for a particular unit, based on its ind_ex.
+cpdef intptr_t unit_get_handle_by_index(unsigned int index) except? 0:
+    """Acquire the handle for a particular unit, based on its index.
 
     Args:
-        ind_ex (unsigned int): The ind_ex of the target unit, >= 0 and < ``unitCount``.
+        index (unsigned int): The index of the target unit, >= 0 and < ``unitCount``.
 
     Returns:
         intptr_t: Reference in which to return the unit handle.
@@ -21022,7 +21657,7 @@ cpdef intptr_t unit_get_handle_by_index(unsigned int ind_ex) except? 0:
     """
     cdef Unit unit
     with nogil:
-        __status__ = nvmlUnitGetHandleByIndex(ind_ex, &unit)
+        __status__ = nvmlUnitGetHandleByIndex(index, &unit)
     check_status(__status__)
     return <intptr_t>unit
 
@@ -21156,11 +21791,11 @@ cpdef object device_get_attributes_v2(intptr_t device):
     return attributes_py
 
 
-cpdef intptr_t device_get_handle_by_index_v2(unsigned int ind_ex) except? 0:
-    """Acquire the handle for a particular device, based on its ind_ex.
+cpdef intptr_t device_get_handle_by_index_v2(unsigned int index) except? 0:
+    """Acquire the handle for a particular device, based on its index.
 
     Args:
-        ind_ex (unsigned int): The ind_ex of the target GPU, >= 0 and < ``accessibleDevices``.
+        index (unsigned int): The index of the target GPU, >= 0 and < ``accessibleDevices``.
 
     Returns:
         intptr_t: Reference in which to return the device handle.
@@ -21169,7 +21804,7 @@ cpdef intptr_t device_get_handle_by_index_v2(unsigned int ind_ex) except? 0:
     """
     cdef Device device
     with nogil:
-        __status__ = nvmlDeviceGetHandleByIndex_v2(ind_ex, &device)
+        __status__ = nvmlDeviceGetHandleByIndex_v2(index, &device)
     check_status(__status__)
     return <intptr_t>device
 
@@ -21246,6 +21881,9 @@ cpdef str device_get_name(intptr_t device):
     Args:
         device (intptr_t): The identifier of the target device.
 
+    Returns:
+        char: Reference in which to return the product name.
+
     .. seealso:: `nvmlDeviceGetName`
     """
     cdef unsigned int length = 96
@@ -21285,11 +21923,11 @@ cpdef unsigned int device_get_index(intptr_t device) except? 0:
 
     .. seealso:: `nvmlDeviceGetIndex`
     """
-    cdef unsigned int ind_ex
+    cdef unsigned int index
     with nogil:
-        __status__ = nvmlDeviceGetIndex(<Device>device, &ind_ex)
+        __status__ = nvmlDeviceGetIndex(<Device>device, &index)
     check_status(__status__)
-    return ind_ex
+    return index
 
 
 cpdef str device_get_serial(intptr_t device):
@@ -21297,6 +21935,9 @@ cpdef str device_get_serial(intptr_t device):
 
     Args:
         device (intptr_t): The identifier of the target device.
+
+    Returns:
+        char: Reference in which to return the board/module serial number.
 
     .. seealso:: `nvmlDeviceGetSerial`
     """
@@ -21350,8 +21991,11 @@ cpdef object device_get_memory_affinity(intptr_t device, unsigned int node_set_s
 
     Args:
         device (intptr_t): The identifier of the target device.
-        node_set_size (unsigned int): The size of the nodeSet array that is safe to access.
-        scope (unsigned int): Array reference in which to return a bitmask of NODEs, 64 NODEs per unsigned long on 64-bit machines, 32 on 32-bit machines.
+        node_set_size (unsigned int): The size of the node_set array that is safe to access.
+        scope (unsigned int): Scope that change the default behavior.
+
+    Returns:
+        unsigned long: Array reference in which to return a bitmask of NODEs, 64 NODEs per unsigned long on 64-bit machines, 32 on 32-bit machines.
 
     .. seealso:: `nvmlDeviceGetMemoryAffinity`
     """
@@ -21370,8 +22014,11 @@ cpdef object device_get_cpu_affinity_within_scope(intptr_t device, unsigned int 
 
     Args:
         device (intptr_t): The identifier of the target device.
-        cpu_set_size (unsigned int): The size of the cpuSet array that is safe to access.
-        scope (unsigned int): Array reference in which to return a bitmask of CPUs, 64 CPUs per unsigned long on 64-bit machines, 32 on 32-bit machines.
+        cpu_set_size (unsigned int): The size of the cpu_set array that is safe to access.
+        scope (unsigned int): Scope that change the default behavior.
+
+    Returns:
+        unsigned long: Array reference in which to return a bitmask of CPUs, 64 CPUs per unsigned long on 64-bit machines, 32 on 32-bit machines.
 
     .. seealso:: `nvmlDeviceGetCpuAffinityWithinScope`
     """
@@ -21390,7 +22037,10 @@ cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size)
 
     Args:
         device (intptr_t): The identifier of the target device.
-        cpu_set_size (unsigned int): The size of the cpuSet array that is safe to access.
+        cpu_set_size (unsigned int): The size of the cpu_set array that is safe to access.
+
+    Returns:
+        unsigned long: Array reference in which to return a bitmask of CPUs, 64 CPUs per unsigned long on 64-bit machines, 32 on 32-bit machines.
 
     .. seealso:: `nvmlDeviceGetCpuAffinity`
     """
@@ -21467,22 +22117,22 @@ cpdef int device_get_topology_common_ancestor(intptr_t device1, intptr_t device2
     return <int>path_info
 
 
-cpdef int device_get_p2p_status(intptr_t device1, intptr_t device2, int p2p_ind_ex) except? -1:
+cpdef int device_get_p2p_status(intptr_t device1, intptr_t device2, int p2p_index) except? -1:
     """Retrieve the status for a given p2p capability index between a given pair of GPU.
 
     Args:
         device1 (intptr_t): The first device.
         device2 (intptr_t): The second device.
-        p2p_ind_ex (GpuP2PCapsIndex): p2p Capability Index being looked for between ``device1`` and ``device2``.
+        p2p_index (GpuP2PCapsIndex): p2p Capability Index being looked for between ``device1`` and ``device2``.
 
     Returns:
-        int: Reference in which to return the status of the ``p2p_ind_ex`` between ``device1`` and ``device2``.
+        int: Reference in which to return the status of the ``p2p_index`` between ``device1`` and ``device2``.
 
     .. seealso:: `nvmlDeviceGetP2PStatus`
     """
     cdef _GpuP2PStatus p2p_status
     with nogil:
-        __status__ = nvmlDeviceGetP2PStatus(<Device>device1, <Device>device2, <_GpuP2PCapsIndex>p2p_ind_ex, &p2p_status)
+        __status__ = nvmlDeviceGetP2PStatus(<Device>device1, <Device>device2, <_GpuP2PCapsIndex>p2p_index, &p2p_status)
     check_status(__status__)
     return <int>p2p_status
 
@@ -21492,6 +22142,9 @@ cpdef str device_get_uuid(intptr_t device):
 
     Args:
         device (intptr_t): The identifier of the target device.
+
+    Returns:
+        char: Reference in which to return the GPU UUID.
 
     .. seealso:: `nvmlDeviceGetUUID`
     """
@@ -21527,6 +22180,9 @@ cpdef str device_get_board_part_number(intptr_t device):
     Args:
         device (intptr_t): Identifier of the target device.
 
+    Returns:
+        char: Reference to the buffer to return.
+
     .. seealso:: `nvmlDeviceGetBoardPartNumber`
     """
     cdef unsigned int length = 80
@@ -21544,6 +22200,9 @@ cpdef str device_get_inforom_version(intptr_t device, int object):
         device (intptr_t): The identifier of the target device.
         object (InforomObject): The target infoROM object.
 
+    Returns:
+        char: Reference in which to return the infoROM version.
+
     .. seealso:: `nvmlDeviceGetInforomVersion`
     """
     cdef unsigned int length = 16
@@ -21559,6 +22218,9 @@ cpdef str device_get_inforom_image_version(intptr_t device):
 
     Args:
         device (intptr_t): The identifier of the target device.
+
+    Returns:
+        char: Reference in which to return the infoROM image version.
 
     .. seealso:: `nvmlDeviceGetInforomImageVersion`
     """
@@ -21944,6 +22606,9 @@ cpdef object device_get_supported_memory_clocks(intptr_t device):
     Args:
         device (intptr_t): The identifier of the target device.
 
+    Returns:
+        unsigned int: Reference in which to return the clock in MHz.
+
     .. seealso:: `nvmlDeviceGetSupportedMemoryClocks`
     """
     cdef unsigned int[1] count = [0]
@@ -21967,6 +22632,9 @@ cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int 
         device (intptr_t): The identifier of the target device.
         memory_clock_m_hz (unsigned int): Memory clock for which to return possible graphics clocks.
 
+    Returns:
+        unsigned int: Reference in which to return the clocks in MHz.
+
     .. seealso:: `nvmlDeviceGetSupportedGraphicsClocks`
     """
     cdef unsigned int[1] count = [0]
@@ -21984,7 +22652,7 @@ cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int 
 
 
 cpdef tuple device_get_auto_boosted_clocks_enabled(intptr_t device):
-    """Retrieve the current state of Auto Boosted clocks on a device and store it in ``isEnabled``.
+    """Retrieve the current state of Auto Boosted clocks on a device and store it in ``is_enabled``.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -22159,12 +22827,12 @@ cpdef unsigned int device_get_temperature_threshold(intptr_t device, int thresho
     return temp
 
 
-cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_ind_ex):
+cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_index):
     """Used to execute a list of thermal system instructions.
 
     Args:
         device (intptr_t): The identifier of the target device.
-        sensor_ind_ex (unsigned int): The index of the thermal sensor.
+        sensor_index (unsigned int): The index of the thermal sensor.
 
     Returns:
         nvmlGpuThermalSettings_t: Reference in which to return the thermal sensor information.
@@ -22174,7 +22842,7 @@ cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_in
     cdef GpuThermalSettings p_thermal_settings_py = GpuThermalSettings()
     cdef nvmlGpuThermalSettings_t *p_thermal_settings = <nvmlGpuThermalSettings_t *><intptr_t>(p_thermal_settings_py._get_ptr())
     with nogil:
-        __status__ = nvmlDeviceGetThermalSettings(<Device>device, sensor_ind_ex, p_thermal_settings)
+        __status__ = nvmlDeviceGetThermalSettings(<Device>device, sensor_index, p_thermal_settings)
     check_status(__status__)
     return p_thermal_settings_py
 
@@ -22605,7 +23273,7 @@ cpdef int device_get_default_ecc_mode(intptr_t device) except? -1:
 
 
 cpdef unsigned int device_get_board_id(intptr_t device) except? 0:
-    """Retrieves the device boardId from 0-N. Devices with the same boardId indicate GPUs connected to the same PLX. Use in conjunction with :func:`device_get_multi_gpu_board` to decide if they are on the same board as well. The boardId returned is a unique ID for the current configuration. Uniqueness and ordering across reboots and system configurations is not guaranteed (i.e. if a Tesla K40c returns 0x100 and the two GPUs on a Tesla K10 in the same system returns 0x200 it is not guaranteed they will always return those values but they will always be different from each other).
+    """Retrieves the device board_id from 0-N. Devices with the same board_id indicate GPUs connected to the same PLX. Use in conjunction with :func:`device_get_multi_gpu_board` to decide if they are on the same board as well. The board_id returned is a unique ID for the current configuration. Uniqueness and ordering across reboots and system configurations is not guaranteed (i.e. if a Tesla K40c returns 0x100 and the two GPUs on a Tesla K10 in the same system returns 0x200 it is not guaranteed they will always return those values but they will always be different from each other).
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -22623,7 +23291,7 @@ cpdef unsigned int device_get_board_id(intptr_t device) except? 0:
 
 
 cpdef unsigned int device_get_multi_gpu_board(intptr_t device) except? 0:
-    """Retrieves whether the device is on a Multi-GPU Board Devices that are on multi-GPU boards will set ``multiGpuBool`` to a non-zero value.
+    """Retrieves whether the device is on a Multi-GPU Board Devices that are on multi-GPU boards will set ``multi_gpu_bool`` to a non-zero value.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -22771,6 +23439,9 @@ cpdef object device_get_encoder_sessions(intptr_t device):
     Args:
         device (intptr_t): The identifier of the target device.
 
+    Returns:
+        nvmlEncoderSessionInfo_t: Reference in which to return the session information.
+
     .. seealso:: `nvmlDeviceGetEncoderSessions`
     """
     cdef unsigned int[1] session_count = [0]
@@ -22878,6 +23549,9 @@ cpdef object device_get_fbc_sessions(intptr_t device):
     Args:
         device (intptr_t): The identifier of the target device.
 
+    Returns:
+        nvmlFBCSessionInfo_t: Reference in which to return the session information.
+
     .. seealso:: `nvmlDeviceGetFBCSessions`
     """
     cdef unsigned int[1] session_count = [0]
@@ -22922,6 +23596,9 @@ cpdef str device_get_vbios_version(intptr_t device):
     Args:
         device (intptr_t): The identifier of the target device.
 
+    Returns:
+        char: Reference to which to return the VBIOS version.
+
     .. seealso:: `nvmlDeviceGetVbiosVersion`
     """
     cdef unsigned int length = 32
@@ -22957,6 +23634,9 @@ cpdef object device_get_compute_running_processes_v3(intptr_t device):
     Args:
         device (intptr_t): The device handle or MIG device handle.
 
+    Returns:
+        nvmlProcessInfo_t: Reference in which to return the process information.
+
     .. seealso:: `nvmlDeviceGetComputeRunningProcesses_v3`
     """
     cdef unsigned int[1] info_count = [0]
@@ -22973,11 +23653,39 @@ cpdef object device_get_compute_running_processes_v3(intptr_t device):
     return infos
 
 
+cpdef object device_get_graphics_running_processes_v3(intptr_t device):
+    """Get information about processes with a graphics context on a device.
+
+    Args:
+        device (intptr_t): The device handle or MIG device handle.
+
+    Returns:
+        nvmlProcessInfo_t: Reference in which to return the process information.
+
+    .. seealso:: `nvmlDeviceGetGraphicsRunningProcesses_v3`
+    """
+    cdef unsigned int[1] info_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, NULL)
+    check_status_size(__status__)
+    cdef ProcessInfo infos = ProcessInfo(info_count[0])
+    cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *><intptr_t>(infos._get_ptr())
+    if info_count[0] == 0:
+        return infos
+    with nogil:
+        __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
+    check_status(__status__)
+    return infos
+
+
 cpdef object device_get_mps_compute_running_processes_v3(intptr_t device):
     """Get information about processes with a Multi-Process Service (MPS) compute context on a device.
 
     Args:
         device (intptr_t): The device handle or MIG device handle.
+
+    Returns:
+        nvmlProcessInfo_t: Reference in which to return the process information.
 
     .. seealso:: `nvmlDeviceGetMPSComputeRunningProcesses_v3`
     """
@@ -23448,6 +24156,9 @@ cpdef object device_get_accounting_pids(intptr_t device):
     Args:
         device (intptr_t): The identifier of the target device.
 
+    Returns:
+        unsigned int: Reference in which to return list of process ids.
+
     .. seealso:: `nvmlDeviceGetAccountingPids`
     """
     cdef unsigned int[1] count = [0]
@@ -23489,6 +24200,9 @@ cpdef object device_get_retired_pages(intptr_t device, int cause):
         device (intptr_t): The identifier of the target device.
         cause (PageRetirementCause): Filter page addresses by cause of retirement.
 
+    Returns:
+        unsigned long long: Buffer to write the page addresses into.
+
     .. seealso:: `nvmlDeviceGetRetiredPages`
     """
     cdef unsigned int[1] page_count = [0]
@@ -23524,7 +24238,7 @@ cpdef int device_get_retired_pages_pending_status(intptr_t device) except? -1:
 
 
 cpdef tuple device_get_remapped_rows(intptr_t device):
-    """Get number of remapped rows. The number of rows reported will be based on the cause of the remapping. isPending indicates whether or not there are pending remappings. A reset will be required to actually remap the row. failureOccurred will be set if a row remapping ever failed in the past. A pending remapping won't affect future work on the GPU since error-containment and dynamic page blacklisting will take care of that.
+    """Get number of remapped rows. The number of rows reported will be based on the cause of the remapping. is_pending indicates whether or not there are pending remappings. A reset will be required to actually remap the row. failure_occurred will be set if a row remapping ever failed in the past. A pending remapping won't affect future work on the GPU since error-containment and dynamic page blacklisting will take care of that.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -23610,7 +24324,10 @@ cpdef object device_get_process_utilization(intptr_t device, unsigned long long 
 
     Args:
         device (intptr_t): The identifier of the target device.
-        last_seen_time_stamp (unsigned long long): Pointer to caller-supplied buffer in which guest process utilization samples are returned.
+        last_seen_time_stamp (unsigned long long): Return only samples with timestamp greater than last_seen_time_stamp.
+
+    Returns:
+        nvmlProcessUtilizationSample_t: Pointer to caller-supplied buffer in which guest process utilization samples are returned.
 
     .. seealso:: `nvmlDeviceGetProcessUtilization`
     """
@@ -24411,10 +25128,13 @@ cpdef unsigned int device_get_vgpu_capabilities(intptr_t device, int capability)
 
 
 cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
-    """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See ``nvmlConstants.NVML_DEVICE_NAME_BUFFER_SIZE``.
+    """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See nvmlConstants::NVML_DEVICE_NAME_BUFFER_SIZE.
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
+
+    Returns:
+        char: Pointer to string array to return class in.
 
     .. seealso:: `nvmlVgpuTypeGetClass`
     """
@@ -24508,12 +25228,12 @@ cpdef unsigned int vgpu_type_get_num_display_heads(unsigned int vgpu_type_id) ex
     return num_display_heads
 
 
-cpdef tuple vgpu_type_get_resolution(unsigned int vgpu_type_id, unsigned int display_ind_ex):
+cpdef tuple vgpu_type_get_resolution(unsigned int vgpu_type_id, unsigned int display_index):
     """Retrieve vGPU display head's maximum supported resolution.
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
-        display_ind_ex (unsigned int): Zero-based index of display head.
+        display_index (unsigned int): Zero-based index of display head.
 
     Returns:
         A 2-tuple containing:
@@ -24526,7 +25246,7 @@ cpdef tuple vgpu_type_get_resolution(unsigned int vgpu_type_id, unsigned int dis
     cdef unsigned int xdim
     cdef unsigned int ydim
     with nogil:
-        __status__ = nvmlVgpuTypeGetResolution(<nvmlVgpuTypeId_t>vgpu_type_id, display_ind_ex, &xdim, &ydim)
+        __status__ = nvmlVgpuTypeGetResolution(<nvmlVgpuTypeId_t>vgpu_type_id, display_index, &xdim, &ydim)
     check_status(__status__)
     return (xdim, ydim)
 
@@ -24536,6 +25256,9 @@ cpdef str vgpu_type_get_license(unsigned int vgpu_type_id):
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
+
+    Returns:
+        char: Pointer to buffer to return license info.
 
     .. seealso:: `nvmlVgpuTypeGetLicense`
     """
@@ -24628,6 +25351,9 @@ cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance):
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU instance.
 
+    Returns:
+        char: Pointer to caller-supplied buffer to hold vGPU UUID.
+
     .. seealso:: `nvmlVgpuInstanceGetUUID`
     """
     cdef unsigned int size = 80
@@ -24643,6 +25369,9 @@ cpdef str vgpu_instance_get_vm_driver_version(unsigned int vgpu_instance):
 
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU instance.
+
+    Returns:
+        char: Caller-supplied buffer to return driver version string.
 
     .. seealso:: `nvmlVgpuInstanceGetVmDriverVersion`
     """
@@ -24697,7 +25426,7 @@ cpdef unsigned int vgpu_instance_get_type(unsigned int vgpu_instance) except? 0:
         vgpu_instance (unsigned int): Identifier of the target vGPU instance.
 
     Returns:
-        unsigned int: Reference to return the vgpuTypeId.
+        unsigned int: Reference to return the vgpu_type_id.
 
     .. seealso:: `nvmlVgpuInstanceGetType`
     """
@@ -24806,6 +25535,9 @@ cpdef object vgpu_instance_get_encoder_sessions(unsigned int vgpu_instance):
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU instance.
 
+    Returns:
+        nvmlEncoderSessionInfo_t: Reference to caller supplied array in which the list of session information us returned.
+
     .. seealso:: `nvmlVgpuInstanceGetEncoderSessions`
     """
     cdef unsigned int[1] session_count = [0]
@@ -24847,6 +25579,9 @@ cpdef object vgpu_instance_get_fbc_sessions(unsigned int vgpu_instance):
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU instance.
 
+    Returns:
+        nvmlFBCSessionInfo_t: Reference in which to return the session information.
+
     .. seealso:: `nvmlVgpuInstanceGetFBCSessions`
     """
     cdef unsigned int[1] session_count = [0]
@@ -24887,6 +25622,9 @@ cpdef str vgpu_instance_get_gpu_pci_id(unsigned int vgpu_instance):
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU instance.
 
+    Returns:
+        char: Caller-supplied buffer to return vGPU PCI Id string.
+
     .. seealso:: `nvmlVgpuInstanceGetGpuPciId`
     """
     cdef unsigned int[1] length = [0]
@@ -24904,7 +25642,7 @@ cpdef str vgpu_instance_get_gpu_pci_id(unsigned int vgpu_instance):
 
 
 cpdef unsigned int vgpu_type_get_capabilities(unsigned int vgpu_type_id, int capability) except? 0:
-    """Retrieve the requested capability for a given vGPU type. Refer to the ``nvmlVgpuCapability_t`` structure for the specific capabilities that can be queried. The return value in ``capResult`` should be treated as a boolean, with a non-zero value indicating that the capability is supported.
+    """Retrieve the requested capability for a given vGPU type. Refer to the ``nvmlVgpuCapability_t`` structure for the specific capabilities that can be queried. The return value in ``cap_result`` should be treated as a boolean, with a non-zero value indicating that the capability is supported.
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
@@ -24927,6 +25665,9 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
 
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU instance.
+
+    Returns:
+        char: Pointer to caller-supplied buffer to hold MDEV UUID.
 
     .. seealso:: `nvmlVgpuInstanceGetMdevUUID`
     """
@@ -24960,7 +25701,7 @@ cpdef object gpu_instance_get_vgpu_scheduler_state(intptr_t gpu_instance):
         gpu_instance (intptr_t): The GPU instance handle.
 
     Returns:
-        nvmlVgpuSchedulerStateInfo_v1_t: Reference in which ``pSchedulerStateInfo`` is returned.
+        nvmlVgpuSchedulerStateInfo_v1_t: Reference in which ``p_scheduler_state_info`` is returned.
 
     .. seealso:: `nvmlGpuInstanceGetVgpuSchedulerState`
     """
@@ -24974,13 +25715,13 @@ cpdef object gpu_instance_get_vgpu_scheduler_state(intptr_t gpu_instance):
 
 
 cpdef object gpu_instance_get_vgpu_scheduler_log(intptr_t gpu_instance):
-    """Returns the vGPU scheduler logs for the given GPU instance. ``pSchedulerLogInfo`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
+    """Returns the vGPU scheduler logs for the given GPU instance. ``p_scheduler_log_info`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
 
     Args:
         gpu_instance (intptr_t): The GPU instance handle.
 
     Returns:
-        nvmlVgpuSchedulerLogInfo_v1_t: Reference in which ``pSchedulerLogInfo`` is written.
+        nvmlVgpuSchedulerLogInfo_v1_t: Reference in which ``p_scheduler_log_info`` is written.
 
     .. seealso:: `nvmlGpuInstanceGetVgpuSchedulerLog`
     """
@@ -24999,6 +25740,9 @@ cpdef str device_get_pgpu_metadata_string(intptr_t device):
     Args:
         device (intptr_t): The identifier of the target device.
 
+    Returns:
+        char: Pointer to caller-supplied buffer into which ``pgpu_metadata`` is written.
+
     .. seealso:: `nvmlDeviceGetPgpuMetadataString`
     """
     cdef unsigned int[1] buffer_size = [0]
@@ -25016,13 +25760,13 @@ cpdef str device_get_pgpu_metadata_string(intptr_t device):
 
 
 cpdef object device_get_vgpu_scheduler_log(intptr_t device):
-    """Returns the vGPU Software scheduler logs. ``pSchedulerLog`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
+    """Returns the vGPU Software scheduler logs. ``p_scheduler_log`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
 
     Args:
         device (intptr_t): The identifier of the target ``device``.
 
     Returns:
-        nvmlVgpuSchedulerLog_t: Reference in which ``pSchedulerLog`` is written.
+        nvmlVgpuSchedulerLog_t: Reference in which ``p_scheduler_log`` is written.
 
     .. seealso:: `nvmlDeviceGetVgpuSchedulerLog`
     """
@@ -25041,7 +25785,7 @@ cpdef object device_get_vgpu_scheduler_state(intptr_t device):
         device (intptr_t): The identifier of the target ``device``.
 
     Returns:
-        nvmlVgpuSchedulerGetState_t: Reference in which ``pSchedulerState`` is returned.
+        nvmlVgpuSchedulerGetState_t: Reference in which ``p_scheduler_state`` is returned.
 
     .. seealso:: `nvmlDeviceGetVgpuSchedulerState`
     """
@@ -25060,7 +25804,7 @@ cpdef object device_get_vgpu_scheduler_capabilities(intptr_t device):
         device (intptr_t): The identifier of the target ``device``.
 
     Returns:
-        nvmlVgpuSchedulerCapabilities_t: Reference in which ``pCapabilities`` is written.
+        nvmlVgpuSchedulerCapabilities_t: Reference in which ``p_capabilities`` is written.
 
     .. seealso:: `nvmlDeviceGetVgpuSchedulerCapabilities`
     """
@@ -25146,6 +25890,9 @@ cpdef object vgpu_instance_get_accounting_pids(unsigned int vgpu_instance):
     Args:
         vgpu_instance (unsigned int): The identifier of the target vGPU instance.
 
+    Returns:
+        unsigned int: Reference in which to return list of process ids.
+
     .. seealso:: `nvmlVgpuInstanceGetAccountingPids`
     """
     cdef unsigned int[1] count = [0]
@@ -25229,11 +25976,11 @@ cpdef unsigned int get_excluded_device_count() except? 0:
     return device_count
 
 
-cpdef object get_excluded_device_info_by_index(unsigned int ind_ex):
-    """Acquire the device information for an excluded GPU device, based on its ind_ex.
+cpdef object get_excluded_device_info_by_index(unsigned int index):
+    """Acquire the device information for an excluded GPU device, based on its index.
 
     Args:
-        ind_ex (unsigned int): The ind_ex of the target GPU, >= 0 and < ``deviceCount``.
+        index (unsigned int): The index of the target GPU, >= 0 and < ``deviceCount``.
 
     Returns:
         nvmlExcludedDeviceInfo_t: Reference in which to return the device information.
@@ -25243,7 +25990,7 @@ cpdef object get_excluded_device_info_by_index(unsigned int ind_ex):
     cdef ExcludedDeviceInfo info_py = ExcludedDeviceInfo()
     cdef nvmlExcludedDeviceInfo_t *info = <nvmlExcludedDeviceInfo_t *><intptr_t>(info_py._get_ptr())
     with nogil:
-        __status__ = nvmlGetExcludedDeviceInfoByIndex(ind_ex, info)
+        __status__ = nvmlGetExcludedDeviceInfoByIndex(index, info)
     check_status(__status__)
     return info_py
 
@@ -25256,7 +26003,7 @@ cpdef int device_set_mig_mode(intptr_t device, unsigned int mode) except? -1:
         mode (unsigned int): The mode to be set, ``NVML_DEVICE_MIG_DISABLE`` or ``NVML_DEVICE_MIG_ENABLE``.
 
     Returns:
-        int: The activationStatus status.
+        int: The activation_status status.
 
     .. seealso:: `nvmlDeviceSetMigMode`
     """
@@ -25295,6 +26042,9 @@ cpdef object device_get_gpu_instance_possible_placements_v2(intptr_t device, uns
     Args:
         device (intptr_t): The identifier of the target device.
         profile_id (unsigned int): The GPU instance profile ID. See ``nvmlDeviceGetGpuInstanceProfileInfo``.
+
+    Returns:
+        nvmlGpuInstancePlacement_t: Returns placements allowed for the profile. Can be NULL to discover number of allowed placements for this profile. If non-NULL must be large enough to accommodate the placements supported by the profile.
 
     .. seealso:: `nvmlDeviceGetGpuInstancePossiblePlacements_v2`
     """
@@ -25468,6 +26218,9 @@ cpdef object gpu_instance_get_compute_instance_possible_placements(intptr_t gpu_
     Args:
         gpu_instance (intptr_t): The identifier of the target GPU instance.
         profile_id (unsigned int): The compute instance profile ID. See ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+
+    Returns:
+        nvmlComputeInstancePlacement_t: Returns placements allowed for the profile. Can be NULL to discover number of allowed placements for this profile. If non-NULL must be large enough to accommodate the placements supported by the profile.
 
     .. seealso:: `nvmlGpuInstanceGetComputeInstancePossiblePlacements`
     """
@@ -25647,12 +26400,12 @@ cpdef unsigned int device_get_max_mig_device_count(intptr_t device) except? 0:
     return count
 
 
-cpdef intptr_t device_get_mig_device_handle_by_index(intptr_t device, unsigned int ind_ex) except? 0:
-    """Get MIG device handle for the given ind_ex under its parent NVML device.
+cpdef intptr_t device_get_mig_device_handle_by_index(intptr_t device, unsigned int index) except? 0:
+    """Get MIG device handle for the given index under its parent NVML device.
 
     Args:
         device (intptr_t): Reference to the parent GPU device handle.
-        ind_ex (unsigned int): Index of the MIG device.
+        index (unsigned int): Index of the MIG device.
 
     Returns:
         intptr_t: Reference to the MIG device handle.
@@ -25661,7 +26414,7 @@ cpdef intptr_t device_get_mig_device_handle_by_index(intptr_t device, unsigned i
     """
     cdef Device mig_device
     with nogil:
-        __status__ = nvmlDeviceGetMigDeviceHandleByIndex(<Device>device, ind_ex, &mig_device)
+        __status__ = nvmlDeviceGetMigDeviceHandleByIndex(<Device>device, index, &mig_device)
     check_status(__status__)
     return <intptr_t>mig_device
 
@@ -25796,6 +26549,123 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
     """
     with nogil:
         __status__ = nvmlDeviceSetPowerMizerMode_v1(<Device>device, <nvmlDevicePowerMizerModes_v1_t*>power_mizer_mode)
+    check_status(__status__)
+
+
+cpdef device_vgpu_force_gsp_unload(intptr_t device):
+    """Executes a forced GSP unload operation on a device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    .. seealso:: `nvmlDeviceVgpuForceGspUnload`
+    """
+    with nogil:
+        __status__ = nvmlDeviceVgpuForceGspUnload(<Device>device)
+    check_status(__status__)
+
+
+cpdef object device_get_vgpu_scheduler_state_v2(intptr_t device):
+    """Returns the vGPU scheduler state. The information returned in ``nvmlVgpuSchedulerStateInfo_v2_t`` is not relevant if the BEST EFFORT policy is set.
+
+    Args:
+        device (intptr_t): The identifier of the target ``device``.
+
+    Returns:
+        nvmlVgpuSchedulerStateInfo_v2_t: Reference in which ``p_scheduler_state_info`` is returned.
+
+    .. seealso:: `nvmlDeviceGetVgpuSchedulerState_v2`
+    """
+    cdef VgpuSchedulerStateInfo_v2 p_scheduler_state_info_py = VgpuSchedulerStateInfo_v2()
+    cdef nvmlVgpuSchedulerStateInfo_v2_t *p_scheduler_state_info = <nvmlVgpuSchedulerStateInfo_v2_t *><intptr_t>(p_scheduler_state_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetVgpuSchedulerState_v2(<Device>device, p_scheduler_state_info)
+    check_status(__status__)
+    return p_scheduler_state_info_py
+
+
+cpdef object gpu_instance_get_vgpu_scheduler_state_v2(intptr_t gpu_instance):
+    """Returns the vGPU scheduler state for the given GPU instance. The information returned in ``nvmlVgpuSchedulerStateInfo_v2_t`` is not relevant if the BEST EFFORT policy is set.
+
+    Args:
+        gpu_instance (intptr_t): The GPU instance handle.
+
+    Returns:
+        nvmlVgpuSchedulerStateInfo_v2_t: Reference in which ``p_scheduler_state_info`` is returned.
+
+    .. seealso:: `nvmlGpuInstanceGetVgpuSchedulerState_v2`
+    """
+    cdef VgpuSchedulerStateInfo_v2 p_scheduler_state_info_py = VgpuSchedulerStateInfo_v2()
+    cdef nvmlVgpuSchedulerStateInfo_v2_t *p_scheduler_state_info = <nvmlVgpuSchedulerStateInfo_v2_t *><intptr_t>(p_scheduler_state_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlGpuInstanceGetVgpuSchedulerState_v2(<GpuInstance>gpu_instance, p_scheduler_state_info)
+    check_status(__status__)
+    return p_scheduler_state_info_py
+
+
+cpdef object device_get_vgpu_scheduler_log_v2(intptr_t device):
+    """Returns the vGPU Software scheduler logs for the device. ``p_scheduler_log_info`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
+
+    Args:
+        device (intptr_t): The identifier of the target ``device``.
+
+    Returns:
+        nvmlVgpuSchedulerLogInfo_v2_t: Reference in which ``p_scheduler_log_info`` is written.
+
+    .. seealso:: `nvmlDeviceGetVgpuSchedulerLog_v2`
+    """
+    cdef VgpuSchedulerLogInfo_v2 p_scheduler_log_info_py = VgpuSchedulerLogInfo_v2()
+    cdef nvmlVgpuSchedulerLogInfo_v2_t *p_scheduler_log_info = <nvmlVgpuSchedulerLogInfo_v2_t *><intptr_t>(p_scheduler_log_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetVgpuSchedulerLog_v2(<Device>device, p_scheduler_log_info)
+    check_status(__status__)
+    return p_scheduler_log_info_py
+
+
+cpdef object gpu_instance_get_vgpu_scheduler_log_v2(intptr_t gpu_instance):
+    """Returns the vGPU scheduler logs for the given GPU instance. ``p_scheduler_log_info`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
+
+    Args:
+        gpu_instance (intptr_t): The GPU instance handle.
+
+    Returns:
+        nvmlVgpuSchedulerLogInfo_v2_t: Reference in which ``p_scheduler_log_info`` is written.
+
+    .. seealso:: `nvmlGpuInstanceGetVgpuSchedulerLog_v2`
+    """
+    cdef VgpuSchedulerLogInfo_v2 p_scheduler_log_info_py = VgpuSchedulerLogInfo_v2()
+    cdef nvmlVgpuSchedulerLogInfo_v2_t *p_scheduler_log_info = <nvmlVgpuSchedulerLogInfo_v2_t *><intptr_t>(p_scheduler_log_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlGpuInstanceGetVgpuSchedulerLog_v2(<GpuInstance>gpu_instance, p_scheduler_log_info)
+    check_status(__status__)
+    return p_scheduler_log_info_py
+
+
+cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, intptr_t p_scheduler_state):
+    """Sets the vGPU scheduler state.
+
+    Args:
+        device (intptr_t): The identifier of the target ``device``.
+        p_scheduler_state (intptr_t): vGPU ``p_scheduler_state`` to set.
+
+    .. seealso:: `nvmlDeviceSetVgpuSchedulerState_v2`
+    """
+    with nogil:
+        __status__ = nvmlDeviceSetVgpuSchedulerState_v2(<Device>device, <nvmlVgpuSchedulerState_v2_t*>p_scheduler_state)
+    check_status(__status__)
+
+
+cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, intptr_t p_scheduler_state):
+    """Set vGPU scheduler state for the given GPU instance.
+
+    Args:
+        gpu_instance (intptr_t): The GPU instance handle.
+        p_scheduler_state (intptr_t): Pointer to the caller-provided structure of ``nvmlVgpuSchedulerState_v2_t``.
+
+    .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState_v2`
+    """
+    with nogil:
+        __status__ = nvmlGpuInstanceSetVgpuSchedulerState_v2(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_v2_t*>p_scheduler_state)
     check_status(__status__)
 
 
@@ -27472,3 +28342,8 @@ cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
     check_status(__status__)
     return cpython.PyUnicode_FromStringAndSize(vgpu_type_name, size[0])
 
+
+# Cleanup some docstrings that don't parse as rst.
+device_get_virtualization_mode.__doc__ = device_get_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
+device_set_virtualization_mode.__doc__ = device_set_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
+GpmMetricId.GPM_METRIC_DRAM_BW_UTIL.__doc__ = "Percentage of DRAM bw used vs theoretical maximum. ``0.0 - 100.0 *\u200d/``."
