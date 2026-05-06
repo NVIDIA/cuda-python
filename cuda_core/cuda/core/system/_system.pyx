@@ -26,7 +26,7 @@ if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 
     from cuda.core.system._nvml_context import initialize
 else:
-    from cuda.core._utils.cuda_utils import driver, handle_return, runtime
+    from cuda.core._utils.cuda_utils import handle_return, runtime
 
 
 def get_driver_version() -> tuple[tuple[int, ...], tuple[int, ...]]:
