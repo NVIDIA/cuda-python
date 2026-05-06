@@ -8,7 +8,6 @@ from conftest import create_managed_memory_resource_or_skip, skip_if_managed_mem
 from cuda.core import (
     Device,
     ManagedMemoryResourceOptions,
-    StridedMemoryView,
     TensorMapDescriptor,
     system,
 )
@@ -23,6 +22,7 @@ from cuda.core._tensor_map import (
     TensorMapSwizzle,
     _require_view_device,
 )
+from cuda.core.utils import StridedMemoryView
 
 
 @pytest.fixture

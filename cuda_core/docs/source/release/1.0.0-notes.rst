@@ -27,7 +27,7 @@ New features
   :meth:`Device.create_context`, then use :meth:`Context.create_stream` and
   :attr:`Context.resources` to work within the partitioned resources.
   (`#1976 <https://github.com/NVIDIA/cuda-python/pull/1976>`__)
-- Added the :mod:`cuda.core.system` module for NVIDIA Management Library (NVML)
+- Changes to the :mod:`cuda.core.system` module for NVIDIA Management Library (NVML)
   access:
 
   - :attr:`system.Device.mig` for querying and setting MIG mode, enumerating
@@ -43,14 +43,9 @@ New features
     (`#1918 <https://github.com/NVIDIA/cuda-python/pull/1918>`__)
 
 - Re-wrapped NVML enums as human-readable ``StrEnum`` subclasses instead of raw
-  integer re-exports from ``cuda.bindings.nvml``. Added
-  :class:`~system.typing.GpuP2PCapsIndex`, :class:`~system.typing.GpuP2PStatus`,
-  and :class:`~system.typing.GpuTopologyLevel` enums.
+  integer re-exports from ``cuda.bindings.nvml``. These are available in
+  ``cuda.core.system.typing``.
   (`#2014 <https://github.com/NVIDIA/cuda-python/pull/2014>`__)
-- Moved all :mod:`cuda.core.system` enums into a new :mod:`cuda.core.system.typing`
-  module. Imports from ``cuda.core.system`` continue to work but the canonical
-  location is now ``cuda.core.system.typing``.
-  (`#2022 <https://github.com/NVIDIA/cuda-python/pull/2022>`__)
 - Enums are now available in places where a small number of string values are
   accepted or returned.  You may continue to use the string values, or use
   enumerations for better linting and type-checking.
@@ -246,14 +241,14 @@ Breaking changes
   These classes are still returned by :class:`~system.Device` properties and
   methods but should not be directly instantiated by users.
   (`#1942 <https://github.com/NVIDIA/cuda-python/pull/1942>`__)
-- Removed ``BrandType``, ``NvlinkVersion``, ``PcieUtilCounter``, ``Pstates``,
-  and ``TemperatureSensors`` enums from ``cuda.core.system``; the underlying
-  values are now returned as plain strings or accessed through other APIs.
-  (`#2014 <https://github.com/NVIDIA/cuda-python/pull/2014>`__)
 - :attr:`system.Device.uuid` now returns the full NVML UUID with prefix
   (e.g. ``GPU-...``). Use :attr:`system.Device.uuid_without_prefix` for
   the previous behavior.
   (`#1916 <https://github.com/NVIDIA/cuda-python/pull/1916>`__)
+- :func:`args_viewable_as_strided_memory` and :class:`StridedMemoryView` are now
+  longer at the top-level in :mod:`cuda.core`.  They are available publicly from the
+  :mod:`cuda.core.utils` module.
+  (`#2028 <https://github.com/NVIDIA/cuda-python/issues/2028>`__)
 
 Fixes and enhancements
 -----------------------
@@ -274,7 +269,7 @@ Fixes and enhancements
   from nvJitLink, raising exceptions on failure instead of silently ignoring
   errors.
   (`#1993 <https://github.com/NVIDIA/cuda-python/pull/1993>`__)
-- Fixed a potential crash when NVML event set creation failed, due to
+- Fixed a potential crash when NVML event set creation failed on Windows, due to
   ``__dealloc__`` freeing an uninitialized handle.
   (`#1992 <https://github.com/NVIDIA/cuda-python/pull/1992>`__)
 - CUDA Runtime error messages are now more reliable, especially on Windows

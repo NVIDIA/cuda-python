@@ -1603,3 +1603,27 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
     assert buffer.handle >= 0
     assert buffer.size == 0
     assert buffer.device_id == mr.device_id
+
+
+def test_strided_memory_view_not_in_top_level_namespace():
+    # Regression test for issue #2027: StridedMemoryView and
+    # args_viewable_as_strided_memory must only be exposed via
+    # cuda.core.utils, not the top-level cuda.core namespace.
+    import cuda.core
+    import cuda.core.utils
+
+    assert not hasattr(cuda.core, "StridedMemoryView")
+    assert not hasattr(cuda.core, "args_viewable_as_strided_memory")
+
+    assert hasattr(cuda.core.utils, "StridedMemoryView")
+    assert hasattr(cuda.core.utils, "args_viewable_as_strided_memory")
+
+
+def test_top_level_namespace_excludes_known_leaks():
+    # Hardening test: lock the public top-level namespace against
+    # accidental re-introduction of known-leaked symbols.
+    import cuda.core
+
+    public = {n for n in dir(cuda.core) if not n.startswith("_")}
+    leaked = {"StridedMemoryView", "args_viewable_as_strided_memory"}
+    assert not (public & leaked)

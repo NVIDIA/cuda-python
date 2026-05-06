@@ -57,10 +57,6 @@ from cuda.core._memory import (
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
-from cuda.core._memoryview import (
-    StridedMemoryView,
-    args_viewable_as_strided_memory,
-)
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
 from cuda.core._stream import (

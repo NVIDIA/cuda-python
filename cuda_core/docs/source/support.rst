@@ -14,7 +14,7 @@ format ``major.minor.patch``:
 
 - **Major**: Bumped when a new CUDA major release is out and support for the oldest CUDA major
   version is dropped. Breaking API changes only happen at major-version boundaries.
-- **Minor**: Bumped when new, backward-compatible features are added, or when a new Python minor
+- **Minor**: Bumped when new, backward-compatible features are added, or when a new Python feature
   release is out and the oldest supported Python version reaches EOL.
 - **Patch**: Bumped for bug fixes and backward-compatible maintenance updates.
 
@@ -40,13 +40,17 @@ When a new CUDA major version is released and support for the oldest major versi
    * - 1.x
      - 12, 13
 
+As with any CUDA library, certain features may impose additional requirements on
+the minimum ``cuda-bindings`` or CUDA driver version. Refer to the individual
+module documentation for details.
+
 Python Version Support
 ----------------------
 
 ``cuda.core`` supports all Python versions following the `CPython EOL schedule
 <https://devguide.python.org/versions/>`_. As of writing, Python 3.10 – 3.14 are supported.
 
-When a new Python minor version is released and the oldest supported version reaches EOL,
+When a new Python feature version is released and the oldest supported version reaches EOL,
 ``cuda.core`` will bump its minor version accordingly.
 
 Free-threading Build Support
