@@ -252,7 +252,16 @@ class PeerAccessibleBySetProxy(MutableSet):
 
     def add(self, value) -> None:
         """Grant peer access from ``value`` to allocations in this pool."""
-        self._apply([value], ())
+        dev_id = _resolve_peer_device_id(value)
+        cdef DeviceMemoryResource mr = <DeviceMemoryResource>self._mr
+        if dev_id == mr._dev_id:
+            return
+        if _peer_access_includes(mr, dev_id):
+            return
+        from cuda.core._device import Device
+        if not Device(mr._dev_id).can_access_peer(dev_id):
+            raise ValueError(f"Device {mr._dev_id} cannot access peer: {dev_id}")
+        _apply_peer_access_diff(mr, (dev_id,), ())
 
     def discard(self, value) -> None:
         """Revoke peer access from ``value`` to allocations in this pool."""
@@ -260,7 +269,12 @@ class PeerAccessibleBySetProxy(MutableSet):
             dev_id = _resolve_peer_device_id(value)
         except (TypeError, ValueError):
             return
-        self._apply((), [dev_id])
+        cdef DeviceMemoryResource mr = <DeviceMemoryResource>self._mr
+        if dev_id == mr._dev_id:
+            return
+        if not _peer_access_includes(mr, dev_id):
+            return
+        _apply_peer_access_diff(mr, (), (dev_id,))
 
     # --- bulk overrides: one driver call per op ---
 

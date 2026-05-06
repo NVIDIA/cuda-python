@@ -147,10 +147,9 @@ def test_peer_access_shared_pool_queries_driver(mempool_device_x2):
 #
 # These tests exercise the ``PeerAccessibleBySetProxy`` surface added in
 # v1.0.0. They run against ``mempool_device_x2`` because every CI machine has
-# at most 2 GPUs, which means at most one valid peer device. The relaxed
-# ``support_multi_insert=False`` path on ``assert_mutable_set_interface``
-# threads that single insertable element through the full ``MutableSet``
-# protocol.
+# at most 2 GPUs, which means at most one valid peer device. The
+# ``assert_single_member_mutable_set_interface`` helper threads that single
+# insertable element through the full ``MutableSet`` protocol.
 # ---------------------------------------------------------------------------
 
 
@@ -243,6 +242,9 @@ def test_peer_accessible_by_rejects_invalid_inputs(isolated_dmr_x2):
 
     # __contains__: returns False on non-coercible values, never raises
     assert "not-a-device" not in dmr.peer_accessible_by
+
+    # __contains__: out-of-range int returns False, never raises
+    assert bad_id not in dmr.peer_accessible_by
 
     # remove on a non-member raises KeyError (inherited from MutableSet)
     with pytest.raises(KeyError):
