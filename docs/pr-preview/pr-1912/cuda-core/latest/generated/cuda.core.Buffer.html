@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a6843ba3"></script>
+    <script src="../_static/documentation_options.js?v=031dc464"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev97';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev128';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="cuda.core.MemoryResource" href="cuda.core.MemoryResource.html" />
-    <link rel="prev" title="cuda.core.LaunchConfig" href="cuda.core.LaunchConfig.html" />
+    <link rel="prev" title="cuda.core.WorkqueueResourceOptions" href="cuda.core.WorkqueueResourceOptions.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -503,9 +503,15 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Context.html">cuda.core.Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.SMResource.html">cuda.core.SMResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.WorkqueueResource.html">cuda.core.WorkqueueResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.ContextOptions.html">cuda.core.ContextOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.SMResourceOptions.html">cuda.core.SMResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
@@ -554,6 +560,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
@@ -563,28 +570,8 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.AddressingMode.html">cuda.core.system.AddressingMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.AffinityScope.html">cuda.core.system.AffinityScope</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ClockId.html">cuda.core.system.ClockId</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ClocksEventReasons.html">cuda.core.system.ClocksEventReasons</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ClockType.html">cuda.core.system.ClockType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CoolerControl.html">cuda.core.system.CoolerControl</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CoolerTarget.html">cuda.core.system.CoolerTarget</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArch.html">cuda.core.system.DeviceArch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.EventType.html">cuda.core.system.EventType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FanControlPolicy.html">cuda.core.system.FanControlPolicy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.InforomObject.html">cuda.core.system.InforomObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkVersion.html">cuda.core.system.NvlinkVersion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.PcieUtilCounter.html">cuda.core.system.PcieUtilCounter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Pstates.html">cuda.core.system.Pstates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.TemperatureSensors.html">cuda.core.system.TemperatureSensors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.TemperatureThresholds.html">cuda.core.system.TemperatureThresholds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ThermalController.html">cuda.core.system.ThermalController</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
@@ -741,7 +728,8 @@ allocated using the associated memory resource before the copy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dst</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code>) – Source buffer to copy data from</p></li>
+<li><p><strong>dst</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code>, optional) – Destination buffer to copy data to. If not provided, a new buffer
+is allocated using this buffer’s memory resource.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 </ul>
@@ -789,7 +777,7 @@ asynchronous copy</p></li>
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerT</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerType</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">MemoryResource</span> <span class="pre">mr:</span> <span class="pre">MemoryResource</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">owner:</span> <span class="pre">object</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
@@ -800,7 +788,7 @@ asynchronous copy</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code>) – Allocated buffer handle object</p></li>
+<li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerType</span></code>) – Allocated buffer handle object</p></li>
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Memory size of the buffer</p></li>
 <li><p><strong>mr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code>, optional) – Memory resource associated with the buffer.  When provided,
 <a class="reference internal" href="cuda.core.MemoryResource.html#cuda.core.MemoryResource.deallocate" title="cuda.core.MemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MemoryResource.deallocate()</span></code></a> is called when the buffer is
@@ -834,12 +822,6 @@ non-owning reference.  The pointer will NOT be freed when the
 <dd><p>Import a buffer that was exported from another process.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.get_ipc_descriptor">
-<span class="sig-name descname"><span class="pre">get_ipc_descriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor" title="cuda.core._memory._ipc.IPCBufferDescriptor"><span class="pre">IPCBufferDescriptor</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.get_ipc_descriptor" title="Link to this definition">#</a></dt>
-<dd><p>Export a buffer allocated for sharing between processes.</p>
-</dd></dl>
-
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Buffer.device_id">
@@ -856,6 +838,12 @@ non-owning reference.  The pointer will NOT be freed when the
 <p>This handle is a Python object. To get the memory address of the underlying C
 handle, call <code class="docutils literal notranslate"><span class="pre">int(Buffer.handle)</span></code>.</p>
 </div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Buffer.ipc_descriptor">
+<span class="sig-name descname"><span class="pre">ipc_descriptor</span></span><a class="headerlink" href="#cuda.core.Buffer.ipc_descriptor" title="Link to this definition">#</a></dt>
+<dd><p>Descriptor for sharing this buffer with other processes.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -915,12 +903,12 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.LaunchConfig.html"
+       href="cuda.core.WorkqueueResourceOptions.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.LaunchConfig</p>
+        <p class="prev-next-title">cuda.core.WorkqueueResourceOptions</p>
       </div>
     </a>
     <a class="right-next"
@@ -961,9 +949,9 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.fill"><code class="docutils literal notranslate"><span class="pre">Buffer.fill()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.from_handle"><code class="docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.from_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.get_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.get_ipc_descriptor()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.device_id"><code class="docutils literal notranslate"><span class="pre">Buffer.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.handle"><code class="docutils literal notranslate"><span class="pre">Buffer.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_device_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_host_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_managed"><code class="docutils literal notranslate"><span class="pre">Buffer.is_managed</span></code></a></li>

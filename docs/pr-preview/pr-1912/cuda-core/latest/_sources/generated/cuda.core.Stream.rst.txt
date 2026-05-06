@@ -34,5 +34,6 @@ cuda.core.Stream
    .. autoattribute:: handle
    .. autoattribute:: is_nonblocking
    .. autoattribute:: priority
+   .. autoattribute:: resources
    
    

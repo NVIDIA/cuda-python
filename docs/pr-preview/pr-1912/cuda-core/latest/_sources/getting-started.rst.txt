@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 .. currentmodule:: cuda.core
@@ -68,7 +68,7 @@ Don't forget to use :meth:`Device.set_current`!
    s = dev.create_stream()
 
 Next, we compile the CUDA C++ kernel from earlier using the :class:`Program` class.
-The result of the compilation  is saved as a CUBIN.
+The result of the compilation is saved as a CUBIN.
 Note the use of the ``name_expressions`` parameter to the :meth:`Program.compile` method to specify which kernel template instantiations to compile:
 
 .. code-block:: python

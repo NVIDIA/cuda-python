@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=a6843ba3"></script>
+    <script src="_static/documentation_options.js?v=031dc464"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev97';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev128';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -499,9 +499,15 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Context.html">cuda.core.Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.SMResource.html">cuda.core.SMResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.WorkqueueResource.html">cuda.core.WorkqueueResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ContextOptions.html">cuda.core.ContextOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.SMResourceOptions.html">cuda.core.SMResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
@@ -550,6 +556,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
@@ -559,28 +566,8 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.AddressingMode.html">cuda.core.system.AddressingMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.AffinityScope.html">cuda.core.system.AffinityScope</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ClockId.html">cuda.core.system.ClockId</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ClocksEventReasons.html">cuda.core.system.ClocksEventReasons</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ClockType.html">cuda.core.system.ClockType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.CoolerControl.html">cuda.core.system.CoolerControl</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.CoolerTarget.html">cuda.core.system.CoolerTarget</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceArch.html">cuda.core.system.DeviceArch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.EventType.html">cuda.core.system.EventType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FanControlPolicy.html">cuda.core.system.FanControlPolicy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.InforomObject.html">cuda.core.system.InforomObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkVersion.html">cuda.core.system.NvlinkVersion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.PcieUtilCounter.html">cuda.core.system.PcieUtilCounter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Pstates.html">cuda.core.system.Pstates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.TemperatureSensors.html">cuda.core.system.TemperatureSensors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.TemperatureThresholds.html">cuda.core.system.TemperatureThresholds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ThermalController.html">cuda.core.system.ThermalController</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
@@ -658,11 +645,6 @@
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="api.html#module-cuda.core"><code class="xref">cuda.core</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api.html#module-cuda.core.utils"><code class="xref">cuda.core.utils</code></a></td><td>
        <em></em></td></tr>
    </table>
 
