@@ -30,8 +30,11 @@ def _extract_bytes(value: object) -> bytes:
             try:
                 return Path(code).read_bytes()
             except FileNotFoundError:
+                # Avoid ``{code!r}``: on Windows it doubles every backslash in
+                # the path, which breaks naive ``str(path) in str(exc)`` checks
+                # callers (and tests) write against the raw filesystem string.
                 raise FileNotFoundError(
-                    f"cannot store path-backed ObjectCode in cache: {code!r} no longer exists"
+                    f"cannot store path-backed ObjectCode in cache: {code} no longer exists"
                 ) from None
         return bytes(code)
     raise TypeError(f"cache values must be bytes-like or ObjectCode, got {type(value).__name__}")
