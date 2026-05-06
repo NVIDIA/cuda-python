@@ -30,13 +30,14 @@ def test_driver_version():
     expected_umd = (version // 1000, (version % 1000) // 10)
     assert umd == expected_umd, "UMD driver version does not match expected value"
 
-    # KMD: 3-tuple (major, minor, patch)
+    # KMD: 3-tuple (major, minor, patch), or 2-tuple on WSL
     assert isinstance(kmd, tuple)
-    assert len(kmd) == 3
-    ver_maj, ver_min, ver_patch = kmd
+    assert len(kmd) in (2, 3)
+    ver_maj, ver_min, *ver_patch = kmd
     assert 400 <= ver_maj < 1000
     assert ver_min >= 0
-    assert 0 <= ver_patch <= 99
+    if ver_patch:
+        assert 0 <= ver_patch[0] <= 99
 
 
 def test_num_devices():

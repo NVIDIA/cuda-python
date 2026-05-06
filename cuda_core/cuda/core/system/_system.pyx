@@ -41,7 +41,7 @@ def get_driver_version() -> tuple[tuple[int, ...], tuple[int, ...]]:
     version : tuple[tuple[int, ...], tuple[int, ...]]
         ``(umd_version, kmd_version)`` where ``umd_version`` is typically
         a 2-tuple ``(MAJOR, MINOR)`` and ``kmd_version`` is typically
-        a 3-tuple ``(MAJOR, MINOR, PATCH)``.
+        a 3-tuple ``(MAJOR, MINOR, PATCH)`` (2-tuple on WSL).
 
     Raises
     ------
