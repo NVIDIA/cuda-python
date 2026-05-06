@@ -16,6 +16,7 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
+   _memory._peer_access_utils.PeerAccessibleBySetProxy
    _module.KernelAttributes
    _module.KernelOccupancy
    _module.MaxPotentialBlockSizeOccupancyResult

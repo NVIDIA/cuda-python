@@ -868,7 +868,7 @@ class Graph:
         Parameters
         ----------
         stream : :obj:`~_stream.Stream`
-            The stream in which to launch the graph
+            The stream in which to launch the graph.
 
         """
         handle_return(driver.cuGraphLaunch(self._mnff.graph, stream.handle))
