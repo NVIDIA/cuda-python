@@ -125,6 +125,11 @@ Breaking changes
   - :obj:`cuda.core.typing.DevicePointerT` -> :obj:`cuda.core.typing.DevicePointerType`
   - :obj:`cuda.core.typing.IsStreamT` -> :obj:`cuda.core.typing.IsStreamType`
 
+- :func:`args_viewable_as_strided_memory` and :class:`StridedMemoryView` are now
+  longer at the top-level in :mod:`cuda.core`.  They are available publicly from the
+  :mod:`cuda.core.utils` module.
+  (`#2028 <https://github.com/NVIDIA/cuda-python/issues/2028>`__)
+
 Fixes and enhancements
 -----------------------
 
