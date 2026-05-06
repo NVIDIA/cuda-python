@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=29a603be"></script>
+    <script src="../_static/documentation_options.js?v=1e5e89d4"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev111';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev112';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -772,7 +772,8 @@ extracted explicitly.</p></li>
 </li>
 <li><p><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.peer_accessible_by" title="cuda.core.DeviceMemoryResource.peer_accessible_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DeviceMemoryResource.peer_accessible_by</span></code></a> now returns a
 <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a> of <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> objects instead
-of a sorted <code class="docutils literal notranslate"><span class="pre">tuple[int,</span> <span class="pre">...]</span></code>. The property setter is unchanged.</p></li>
+of a sorted <code class="docutils literal notranslate"><span class="pre">tuple[int,</span> <span class="pre">...]</span></code>. The property setter is unchanged.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2018">#2018</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code> is now a required keyword-only argument on APIs that schedule
 work on a stream
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2001">#2001</a>).
