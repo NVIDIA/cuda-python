@@ -179,6 +179,26 @@ CUDA compilation toolchain
    ProgramOptions
    LinkerOptions
 
+Program caches
+``````````````
+
+``Program.compile`` accepts a ``cache=`` keyword argument that integrates
+with any :class:`~cuda.core.utils.ProgramCacheResource`, so callers can
+avoid recompiling identical source + options + target without writing the
+:func:`~cuda.core.utils.make_program_cache_key` lookup by hand.
+
+.. currentmodule:: cuda.core.utils
+
+.. autosummary::
+   :toctree: generated/
+
+   ProgramCacheResource
+   InMemoryProgramCache
+   FileStreamProgramCache
+   make_program_cache_key
+
+.. currentmodule:: cuda.core
+
 
 CUDA process checkpointing
 --------------------------

@@ -120,6 +120,11 @@ Breaking changes
     ``CUgraphConditionalHandle`` value. Previously, ``.handle`` had to be
     extracted explicitly.
 
+- :attr:`DeviceMemoryResource.peer_accessible_by` now returns a
+  :class:`collections.abc.MutableSet` of :obj:`~_device.Device` objects instead
+  of a sorted ``tuple[int, ...]``. The property setter is unchanged.
+  (`#2018 <https://github.com/NVIDIA/cuda-python/pull/2018>`__)
+
 - ``stream`` is now a required keyword-only argument on APIs that schedule
   work on a stream
   (`#2001 <https://github.com/NVIDIA/cuda-python/issues/2001>`__).
