@@ -5,11 +5,30 @@
 
 import ctypes
 import gc
+import time
 import weakref
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
+
+
+def _wait_until(predicate, timeout=2.0, interval=0.01):
+    """Poll predicate() until True or timeout, driving gc each iteration.
+
+    Used for assertions about resource cleanup that may be delayed by CUDA's
+    asynchronous user-object destructor pump (DPC) or, on free-threaded
+    Python, by deferred reference-count processing. A bounded poll keeps the
+    test correct without depending on undocumented driver timing guarantees.
+    """
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        gc.collect()
+        if predicate():
+            return
+        time.sleep(interval)
+    raise AssertionError(f"condition not satisfied within {timeout}s")
+
 
 from cuda.core import Device, DeviceMemoryResource, EventOptions, Kernel, LaunchConfig
 from cuda.core.graph import (
@@ -502,6 +521,11 @@ def test_kernel_args_buffer_lifetime(init_cuda):
     Without the user-object attachment, the ParamHolder is destroyed when the
     kernel node is added, the Buffer is GC'd, and the graph is left with a
     stale device pointer.
+
+    The final freeing assertion uses a bounded poll because CUgraphExec
+    releases its user-object references via an asynchronous DPC, and on
+    free-threaded Python the resulting Py_DECREF chain may need an extra
+    GC pass to settle.
     """
     from cuda.core._utils.cuda_utils import driver, handle_return
 
@@ -531,8 +555,7 @@ def test_kernel_args_buffer_lifetime(init_cuda):
     assert out[0] == 1
 
     del g
-    gc.collect()
-    assert buf_weak() is None  # graph released, Buffer freed
+    _wait_until(lambda: buf_weak() is None)
 
 
 def test_kernel_args_survive_graph_clone(init_cuda):
