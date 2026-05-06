@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from cpython.ref cimport Py_INCREF
+
 from libc.stddef cimport size_t
 from libc.stdint cimport uintptr_t
 from libc.string cimport memset as c_memset
@@ -54,6 +56,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 from cuda.core.graph._utils cimport (
     _attach_host_callback_to_graph,
     _attach_user_object,
+    _py_host_destructor,
 )
 
 import weakref
@@ -616,6 +619,12 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
 
     _attach_user_object(as_cu(h_graph), <void*>new KernelHandle(ker._h_kernel),
                         <cydriver.CUhostFn>_destroy_kernel_handle_copy)
+
+    cdef object kernel_args = ker_args.kernel_args
+    if kernel_args is not None:
+        Py_INCREF(kernel_args)
+        _attach_user_object(as_cu(h_graph), <void*>kernel_args,
+                            <cydriver.CUhostFn>_py_host_destructor)
 
     return _registered(KernelNode._create_with_params(
         create_graph_node_handle(new_node, h_graph),

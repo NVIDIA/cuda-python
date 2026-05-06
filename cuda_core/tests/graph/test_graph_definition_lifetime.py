@@ -3,13 +3,15 @@
 
 """Tests for GraphDefinition resource lifetime management and RAII correctness."""
 
+import ctypes
 import gc
+import weakref
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
-from cuda.core import Device, EventOptions, Kernel, LaunchConfig
+from cuda.core import Device, DeviceMemoryResource, EventOptions, Kernel, LaunchConfig
 from cuda.core.graph import (
     ChildGraphNode,
     ConditionalNode,
@@ -485,3 +487,78 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
     stream = Device().create_stream()
     graph.launch(stream)
     stream.sync()
+
+
+# =============================================================================
+# Kernel argument lifetime — kernel nodes should keep argument objects alive
+# =============================================================================
+
+
+def test_kernel_args_buffer_kept_alive_through_execution(init_cuda):
+    """Buffer passed as a kernel arg is kept alive by the graph, and the kernel
+    actually executes against its memory after the original Python ref drops.
+
+    Without the user-object attachment, the ParamHolder is destroyed when the
+    kernel node is added, the Buffer is GC'd, and the graph is left with a
+    stale device pointer.
+    """
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    add_one = compile_common_kernels().get_kernel("add_one")
+    buf = mr.allocate(ctypes.sizeof(ctypes.c_int), stream=dev.default_stream)
+    buf.fill(0, stream=dev.default_stream)
+    dev.default_stream.sync()
+    buf_weak = weakref.ref(buf)
+    dptr = int(buf.handle)
+
+    g = GraphDefinition()
+    g.launch(LaunchConfig(grid=1, block=1), add_one, buf)
+
+    del buf
+    gc.collect()
+    assert buf_weak() is not None  # graph kept the Buffer alive
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_int * 1)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dptr, ctypes.sizeof(ctypes.c_int)))
+    assert out[0] == 1
+
+
+def test_kernel_args_survive_graph_clone(init_cuda):
+    """Cloned graph keeps Buffer alive via CUDA user objects.
+
+    A graph clone does not inherit Python-level references, so only user
+    objects (which propagate through cuGraphClone) can keep the args alive.
+    """
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    add_one = compile_common_kernels().get_kernel("add_one")
+    buf = mr.allocate(ctypes.sizeof(ctypes.c_int), stream=dev.default_stream)
+    buf.fill(0, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+
+    g = GraphDefinition()
+    g.launch(LaunchConfig(grid=1, block=1), add_one, buf)
+    cloned_cu_graph = handle_return(driver.cuGraphClone(driver.CUgraph(g.handle)))
+
+    del buf, g
+    gc.collect()
+
+    graph_exec = handle_return(driver.cuGraphInstantiate(cloned_cu_graph, 0))
+    stream = dev.create_stream()
+    handle_return(driver.cuGraphLaunch(graph_exec, driver.CUstream(int(stream.handle))))
+    stream.sync()
+
+    out = (ctypes.c_int * 1)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dptr, ctypes.sizeof(ctypes.c_int)))
+    assert out[0] == 1
