@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b118c95d"></script>
+    <script src="../_static/documentation_options.js?v=29a603be"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev105';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev111';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -669,7 +669,7 @@ operations, and GPU UUID remapping support for restore.
 </section>
 <section id="breaking-changes">
 <h2>Breaking changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
-<ul class="simple">
+<ul>
 <li><p>Renamed <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDef</span></code> to <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code></a> for
 consistency with the rest of the API, which spells words out (e.g.
 <code class="docutils literal notranslate"><span class="pre">TensorMapDescriptor</span></code>, not <code class="docutils literal notranslate"><span class="pre">TensorMapDesc</span></code>).
@@ -681,7 +681,7 @@ to follow the <code class="docutils literal notranslate"><span class="pre">Graph
 <li><p>Converted no-argument deterministic getters to properties for consistency
 with the rest of the API
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
-<ul>
+<ul class="simple">
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.get_ipc_descriptor()</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.ipc_descriptor" title="cuda.core.Buffer.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a></p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Event.get_ipc_descriptor()</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event.ipc_descriptor" title="cuda.core.Event.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.ipc_descriptor</span></code></a></p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.get_allocation_handle()</span></code> -&gt;
@@ -692,7 +692,7 @@ with the rest of the API
 </li>
 <li><p>Renamed boolean / non-noun properties for clearer naming
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
-<ul>
+<ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">LaunchConfig.cooperative_launch</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig.is_cooperative" title="cuda.core.LaunchConfig.is_cooperative"><code class="xref py py-attr docutils literal notranslate"><span class="pre">LaunchConfig.is_cooperative</span></code></a>
 (also renames the constructor keyword argument).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Event.is_timing_disabled</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event.is_timing_enabled" title="cuda.core.Event.is_timing_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.is_timing_enabled</span></code></a>.</p></li>
@@ -704,7 +704,7 @@ and <code class="docutils literal notranslate"><span class="pre">EventOptions.bu
 <li><p>Renamed graph allocation methods to match <a class="reference internal" href="../generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource.allocate" title="cuda.core.MemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MemoryResource.allocate()</span></code></a> /
 <a class="reference internal" href="../generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource.deallocate" title="cuda.core.MemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MemoryResource.deallocate()</span></code></a>
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
-<ul>
+<ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">GraphDefinition.alloc</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.allocate" title="cuda.core.graph.GraphDefinition.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.allocate()</span></code></a></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">GraphDefinition.free</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.deallocate" title="cuda.core.graph.GraphDefinition.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.deallocate()</span></code></a></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">GraphNode.alloc</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.allocate" title="cuda.core.graph.GraphNode.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.allocate()</span></code></a></p></li>
@@ -713,7 +713,7 @@ and <code class="docutils literal notranslate"><span class="pre">EventOptions.bu
 </li>
 <li><p>Cross-API consistency for graph builders
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
-<ul>
+<ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">GraphBuilder.add_child</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.embed" title="cuda.core.graph.GraphBuilder.embed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.embed()</span></code></a>
 (matches <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.embed" title="cuda.core.graph.GraphDefinition.embed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.embed()</span></code></a> and
 <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.embed" title="cuda.core.graph.GraphNode.embed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.embed()</span></code></a>).</p></li>
@@ -726,7 +726,7 @@ and the same on <a class="reference internal" href="../generated/cuda.core.graph
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelAttributes</span></code> methods are now properties; per-device queries
 use indexing
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
-<ul>
+<ul class="simple">
 <li><p>The 17 attribute methods (<code class="docutils literal notranslate"><span class="pre">max_threads_per_block</span></code>, <code class="docutils literal notranslate"><span class="pre">num_regs</span></code>,
 <code class="docutils literal notranslate"><span class="pre">shared_size_bytes</span></code>, <code class="docutils literal notranslate"><span class="pre">cluster_scheduling_policy_preference</span></code>, etc.)
 that previously took a <code class="docutils literal notranslate"><span class="pre">device_id</span></code> argument are now properties on
@@ -746,7 +746,7 @@ cache is shared across views of the same kernel.</p></li>
 <li><p>Unified the conditional graph API on <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a>
 and consistent verbs
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
-<ul>
+<ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">GraphBuilder.create_conditional_handle</span></code> -&gt;
 <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.create_condition" title="cuda.core.graph.GraphBuilder.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.create_condition()</span></code></a>. The new factory returns a
 <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a> (matching
@@ -773,10 +773,36 @@ extracted explicitly.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.peer_accessible_by" title="cuda.core.DeviceMemoryResource.peer_accessible_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DeviceMemoryResource.peer_accessible_by</span></code></a> now returns a
 <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a> of <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> objects instead
 of a sorted <code class="docutils literal notranslate"><span class="pre">tuple[int,</span> <span class="pre">...]</span></code>. The property setter is unchanged.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code> is now a required keyword-only argument on APIs that schedule
+work on a stream
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2001">#2001</a>).
+Pass <code class="docutils literal notranslate"><span class="pre">device.default_stream</span></code> (or any <a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a>) explicitly to
+retain the previous behavior. Affected APIs:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource.allocate" title="cuda.core.MemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MemoryResource.allocate()</span></code></a> / <a class="reference internal" href="../generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource.deallocate" title="cuda.core.MemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MemoryResource.deallocate()</span></code></a>
+and overrides on <a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a>, <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a>,
+and <code class="xref py py-class docutils literal notranslate"><span class="pre">graph.GraphMemoryResource</span></code>.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.allocate" title="cuda.core.Device.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.allocate()</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.GraphicsResource.html#cuda.core.GraphicsResource.map" title="cuda.core.GraphicsResource.map"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphicsResource.map()</span></code></a>.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">KernelOccupancy.max_potential_cluster_size()</span></code> and
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">KernelOccupancy.max_active_clusters()</span></code>.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> (no longer falls back to the default
+stream when <code class="docutils literal notranslate"><span class="pre">stream=None</span></code> is passed).</p></li>
+</ul>
+<p>Synchronous memory resources are exempt: their allocate/deallocate
+methods accept an optional <code class="docutils literal notranslate"><span class="pre">stream</span></code> (validated when non-<code class="docutils literal notranslate"><span class="pre">None</span></code>)
+but do not use it. This applies to <a class="reference internal" href="../generated/cuda.core.LegacyPinnedMemoryResource.html#cuda.core.LegacyPinnedMemoryResource" title="cuda.core.LegacyPinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a>
+and <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a>.</p>
+</li>
 <li><p>Consistent naming of types annotation helpers
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2016">#2016</a>):
 - <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuda.core.typing.DevicePointerT</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.typing.DevicePointerType.html#cuda.core.typing.DevicePointerType" title="cuda.core.typing.DevicePointerType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuda.core.typing.DevicePointerType</span></code></a>
 - <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuda.core.typing.IsStreamT</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.typing.IsStreamType.html#cuda.core.typing.IsStreamType" title="cuda.core.typing.IsStreamType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuda.core.typing.IsStreamType</span></code></a></p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">args_viewable_as_strided_memory()</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> are now
+longer at the top-level in <a class="reference internal" href="../api.html#module-cuda.core" title="cuda.core"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core</span></code></a>.  They are available publicly from the
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.utils</span></code> module.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2028">#2028</a>)</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
