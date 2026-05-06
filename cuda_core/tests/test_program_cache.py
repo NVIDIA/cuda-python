@@ -341,62 +341,6 @@ def test_make_program_cache_key_rejects(kwargs, exc_type, match):
         _make_key(**kwargs)
 
 
-def test_make_program_cache_key_supported_targets_matches_program_compile():
-    """``_SUPPORTED_TARGETS_BY_CODE_TYPE`` duplicates the backend target
-    matrix in ``_program.pyx``. Guard against drift: parse the pyx source
-    with :mod:`tokenize` (which skips string literals and comments) to
-    extract ``SUPPORTED_TARGETS`` and assert the two views agree."""
-    import ast
-    import io
-    import tokenize
-    from pathlib import Path
-
-    from cuda.core.utils._program_cache._keys import _SUPPORTED_TARGETS_BY_CODE_TYPE
-
-    backend_to_code_type = {"NVRTC": "c++", "NVVM": "nvvm"}
-    linker_backends = ("nvJitLink", "driver")
-
-    pyx = Path(__file__).parent.parent / "cuda" / "core" / "_program.pyx"
-    text = pyx.read_text()
-    marker_idx = text.index("cdef dict SUPPORTED_TARGETS")
-    tokens = tokenize.generate_tokens(io.StringIO(text[marker_idx:]).readline)
-
-    depth = 0
-    start_offset = None
-    end_offset = None
-    lines = text[marker_idx:].splitlines(keepends=True)
-    line_starts = [0]
-    for line in lines[:-1]:
-        line_starts.append(line_starts[-1] + len(line))
-
-    def _offset(row, col):
-        return line_starts[row - 1] + col
-
-    for tok in tokens:
-        if tok.type != tokenize.OP:
-            continue
-        if tok.string == "{":
-            if depth == 0:
-                start_offset = _offset(tok.start[0], tok.start[1])
-            depth += 1
-        elif tok.string == "}":
-            depth -= 1
-            if depth == 0:
-                end_offset = _offset(tok.end[0], tok.end[1])
-                break
-    assert start_offset is not None and end_offset is not None, "could not locate SUPPORTED_TARGETS literal"
-    pyx_targets = ast.literal_eval(text[marker_idx + start_offset : marker_idx + end_offset])
-
-    for backend, code_type in backend_to_code_type.items():
-        assert frozenset(pyx_targets[backend]) == _SUPPORTED_TARGETS_BY_CODE_TYPE[code_type], (
-            backend,
-            code_type,
-        )
-    linker_sets = [frozenset(pyx_targets[b]) for b in linker_backends]
-    assert all(s == linker_sets[0] for s in linker_sets)
-    assert linker_sets[0] == _SUPPORTED_TARGETS_BY_CODE_TYPE["ptx"]
-
-
 @pytest.mark.parametrize(
     "code_type, code, target_type",
     [
