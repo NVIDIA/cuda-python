@@ -12,7 +12,6 @@ from cuda.core import (
     system,
 )
 from cuda.core._dlpack import DLDeviceType
-from cuda.core.utils import StridedMemoryView
 from cuda.core._tensor_map import (
     TensorMapDataType,
     TensorMapDescriptorOptions,
@@ -23,6 +22,7 @@ from cuda.core._tensor_map import (
     TensorMapSwizzle,
     _require_view_device,
 )
+from cuda.core.utils import StridedMemoryView
 
 
 @pytest.fixture
