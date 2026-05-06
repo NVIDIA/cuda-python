@@ -106,11 +106,18 @@ cdef class SMResourceOptions:
         Preferred co-scheduled SM count; the driver tries to satisfy
         this but may fall back to ``coscheduled_sm_count``.
         (Default to ``None``)
+    backfill : bool or Sequence[bool], optional
+        If ``True``, allow the driver to relax the co-scheduling
+        constraint when assigning SMs. This enables requesting
+        arbitrary aligned SM counts that the driver would otherwise
+        reject due to hardware topology constraints.
+        (Default to ``False``)
     """
 
     count: int | SequenceABC | None = None
     coscheduled_sm_count: int | SequenceABC | None = None
     preferred_coscheduled_sm_count: int | SequenceABC | None = None
+    backfill: bool | SequenceABC = False
 
 
 @dataclass
@@ -169,6 +176,12 @@ cdef inline int _resolve_group_count(SMResourceOptions options) except?-1:
     _validate_split_field_length(
         options.preferred_coscheduled_sm_count,
         "preferred_coscheduled_sm_count",
+        n_groups,
+        count_is_scalar,
+    )
+    _validate_split_field_length(
+        options.backfill,
+        "backfill",
         n_groups,
         count_is_scalar,
     )
@@ -243,6 +256,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
         cdef list counts = _broadcast_field(options.count, n_groups)
         cdef list coscheduled = _broadcast_field(options.coscheduled_sm_count, n_groups)
         cdef list preferred = _broadcast_field(options.preferred_coscheduled_sm_count, n_groups)
+        cdef list backfills = _broadcast_field(options.backfill, n_groups)
         cdef int i
 
         for i in range(n_groups):
@@ -252,7 +266,10 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
                 params[i].coscheduledSmCount = <unsigned int>(coscheduled[i])
             if preferred[i] is not None:
                 params[i].preferredCoscheduledSmCount = <unsigned int>(preferred[i])
-            params[i].flags = 0
+            params[i].flags = (
+                cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_BACKFILL
+                if backfills[i] else 0
+            )
         return 0
 
 

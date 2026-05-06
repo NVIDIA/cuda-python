@@ -245,6 +245,9 @@ execution.
 CUDA system information and NVIDIA Management Library (NVML)
 ------------------------------------------------------------
 
+.. note::
+   ``cuda.core.system`` support requires ``cuda_bindings`` 12.9.6 or later, or 13.2.0 or later.
+
 Basic functions
 ```````````````
 
