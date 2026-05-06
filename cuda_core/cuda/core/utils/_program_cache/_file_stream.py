@@ -581,29 +581,22 @@ class FileStreamProgramCache(ProgramCacheResource):
         # ``readdir`` result on filesystems that report it (ext4, NTFS, ...),
         # avoiding a per-entry ``stat`` syscall. ``Path.iterdir`` also wraps
         # ``scandir`` but discards the cached type, forcing a separate
-        # ``stat`` for every ``Path.is_dir`` / ``Path.is_file`` -- a real
-        # cost on caches with thousands of entries. ``follow_symlinks=False``
-        # matches the prior behaviour: ``pathlib`` defaults to following,
-        # but our cache layout never creates symlinks, so the choice is
-        # only visible if a user manually points one inside ``entries/``;
-        # treating it as the file/dir it points to is the surprising
-        # outcome, so we don't.
+        # ``stat`` for every ``Path.is_dir`` / ``Path.is_file``. The ``with``
+        # blocks release the underlying directory handle deterministically
+        # when the consumer stops early -- otherwise a leaked handle blocks
+        # deletes/renames on Windows until GC.
         try:
-            outer = os.scandir(self._entries)
+            with os.scandir(self._entries) as outer:
+                for sub in outer:
+                    if not sub.is_dir(follow_symlinks=False):
+                        continue
+                    try:
+                        with os.scandir(sub.path) as inner:
+                            yield from (Path(entry.path) for entry in inner if entry.is_file(follow_symlinks=False))
+                    except FileNotFoundError:
+                        continue
         except FileNotFoundError:
             return
-        with outer:
-            for sub in outer:
-                if not sub.is_dir(follow_symlinks=False):
-                    continue
-                try:
-                    inner = os.scandir(sub.path)
-                except FileNotFoundError:
-                    continue
-                with inner:
-                    for entry in inner:
-                        if entry.is_file(follow_symlinks=False):
-                            yield Path(entry.path)
 
     def _compute_total_size(self) -> int:
         """Walk ``entries/`` + ``tmp/`` and return the on-disk byte total.
