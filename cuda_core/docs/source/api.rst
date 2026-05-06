@@ -279,16 +279,14 @@ Types
    system.Device
    system.NvlinkInfo
 
-.. module:: cuda.core.utils
-
 Utility functions
 -----------------
 
 .. autosummary::
    :toctree: generated/
 
-   cuda.core.utils.args_viewable_as_strided_memory
+   utils.args_viewable_as_strided_memory
 
    :template: autosummary/cyclass.rst
 
-   cuda.core.utils.StridedMemoryView
+   utils.StridedMemoryView
