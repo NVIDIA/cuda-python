@@ -109,9 +109,9 @@ cdef class GraphDefinition:
         n._h_node = create_graph_node_handle(<cydriver.CUgraphNode>NULL, self._h_graph)
         return n
 
-    def allocate(self, size_t size, *, device=None,
+    def allocate(self, size_t size, *, device: "Device" | int | None = None,
                  memory_type: GraphMemoryType = GraphMemoryType.DEVICE,
-                 peer_access: list | None = None) -> "AllocNode":
+                 peer_access: list["Device" | int] | None = None) -> "AllocNode":
         """Add an entry-point memory allocation node (no dependencies).
 
         See :meth:`GraphNode.allocate` for full documentation.

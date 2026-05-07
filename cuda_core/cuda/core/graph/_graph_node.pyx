@@ -219,9 +219,9 @@ cdef class GraphNode:
         """
         return GN_join(self, nodes)
 
-    def allocate(self, size_t size, *, device=None,
+    def allocate(self, size_t size, *, device: "Device" | int | None = None,
                  memory_type: GraphMemoryType = GraphMemoryType.DEVICE,
-                 peer_access: list | None = None) -> AllocNode:
+                 peer_access: list["Device" | int] | None = None) -> AllocNode:
         """Add a memory allocation node depending on this node.
 
         Parameters
