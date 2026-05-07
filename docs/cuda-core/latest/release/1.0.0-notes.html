@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b118c95d"></script>
+    <script src="../_static/documentation_options.js?v=86e04337"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev105';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev106';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -528,7 +528,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.EmptyNode.html">cuda.core.graph.EmptyNode</a></li>
@@ -674,6 +673,19 @@ operations, and GPU UUID remapping support for restore.
 <section id="breaking-changes">
 <h2>Breaking changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
 <ul>
+<li><p>Graph types are no longer re-exported from the top-level <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>
+namespace; they must be imported from <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.graph</span></code>. The affected
+symbols are <a class="reference internal" href="../generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></a>, <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.graph.GraphCompleteOptions.html#cuda.core.graph.GraphCompleteOptions" title="cuda.core.graph.GraphCompleteOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCompleteOptions</span></code></a>, <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions" title="cuda.core.graph.GraphDebugPrintOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDebugPrintOptions</span></code></a>, and <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code></a>.
+Update <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">cuda.core</span> <span class="pre">import</span> <span class="pre">GraphBuilder</span></code> to
+<code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">cuda.core.graph</span> <span class="pre">import</span> <span class="pre">GraphBuilder</span></code> (and similarly for the other
+symbols). The same symbols are also no longer forwarded through the
+deprecated <code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> namespace.</p></li>
+<li><p>Removed the <code class="docutils literal notranslate"><span class="pre">GraphAllocOptions</span></code> dataclass and the
+<code class="docutils literal notranslate"><span class="pre">AllocNode.options</span></code> property. Its fields are now keyword-only
+parameters on <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.allocate" title="cuda.core.graph.GraphDefinition.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.allocate()</span></code></a> and
+<a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.allocate" title="cuda.core.graph.GraphNode.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.allocate()</span></code></a>.</p></li>
 <li><p>Renamed <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDef</span></code> to <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code></a> for
 consistency with the rest of the API, which spells words out (e.g.
 <code class="docutils literal notranslate"><span class="pre">TensorMapDescriptor</span></code>, not <code class="docutils literal notranslate"><span class="pre">TensorMapDesc</span></code>).

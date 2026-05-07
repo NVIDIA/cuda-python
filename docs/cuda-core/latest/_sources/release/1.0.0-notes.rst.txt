@@ -25,6 +25,19 @@ New features
 Breaking changes
 ----------------
 
+- Graph types are no longer re-exported from the top-level ``cuda.core``
+  namespace; they must be imported from :mod:`cuda.core.graph`. The affected
+  symbols are :class:`~graph.Graph`, :class:`~graph.GraphBuilder`,
+  :class:`~graph.GraphCompleteOptions`, :class:`~graph.GraphCondition`,
+  :class:`~graph.GraphDebugPrintOptions`, and :class:`~graph.GraphDefinition`.
+  Update ``from cuda.core import GraphBuilder`` to
+  ``from cuda.core.graph import GraphBuilder`` (and similarly for the other
+  symbols). The same symbols are also no longer forwarded through the
+  deprecated ``cuda.core.experimental`` namespace.
+- Removed the ``GraphAllocOptions`` dataclass and the
+  ``AllocNode.options`` property. Its fields are now keyword-only
+  parameters on :meth:`graph.GraphDefinition.allocate` and
+  :meth:`graph.GraphNode.allocate`.
 - Renamed :class:`~graph.GraphDef` to :class:`~graph.GraphDefinition` for
   consistency with the rest of the API, which spells words out (e.g.
   ``TensorMapDescriptor``, not ``TensorMapDesc``).

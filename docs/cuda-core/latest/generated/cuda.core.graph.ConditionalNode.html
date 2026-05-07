@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b118c95d"></script>
+    <script src="../_static/documentation_options.js?v=86e04337"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev105';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev106';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -529,7 +529,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EmptyNode.html">cuda.core.graph.EmptyNode</a></li>
@@ -684,13 +683,41 @@ drivers, this base class is used as a fallback.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.ConditionalNode.allocate">
-<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options=None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode" title="cuda.core.graph.AllocNode"><span class="pre">AllocNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.ConditionalNode.allocate" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">device:</span> <span class="pre">'Device'</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">memory_type:</span> <span class="pre">GraphMemoryType</span> <span class="pre">=</span> <span class="pre">GraphMemoryType.DEVICE</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">list</span> <span class="pre">peer_access:</span> <span class="pre">list['Device'</span> <span class="pre">|</span> <span class="pre">int]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode" title="cuda.core.graph.AllocNode"><span class="pre">AllocNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.ConditionalNode.allocate" title="Link to this definition">#</a></dt>
 <dd><p>Add a memory allocation node depending on this node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of bytes to allocate.</p></li>
-<li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html#cuda.core.graph.GraphAllocOptions" title="cuda.core.graph.GraphAllocOptions"><em>GraphAllocOptions</em></a><em>, </em><em>optional</em>) – Allocation options. If None, allocates on the current device.</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a><em>, </em><em>optional</em>) – The device on which to allocate memory. If None (default),
+uses the current CUDA context’s device.</p></li>
+<li><p><strong>memory_type</strong> (<a class="reference internal" href="cuda.core.typing.GraphMemoryType.html#cuda.core.typing.GraphMemoryType" title="cuda.core.typing.GraphMemoryType"><em>GraphMemoryType</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – <p>Type of memory to allocate. One of:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphMemoryType.DEVICE</span></code> (default): Pinned device memory,
+optimal for GPU kernels.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphMemoryType.HOST</span></code>: Pinned host memory, accessible from
+both host and device. Useful for graphs containing host
+callback nodes. Note: may not be supported on all
+systems/drivers.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphMemoryType.MANAGED</span></code>: Managed/unified memory that
+automatically migrates between host and device. Useful for
+mixed host/device access patterns.</p></li>
+</ul>
+</p></li>
+<li><p><strong>peer_access</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a><em>, </em><em>optional</em>) – List of devices that should have read-write access to the
+allocated memory. If None (default), only the allocating
+device has access.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -701,6 +728,9 @@ device pointer via the dptr property.</p>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode" title="cuda.core.graph.AllocNode">AllocNode</a></p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>IPC (inter-process communication) is not supported for graph
+memory allocation nodes per CUDA documentation.</p>
 </dd></dl>
 
 <dl class="py method">
