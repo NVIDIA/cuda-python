@@ -163,6 +163,12 @@ Breaking changes
   :mod:`cuda.core.utils` module.
   (`#2028 <https://github.com/NVIDIA/cuda-python/issues/2028>`__)
 
+- Replaced ``system.get_driver_version()`` and
+  ``system.get_driver_version_full()`` with
+  :func:`system.get_user_mode_driver_version` (works with or without
+  NVML) and :func:`system.get_kernel_mode_driver_version` (requires
+  NVML).  Each returns a ``tuple[int, ...]``.
+
 Fixes and enhancements
 -----------------------
 

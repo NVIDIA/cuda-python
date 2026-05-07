@@ -274,8 +274,8 @@ Basic functions
 .. autosummary::
    :toctree: generated/
 
-   system.get_driver_version
-   system.get_driver_version_full
+   system.get_user_mode_driver_version
+   system.get_kernel_mode_driver_version
    system.get_driver_branch
    system.get_num_devices
    system.get_nvml_version
