@@ -1,6 +1,0 @@
-﻿cuda.core.system.enums.GpuTopologyLevel
-=======================================
-
-.. currentmodule:: cuda.core.system.enums
-
-.. autoenum:: GpuTopologyLevel

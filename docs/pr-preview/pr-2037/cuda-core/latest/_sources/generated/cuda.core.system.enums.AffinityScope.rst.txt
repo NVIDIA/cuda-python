@@ -1,6 +1,0 @@
-﻿cuda.core.system.enums.AffinityScope
-====================================
-
-.. currentmodule:: cuda.core.system.enums
-
-.. autoenum:: AffinityScope

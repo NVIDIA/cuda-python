@@ -1,6 +1,0 @@
-﻿cuda.core.system.enums.InforomObject
-====================================
-
-.. currentmodule:: cuda.core.system.enums
-
-.. autoenum:: InforomObject

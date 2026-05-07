@@ -1,6 +1,0 @@
-﻿cuda.core.enums.VirtualMemoryGranularityType
-============================================
-
-.. currentmodule:: cuda.core.enums
-
-.. autoenum:: VirtualMemoryGranularityType
