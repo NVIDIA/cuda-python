@@ -41,7 +41,7 @@ def get_user_mode_driver_version() -> tuple[int, ...]:
     Returns
     -------
     version : tuple[int, ...]
-        A 2-tuple ``(MAJOR, MINOR)``.
+        A 2-tuple ``(MAJOR, MINOR)``, e.g. ``(13, 0)`` for CUDA 13.0.
     """
     cdef int v
     if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
@@ -54,12 +54,13 @@ def get_user_mode_driver_version() -> tuple[int, ...]:
 
 def get_kernel_mode_driver_version() -> tuple[int, ...]:
     """
-    Get the kernel-mode (KMD / GPU) driver version.
+    Get the kernel-mode (KMD / GPU) driver version, e.g. 580.65.06.
 
     Returns
     -------
     version : tuple[int, ...]
-        Typically a 3-tuple ``(MAJOR, MINOR, PATCH)`` (2-tuple on WSL).
+        Typically a 3-tuple ``(MAJOR, MINOR, PATCH)``
+        (2-tuple on WSL), e.g. ``(580, 65, 6)``.
 
     Raises
     ------
