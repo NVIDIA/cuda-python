@@ -22,11 +22,30 @@ Unlike ``cuda.bindings``, the ``cuda.core`` version is *not* aligned with the CU
 Consult the table below or the :doc:`release notes <release>` to determine which CUDA versions are
 supported by a given ``cuda.core`` release.
 
+Project Lifecycle & Release Cadence
+***********************************
+
+- ``cuda.core`` follows its own release cadence, independent of CUDA Toolkit releases, as long as
+  SemVer guarantees are maintained.
+
+   - We currently aim for bimonthly releases, though this is subject to change.
+
+- Major version releases are aligned to CUDA major version releases.
+- New features may be delivered in minor releases at any time — not gated by the CUDA Toolkit
+  release schedule.
+- Patch releases can be made on an as-needed basis, subject to urgency and the team's bandwidth.
+- We currently do not plan to maintain multiple releases, nor have any backport policy for new features or bug fixes.
+- Deprecation notices will be issued at least for one (1) minor release, before the actual removal
+  happens.
+
 CUDA Version Support
 --------------------
 
 ``cuda.core`` is actively maintained to support the two (2) most recent CUDA major versions. For
 example, ``cuda.core`` 1.x supports CUDA 12 and 13.
+
+In particular, what this entails is that all CUDA minor versions within the two major releases
+(12.x, 13.x) are supported by the same ``cuda-core`` package.
 
 When a new CUDA major version is released and support for the oldest major version is dropped,
 ``cuda.core`` will release a new major version (e.g., 1.x → 2.0.0).
@@ -39,9 +58,9 @@ When a new CUDA major version is released and support for the oldest major versi
    * - 1.x
      - 12, 13
 
-As with any CUDA library, certain features may impose additional requirements on
-the minimum ``cuda-bindings`` or CUDA driver version. Refer to the individual
-module documentation for details.
+As with any CUDA library, certain features may impose additional requirements on the minimum
+``cuda-bindings``, CUDA library, or CUDA driver versions. Refer to the individual module
+documentation for details.
 
 Python Version Support
 ----------------------
@@ -56,21 +75,11 @@ Free-threading Build Support
 ----------------------------
 
 As of ``cuda.core`` 1.0.0, wheels for the `free-threaded interpreter
-<https://docs.python.org/3/howto/free-threading-python.html>`_ are shipped to PyPI. This support
-is currently *experimental*.
+<https://docs.python.org/3/howto/free-threading-python.html>`_ are shipped to PyPI and conda-forge.
+This support is currently *experimental*.
 
-1. For now, you are responsible for making sure that calls into the underlying CUDA libraries
-   are thread-safe. This is subject to change.
-
-Release Cadence
----------------
-
-- ``cuda.core`` follows its own release cadence, independent of CUDA Toolkit releases, as long as
-  SemVer guarantees are maintained.
-- We currently aim for bimonthly releases, though this is subject to change.
-- Major version releases are aligned to CUDA major version releases.
-- New features may be delivered in minor releases at any time — not gated by the CUDA Toolkit
-  release schedule.
+For now, you are responsible for making sure that calls into the underlying CUDA libraries
+are thread-safe. This is subject to change.
 
 ----
 
