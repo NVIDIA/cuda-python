@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -67,8 +67,6 @@ def test_experimental_backward_compatibility():
     assert cuda.core.experimental.Program is cuda.core.Program
     assert cuda.core.experimental.Kernel is cuda.core.Kernel
     assert cuda.core.experimental.ObjectCode is cuda.core.ObjectCode
-    assert cuda.core.experimental.Graph is cuda.core.Graph
-    assert cuda.core.experimental.GraphBuilder is cuda.core.GraphBuilder
     assert cuda.core.experimental.Event is cuda.core.Event
     assert cuda.core.experimental.Linker is cuda.core.Linker
 
@@ -95,8 +93,6 @@ def test_experimental_backward_compatibility():
     assert hasattr(cuda.core.experimental, "LaunchConfig")
     assert hasattr(cuda.core.experimental, "ProgramOptions")
     assert hasattr(cuda.core.experimental, "LinkerOptions")
-    assert hasattr(cuda.core.experimental, "GraphCompleteOptions")
-    assert hasattr(cuda.core.experimental, "GraphDebugPrintOptions")
     assert hasattr(cuda.core.experimental, "DeviceMemoryResourceOptions")
     assert hasattr(cuda.core.experimental, "VirtualMemoryResourceOptions")
 
