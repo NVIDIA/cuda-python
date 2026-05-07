@@ -17,5 +17,6 @@ cdef class Program:
         object _compile_lock  # Per-instance lock for compile-time mutation
         bint _use_libdevice      # Flag for libdevice loading
         bint _libdevice_added
-        bytes _nvrtc_code       # Source code for NVRTC retry (PCH auto-resize)
+        bytes _code             # Source code as bytes: used for key derivation and NVRTC PCH retry
+        str _code_type          # Normalised code_type ("c++", "ptx", "nvvm")
         str _pch_status         # PCH creation outcome after compile
