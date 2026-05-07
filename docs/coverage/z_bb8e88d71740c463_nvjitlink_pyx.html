@@ -44,8 +44,32 @@
   "I": "tests/test_nvjitlink.py::test_create_and_destroy[sm_100]|run",
   "J": "tests/test_nvjitlink.py::test_create_and_destroy_bytes_options|run",
   "K": "tests/test_nvjitlink.py::test_package_version|run",
-  "L": "tests/test_linker.py::test_linker_get_error_log|run",
-  "M": "tests/test_linker.py::test_linker_init_invalid_arch|run"
+  "L": "tests/test_program_cache.py::test_make_program_cache_key_accepts_external_content_options_for_ptx[include_path]|run",
+  "M": "tests/test_program_cache.py::test_make_program_cache_key_accepts_external_content_options_for_ptx[pch]|run",
+  "N": "tests/test_program_cache.py::test_make_program_cache_key_accepts_external_content_options_for_ptx[pch_dir]|run",
+  "O": "tests/test_program_cache.py::test_make_program_cache_key_accepts_external_content_options_for_ptx[pre_include]|run",
+  "P": "tests/test_program_cache.py::test_make_program_cache_key_accepts_external_content_options_for_ptx[use_pch]|run",
+  "Q": "tests/test_program_cache.py::test_make_program_cache_key_accepts_side_effect_options_for_ptx[time_path]|run",
+  "R": "tests/test_program_cache.py::test_make_program_cache_key_accepts_side_effect_options_for_ptx[time_true]|run",
+  "S": "tests/test_program_cache.py::test_make_program_cache_key_fails_closed_on_probe_failure[linker]|run",
+  "T": "tests/test_program_cache.py::test_make_program_cache_key_ignores_invalid_name_expressions_for_non_nvrtc[ptx]|run",
+  "U": "tests/test_program_cache.py::test_make_program_cache_key_ignores_name_expressions_for_non_nvrtc[ptx]|run",
+  "V": "tests/test_program_cache.py::test_make_program_cache_key_is_deterministic[ptx-.version 7.0]|run",
+  "W": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[PTX]|run",
+  "X": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[Ptx]|run",
+  "Y": "tests/test_program_cache.py::test_make_program_cache_key_ptx_accepts_driver_linker_unsupported_with_nvjitlink|run",
+  "Z": "tests/test_program_cache.py::test_make_program_cache_key_ptx_driver_ignored_fields_still_matter_under_nvjitlink|run",
+  "0": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ignores_nvrtc_only_options|run",
+  "1": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[empty_list_vs_empty_tuple]|run",
+  "2": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[list_vs_tuple]|run",
+  "3": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[none_vs_empty_list]|run",
+  "4": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[none_vs_empty_tuple]|run",
+  "5": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[str_vs_list]|run",
+  "6": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[str_vs_tuple]|run",
+  "7": "tests/test_program_cache.py::test_make_program_cache_key_survives_cuda_core_version_change[linker]|run",
+  "8": "tests/test_program_cache.py::test_make_program_cache_key_use_libdevice_ignored_for_non_nvvm[ptx]|run",
+  "9": "tests/test_linker.py::test_linker_get_error_log|run",
+  "!": "tests/test_linker.py::test_linker_init_invalid_arch|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -108,7 +132,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_nvml_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-06 01:16 +0000
+            created at 2026-05-07 01:22 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -194,10 +218,10 @@
     <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">class nvJitLinkError(Exception):</span>&nbsp;</span><span class="r"><label for="ctxs69" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    def __init__(self, status):</span>&nbsp;</span><span class="r"><label for="ctxs71" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">        self.status = status</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">4 ctx</label></span><span class="ctxs">1LMDE</span></p>
-    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        s = Result(status)</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">4 ctx</label></span><span class="ctxs">1LMDE</span></p>
-    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        cdef str err = f"{s.name} ({s.value})"</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">4 ctx</label></span><span class="ctxs">1LMDE</span></p>
-    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">        super(nvJitLinkError, self).__init__(err)</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">4 ctx</label></span><span class="ctxs">1LMDE</span></p>
+    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">        self.status = status</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">4 ctx</label></span><span class="ctxs">19!DE</span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        s = Result(status)</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">4 ctx</label></span><span class="ctxs">19!DE</span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        cdef str err = f"{s.name} ({s.value})"</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">4 ctx</label></span><span class="ctxs">19!DE</span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">        super(nvJitLinkError, self).__init__(err)</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">4 ctx</label></span><span class="ctxs">19!DE</span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">    def __reduce__(self):</span>&nbsp;</span><span class="r"><label for="ctxs77" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">        return (type(self), (self.status,))</span>&nbsp;</span><span class="r"></span></p>
@@ -205,10 +229,10 @@
     <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">@cython.profile(False)</span>&nbsp;</span><span class="r"><label for="ctxs81" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">cdef int check_status(int status) except 1 nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    if status != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">37 ctx</label></span><span class="ctxs">1arstuvwxyzABCFGHIJnopqbcdefghijklmDKE</span></p>
+    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    if status != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">61 ctx</label></span><span class="ctxs">1arstuvwxyzABCFGHIJnopqbcdefghijklmDKELMNOPQRSTUVWXYZ012345678</span></p>
     <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">2 ctx</label></span><span class="ctxs">1DE</span></p>
     <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">            raise nvJitLinkError(status)</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">2 ctx</label></span><span class="ctxs">1DE</span></p>
-    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">    return status</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">35 ctx</label></span><span class="ctxs">1arstuvwxyzABCFGHIJnopqbcdefghijklmK</span></p>
+    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">    return status</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">59 ctx</label></span><span class="ctxs">1arstuvwxyzABCFGHIJnopqbcdefghijklmKLMNOPQRSTUVWXYZ012345678</span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
@@ -455,10 +479,10 @@
     <p class="pln"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">    cdef unsigned int major</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">    cdef unsigned int minor</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs333"><span class="r"><label for="ctxs333" class="ctx">2 ctx</label></span><span class="ctxs">1aK</span></p>
-    <p class="run"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">        __status__ = nvJitLinkVersion(&amp;major, &amp;minor)</span>&nbsp;</span><input type="checkbox" id="ctxs334"><span class="r"><label for="ctxs334" class="ctx">2 ctx</label></span><span class="ctxs">1aK</span></p>
-    <p class="run"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs335"><span class="r"><label for="ctxs335" class="ctx">2 ctx</label></span><span class="ctxs">1aK</span></p>
-    <p class="run"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">    return (major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs336"><span class="r"><label for="ctxs336" class="ctx">2 ctx</label></span><span class="ctxs">1aK</span></p>
+    <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs333"><span class="r"><label for="ctxs333" class="ctx">26 ctx</label></span><span class="ctxs">1aKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">        __status__ = nvJitLinkVersion(&amp;major, &amp;minor)</span>&nbsp;</span><input type="checkbox" id="ctxs334"><span class="r"><label for="ctxs334" class="ctx">26 ctx</label></span><span class="ctxs">1aKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs335"><span class="r"><label for="ctxs335" class="ctx">26 ctx</label></span><span class="ctxs">1aKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">    return (major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs336"><span class="r"><label for="ctxs336" class="ctx">26 ctx</label></span><span class="ctxs">1aKLMNOPQRSTUVWXYZ012345678</span></p>
 </main>
 <footer>
     <div class="content">
@@ -468,7 +492,7 @@
             <a class="nav" href="z_bb8e88d71740c463_nvml_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-06 01:16 +0000
+            created at 2026-05-07 01:22 +0000
         </p>
     </div>
 </footer>

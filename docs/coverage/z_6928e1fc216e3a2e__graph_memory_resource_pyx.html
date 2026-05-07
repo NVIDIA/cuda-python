@@ -91,7 +91,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__ipc_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-06 01:16 +0000
+            created at 2026-05-07 01:22 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -122,7 +122,7 @@
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">    as_cu,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">from cuda.core._stream cimport default_stream, Stream_accept, Stream</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">from cuda.core._stream cimport Stream_accept, Stream</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">from cuda.core._utils.cuda_utils cimport HANDLE_RETURN</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">from functools import cache</span>&nbsp;</span><span class="r"><label for="ctxs20" class="ctx">(empty)</label></span></p>
@@ -212,19 +212,19 @@
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">    def __cinit__(self, int device_id):</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">        self._device_id = device_id</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">    def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:</span>&nbsp;</span><span class="r"><label for="ctxs107" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:</span>&nbsp;</span><span class="r"><label for="ctxs107" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        Allocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        stream = Stream_accept(stream) if stream is not None else default_stream()</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">18 ctx</label></span><span class="ctxs">1efgnopqrshijklmbac</span></p>
-    <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">        return GMR_allocate(self, size, &lt;Stream> stream)</span>&nbsp;</span><input type="checkbox" id="ctxs112"><span class="r"><label for="ctxs112" class="ctx">18 ctx</label></span><span class="ctxs">1efgnopqrshijklmbac</span></p>
+    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        cdef Stream s = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">18 ctx</label></span><span class="ctxs">1efgnopqrshijklmbac</span></p>
+    <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">        return GMR_allocate(self, size, s)</span>&nbsp;</span><input type="checkbox" id="ctxs112"><span class="r"><label for="ctxs112" class="ctx">18 ctx</label></span><span class="ctxs">1efgnopqrshijklmbac</span></p>
     <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    def deallocate(self, ptr: "DevicePointerType", size_t size, stream: Stream | GraphBuilder | None = None):</span>&nbsp;</span><span class="r"><label for="ctxs114" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    def deallocate(self, ptr: "DevicePointerType", size_t size, *, stream: Stream | GraphBuilder):</span>&nbsp;</span><span class="r"><label for="ctxs114" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">        Deallocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        stream = Stream_accept(stream) if stream is not None else default_stream()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        return GMR_deallocate(ptr, size, &lt;Stream> stream)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        cdef Stream s = Stream_accept(stream)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        return GMR_deallocate(ptr, size, s)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">    def close(self):</span>&nbsp;</span><span class="r"><label for="ctxs121" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        """No operation (provided for compatibility)."""</span>&nbsp;</span><span class="r"></span></p>
@@ -320,7 +320,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__ipc_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-06 01:16 +0000
+            created at 2026-05-07 01:22 +0000
         </p>
     </div>
 </footer>
