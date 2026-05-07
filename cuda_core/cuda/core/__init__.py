@@ -28,7 +28,7 @@ _import_versioned_module()
 del _import_versioned_module
 
 
-from cuda.core import checkpoint, graph, system, utils
+from cuda.core import checkpoint, system, utils
 from cuda.core._context import Context, ContextOptions
 from cuda.core._device import Device
 from cuda.core._device_resources import (
@@ -66,3 +66,10 @@ from cuda.core._stream import (
     StreamOptions,
 )
 from cuda.core._tensor_map import TensorMapDescriptor, TensorMapDescriptorOptions
+
+# isort: split
+# Must come after the cuda.core._* extension imports above: loading graph
+# earlier interacts badly with the merged-wheel __path__ rewrite and leaves
+# Graph/GraphBuilder/GraphCompleteOptions/GraphDebugPrintOptions missing from
+# cuda.core.graph.
+import cuda.core.graph
