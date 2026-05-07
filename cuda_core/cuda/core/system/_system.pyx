@@ -34,9 +34,7 @@ def get_user_mode_driver_version() -> tuple[int, ...]:
     Get the user-mode (UMD / CUDA) driver version.
 
     This is the most commonly needed version when checking CUDA driver
-    compatibility.  It works with all ``cuda-bindings`` versions: when
-    NVML is available it uses NVML, otherwise it falls back to the
-    CUDA driver API.
+    compatibility.  It works with all ``cuda-bindings`` versions.
 
     Returns
     -------
