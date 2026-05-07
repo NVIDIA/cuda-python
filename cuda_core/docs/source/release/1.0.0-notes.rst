@@ -42,6 +42,15 @@ New features
     utilization rates.
     (`#1918 <https://github.com/NVIDIA/cuda-python/pull/1918>`__)
 
+- :meth:`Program.compile` now accepts an optional ``cache=`` keyword argument
+  for avoiding recompilation of identical source + options + target. Two
+  concrete implementations of the :class:`~utils.ProgramCacheResource` ABC are
+  provided: :class:`~utils.InMemoryProgramCache` (thread-safe, single-process
+  LRU) and :class:`~utils.FileStreamProgramCache` (disk-backed, cross-process
+  safe, LRU-evicting). A standalone :func:`~utils.make_program_cache_key`
+  function is exposed for callers who need to incorporate additional content
+  (e.g. headers or PCH files) into the cache key.
+  (`#1912 <https://github.com/NVIDIA/cuda-python/pull/1912>`__)
 - Re-wrapped NVML enums as human-readable ``StrEnum`` subclasses instead of raw
   integer re-exports from ``cuda.bindings.nvml``. These are available in
   ``cuda.core.system.typing``.
@@ -330,6 +339,16 @@ Fixes and enhancements
 - CUDA Runtime error messages are now more reliable, especially on Windows
   where the runtime DLL name table could disagree with the installed bindings.
   (`#2003 <https://github.com/NVIDIA/cuda-python/pull/2003>`__)
+- Graph kernel nodes now prevent Python kernel-argument objects from being
+  garbage-collected before the graph executes. Previously, objects passed as
+  kernel arguments (e.g. a :class:`Buffer`) could be freed if the only Python
+  reference was through the launch call, causing the graph to operate on stale
+  device pointers.
+  (`#2041 <https://github.com/NVIDIA/cuda-python/pull/2041>`__)
+- Fixed a potential crash in ``DeviceEvents.__dealloc__`` when ``__init__``
+  raised before the NVML event set was created, due to freeing an uninitialized
+  handle.
+  (`#2047 <https://github.com/NVIDIA/cuda-python/pull/2047>`__)
 - Linux release wheels are now stripped of debug symbols, significantly reducing
   package size. Debug builds are now supported via
   ``--config-settings=debug=true``.
