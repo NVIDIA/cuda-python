@@ -6,11 +6,10 @@
 ``cuda.core`` API Reference
 ===========================
 
-This is the main API reference for ``cuda.core``. The package has not yet
-reached version 1.0.0, and APIs may change between minor versions, possibly
-without deprecation warnings. Once version 1.0.0 is released, APIs will
-be considered stable and will follow semantic versioning with appropriate
-deprecation periods for breaking changes.
+This is the main API reference for ``cuda.core``. As of version 1.0.0, all
+APIs are considered stable and follow `Semantic Versioning <https://semver.org/>`_
+with appropriate deprecation periods for breaking changes. See the
+:doc:`support policy <support>` for details.
 
 
 Devices and execution
@@ -260,46 +259,6 @@ execution.
 
    checkpoint.Process
 
-
-CUDA system information and NVIDIA Management Library (NVML)
-------------------------------------------------------------
-
-.. note::
-   ``cuda.core.system`` support requires ``cuda_bindings`` 12.9.6 or later, or 13.2.0 or later.
-
-Basic functions
-```````````````
-
-.. autosummary::
-   :toctree: generated/
-
-   system.get_user_mode_driver_version
-   system.get_kernel_mode_driver_version
-   system.get_driver_branch
-   system.get_num_devices
-   system.get_nvml_version
-   system.get_process_name
-   system.get_topology_common_ancestor
-   system.get_p2p_status
-
-Events
-``````
-
-.. autosummary::
-   :toctree: generated/
-
-   system.register_events
-
-Types
-`````
-
-.. autosummary::
-   :toctree: generated/
-
-   :template: autosummary/cyclass.rst
-
-   system.Device
-   system.NvlinkInfo
 
 Utility functions
 -----------------

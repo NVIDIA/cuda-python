@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=86e04337"></script>
+    <script src="_static/documentation_options.js?v=2298c72e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev106';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev107';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -230,6 +230,13 @@
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
 <li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="api_nvml.html">
+    CUDA system information and NVIDIA Management Library (NVML)
+  </a>
+</li>
+
+
+<li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="environment_variables.html">
     Environment Variables
   </a>
@@ -239,6 +246,13 @@
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="contribute.html">
     Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="support.html">
+    cuda.core Support Policy
   </a>
 </li>
 
@@ -422,6 +436,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="api_nvml.html">
+    CUDA system information and NVIDIA Management Library (NVML)
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="environment_variables.html">
     Environment Variables
   </a>
@@ -431,6 +452,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="contribute.html">
     Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="support.html">
+    cuda.core Support Policy
   </a>
 </li>
 
@@ -553,6 +581,11 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api_nvml.html">CUDA system information and NVIDIA Management Library (NVML)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_user_mode_driver_version.html">cuda.core.system.get_user_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_kernel_mode_driver_version.html">cuda.core.system.get_kernel_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
@@ -564,14 +597,13 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 </ul>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="support.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> Support Policy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Software License Agreement</a></li>
 </ul>
@@ -1146,10 +1178,10 @@
 </li>
       <li><a href="generated/cuda.core.Program.html#cuda.core.Program.compile">compile() (cuda.core.Program method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.typing.CompilerBackendType.html#cuda.core.typing.CompilerBackendType">CompilerBackendType (class in cuda.core.typing)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.complete">complete() (cuda.core.graph.GraphBuilder method)</a>
 </li>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.compute_capability">compute_capability (cuda.core.Device property)</a>
@@ -1285,6 +1317,13 @@
 
       <ul>
         <li><a href="api.html#module-cuda.core">module</a>
+</li>
+      </ul></li>
+      <li>
+    cuda.core.system
+
+      <ul>
+        <li><a href="api_nvml.html#module-cuda.core.system">module</a>
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.cuda_compute_capability">cuda_compute_capability (cuda.core.system.Device attribute)</a>
@@ -2653,10 +2692,10 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_layers">maximum_texturecubemap_layered_layers (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_width">maximum_texturecubemap_layered_width (cuda.core._device.DeviceProperties attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texturecubemap_width">maximum_texturecubemap_width (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._module.MaxPotentialBlockSizeOccupancyResult.html#cuda.core._module.MaxPotentialBlockSizeOccupancyResult">MaxPotentialBlockSizeOccupancyResult (in module cuda.core._module)</a>
@@ -2798,6 +2837,8 @@
 
       <ul>
         <li><a href="api.html#module-cuda.core">cuda.core</a>
+</li>
+        <li><a href="api_nvml.html#module-cuda.core.system">cuda.core.system</a>
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.module_id">module_id (cuda.core.system.Device attribute)</a>

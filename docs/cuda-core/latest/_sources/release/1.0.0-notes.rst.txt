@@ -10,21 +10,96 @@
 Highlights
 ----------
 
-- TBD
-
-
-New features
-------------
-
+- First stable release of ``cuda.core``! As of version 1.0.0, all
+  APIs are considered stable and follow Semantic Versioning (SemVer)
+  with appropriate deprecation periods for breaking changes. See the
+  :doc:`support policy <support>` for details.
+- Added green context support (CUDA 12.4+). New types :class:`Context`,
+  :class:`ContextOptions`, :class:`SMResource`, :class:`SMResourceOptions`,
+  :class:`WorkqueueResource`, and :class:`WorkqueueResourceOptions` enable GPU
+  SM and workqueue resource partitioning. Create green contexts via
+  :meth:`Device.create_context`, then use :meth:`Context.create_stream` and
+  :attr:`Context.resources` to work within the partitioned resources.
+  (`#1976 <https://github.com/NVIDIA/cuda-python/pull/1976>`__)
 - Added the :mod:`cuda.core.checkpoint` module for CUDA process checkpointing,
   including string process state queries, lock/checkpoint/restore/unlock
   operations, and GPU UUID remapping support for restore.
   (`#1343 <https://github.com/NVIDIA/cuda-python/issues/1343>`__)
 
 
+New features
+------------
+
+- :meth:`Program.compile` now accepts an optional ``cache=`` keyword argument
+  for avoiding recompilation of identical source + options + target. Two
+  concrete implementations of the :class:`~utils.ProgramCacheResource` ABC are
+  provided: :class:`~utils.InMemoryProgramCache` (thread-safe, single-process
+  LRU) and :class:`~utils.FileStreamProgramCache` (disk-backed, cross-process
+  safe, LRU-evicting). A standalone :func:`~utils.make_program_cache_key`
+  function is exposed for callers who need to incorporate additional content
+  (e.g. headers or PCH files) into the cache key.
+  (`#1912 <https://github.com/NVIDIA/cuda-python/pull/1912>`__)
+- Changes to the :mod:`cuda.core.system` module for NVIDIA Management Library (NVML)
+  access:
+
+  - :attr:`system.Device.mig` for querying and setting MIG mode, enumerating
+    MIG device instances, and navigating parent/child relationships.
+    (`#1916 <https://github.com/NVIDIA/cuda-python/pull/1916>`__)
+  - :attr:`system.Device.compute_running_processes` for querying running compute
+    processes on a device, returning :class:`~system.ProcessInfo` objects with
+    PID, GPU memory usage, and MIG instance IDs.
+    (`#1917 <https://github.com/NVIDIA/cuda-python/pull/1917>`__)
+  - :meth:`system.Device.get_nvlink` for querying NVLink version and state per
+    link, and :attr:`system.Device.utilization` returning current GPU and memory
+    utilization rates.
+    (`#1918 <https://github.com/NVIDIA/cuda-python/pull/1918>`__)
+
+- Enums are now available in places where a small number of string values are
+  accepted or returned.  You may continue to use the string values, or use
+  enumerations for better linting and type-checking.
+  (`#2016 <https://github.com/NVIDIA/cuda-python/issues/2016>`__)
+  The new enums are:
+
+  - :class:`cuda.core.typing.CompilerBackendType`
+  - :class:`cuda.core.typing.GraphConditionalType`
+  - :class:`cuda.core.typing.GraphMemoryType`
+  - :class:`cuda.core.typing.ManagedMemoryLocationType`
+  - :class:`cuda.core.typing.ObjectCodeFormatType`
+  - :class:`cuda.core.typing.PCHStatusType`
+  - :class:`cuda.core.typing.SourceCodeType`
+  - :class:`cuda.core.typing.VirtualMemoryAccessType`
+  - :class:`cuda.core.typing.VirtualMemoryAllocationType`
+  - :class:`cuda.core.typing.VirtualMemoryGranularityType`
+  - :class:`cuda.core.typing.VirtualMemoryHandleType`
+  - :class:`cuda.core.typing.VirtualMemoryLocationType`
+
+
 Breaking changes
 ----------------
 
+- :class:`~utils.StridedMemoryView` now provides a fast path for ``torch.Tensor``
+  objects via PyTorch's AOT Inductor (AOTI) stable C ABI. When a ``torch.Tensor``
+  is passed to any ``from_*`` classmethod (``from_dlpack``,
+  ``from_cuda_array_interface``, ``from_array_interface``, or
+  ``from_any_interface``), tensor metadata is read directly from the underlying
+  C struct, bypassing the DLPack and CUDA Array Interface protocol overhead.
+  This yields ~7–20x faster ``StridedMemoryView`` construction for PyTorch
+  tensors (depending on whether stream ordering is required). Proper CUDA stream
+  ordering is established between PyTorch's current stream and the consumer
+  stream, matching the DLPack synchronization contract.
+  Requires PyTorch >= 2.3.
+
+  This is a *behavioral* breaking change: because the AOTI tensor bridge reads
+  raw metadata without re-enacting PyTorch's export guardrails, tensors that
+  PyTorch would reject at the DLPack boundary (notably ``requires_grad``,
+  conjugated, non-strided/sparse, and wrong-current-device CUDA tensors) are
+  now accepted. This is intentional — ``StridedMemoryView`` is designed for
+  low-level interop where those checks are not needed.
+  (`#749 <https://github.com/NVIDIA/cuda-python/issues/749>`__)
+- Removed the deprecated ``cuda.core.experimental`` namespace. All public APIs
+  have been available under ``cuda.core`` since v0.5.0. Code that imports from
+  ``cuda.core.experimental`` must be updated to import from ``cuda.core``
+  instead.
 - Graph types are no longer re-exported from the top-level ``cuda.core``
   namespace; they must be imported from :mod:`cuda.core.graph`. The affected
   symbols are :class:`~graph.Graph`, :class:`~graph.GraphBuilder`,
@@ -32,8 +107,7 @@ Breaking changes
   :class:`~graph.GraphDebugPrintOptions`, and :class:`~graph.GraphDefinition`.
   Update ``from cuda.core import GraphBuilder`` to
   ``from cuda.core.graph import GraphBuilder`` (and similarly for the other
-  symbols). The same symbols are also no longer forwarded through the
-  deprecated ``cuda.core.experimental`` namespace.
+  symbols).
 - Removed the ``GraphAllocOptions`` dataclass and the
   ``AllocNode.options`` property. Its fields are now keyword-only
   parameters on :meth:`graph.GraphDefinition.allocate` and
@@ -171,8 +245,69 @@ Breaking changes
   - :obj:`cuda.core.typing.DevicePointerT` -> :obj:`cuda.core.typing.DevicePointerType`
   - :obj:`cuda.core.typing.IsStreamT` -> :obj:`cuda.core.typing.IsStreamType`
 
-- :func:`args_viewable_as_strided_memory` and :class:`StridedMemoryView` are now
-  longer at the top-level in :mod:`cuda.core`.  They are available publicly from the
+- Renamed and converted multiple :class:`~system.Device` properties and methods
+  for naming consistency
+  (`#1946 <https://github.com/NVIDIA/cuda-python/pull/1946>`__):
+
+  On :class:`~system.Device`:
+
+  - ``is_c2c_mode_enabled`` -> ``is_c2c_enabled``
+  - ``persistence_mode_enabled`` -> ``is_persistence_mode_enabled``
+  - ``clock(clock_type)`` -> ``get_clock(clock_type)``
+  - ``get_auto_boosted_clocks_enabled()`` -> ``is_auto_boosted_clocks_enabled``
+    (method -> property)
+  - ``get_current_clock_event_reasons()`` -> ``current_clock_event_reasons``
+    (method -> property)
+  - ``get_supported_clock_event_reasons()`` -> ``supported_clock_event_reasons``
+    (method -> property)
+  - ``display_mode`` -> ``is_display_connected``
+  - ``display_active`` -> ``is_display_active``
+  - ``fan(fan=0)`` -> ``get_fan(fan=0)``
+  - ``get_supported_pstates()`` -> ``supported_pstates``
+    (method -> property)
+
+  On ``PciInfo``:
+
+  - ``get_max_pcie_link_generation()`` -> ``link_generation`` (method -> property)
+  - ``get_gpu_max_pcie_link_generation()`` -> ``max_link_generation``
+    (method -> property)
+  - ``get_max_pcie_link_width()`` -> ``max_link_width`` (method -> property)
+  - ``get_current_pcie_link_generation()`` -> ``current_link_generation``
+    (method -> property)
+  - ``get_current_pcie_link_width()`` -> ``current_link_width``
+    (method -> property)
+  - ``get_pcie_throughput(counter)`` -> ``get_throughput(counter)``
+  - ``get_pcie_replay_counter()`` -> ``replay_counter`` (method -> property)
+
+  On ``Temperature``:
+
+  - ``sensor(sensor=...)`` -> ``get_sensor(sensor=...)``
+  - ``threshold(threshold_type)`` -> ``get_threshold(threshold_type)``
+  - ``thermal_settings(sensor_index)`` -> ``get_thermal_settings(sensor_index)``
+
+  On ``FanInfo``:
+
+  - ``set_default_fan_speed()`` -> ``set_default_speed()``
+
+- Re-wrapped NVML enums as human-readable ``StrEnum`` subclasses instead of raw
+  integer re-exports from ``cuda.bindings.nvml``. These are available in
+  ``cuda.core.system.typing``.
+  (`#2014 <https://github.com/NVIDIA/cuda-python/pull/2014>`__)
+- Removed 18 helper/data-container classes from ``cuda.core.system.__all__``:
+  ``BAR1MemoryInfo``, ``ClockInfo``, ``ClockOffsets``, ``CoolerInfo``,
+  ``DeviceAttributes``, ``DeviceEvents``, ``EventData``, ``FanInfo``,
+  ``FieldValue``, ``FieldValues``, ``GpuDynamicPstatesInfo``,
+  ``GpuDynamicPstatesUtilization``, ``InforomInfo``, ``PciInfo``,
+  ``RepairStatus``, ``Temperature``, ``ThermalSensor``, ``ThermalSettings``.
+  These classes are still returned by :class:`~system.Device` properties and
+  methods but should not be directly instantiated by users.
+  (`#1942 <https://github.com/NVIDIA/cuda-python/pull/1942>`__)
+- :attr:`system.Device.uuid` now returns the full NVML UUID with prefix
+  (e.g. ``GPU-...``). Use :attr:`system.Device.uuid_without_prefix` for
+  the previous behavior.
+  (`#1916 <https://github.com/NVIDIA/cuda-python/pull/1916>`__)
+- :func:`args_viewable_as_strided_memory` and :class:`StridedMemoryView` were accidentally
+  exposed at the top-level in :mod:`cuda.core`.  They are available publicly from the
   :mod:`cuda.core.utils` module.
   (`#2028 <https://github.com/NVIDIA/cuda-python/issues/2028>`__)
 
@@ -182,36 +317,43 @@ Breaking changes
   NVML) and :func:`system.get_kernel_mode_driver_version` (requires
   NVML).  Each returns a ``tuple[int, ...]``.
 
+
 Fixes and enhancements
 -----------------------
 
-- :class:`~utils.StridedMemoryView` now provides a fast path for ``torch.Tensor``
-  objects via PyTorch's AOT Inductor (AOTI) stable C ABI. When a ``torch.Tensor``
-  is passed to any ``from_*`` classmethod (``from_dlpack``,
-  ``from_cuda_array_interface``, ``from_array_interface``, or
-  ``from_any_interface``), tensor metadata is read directly from the underlying
-  C struct, bypassing the DLPack and CUDA Array Interface protocol overhead.
-  This yields ~7-20x faster ``StridedMemoryView`` construction for PyTorch
-  tensors (depending on whether stream ordering is required).  Proper CUDA stream ordering is established between PyTorch's current
-  stream and the consumer stream, matching the DLPack synchronization contract.
-  Requires PyTorch >= 2.3.
-  (`#749 <https://github.com/NVIDIA/cuda-python/issues/749>`__)
-
-- Enums are not available in places where a small number of string values are
-  accepted or returned.  You may continue to use the string values, or use
-  enumerations for better linting and type-checking.
-  (`#2016 <https://github.com/NVIDIA/cuda-python/issues/2016>`__)
-  The new enums are:
-
-  - :class:`cuda.core.typing.CompilerBackendType`
-  - :class:`cuda.core.typing.GraphConditionalType`
-  - :class:`cuda.core.typing.GraphMemoryType`
-  - :class:`cuda.core.typing.ManagedMemoryLocationType`
-  - :class:`cuda.core.typing.ObjectCodeFormatType`
-  - :class:`cuda.core.typing.PCHStatusType`
-  - :class:`cuda.core.typing.SourceCodeType`
-  - :class:`cuda.core.typing.VirtualMemoryAccessType`
-  - :class:`cuda.core.typing.VirtualMemoryAllocationType`
-  - :class:`cuda.core.typing.VirtualMemoryGranularityType`
-  - :class:`cuda.core.typing.VirtualMemoryHandleType`
-  - :class:`cuda.core.typing.VirtualMemoryLocationType`
+- Fixed :attr:`Buffer.is_managed` returning ``False`` for pool-allocated managed
+  memory (:class:`ManagedMemoryResource`), which caused DLPack interop to
+  misclassify managed buffers as ``kDLCUDAHost``. The fix queries both the
+  driver pointer attribute and the memory resource.
+  (`#1924 <https://github.com/NVIDIA/cuda-python/pull/1924>`__)
+- :attr:`system.Device.arch` now returns ``UNKNOWN`` instead of raising
+  ``ValueError`` when NVML reports an architecture not yet in the enum.
+  (`#1937 <https://github.com/NVIDIA/cuda-python/pull/1937>`__)
+- :meth:`system.Device.get_field_values` and
+  :meth:`system.Device.clear_field_values` with an empty list no longer raise
+  ``InvalidArgumentError``.
+  (`#1982 <https://github.com/NVIDIA/cuda-python/pull/1982>`__)
+- :class:`Linker` error and info log retrieval now properly checks return codes
+  from nvJitLink, raising exceptions on failure instead of silently ignoring
+  errors.
+  (`#1993 <https://github.com/NVIDIA/cuda-python/pull/1993>`__)
+- Fixed a potential crash when NVML event set creation failed on Windows, due to
+  ``__dealloc__`` freeing an uninitialized handle.
+  (`#1992 <https://github.com/NVIDIA/cuda-python/pull/1992>`__)
+- CUDA Runtime error messages are now more reliable, especially on Windows
+  where the runtime DLL name table could disagree with the installed bindings.
+  (`#2003 <https://github.com/NVIDIA/cuda-python/pull/2003>`__)
+- Graph kernel nodes now prevent Python kernel-argument objects from being
+  garbage-collected before the graph executes. Previously, objects passed as
+  kernel arguments (e.g. a :class:`Buffer`) could be freed if the only Python
+  reference was through the launch call, causing the graph to operate on stale
+  device pointers.
+  (`#2041 <https://github.com/NVIDIA/cuda-python/pull/2041>`__)
+- Fixed a potential crash in ``DeviceEvents.__dealloc__`` when ``__init__``
+  raised before the NVML event set was created, due to freeing an uninitialized
+  handle.
+  (`#2047 <https://github.com/NVIDIA/cuda-python/pull/2047>`__)
+- Linux release wheels are now stripped of debug symbols, significantly reducing
+  package size. Debug builds are now supported via
+  ``--config-settings=debug=true``.
+  (`#1890 <https://github.com/NVIDIA/cuda-python/pull/1890>`__)

@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=86e04337"></script>
+    <script src="_static/documentation_options.js?v=2298c72e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev106';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev107';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -233,6 +233,13 @@
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
 <li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="api_nvml.html">
+    CUDA system information and NVIDIA Management Library (NVML)
+  </a>
+</li>
+
+
+<li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="environment_variables.html">
     Environment Variables
   </a>
@@ -242,6 +249,13 @@
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="contribute.html">
     Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="support.html">
+    cuda.core Support Policy
   </a>
 </li>
 
@@ -429,6 +443,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="api_nvml.html">
+    CUDA system information and NVIDIA Management Library (NVML)
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="environment_variables.html">
     Environment Variables
   </a>
@@ -438,6 +459,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="contribute.html">
     Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="support.html">
+    cuda.core Support Policy
   </a>
 </li>
 
@@ -560,6 +588,11 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api_nvml.html">CUDA system information and NVIDIA Management Library (NVML)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_user_mode_driver_version.html">cuda.core.system.get_user_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_kernel_mode_driver_version.html">cuda.core.system.get_kernel_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
@@ -571,14 +604,13 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 </ul>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="support.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> Support Policy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Software License Agreement</a></li>
 </ul>
@@ -653,11 +685,10 @@
                   
   <section id="cuda-core-api-reference">
 <span id="module-cuda.core"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference<a class="headerlink" href="#cuda-core-api-reference" title="Link to this heading">#</a></h1>
-<p>This is the main API reference for <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>. The package has not yet
-reached version 1.0.0, and APIs may change between minor versions, possibly
-without deprecation warnings. Once version 1.0.0 is released, APIs will
-be considered stable and will follow semantic versioning with appropriate
-deprecation periods for breaking changes.</p>
+<p>This is the main API reference for <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>. As of version 1.0.0, all
+APIs are considered stable and follow <a class="reference external" href="https://semver.org/">Semantic Versioning</a>
+with appropriate deprecation periods for breaking changes. See the
+<a class="reference internal" href="support.html"><span class="doc">support policy</span></a> for details.</p>
 <section id="devices-and-execution">
 <h2>Devices and execution<a class="headerlink" href="#devices-and-execution" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
@@ -988,70 +1019,6 @@ execution.</p>
 </table>
 </div>
 </section>
-<section id="cuda-system-information-and-nvidia-management-library-nvml">
-<h2>CUDA system information and NVIDIA Management Library (NVML)<a class="headerlink" href="#cuda-system-information-and-nvidia-management-library-nvml" title="Link to this heading">#</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> support requires <code class="docutils literal notranslate"><span class="pre">cuda_bindings</span></code> 12.9.6 or later, or 13.2.0 or later.</p>
-</div>
-<section id="basic-functions">
-<h3>Basic functions<a class="headerlink" href="#basic-functions" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_user_mode_driver_version.html#cuda.core.system.get_user_mode_driver_version" title="cuda.core.system.get_user_mode_driver_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_user_mode_driver_version</span></code></a>()</p></td>
-<td><p>Get the user-mode (UMD / CUDA) driver version.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_kernel_mode_driver_version.html#cuda.core.system.get_kernel_mode_driver_version" title="cuda.core.system.get_kernel_mode_driver_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_kernel_mode_driver_version</span></code></a>()</p></td>
-<td><p>Get the kernel-mode (KMD / GPU) driver version, e.g. 580.65.06.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html#cuda.core.system.get_driver_branch" title="cuda.core.system.get_driver_branch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_driver_branch</span></code></a>()</p></td>
-<td><p>Retrieves the driver branch of the NVIDIA driver installed on the system.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html#cuda.core.system.get_num_devices" title="cuda.core.system.get_num_devices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_num_devices</span></code></a>()</p></td>
-<td><p>Return the number of devices in the system.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html#cuda.core.system.get_nvml_version" title="cuda.core.system.get_nvml_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_nvml_version</span></code></a>()</p></td>
-<td><p>The version of the NVML library.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_process_name.html#cuda.core.system.get_process_name" title="cuda.core.system.get_process_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_process_name</span></code></a>(int pid)</p></td>
-<td><p>The name of process with given PID.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_topology_common_ancestor.html#cuda.core.system.get_topology_common_ancestor" title="cuda.core.system.get_topology_common_ancestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_topology_common_ancestor</span></code></a>(...)</p></td>
-<td><p>Retrieve the common ancestor for two devices.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_p2p_status.html#cuda.core.system.get_p2p_status" title="cuda.core.system.get_p2p_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_p2p_status</span></code></a>(Device device1, ...)</p></td>
-<td><p>Retrieve the P2P status between two devices.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="events">
-<h3>Events<a class="headerlink" href="#events" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.register_events.html#cuda.core.system.register_events" title="cuda.core.system.register_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.register_events</span></code></a>(events)</p></td>
-<td><p>Starts recording of events on test system.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="types">
-<h3>Types<a class="headerlink" href="#types" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.Device</span></code></a>(int index, *, uuid, pci_bus_id)</p></td>
-<td><p>Representation of a device.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html#cuda.core.system.NvlinkInfo" title="cuda.core.system.NvlinkInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.NvlinkInfo</span></code></a>(Device device, int link)</p></td>
-<td><p>Nvlink information for a device.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-</section>
 <section id="utility-functions">
 <h2>Utility functions<a class="headerlink" href="#utility-functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
@@ -1134,12 +1101,6 @@ execution.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-process-checkpointing">CUDA process checkpointing</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-system-information-and-nvidia-management-library-nvml">CUDA system information and NVIDIA Management Library (NVML)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-functions">Basic functions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#events">Events</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#types">Types</a></li>
-</ul>
-</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utility-functions">Utility functions</a></li>
 </ul>
   </nav></div>
