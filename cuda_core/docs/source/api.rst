@@ -102,7 +102,6 @@ launched on a :class:`Stream`.
 
    :template: dataclass.rst
 
-   graph.GraphAllocOptions
    graph.GraphCompleteOptions
    graph.GraphDebugPrintOptions
 

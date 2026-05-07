@@ -34,6 +34,10 @@ Breaking changes
   ``from cuda.core.graph import GraphBuilder`` (and similarly for the other
   symbols). The same symbols are also no longer forwarded through the
   deprecated ``cuda.core.experimental`` namespace.
+- Removed the ``GraphAllocOptions`` dataclass and the
+  ``AllocNode.options`` property. Its fields are now keyword-only
+  parameters on :meth:`graph.GraphDefinition.allocate` and
+  :meth:`graph.GraphNode.allocate`.
 - Renamed :class:`~graph.GraphDef` to :class:`~graph.GraphDefinition` for
   consistency with the rest of the API, which spells words out (e.g.
   ``TensorMapDescriptor``, not ``TensorMapDesc``).

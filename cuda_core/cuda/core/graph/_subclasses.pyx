@@ -174,8 +174,6 @@ cdef class AllocNode(GraphNode):
         The type of memory allocated.
     peer_access : tuple of int
         Device IDs that have read-write access to this allocation.
-    options : GraphAllocOptions
-        A GraphAllocOptions reconstructed from this node's parameters.
     """
 
     @staticmethod
@@ -252,16 +250,6 @@ cdef class AllocNode(GraphNode):
     def peer_access(self) -> tuple:
         """Device IDs with read-write access to this allocation."""
         return self._peer_access
-
-    @property
-    def options(self):
-        """A GraphAllocOptions reconstructed from this node's parameters."""
-        from cuda.core.graph._graph_definition import GraphAllocOptions
-        return GraphAllocOptions(
-            device=self._device_id,
-            memory_type=self._memory_type,
-            peer_access=list(self._peer_access) if self._peer_access else None,
-        )
 
 
 cdef class FreeNode(GraphNode):

@@ -19,7 +19,6 @@ from cuda.core.graph import (
     EventRecordNode,
     EventWaitNode,
     FreeNode,
-    GraphAllocOptions,
     GraphCompleteOptions,
     GraphDebugPrintOptions,
     GraphDefinition,
@@ -269,23 +268,20 @@ def _build_alloc_node(g):
         "device_id": device_id,
         "memory_type": "device",
         "peer_access": (),
-        "options": GraphAllocOptions(device=device_id, memory_type="device"),
     }
 
 
 def _build_alloc_managed_node(g):
     _skip_if_no_managed_mempool()
     device_id = Device().device_id
-    options = GraphAllocOptions(memory_type=GraphMemoryType.MANAGED)
     entry = g.allocate(ALLOC_SIZE)
-    node = entry.allocate(ALLOC_SIZE, options)
+    node = entry.allocate(ALLOC_SIZE, memory_type=GraphMemoryType.MANAGED)
     return node, {
         "dptr": lambda v: v != 0,
         "bytesize": ALLOC_SIZE,
         "device_id": device_id,
         "memory_type": "managed",
         "peer_access": (),
-        "options": GraphAllocOptions(device=device_id, memory_type="managed"),
     }
 
 
@@ -831,9 +827,8 @@ def test_alloc_free_chain(sample_graphdef):
 
 def test_alloc_memory_type_invalid(sample_graphdef):
     """Invalid memory type raises ValueError."""
-    options = GraphAllocOptions(memory_type="invalid")
     with pytest.raises(ValueError, match="Invalid memory_type"):
-        sample_graphdef.allocate(ALLOC_SIZE, options)
+        sample_graphdef.allocate(ALLOC_SIZE, memory_type="invalid")
 
 
 @pytest.mark.parametrize(
@@ -847,8 +842,7 @@ def test_alloc_device_option(sample_graphdef, device_spec):
     """Device can be specified as int or Device object."""
     _skip_if_no_mempool()
     device = Device()
-    options = GraphAllocOptions(device=device_spec(device))
-    node = sample_graphdef.allocate(ALLOC_SIZE, options)
+    node = sample_graphdef.allocate(ALLOC_SIZE, device=device_spec(device))
     assert node.dptr != 0
 
 
@@ -856,8 +850,7 @@ def test_alloc_peer_access(mempool_device_x2):
     """AllocNode.peer_access reflects requested peers."""
     d0, d1 = mempool_device_x2
     g = GraphDefinition()
-    options = GraphAllocOptions(device=d0.device_id, peer_access=[d1.device_id])
-    node = g.allocate(ALLOC_SIZE, options)
+    node = g.allocate(ALLOC_SIZE, device=d0.device_id, peer_access=[d1.device_id])
     assert d1.device_id in node.peer_access
 
 
