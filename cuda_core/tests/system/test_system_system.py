@@ -19,18 +19,18 @@ from cuda.core._utils.cuda_utils import handle_return
 from .conftest import skip_if_nvml_unsupported
 
 
-@skip_if_nvml_unsupported
-def test_driver_version():
-    umd, kmd = system.get_driver_version()
-
-    # UMD: 2-tuple (major, minor), cross-check against cuDriverGetVersion
+def test_user_mode_driver_version():
+    umd = system.get_user_mode_driver_version()
     assert isinstance(umd, tuple)
     assert len(umd) == 2
     version = handle_return(driver.cuDriverGetVersion())
-    expected_umd = (version // 1000, (version % 1000) // 10)
-    assert umd == expected_umd, "UMD driver version does not match expected value"
+    expected = (version // 1000, (version % 1000) // 10)
+    assert umd == expected, "UMD driver version does not match expected value"
 
-    # KMD: 3-tuple (major, minor, patch), or 2-tuple on WSL
+
+@skip_if_nvml_unsupported
+def test_kernel_mode_driver_version():
+    kmd = system.get_kernel_mode_driver_version()
     assert isinstance(kmd, tuple)
     assert len(kmd) in (2, 3)
     ver_maj, ver_min, *ver_patch = kmd
@@ -55,11 +55,11 @@ def test_devices():
         assert device.device_id == expected_device.device_id, "Device ID does not match expected value"
 
 
-def test_driver_version_requires_nvml():
+def test_kernel_mode_driver_version_requires_nvml():
     if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         pytest.skip("NVML is available, cannot test the error path")
     with pytest.raises(RuntimeError, match="requires NVML support"):
-        system.get_driver_version()
+        system.get_kernel_mode_driver_version()
 
 
 @skip_if_nvml_unsupported
