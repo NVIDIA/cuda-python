@@ -10,16 +10,10 @@
 Highlights
 ----------
 
-- TBD
-
-
-New features
-------------
-
-- Added the :mod:`cuda.core.checkpoint` module for CUDA process checkpointing,
-  including string process state queries, lock/checkpoint/restore/unlock
-  operations, and GPU UUID remapping support for restore.
-  (`#1343 <https://github.com/NVIDIA/cuda-python/issues/1343>`__)
+- First stable release of ``cuda.core``! As of version 1.0.0, all
+  APIs are considered stable and follow Semantic Versioning (SemVer)
+  with appropriate deprecation periods for breaking changes. See the
+  :doc:`support policy <support>` for details.
 - Added green context support (CUDA 12.4+). New types :class:`Context`,
   :class:`ContextOptions`, :class:`SMResource`, :class:`SMResourceOptions`,
   :class:`WorkqueueResource`, and :class:`WorkqueueResourceOptions` enable GPU
@@ -27,6 +21,24 @@ New features
   :meth:`Device.create_context`, then use :meth:`Context.create_stream` and
   :attr:`Context.resources` to work within the partitioned resources.
   (`#1976 <https://github.com/NVIDIA/cuda-python/pull/1976>`__)
+- Added the :mod:`cuda.core.checkpoint` module for CUDA process checkpointing,
+  including string process state queries, lock/checkpoint/restore/unlock
+  operations, and GPU UUID remapping support for restore.
+  (`#1343 <https://github.com/NVIDIA/cuda-python/issues/1343>`__)
+
+
+New features
+------------
+
+- :meth:`Program.compile` now accepts an optional ``cache=`` keyword argument
+  for avoiding recompilation of identical source + options + target. Two
+  concrete implementations of the :class:`~utils.ProgramCacheResource` ABC are
+  provided: :class:`~utils.InMemoryProgramCache` (thread-safe, single-process
+  LRU) and :class:`~utils.FileStreamProgramCache` (disk-backed, cross-process
+  safe, LRU-evicting). A standalone :func:`~utils.make_program_cache_key`
+  function is exposed for callers who need to incorporate additional content
+  (e.g. headers or PCH files) into the cache key.
+  (`#1912 <https://github.com/NVIDIA/cuda-python/pull/1912>`__)
 - Changes to the :mod:`cuda.core.system` module for NVIDIA Management Library (NVML)
   access:
 
@@ -42,19 +54,6 @@ New features
     utilization rates.
     (`#1918 <https://github.com/NVIDIA/cuda-python/pull/1918>`__)
 
-- :meth:`Program.compile` now accepts an optional ``cache=`` keyword argument
-  for avoiding recompilation of identical source + options + target. Two
-  concrete implementations of the :class:`~utils.ProgramCacheResource` ABC are
-  provided: :class:`~utils.InMemoryProgramCache` (thread-safe, single-process
-  LRU) and :class:`~utils.FileStreamProgramCache` (disk-backed, cross-process
-  safe, LRU-evicting). A standalone :func:`~utils.make_program_cache_key`
-  function is exposed for callers who need to incorporate additional content
-  (e.g. headers or PCH files) into the cache key.
-  (`#1912 <https://github.com/NVIDIA/cuda-python/pull/1912>`__)
-- Re-wrapped NVML enums as human-readable ``StrEnum`` subclasses instead of raw
-  integer re-exports from ``cuda.bindings.nvml``. These are available in
-  ``cuda.core.system.typing``.
-  (`#2014 <https://github.com/NVIDIA/cuda-python/pull/2014>`__)
 - Enums are now available in places where a small number of string values are
   accepted or returned.  You may continue to use the string values, or use
   enumerations for better linting and type-checking.
@@ -290,6 +289,10 @@ Breaking changes
 
   - ``set_default_fan_speed()`` -> ``set_default_speed()``
 
+- Re-wrapped NVML enums as human-readable ``StrEnum`` subclasses instead of raw
+  integer re-exports from ``cuda.bindings.nvml``. These are available in
+  ``cuda.core.system.typing``.
+  (`#2014 <https://github.com/NVIDIA/cuda-python/pull/2014>`__)
 - Removed 18 helper/data-container classes from ``cuda.core.system.__all__``:
   ``BAR1MemoryInfo``, ``ClockInfo``, ``ClockOffsets``, ``CoolerInfo``,
   ``DeviceAttributes``, ``DeviceEvents``, ``EventData``, ``FanInfo``,
@@ -303,8 +306,8 @@ Breaking changes
   (e.g. ``GPU-...``). Use :attr:`system.Device.uuid_without_prefix` for
   the previous behavior.
   (`#1916 <https://github.com/NVIDIA/cuda-python/pull/1916>`__)
-- :func:`args_viewable_as_strided_memory` and :class:`StridedMemoryView` are now
-  longer at the top-level in :mod:`cuda.core`.  They are available publicly from the
+- :func:`args_viewable_as_strided_memory` and :class:`StridedMemoryView` were accidentally
+  exposed at the top-level in :mod:`cuda.core`.  They are available publicly from the
   :mod:`cuda.core.utils` module.
   (`#2028 <https://github.com/NVIDIA/cuda-python/issues/2028>`__)
 
@@ -313,6 +316,7 @@ Breaking changes
   :func:`system.get_user_mode_driver_version` (works with or without
   NVML) and :func:`system.get_kernel_mode_driver_version` (requires
   NVML).  Each returns a ``tuple[int, ...]``.
+
 
 Fixes and enhancements
 -----------------------
