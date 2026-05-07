@@ -14,11 +14,11 @@ cuda.core.Linker
 
    
    .. automethod:: __init__
-   .. automethod:: backend
    .. automethod:: close
    .. automethod:: get_error_log
    .. automethod:: get_info_log
    .. automethod:: link
+   .. automethod:: which_backend
 
    
    
