@@ -66,12 +66,10 @@ from cuda.core._stream import (
     StreamOptions,
 )
 from cuda.core._tensor_map import TensorMapDescriptor, TensorMapDescriptorOptions
-from cuda.core.graph import (
-    Graph,
-    GraphAllocOptions,
-    GraphBuilder,
-    GraphCompleteOptions,
-    GraphCondition,
-    GraphDebugPrintOptions,
-    GraphDefinition,
-)
+
+# isort: split
+# Must come after the cuda.core._* extension imports above: loading graph
+# earlier interacts badly with the merged-wheel __path__ rewrite and leaves
+# Graph/GraphBuilder/GraphCompleteOptions/GraphDebugPrintOptions missing from
+# cuda.core.graph.
+import cuda.core.graph

@@ -9,7 +9,6 @@ from helpers.marks import requires_module
 
 from cuda.core import (
     Device,
-    GraphCompleteOptions,
     LaunchConfig,
     LegacyPinnedMemoryResource,
     Linker,
@@ -19,6 +18,7 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
+from cuda.core.graph import GraphCompleteOptions
 
 
 def _get_device_arch():
