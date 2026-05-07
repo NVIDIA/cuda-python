@@ -88,6 +88,10 @@ Breaking changes
   now accepted. This is intentional — ``StridedMemoryView`` is designed for
   low-level interop where those checks are not needed.
   (`#749 <https://github.com/NVIDIA/cuda-python/issues/749>`__)
+- Removed the deprecated ``cuda.core.experimental`` namespace. All public APIs
+  have been available under ``cuda.core`` since v0.5.0. Code that imports from
+  ``cuda.core.experimental`` must be updated to import from ``cuda.core``
+  instead.
 - Renamed :class:`~graph.GraphDef` to :class:`~graph.GraphDefinition` for
   consistency with the rest of the API, which spells words out (e.g.
   ``TensorMapDescriptor``, not ``TensorMapDesc``).
