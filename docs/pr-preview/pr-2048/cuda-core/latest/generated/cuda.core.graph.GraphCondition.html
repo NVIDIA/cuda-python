@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=2298c72e"></script>
+    <script src="../_static/documentation_options.js?v=ca8264ec"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev107';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev108';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -64,7 +64,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.graph.EmptyNode" href="cuda.core.graph.EmptyNode.html" />
+    <link rel="next" title="cuda.core.graph.GraphCompleteOptions" href="cuda.core.graph.GraphCompleteOptions.html" />
     <link rel="prev" title="cuda.core.graph.GraphNode" href="cuda.core.graph.GraphNode.html" />
 
 
@@ -524,9 +524,13 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.graph.GraphCondition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EmptyNode.html">cuda.core.graph.EmptyNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.KernelNode.html">cuda.core.graph.KernelNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.AllocNode.html">cuda.core.graph.AllocNode</a></li>
@@ -657,7 +661,7 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.graph.</span></span><span class="sig-name descname"><span class="pre">GraphCondition</span></span><a class="headerlink" href="#cuda.core.graph.GraphCondition" title="Link to this definition">#</a></dt>
 <dd><p>A condition variable for conditional graph nodes.</p>
 <p>Created by <a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.create_condition" title="cuda.core.graph.GraphDefinition.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphDefinition.create_condition()</span></code></a> (or
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphBuilder.create_condition()</span></code>) and passed to
+<a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.create_condition" title="cuda.core.graph.GraphBuilder.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphBuilder.create_condition()</span></code></a>) and passed to
 conditional-node builder methods (<a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.if_then" title="cuda.core.graph.GraphDefinition.if_then"><code class="xref py py-meth docutils literal notranslate"><span class="pre">if_then()</span></code></a>,
 <a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.if_else" title="cuda.core.graph.GraphDefinition.if_else"><code class="xref py py-meth docutils literal notranslate"><span class="pre">if_else()</span></code></a>, <a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.while_loop" title="cuda.core.graph.GraphDefinition.while_loop"><code class="xref py py-meth docutils literal notranslate"><span class="pre">while_loop()</span></code></a>,
 <a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.switch" title="cuda.core.graph.GraphDefinition.switch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">switch()</span></code></a>). The underlying value is set at
@@ -704,11 +708,11 @@ condition.</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.graph.EmptyNode.html"
+       href="cuda.core.graph.GraphCompleteOptions.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.graph.EmptyNode</p>
+        <p class="prev-next-title">cuda.core.graph.GraphCompleteOptions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

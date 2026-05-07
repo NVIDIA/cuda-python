@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=2298c72e"></script>
+    <script src="../_static/documentation_options.js?v=ca8264ec"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev107';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev108';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -523,9 +523,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.EmptyNode.html">cuda.core.graph.EmptyNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.KernelNode.html">cuda.core.graph.KernelNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.AllocNode.html">cuda.core.graph.AllocNode</a></li>
@@ -671,9 +675,9 @@ operations, and GPU UUID remapping support for restore.
 <ul>
 <li><p>Graph types are no longer re-exported from the top-level <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>
 namespace; they must be imported from <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.graph</span></code>. The affected
-symbols are <code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code>,
-<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCompleteOptions</span></code>, <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a>,
-<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDebugPrintOptions</span></code>, and <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code></a>.
+symbols are <a class="reference internal" href="../generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></a>, <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.graph.GraphCompleteOptions.html#cuda.core.graph.GraphCompleteOptions" title="cuda.core.graph.GraphCompleteOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCompleteOptions</span></code></a>, <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions" title="cuda.core.graph.GraphDebugPrintOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDebugPrintOptions</span></code></a>, and <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code></a>.
 Update <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">cuda.core</span> <span class="pre">import</span> <span class="pre">GraphBuilder</span></code> to
 <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">cuda.core.graph</span> <span class="pre">import</span> <span class="pre">GraphBuilder</span></code> (and similarly for the other
 symbols). The same symbols are also no longer forwarded through the
@@ -726,7 +730,7 @@ and <code class="docutils literal notranslate"><span class="pre">EventOptions.bu
 <li><p>Cross-API consistency for graph builders
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">GraphBuilder.add_child</span></code> -&gt; <code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.embed()</span></code>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphBuilder.add_child</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.embed" title="cuda.core.graph.GraphBuilder.embed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.embed()</span></code></a>
 (matches <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.embed" title="cuda.core.graph.GraphDefinition.embed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.embed()</span></code></a> and
 <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.embed" title="cuda.core.graph.GraphNode.embed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.embed()</span></code></a>).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">GraphDefinition.record_event</span></code> / <code class="docutils literal notranslate"><span class="pre">wait_event</span></code> -&gt;
@@ -760,17 +764,17 @@ and consistent verbs
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1945">#1945</a>):</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">GraphBuilder.create_conditional_handle</span></code> -&gt;
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.create_condition()</span></code>. The new factory returns a
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.create_condition" title="cuda.core.graph.GraphBuilder.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.create_condition()</span></code></a>. The new factory returns a
 <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a> (matching
 <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.create_condition" title="cuda.core.graph.GraphDefinition.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.create_condition()</span></code></a>) instead of a raw
 <code class="docutils literal notranslate"><span class="pre">CUgraphConditionalHandle</span></code>. The four conditional builder methods
-(<code class="xref py py-meth docutils literal notranslate"><span class="pre">if_then()</span></code>,
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">if_else()</span></code>,
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">while_loop()</span></code>,
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">switch()</span></code>) now accept a
+(<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.if_then" title="cuda.core.graph.GraphBuilder.if_then"><code class="xref py py-meth docutils literal notranslate"><span class="pre">if_then()</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.if_else" title="cuda.core.graph.GraphBuilder.if_else"><code class="xref py py-meth docutils literal notranslate"><span class="pre">if_else()</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.while_loop" title="cuda.core.graph.GraphBuilder.while_loop"><code class="xref py py-meth docutils literal notranslate"><span class="pre">while_loop()</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.switch" title="cuda.core.graph.GraphBuilder.switch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">switch()</span></code></a>) now accept a
 <a class="reference internal" href="../generated/cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphCondition</span></code></a> instead of a raw handle.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">GraphBuilder.if_cond</span></code> / <code class="docutils literal notranslate"><span class="pre">GraphDefinition.if_cond</span></code> /
-<code class="docutils literal notranslate"><span class="pre">GraphNode.if_cond</span></code> -&gt; <code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.if_then()</span></code> /
+<code class="docutils literal notranslate"><span class="pre">GraphNode.if_cond</span></code> -&gt; <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.if_then" title="cuda.core.graph.GraphBuilder.if_then"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.if_then()</span></code></a> /
 <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.if_then" title="cuda.core.graph.GraphDefinition.if_then"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.if_then()</span></code></a> /
 <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.if_then" title="cuda.core.graph.GraphNode.if_then"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.if_then()</span></code></a>. The new name parallels the existing
 <code class="docutils literal notranslate"><span class="pre">if_else</span></code>, <code class="docutils literal notranslate"><span class="pre">while_loop</span></code>, and <code class="docutils literal notranslate"><span class="pre">switch</span></code> methods (verb describing the
