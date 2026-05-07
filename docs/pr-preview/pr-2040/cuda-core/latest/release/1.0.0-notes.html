@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7a915990"></script>
+    <script src="../_static/documentation_options.js?v=8dde87a7"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev102';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev110';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -555,8 +555,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.get_user_mode_driver_version.html">cuda.core.system.get_user_mode_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.get_kernel_mode_driver_version.html">cuda.core.system.get_kernel_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
@@ -769,6 +774,15 @@ argument to <code class="docutils literal notranslate"><span class="pre">launch(
 extracted explicitly.</p></li>
 </ul>
 </li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker.which_backend" title="cuda.core.Linker.which_backend"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Linker.which_backend()</span></code></a> is now a classmethod instead of the former
+<code class="docutils literal notranslate"><span class="pre">backend</span></code> instance property. Call sites must use <code class="docutils literal notranslate"><span class="pre">Linker.which_backend()</span></code>
+(with parentheses) instead of <code class="docutils literal notranslate"><span class="pre">linker.backend</span></code>. This allows querying the
+linking backend without constructing a <code class="docutils literal notranslate"><span class="pre">Linker</span></code> instance — for example, to
+choose between PTX and LTOIR input before linking.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.peer_accessible_by" title="cuda.core.DeviceMemoryResource.peer_accessible_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DeviceMemoryResource.peer_accessible_by</span></code></a> now returns a
+<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a> of <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> objects instead
+of a sorted <code class="docutils literal notranslate"><span class="pre">tuple[int,</span> <span class="pre">...]</span></code>. The property setter is unchanged.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2018">#2018</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code> is now a required keyword-only argument on APIs that schedule
 work on a stream
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2001">#2001</a>).
@@ -799,13 +813,11 @@ and <a class="reference internal" href="../generated/cuda.core.VirtualMemoryReso
 longer at the top-level in <a class="reference internal" href="../api.html#module-cuda.core" title="cuda.core"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core</span></code></a>.  They are available publicly from the
 <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.utils</span></code> module.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2028">#2028</a>)</p></li>
-<li><p>Consolidated <code class="docutils literal notranslate"><span class="pre">system.get_driver_version()</span></code> and
-<code class="docutils literal notranslate"><span class="pre">system.get_driver_version_full()</span></code> into a single
-<a class="reference internal" href="../generated/cuda.core.system.get_driver_version.html#cuda.core.system.get_driver_version" title="cuda.core.system.get_driver_version"><code class="xref py py-func docutils literal notranslate"><span class="pre">system.get_driver_version()</span></code></a> that returns
-<code class="docutils literal notranslate"><span class="pre">(umd_version,</span> <span class="pre">kmd_version)</span></code> — a 2-tuple of version tuples
-(UMD is <code class="docutils literal notranslate"><span class="pre">(MAJOR,</span> <span class="pre">MINOR)</span></code>, KMD is <code class="docutils literal notranslate"><span class="pre">(MAJOR,</span> <span class="pre">MINOR,</span> <span class="pre">PATCH)</span></code>).
-The function now requires NVML support and raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></a>
-if it is not available.</p></li>
+<li><p>Replaced <code class="docutils literal notranslate"><span class="pre">system.get_driver_version()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">system.get_driver_version_full()</span></code> with
+<a class="reference internal" href="../generated/cuda.core.system.get_user_mode_driver_version.html#cuda.core.system.get_user_mode_driver_version" title="cuda.core.system.get_user_mode_driver_version"><code class="xref py py-func docutils literal notranslate"><span class="pre">system.get_user_mode_driver_version()</span></code></a> (works with or without
+NVML) and <a class="reference internal" href="../generated/cuda.core.system.get_kernel_mode_driver_version.html#cuda.core.system.get_kernel_mode_driver_version" title="cuda.core.system.get_kernel_mode_driver_version"><code class="xref py py-func docutils literal notranslate"><span class="pre">system.get_kernel_mode_driver_version()</span></code></a> (requires
+NVML).  Each returns a <code class="docutils literal notranslate"><span class="pre">tuple[int,</span> <span class="pre">...]</span></code>.</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">

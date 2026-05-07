@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.system.get_driver_version &#8212; cuda.core</title>
+    <title>cuda.core.utils.ProgramCacheResource &#8212; cuda.core</title>
   
   
   
@@ -44,28 +44,28 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7a915990"></script>
+    <script src="../_static/documentation_options.js?v=8dde87a7"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.get_driver_version';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.utils.ProgramCacheResource';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev102';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev110';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.system.get_driver_version.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.utils.ProgramCacheResource.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.system.get_driver_branch" href="cuda.core.system.get_driver_branch.html" />
-    <link rel="prev" title="cuda.core.checkpoint.Process" href="cuda.core.checkpoint.Process.html" />
+    <link rel="next" title="cuda.core.utils.InMemoryProgramCache" href="cuda.core.utils.InMemoryProgramCache.html" />
+    <link rel="prev" title="cuda.core.LinkerOptions" href="cuda.core.LinkerOptions.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -556,8 +556,13 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.get_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_user_mode_driver_version.html">cuda.core.system.get_user_mode_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_kernel_mode_driver_version.html">cuda.core.system.get_kernel_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
@@ -633,7 +638,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.get_driver_version</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.utils.ProgramCacheResource</span></li>
   </ul>
 </nav>
 </div>
@@ -650,27 +655,126 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-system-get-driver-version">
-<h1>cuda.core.system.get_driver_version<a class="headerlink" href="#cuda-core-system-get-driver-version" title="Link to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.core.system.get_driver_version">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">get_driver_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.get_driver_version" title="Link to this definition">#</a></dt>
-<dd><p>Get the driver version.</p>
-<p>Returns both the user-mode (UMD / CUDA) driver version and the
-kernel-mode (KMD / GPU) driver version.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>version</strong> – <code class="docutils literal notranslate"><span class="pre">(umd_version,</span> <span class="pre">kmd_version)</span></code> where <code class="docutils literal notranslate"><span class="pre">umd_version</span></code> is typically
-a 2-tuple <code class="docutils literal notranslate"><span class="pre">(MAJOR,</span> <span class="pre">MINOR)</span></code> and <code class="docutils literal notranslate"><span class="pre">kmd_version</span></code> is typically
-a 3-tuple <code class="docutils literal notranslate"><span class="pre">(MAJOR,</span> <span class="pre">MINOR,</span> <span class="pre">PATCH)</span></code> (2-tuple on WSL).</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, …], <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, …]]</p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If the NVML library is not available.</p>
-</dd>
+  <section id="cuda-core-utils-programcacheresource">
+<h1>cuda.core.utils.ProgramCacheResource<a class="headerlink" href="#cuda-core-utils-programcacheresource" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.core.utils.ProgramCacheResource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.utils.</span></span><span class="sig-name descname"><span class="pre">ProgramCacheResource</span></span><a class="headerlink" href="#cuda.core.utils.ProgramCacheResource" title="Link to this definition">#</a></dt>
+<dd><p>Abstract base class for compiled-program caches.</p>
+<p>Concrete implementations store and retrieve <strong>raw binary bytes</strong> keyed
+by <code class="docutils literal notranslate"><span class="pre">bytes</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code>. A <code class="docutils literal notranslate"><span class="pre">str</span></code> key is encoded as UTF-8 before
+being used, so <code class="docutils literal notranslate"><span class="pre">&quot;k&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">b&quot;k&quot;</span></code> refer to the same entry. A typical
+key is produced by <a class="reference internal" href="cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a>, which returns
+<code class="docutils literal notranslate"><span class="pre">bytes</span></code>.</p>
+<p>The values written are the compiled program bytes themselves –
+cubin, PTX, LTO-IR, etc. Reads return raw bytes so cache files
+remain consumable by external NVIDIA tools (<code class="docutils literal notranslate"><span class="pre">cuobjdump</span></code>,
+<code class="docutils literal notranslate"><span class="pre">nvdisasm</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda-gdb</span></code>, …).</p>
+<p>Most callers don’t interact with this object directly. The
+recommended usage is <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda.core.Program.compile()</span></code></a>’s <code class="docutils literal notranslate"><span class="pre">cache=</span></code>
+keyword, which derives the key, returns a fresh
+<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> on hit, and stores the compile
+result on miss:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">FileStreamProgramCache</span><span class="p">()</span> <span class="k">as</span> <span class="n">cache</span><span class="p">:</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;cubin&quot;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The escape hatch – only needed when the compile inputs require an
+<code class="docutils literal notranslate"><span class="pre">extra_digest</span></code> (header / PCH content fingerprints, NVVM
+libdevice) – is to call <a class="reference internal" href="cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a> yourself
+and use the cache as a plain <code class="docutils literal notranslate"><span class="pre">bytes</span></code> mapping:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObjectCode</span>
+
+<span class="n">key</span> <span class="o">=</span> <span class="n">make_program_cache_key</span><span class="p">(</span>
+    <span class="n">code</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+    <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span>
+    <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+    <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;cubin&quot;</span><span class="p">,</span>
+    <span class="n">extra_digest</span><span class="o">=</span><span class="n">header_fingerprint</span><span class="p">(),</span>
+<span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;cubin&quot;</span><span class="p">)</span>
+    <span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>  <span class="c1"># extracts bytes(obj.code)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">ObjectCode</span><span class="o">.</span><span class="n">from_cubin</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The cache layer does no payload validation; bytes go in and come
+back out unchanged. Symbol-mapping metadata that
+<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> carries when produced with NVRTC
+name expressions is <strong>not</strong> preserved across a cache round-trip –
+the binary alone is stored. Callers that need <code class="docutils literal notranslate"><span class="pre">symbol_mapping</span></code>
+for <code class="docutils literal notranslate"><span class="pre">get_kernel(name_expression)</span></code> should compile fresh, or look
+the mangled symbol up by hand.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Concurrent-access idiom.</strong></p>
+<p>Use <a class="reference internal" href="#cuda.core.utils.ProgramCacheResource.get" title="cuda.core.utils.ProgramCacheResource.get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get()</span></code></a> (or <code class="docutils literal notranslate"><span class="pre">data</span> <span class="pre">=</span> <span class="pre">cache[key]</span></code> inside a <code class="docutils literal notranslate"><span class="pre">try</span> <span class="pre">/</span>
+<span class="pre">except</span> <span class="pre">KeyError</span></code>) for lookups. There is intentionally no
+<code class="docutils literal notranslate"><span class="pre">__contains__</span></code>: the obvious <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">key</span> <span class="pre">in</span> <span class="pre">cache:</span> <span class="pre">data</span> <span class="pre">=</span>
+<span class="pre">cache[key]</span></code> idiom is racy across processes (another writer
+can <code class="docutils literal notranslate"><span class="pre">os.replace</span></code> over the entry, or eviction can unlink
+it, between the check and the read), and exposing
+<code class="docutils literal notranslate"><span class="pre">__contains__</span></code> invites that pattern. <code class="docutils literal notranslate"><span class="pre">get</span></code> answers
+both questions in one filesystem-level operation, so a
+successful return always carries the bytes.</p>
+</div>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.utils.ProgramCacheResource.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.utils.ProgramCacheResource.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.utils.ProgramCacheResource.clear">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.ProgramCacheResource.clear" title="Link to this definition">#</a></dt>
+<dd><p>Remove every entry from the cache.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.utils.ProgramCacheResource.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.ProgramCacheResource.close" title="Link to this definition">#</a></dt>
+<dd><p>Release backend resources.</p>
+<p>The default implementation does nothing. Subclasses that hold
+long-lived state (open file handles, database connections,
+network sockets, …) should override this to release them.</p>
+<p>Callers should use the context-manager form (<code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">cache:</span></code>)
+or call <a class="reference internal" href="#cuda.core.utils.ProgramCacheResource.close" title="cuda.core.utils.ProgramCacheResource.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> explicitly when finished, so code stays
+portable across backends that do hold resources.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.utils.ProgramCacheResource.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.ProgramCacheResource.get" title="Link to this definition">#</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">self[key]</span></code> or <code class="docutils literal notranslate"><span class="pre">default</span></code> if absent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.utils.ProgramCacheResource.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.14)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytearray" title="(in Python v3.14)"><span class="pre">bytearray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#memoryview" title="(in Python v3.14)"><span class="pre">memoryview</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><span class="pre">ObjectCode</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytearray" title="(in Python v3.14)"><span class="pre">bytearray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#memoryview" title="(in Python v3.14)"><span class="pre">memoryview</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><span class="pre">ObjectCode</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">/</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.ProgramCacheResource.update" title="Link to this definition">#</a></dt>
+<dd><p>Bulk <code class="docutils literal notranslate"><span class="pre">__setitem__</span></code>.</p>
+<p>Accepts a mapping or an iterable of <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">value)</span></code> pairs. Each
+write goes through <code class="docutils literal notranslate"><span class="pre">__setitem__</span></code> so backend-specific value
+coercion (e.g. extracting bytes from an <a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>)
+and size-cap enforcement run on every entry. Not transactional –
+a failure mid-iteration leaves earlier writes committed.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -686,20 +790,20 @@ a 3-tuple <code class="docutils literal notranslate"><span class="pre">(MAJOR,</
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.checkpoint.Process.html"
+       href="cuda.core.LinkerOptions.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.checkpoint.Process</p>
+        <p class="prev-next-title">cuda.core.LinkerOptions</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.system.get_driver_branch.html"
+       href="cuda.core.utils.InMemoryProgramCache.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.system.get_driver_branch</p>
+        <p class="prev-next-title">cuda.core.utils.InMemoryProgramCache</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -724,7 +828,14 @@ a 3-tuple <code class="docutils literal notranslate"><span class="pre">(MAJOR,</
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.get_driver_version"><code class="docutils literal notranslate"><span class="pre">get_driver_version()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.ProgramCacheResource"><code class="docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.ProgramCacheResource.__init__"><code class="docutils literal notranslate"><span class="pre">ProgramCacheResource.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.ProgramCacheResource.clear"><code class="docutils literal notranslate"><span class="pre">ProgramCacheResource.clear()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.ProgramCacheResource.close"><code class="docutils literal notranslate"><span class="pre">ProgramCacheResource.close()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.ProgramCacheResource.get"><code class="docutils literal notranslate"><span class="pre">ProgramCacheResource.get()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.ProgramCacheResource.update"><code class="docutils literal notranslate"><span class="pre">ProgramCacheResource.update()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

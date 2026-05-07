@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=7a915990"></script>
+    <script src="_static/documentation_options.js?v=8dde87a7"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev102';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev110';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -556,8 +556,13 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_user_mode_driver_version.html">cuda.core.system.get_user_mode_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_kernel_mode_driver_version.html">cuda.core.system.get_kernel_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
@@ -906,6 +911,30 @@ Each subclass exposes attributes unique to its operation type.</p>
 </tbody>
 </table>
 </div>
+<section id="program-caches">
+<h3>Program caches<a class="headerlink" href="#program-caches" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Program.compile</span></code> accepts a <code class="docutils literal notranslate"><span class="pre">cache=</span></code> keyword argument that integrates
+with any <a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a>, so callers can
+avoid recompiling identical source + options + target without writing the
+<a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a> lookup by hand.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a>()</p></td>
+<td><p>Abstract base class for compiled-program caches.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache" title="cuda.core.utils.InMemoryProgramCache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InMemoryProgramCache</span></code></a>(*[, max_size_bytes])</p></td>
+<td><p>In-memory program cache with LRU eviction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache" title="cuda.core.utils.FileStreamProgramCache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FileStreamProgramCache</span></code></a>([path, max_size_bytes])</p></td>
+<td><p>Persistent program cache backed by a directory of atomic files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_program_cache_key</span></code></a>(*, code, code_type, ...)</p></td>
+<td><p>Build a stable cache key from compile inputs.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 </section>
 <section id="cuda-process-checkpointing">
 <h2>CUDA process checkpointing<a class="headerlink" href="#cuda-process-checkpointing" title="Link to this heading">#</a></h2>
@@ -973,25 +1002,28 @@ execution.</p>
 <h3>Basic functions<a class="headerlink" href="#basic-functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_driver_version.html#cuda.core.system.get_driver_version" title="cuda.core.system.get_driver_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_driver_version</span></code></a>()</p></td>
-<td><p>Get the driver version.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_user_mode_driver_version.html#cuda.core.system.get_user_mode_driver_version" title="cuda.core.system.get_user_mode_driver_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_user_mode_driver_version</span></code></a>()</p></td>
+<td><p>Get the user-mode (UMD / CUDA) driver version.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html#cuda.core.system.get_driver_branch" title="cuda.core.system.get_driver_branch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_driver_branch</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_kernel_mode_driver_version.html#cuda.core.system.get_kernel_mode_driver_version" title="cuda.core.system.get_kernel_mode_driver_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_kernel_mode_driver_version</span></code></a>()</p></td>
+<td><p>Get the kernel-mode (KMD / GPU) driver version, e.g. 580.65.06.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html#cuda.core.system.get_driver_branch" title="cuda.core.system.get_driver_branch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_driver_branch</span></code></a>()</p></td>
 <td><p>Retrieves the driver branch of the NVIDIA driver installed on the system.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html#cuda.core.system.get_num_devices" title="cuda.core.system.get_num_devices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_num_devices</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html#cuda.core.system.get_num_devices" title="cuda.core.system.get_num_devices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_num_devices</span></code></a>()</p></td>
 <td><p>Return the number of devices in the system.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html#cuda.core.system.get_nvml_version" title="cuda.core.system.get_nvml_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_nvml_version</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html#cuda.core.system.get_nvml_version" title="cuda.core.system.get_nvml_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_nvml_version</span></code></a>()</p></td>
 <td><p>The version of the NVML library.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_process_name.html#cuda.core.system.get_process_name" title="cuda.core.system.get_process_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_process_name</span></code></a>(int pid)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_process_name.html#cuda.core.system.get_process_name" title="cuda.core.system.get_process_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_process_name</span></code></a>(int pid)</p></td>
 <td><p>The name of process with given PID.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_topology_common_ancestor.html#cuda.core.system.get_topology_common_ancestor" title="cuda.core.system.get_topology_common_ancestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_topology_common_ancestor</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_topology_common_ancestor.html#cuda.core.system.get_topology_common_ancestor" title="cuda.core.system.get_topology_common_ancestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_topology_common_ancestor</span></code></a>(...)</p></td>
 <td><p>Retrieve the common ancestor for two devices.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_p2p_status.html#cuda.core.system.get_p2p_status" title="cuda.core.system.get_p2p_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_p2p_status</span></code></a>(Device device1, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_p2p_status.html#cuda.core.system.get_p2p_status" title="cuda.core.system.get_p2p_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_p2p_status</span></code></a>(Device device1, ...)</p></td>
 <td><p>Retrieve the P2P status between two devices.</p></td>
 </tr>
 </tbody>
@@ -1101,7 +1133,10 @@ execution.</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphics-interoperability">Graphics interoperability</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tensor-memory-accelerator-tma">Tensor Memory Accelerator (TMA)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-compilation-toolchain">CUDA compilation toolchain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-compilation-toolchain">CUDA compilation toolchain</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#program-caches">Program caches</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-process-checkpointing">CUDA process checkpointing</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-system-information-and-nvidia-management-library-nvml">CUDA system information and NVIDIA Management Library (NVML)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-functions">Basic functions</a></li>

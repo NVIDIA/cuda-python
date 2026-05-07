@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=7a915990"></script>
+    <script src="_static/documentation_options.js?v=8dde87a7"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev102';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev110';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -549,8 +549,13 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_user_mode_driver_version.html">cuda.core.system.get_user_mode_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_kernel_mode_driver_version.html">cuda.core.system.get_kernel_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
@@ -658,6 +663,8 @@
         <li><a href="generated/cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle.__init__">(cuda.core._memory._ipc.IPCAllocationHandle method)</a>
 </li>
         <li><a href="generated/cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor.__init__">(cuda.core._memory._ipc.IPCBufferDescriptor method)</a>
+</li>
+        <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.__init__">(cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
 </li>
         <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes.__init__">(cuda.core._module.KernelAttributes method)</a>
 </li>
@@ -797,6 +804,12 @@
 </li>
         <li><a href="generated/cuda.core.TensorMapDescriptor.html#cuda.core.TensorMapDescriptor.__init__">(cuda.core.TensorMapDescriptor method)</a>
 </li>
+        <li><a href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache.__init__">(cuda.core.utils.FileStreamProgramCache method)</a>
+</li>
+        <li><a href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache.__init__">(cuda.core.utils.InMemoryProgramCache method)</a>
+</li>
+        <li><a href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource.__init__">(cuda.core.utils.ProgramCacheResource method)</a>
+</li>
         <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.__init__">(cuda.core.utils.StridedMemoryView method)</a>
 </li>
         <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.__init__">(cuda.core.VirtualMemoryResource method)</a>
@@ -810,8 +823,12 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.add">add() (cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
+      <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.add">add() (cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.add">(cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.addr_align">addr_align (cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.addr_hint">addr_hint (cuda.core.VirtualMemoryResourceOptions attribute)</a>
@@ -930,12 +947,8 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/cuda.core.Linker.html#cuda.core.Linker.backend">backend (cuda.core.Linker attribute)</a>
-
-      <ul>
-        <li><a href="generated/cuda.core.Program.html#cuda.core.Program.backend">(cuda.core.Program attribute)</a>
+      <li><a href="generated/cuda.core.Program.html#cuda.core.Program.backend">backend (cuda.core.Program attribute)</a>
 </li>
-      </ul></li>
       <li><a href="generated/cuda.core.SMResourceOptions.html#cuda.core.SMResourceOptions.backfill">backfill (cuda.core.SMResourceOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.bar1_memory_info">bar1_memory_info (cuda.core.system.Device attribute)</a>
@@ -1058,8 +1071,18 @@
 </li>
       <li><a href="generated/cuda.core.graph.ChildGraphNode.html#cuda.core.graph.ChildGraphNode">ChildGraphNode (class in cuda.core.graph)</a>
 </li>
-      <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.clear">clear() (cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
+      <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.clear">clear() (cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.clear">(cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
 </li>
+        <li><a href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache.clear">(cuda.core.utils.FileStreamProgramCache method)</a>
+</li>
+        <li><a href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache.clear">(cuda.core.utils.InMemoryProgramCache method)</a>
+</li>
+        <li><a href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource.clear">(cuda.core.utils.ProgramCacheResource method)</a>
+</li>
+      </ul></li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.clear_cpu_affinity">clear_cpu_affinity() (cuda.core.system.Device method)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.clear_field_values">clear_field_values() (cuda.core.system.Device method)</a>
@@ -1107,6 +1130,12 @@
 </li>
         <li><a href="generated/cuda.core.Stream.html#cuda.core.Stream.close">(cuda.core.Stream method)</a>
 </li>
+        <li><a href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache.close">(cuda.core.utils.FileStreamProgramCache method)</a>
+</li>
+        <li><a href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache.close">(cuda.core.utils.InMemoryProgramCache method)</a>
+</li>
+        <li><a href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource.close">(cuda.core.utils.ProgramCacheResource method)</a>
+</li>
       </ul></li>
       <li><a href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig.cluster">cluster (cuda.core.LaunchConfig attribute)</a>
 </li>
@@ -1118,14 +1147,14 @@
 </li>
       <li><a href="generated/cuda.core.Program.html#cuda.core.Program.compile">compile() (cuda.core.Program method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.typing.CompilerBackendType.html#cuda.core.typing.CompilerBackendType">CompilerBackendType (class in cuda.core.typing)</a>
 </li>
       <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.complete">complete() (cuda.core.graph.GraphBuilder method)</a>
 </li>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.compute_capability">compute_capability (cuda.core.Device property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.compute_capability_major">compute_capability_major (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.compute_capability_minor">compute_capability_minor (cuda.core._device.DeviceProperties attribute)</a>
@@ -1473,12 +1502,18 @@
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.diag_warn">diag_warn (cuda.core.ProgramOptions attribute)</a>
 </li>
+      <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.difference_update">difference_update() (cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
+</li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.direct_managed_mem_access_from_host">direct_managed_mem_access_from_host (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.disable_warnings">disable_warnings (cuda.core.ProgramOptions attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.discard">discard() (cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
+      <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.discard">discard() (cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.discard">(cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.dma_buf_supported">dma_buf_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.PciInfo.html#cuda.core.system._device.PciInfo.domain">domain (cuda.core.system._device.PciInfo attribute)</a>
@@ -1623,6 +1658,8 @@
 </li>
       <li><a href="generated/cuda.core.system._device.FieldValues.html#cuda.core.system._device.FieldValues">FieldValues (class in cuda.core.system._device)</a>
 </li>
+      <li><a href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache">FileStreamProgramCache (class in cuda.core.utils)</a>
+</li>
       <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.fill">fill() (cuda.core.Buffer method)</a>
 </li>
       <li><a href="generated/cuda.core.SMResource.html#cuda.core.SMResource.flags">flags (cuda.core.SMResource attribute)</a>
@@ -1651,10 +1688,10 @@
       </ul></li>
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_any_interface">from_any_interface() (cuda.core.utils.StridedMemoryView class method)</a>
 </li>
-      <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_array_interface">from_array_interface() (cuda.core.utils.StridedMemoryView class method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_array_interface">from_array_interface() (cuda.core.utils.StridedMemoryView class method)</a>
+</li>
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_buffer">from_buffer() (cuda.core.utils.StridedMemoryView class method)</a>
 </li>
       <li><a href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode.from_cubin">from_cubin() (cuda.core.ObjectCode static method)</a>
@@ -1713,6 +1750,14 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.generic_compression_supported">generic_compression_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache.get">get() (cuda.core.utils.FileStreamProgramCache method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache.get">(cuda.core.utils.InMemoryProgramCache method)</a>
+</li>
+        <li><a href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource.get">(cuda.core.utils.ProgramCacheResource method)</a>
+</li>
+      </ul></li>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.get_all_devices">get_all_devices() (cuda.core.Device class method)</a>
 
       <ul>
@@ -1737,8 +1782,6 @@
 </li>
       <li><a href="generated/cuda.core.system.get_driver_branch.html#cuda.core.system.get_driver_branch">get_driver_branch() (in module cuda.core.system)</a>
 </li>
-      <li><a href="generated/cuda.core.system.get_driver_version.html#cuda.core.system.get_driver_version">get_driver_version() (in module cuda.core.system)</a>
-</li>
       <li><a href="generated/cuda.core.Linker.html#cuda.core.Linker.get_error_log">get_error_log() (cuda.core.Linker method)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.get_fan">get_fan() (cuda.core.system.Device method)</a>
@@ -1748,6 +1791,8 @@
       <li><a href="generated/cuda.core.Linker.html#cuda.core.Linker.get_info_log">get_info_log() (cuda.core.Linker method)</a>
 </li>
       <li><a href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode.get_kernel">get_kernel() (cuda.core.ObjectCode method)</a>
+</li>
+      <li><a href="generated/cuda.core.system.get_kernel_mode_driver_version.html#cuda.core.system.get_kernel_mode_driver_version">get_kernel_mode_driver_version() (in module cuda.core.system)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.ClockInfo.html#cuda.core.system._device.ClockInfo.get_max_customer_boost_mhz">get_max_customer_boost_mhz() (cuda.core.system._device.ClockInfo method)</a>
 </li>
@@ -1781,6 +1826,8 @@
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.get_topology_nearest_gpus">get_topology_nearest_gpus() (cuda.core.system.Device method)</a>
 </li>
+      <li><a href="generated/cuda.core.system.get_user_mode_driver_version.html#cuda.core.system.get_user_mode_driver_version">get_user_mode_driver_version() (in module cuda.core.system)</a>
+</li>
       <li><a href="generated/cuda.core.system._device.InforomInfo.html#cuda.core.system._device.InforomInfo.get_version">get_version() (cuda.core.system._device.InforomInfo method)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.global_l1_cache_supported">global_l1_cache_supported (cuda.core._device.DeviceProperties attribute)</a>
@@ -1793,12 +1840,12 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.gpu_direct_rdma_flush_writes_options">gpu_direct_rdma_flush_writes_options (cuda.core._device.DeviceProperties attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.gpu_direct_rdma_supported">gpu_direct_rdma_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported">gpu_direct_rdma_with_cuda_vmm_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.gpu_direct_rdma_writes_ordering">gpu_direct_rdma_writes_ordering (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system._system_events.SystemEvent.html#cuda.core.system._system_events.SystemEvent.gpu_id">gpu_id (cuda.core.system._system_events.SystemEvent attribute)</a>
@@ -2107,6 +2154,8 @@
 </li>
       <li><a href="generated/cuda.core.system.typing.InforomObject.html#cuda.core.system.typing.InforomObject">InforomObject (class in cuda.core.system.typing)</a>
 </li>
+      <li><a href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache">InMemoryProgramCache (class in cuda.core.utils)</a>
+</li>
       <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.instantiate">instantiate() (cuda.core.graph.GraphDefinition method)</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.instantiate_templates_in_pch">instantiate_templates_in_pch (cuda.core.ProgramOptions attribute)</a>
@@ -2114,6 +2163,8 @@
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.integrated">integrated (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core.TensorMapDescriptorOptions.html#cuda.core.TensorMapDescriptorOptions.interleave">interleave (cuda.core.TensorMapDescriptorOptions attribute)</a>
+</li>
+      <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.intersection_update">intersection_update() (cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
 </li>
       <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.ipc_descriptor">ipc_descriptor (cuda.core.Buffer attribute)</a>
 
@@ -2145,6 +2196,8 @@
 </li>
       <li><a href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig.is_cooperative">is_cooperative (cuda.core.LaunchConfig attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.is_device_accessible">is_device_accessible (cuda.core.Buffer attribute)</a>
 
       <ul>
@@ -2165,8 +2218,6 @@
         <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_device_accessible">(cuda.core.VirtualMemoryResource attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.is_display_active">is_display_active (cuda.core.system.Device attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.is_display_connected">is_display_connected (cuda.core.system.Device attribute)</a>
@@ -2287,8 +2338,12 @@
         <li><a href="generated/cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode.is_valid">(cuda.core.graph.WhileNode attribute)</a>
 </li>
       </ul></li>
-      <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.isdisjoint">isdisjoint() (cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
+      <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.isdisjoint">isdisjoint() (cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.isdisjoint">(cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.typing.IsStreamType.html#cuda.core.typing.IsStreamType">IsStreamType (protocol in cuda.core.typing)</a>
 </li>
   </ul></td>
@@ -2451,6 +2506,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key">make_program_cache_key() (in module cuda.core.utils)</a>
+</li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.managed_memory">managed_memory (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core.typing.ManagedMemoryLocationType.html#cuda.core.typing.ManagedMemoryLocationType">ManagedMemoryLocationType (class in cuda.core.typing)</a>
@@ -2902,6 +2959,8 @@
       </ul></li>
       <li><a href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.peer_accessible_by">peer_accessible_by (cuda.core.DeviceMemoryResource attribute)</a>
 </li>
+      <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy">PeerAccessibleBySetProxy (class in cuda.core._memory._peer_access_utils)</a>
+</li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.peers">peers (cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.MigInfo.html#cuda.core.system._device.MigInfo.pending_mode">pending_mode (cuda.core.system._device.MigInfo attribute)</a>
@@ -2920,8 +2979,12 @@
 </li>
       <li><a href="generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode.pitch">pitch (cuda.core.graph.MemsetNode attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.pop">pop() (cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
+      <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.pop">pop() (cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.pop">(cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.pre_include">pre_include (cuda.core.ProgramOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.LinkerOptions.html#cuda.core.LinkerOptions.prec_div">prec_div (cuda.core.LinkerOptions attribute)</a>
@@ -2995,6 +3058,8 @@
       <li><a href="generated/cuda.core.typing.ProcessStateType.html#cuda.core.typing.ProcessStateType">ProcessStateType (in module cuda.core.typing)</a>
 </li>
       <li><a href="generated/cuda.core.Program.html#cuda.core.Program">Program (class in cuda.core)</a>
+</li>
+      <li><a href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource">ProgramCacheResource (class in cuda.core.utils)</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions">ProgramOptions (class in cuda.core)</a>
 </li>
@@ -3076,8 +3141,12 @@
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.relocatable_device_code">relocatable_device_code (cuda.core.ProgramOptions attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.remove">remove() (cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
+      <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.remove">remove() (cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.remove">(cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.repair_status">repair_status (cuda.core.system.Device attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.RepairStatus.html#cuda.core.system._device.RepairStatus">RepairStatus (class in cuda.core.system._device)</a>
@@ -3216,8 +3285,6 @@
 </li>
       <li><a href="generated/cuda.core.system._device.PciInfo.html#cuda.core.system._device.PciInfo.subsystem_id">subsystem_id (cuda.core.system._device.PciInfo attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode.succ">succ (cuda.core.graph.AllocNode attribute)</a>
 
       <ul>
@@ -3252,6 +3319,8 @@
         <li><a href="generated/cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode.succ">(cuda.core.graph.WhileNode attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.supported_clock_event_reasons">supported_clock_event_reasons (cuda.core.system.Device attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.supported_pstates">supported_pstates (cuda.core.system.Device attribute)</a>
@@ -3301,6 +3370,8 @@
       <li><a href="generated/cuda.core.TensorMapDescriptorOptions.html#cuda.core.TensorMapDescriptorOptions.swizzle">swizzle (cuda.core.TensorMapDescriptorOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode.symbol_mapping">symbol_mapping (cuda.core.ObjectCode attribute)</a>
+</li>
+      <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.symmetric_difference_update">symmetric_difference_update() (cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
 </li>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.sync">sync() (cuda.core.Device method)</a>
 
@@ -3442,10 +3513,18 @@
 </li>
       <li><a href="generated/cuda.core.GraphicsResource.html#cuda.core.GraphicsResource.unmap">unmap() (cuda.core.GraphicsResource method)</a>
 </li>
-      <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.update">update() (cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
+      <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.update">update() (cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
 
       <ul>
+        <li><a href="generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.update">(cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy method)</a>
+</li>
         <li><a href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph.update">(cuda.core.graph.Graph method)</a>
+</li>
+        <li><a href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache.update">(cuda.core.utils.FileStreamProgramCache method)</a>
+</li>
+        <li><a href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache.update">(cuda.core.utils.InMemoryProgramCache method)</a>
+</li>
+        <li><a href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource.update">(cuda.core.utils.ProgramCacheResource method)</a>
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph.upload">upload() (cuda.core.graph.Graph method)</a>
@@ -3456,12 +3535,12 @@
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.use_libdevice">use_libdevice (cuda.core.ProgramOptions attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.graph.GraphCompleteOptions.html#cuda.core.graph.GraphCompleteOptions.use_node_priority">use_node_priority (cuda.core.graph.GraphCompleteOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.use_pch">use_pch (cuda.core.ProgramOptions attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system._device.BAR1MemoryInfo.html#cuda.core.system._device.BAR1MemoryInfo.used">used (cuda.core.system._device.BAR1MemoryInfo attribute)</a>
 
       <ul>
@@ -3592,6 +3671,10 @@
       </ul></li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.warp_size">warp_size (cuda.core._device.DeviceProperties attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.Linker.html#cuda.core.Linker.which_backend">which_backend() (cuda.core.Linker class method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode.while_loop">while_loop() (cuda.core.graph.AllocNode method)</a>
 
       <ul>
@@ -3630,8 +3713,6 @@
         <li><a href="generated/cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode.while_loop">(cuda.core.graph.WhileNode method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode">WhileNode (class in cuda.core.graph)</a>
 </li>
       <li><a href="generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode.width">width (cuda.core.graph.MemsetNode attribute)</a>
