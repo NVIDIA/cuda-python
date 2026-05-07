@@ -26,8 +26,7 @@ CUDA Version Support
 --------------------
 
 ``cuda.core`` is actively maintained to support the two (2) most recent CUDA major versions. For
-example, ``cuda.core`` 1.x supports CUDA 12 and 13. Any fix in the latest release would be
-backported as needed.
+example, ``cuda.core`` 1.x supports CUDA 12 and 13.
 
 When a new CUDA major version is released and support for the oldest major version is dropped,
 ``cuda.core`` will release a new major version (e.g., 1.x → 2.0.0).
