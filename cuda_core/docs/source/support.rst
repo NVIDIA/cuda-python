@@ -74,7 +74,7 @@ When a new Python feature version is released and the oldest supported version r
 Free-threading Build Support
 ----------------------------
 
-As of ``cuda.core`` 1.0.0, wheels for the `free-threaded interpreter
+Starting ``cuda-core`` 0.4.0, packages for the `free-threaded interpreter
 <https://docs.python.org/3/howto/free-threading-python.html>`_ are shipped to PyPI and conda-forge.
 This support is currently *experimental*.
 
