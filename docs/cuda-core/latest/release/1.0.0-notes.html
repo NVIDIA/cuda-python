@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4d69d3fa"></script>
+    <script src="../_static/documentation_options.js?v=7a915990"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev101';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev102';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -774,6 +774,11 @@ argument to <code class="docutils literal notranslate"><span class="pre">launch(
 extracted explicitly.</p></li>
 </ul>
 </li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker.which_backend" title="cuda.core.Linker.which_backend"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Linker.which_backend()</span></code></a> is now a classmethod instead of the former
+<code class="docutils literal notranslate"><span class="pre">backend</span></code> instance property. Call sites must use <code class="docutils literal notranslate"><span class="pre">Linker.which_backend()</span></code>
+(with parentheses) instead of <code class="docutils literal notranslate"><span class="pre">linker.backend</span></code>. This allows querying the
+linking backend without constructing a <code class="docutils literal notranslate"><span class="pre">Linker</span></code> instance — for example, to
+choose between PTX and LTOIR input before linking.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.peer_accessible_by" title="cuda.core.DeviceMemoryResource.peer_accessible_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DeviceMemoryResource.peer_accessible_by</span></code></a> now returns a
 <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a> of <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> objects instead
 of a sorted <code class="docutils literal notranslate"><span class="pre">tuple[int,</span> <span class="pre">...]</span></code>. The property setter is unchanged.

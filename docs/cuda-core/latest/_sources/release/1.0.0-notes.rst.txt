@@ -120,6 +120,12 @@ Breaking changes
     ``CUgraphConditionalHandle`` value. Previously, ``.handle`` had to be
     extracted explicitly.
 
+- :meth:`Linker.which_backend` is now a classmethod instead of the former
+  ``backend`` instance property. Call sites must use ``Linker.which_backend()``
+  (with parentheses) instead of ``linker.backend``. This allows querying the
+  linking backend without constructing a ``Linker`` instance — for example, to
+  choose between PTX and LTOIR input before linking.
+
 - :attr:`DeviceMemoryResource.peer_accessible_by` now returns a
   :class:`collections.abc.MutableSet` of :obj:`~_device.Device` objects instead
   of a sorted ``tuple[int, ...]``. The property setter is unchanged.
