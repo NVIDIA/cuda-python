@@ -13,6 +13,15 @@ Highlights
 - TBD
 
 
+New features
+------------
+
+- Added the :mod:`cuda.core.checkpoint` module for CUDA process checkpointing,
+  including string process state queries, lock/checkpoint/restore/unlock
+  operations, and GPU UUID remapping support for restore.
+  (`#1343 <https://github.com/NVIDIA/cuda-python/issues/1343>`__)
+
+
 Breaking changes
 ----------------
 
@@ -81,6 +90,10 @@ Breaking changes
   - New: ``kernel.attributes.num_regs`` and
     ``kernel.attributes[some_dev].num_regs``
 
+- Renamed :attr:`graph.HostCallbackNode.callback_fn` to
+  :attr:`graph.HostCallbackNode.callback` to drop the redundant ``_fn`` suffix
+  (`#1945 <https://github.com/NVIDIA/cuda-python/issues/1945>`__).
+
 - Unified the conditional graph API on :class:`~graph.GraphCondition`
   and consistent verbs
   (`#1945 <https://github.com/NVIDIA/cuda-python/issues/1945>`__):
@@ -107,18 +120,48 @@ Breaking changes
     ``CUgraphConditionalHandle`` value. Previously, ``.handle`` had to be
     extracted explicitly.
 
-- :meth:`Linker.backend` is now a classmethod instead of an instance property.
-  Call sites must use ``Linker.backend()`` (with parentheses) instead of
-  ``linker.backend``. This allows querying the linking backend without
-  constructing a ``Linker`` instance — for example, to choose between PTX and
-  LTOIR input before linking.
+- :meth:`Linker.which_backend` is now a classmethod instead of the former
+  ``backend`` instance property. Call sites must use ``Linker.which_backend()``
+  (with parentheses) instead of ``linker.backend``. This allows querying the
+  linking backend without constructing a ``Linker`` instance — for example, to
+  choose between PTX and LTOIR input before linking.
 
+- :attr:`DeviceMemoryResource.peer_accessible_by` now returns a
+  :class:`collections.abc.MutableSet` of :obj:`~_device.Device` objects instead
+  of a sorted ``tuple[int, ...]``. The property setter is unchanged.
+  (`#2018 <https://github.com/NVIDIA/cuda-python/pull/2018>`__)
 
-New features
-------------
+- ``stream`` is now a required keyword-only argument on APIs that schedule
+  work on a stream
+  (`#2001 <https://github.com/NVIDIA/cuda-python/issues/2001>`__).
+  Pass ``device.default_stream`` (or any :class:`Stream`) explicitly to
+  retain the previous behavior. Affected APIs:
 
-- TBD
+  - :meth:`MemoryResource.allocate` / :meth:`MemoryResource.deallocate`
+    and overrides on :class:`DeviceMemoryResource`,
+    :class:`PinnedMemoryResource`, :class:`ManagedMemoryResource`,
+    and :class:`graph.GraphMemoryResource`.
+  - :meth:`Device.allocate`.
+  - :meth:`GraphicsResource.map`.
+  - :meth:`KernelOccupancy.max_potential_cluster_size` and
+    :meth:`KernelOccupancy.max_active_clusters`.
+  - :meth:`Buffer.from_ipc_descriptor` (no longer falls back to the default
+    stream when ``stream=None`` is passed).
 
+  Synchronous memory resources are exempt: their allocate/deallocate
+  methods accept an optional ``stream`` (validated when non-``None``)
+  but do not use it. This applies to :class:`LegacyPinnedMemoryResource`
+  and :class:`VirtualMemoryResource`.
+
+- Consistent naming of types annotation helpers
+  (`#2016 <https://github.com/NVIDIA/cuda-python/issues/2016>`__):
+  - :obj:`cuda.core.typing.DevicePointerT` -> :obj:`cuda.core.typing.DevicePointerType`
+  - :obj:`cuda.core.typing.IsStreamT` -> :obj:`cuda.core.typing.IsStreamType`
+
+- :func:`args_viewable_as_strided_memory` and :class:`StridedMemoryView` are now
+  longer at the top-level in :mod:`cuda.core`.  They are available publicly from the
+  :mod:`cuda.core.utils` module.
+  (`#2028 <https://github.com/NVIDIA/cuda-python/issues/2028>`__)
 
 Fixes and enhancements
 -----------------------
@@ -134,3 +177,22 @@ Fixes and enhancements
   stream and the consumer stream, matching the DLPack synchronization contract.
   Requires PyTorch >= 2.3.
   (`#749 <https://github.com/NVIDIA/cuda-python/issues/749>`__)
+
+- Enums are not available in places where a small number of string values are
+  accepted or returned.  You may continue to use the string values, or use
+  enumerations for better linting and type-checking.
+  (`#2016 <https://github.com/NVIDIA/cuda-python/issues/2016>`__)
+  The new enums are:
+
+  - :class:`cuda.core.typing.CompilerBackendType`
+  - :class:`cuda.core.typing.GraphConditionalType`
+  - :class:`cuda.core.typing.GraphMemoryType`
+  - :class:`cuda.core.typing.ManagedMemoryLocationType`
+  - :class:`cuda.core.typing.ObjectCodeFormatType`
+  - :class:`cuda.core.typing.PCHStatusType`
+  - :class:`cuda.core.typing.SourceCodeType`
+  - :class:`cuda.core.typing.VirtualMemoryAccessType`
+  - :class:`cuda.core.typing.VirtualMemoryAllocationType`
+  - :class:`cuda.core.typing.VirtualMemoryGranularityType`
+  - :class:`cuda.core.typing.VirtualMemoryHandleType`
+  - :class:`cuda.core.typing.VirtualMemoryLocationType`

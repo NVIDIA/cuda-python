@@ -4,7 +4,7 @@
 ; At runtime the symbols resolve from torch_cpu.dll (loaded by 'import torch').
 ;
 ; IMPORTANT: Keep this export list in sync with the AOTI_SHIM_API declarations
-; in aoti_shim.h. build_hooks.py turns this file into the stub import library
+; in aoti_shim.h. setup.py turns this file into the stub import library
 ; that MSVC uses to link _tensor_bridge, so any added/removed/renamed AOTI
 ; symbol must be updated in both files.
 LIBRARY torch_cpu.dll
