@@ -1432,7 +1432,7 @@ def test_batch_io_large_operations():
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
-@pytest.mark.usefixtures("ctx")
+@pytest.mark.usefixtures("ctx", "cufile_env_json")
 def test_set_get_parameter_size_t():
     """Test setting and getting size_t parameters with cuFile validation."""
     param_val_pairs = (
@@ -1469,17 +1469,11 @@ def test_set_get_parameter_size_t():
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
-@pytest.mark.usefixtures("ctx")
+@pytest.mark.usefixtures("ctx", "cufile_env_json")
 def test_set_get_parameter_bool():
     """Test setting and getting boolean parameters with cuFile validation."""
-    # Do not exercise allow/force compat via set_parameter_bool before any driver_open:
-    # pending API values are applied after JSON load on first open and can overwrite
-    # cufile.json (e.g. allow_compat_mode: true), causing DRIVER_NOT_INITIALIZED when
-    # nvidia-fs is not loaded. Other tests cover compat behavior where appropriate.
-    _COMPAT_PARAMS = (
-        cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE,
-        cufile.BoolConfigParameter.FORCE_COMPAT_MODE,
-    )
+    # Load the compat-enabled test config before the first driver_open so the compat
+    # bool params can still be round-tripped on systems without nvidia-fs.
     param_val_pairs = (
         (cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE, True),
         (cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, False),
@@ -1494,12 +1488,9 @@ def test_set_get_parameter_bool():
         (cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION, False),
         (cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, True),
     )
-    param_val_pairs = tuple((p, v) for p, v in param_val_pairs if p not in _COMPAT_PARAMS)
     # PROFILE_NVTX is deprecated (CTK 13.1.0+); cuFile >= 1.16 rejects bool getters for it.
     if cufile.get_version() >= 1160:
-        param_val_pairs = tuple(
-            (p, v) for p, v in param_val_pairs if p is not cufile.BoolConfigParameter.PROFILE_NVTX
-        )
+        param_val_pairs = tuple((p, v) for p, v in param_val_pairs if p is not cufile.BoolConfigParameter.PROFILE_NVTX)
 
     with _cufile_driver_session():
         originals = {param: cufile.get_parameter_bool(param) for param, _ in param_val_pairs}
@@ -1519,7 +1510,7 @@ def test_set_get_parameter_bool():
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
-@pytest.mark.usefixtures("ctx")
+@pytest.mark.usefixtures("ctx", "cufile_env_json")
 def test_set_get_parameter_string(tmp_path):
     """Test setting and getting string parameters with cuFile validation."""
     temp_dir = tempfile.gettempdir()
