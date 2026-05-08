@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8dde87a7"></script>
+    <script src="../_static/documentation_options.js?v=29a603be"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev110';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev111';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -787,13 +787,7 @@ asynchronously. Must be passed explicitly; pass
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.attributes">
 <span class="sig-name descname"><span class="pre">attributes</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.attributes" title="Link to this definition">#</a></dt>
-<dd><p>_MemPoolAttributes</p>
-<p>Memory pool attributes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>_MemPool.attributes</p>
-</dd>
-</dl>
+<dd><p>Memory pool attributes.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -805,13 +799,7 @@ asynchronously. Must be passed explicitly; pass
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.handle">
 <span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.handle" title="Link to this definition">#</a></dt>
-<dd><p>object</p>
-<p>Handle to the underlying memory pool.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>_MemPool.handle</p>
-</dd>
-</dl>
+<dd><p>Handle to the underlying memory pool.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -823,13 +811,7 @@ asynchronously. Must be passed explicitly; pass
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.is_handle_owned">
 <span class="sig-name descname"><span class="pre">is_handle_owned</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.is_handle_owned" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Whether the memory resource handle is owned. If False, <code class="docutils literal notranslate"><span class="pre">close</span></code> has no effect.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>_MemPool.is_handle_owned</p>
-</dd>
-</dl>
+<dd><p>Whether the memory resource handle is owned. If False, <code class="docutils literal notranslate"><span class="pre">close</span></code> has no effect.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -841,13 +823,7 @@ asynchronously. Must be passed explicitly; pass
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.is_ipc_enabled">
 <span class="sig-name descname"><span class="pre">is_ipc_enabled</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.is_ipc_enabled" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Whether this memory resource has IPC enabled.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>_MemPool.is_ipc_enabled</p>
-</dd>
-</dl>
+<dd><p>Whether this memory resource has IPC enabled.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -859,21 +835,14 @@ asynchronously. Must be passed explicitly; pass
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.is_mapped">
 <span class="sig-name descname"><span class="pre">is_mapped</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.is_mapped" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Whether this is a mapping of an IPC-enabled memory resource from
+<dd><p>Whether this is a mapping of an IPC-enabled memory resource from
 another process.  If True, allocation is not permitted.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>_MemPool.is_mapped</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.preferred_location">
 <span class="sig-name descname"><span class="pre">preferred_location</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.preferred_location" title="Link to this definition">#</a></dt>
-<dd><p>tuple[ManagedMemoryLocationType, int | None] | None</p>
-<p>The preferred location for managed memory allocations.</p>
+<dd><p>The preferred location for managed memory allocations.</p>
 <p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no preferred location is set (driver decides),
 or a tuple <code class="docutils literal notranslate"><span class="pre">(type,</span> <span class="pre">id)</span></code> where <em>type</em> is one of <code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>, and <em>id</em> is the device ordinal,
@@ -883,14 +852,8 @@ or a tuple <code class="docutils literal notranslate"><span class="pre">(type,</
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.uuid">
 <span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.uuid" title="Link to this definition">#</a></dt>
-<dd><p>uuid.UUID | None</p>
-<p>A universally unique identifier for this memory resource. Meaningful
+<dd><p>A universally unique identifier for this memory resource. Meaningful
 only for IPC-enabled memory resources.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>_MemPool.uuid</p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>

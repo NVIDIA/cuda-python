@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8dde87a7"></script>
+    <script src="../_static/documentation_options.js?v=29a603be"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev110';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev111';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1027,8 +1027,7 @@ NVIDIA machine library (NVML) access).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.addressing_mode">
 <span class="sig-name descname"><span class="pre">addressing_mode</span></span><a class="headerlink" href="#cuda.core.system.Device.addressing_mode" title="Link to this definition">#</a></dt>
-<dd><p>AddressingMode | None</p>
-<p>Get the <code class="xref py py-obj docutils literal notranslate"><span class="pre">AddressingMode</span></code> of the device.</p>
+<dd><p>Get the <code class="xref py py-obj docutils literal notranslate"><span class="pre">AddressingMode</span></code> of the device.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1067,8 +1066,7 @@ bus).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.compute_running_processes">
 <span class="sig-name descname"><span class="pre">compute_running_processes</span></span><a class="headerlink" href="#cuda.core.system.Device.compute_running_processes" title="Link to this definition">#</a></dt>
-<dd><p>list[ProcessInfo]</p>
-<p>Get information about processes with a compute context on a device</p>
+<dd><p>Get information about processes with a compute context on a device</p>
 <p>For Fermi™ or newer fully supported devices.</p>
 <p>This function returns information only about compute running processes
 (e.g. CUDA application which have active context). Any graphics
@@ -1092,9 +1090,13 @@ supported if the device is in vGPU Host virtualization mode.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.cuda_compute_capability">
 <span class="sig-name descname"><span class="pre">cuda_compute_capability</span></span><a class="headerlink" href="#cuda.core.system.Device.cuda_compute_capability" title="Link to this definition">#</a></dt>
-<dd><p>tuple[int, int]</p>
-<p>CUDA compute capability of the device, e.g.: <cite>(7, 0)</cite> for a Tesla V100.</p>
+<dd><p><cite>(7, 0)</cite> for a Tesla V100.</p>
 <p>Returns a tuple <cite>(major, minor)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CUDA compute capability of the device, e.g.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1219,7 +1221,12 @@ be 0.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.name">
 <span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cuda.core.system.Device.name" title="Link to this definition">#</a></dt>
-<dd><p>Name of the device, e.g.: <cite>“Tesla V100-SXM2-32GB”</cite></p>
+<dd><p><cite>“Tesla V100-SXM2-32GB”</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Name of the device, e.g.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1250,8 +1257,7 @@ be 0.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.performance_state">
 <span class="sig-name descname"><span class="pre">performance_state</span></span><a class="headerlink" href="#cuda.core.system.Device.performance_state" title="Link to this definition">#</a></dt>
-<dd><p>int | None</p>
-<p>The current performance state of the device.</p>
+<dd><p>The current performance state of the device.</p>
 <p>For Fermi™ or newer fully supported devices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1292,8 +1298,7 @@ device’s board.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.supported_pstates">
 <span class="sig-name descname"><span class="pre">supported_pstates</span></span><a class="headerlink" href="#cuda.core.system.Device.supported_pstates" title="Link to this definition">#</a></dt>
-<dd><p>list[int]</p>
-<p>Get all supported Performance States (P-States) for the device.</p>
+<dd><p>Get all supported Performance States (P-States) for the device.</p>
 <p>The returned list contains a contiguous list of valid P-States supported by
 the device.</p>
 <dl class="field-list simple">

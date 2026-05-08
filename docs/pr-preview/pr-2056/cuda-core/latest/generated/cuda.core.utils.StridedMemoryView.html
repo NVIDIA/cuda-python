@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8dde87a7"></script>
+    <script src="../_static/documentation_options.js?v=29a603be"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev110';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev111';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1029,8 +1029,7 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.dtype">
 <span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.dtype" title="Link to this definition">#</a></dt>
-<dd><p>numpy.dtype | None</p>
-<p>Data type of the tensor.</p>
+<dd><p>Data type of the tensor.</p>
 <p>Supports standard NumPy dtypes as well as narrow data types (e.g., <code class="docutils literal notranslate"><span class="pre">bfloat16</span></code>)
 when the optional <a class="reference external" href="https://github.com/jax-ml/ml_dtypes">ml_dtypes</a> package is
 installed. If <code class="docutils literal notranslate"><span class="pre">ml_dtypes</span></code> is not available and such a tensor is encountered,
@@ -1040,8 +1039,7 @@ a <a class="reference external" href="https://docs.python.org/3/library/exceptio
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.shape">
 <span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.shape" title="Link to this definition">#</a></dt>
-<dd><p>tuple[int, …]</p>
-<p>Shape of the tensor.</p>
+<dd><p>Shape of the tensor.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1052,8 +1050,7 @@ a <a class="reference external" href="https://docs.python.org/3/library/exceptio
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.strides">
 <span class="sig-name descname"><span class="pre">strides</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.strides" title="Link to this definition">#</a></dt>
-<dd><p>tuple[int, …] | None</p>
-<p>Strides of the tensor (in <strong>counts</strong>, not bytes).</p>
+<dd><p>Strides of the tensor (in <strong>counts</strong>, not bytes).</p>
 </dd></dl>
 
 </dd></dl>
