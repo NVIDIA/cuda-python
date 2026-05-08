@@ -5,6 +5,7 @@
 """GraphNode base class — factory, properties, and builder methods."""
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from cpython.ref cimport Py_INCREF
 
@@ -108,7 +109,7 @@ cdef class GraphNode:
         cdef GraphHandle g = graph_node_get_graph(self._h_node)
         return hash((as_intptr(self._h_node), as_intptr(g)))
 
-    @property
+    @python_property
     def type(self):
         """Return the CUDA graph node type.
 
@@ -125,12 +126,12 @@ cdef class GraphNode:
             HANDLE_RETURN(cydriver.cuGraphNodeGetType(node, &node_type))
         return driver.CUgraphNodeType(<int>node_type)
 
-    @property
+    @python_property
     def graph(self) -> "GraphDefinition":
         """Return the GraphDefinition this node belongs to."""
         return GraphDefinition._from_handle(graph_node_get_graph(self._h_node))
 
-    @property
+    @python_property
     def handle(self) -> driver.CUgraphNode:
         """Return the underlying driver CUgraphNode handle.
 
@@ -138,7 +139,7 @@ cdef class GraphNode:
         """
         return as_py(self._h_node)
 
-    @property
+    @python_property
     def is_valid(self):
         """Whether this node is valid (not destroyed).
 
@@ -161,27 +162,27 @@ cdef class GraphNode:
         _node_registry.pop(<uintptr_t>self._h_node.get(), None)
         invalidate_graph_node(self._h_node)
 
-    @property
     def pred(self):
         """A mutable set-like view of this node's predecessors."""
         return AdjacencySetProxy(self, False)
 
-    @pred.setter
-    def pred(self, value):
+    def _set_pred(self, value):
         p = AdjacencySetProxy(self, False)
         p.clear()
         p.update(value)
 
-    @property
+    pred = python_property(pred, _set_pred)
+
     def succ(self):
         """A mutable set-like view of this node's successors."""
         return AdjacencySetProxy(self, True)
 
-    @succ.setter
-    def succ(self, value):
+    def _set_succ(self, value):
         s = AdjacencySetProxy(self, True)
         s.clear()
         s.update(value)
+
+    succ = python_property(succ, _set_succ)
 
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.

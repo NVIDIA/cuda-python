@@ -12,28 +12,28 @@ cdef class MemoryInfo:
     def __init__(self, memory_info: nvml.Memory_v2):
         self._memory_info = memory_info
 
-    @property
+    @python_property
     def free(self) -> int:
         """
         Unallocated device memory (in bytes)
         """
         return self._memory_info.free
 
-    @property
+    @python_property
     def total(self) -> int:
         """
         Total physical device memory (in bytes)
         """
         return self._memory_info.total
 
-    @property
+    @python_property
     def used(self) -> int:
         """
         Allocated device memory (in bytes)
         """
         return self._memory_info.used
 
-    @property
+    @python_property
     def reserved(self) -> int:
         """
         Device memory (in bytes) reserved for system use (driver or firmware)
@@ -50,21 +50,21 @@ cdef class BAR1MemoryInfo(MemoryInfo):
     def __init__(self, memory_info: nvml.BAR1Memory):
         self._memory_info = memory_info
 
-    @property
+    @python_property
     def free(self) -> int:
         """
         Unallocated BAR1 memory (in bytes)
         """
         return self._memory_info.bar1_free
 
-    @property
+    @python_property
     def total(self) -> int:
         """
         Total BAR1 memory (in bytes)
         """
         return self._memory_info.bar1_total
 
-    @property
+    @python_property
     def used(self) -> int:
         """
         Allocated used memory (in bytes)

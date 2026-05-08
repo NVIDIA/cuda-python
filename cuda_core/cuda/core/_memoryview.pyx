@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from ._dlpack cimport *
 from ._dlpack import classify_dl_device
@@ -484,7 +485,7 @@ cdef class StridedMemoryView:
         _smv_get_dl_device(self, &device_type, &device_id)
         return (<int>device_type, int(device_id))
 
-    @property
+    @python_property
     def _layout(self) -> _StridedLayout:
         """
         The layout of the tensor. For StridedMemoryView created from DLPack or CAI,
@@ -492,25 +493,25 @@ cdef class StridedMemoryView:
         """
         return self.get_layout()
 
-    @property
+    @python_property
     def size(self) -> int:
         return self.get_layout().get_volume()
 
-    @property
+    @python_property
     def shape(self) -> tuple[int, ...]:
         """
         Shape of the tensor.
         """
         return self.get_layout().get_shape_tuple()
 
-    @property
+    @python_property
     def strides(self) -> tuple[int, ...] | None:
         """
         Strides of the tensor (in **counts**, not bytes).
         """
         return self.get_layout().get_strides_tuple()
 
-    @property
+    @python_property
     def dtype(self) -> numpy.dtype | None:
         """
         Data type of the tensor.

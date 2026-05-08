@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from cuda.core._utils.properties import python_property
 from libc.stdint cimport intptr_t
 
 from cuda.bindings import nvml
@@ -30,21 +31,21 @@ cdef class SystemEvent:
         assert len(event_data) == 1
         self._event_data = event_data
 
-    @property
+    @python_property
     def event_type(self) -> SystemEventType:
         """
         The :obj:`~SystemEventType` that was triggered.
         """
         return _SYSTEM_EVENT_TYPE_MAPPING[self._event_data.event_type]
 
-    @property
+    @python_property
     def gpu_id(self) -> int:
         """
         The GPU ID in PCI ID format.
         """
         return self._event_data.gpu_id
 
-    @property
+    @python_property
     def device(self) -> _device.Device:
         """
         The :obj:`~_device.Device` associated with this event.

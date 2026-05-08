@@ -12,7 +12,7 @@ cdef class MigInfo:
     def __init__(self, device: Device):
         self._device = device
 
-    @property
+    @python_property
     def is_mig_device(self) -> bool:
         """
         Whether this device is a MIG (Multi-Instance GPU) device.
@@ -26,7 +26,6 @@ cdef class MigInfo:
         """
         return bool(nvml.device_is_mig_device_handle(self._device._handle))
 
-    @property
     def mode(self) -> bool:
         """
         Get current MIG mode for the device.
@@ -44,8 +43,7 @@ cdef class MigInfo:
         current, _ = nvml.device_get_mig_mode(self._device._handle)
         return current == nvml.EnableState.FEATURE_ENABLED
 
-    @mode.setter
-    def mode(self, mode: bool):
+    def _set_mode(self, mode: bool):
         """
         Set the MIG mode for the device.
 
@@ -64,7 +62,9 @@ cdef class MigInfo:
             nvml.EnableState.FEATURE_ENABLED if mode else nvml.EnableState.FEATURE_DISABLED
         )
 
-    @property
+    mode = python_property(mode, _set_mode)
+
+    @python_property
     def pending_mode(self) -> bool:
         """
         Get pending MIG mode for the device.
@@ -84,7 +84,7 @@ cdef class MigInfo:
         _, pending = nvml.device_get_mig_mode(self._device._handle)
         return pending == nvml.EnableState.FEATURE_ENABLED
 
-    @property
+    @python_property
     def device_count(self) -> int:
         """
         Get the maximum number of MIG devices that can exist under this device.
@@ -100,7 +100,7 @@ cdef class MigInfo:
         """
         return nvml.device_get_max_mig_device_count(self._device._handle)
 
-    @property
+    @python_property
     def parent(self) -> Device:
         """
         For MIG devices, get the parent GPU device.

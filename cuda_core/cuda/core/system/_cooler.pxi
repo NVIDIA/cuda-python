@@ -23,7 +23,7 @@ cdef class CoolerInfo:
     def __init__(self, cooler_info: nvml.CoolerInfo):
         self._cooler_info = cooler_info
 
-    @property
+    @python_property
     def signal_type(self) -> CoolerControl | None:
         """
         The cooler's control signal characteristics.
@@ -32,7 +32,7 @@ cdef class CoolerInfo:
         """
         return _COOLER_CONTROL_MAPPING.get(self._cooler_info.signal_type, None)
 
-    @property
+    @python_property
     def target(self) -> list[CoolerTarget]:
         """
         The target that cooler controls.

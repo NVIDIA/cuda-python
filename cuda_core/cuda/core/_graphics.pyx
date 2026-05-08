@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
@@ -333,17 +334,17 @@ cdef class GraphicsResource:
         self._context_manager_stream = None
         self._entered_buffer = None
 
-    @property
+    @python_property
     def is_mapped(self) -> bool:
         """Whether the resource is currently mapped for CUDA access."""
         return self._get_mapped_buffer() is not None
 
-    @property
+    @python_property
     def handle(self) -> int:
         """The raw ``CUgraphicsResource`` handle as a Python int."""
         return as_intptr(self._handle)
 
-    @property
+    @python_property
     def resource_handle(self) -> int:
         """Alias for :attr:`handle`."""
         return self.handle

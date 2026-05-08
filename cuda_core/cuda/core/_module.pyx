@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from libc.stddef cimport size_t
 
@@ -102,7 +103,7 @@ cdef class KernelAttributes:
         """
         return self._view_for_device(Device(device).device_id)
 
-    @property
+    @python_property
     def max_threads_per_block(self) -> int:
         """int : The maximum number of threads per block.
         This attribute is read-only."""
@@ -110,7 +111,7 @@ cdef class KernelAttributes:
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
         )
 
-    @property
+    @python_property
     def shared_size_bytes(self) -> int:
         """int : The size in bytes of statically-allocated shared memory required by this function.
         This attribute is read-only."""
@@ -118,7 +119,7 @@ cdef class KernelAttributes:
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES
         )
 
-    @property
+    @python_property
     def const_size_bytes(self) -> int:
         """int : The size in bytes of user-allocated constant memory required by this function.
         This attribute is read-only."""
@@ -126,7 +127,7 @@ cdef class KernelAttributes:
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES
         )
 
-    @property
+    @python_property
     def local_size_bytes(self) -> int:
         """int : The size in bytes of local memory used by each thread of this function.
         This attribute is read-only."""
@@ -134,7 +135,7 @@ cdef class KernelAttributes:
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES
         )
 
-    @property
+    @python_property
     def num_regs(self) -> int:
         """int : The number of registers used by each thread of this function.
         This attribute is read-only."""
@@ -142,7 +143,7 @@ cdef class KernelAttributes:
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_NUM_REGS
         )
 
-    @property
+    @python_property
     def ptx_version(self) -> int:
         """int : The PTX virtual architecture version for which the function was compiled.
         This attribute is read-only."""
@@ -150,7 +151,7 @@ cdef class KernelAttributes:
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_PTX_VERSION
         )
 
-    @property
+    @python_property
     def binary_version(self) -> int:
         """int : The binary architecture version for which the function was compiled.
         This attribute is read-only."""
@@ -158,7 +159,7 @@ cdef class KernelAttributes:
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_BINARY_VERSION
         )
 
-    @property
+    @python_property
     def cache_mode_ca(self) -> bool:
         """bool : Whether the function has been compiled with user specified option "-Xptxas --dlcm=ca" set.
         This attribute is read-only."""
@@ -168,7 +169,7 @@ cdef class KernelAttributes:
             )
         )
 
-    @property
+    @python_property
     def max_dynamic_shared_size_bytes(self) -> int:
         """int : The maximum size in bytes of dynamically-allocated shared memory that can be used
         by this function."""
@@ -176,14 +177,14 @@ cdef class KernelAttributes:
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
         )
 
-    @property
+    @python_property
     def preferred_shared_memory_carveout(self) -> int:
         """int : The shared memory carveout preference, in percent of the total shared memory."""
         return self._get_cached_attribute(
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
         )
 
-    @property
+    @python_property
     def cluster_size_must_be_set(self) -> bool:
         """bool : The kernel must launch with a valid cluster size specified.
         This attribute is read-only."""
@@ -193,28 +194,28 @@ cdef class KernelAttributes:
             )
         )
 
-    @property
+    @python_property
     def required_cluster_width(self) -> int:
         """int : The required cluster width in blocks."""
         return self._get_cached_attribute(
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
         )
 
-    @property
+    @python_property
     def required_cluster_height(self) -> int:
         """int : The required cluster height in blocks."""
         return self._get_cached_attribute(
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
         )
 
-    @property
+    @python_property
     def required_cluster_depth(self) -> int:
         """int : The required cluster depth in blocks."""
         return self._get_cached_attribute(
             self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
         )
 
-    @property
+    @python_property
     def non_portable_cluster_size_allowed(self) -> bool:
         """bool : Whether the function can be launched with non-portable cluster size."""
         return bool(
@@ -224,7 +225,7 @@ cdef class KernelAttributes:
             )
         )
 
-    @property
+    @python_property
     def cluster_scheduling_policy_preference(self) -> int:
         """int : The block scheduling policy of a function."""
         return self._get_cached_attribute(
@@ -450,7 +451,7 @@ cdef class Kernel:
         ker._occupancy = None
         return ker
 
-    @property
+    @python_property
     def attributes(self) -> KernelAttributes:
         """Get the read-only attributes of this kernel."""
         if self._attributes is None:
@@ -480,26 +481,26 @@ cdef class Kernel:
             HANDLE_RETURN(err)
         return arg_pos, param_info_data
 
-    @property
+    @python_property
     def num_arguments(self) -> int:
         """int : The number of arguments of this function"""
         num_args, _ = self._get_arguments_info()
         return num_args
 
-    @property
+    @python_property
     def arguments_info(self) -> list[ParamInfo]:
         """list[ParamInfo]: (offset, size) for each argument of this function"""
         _, param_info = self._get_arguments_info(param_info=True)
         return param_info
 
-    @property
+    @python_property
     def occupancy(self) -> KernelOccupancy:
         """Get the occupancy information for launching this kernel."""
         if self._occupancy is None:
             self._occupancy = KernelOccupancy._init(self._h_kernel)
         return self._occupancy
 
-    @property
+    @python_property
     def handle(self):
         """Return the underlying kernel handle object.
 
@@ -510,7 +511,7 @@ cdef class Kernel:
         """
         return as_py(self._h_kernel)
 
-    @property
+    @python_property
     def _handle(self):
         return self.handle
 
@@ -773,27 +774,27 @@ cdef class ObjectCode:
             HANDLE_RETURN(get_last_error())
         return Kernel._from_handle(h_kernel)
 
-    @property
+    @python_property
     def code(self) -> CodeTypeT:
         """Return the underlying code object."""
         return self._module
 
-    @property
+    @python_property
     def name(self) -> str:
         """Return a human-readable name of this code object."""
         return self._name
 
-    @property
+    @python_property
     def code_type(self) -> str:
         """Return the type of the underlying code object."""
         return self._code_type
 
-    @property
+    @python_property
     def symbol_mapping(self) -> dict:
         """Return a copy of the symbol mapping dictionary."""
         return dict(self._sym_map)
 
-    @property
+    @python_property
     def handle(self):
         """Return the underlying handle object.
 

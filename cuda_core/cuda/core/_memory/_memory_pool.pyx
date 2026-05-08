@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from libc.limits cimport ULLONG_MAX
 from libc.stdint cimport uintptr_t
@@ -50,56 +51,56 @@ cdef class _MemPoolAttributes:
             HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(as_cu(self._h_pool), attr_enum, value))
         return 0
 
-    @property
+    @python_property
     def reuse_follow_event_dependencies(self):
         """Allow memory to be reused when there are event dependencies between streams."""
         cdef int value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES, &value)
         return bool(value)
 
-    @property
+    @python_property
     def reuse_allow_opportunistic(self):
         """Allow reuse of completed frees without dependencies."""
         cdef int value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC, &value)
         return bool(value)
 
-    @property
+    @python_property
     def reuse_allow_internal_dependencies(self):
         """Allow insertion of new stream dependencies for memory reuse."""
         cdef int value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES, &value)
         return bool(value)
 
-    @property
+    @python_property
     def release_threshold(self):
         """Amount of reserved memory to hold before OS release."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &value)
         return int(value)
 
-    @property
+    @python_property
     def reserved_mem_current(self):
         """Current amount of backing memory allocated."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT, &value)
         return int(value)
 
-    @property
+    @python_property
     def reserved_mem_high(self):
         """High watermark of backing memory allocated."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH, &value)
         return int(value)
 
-    @property
+    @python_property
     def used_mem_current(self):
         """Current amount of memory in use."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_CURRENT, &value)
         return int(value)
 
-    @property
+    @python_property
     def used_mem_high(self):
         """High watermark of memory in use."""
         cdef cydriver.cuuint64_t value
@@ -162,29 +163,29 @@ cdef class _MemPool(MemoryResource):
         cdef Stream s = Stream_accept(stream)
         _MP_deallocate(self, <uintptr_t>ptr, size, s)
 
-    @property
+    @python_property
     def attributes(self) -> _MemPoolAttributes:
         """Memory pool attributes."""
         if self._attributes is None:
             self._attributes = _MemPoolAttributes._init(self._h_pool)
         return self._attributes
 
-    @property
+    @python_property
     def handle(self) -> object:
         """Handle to the underlying memory pool."""
         return as_py(self._h_pool)
 
-    @property
+    @python_property
     def is_handle_owned(self) -> bool:
         """Whether the memory resource handle is owned. If False, ``close`` has no effect."""
         return self._mempool_owned
 
-    @property
+    @python_property
     def is_ipc_enabled(self) -> bool:
         """Whether this memory resource has IPC enabled."""
         return self._ipc_data is not None
 
-    @property
+    @python_property
     def is_mapped(self) -> bool:
         """
         Whether this is a mapping of an IPC-enabled memory resource from
@@ -192,7 +193,7 @@ cdef class _MemPool(MemoryResource):
         """
         return self._ipc_data is not None and self._ipc_data._is_mapped
 
-    @property
+    @python_property
     def uuid(self) -> uuid.UUID | None:
         """
         A universally unique identifier for this memory resource. Meaningful

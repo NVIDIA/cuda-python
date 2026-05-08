@@ -15,14 +15,14 @@ cdef class FieldValue:
         assert len(field_value) == 1
         self._field_value = field_value
 
-    @property
+    @python_property
     def field_id(self) -> FieldId:
         """
         The field ID.
         """
         return FieldId(self._field_value.field_id)
 
-    @property
+    @python_property
     def scope_id(self) -> int:
         """
         The scope ID.
@@ -30,7 +30,7 @@ cdef class FieldValue:
         # Explicit int() cast required because this is a Numpy type
         return int(self._field_value.scope_id)
 
-    @property
+    @python_property
     def timestamp(self) -> int:
         """
         The CPU timestamp (in microseconds since 1970) at which the value was
@@ -39,7 +39,7 @@ cdef class FieldValue:
         # Explicit int() cast required because this is a Numpy type
         return int(self._field_value.timestamp)
 
-    @property
+    @python_property
     def latency_usec(self) -> int:
         """
         How long this field value took to update (in usec) within NVML. This may
@@ -49,7 +49,7 @@ cdef class FieldValue:
         # Explicit int() cast required because this is a Numpy type
         return int(self._field_value.latency_usec)
 
-    @property
+    @python_property
     def value(self) -> int | float:
         """
         The field value.

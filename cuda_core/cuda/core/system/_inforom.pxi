@@ -45,7 +45,7 @@ cdef class InforomInfo:
             ) from None
         return nvml.device_get_inforom_version(self._device._handle, inforom_enum)
 
-    @property
+    @python_property
     def image_version(self) -> str:
         """
         Retrieves the global InfoROM image version.
@@ -63,7 +63,7 @@ cdef class InforomInfo:
         """
         return nvml.device_get_inforom_image_version(self._device._handle)
 
-    @property
+    @python_property
     def configuration_checksum(self) -> int:
         """
         Retrieves the checksum of the configuration stored in the device's InfoROM.
@@ -95,7 +95,7 @@ cdef class InforomInfo:
         """
         nvml.device_validate_inforom(self._device._handle)
 
-    @property
+    @python_property
     def bbx_flush_time(self) -> tuple[int, int]:
         """
         Retrieves the timestamp and duration of the last flush of the BBX
@@ -111,7 +111,7 @@ cdef class InforomInfo:
         """
         return nvml.device_get_last_bbx_flush_time(self._device._handle)
 
-    @property
+    @python_property
     def board_part_number(self) -> str:
         """
         The device board part number which is programmed into the board's InfoROM.

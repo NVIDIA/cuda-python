@@ -75,23 +75,23 @@ cdef class ThermalSensor:
         self._ptr = <_ThermalSensor *><intptr_t>ptr
         self._owner = owner
 
-    @property
+    @python_property
     def controller(self) -> ThermalController:
         return _THERMAL_CONTROLLER_MAPPING.get(self._ptr[0].controller, ThermalController.UNKNOWN)
 
-    @property
+    @python_property
     def default_min_temp(self) -> int:
         return self._ptr[0].defaultMinTemp
 
-    @property
+    @python_property
     def default_max_temp(self) -> int:
         return self._ptr[0].defaultMaxTemp
 
-    @property
+    @python_property
     def current_temp(self) -> int:
         return self._ptr[0].currentTemp
 
-    @property
+    @python_property
     def target(self) -> ThermalTarget:
         return _THERMAL_TARGET_MAPPING.get(self._ptr[0].target, ThermalTarget.NONE)
 
@@ -184,7 +184,7 @@ cdef class Temperature:
                 )
         return nvml.device_get_temperature_threshold(self._handle, threshold_type_enum)
 
-    @property
+    @python_property
     def margin(self) -> int:
         """
         The thermal margin temperature (distance to nearest slowdown threshold) for the device.

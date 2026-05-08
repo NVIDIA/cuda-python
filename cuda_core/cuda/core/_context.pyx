@@ -58,7 +58,7 @@ cdef class Context:
             raise RuntimeError("Failed to create CUDA context view from green context")
         return Context._from_handle(cls, h_context, device_id)
 
-    @property
+    @python_property
     def handle(self):
         """Return the underlying CUcontext handle."""
         if not self._h_context:
@@ -67,11 +67,11 @@ cdef class Context:
             return None
         return as_py(self._h_context)
 
-    @property
+    @python_property
     def _handle(self):
         return self.handle
 
-    @property
+    @python_property
     def is_green(self) -> bool:
         """True if this context was created from device resources."""
         if not self._h_context:

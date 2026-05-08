@@ -5,6 +5,7 @@
 """GraphDefinition: explicit CUDA graph definition."""
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from libc.stddef cimport size_t
 
@@ -63,7 +64,7 @@ cdef class GraphCondition:
     def __hash__(self) -> int:
         return hash(<unsigned long long>self._c_handle)
 
-    @property
+    @python_property
     def handle(self) -> driver.CUgraphConditionalHandle:
         """The raw CUgraphConditionalHandle as an int."""
         return <unsigned long long>self._c_handle
@@ -102,7 +103,7 @@ cdef class GraphDefinition:
     def __hash__(self) -> int:
         return hash(as_intptr(self._h_graph))
 
-    @property
+    @python_property
     def _entry(self) -> "GraphNode":
         """Return the internal entry-point GraphNode (no dependencies)."""
         cdef GraphNode n = GraphNode.__new__(GraphNode)
@@ -370,7 +371,7 @@ cdef class GraphDefinition:
             for i in range(num_edges)
         }
 
-    @property
+    @python_property
     def handle(self) -> driver.CUgraph:
         """Return the underlying driver CUgraph handle."""
         return as_py(self._h_graph)

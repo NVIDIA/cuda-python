@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from cuda.bindings cimport cydriver
 
@@ -91,14 +92,14 @@ cdef class ManagedMemoryResource(_MemPool):
     def __init__(self, options=None):
         _MMR_init(self, options)
 
-    @property
+    @python_property
     def device_id(self) -> int:
         """The preferred device ordinal, or -1 if the preferred location is not a device."""
         if self._pref_loc_type == "device":
             return self._pref_loc_id
         return -1
 
-    @property
+    @python_property
     def preferred_location(self) -> tuple[ManagedMemoryLocationType, int | None] | None:
         """The preferred location for managed memory allocations.
 
@@ -113,17 +114,17 @@ cdef class ManagedMemoryResource(_MemPool):
             return (ManagedMemoryLocationType.HOST, None)
         return (ManagedMemoryLocationType(self._pref_loc_type), self._pref_loc_id)
 
-    @property
+    @python_property
     def is_device_accessible(self) -> bool:
         """Return True. This memory resource provides device-accessible buffers."""
         return True
 
-    @property
+    @python_property
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
         return True
 
-    @property
+    @python_property
     def is_managed(self) -> bool:
         """Return True. This memory resource provides managed (unified) memory buffers."""
         return True

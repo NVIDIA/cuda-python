@@ -10,63 +10,63 @@ cdef class DeviceAttributes:
     def __init__(self, attributes: nvml.DeviceAttributes):
         self._attributes = attributes
 
-    @property
+    @python_property
     def multiprocessor_count(self) -> int:
         """
         The streaming multiprocessor count
         """
         return self._attributes.multiprocessor_count
 
-    @property
+    @python_property
     def shared_copy_engine_count(self) -> int:
         """
         The shared copy engine count
         """
         return self._attributes.shared_copy_engine_count
 
-    @property
+    @python_property
     def shared_decoder_count(self) -> int:
         """
         The shared decoder engine count
         """
         return self._attributes.shared_decoder_count
 
-    @property
+    @python_property
     def shared_encoder_count(self) -> int:
         """
         The shared encoder engine count
         """
         return self._attributes.shared_encoder_count
 
-    @property
+    @python_property
     def shared_jpeg_count(self) -> int:
         """
         The shared JPEG engine count
         """
         return self._attributes.shared_jpeg_count
 
-    @property
+    @python_property
     def shared_ofa_count(self) -> int:
         """
         The shared optical flow accelerator (OFA) engine count
         """
         return self._attributes.shared_ofa_count
 
-    @property
+    @python_property
     def gpu_instance_slice_count(self) -> int:
         """
         The GPU instance slice count
         """
         return self._attributes.gpu_instance_slice_count
 
-    @property
+    @python_property
     def compute_instance_slice_count(self) -> int:
         """
         The compute instance slice count
         """
         return self._attributes.compute_instance_slice_count
 
-    @property
+    @python_property
     def memory_size_mb(self) -> int:
         """
         Device memory size in MiB

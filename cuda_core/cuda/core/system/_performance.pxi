@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -24,28 +24,28 @@ cdef class GpuDynamicPstatesUtilization:
         self._ptr = <_GpuDynamicPstatesUtilization *><intptr_t>ptr
         self._owner = owner
 
-    @property
+    @python_property
     def is_present(self) -> bool:
         """
         Set if the utilization domain is present on this GPU.
         """
         return bool(self._ptr[0].bIsPresent)
 
-    @property
+    @python_property
     def percentage(self) -> int:
         """
         Percentage of time where the domain is considered busy in the last 1-second interval.
         """
         return self._ptr[0].percentage
 
-    @property
+    @python_property
     def inc_threshold(self) -> int:
         """
         Utilization threshold that can trigger a perf-increasing P-State change when crossed.
         """
         return self._ptr[0].incThreshold
 
-    @property
+    @python_property
     def dec_threshold(self) -> int:
         """
         Utilization threshold that can trigger a perf-decreasing P-State change when crossed.

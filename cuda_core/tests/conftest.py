@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing
@@ -122,9 +122,11 @@ def _device_id_from_resource_options(device, args, kwargs):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def session_setup():
-    # Always init CUDA.
-    handle_return(driver.cuInit(0))
+def session_setup(request):
+    no_cuda_tests = request.session.items and all(item.get_closest_marker("no_cuda") for item in request.session.items)
+    if not no_cuda_tests:
+        # Always init CUDA.
+        handle_return(driver.cuInit(0))
 
     # Never fork processes.
     multiprocessing.set_start_method("spawn", force=True)

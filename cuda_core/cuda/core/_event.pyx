@@ -238,17 +238,17 @@ cdef class Event:
         self._ipc_descriptor = ipc_descriptor
         return self
 
-    @property
+    @python_property
     def is_ipc_enabled(self) -> bool:
         """Return True if the event can be shared across process boundaries, otherwise False."""
         return get_event_ipc_enabled(self._h_event)
 
-    @property
+    @python_property
     def is_timing_enabled(self) -> bool:
         """Return True if the event records timing data, otherwise False."""
         return get_event_timing_enabled(self._h_event)
 
-    @property
+    @python_property
     def is_blocking_sync(self) -> bool:
         """Return True if the event uses blocking synchronization (the CPU
         thread blocks on :meth:`sync` instead of busy-waiting), otherwise False.
@@ -267,7 +267,7 @@ cdef class Event:
         with nogil:
             HANDLE_RETURN(cydriver.cuEventSynchronize(as_cu(self._h_event)))
 
-    @property
+    @python_property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
         with nogil:
@@ -278,7 +278,7 @@ cdef class Event:
             return False
         HANDLE_RETURN(result)
 
-    @property
+    @python_property
     def handle(self) -> cuda.bindings.driver.CUevent:
         """Return the underlying CUevent object.
 
@@ -289,7 +289,7 @@ cdef class Event:
         """
         return as_py(self._h_event)
 
-    @property
+    @python_property
     def device(self) -> Device:
         """Return the :obj:`~_device.Device` singleton associated with this event.
 
@@ -305,7 +305,7 @@ cdef class Event:
             from ._device import Device  # avoid circular import
             return Device(dev_id)
 
-    @property
+    @python_property
     def context(self) -> Context:
         """Return the :obj:`~_context.Context` associated with this event."""
         cdef ContextHandle h_ctx = get_event_context(self._h_event)

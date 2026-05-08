@@ -41,21 +41,21 @@ cdef class ClockOffsets:
     def __init__(self, clock_offset: nvml.ClockOffset):
         self._clock_offset = clock_offset
 
-    @property
+    @python_property
     def clock_offset_mhz(self) -> int:
         """
         The current clock offset in MHz.
         """
         return self._clock_offset.clock_offset_m_hz
 
-    @property
+    @python_property
     def max_offset_mhz(self) -> int:
         """
         The maximum clock offset in MHz.
         """
         return self._clock_offset.max_clock_offset_m_hz
 
-    @property
+    @python_property
     def min_offset_mhz(self) -> int:
         """
         The minimum clock offset in MHz.

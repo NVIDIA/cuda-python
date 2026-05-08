@@ -207,7 +207,7 @@ cdef class Device:
     #########################################################################
     # BASIC PROPERTIES
 
-    @property
+    @python_property
     def index(self) -> int:
         """
         The NVML index of this device.
@@ -226,7 +226,7 @@ cdef class Device:
         """
         return nvml.device_get_index(self._handle)
 
-    @property
+    @python_property
     def uuid(self) -> str:
         """
         Retrieves the globally unique immutable UUID associated with this
@@ -239,7 +239,7 @@ cdef class Device:
         """
         return nvml.device_get_uuid(self._handle)
 
-    @property
+    @python_property
     def uuid_without_prefix(self) -> str:
         """
         Retrieves the globally unique immutable UUID associated with this
@@ -253,7 +253,7 @@ cdef class Device:
         # NVML UUIDs have a `gpu-` or `mig-` prefix.  We remove that here.
         return nvml.device_get_uuid(self._handle)[4:]
 
-    @property
+    @python_property
     def pci_bus_id(self) -> str:
         """
         Retrieves the PCI bus ID of this device.
@@ -269,7 +269,7 @@ cdef class Device:
         """
         return nvml.device_get_numa_node_id(self._handle)
 
-    @property
+    @python_property
     def arch(self) -> DeviceArch:
         """
         :obj:`~DeviceArch` device architecture.
@@ -284,14 +284,14 @@ cdef class Device:
         except ValueError:
             return DeviceArch.UNKNOWN
 
-    @property
+    @python_property
     def name(self) -> str:
         """
         Name of the device, e.g.: `"Tesla V100-SXM2-32GB"`
         """
         return nvml.device_get_name(self._handle)
 
-    @property
+    @python_property
     def brand(self) -> str:
         """
         The brand of the device.
@@ -300,7 +300,7 @@ cdef class Device:
         """
         return _BRAND_TYPE_MAPPING.get(nvml.device_get_brand(self._handle), "Unknown")
 
-    @property
+    @python_property
     def serial(self) -> str:
         """
         Retrieves the globally unique board serial number associated with this
@@ -310,7 +310,7 @@ cdef class Device:
         """
         return nvml.device_get_serial(self._handle)
 
-    @property
+    @python_property
     def module_id(self) -> int:
         """
         Get a unique identifier for the device module on the baseboard.
@@ -321,7 +321,7 @@ cdef class Device:
         """
         return nvml.device_get_module_id(self._handle)
 
-    @property
+    @python_property
     def minor_number(self) -> int:
         """
         The minor number of this device.
@@ -340,7 +340,6 @@ cdef class Device:
         """
         return bool(nvml.device_get_c2c_mode_info_v(self._handle).is_c2c_enabled)
 
-    @property
     def is_persistence_mode_enabled(self) -> bool:
         """
         Whether persistence mode is enabled for this device.
@@ -349,14 +348,17 @@ cdef class Device:
         """
         return nvml.device_get_persistence_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
-    @is_persistence_mode_enabled.setter
-    def is_persistence_mode_enabled(self, enabled: bool) -> None:
+    def _set_is_persistence_mode_enabled(self, enabled: bool) -> None:
         nvml.device_set_persistence_mode(
             self._handle,
             nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED
         )
 
-    @property
+    is_persistence_mode_enabled = python_property(
+        is_persistence_mode_enabled, _set_is_persistence_mode_enabled
+    )
+
+    @python_property
     def cuda_compute_capability(self) -> tuple[int, int]:
         """
         CUDA compute capability of the device, e.g.: `(7, 0)` for a Tesla V100.
@@ -421,7 +423,7 @@ cdef class Device:
     #########################################################################
     # ADDRESSING MODE
 
-    @property
+    @python_property
     def addressing_mode(self) -> AddressingMode | None:
         """
         Get the :obj:`~AddressingMode` of the device.
@@ -431,7 +433,7 @@ cdef class Device:
     #########################################################################
     # MIG (MULTI-INSTANCE GPU) DEVICES
 
-    @property
+    @python_property
     def mig(self) -> MigInfo:
         """
         Get :obj:`~MigInfo` accessor for MIG (Multi-Instance GPU) information.
@@ -645,7 +647,7 @@ cdef class Device:
     # COOLER
     # See external class definitions in _cooler.pxi
 
-    @property
+    @python_property
     def cooler(self) -> CoolerInfo:
         """
         :obj:`~_device.CoolerInfo` object with cooler information for the device.
@@ -669,7 +671,7 @@ cdef class Device:
     #########################################################################
     # DISPLAY
 
-    @property
+    @python_property
     def is_display_connected(self) -> bool:
         """
         The display mode for this device.
@@ -679,7 +681,7 @@ cdef class Device:
         """
         return nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
-    @property
+    @python_property
     def is_display_active(self) -> bool:
         """
         The display active status for this device.
@@ -773,7 +775,7 @@ cdef class Device:
             raise ValueError(f"Fan index {fan} is out of range [0, {self.num_fans})")
         return FanInfo(self._handle, fan)
 
-    @property
+    @python_property
     def num_fans(self) -> int:
         """
         The number of fans on the device.
@@ -838,7 +840,7 @@ cdef class Device:
     # INFOROM
     # See external class definitions in _inforom.pxi
 
-    @property
+    @python_property
     def inforom(self) -> InforomInfo:
         """
         :obj:`~_device.InforomInfo` object with InfoROM information.
@@ -851,7 +853,7 @@ cdef class Device:
     # MEMORY
     # See external class definitions in _memory.pxi
 
-    @property
+    @python_property
     def bar1_memory_info(self) -> BAR1MemoryInfo:
         """
         :obj:`~_device.BAR1MemoryInfo` object with BAR1 memory information.
@@ -862,7 +864,7 @@ cdef class Device:
         """
         return BAR1MemoryInfo(nvml.device_get_bar1_memory_info(self._handle))
 
-    @property
+    @python_property
     def memory_info(self) -> MemoryInfo:
         """
         :obj:`~_device.MemoryInfo` object with memory information.
@@ -887,7 +889,7 @@ cdef class Device:
     # PCI INFO
     # See external class definitions in _pci_info.pxi
 
-    @property
+    @python_property
     def pci_info(self) -> PciInfo:
         """
         :obj:`~_device.PciInfo` object with the PCI attributes of this device.
@@ -898,7 +900,7 @@ cdef class Device:
     # PERFORMANCE
     # See external class definitions in _performance.pxi
 
-    @property
+    @python_property
     def performance_state(self) -> int | None:
         """
         The current performance state of the device.
@@ -914,14 +916,14 @@ cdef class Device:
         """
         return _pstate_to_int(nvml.device_get_performance_state(self._handle))
 
-    @property
+    @python_property
     def dynamic_pstates_info(self) -> GpuDynamicPstatesInfo:
         """
         :obj:`~_device.GpuDynamicPstatesInfo` object with performance monitor samples from the associated subdevice.
         """
         return GpuDynamicPstatesInfo(nvml.device_get_dynamic_pstates_info(self._handle))
 
-    @property
+    @python_property
     def supported_pstates(self) -> list[int]:
         """
         Get all supported Performance States (P-States) for the device.
@@ -953,7 +955,7 @@ cdef class Device:
     # PROCESS
     # See external class definitions in _process.pxi
 
-    @property
+    @python_property
     def compute_running_processes(self) -> list[ProcessInfo]:
         """
         Get information about processes with a compute context on a device
@@ -980,7 +982,7 @@ cdef class Device:
     # REPAIR STATUS
     # See external class definitions in _repair_status.pxi
 
-    @property
+    @python_property
     def repair_status(self) -> RepairStatus:
         """
         :obj:`~_device.RepairStatus` object with TPC/Channel repair status.
@@ -993,7 +995,7 @@ cdef class Device:
     # TEMPERATURE
     # See external class definitions in _temperature.pxi
 
-    @property
+    @python_property
     def temperature(self) -> Temperature:
         """
         :obj:`~_device.Temperature` object with temperature information for the device.
@@ -1035,7 +1037,7 @@ cdef class Device:
     #######################################################################
     # UTILIZATION
 
-    @property
+    @python_property
     def utilization(self) -> Utilization:
         """
         Retrieves the current :obj:`~Utilization` rates for the device's major

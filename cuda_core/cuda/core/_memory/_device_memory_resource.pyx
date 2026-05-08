@@ -202,12 +202,11 @@ cdef class DeviceMemoryResource(_MemPool):
             raise RuntimeError("Memory resource is not IPC-enabled")
         return self._ipc_data._alloc_handle
 
-    @property
+    @python_property
     def device_id(self) -> int:
         """The associated device ordinal."""
         return self._dev_id
 
-    @property
     def peer_accessible_by(self):
         """
         Get or set the devices that can access allocations from this memory
@@ -228,16 +227,17 @@ cdef class DeviceMemoryResource(_MemPool):
         """
         return PeerAccessibleBySetProxy(self)
 
-    @peer_accessible_by.setter
-    def peer_accessible_by(self, devices):
+    def _set_peer_accessible_by(self, devices):
         replace_peer_accessible_by(self, devices)
 
-    @property
+    peer_accessible_by = python_property(peer_accessible_by, _set_peer_accessible_by)
+
+    @python_property
     def is_device_accessible(self) -> bool:
         """Return True. This memory resource provides device-accessible buffers."""
         return True
 
-    @property
+    @python_property
     def is_host_accessible(self) -> bool:
         """Return False. This memory resource does not provide host-accessible buffers."""
         return False

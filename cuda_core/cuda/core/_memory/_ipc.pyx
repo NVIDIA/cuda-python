@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from cuda.core._utils.properties import python_property
 cimport cpython
 
 from cuda.bindings cimport cydriver
@@ -49,11 +50,11 @@ cdef class IPCDataForBuffer:
         self._ipc_descriptor = ipc_descriptor
         self._is_mapped = is_mapped
 
-    @property
+    @python_property
     def ipc_descriptor(self):
         return self._ipc_descriptor
 
-    @property
+    @python_property
     def is_mapped(self):
         return self._is_mapped
 
@@ -64,15 +65,15 @@ cdef class IPCDataForMR:
         self._alloc_handle = alloc_handle
         self._is_mapped = is_mapped
 
-    @property
+    @python_property
     def alloc_handle(self):
         return self._alloc_handle
 
-    @property
+    @python_property
     def is_mapped(self):
         return self._is_mapped
 
-    @property
+    @python_property
     def uuid(self):
         return getattr(self._alloc_handle, 'uuid', None)
 
@@ -93,7 +94,7 @@ cdef class IPCBufferDescriptor:
     def __reduce__(self):
         return IPCBufferDescriptor._init, (self._payload, self._size)
 
-    @property
+    @python_property
     def size(self):
         return self._size
 
@@ -127,11 +128,11 @@ cdef class IPCAllocationHandle:
             )
         return as_py(self._h_fd)
 
-    @property
+    @python_property
     def handle(self) -> int:
         return as_py(self._h_fd)
 
-    @property
+    @python_property
     def uuid(self) -> uuid.UUID:
         return self._uuid
 

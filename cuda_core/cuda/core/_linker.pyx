@@ -9,6 +9,7 @@ configuration.
 """
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from cpython.bytearray cimport PyByteArray_AS_STRING
 from libc.stdint cimport intptr_t, uint32_t
@@ -150,7 +151,7 @@ cdef class Linker:
         else:
             self._culink_handle.reset()
 
-    @property
+    @python_property
     def handle(self) -> LinkerHandleT:
         """Return the underlying handle object.
 

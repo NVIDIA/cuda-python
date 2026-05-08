@@ -25,7 +25,7 @@ cdef class NvlinkInfo:
         self._device = device
         self._link = link
 
-    @property
+    @python_property
     def version(self) -> tuple[int, int]:
         """
         Retrieves the NvLink version for the device and link.
@@ -45,7 +45,7 @@ cdef class NvlinkInfo:
         except KeyError:
             raise RuntimeError(f"Unknown NvLink version {version} returned for device") from None
 
-    @property
+    @python_property
     def state(self) -> bool:
         """
         Retrieves the state of the device's Nvlink for the device and link specified.

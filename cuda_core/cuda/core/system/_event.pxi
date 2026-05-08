@@ -32,7 +32,7 @@ cdef class EventData:
     def __init__(self, event_data: nvml.EventData):
         self._event_data = event_data
 
-    @property
+    @python_property
     def device(self) -> Device:
         """
         The device on which the event occurred.
@@ -41,14 +41,14 @@ cdef class EventData:
         device._handle = self._event_data.device
         return device
 
-    @property
+    @python_property
     def event_type(self) -> EventType:
         """
         The type of event that was triggered.
         """
         return _EVENT_TYPE_MAPPING[self._event_data.event_type]
 
-    @property
+    @python_property
     def event_data(self) -> int:
         """
         Returns Xid error for the device in the event of
@@ -60,7 +60,7 @@ cdef class EventData:
             raise ValueError("event_data is only available for Xid critical error events.")
         return self._event_data.event_data
 
-    @property
+    @python_property
     def gpu_instance_id(self) -> int:
         """
         The GPU instance ID for MIG devices.
@@ -73,7 +73,7 @@ cdef class EventData:
             raise ValueError("gpu_instance_id is only available for Xid critical error events.")
         return self._event_data.gpu_instance_id
 
-    @property
+    @python_property
     def compute_instance_id(self) -> int:
         """
         The Compute instance ID for MIG devices.

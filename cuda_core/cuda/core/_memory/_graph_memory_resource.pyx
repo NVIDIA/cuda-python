@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from libc.stdint cimport intptr_t
 
@@ -51,14 +52,13 @@ cdef class GraphMemoryResourceAttributes:
             HANDLE_RETURN(cydriver.cuDeviceSetGraphMemAttribute(self._device_id, attr_enum, value))
         return 0
 
-    @property
+    @python_property
     def reserved_mem_current(self):
         """Current amount of backing memory allocated."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT, &value)
         return int(value)
 
-    @property
     def reserved_mem_high(self):
         """
         High watermark of backing memory allocated. It can be set to zero to
@@ -68,21 +68,21 @@ cdef class GraphMemoryResourceAttributes:
         self._getattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH, &value)
         return int(value)
 
-    @reserved_mem_high.setter
-    def reserved_mem_high(self, value: int):
+    def _set_reserved_mem_high(self, value: int):
         if value != 0:
             raise AttributeError(f"Attribute 'reserved_mem_high' may only be set to zero (got {value}).")
         cdef cydriver.cuuint64_t zero = 0
         self._setattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH, &zero)
 
-    @property
+    reserved_mem_high = python_property(reserved_mem_high, _set_reserved_mem_high)
+
+    @python_property
     def used_mem_current(self):
         """Current amount of memory in use."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT, &value)
         return int(value)
 
-    @property
     def used_mem_high(self):
         """
         High watermark of memory in use. It can be set to zero to reset it to
@@ -92,12 +92,13 @@ cdef class GraphMemoryResourceAttributes:
         self._getattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH, &value)
         return int(value)
 
-    @used_mem_high.setter
-    def used_mem_high(self, value: int):
+    def _set_used_mem_high(self, value: int):
         if value != 0:
             raise AttributeError(f"Attribute 'used_mem_high' may only be set to zero (got {value}).")
         cdef cydriver.cuuint64_t zero = 0
         self._setattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH, &zero)
+
+    used_mem_high = python_property(used_mem_high, _set_used_mem_high)
 
 
 cdef class cyGraphMemoryResource(MemoryResource):
@@ -127,22 +128,22 @@ cdef class cyGraphMemoryResource(MemoryResource):
         with nogil:
              HANDLE_RETURN(cydriver.cuDeviceGraphMemTrim(self._device_id))
 
-    @property
+    @python_property
     def attributes(self) -> GraphMemoryResourceAttributes:
         """Asynchronous allocation attributes related to graphs."""
         return GraphMemoryResourceAttributes._init(self._device_id)
 
-    @property
+    @python_property
     def device_id(self) -> int:
         """The associated device ordinal."""
         return self._device_id
 
-    @property
+    @python_property
     def is_device_accessible(self) -> bool:
         """Return True. This memory resource provides device-accessible buffers."""
         return True
 
-    @property
+    @python_property
     def is_host_accessible(self) -> bool:
         """Return False. This memory resource does not provide host-accessible buffers."""
         return False

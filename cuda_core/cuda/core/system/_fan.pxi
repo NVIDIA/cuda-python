@@ -21,7 +21,6 @@ cdef class FanInfo:
         self._handle = handle
         self._fan = fan
 
-    @property
     def speed(self) -> int:
         """
         Get/set the intended operating speed of the device's fan.
@@ -37,11 +36,12 @@ cdef class FanInfo:
         """
         return nvml.device_get_fan_speed_v2(self._handle, self._fan)
 
-    @speed.setter
-    def speed(self, speed: int):
+    def _set_speed(self, speed: int):
         nvml.device_set_fan_speed_v2(self._handle, self._fan, speed)
 
-    @property
+    speed = python_property(speed, _set_speed)
+
+    @python_property
     def speed_rpm(self) -> int:
         """
         The intended operating speed of the device's fan in rotations per minute
@@ -57,7 +57,7 @@ cdef class FanInfo:
         """
         return nvml.device_get_fan_speed_rpm(self._handle, self._fan)
 
-    @property
+    @python_property
     def target_speed(self) -> int:
         """
         Retrieves the intended target speed of the device's specified fan.
@@ -74,7 +74,7 @@ cdef class FanInfo:
         """
         return nvml.device_get_target_fan_speed(self._handle, self._fan)
 
-    @property
+    @python_property
     def min_max_speed(self) -> tuple[int, int]:
         """
         Retrieves the minimum and maximum fan speed all of the device's fans.
@@ -88,7 +88,7 @@ cdef class FanInfo:
         """
         return nvml.device_get_min_max_fan_speed(self._handle)
 
-    @property
+    @python_property
     def control_policy(self) -> FanControlPolicy:
         """
         The current fan control policy.

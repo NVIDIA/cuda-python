@@ -14,14 +14,14 @@ cdef class Utilization:
     def __init__(self, utilization: nvml.Utilization):
         self._utilization = utilization
 
-    @property
+    @python_property
     def gpu(self) -> int:
         """
         Percent of time over the past sample period during which one or more kernels was executing on the GPU.
         """
         return self._utilization.gpu
 
-    @property
+    @python_property
     def memory(self) -> int:
         """
         Percent of time over the past sample period during which global (device) memory was being read or written.

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from libc.stdint cimport uintptr_t, INT32_MIN
 from libc.stdlib cimport strtol, getenv
@@ -213,7 +214,7 @@ cdef class Stream:
         Stream_ensure_ctx(self)
         return f"<Stream handle={as_intptr(self._h_stream):#x} context={as_intptr(self._h_context):#x}>"
 
-    @property
+    @python_property
     def handle(self) -> cuda.bindings.driver.CUstream:
         """Return the underlying ``CUstream`` object.
 
@@ -224,7 +225,7 @@ cdef class Stream:
         """
         return as_py(self._h_stream)
 
-    @property
+    @python_property
     def is_nonblocking(self) -> bool:
         """Return True if this is a nonblocking stream, otherwise False."""
         cdef unsigned int flags
@@ -234,7 +235,7 @@ cdef class Stream:
             self._nonblocking = flags & cydriver.CUstream_flags.CU_STREAM_NON_BLOCKING
         return bool(self._nonblocking)
 
-    @property
+    @python_property
     def priority(self) -> int:
         """Return the stream priority."""
         cdef int prio
@@ -332,7 +333,7 @@ cdef class Stream:
             # TODO: support flags other than 0?
             HANDLE_RETURN(cydriver.cuStreamWaitEvent(as_cu(self._h_stream), as_cu(h_event), 0))
 
-    @property
+    @python_property
     def device(self) -> Device:
         """Return the :obj:`~_device.Device` singleton associated with this stream.
 
@@ -347,14 +348,14 @@ cdef class Stream:
         Stream_ensure_ctx_device(self)
         return Device(self._device_id)
 
-    @property
+    @python_property
     def context(self) -> Context:
         """Return the :obj:`~_context.Context` associated with this stream."""
         Stream_ensure_ctx(self)
         Stream_ensure_ctx_device(self)
         return Context._from_handle(Context, self._h_context, self._device_id)
 
-    @property
+    @python_property
     def resources(self):
         """Query the hardware resources provisioned for this stream's context.
 

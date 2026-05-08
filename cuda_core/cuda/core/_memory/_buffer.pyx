@@ -361,7 +361,7 @@ cdef class Buffer:
         # Supporting method paired with __buffer__.
         raise NotImplementedError("WIP: Buffer.__release_buffer__ hasn't been implemented yet.")
 
-    @property
+    @python_property
     def device_id(self) -> int:
         """Return the device ordinal of this buffer."""
         if self._memory_resource is not None:
@@ -369,7 +369,7 @@ cdef class Buffer:
         _init_mem_attrs(self)
         return self._mem_attrs.device_id
 
-    @property
+    @python_property
     def handle(self) -> DevicePointerType:
         """Return the buffer handle object.
 
@@ -396,7 +396,7 @@ cdef class Buffer:
         maybe_is_mapped = " is_mapped=True" if self.is_mapped else ""
         return f"<Buffer ptr={as_intptr(self._h_ptr):#x} size={self._size}{maybe_is_mapped}>"
 
-    @property
+    @python_property
     def is_device_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
         if self._memory_resource is not None:
@@ -404,7 +404,7 @@ cdef class Buffer:
         _init_mem_attrs(self)
         return self._mem_attrs.is_device_accessible
 
-    @property
+    @python_property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
         if self._memory_resource is not None:
@@ -412,7 +412,7 @@ cdef class Buffer:
         _init_mem_attrs(self)
         return self._mem_attrs.is_host_accessible
 
-    @property
+    @python_property
     def is_managed(self) -> bool:
         """Return True if this buffer is CUDA managed (unified) memory, otherwise False."""
         _init_mem_attrs(self)
@@ -422,23 +422,23 @@ cdef class Buffer:
         # so fall back to the memory resource when it advertises managed allocations.
         return self._memory_resource is not None and self._memory_resource.is_managed
 
-    @property
+    @python_property
     def is_mapped(self) -> bool:
         """Return True if this buffer is mapped into the process via IPC."""
         return getattr(self._ipc_data, "is_mapped", False)
 
 
-    @property
+    @python_property
     def memory_resource(self) -> MemoryResource:
         """Return the memory resource associated with this buffer."""
         return self._memory_resource
 
-    @property
+    @python_property
     def size(self) -> int:
         """Return the memory size of this buffer."""
         return self._size
 
-    @property
+    @python_property
     def owner(self) -> object:
         """Return the object holding external allocation."""
         return self._owner
@@ -554,22 +554,22 @@ cdef class MemoryResource:
         """
         raise TypeError("MemoryResource.deallocate must be implemented by subclasses.")
 
-    @property
+    @python_property
     def is_device_accessible(self) -> bool:
         """Whether buffers allocated by this resource are device-accessible."""
         raise TypeError("MemoryResource.is_device_accessible must be implemented by subclasses.")
 
-    @property
+    @python_property
     def is_host_accessible(self) -> bool:
         """Whether buffers allocated by this resource are host-accessible."""
         raise TypeError("MemoryResource.is_host_accessible must be implemented by subclasses.")
 
-    @property
+    @python_property
     def is_managed(self) -> bool:
         """Whether buffers allocated by this resource are CUDA managed (unified) memory."""
         return False
 
-    @property
+    @python_property
     def device_id(self) -> int:
         """Device ID associated with this memory resource, or -1 if not applicable."""
         raise TypeError("MemoryResource.device_id must be implemented by subclasses.")

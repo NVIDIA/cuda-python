@@ -442,27 +442,27 @@ cdef class SMResource:
         self._is_usable = is_usable
         return self
 
-    @property
+    @python_property
     def handle(self) -> int:
         """Return the address of the underlying ``CUdevResource`` struct."""
         return <intptr_t>(&self._resource)
 
-    @property
+    @python_property
     def sm_count(self) -> int:
         """Total SMs available in this resource."""
         return self._sm_count
 
-    @property
+    @python_property
     def min_partition_size(self) -> int:
         """Minimum SM count required to create a partition."""
         return self._min_partition_size
 
-    @property
+    @python_property
     def coscheduled_alignment(self) -> int:
         """Number of SMs guaranteed to be co-scheduled."""
         return self._coscheduled_alignment
 
-    @property
+    @python_property
     def flags(self) -> int:
         """Raw flags from the underlying SM resource."""
         return self._flags
@@ -520,7 +520,7 @@ cdef class WorkqueueResource:
         self._wq_resource = wq
         return self
 
-    @property
+    @python_property
     def handle(self) -> int:
         """Return the address of the underlying config ``CUdevResource`` struct."""
         return <intptr_t>(&self._wq_config_resource)
@@ -614,7 +614,7 @@ cdef class DeviceResources:
             ))
         return 0
 
-    @property
+    @python_property
     def sm(self) -> SMResource:
         """Return the :obj:`SMResource` for this device or context."""
         _check_green_ctx_support()

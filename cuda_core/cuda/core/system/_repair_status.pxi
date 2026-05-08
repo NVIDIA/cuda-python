@@ -12,14 +12,14 @@ cdef class RepairStatus:
     def __init__(self, handle: int):
         self._repair_status = nvml.device_get_repair_status(handle)
 
-    @property
+    @python_property
     def channel_repair_pending(self) -> bool:
         """
         `True` if a channel repair is pending.
         """
         return bool(self._repair_status.b_channel_repair_pending)
 
-    @property
+    @python_property
     def tpc_repair_pending(self) -> bool:
         """
         `True` if a TPC repair is pending.

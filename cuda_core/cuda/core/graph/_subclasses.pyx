@@ -5,6 +5,7 @@
 """GraphNode subclasses — EmptyNode through SwitchNode."""
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from libc.stddef cimport size_t
 from libc.stdint cimport uintptr_t
@@ -128,27 +129,27 @@ cdef class KernelNode(GraphNode):
         return (f"<KernelNode handle=0x{as_intptr(self._h_node):x}"
                 f" kernel=0x{as_intptr(self._h_kernel):x}>")
 
-    @property
+    @python_property
     def grid(self) -> tuple:
         """Grid dimensions as a 3-tuple (gridDimX, gridDimY, gridDimZ)."""
         return self._grid
 
-    @property
+    @python_property
     def block(self) -> tuple:
         """Block dimensions as a 3-tuple (blockDimX, blockDimY, blockDimZ)."""
         return self._block
 
-    @property
+    @python_property
     def shmem_size(self) -> int:
         """Dynamic shared memory size in bytes."""
         return self._shmem_size
 
-    @property
+    @python_property
     def kernel(self) -> Kernel:
         """The Kernel object for this launch node."""
         return Kernel._from_handle(self._h_kernel)
 
-    @property
+    @python_property
     def config(self) -> LaunchConfig:
         """A LaunchConfig reconstructed from this node's grid, block, and shmem_size.
 
@@ -226,27 +227,27 @@ cdef class AllocNode(GraphNode):
         return (f"<AllocNode handle=0x{as_intptr(self._h_node):x}"
                 f" dptr=0x{self._dptr:x} size={self._bytesize}>")
 
-    @property
+    @python_property
     def dptr(self) -> int:
         """The device pointer for the allocation."""
         return self._dptr
 
-    @property
+    @python_property
     def bytesize(self) -> int:
         """The number of bytes allocated."""
         return self._bytesize
 
-    @property
+    @python_property
     def device_id(self) -> int:
         """The device on which the allocation was made."""
         return self._device_id
 
-    @property
+    @python_property
     def memory_type(self) -> str:
         """The type of memory: ``"device"``, ``"host"``, or ``"managed"``."""
         return self._memory_type
 
-    @property
+    @python_property
     def peer_access(self) -> tuple:
         """Device IDs with read-write access to this allocation."""
         return self._peer_access
@@ -282,7 +283,7 @@ cdef class FreeNode(GraphNode):
     def __repr__(self) -> str:
         return f"<FreeNode handle=0x{as_intptr(self._h_node):x} dptr=0x{self._dptr:x}>"
 
-    @property
+    @python_property
     def dptr(self) -> int:
         """The device pointer being freed."""
         return self._dptr
@@ -338,32 +339,32 @@ cdef class MemsetNode(GraphNode):
         return (f"<MemsetNode handle=0x{as_intptr(self._h_node):x}"
                 f" dptr=0x{self._dptr:x} value={self._value}>")
 
-    @property
+    @python_property
     def dptr(self) -> int:
         """The destination device pointer."""
         return self._dptr
 
-    @property
+    @python_property
     def value(self) -> int:
         """The fill value."""
         return self._value
 
-    @property
+    @python_property
     def element_size(self) -> int:
         """Element size in bytes (1, 2, or 4)."""
         return self._element_size
 
-    @property
+    @python_property
     def width(self) -> int:
         """Width of the row in elements."""
         return self._width
 
-    @property
+    @python_property
     def height(self) -> int:
         """Number of rows."""
         return self._height
 
-    @property
+    @python_property
     def pitch(self) -> int:
         """Pitch in bytes (unused if height is 1)."""
         return self._pitch
@@ -426,17 +427,17 @@ cdef class MemcpyNode(GraphNode):
         return (f"<MemcpyNode handle=0x{as_intptr(self._h_node):x}"
                 f" dst=0x{self._dst:x}({dt}) src=0x{self._src:x}({st}) size={self._size}>")
 
-    @property
+    @python_property
     def dst(self) -> int:
         """The destination pointer."""
         return self._dst
 
-    @property
+    @python_property
     def src(self) -> int:
         """The source pointer."""
         return self._src
 
-    @property
+    @python_property
     def size(self) -> int:
         """The number of bytes copied."""
         return self._size
@@ -475,7 +476,7 @@ cdef class ChildGraphNode(GraphNode):
         return (f"<ChildGraphNode handle=0x{as_intptr(self._h_node):x}"
                 f" child=0x{as_intptr(self._h_child_graph):x}>")
 
-    @property
+    @python_property
     def child_graph(self) -> "GraphDefinition":
         """The embedded graph definition (non-owning wrapper)."""
         return GraphDefinition._from_handle(self._h_child_graph)
@@ -513,7 +514,7 @@ cdef class EventRecordNode(GraphNode):
         return (f"<EventRecordNode handle=0x{as_intptr(self._h_node):x}"
                 f" event=0x{as_intptr(self._h_event):x}>")
 
-    @property
+    @python_property
     def event(self) -> Event:
         """The event being recorded."""
         return Event._from_handle(self._h_event)
@@ -551,7 +552,7 @@ cdef class EventWaitNode(GraphNode):
         return (f"<EventWaitNode handle=0x{as_intptr(self._h_node):x}"
                 f" event=0x{as_intptr(self._h_event):x}>")
 
-    @property
+    @python_property
     def event(self) -> Event:
         """The event being waited on."""
         return Event._from_handle(self._h_event)
@@ -601,7 +602,7 @@ cdef class HostCallbackNode(GraphNode):
         return (f"<HostCallbackNode handle=0x{as_intptr(self._h_node):x}"
                 f" cfunc=0x{<uintptr_t>self._fn:x}>")
 
-    @property
+    @python_property
     def callback(self):
         """The Python callable, or None for ctypes function pointer callbacks."""
         return self._callable
@@ -681,12 +682,12 @@ cdef class ConditionalNode(GraphNode):
     def __repr__(self) -> str:
         return f"<ConditionalNode handle=0x{as_intptr(self._h_node):x}>"
 
-    @property
+    @python_property
     def condition(self) -> GraphCondition | None:
         """The condition variable controlling execution."""
         return self._condition
 
-    @property
+    @python_property
     def cond_type(self) -> GraphConditionalType | None:
         """The conditional type: GraphConditionalType.IF, .WHILE, or .SWITCH
 
@@ -702,7 +703,7 @@ cdef class ConditionalNode(GraphNode):
         else:
             return GraphConditionalType("switch")
 
-    @property
+    @python_property
     def branches(self) -> tuple:
         """The body graphs for each branch as a tuple of GraphDefinition.
 
@@ -719,7 +720,7 @@ cdef class IfNode(ConditionalNode):
         return (f"<IfNode handle=0x{as_intptr(self._h_node):x}"
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
-    @property
+    @python_property
     def then(self) -> "GraphDefinition":
         """The 'then' branch graph."""
         return self._branches[0]
@@ -732,12 +733,12 @@ cdef class IfElseNode(ConditionalNode):
         return (f"<IfElseNode handle=0x{as_intptr(self._h_node):x}"
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
-    @property
+    @python_property
     def then(self) -> "GraphDefinition":
         """The ``then`` branch graph (executed when condition is non-zero)."""
         return self._branches[0]
 
-    @property
+    @python_property
     def else_(self) -> "GraphDefinition":
         """The ``else`` branch graph (executed when condition is zero)."""
         return self._branches[1]
@@ -750,7 +751,7 @@ cdef class WhileNode(ConditionalNode):
         return (f"<WhileNode handle=0x{as_intptr(self._h_node):x}"
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
-    @property
+    @python_property
     def body(self) -> "GraphDefinition":
         """The loop body graph."""
         return self._branches[0]

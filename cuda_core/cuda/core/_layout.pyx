@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from cuda.core._utils.properties import python_property
 cimport cython
 
 from libc.stdint cimport int64_t, intptr_t
@@ -179,7 +180,7 @@ cdef class _StridedLayout:
     def __eq__(self : _StridedLayout, other : _StridedLayout) -> bool:
         return self.itemsize == other.itemsize and self.slice_offset == other.slice_offset and _base_layout_equal(self.base, other.base)
 
-    @property
+    @python_property
     def ndim(self : _StridedLayout):
         """
         The number of dimensions (length of the shape tuple).
@@ -188,7 +189,7 @@ cdef class _StridedLayout:
         """
         return self.base.ndim
 
-    @property
+    @python_property
     def shape(self : _StridedLayout):
         """
         Shape of the tensor.
@@ -197,7 +198,7 @@ cdef class _StridedLayout:
         """
         return self.get_shape_tuple()
 
-    @property
+    @python_property
     def strides(self : _StridedLayout):
         """
         Strides of the tensor (in **counts**, not bytes).
@@ -208,7 +209,7 @@ cdef class _StridedLayout:
         """
         return self.get_strides_tuple()
 
-    @property
+    @python_property
     def strides_in_bytes(self : _StridedLayout):
         """
         Strides of the tensor (in bytes).
@@ -217,7 +218,7 @@ cdef class _StridedLayout:
         """
         return self.get_strides_in_bytes_tuple()
 
-    @property
+    @python_property
     def stride_order(self : _StridedLayout):
         """
         A permutation of ``tuple(range(ndim))`` describing the
@@ -237,7 +238,7 @@ cdef class _StridedLayout:
         """
         return self.get_stride_order_tuple()
 
-    @property
+    @python_property
     def volume(self : _StridedLayout):
         """
         The number of elements in the tensor, i.e. the product of the shape tuple.
@@ -246,7 +247,7 @@ cdef class _StridedLayout:
         """
         return self.get_volume()
 
-    @property
+    @python_property
     def is_unique(self : _StridedLayout):
         """
         If True, each element of a tensor with this layout is mapped to
@@ -267,7 +268,7 @@ cdef class _StridedLayout:
         """
         return self.get_is_unique()
 
-    @property
+    @python_property
     def is_contiguous_c(self : _StridedLayout):
         """
         True iff the layout is contiguous in C-order, i.e.
@@ -288,7 +289,7 @@ cdef class _StridedLayout:
         """
         return self.get_is_contiguous_c()
 
-    @property
+    @python_property
     def is_contiguous_f(self : _StridedLayout):
         """
         True iff the layout is contiguous in F-order, i.e.
@@ -309,7 +310,7 @@ cdef class _StridedLayout:
         """
         return self.get_is_contiguous_f()
 
-    @property
+    @python_property
     def is_contiguous_any(self : _StridedLayout):
         """
         True iff the layout is contiguous in some axis order, i.e.
@@ -349,7 +350,7 @@ cdef class _StridedLayout:
         """
         return self.get_is_contiguous_any()
 
-    @property
+    @python_property
     def is_dense(self : _StridedLayout):
         """
         A dense layout is contiguous (:attr:`is_contiguous_any` is True)
@@ -362,7 +363,7 @@ cdef class _StridedLayout:
         """
         return self.get_is_dense()
 
-    @property
+    @python_property
     def offset_bounds(self : _StridedLayout):
         """
         The memory offset range ``[min_offset, max_offset]`` (in element counts, not bytes)
@@ -395,7 +396,7 @@ cdef class _StridedLayout:
         self.get_offset_bounds(min_offset, max_offset)
         return min_offset, max_offset
 
-    @property
+    @python_property
     def min_offset(self : _StridedLayout):
         """
         See :attr:`offset_bounds` for details.
@@ -407,7 +408,7 @@ cdef class _StridedLayout:
         self.get_offset_bounds(min_offset, max_offset)
         return min_offset
 
-    @property
+    @python_property
     def max_offset(self : _StridedLayout):
         """
         See :attr:`offset_bounds` for details.
@@ -419,7 +420,7 @@ cdef class _StridedLayout:
         self.get_offset_bounds(min_offset, max_offset)
         return max_offset
 
-    @property
+    @python_property
     def slice_offset_in_bytes(self : _StridedLayout):
         """
         The memory offset (as a number of bytes) of the element at index ``(0,) * ndim``.

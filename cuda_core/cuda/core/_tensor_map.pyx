@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from cuda.core._utils.properties import python_property
 from libc.stdint cimport intptr_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t
 from libc.stddef cimport size_t
 from cuda.bindings cimport cydriver
@@ -500,7 +501,7 @@ cdef class TensorMapDescriptor:
                 f"but current device is {current_dev_id}")
         return 0
 
-    @property
+    @python_property
     def device(self):
         """Return the :obj:`~cuda.core.Device` associated with this descriptor."""
         if self._device_id >= 0:

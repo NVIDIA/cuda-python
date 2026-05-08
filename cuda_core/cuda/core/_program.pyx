@@ -8,6 +8,7 @@ This module provides :class:`Program` for compiling source code into
 """
 
 from __future__ import annotations
+from cuda.core._utils.properties import python_property
 
 from dataclasses import dataclass
 import threading
@@ -224,7 +225,7 @@ cdef class Program:
         cache[key] = compiled
         return compiled
 
-    @property
+    @python_property
     def pch_status(self) -> PCHStatusType | None:
         """PCH creation outcome from the most recent :meth:`compile` call.
 
@@ -252,12 +253,12 @@ cdef class Program:
             return None
         return PCHStatusType(self._pch_status)
 
-    @property
+    @python_property
     def backend(self) -> CompilerBackendType:
         """Return this Program instance's underlying :class:`CompilerBackendType`."""
         return CompilerBackendType(self._backend)
 
-    @property
+    @python_property
     def handle(self) -> ProgramHandleT:
         """Return the underlying handle object.
 

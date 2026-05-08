@@ -15,70 +15,70 @@ cdef class PciInfo:
         self._pci_info_ext = pci_info_ext
         self._handle = handle
 
-    @property
+    @python_property
     def bus(self) -> int:
         """
         The bus on which the device resides, 0 to 255
         """
         return self._pci_info_ext.bus
 
-    @property
+    @python_property
     def bus_id(self) -> str:
         """
         The tuple domain:bus:device.function PCI identifier string
         """
         return self._pci_info_ext.bus_id
 
-    @property
+    @python_property
     def device(self) -> int:
         """
         The device's id on the bus, 0 to 31
         """
         return self._pci_info_ext.device_
 
-    @property
+    @python_property
     def domain(self) -> int:
         """
         The PCI domain on which the device's bus resides, 0 to 0xffffffff
         """
         return self._pci_info_ext.domain
 
-    @property
+    @python_property
     def vendor_id(self) -> int:
         """
         The PCI vendor id of the device
         """
         return self._pci_info_ext.pci_device_id & 0xFFFF
 
-    @property
+    @python_property
     def device_id(self) -> int:
         """
         The PCI device id of the device
         """
         return self._pci_info_ext.pci_device_id >> 16
 
-    @property
+    @python_property
     def subsystem_id(self) -> int:
         """
         The subsystem device ID
         """
         return self._pci_info_ext.pci_sub_system_id
 
-    @property
+    @python_property
     def base_class(self) -> int:
         """
         The 8-bit PCI base class code
         """
         return self._pci_info_ext.base_class
 
-    @property
+    @python_property
     def sub_class(self) -> int:
         """
         The 8-bit PCI sub class code
         """
         return self._pci_info_ext.sub_class
 
-    @property
+    @python_property
     def link_generation(self) -> int:
         """
         Retrieve the maximum PCIe link generation possible with this device and system.
@@ -91,7 +91,7 @@ cdef class PciInfo:
         """
         return nvml.device_get_max_pcie_link_generation(self._handle)
 
-    @property
+    @python_property
     def max_link_generation(self) -> int:
         """
         Retrieve the maximum PCIe link generation supported by this GPU device.
@@ -100,7 +100,7 @@ cdef class PciInfo:
         """
         return nvml.device_get_gpu_max_pcie_link_generation(self._handle)
 
-    @property
+    @python_property
     def max_link_width(self) -> int:
         """
         Retrieve the maximum PCIe link width possible with this device and system.
@@ -113,7 +113,7 @@ cdef class PciInfo:
         """
         return nvml.device_get_max_pcie_link_width(self._handle)
 
-    @property
+    @python_property
     def current_link_generation(self) -> int:
         """
         Retrieve the current PCIe link generation.
@@ -122,7 +122,7 @@ cdef class PciInfo:
         """
         return nvml.device_get_curr_pcie_link_generation(self._handle)
 
-    @property
+    @python_property
     def current_link_width(self) -> int:
         """
         Retrieve the current PCIe link width.
@@ -131,7 +131,7 @@ cdef class PciInfo:
         """
         return nvml.device_get_curr_pcie_link_width(self._handle)
 
-    @property
+    @python_property
     def rx_throughput(self) -> int:
         """
         Retrieve PCIe reception throughput, in KB/s.
@@ -146,7 +146,7 @@ cdef class PciInfo:
         """
         return nvml.device_get_pcie_throughput(self._handle, nvml.PcieUtilCounter.PCIE_UTIL_RX_BYTES)
 
-    @property
+    @python_property
     def tx_throughput(self) -> int:
         """
         Retrieve PCIe transmission throughput, in KB/s.
@@ -161,7 +161,7 @@ cdef class PciInfo:
         """
         return nvml.device_get_pcie_throughput(self._handle, nvml.PcieUtilCounter.PCIE_UTIL_TX_BYTES)
 
-    @property
+    @python_property
     def replay_counter(self) -> int:
         """
         Retrieve the PCIe replay counter.

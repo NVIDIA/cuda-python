@@ -160,22 +160,22 @@ cdef class PinnedMemoryResource(_MemPool):
             raise RuntimeError("Memory resource is not IPC-enabled")
         return self._ipc_data._alloc_handle
 
-    @property
+    @python_property
     def device_id(self) -> int:
         """Return -1. Pinned memory is host memory and is not associated with a specific device."""
         return -1
 
-    @property
+    @python_property
     def numa_id(self) -> int:
         """The host NUMA node ID used for pool placement, or -1 for OS-managed placement."""
         return self._numa_id
 
-    @property
+    @python_property
     def is_device_accessible(self) -> bool:
         """Return True. This memory resource provides device-accessible buffers."""
         return True
 
-    @property
+    @python_property
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
         return True
