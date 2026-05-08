@@ -396,7 +396,7 @@ def test_from_buffer(shape, dtype, stride_order, readonly):
     buffer = dev.memory_resource.allocate(required_size, stream=dev.default_stream)
     view = StridedMemoryView.from_buffer(buffer, shape=shape, strides=layout.strides, dtype=dtype, is_readonly=readonly)
     assert view.exporting_obj is buffer
-    assert view._layout == layout
+    assert view._get_layout() == layout
     assert view.ptr == int(buffer.handle)
     assert view.shape == shape
     assert view.strides == _dense_strides(shape, stride_order)
@@ -435,8 +435,8 @@ def test_from_buffer_sliced(stride_order):
     sliced_view = view.view(layout[:-2, 3:])
     assert sliced_view.shape == (3, 4)
     expected_offset = 3 if stride_order == "C" else 3 * 5
-    assert sliced_view._layout.slice_offset == expected_offset
-    assert sliced_view._layout.slice_offset_in_bytes == expected_offset * 2
+    assert sliced_view._get_layout().slice_offset == expected_offset
+    assert sliced_view._get_layout().slice_offset_in_bytes == expected_offset * 2
     assert sliced_view.ptr == view.ptr + expected_offset * 2
     assert int(buffer.handle) + expected_offset * 2 == sliced_view.ptr
 
@@ -506,7 +506,7 @@ def test_view_sliced_external(init_cuda, shape, slices, stride_order, view_as):
             pytest.skip("CuPy is not installed")
         a = cp.arange(math.prod(shape), dtype=cp.int32).reshape(shape, order=stride_order)
         view = StridedMemoryView.from_cuda_array_interface(_EnforceCAIView(a), -1)
-    layout = view._layout
+    layout = view._get_layout()
     assert layout.is_dense
     assert layout.required_size_in_bytes() == a.nbytes
     assert view.ptr == _get_ptr(a)
@@ -519,11 +519,11 @@ def test_view_sliced_external(init_cuda, shape, slices, stride_order, view_as):
 
     assert 0 <= sliced_layout.required_size_in_bytes() <= a.nbytes
     assert not sliced_layout.is_dense
-    assert sliced_view._layout is sliced_layout
+    assert sliced_view._get_layout() is sliced_layout
     assert view.dtype == sliced_view.dtype
-    assert sliced_view._layout.itemsize == a_sliced.itemsize == layout.itemsize
+    assert sliced_view._get_layout().itemsize == a_sliced.itemsize == layout.itemsize
     assert sliced_view.shape == a_sliced.shape
-    assert sliced_view._layout.strides_in_bytes == a_sliced.strides
+    assert sliced_view._get_layout().strides_in_bytes == a_sliced.strides
 
 
 @pytest.mark.parametrize(
@@ -544,7 +544,7 @@ def test_view_sliced_external_negative_offset(init_cuda, stride_order, view_as):
         a = cp.arange(math.prod(shape), dtype=cp.int32).reshape(shape, order=stride_order)
         a = a[::-1]
         view = StridedMemoryView.from_cuda_array_interface(_EnforceCAIView(a), -1)
-    layout = view._layout
+    layout = view._get_layout()
     assert not layout.is_dense
     assert layout.strides == (-1,)
     assert view.ptr == _get_ptr(a)
@@ -556,11 +556,11 @@ def test_view_sliced_external_negative_offset(init_cuda, stride_order, view_as):
     assert sliced_view.ptr == view.ptr - 3 * a.itemsize
 
     assert not sliced_layout.is_dense
-    assert sliced_view._layout is sliced_layout
+    assert sliced_view._get_layout() is sliced_layout
     assert view.dtype == sliced_view.dtype
-    assert sliced_view._layout.itemsize == a_sliced.itemsize == layout.itemsize
+    assert sliced_view._get_layout().itemsize == a_sliced.itemsize == layout.itemsize
     assert sliced_view.shape == a_sliced.shape
-    assert sliced_view._layout.strides_in_bytes == a_sliced.strides
+    assert sliced_view._get_layout().strides_in_bytes == a_sliced.strides
 
 
 @pytest.mark.parametrize(
@@ -826,7 +826,7 @@ def test_strided_memory_view_get_layout_error():
     with pytest.warns(DeprecationWarning, match="deprecated"):
         view = StridedMemoryView()
     with pytest.raises(ValueError, match="Cannot infer layout"):
-        _ = view._layout
+        _ = view._get_layout()
 
 
 @pytest.mark.skipif(cp is None, reason="CuPy is not installed")
@@ -876,7 +876,7 @@ def test_strided_memory_view_view_with_dtype_only():
     view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
     viewed = view.view(dtype=np.dtype("int32"))
     assert viewed.dtype == np.dtype("int32")
-    assert viewed._layout == view._layout
+    assert viewed._get_layout() == view._get_layout()
 
 
 def test_dlpack_export_structured_dtype_raises():

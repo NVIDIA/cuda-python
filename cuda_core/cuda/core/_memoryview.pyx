@@ -485,8 +485,7 @@ cdef class StridedMemoryView:
         _smv_get_dl_device(self, &device_type, &device_id)
         return (<int>device_type, int(device_id))
 
-    @python_property
-    def _layout(self) -> _StridedLayout:
+    def _get_layout(self) -> _StridedLayout:
         """
         The layout of the tensor. For StridedMemoryView created from DLPack or CAI,
         the layout is inferred from the tensor object's metadata.

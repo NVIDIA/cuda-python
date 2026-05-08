@@ -223,13 +223,13 @@ def test_graph_mem_set_attributes(mempool_device, mode):
     assert gmr.attributes.used_mem_high > 0
 
     # Incorrect attribute usage.
-    with pytest.raises(AttributeError, match=r"attribute 'reserved_mem_current' .* is not writable"):
+    with pytest.raises(AttributeError, match=r"can't set attribute 'reserved_mem_current'"):
         gmr.attributes.reserved_mem_current = 0
 
     with pytest.raises(AttributeError, match=r"Attribute 'reserved_mem_high' may only be set to zero \(got 1\)\."):
         gmr.attributes.reserved_mem_high = 1
 
-    with pytest.raises(AttributeError, match=r"attribute 'used_mem_current' .* is not writable"):
+    with pytest.raises(AttributeError, match=r"can't set attribute 'used_mem_current'"):
         gmr.attributes.used_mem_current = 0
 
     with pytest.raises(AttributeError, match=r"Attribute 'used_mem_high' may only be set to zero \(got 1\)\."):
