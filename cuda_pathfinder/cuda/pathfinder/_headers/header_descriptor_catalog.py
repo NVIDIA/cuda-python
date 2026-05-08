@@ -98,6 +98,12 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         site_packages_dirs=("nvidia/cu13/include", "nvidia/npp/include"),
     ),
     HeaderDescriptorSpec(
+        name="profiler",
+        packaged_with="ctk",
+        header_basename="cuda_profiler_api.h",
+        site_packages_dirs=("nvidia/cu13/include", "nvidia/cuda_profiler_api/include"),
+    ),
+    HeaderDescriptorSpec(
         name="nvcc",
         packaged_with="ctk",
         header_basename="fatbinary_section.h",
@@ -134,9 +140,25 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         site_packages_dirs=("nvidia/cu13/include", "nvidia/cuda_nvcc/nvvm/include"),
         anchor_include_rel_dirs=("nvvm/include",),
     ),
+    HeaderDescriptorSpec(
+        name="cudla",
+        packaged_with="ctk",
+        header_basename="cudla.h",
+        site_packages_dirs=("nvidia/cu13/include",),
+        available_on_windows=False,
+    ),
     # -----------------------------------------------------------------------
     # Third-party / separately packaged headers
     # -----------------------------------------------------------------------
+    HeaderDescriptorSpec(
+        name="cusolverMp",
+        packaged_with="other",
+        header_basename="cusolverMp.h",
+        site_packages_dirs=("nvidia/cu13/include", "nvidia/cu12/include"),
+        available_on_windows=False,
+        conda_targets_layout=False,
+        use_ctk_root_canary=False,
+    ),
     HeaderDescriptorSpec(
         name="cusparseLt",
         packaged_with="other",

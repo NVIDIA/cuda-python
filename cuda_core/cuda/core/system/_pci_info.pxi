@@ -3,9 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-PcieUtilCounter = nvml.PcieUtilCounter
-
-
 cdef class PciInfo:
     """
     PCI information about a GPU device.
@@ -81,7 +78,8 @@ cdef class PciInfo:
         """
         return self._pci_info_ext.sub_class
 
-    def get_max_pcie_link_generation(self) -> int:
+    @property
+    def link_generation(self) -> int:
         """
         Retrieve the maximum PCIe link generation possible with this device and system.
 
@@ -93,7 +91,8 @@ cdef class PciInfo:
         """
         return nvml.device_get_max_pcie_link_generation(self._handle)
 
-    def get_gpu_max_pcie_link_generation(self) -> int:
+    @property
+    def max_link_generation(self) -> int:
         """
         Retrieve the maximum PCIe link generation supported by this GPU device.
 
@@ -101,7 +100,8 @@ cdef class PciInfo:
         """
         return nvml.device_get_gpu_max_pcie_link_generation(self._handle)
 
-    def get_max_pcie_link_width(self) -> int:
+    @property
+    def max_link_width(self) -> int:
         """
         Retrieve the maximum PCIe link width possible with this device and system.
 
@@ -113,7 +113,8 @@ cdef class PciInfo:
         """
         return nvml.device_get_max_pcie_link_width(self._handle)
 
-    def get_current_pcie_link_generation(self) -> int:
+    @property
+    def current_link_generation(self) -> int:
         """
         Retrieve the current PCIe link generation.
 
@@ -121,7 +122,8 @@ cdef class PciInfo:
         """
         return nvml.device_get_curr_pcie_link_generation(self._handle)
 
-    def get_current_pcie_link_width(self) -> int:
+    @property
+    def current_link_width(self) -> int:
         """
         Retrieve the current PCIe link width.
 
@@ -129,9 +131,10 @@ cdef class PciInfo:
         """
         return nvml.device_get_curr_pcie_link_width(self._handle)
 
-    def get_pcie_throughput(self, counter: PcieUtilCounter) -> int:
+    @property
+    def rx_throughput(self) -> int:
         """
-        Retrieve PCIe utilization information, in KB/s.
+        Retrieve PCIe reception throughput, in KB/s.
 
         This function is querying a byte counter over a 20ms interval, and thus
         is the PCIe throughput over that interval.
@@ -141,9 +144,25 @@ cdef class PciInfo:
         This method is not supported in virtual machines running virtual GPU
         (vGPU).
         """
-        return nvml.device_get_pcie_throughput(self._handle, counter)
+        return nvml.device_get_pcie_throughput(self._handle, nvml.PcieUtilCounter.PCIE_UTIL_RX_BYTES)
 
-    def get_pcie_replay_counter(self) -> int:
+    @property
+    def tx_throughput(self) -> int:
+        """
+        Retrieve PCIe transmission throughput, in KB/s.
+
+        This function is querying a byte counter over a 20ms interval, and thus
+        is the PCIe throughput over that interval.
+
+        For Maxwell™ or newer fully supported devices.
+
+        This method is not supported in virtual machines running virtual GPU
+        (vGPU).
+        """
+        return nvml.device_get_pcie_throughput(self._handle, nvml.PcieUtilCounter.PCIE_UTIL_TX_BYTES)
+
+    @property
+    def replay_counter(self) -> int:
         """
         Retrieve the PCIe replay counter.
 

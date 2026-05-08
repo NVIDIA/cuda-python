@@ -11,16 +11,16 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
 from cuda.core._memory cimport _ipc
-from cuda.core._stream cimport default_stream, Stream_accept, Stream
+from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._resource_handles cimport (
     MemoryPoolHandle,
     DevicePtrHandle,
     create_mempool_handle,
-    create_mempool_handle_ref,
     deviceptr_alloc_from_pool,
     as_cu,
     as_py,
 )
+from cuda.core._resource_handles cimport create_mempool_handle_ref  # no-cython-lint
 
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
@@ -122,16 +122,17 @@ cdef class _MemPool(MemoryResource):
         """
         _MP_close(self)
 
-    def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
-            The stream on which to perform the allocation asynchronously.
-            If None, an internal stream is used.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the allocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
 
         Returns
         -------
@@ -141,25 +142,25 @@ cdef class _MemPool(MemoryResource):
         """
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
-        stream = Stream_accept(stream) if stream is not None else default_stream()
-        return _MP_allocate(self, size, <Stream> stream)
+        cdef Stream s = Stream_accept(stream)
+        return _MP_allocate(self, size, s)
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: "DevicePointerType", size_t size, *, stream: Stream | GraphBuilder):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
         ----------
-        ptr : :obj:`~_memory.DevicePointerT`
+        ptr : :obj:`~_memory.DevicePointerType`
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
-            The stream on which to perform the deallocation asynchronously.
-            If the buffer is deallocated without an explicit stream, the allocation stream
-            is used.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the deallocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
         """
-        stream = Stream_accept(stream) if stream is not None else default_stream()
-        _MP_deallocate(self, <uintptr_t>ptr, size, <Stream> stream)
+        cdef Stream s = Stream_accept(stream)
+        _MP_deallocate(self, <uintptr_t>ptr, size, s)
 
     @property
     def attributes(self) -> _MemPoolAttributes:
@@ -257,7 +258,9 @@ cdef int MP_init_current_pool(
         self._h_pool = create_mempool_handle_ref(pool)
         self._mempool_owned = False
     ELSE:
-        raise RuntimeError("not supported")
+        raise RuntimeError(
+            "Getting the current memory pool requires CUDA 13.0 or later"
+        )
     return 0
 
 

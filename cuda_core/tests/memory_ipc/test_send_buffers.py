@@ -26,25 +26,29 @@ class TestIpcSendBuffers:
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
 
-        # Allocate and fill memory.
-        buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
-        pgen = PatternGen(device, NBYTES)
-        for buffer in buffers:
-            pgen.fill_buffer(buffer, seed=False)
+        try:
+            # Allocate and fill memory.
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            pgen = PatternGen(device, NBYTES)
+            for buffer in buffers:
+                pgen.fill_buffer(buffer, seed=False)
 
-        # Start the child process.
-        process = mp.Process(target=self.child_main, args=(device, buffers))
-        process.start()
+            # Start the child process.
+            process = mp.Process(target=self.child_main, args=(device, buffers))
+            process.start()
 
-        # Wait for the child process.
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        assert process.exitcode == 0
+            # Wait for the child process.
+            process.join(timeout=CHILD_TIMEOUT_SEC)
+            assert process.exitcode == 0
 
-        # Verify that the buffers were modified.
-        pgen = PatternGen(device, NBYTES)
-        for buffer in buffers:
-            pgen.verify_buffer(buffer, seed=True)
-            buffer.close()
+            # Verify that the buffers were modified.
+            pgen = PatternGen(device, NBYTES)
+            for buffer in buffers:
+                pgen.verify_buffer(buffer, seed=True)
+                buffer.close()
+        finally:
+            for mr in mrs:
+                mr.close()
 
     def child_main(self, device, buffers):
         device.set_current()
@@ -78,7 +82,7 @@ class TestIpcReexport:
         # Allocate, fill a buffer.
         mr = ipc_memory_resource
         pgen = PatternGen(device, NBYTES)
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=device.default_stream)
         pgen.fill_buffer(buffer, seed=0)
 
         # Set up communication.

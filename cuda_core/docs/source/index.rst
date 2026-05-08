@@ -11,15 +11,18 @@ Welcome to the documentation for ``cuda.core``.
    :caption: Contents:
 
    getting-started
+   examples
    install
    interoperability
    api
+   api_nvml
    environment_variables
    contribute
 
 .. toctree::
    :maxdepth: 1
 
+   support
    conduct
    license
 

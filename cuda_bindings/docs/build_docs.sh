@@ -25,6 +25,10 @@ if [[ -z "${SPHINX_CUDA_BINDINGS_VER}" ]]; then
                                       | awk -F'+' '{print $1}')
 fi
 
+if [[ "${LATEST_ONLY}" == "1" && -z "${BUILD_PREVIEW:-}" && -z "${BUILD_LATEST:-}" ]]; then
+    export BUILD_LATEST=1
+fi
+
 # build the docs (in parallel)
 SPHINXOPTS="-j 4 -d build/.doctrees" make html
 

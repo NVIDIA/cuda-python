@@ -1,30 +1,34 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
 cimport cpython
-from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
+from libcpp.vector cimport vector
 
 import threading
 
 from cuda.core._context cimport Context
 from cuda.core._context import ContextOptions
+from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueResource
 from cuda.core._event cimport Event as cyEvent
 from cuda.core._event import Event, EventOptions
+from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._resource_handles cimport (
     ContextHandle,
+    GreenCtxHandle,
     create_context_handle_ref,
+    create_green_ctx_handle,
     get_primary_context,
+    get_last_error,
     as_cu,
 )
 
-from cuda.core._graph import GraphBuilder
-from cuda.core._stream import IsStreamT, Stream, StreamOptions
+from cuda.core._stream import IsStreamType, Stream, StreamOptions
 from cuda.core._utils.clear_error_support import assert_type
 from cuda.core._utils.cuda_utils import (
     ComputeCapability,
@@ -378,7 +382,7 @@ cdef class DeviceProperties:
 
     @property
     def gpu_overlap(self) -> bool:
-        """bool: Device can possibly copy memory and execute a kernel concurrently. Deprecated. Use instead async_engine_count."""
+        """bool: Device can possibly copy memory and execute a kernel concurrently. Deprecated. Use :attr:`~DeviceProperties.async_engine_count` instead."""
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_OVERLAP))
 
     @property
@@ -663,7 +667,7 @@ cdef class DeviceProperties:
 
     @property
     def read_only_host_register_supported(self) -> bool:
-        """bool: True if device supports using the cuMemHostRegister flag CU_MEMHOSTERGISTER_READ_ONLY to register memory that must be mapped as read-only to the GPU, False if not."""
+        """bool: True if device supports using the cuMemHostRegister flag CU_MEMHOSTREGISTER_READ_ONLY to register memory that must be mapped as read-only to the GPU, False if not."""
         return bool(
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_READ_ONLY_HOST_REGISTER_SUPPORTED)
         )
@@ -842,12 +846,12 @@ cdef class DeviceProperties:
 
     @property
     def mem_decompress_algorithm_mask(self) -> int:
-        """int: The returned valued shall be interpreted as a bitmask, where the individual bits are described by the CUmemDecompressAlgorithm enum."""
+        """int: The returned value shall be interpreted as a bitmask, where the individual bits are described by the CUmemDecompressAlgorithm enum."""
         return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_ALGORITHM_MASK)
 
     @property
     def mem_decompress_maximum_length(self) -> int:
-        """int: The returned valued is the maximum length in bytes of a single decompress operation that is allowed."""
+        """int: The returned value is the maximum length in bytes of a single decompress operation that is allowed."""
         return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_MAXIMUM_LENGTH)
 
     @property
@@ -898,7 +902,7 @@ cdef class DeviceProperties:
 
     @property
     def host_memory_pools_supported(self) -> bool:
-        """bool: Device suports HOST location with the cuMemAllocAsync and cuMemPool family of APIs."""
+        """bool: Device supports HOST location with the cuMemAllocAsync and cuMemPool family of APIs."""
         return bool(
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED)
         )
@@ -955,7 +959,16 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
-    __slots__ = ("_device_id", "_memory_resource", "_has_inited", "_properties", "_uuid", "_context", "__weakref__")
+    __slots__ = (
+        "_device_id",
+        "_memory_resource",
+        "_has_inited",
+        "_properties",
+        "_resources",
+        "_uuid",
+        "_context",
+        "__weakref__",
+    )
 
     def __new__(cls, device_id: Device | int | None = None):
         if isinstance(device_id, Device):
@@ -1034,7 +1047,7 @@ class Device:
         Parameters
         ----------
         peer : Device | int
-            The peer device to check accessibility to. Can be a Device object or device ID.
+            The peer device to check accessibility to. Can be a :obj:`~_device.Device` object or device ID.
         """
         peer = Device(peer)
         cdef int d1 = <int> self.device_id
@@ -1102,6 +1115,13 @@ class Device:
         return self._properties
 
     @property
+    def resources(self) -> DeviceResources:
+        """Return the hardware resource query namespace for this device."""
+        if self._resources is None:
+            self._resources = DeviceResources._init(self._device_id)
+        return self._resources
+
+    @property
     def compute_capability(self) -> ComputeCapability:
         """Return a named tuple with 2 fields: major and minor."""
         cdef DeviceProperties prop = self.properties
@@ -1146,7 +1166,7 @@ class Device:
                 from cuda.core._memory import DeviceMemoryResource
                 self._memory_resource = DeviceMemoryResource(self._device_id)
             else:
-                from cuda.core._memory import _SynchronousMemoryResource
+                from cuda.core._memory._legacy import _SynchronousMemoryResource
                 self._memory_resource = _SynchronousMemoryResource(self._device_id)
 
         return self._memory_resource
@@ -1220,6 +1240,7 @@ class Device:
         """
         cdef ContextHandle h_context
         cdef cydriver.CUcontext prev_ctx, curr_ctx
+        cdef Context prev_owned = None
 
         if ctx is not None:
             # TODO: revisit once Context is cythonized
@@ -1229,6 +1250,8 @@ class Device:
                     "the provided context was created on the device with"
                     f" id={ctx._device_id}, which is different from the target id={self._device_id}"
                 )
+            if self._has_inited and self._context is not None:
+                prev_owned = self._context
             # prev_ctx is the previous context
             curr_ctx = as_cu(ctx._h_context)
             prev_ctx = NULL
@@ -1238,6 +1261,8 @@ class Device:
             self._has_inited = True
             self._context = ctx  # Store owning context reference
             if prev_ctx != NULL:
+                if prev_owned is not None and as_cu(prev_owned._h_context) == prev_ctx:
+                    return prev_owned
                 return Context._from_handle(Context, create_context_handle_ref(prev_ctx), self._device_id)
         else:
             # use primary ctx
@@ -1254,7 +1279,7 @@ class Device:
 
         Note
         ----
-        The newly context will not be set as current.
+        The newly created context will not be set as current.
 
         Parameters
         ----------
@@ -1267,10 +1292,57 @@ class Device:
             Newly created context object.
 
         """
-        raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
+        cdef int i
+        cdef object resources
+        cdef object res
+        cdef SMResource sm_res
+        cdef WorkqueueResource wq_res
+        cdef GreenCtxHandle h_green
 
-    def create_stream(self, obj: IsStreamT | None = None, options: StreamOptions | None = None) -> Stream:
-        """Create a Stream object.
+        if options is None:
+            raise ValueError(
+                "options with device resources must be provided to create a green context"
+            )
+
+        options = check_or_create_options(ContextOptions, options, "Context options")
+        if options.resources is None:
+            raise ValueError(
+                "ContextOptions.resources must be provided to create a green context"
+            )
+
+        resources = tuple(options.resources)
+        if len(resources) == 0:
+            raise ValueError("ContextOptions.resources must not be empty")
+
+        cdef vector[cydriver.CUdevResource] c_resources
+        c_resources.resize(len(resources))
+
+        for i, res in enumerate(resources):
+            if isinstance(res, SMResource):
+                sm_res = <SMResource>res
+                if not sm_res._is_usable:
+                    raise ValueError("dry-run SMResource objects cannot be used to create a context")
+                c_resources[i] = sm_res._resource
+            elif isinstance(res, WorkqueueResource):
+                wq_res = <WorkqueueResource>res
+                c_resources[i] = wq_res._wq_config_resource
+            else:
+                raise TypeError(f"Unsupported context resource type: {type(res)}")
+
+        h_green = create_green_ctx_handle(
+            c_resources.data(),
+            <unsigned int>(c_resources.size()),
+            <cydriver.CUdevice>(self._device_id),
+            <unsigned int>(cydriver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM),
+        )
+        if h_green.get() == NULL:
+            HANDLE_RETURN(get_last_error())
+            raise RuntimeError("Failed to create CUDA green context")
+
+        return Context._from_green_ctx(Context, h_green, self._device_id)
+
+    def create_stream(self, obj: IsStreamType | None = None, options: StreamOptions | None = None) -> Stream:
+        """Create a :obj:`~_stream.Stream` object.
 
         New stream objects can be created in two different ways:
 
@@ -1286,7 +1358,7 @@ class Device:
 
         Parameters
         ----------
-        obj : :obj:`~_stream.IsStreamT`, optional
+        obj : :obj:`~_stream.IsStreamType`, optional
             Any object supporting the ``__cuda_stream__`` protocol.
         options : :obj:`~_stream.StreamOptions`, optional
             Customizable dataclass for stream creation options.
@@ -1301,7 +1373,7 @@ class Device:
         return Stream._init(obj=obj, options=options, device_id=self._device_id, ctx=self._context)
 
     def create_event(self, options: EventOptions | None = None) -> Event:
-        """Create an Event object without recording it to a Stream.
+        """Create an :obj:`~_event.Event` object without recording it to a :obj:`~_stream.Stream`.
 
         Note
         ----
@@ -1322,13 +1394,11 @@ class Device:
         cdef Context ctx = self._context
         return cyEvent._init(cyEvent, self._device_id, ctx._h_context, options, True)
 
-    def allocate(self, size, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`
         using the memory resource currently associated with this Device.
-
-        Parameter `stream` is optional, using a default stream by default.
 
         Note
         ----
@@ -1338,9 +1408,10 @@ class Device:
         ----------
         size : int
             Number of bytes to allocate.
-        stream : :obj:`~_stream.Stream`, optional
-            The stream establishing the stream ordering semantic.
-            Default value of `None` uses default stream.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream establishing the stream ordering semantic.
+            Must be passed explicitly; pass ``self.default_stream`` to use
+            the default stream.
 
         Returns
         -------
@@ -1349,7 +1420,7 @@ class Device:
 
         """
         self._check_context_initialized()
-        return self.memory_resource.allocate(size, stream)
+        return self.memory_resource.allocate(size, stream=stream)
 
     def sync(self):
         """Synchronize the device.
@@ -1362,15 +1433,17 @@ class Device:
         self._check_context_initialized()
         handle_return(runtime.cudaDeviceSynchronize())
 
-    def create_graph_builder(self) -> GraphBuilder:
-        """Create a new :obj:`~_graph.GraphBuilder` object.
+    def create_graph_builder(self) -> "GraphBuilder":
+        """Create a new :obj:`~graph.GraphBuilder` object.
 
         Returns
         -------
-        :obj:`~_graph.GraphBuilder`
+        :obj:`~graph.GraphBuilder`
             Newly created graph builder object.
 
         """
+        from cuda.core.graph._graph_builder import GraphBuilder
+
         self._check_context_initialized()
         return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
 
@@ -1428,6 +1501,7 @@ cdef inline list Device_ensure_tls_devices(cls):
             device._memory_resource = None
             device._has_inited = False
             device._properties = None
+            device._resources = None
             device._uuid = None
             device._context = None
             devices.append(device)

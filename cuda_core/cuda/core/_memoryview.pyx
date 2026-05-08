@@ -5,11 +5,14 @@
 from __future__ import annotations
 
 from ._dlpack cimport *
+from ._dlpack import classify_dl_device
 from libc.stdint cimport intptr_t
 from cuda.core._layout cimport _StridedLayout, get_strides_ptr
 from cuda.core._stream import Stream
 
+import ctypes
 import functools
+import sys
 import warnings
 
 import numpy
@@ -26,6 +29,73 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
 from cuda.core._memory import Buffer
+
+
+# ---------------------------------------------------------------------------
+# Lazy tensor bridge (avoids loading _tensor_bridge.so until torch is used)
+# ---------------------------------------------------------------------------
+
+cdef object _tensor_bridge = None
+# Cache: type(obj) -> True/False for the torch tensor check.
+# Once a type is seen, we never re-check.
+cdef dict _torch_type_cache = {}
+# Tri-state: None = not checked, True/False = result of version check
+cdef object _torch_version_ok = None
+
+cdef inline bint _torch_version_check():
+    """Return True if 2.3 <= torch <= 2.11 (known AOTI ABI range). Memoized.
+
+    Lower bound: AOTI functions we use were introduced in PyTorch 2.3.
+    Upper bound: the ``pyobj_to_aten_handle`` trick relies on the
+    THPVariable struct layout (PyObject_HEAD followed by at::Tensor cdata)
+    and the identity ``AtenTensorHandle == at::Tensor*``.  Both are
+    undocumented internals that could change in a future PyTorch version.
+    We cap at the latest version we have tested against; unknown versions
+    fall back to the standard DLPack/CAI paths.  Bump the upper bound
+    after verifying a new PyTorch release.
+    """
+    global _torch_version_ok
+    if _torch_version_ok is not None:
+        return <bint>_torch_version_ok
+    torch = sys.modules.get("torch")
+    if torch is None:
+        _torch_version_ok = False
+        return False
+    try:
+        major, minor = int(torch.__version__.split(".")[0]), \
+                       int(torch.__version__.split(".")[1])
+        _torch_version_ok = (2, 3) <= (major, minor) <= (2, 11)
+    except (ValueError, IndexError):
+        _torch_version_ok = False
+    return <bint>_torch_version_ok
+
+
+cdef inline bint _is_torch_tensor(object obj):
+    cdef type tp = type(obj)
+    cdef object cached = _torch_type_cache.get(tp)
+    if cached is not None:
+        return <bint>cached
+    cdef str mod = tp.__module__ or ""
+    cdef bint result = mod.startswith("torch") and hasattr(obj, "data_ptr") \
+        and _torch_version_check()
+    _torch_type_cache[tp] = result
+    return result
+
+
+cdef object _get_tensor_bridge():
+    """Bootstrap AOTI symbols, then import _tensor_bridge on first use."""
+    global _tensor_bridge
+    if _tensor_bridge is not None:
+        return _tensor_bridge
+    torch_C = sys.modules.get("torch._C")
+    if torch_C is None:
+        raise RuntimeError(
+            "torch._C is not loaded; cannot initialise the tensor bridge. "
+            "Make sure PyTorch is imported before passing a torch.Tensor.")
+    ctypes.CDLL(torch_C.__file__, mode=ctypes.RTLD_GLOBAL)
+    from cuda.core import _tensor_bridge as tb
+    _tensor_bridge = tb
+    return _tensor_bridge
 
 
 try:
@@ -149,6 +219,9 @@ cdef class StridedMemoryView:
             Stream pointer for synchronization. If ``None``, no synchronization is performed.
         """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
+        if _is_torch_tensor(obj):
+            _get_tensor_bridge().view_as_torch_tensor(obj, stream_ptr, buf)
+            return buf
         view_as_dlpack(obj, stream_ptr, buf)
         return buf
 
@@ -164,6 +237,9 @@ cdef class StridedMemoryView:
             Stream pointer for synchronization. If ``None``, no synchronization is performed.
         """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
+        if _is_torch_tensor(obj):
+            _get_tensor_bridge().view_as_torch_tensor(obj, stream_ptr, buf)
+            return buf
         view_as_cai(obj, stream_ptr, buf)
         return buf
 
@@ -177,6 +253,9 @@ cdef class StridedMemoryView:
             An object implementing the `__array_interface__ <https://numpy.org/doc/stable/reference/arrays.interface.html>`_ protocol (e.g., a numpy array).
         """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
+        if _is_torch_tensor(obj):
+            _get_tensor_bridge().view_as_torch_tensor(obj, None, buf)
+            return buf
         view_as_array_interface(obj, buf)
         return buf
 
@@ -186,6 +265,8 @@ cdef class StridedMemoryView:
 
         Tries `DLPack <https://dmlc.github.io/dlpack/latest/>`_ first, then falls back to
         `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_.
+        ``torch.Tensor`` objects are transparently handled via a fast AOTI path
+        regardless of which protocol is selected.
 
         Parameters
         ----------
@@ -479,6 +560,10 @@ cdef class StridedMemoryView:
         if self._dtype is None:
             if self.dl_tensor != NULL:
                 self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
+            elif isinstance(self.metadata, int):
+                # AOTI dtype code stored by the torch tensor bridge
+                self._dtype = _get_tensor_bridge().resolve_aoti_dtype(
+                    self.metadata)
             elif self.metadata is not None:
                 self._dtype = _typestr2dtype(self.metadata["typestr"])
         return self._dtype
@@ -590,8 +675,6 @@ cdef inline int _smv_get_dl_device(
     cdef _DLDeviceType device_type
     cdef int32_t device_id
     cdef object buf
-    cdef bint d
-    cdef bint h
     if view.dl_tensor != NULL:
         device_type = view.dl_tensor.device.device_type
         if device_type == _kDLCUDA:
@@ -601,20 +684,9 @@ cdef inline int _smv_get_dl_device(
             device_id = 0
     elif view.is_device_accessible:
         buf = view.get_buffer()
-        d = buf.is_device_accessible
-        h = buf.is_host_accessible
-        if d and (not h):
-            device_type = _kDLCUDA
-            device_id = buf.device_id
-        elif d and h:
-            # We do not currently differentiate pinned vs managed here.
-            device_type = _kDLCUDAHost
-            device_id = 0
-        elif (not d) and h:
-            device_type = _kDLCPU
-            device_id = 0
-        else:
-            raise BufferError("buffer is neither device-accessible nor host-accessible")
+        dev_type, dev_id = classify_dl_device(buf)
+        device_type = <_DLDeviceType>dev_type
+        device_id = <int32_t>dev_id
     else:
         device_type = _kDLCPU
         device_id = 0
@@ -1134,6 +1206,16 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
                         as_cu(h_event), <cydriver.CUstream>producer_s))
                     HANDLE_RETURN(cydriver.cuStreamWaitEvent(
                         <cydriver.CUstream>consumer_s, as_cu(h_event), 0))
+        elif _is_torch_tensor(obj):
+            # PyTorch's __cuda_array_interface__ reports version 2 and
+            # omits the "stream" field, so the standard CAI sync path
+            # above is a no-op for torch tensors.  This is unsafe: the
+            # consumer has no guarantee that the producer's work is
+            # visible.  We fix this by querying PyTorch's current CUDA
+            # stream via the AOTI stable C ABI and performing the same
+            # event-based stream ordering.
+            _get_tensor_bridge().sync_torch_stream(
+                buf.device_id, <intptr_t>(stream_ptr))
 
     return buf
 

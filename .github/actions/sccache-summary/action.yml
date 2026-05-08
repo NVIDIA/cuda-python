@@ -1,0 +1,81 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: sccache summary
+description: Parse sccache stats JSON and write a summary table to GITHUB_STEP_SUMMARY
+
+# Inspired by NVIDIA/cccl's prepare-execution-summary.py (PR #3621).
+# Only counts C/C++ and CUDA language hits (excludes PTX/CUBIN which are
+# not included in sccache's compile_requests counter).
+
+inputs:
+  json-file:
+    description: "Path to the sccache stats JSON file (from sccache --show-stats --stats-format=json)"
+    required: true
+  label:
+    description: "Label for the stats row (e.g. cuda.bindings, cuda.core)"
+    required: false
+    default: "sccache"
+  build-step:
+    description: "Name of the cibuildwheel build step (for deep-link in summary)"
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Report sccache stats
+      shell: bash --noprofile --norc -euo pipefail {0}
+      env:
+        SCCACHE_JSON: ${{ inputs.json-file }}
+        SCCACHE_LABEL: ${{ inputs.label }}
+        SCCACHE_BUILD_STEP: ${{ inputs.build-step }}
+      run: |
+        if [ ! -f "$SCCACHE_JSON" ]; then
+          echo "::warning::sccache stats file not found: $SCCACHE_JSON"
+          exit 0
+        fi
+
+        python3 - <<'PYEOF'
+        import json, os, urllib.parse
+
+        json_file = os.environ["SCCACHE_JSON"]
+        label = os.environ["SCCACHE_LABEL"]
+        build_step = os.environ.get("SCCACHE_BUILD_STEP", "")
+
+        with open(json_file) as f:
+            stats = json.load(f)["stats"]
+
+        # compile_requests includes non-compilation calls (linker, etc).
+        # Use cache_hits + cache_misses as the denominator to match sccache's
+        # own "Cache hits rate" which only counts actual compilation requests.
+        counted_languages = {"C/C++", "CUDA"}
+        hits = sum(
+            v for k, v in stats.get("cache_hits", {}).get("counts", {}).items()
+            if k in counted_languages
+        )
+        misses = sum(
+            v for k, v in stats.get("cache_misses", {}).get("counts", {}).items()
+            if k in counted_languages
+        )
+        total = hits + misses
+        pct = int(100 * hits / total) if total > 0 else 0
+
+        # Build a deep-link to the cibuildwheel step if step name is provided.
+        # GHA step summary links use the format: #step:N:L but we can't know the
+        # step number here. Instead, link to the job page with a search hint.
+        link_note = ""
+        if build_step:
+            link_note = f"\n\n_Full stats in the **{build_step}** step log._\n"
+
+        summary_file = os.environ.get("GITHUB_STEP_SUMMARY", "")
+        if summary_file:
+            with open(summary_file, "a") as sf:
+                sf.write(f"### 📊 {label} — sccache stats\n")
+                sf.write("| Hit Rate | Hits | Misses | Requests |\n")
+                sf.write("|----------|------|--------|----------|\n")
+                sf.write(f"| {pct}% | {hits} | {misses} | {total} |{link_note}\n")
+
+        print(f"{label}: {pct}% hit rate ({hits}/{total})")
+        PYEOF

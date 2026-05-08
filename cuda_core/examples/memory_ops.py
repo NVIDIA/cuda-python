@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -9,6 +9,10 @@
 # NumPy 2.1.0+.
 #
 # ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core", "nvidia-cuda-nvrtc", "cupy-cuda13x"]
+# ///
 
 import sys
 
@@ -78,7 +82,7 @@ def main():
         device_array = cp.from_dlpack(device_buffer).view(dtype=dtype)
 
         # 2. Pinned Memory (CPU memory, GPU accessible)
-        pinned_buffer = pinned_mr.allocate(total_size, stream=stream)
+        pinned_buffer = pinned_mr.allocate(total_size)
         pinned_array = np.from_dlpack(pinned_buffer).view(dtype=dtype)
 
         # Initialize data

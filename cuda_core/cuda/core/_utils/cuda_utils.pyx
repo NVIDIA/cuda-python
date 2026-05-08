@@ -4,7 +4,6 @@
 
 import functools
 from functools import partial
-import importlib.metadata
 import multiprocessing
 import platform
 import warnings
@@ -59,10 +58,6 @@ def cast_to_3_tuple(label, cfg):
         plural_s = "" if len(cfg) == 1 else "s"
         raise ValueError(f"{label} value{plural_s} must be >= 1 (got {cfg_orig})")
     return cfg + (1,) * (3 - len(cfg))
-
-
-def _reduce_3_tuple(t: tuple):
-    return t[0] * t[1] * t[2]
 
 
 cdef int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil:
@@ -176,10 +171,9 @@ cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
 cpdef inline int _check_runtime_error(error) except?-1:
     if error == _RUNTIME_SUCCESS:
         return 0
-    name_err, name = runtime.cudaGetErrorName(error)
-    if name_err != _RUNTIME_SUCCESS:
-        raise CUDAError(f"UNEXPECTED ERROR CODE: {error}")
-    name = name.decode()
+    # `_check_error()` reaches this path only for `runtime.cudaError_t` values.
+    # Use the enum name directly because Windows hybrid cudart can lag that table.
+    name = error.name
     expl = RUNTIME_CUDA_ERROR_EXPLANATIONS.get(int(error))
     if expl is not None:
         raise CUDAError(f"{name}: {expl}")
@@ -297,18 +291,6 @@ def is_nested_sequence(obj):
     """
     return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
 
-
-@functools.cache
-def get_binding_version():
-    try:
-        major_minor = importlib.metadata.version("cuda-bindings").split(".")[:2]
-    except importlib.metadata.PackageNotFoundError:
-        major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
-    return tuple(int(v) for v in major_minor)
-
-@functools.cache
-def get_driver_version():
-    return handle_return(driver.cuDriverGetVersion())
 
 
 class Transaction:

@@ -1,0 +1,352 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Verify that every cuda_binding enum member has a corresponding entry in the
+# cuda_core wrapper mappings.  No GPU required; the test only inspects
+# mapping dicts at import time, so it runs on any CI host that has a
+# compatible cuda.bindings version.
+
+import inspect
+import sys
+from typing import Any
+
+import pytest
+
+import cuda.core
+import cuda.core.typing
+from cuda.bindings import driver
+from cuda.core import system
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum
+else:
+    from backports.strenum import StrEnum
+
+_MODULES = [cuda.core.typing]
+
+# Each entry is:
+#   (cuda_binding_enum, str_enum, mapping_dict, binding_unmapped, str_enum_unmapped)
+#
+# cuda_binding_enum: the cuda.bindings enum class
+# str_enum: the cuda_core StrEnum wrapper class, or None if the mapping does
+#   not use a StrEnum (e.g. maps to plain str or tuple)
+# mapping_dict: the dict that maps between the two enum types
+# binding_unmapped: cuda_binding_enum member names intentionally absent from the mapping
+#   (sentinels, deprecated aliases, etc.)
+# str_enum_unmapped: StrEnum member names intentionally absent from the mapping
+#   (fallback sentinels returned by the wrapper via .get(value, default))
+#
+# The first test checks that every member of cuda_binding_enum whose name is NOT
+# in binding_unmapped appears as either a key or a value of the mapping dict,
+# and conversely that every str_enum member not in str_enum_unmapped also
+# appears.
+
+_CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
+    (
+        driver.CUgraphConditionalNodeType,
+        cuda.core.typing.GraphConditionalType,
+        None,
+        set(),
+        set(),
+    ),
+    (
+        driver.CUmemLocationType,
+        cuda.core.typing.ManagedMemoryLocationType,
+        None,
+        # We have some explicitly unsupported memory location types
+        {
+            "CU_MEM_LOCATION_TYPE_NONE",
+            "CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT",
+            "CU_MEM_LOCATION_TYPE_INVISIBLE",
+            "CU_MEM_LOCATION_TYPE_MAX",
+            "CU_MEM_LOCATION_TYPE_INVALID",
+        },
+        set(),
+    ),
+    (
+        driver.CUmemAccess_flags,
+        cuda.core.typing.VirtualMemoryAccessType,
+        cuda.core.VirtualMemoryResourceOptions._access_flags,
+        {"CU_MEM_ACCESS_FLAGS_PROT_NONE", "CU_MEM_ACCESS_FLAGS_PROT_MAX"},
+        set(),
+    ),
+    (
+        driver.CUmemAllocationGranularity_flags,
+        cuda.core.typing.VirtualMemoryGranularityType,
+        cuda.core.VirtualMemoryResourceOptions._granularity,
+        set(),
+        set(),
+    ),
+    (
+        driver.CUmemAllocationHandleType,
+        cuda.core.typing.VirtualMemoryHandleType,
+        cuda.core.VirtualMemoryResourceOptions._handle_types,
+        {"CU_MEM_HANDLE_TYPE_NONE", "CU_MEM_HANDLE_TYPE_WIN32", "CU_MEM_HANDLE_TYPE_MAX"},
+        {"GENERIC"},
+    ),
+    (
+        driver.CUmemLocationType,
+        cuda.core.typing.VirtualMemoryLocationType,
+        None,
+        # We have some explicitly unsupported memory location types
+        {
+            "CU_MEM_LOCATION_TYPE_NONE",
+            "CU_MEM_LOCATION_TYPE_INVISIBLE",
+            "CU_MEM_LOCATION_TYPE_MAX",
+            "CU_MEM_LOCATION_TYPE_INVALID",
+        },
+        set(),
+    ),
+]
+
+if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+    # Populated below only when NVML bindings are compatible, so that importing
+    # this module on an incompatible host does not raise ImportError.
+    import cuda.core.system.typing as system_typing
+    from cuda.bindings import nvml
+    from cuda.core.system import _device, _system_events
+
+    _MODULES.append(system_typing)
+
+    _CASES.extend(
+        [
+            (
+                nvml.DeviceAddressingModeType,
+                system_typing.AddressingMode,
+                _device._ADDRESSING_MODE_MAPPING,
+                # NONE means "no special addressing mode is active"; not a valid target
+                {"DEVICE_ADDRESSING_MODE_NONE"},
+                set(),
+            ),
+            (
+                nvml.BrandType,
+                None,  # maps to plain str, not a StrEnum
+                _device._BRAND_TYPE_MAPPING,
+                # COUNT is a sentinel, not a real brand
+                {"BRAND_COUNT"},
+                set(),
+            ),
+            (
+                nvml.GpuP2PStatus,
+                system_typing.GpuP2PStatus,
+                _device._GPU_P2P_STATUS_MAPPING,
+                # Both the typo'd (SUPPORED) and corrected (SUPPORTED) spellings
+                # share the same integer value; the mapping covers both via aliases
+                {"P2P_STATUS_CHIPSET_NOT_SUPPORED"},
+                set(),
+            ),
+            (
+                nvml.ClocksEventReasons,
+                system_typing.ClocksEventReasons,
+                _device._CLOCKS_EVENT_REASONS_MAPPING,
+                set(),
+                set(),
+            ),
+            (
+                nvml.EventType,
+                system_typing.EventType,
+                _device._EVENT_TYPE_MAPPING,
+                set(),
+                set(),
+            ),
+            (
+                nvml.FanControlPolicy,
+                system_typing.FanControlPolicy,
+                _device._FAN_CONTROL_POLICY_MAPPING,
+                set(),
+                set(),
+            ),
+            (
+                nvml.CoolerControl,
+                system_typing.CoolerControl,
+                _device._COOLER_CONTROL_MAPPING,
+                # NONE means no signal; COUNT is a sentinel
+                {"THERMAL_COOLER_SIGNAL_NONE", "THERMAL_COOLER_SIGNAL_COUNT"},
+                set(),
+            ),
+            (
+                nvml.CoolerTarget,
+                system_typing.CoolerTarget,
+                _device._COOLER_TARGET_MAPPING,
+                # GPU_RELATED is a composite bitmask (GPU | MEMORY | POWER_SUPPLY);
+                # the wrapper expands it into individual targets instead of mapping
+                # it as a single entry
+                {"THERMAL_GPU_RELATED"},
+                set(),
+            ),
+            (
+                nvml.ThermalController,
+                system_typing.ThermalController,
+                _device._THERMAL_CONTROLLER_MAPPING,
+                {"NONE"},
+                {"NONE"},
+            ),
+            (
+                nvml.ThermalTarget,
+                system_typing.ThermalTarget,
+                _device._THERMAL_TARGET_MAPPING,
+                # UNKNOWN is a fallback sentinel; handled by .get()
+                {"UNKNOWN"},
+                set(),
+            ),
+            (
+                nvml.NvlinkVersion,
+                None,  # maps to tuple, not a StrEnum
+                _device._NVLINK_VERSION_MAPPING,
+                # VERSION_INVALID is a sentinel for "no NvLink present"
+                {"VERSION_INVALID"},
+                set(),
+            ),
+            (
+                nvml.SystemEventType,
+                system_typing.SystemEventType,
+                _system_events._SYSTEM_EVENT_TYPE_MAPPING,
+                set(),
+                set(),
+            ),
+            (
+                nvml.AffinityScope,
+                system_typing.AffinityScope,
+                _device._AFFINITY_SCOPE_MAPPING,
+                set(),
+                set(),
+            ),
+            (
+                nvml.GpuP2PCapsIndex,
+                system_typing.GpuP2PCapsIndex,
+                _device._GPU_P2P_CAPS_INDEX_MAPPING,
+                set(),
+                set(),
+            ),
+            (
+                nvml.GpuTopologyLevel,
+                system_typing.GpuTopologyLevel,
+                _device._GPU_TOPOLOGY_LEVEL_MAPPING,
+                set(),
+                set(),
+            ),
+            (
+                nvml.ClockId,
+                system_typing.ClockId,
+                _device._CLOCK_ID_MAPPING,
+                # APP_CLOCK_TARGET and APP_CLOCK_DEFAULT are deprecated; COUNT is a sentinel
+                {"APP_CLOCK_TARGET", "APP_CLOCK_DEFAULT", "COUNT"},
+                set(),
+            ),
+            (
+                nvml.ClockType,
+                system_typing.ClockType,
+                _device._CLOCK_TYPE_MAPPING,
+                # COUNT is a sentinel
+                {"CLOCK_COUNT"},
+                set(),
+            ),
+            (
+                nvml.InforomObject,
+                system_typing.InforomObject,
+                _device._INFOROM_OBJECT_MAPPING,
+                # COUNT is a sentinel
+                {"INFOROM_COUNT"},
+                set(),
+            ),
+            (
+                nvml.TemperatureThresholds,
+                system_typing.TemperatureThresholds,
+                _device._TEMPERATURE_THRESHOLD_MAPPING,
+                # COUNT is a sentinel
+                {"TEMPERATURE_THRESHOLD_COUNT"},
+                set(),
+            ),
+        ]
+    )
+
+
+# StrEnum subclasses that intentionally have no associated cuda_binding.
+# Add classes here (with a comment explaining why) when a new StrEnum is
+# introduced that wraps something other than a cuda_binding enum.
+_UNBOUND_STR_ENUMS: set[StrEnum] = {
+    cuda.core.typing.ObjectCodeFormatType,
+    cuda.core.typing.CompilerBackendType,
+    # This one enum coordinates values in two cuda_binding enums:
+    # CUmemAllocationType and CUmemLocationType
+    cuda.core.typing.GraphMemoryType,
+    # This should support all of the PCH-related values in nvrtcResult, but
+    # there is no easy way to check that since they are mixed in with other
+    # unrelated things
+    cuda.core.typing.PCHStatusType,
+    cuda.core.typing.SourceCodeType,
+    # This enum is dynamic depending on the version of CTK installed.
+    cuda.core.typing.VirtualMemoryAllocationType,
+}
+
+
+@pytest.mark.parametrize(
+    "binding, str_enum, mapping, binding_unmapped, str_enum_unmapped",
+    _CASES,
+    ids=[x[0].__name__ for x in _CASES],
+)
+def test_wrapper_covers_all_binding_members(binding, str_enum, mapping, binding_unmapped, str_enum_unmapped):
+    """Every cuda_binding enum member must appear in the wrapper mapping (or be allow-listed).
+
+    Also checks the reverse: every StrEnum wrapper member must appear in the
+    mapping (or be listed in the per-entry str_enum_unmapped set).
+    """
+    required = set(binding.__members__) - binding_unmapped
+    if mapping is not None:
+        # Compare by integer value so that enum aliases (two names, one integer)
+        # are treated as covered when the canonical member appears in the mapping.
+        covered_values = frozenset(int(m) for m in (*mapping.keys(), *mapping.values()) if isinstance(m, binding))
+        missing = {name for name in required if int(binding.__members__[name]) not in covered_values}
+        assert not missing, f"{binding.__name__} has members not covered by the wrapper mapping: {missing}"
+
+    # Reverse check: every StrEnum member must also appear in the mapping.
+    if str_enum is not None:
+        if mapping is not None:
+            required_str = set(str_enum.__members__) - str_enum_unmapped
+            covered_str = {m.name for m in (*mapping.keys(), *mapping.values()) if isinstance(m, str_enum)}
+            missing_str = required_str - covered_str
+            assert not missing_str, f"{str_enum.__name__} has members not covered by the wrapper mapping: {missing_str}"
+
+        # For checking a StrEnum against a cuda_binding enum directly, without a
+        # mapping, the best we can do is count them, since it's reasonable that
+        # they have been renamed for clarity.
+        required_count = len(required)
+        covered_str_enum = set(str_enum.__members__) - str_enum_unmapped
+        covered_count = len(covered_str_enum)
+        if required_count != covered_count:
+            raise AssertionError(
+                f"{str_enum.__name__} has {covered_count} members, but expected {required_count} based on {binding.__name__} "
+                "after accounting for unmapped members. This may indicate that some members are missing from the wrapper, "
+                "or that some wrapper members do not correspond to actual binding members."
+            )
+
+
+@pytest.mark.skipif(sys.version_info < (3, 11), reason="Requires Python 3.11+ for StrEnum")
+@pytest.mark.parametrize(
+    "module",
+    _MODULES,
+)
+def test_all_str_enums_in_cases(module):
+    """Every StrEnum subclass in cuda.core must appear in _CASES or _UNBOUND_STR_ENUMS.
+
+    This ensures that when a new StrEnum wrapper is added to cuda.core, the
+    author is prompted to add a binding-coverage entry to _CASES (or explicitly
+    declare it as unbound in _UNBOUND_STR_ENUMS).
+    """
+
+    found = set()
+
+    members = inspect.getmembers(module, inspect.isclass)
+    for _, obj in members:
+        if obj is not StrEnum and issubclass(obj, StrEnum):
+            found.add(obj)
+
+    covered = {x[1] for x in _CASES if x[1] is not None}
+    uncovered = found - covered - _UNBOUND_STR_ENUMS
+    uncovered_names = sorted({c.__qualname__ for c in uncovered})
+    assert not uncovered, (
+        f"StrEnum subclasses in cuda.core not covered by _CASES: "
+        f"{uncovered_names}\n"
+        "Add a _CASES entry for each, or add to _UNBOUND_STR_ENUMS if it does not wrap a cuda_binding enum."
+    )

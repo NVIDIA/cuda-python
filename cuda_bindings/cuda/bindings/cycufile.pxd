@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1406+gd8426ea19.d20260316. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 from libc.time cimport time_t
@@ -197,8 +197,10 @@ cdef extern from '<cufile.h>':
 cdef extern from '<cufile.h>':
     ctypedef void* CUfileHandle_t 'CUfileHandle_t'
 
+
 cdef extern from '<cufile.h>':
     ctypedef void* CUfileBatchHandle_t 'CUfileBatchHandle_t'
+
 
 cdef extern from '<cufile.h>':
     ctypedef struct CUfileError_t 'CUfileError_t':
@@ -365,7 +367,6 @@ cdef extern from '<cufile.h>':
         CUfileStatsLevel2_t detailed
         uint32_t num_gpus
         CUfilePerGpuStats_t per_gpu_stats[16]
-
 
 
 cdef extern from *:

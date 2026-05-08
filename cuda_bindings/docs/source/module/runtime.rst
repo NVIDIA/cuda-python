@@ -5,1114 +5,11 @@
 runtime
 -------
 
-Profiler Control
-----------------
-
-This section describes the profiler control functions of the CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaProfilerStart
-.. autofunction:: cuda.bindings.runtime.cudaProfilerStop
-
-Device Management
------------------
-
-impl_private
-
-
-
-
-
-
-
-This section describes the device management functions of the CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaDeviceReset
-.. autofunction:: cuda.bindings.runtime.cudaDeviceSynchronize
-.. autofunction:: cuda.bindings.runtime.cudaDeviceSetLimit
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetLimit
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetTexture1DLinearMaxWidth
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetCacheConfig
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetStreamPriorityRange
-.. autofunction:: cuda.bindings.runtime.cudaDeviceSetCacheConfig
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetByPCIBusId
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetPCIBusId
-.. autofunction:: cuda.bindings.runtime.cudaIpcGetEventHandle
-.. autofunction:: cuda.bindings.runtime.cudaIpcOpenEventHandle
-.. autofunction:: cuda.bindings.runtime.cudaIpcGetMemHandle
-.. autofunction:: cuda.bindings.runtime.cudaIpcOpenMemHandle
-.. autofunction:: cuda.bindings.runtime.cudaIpcCloseMemHandle
-.. autofunction:: cuda.bindings.runtime.cudaDeviceFlushGPUDirectRDMAWrites
-.. autofunction:: cuda.bindings.runtime.cudaDeviceRegisterAsyncNotification
-.. autofunction:: cuda.bindings.runtime.cudaDeviceUnregisterAsyncNotification
-.. autofunction:: cuda.bindings.runtime.cudaGetDeviceCount
-.. autofunction:: cuda.bindings.runtime.cudaGetDeviceProperties
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetAttribute
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetHostAtomicCapabilities
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetDefaultMemPool
-.. autofunction:: cuda.bindings.runtime.cudaDeviceSetMemPool
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetMemPool
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetNvSciSyncAttributes
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetP2PAttribute
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetP2PAtomicCapabilities
-.. autofunction:: cuda.bindings.runtime.cudaChooseDevice
-.. autofunction:: cuda.bindings.runtime.cudaInitDevice
-.. autofunction:: cuda.bindings.runtime.cudaSetDevice
-.. autofunction:: cuda.bindings.runtime.cudaGetDevice
-.. autofunction:: cuda.bindings.runtime.cudaSetDeviceFlags
-.. autofunction:: cuda.bindings.runtime.cudaGetDeviceFlags
-
-Error Handling
---------------
-
-This section describes the error handling functions of the CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaGetLastError
-.. autofunction:: cuda.bindings.runtime.cudaPeekAtLastError
-.. autofunction:: cuda.bindings.runtime.cudaGetErrorName
-.. autofunction:: cuda.bindings.runtime.cudaGetErrorString
-
-Stream Management
------------------
-
-This section describes the stream management functions of the CUDA runtime application programming interface.
-
-.. autoclass:: cuda.bindings.runtime.cudaStreamCallback_t
-.. autofunction:: cuda.bindings.runtime.cudaStreamCreate
-.. autofunction:: cuda.bindings.runtime.cudaStreamCreateWithFlags
-.. autofunction:: cuda.bindings.runtime.cudaStreamCreateWithPriority
-.. autofunction:: cuda.bindings.runtime.cudaStreamGetPriority
-.. autofunction:: cuda.bindings.runtime.cudaStreamGetFlags
-.. autofunction:: cuda.bindings.runtime.cudaStreamGetId
-.. autofunction:: cuda.bindings.runtime.cudaStreamGetDevice
-.. autofunction:: cuda.bindings.runtime.cudaCtxResetPersistingL2Cache
-.. autofunction:: cuda.bindings.runtime.cudaStreamCopyAttributes
-.. autofunction:: cuda.bindings.runtime.cudaStreamGetAttribute
-.. autofunction:: cuda.bindings.runtime.cudaStreamSetAttribute
-.. autofunction:: cuda.bindings.runtime.cudaStreamDestroy
-.. autofunction:: cuda.bindings.runtime.cudaStreamWaitEvent
-.. autofunction:: cuda.bindings.runtime.cudaStreamAddCallback
-.. autofunction:: cuda.bindings.runtime.cudaStreamSynchronize
-.. autofunction:: cuda.bindings.runtime.cudaStreamQuery
-.. autofunction:: cuda.bindings.runtime.cudaStreamAttachMemAsync
-.. autofunction:: cuda.bindings.runtime.cudaStreamBeginCapture
-.. autofunction:: cuda.bindings.runtime.cudaStreamBeginCaptureToGraph
-.. autofunction:: cuda.bindings.runtime.cudaThreadExchangeStreamCaptureMode
-.. autofunction:: cuda.bindings.runtime.cudaStreamEndCapture
-.. autofunction:: cuda.bindings.runtime.cudaStreamIsCapturing
-.. autofunction:: cuda.bindings.runtime.cudaStreamGetCaptureInfo
-.. autofunction:: cuda.bindings.runtime.cudaStreamUpdateCaptureDependencies
-
-Event Management
-----------------
-
-This section describes the event management functions of the CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaEventCreate
-.. autofunction:: cuda.bindings.runtime.cudaEventCreateWithFlags
-.. autofunction:: cuda.bindings.runtime.cudaEventRecord
-.. autofunction:: cuda.bindings.runtime.cudaEventRecordWithFlags
-.. autofunction:: cuda.bindings.runtime.cudaEventQuery
-.. autofunction:: cuda.bindings.runtime.cudaEventSynchronize
-.. autofunction:: cuda.bindings.runtime.cudaEventDestroy
-.. autofunction:: cuda.bindings.runtime.cudaEventElapsedTime
-
-External Resource Interoperability
-----------------------------------
-
-This section describes the external resource interoperability functions of the CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaImportExternalMemory
-.. autofunction:: cuda.bindings.runtime.cudaExternalMemoryGetMappedBuffer
-.. autofunction:: cuda.bindings.runtime.cudaExternalMemoryGetMappedMipmappedArray
-.. autofunction:: cuda.bindings.runtime.cudaDestroyExternalMemory
-.. autofunction:: cuda.bindings.runtime.cudaImportExternalSemaphore
-.. autofunction:: cuda.bindings.runtime.cudaSignalExternalSemaphoresAsync
-.. autofunction:: cuda.bindings.runtime.cudaWaitExternalSemaphoresAsync
-.. autofunction:: cuda.bindings.runtime.cudaDestroyExternalSemaphore
-
-Execution Control
------------------
-
-This section describes the execution control functions of the CUDA runtime application programming interface.
-
-
-
-Some functions have overloaded C++ API template versions documented separately in the C++ API Routines module.
-
-.. autofunction:: cuda.bindings.runtime.cudaFuncSetCacheConfig
-.. autofunction:: cuda.bindings.runtime.cudaFuncGetAttributes
-.. autofunction:: cuda.bindings.runtime.cudaFuncSetAttribute
-.. autofunction:: cuda.bindings.runtime.cudaFuncGetParamCount
-.. autofunction:: cuda.bindings.runtime.cudaLaunchHostFunc
-.. autofunction:: cuda.bindings.runtime.cudaLaunchHostFunc_v2
-
-Occupancy
----------
-
-This section describes the occupancy calculation functions of the CUDA runtime application programming interface.
-
-
-
-Besides the occupancy calculator functions (cudaOccupancyMaxActiveBlocksPerMultiprocessor and cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags), there are also C++ only occupancy-based launch configuration functions documented in C++ API Routines module.
-
-
-
-See cudaOccupancyMaxPotentialBlockSize (C++ API), cudaOccupancyMaxPotentialBlockSize (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMem (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMem (C++ API) cudaOccupancyAvailableDynamicSMemPerBlock (C++ API),
-
-.. autofunction:: cuda.bindings.runtime.cudaOccupancyMaxActiveBlocksPerMultiprocessor
-.. autofunction:: cuda.bindings.runtime.cudaOccupancyAvailableDynamicSMemPerBlock
-.. autofunction:: cuda.bindings.runtime.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
-
-Memory Management
------------------
-
-This section describes the memory management functions of the CUDA runtime application programming interface.
-
-
-
-Some functions have overloaded C++ API template versions documented separately in the C++ API Routines module.
-
-.. autofunction:: cuda.bindings.runtime.make_cudaPitchedPtr
-.. autofunction:: cuda.bindings.runtime.make_cudaPos
-.. autofunction:: cuda.bindings.runtime.make_cudaExtent
-.. autofunction:: cuda.bindings.runtime.cudaMallocManaged
-.. autofunction:: cuda.bindings.runtime.cudaMalloc
-.. autofunction:: cuda.bindings.runtime.cudaMallocHost
-.. autofunction:: cuda.bindings.runtime.cudaMallocPitch
-.. autofunction:: cuda.bindings.runtime.cudaMallocArray
-.. autofunction:: cuda.bindings.runtime.cudaFree
-.. autofunction:: cuda.bindings.runtime.cudaFreeHost
-.. autofunction:: cuda.bindings.runtime.cudaFreeArray
-.. autofunction:: cuda.bindings.runtime.cudaFreeMipmappedArray
-.. autofunction:: cuda.bindings.runtime.cudaHostAlloc
-.. autofunction:: cuda.bindings.runtime.cudaHostRegister
-.. autofunction:: cuda.bindings.runtime.cudaHostUnregister
-.. autofunction:: cuda.bindings.runtime.cudaHostGetDevicePointer
-.. autofunction:: cuda.bindings.runtime.cudaHostGetFlags
-.. autofunction:: cuda.bindings.runtime.cudaMalloc3D
-.. autofunction:: cuda.bindings.runtime.cudaMalloc3DArray
-.. autofunction:: cuda.bindings.runtime.cudaMallocMipmappedArray
-.. autofunction:: cuda.bindings.runtime.cudaGetMipmappedArrayLevel
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy3D
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DPeer
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DPeerAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemGetInfo
-.. autofunction:: cuda.bindings.runtime.cudaArrayGetInfo
-.. autofunction:: cuda.bindings.runtime.cudaArrayGetPlane
-.. autofunction:: cuda.bindings.runtime.cudaArrayGetMemoryRequirements
-.. autofunction:: cuda.bindings.runtime.cudaMipmappedArrayGetMemoryRequirements
-.. autofunction:: cuda.bindings.runtime.cudaArrayGetSparseProperties
-.. autofunction:: cuda.bindings.runtime.cudaMipmappedArrayGetSparseProperties
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy
-.. autofunction:: cuda.bindings.runtime.cudaMemcpyPeer
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy2D
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DToArray
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DFromArray
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DArrayToArray
-.. autofunction:: cuda.bindings.runtime.cudaMemcpyAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemcpyPeerAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemcpyBatchAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DBatchAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemcpyWithAttributesAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DWithAttributesAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DToArrayAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DFromArrayAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemset
-.. autofunction:: cuda.bindings.runtime.cudaMemset2D
-.. autofunction:: cuda.bindings.runtime.cudaMemset3D
-.. autofunction:: cuda.bindings.runtime.cudaMemsetAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemset2DAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemset3DAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemPrefetchAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemPrefetchBatchAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemDiscardBatchAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemDiscardAndPrefetchBatchAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemAdvise
-.. autofunction:: cuda.bindings.runtime.cudaMemRangeGetAttribute
-.. autofunction:: cuda.bindings.runtime.cudaMemRangeGetAttributes
-
-Stream Ordered Memory Allocator
--------------------------------
-
-**overview**
-
-
-
-The asynchronous allocator allows the user to allocate and free in stream order. All asynchronous accesses of the allocation must happen between the stream executions of the allocation and the free. If the memory is accessed outside of the promised stream order, a use before allocation / use after free error will cause undefined behavior.
-
-The allocator is free to reallocate the memory as long as it can guarantee that compliant memory accesses will not overlap temporally. The allocator may refer to internal stream ordering as well as inter-stream dependencies (such as CUDA events and null stream dependencies) when establishing the temporal guarantee. The allocator may also insert inter-stream dependencies to establish the temporal guarantee.
-
-
-
-
-
-**Supported Platforms**
-
-
-
-Whether or not a device supports the integrated stream ordered memory allocator may be queried by calling cudaDeviceGetAttribute() with the device attribute cudaDevAttrMemoryPoolsSupported.
-
-.. autofunction:: cuda.bindings.runtime.cudaMallocAsync
-.. autofunction:: cuda.bindings.runtime.cudaFreeAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemPoolTrimTo
-.. autofunction:: cuda.bindings.runtime.cudaMemPoolSetAttribute
-.. autofunction:: cuda.bindings.runtime.cudaMemPoolGetAttribute
-.. autofunction:: cuda.bindings.runtime.cudaMemPoolSetAccess
-.. autofunction:: cuda.bindings.runtime.cudaMemPoolGetAccess
-.. autofunction:: cuda.bindings.runtime.cudaMemPoolCreate
-.. autofunction:: cuda.bindings.runtime.cudaMemPoolDestroy
-.. autofunction:: cuda.bindings.runtime.cudaMemGetDefaultMemPool
-.. autofunction:: cuda.bindings.runtime.cudaMemGetMemPool
-.. autofunction:: cuda.bindings.runtime.cudaMemSetMemPool
-.. autofunction:: cuda.bindings.runtime.cudaMallocFromPoolAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemPoolExportToShareableHandle
-.. autofunction:: cuda.bindings.runtime.cudaMemPoolImportFromShareableHandle
-.. autofunction:: cuda.bindings.runtime.cudaMemPoolExportPointer
-.. autofunction:: cuda.bindings.runtime.cudaMemPoolImportPointer
-
-Unified Addressing
-------------------
-
-This section describes the unified addressing functions of the CUDA runtime application programming interface.
-
-
-
-
-
-**Overview**
-
-
-
-CUDA devices can share a unified address space with the host. 
-
- For these devices there is no distinction between a device pointer and a host pointer -- the same pointer value may be used to access memory from the host program and from a kernel running on the device (with exceptions enumerated below).
-
-
-
-
-
-**Supported Platforms**
-
-
-
-Whether or not a device supports unified addressing may be queried by calling cudaGetDeviceProperties() with the device property cudaDeviceProp::unifiedAddressing.
-
-Unified addressing is automatically enabled in 64-bit processes .
-
-
-
-
-
-**Looking Up Information from Pointer Values**
-
-
-
-It is possible to look up information about the memory which backs a pointer value. For instance, one may want to know if a pointer points to host or device memory. As another example, in the case of device memory, one may want to know on which CUDA device the memory resides. These properties may be queried using the function cudaPointerGetAttributes()
-
-Since pointers are unique, it is not necessary to specify information about the pointers specified to cudaMemcpy() and other copy functions. 
-
- The copy direction cudaMemcpyDefault may be used to specify that the CUDA runtime should infer the location of the pointer from its value.
-
-
-
-
-
-**Automatic Mapping of Host Allocated Host Memory**
-
-
-
-All host memory allocated through all devices using cudaMallocHost() and cudaHostAlloc() is always directly accessible from all devices that support unified addressing. This is the case regardless of whether or not the flags cudaHostAllocPortable and cudaHostAllocMapped are specified.
-
-The pointer value through which allocated host memory may be accessed in kernels on all devices that support unified addressing is the same as the pointer value through which that memory is accessed on the host. It is not necessary to call cudaHostGetDevicePointer() to get the device pointer for these allocations. 
-
-
-
-Note that this is not the case for memory allocated using the flag cudaHostAllocWriteCombined, as discussed below.
-
-
-
-
-
-**Direct Access of Peer Memory**
-
-
-
-Upon enabling direct access from a device that supports unified addressing to another peer device that supports unified addressing using cudaDeviceEnablePeerAccess() all memory allocated in the peer device using cudaMalloc() and cudaMallocPitch() will immediately be accessible by the current device. The device pointer value through which any peer's memory may be accessed in the current device is the same pointer value through which that memory may be accessed from the peer device.
-
-
-
-
-
-**Exceptions, Disjoint Addressing**
-
-
-
-Not all memory may be accessed on devices through the same pointer value through which they are accessed on the host. These exceptions are host memory registered using cudaHostRegister() and host memory allocated using the flag cudaHostAllocWriteCombined. For these exceptions, there exists a distinct host and device address for the memory. The device address is guaranteed to not overlap any valid host pointer range and is guaranteed to have the same value across all devices that support unified addressing. 
-
-
-
-This device address may be queried using cudaHostGetDevicePointer() when a device using unified addressing is current. Either the host or the unified device pointer value may be used to refer to this memory in cudaMemcpy() and similar functions using the cudaMemcpyDefault memory direction.
-
-.. autofunction:: cuda.bindings.runtime.cudaPointerGetAttributes
-
-Peer Device Memory Access
--------------------------
-
-This section describes the peer device memory access functions of the CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaDeviceCanAccessPeer
-.. autofunction:: cuda.bindings.runtime.cudaDeviceEnablePeerAccess
-.. autofunction:: cuda.bindings.runtime.cudaDeviceDisablePeerAccess
-
-OpenGL Interoperability
------------------------
-
-impl_private
-
-
-
-This section describes the OpenGL interoperability functions of the CUDA runtime application programming interface. Note that mapping of OpenGL resources is performed with the graphics API agnostic, resource mapping interface described in Graphics Interopability.
-
-.. autoclass:: cuda.bindings.runtime.cudaGLDeviceList
-
-    .. autoattribute:: cuda.bindings.runtime.cudaGLDeviceList.cudaGLDeviceListAll
-
-
-        The CUDA devices for all GPUs used by the current OpenGL context
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaGLDeviceList.cudaGLDeviceListCurrentFrame
-
-
-        The CUDA devices for the GPUs used by the current OpenGL context in its currently rendering frame
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaGLDeviceList.cudaGLDeviceListNextFrame
-
-
-        The CUDA devices for the GPUs to be used by the current OpenGL context in the next frame
-
-.. autofunction:: cuda.bindings.runtime.cudaGLGetDevices
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsGLRegisterImage
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsGLRegisterBuffer
-
-Direct3D 9 Interoperability
----------------------------
-
-
-
-
-Direct3D 10 Interoperability
-----------------------------
-
-
-
-
-Direct3D 11 Interoperability
-----------------------------
-
-
-
-
-VDPAU Interoperability
-----------------------
-
-This section describes the VDPAU interoperability functions of the CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaVDPAUGetDevice
-.. autofunction:: cuda.bindings.runtime.cudaVDPAUSetVDPAUDevice
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsVDPAURegisterVideoSurface
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsVDPAURegisterOutputSurface
-
-EGL Interoperability
---------------------
-
-This section describes the EGL interoperability functions of the CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsEGLRegisterImage
-.. autofunction:: cuda.bindings.runtime.cudaEGLStreamConsumerConnect
-.. autofunction:: cuda.bindings.runtime.cudaEGLStreamConsumerConnectWithFlags
-.. autofunction:: cuda.bindings.runtime.cudaEGLStreamConsumerDisconnect
-.. autofunction:: cuda.bindings.runtime.cudaEGLStreamConsumerAcquireFrame
-.. autofunction:: cuda.bindings.runtime.cudaEGLStreamConsumerReleaseFrame
-.. autofunction:: cuda.bindings.runtime.cudaEGLStreamProducerConnect
-.. autofunction:: cuda.bindings.runtime.cudaEGLStreamProducerDisconnect
-.. autofunction:: cuda.bindings.runtime.cudaEGLStreamProducerPresentFrame
-.. autofunction:: cuda.bindings.runtime.cudaEGLStreamProducerReturnFrame
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsResourceGetMappedEglFrame
-.. autofunction:: cuda.bindings.runtime.cudaEventCreateFromEGLSync
-
-Graphics Interoperability
--------------------------
-
-This section describes the graphics interoperability functions of the CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsUnregisterResource
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsResourceSetMapFlags
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsMapResources
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsUnmapResources
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsResourceGetMappedPointer
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsSubResourceGetMappedArray
-.. autofunction:: cuda.bindings.runtime.cudaGraphicsResourceGetMappedMipmappedArray
-
-Texture Object Management
--------------------------
-
-This section describes the low level texture object management functions of the CUDA runtime application programming interface. The texture object API is only supported on devices of compute capability 3.0 or higher.
-
-.. autofunction:: cuda.bindings.runtime.cudaGetChannelDesc
-.. autofunction:: cuda.bindings.runtime.cudaCreateChannelDesc
-.. autofunction:: cuda.bindings.runtime.cudaCreateTextureObject
-.. autofunction:: cuda.bindings.runtime.cudaDestroyTextureObject
-.. autofunction:: cuda.bindings.runtime.cudaGetTextureObjectResourceDesc
-.. autofunction:: cuda.bindings.runtime.cudaGetTextureObjectTextureDesc
-.. autofunction:: cuda.bindings.runtime.cudaGetTextureObjectResourceViewDesc
-
-Surface Object Management
--------------------------
-
-This section describes the low level texture object management functions of the CUDA runtime application programming interface. The surface object API is only supported on devices of compute capability 3.0 or higher.
-
-.. autofunction:: cuda.bindings.runtime.cudaCreateSurfaceObject
-.. autofunction:: cuda.bindings.runtime.cudaDestroySurfaceObject
-.. autofunction:: cuda.bindings.runtime.cudaGetSurfaceObjectResourceDesc
-
-Version Management
-------------------
-
-
-
-.. autofunction:: cuda.bindings.runtime.cudaDriverGetVersion
-.. autofunction:: cuda.bindings.runtime.cudaRuntimeGetVersion
-.. autofunction:: cuda.bindings.runtime.getLocalRuntimeVersion
-
-Error Log Management Functions
-------------------------------
-
-This section describes the error log management functions of the CUDA runtime application programming interface. The Error Log Management interface will operate on both the CUDA Driver and CUDA Runtime.
-
-.. autoclass:: cuda.bindings.runtime.cudaLogsCallback_t
-.. autofunction:: cuda.bindings.runtime.cudaLogsRegisterCallback
-.. autofunction:: cuda.bindings.runtime.cudaLogsUnregisterCallback
-.. autofunction:: cuda.bindings.runtime.cudaLogsCurrent
-.. autofunction:: cuda.bindings.runtime.cudaLogsDumpToFile
-.. autofunction:: cuda.bindings.runtime.cudaLogsDumpToMemory
-
-Graph Management
-----------------
-
-This section describes the graph management functions of CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaGraphCreate
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddKernelNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeGetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeCopyAttributes
-.. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeGetAttribute
-.. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeSetAttribute
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddMemcpyNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddMemcpyNode1D
-.. autofunction:: cuda.bindings.runtime.cudaGraphMemcpyNodeGetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphMemcpyNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphMemcpyNodeSetParams1D
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddMemsetNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphMemsetNodeGetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphMemsetNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddHostNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphHostNodeGetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphHostNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddChildGraphNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphChildGraphNodeGetGraph
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddEmptyNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddEventRecordNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphEventRecordNodeGetEvent
-.. autofunction:: cuda.bindings.runtime.cudaGraphEventRecordNodeSetEvent
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddEventWaitNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphEventWaitNodeGetEvent
-.. autofunction:: cuda.bindings.runtime.cudaGraphEventWaitNodeSetEvent
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddExternalSemaphoresSignalNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphExternalSemaphoresSignalNodeGetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphExternalSemaphoresSignalNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddExternalSemaphoresWaitNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeGetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddMemAllocNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphMemAllocNodeGetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddMemFreeNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphMemFreeNodeGetParams
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGraphMemTrim
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetGraphMemAttribute
-.. autofunction:: cuda.bindings.runtime.cudaDeviceSetGraphMemAttribute
-.. autofunction:: cuda.bindings.runtime.cudaGraphClone
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeFindInClone
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetType
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetContainingGraph
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetLocalId
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetToolsId
-.. autofunction:: cuda.bindings.runtime.cudaGraphGetId
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecGetId
-.. autofunction:: cuda.bindings.runtime.cudaGraphGetNodes
-.. autofunction:: cuda.bindings.runtime.cudaGraphGetRootNodes
-.. autofunction:: cuda.bindings.runtime.cudaGraphGetEdges
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetDependencies
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetDependentNodes
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddDependencies
-.. autofunction:: cuda.bindings.runtime.cudaGraphRemoveDependencies
-.. autofunction:: cuda.bindings.runtime.cudaGraphDestroyNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphInstantiate
-.. autofunction:: cuda.bindings.runtime.cudaGraphInstantiateWithFlags
-.. autofunction:: cuda.bindings.runtime.cudaGraphInstantiateWithParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecGetFlags
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecKernelNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecMemcpyNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecMemcpyNodeSetParams1D
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecMemsetNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecHostNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecChildGraphNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecEventRecordNodeSetEvent
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecEventWaitNodeSetEvent
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecExternalSemaphoresSignalNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecExternalSemaphoresWaitNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeSetEnabled
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetEnabled
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecUpdate
-.. autofunction:: cuda.bindings.runtime.cudaGraphUpload
-.. autofunction:: cuda.bindings.runtime.cudaGraphLaunch
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecDestroy
-.. autofunction:: cuda.bindings.runtime.cudaGraphDestroy
-.. autofunction:: cuda.bindings.runtime.cudaGraphDebugDotPrint
-.. autofunction:: cuda.bindings.runtime.cudaUserObjectCreate
-.. autofunction:: cuda.bindings.runtime.cudaUserObjectRetain
-.. autofunction:: cuda.bindings.runtime.cudaUserObjectRelease
-.. autofunction:: cuda.bindings.runtime.cudaGraphRetainUserObject
-.. autofunction:: cuda.bindings.runtime.cudaGraphReleaseUserObject
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphExecNodeSetParams
-.. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate
-.. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate_v2
-
-Driver Entry Point Access
--------------------------
-
-This section describes the driver entry point access functions of CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaGetDriverEntryPoint
-.. autofunction:: cuda.bindings.runtime.cudaGetDriverEntryPointByVersion
-
-Library Management
-------------------
-
-This section describes the library management functions of the CUDA runtime application programming interface.
-
-.. autofunction:: cuda.bindings.runtime.cudaLibraryLoadData
-.. autofunction:: cuda.bindings.runtime.cudaLibraryLoadFromFile
-.. autofunction:: cuda.bindings.runtime.cudaLibraryUnload
-.. autofunction:: cuda.bindings.runtime.cudaLibraryGetKernel
-.. autofunction:: cuda.bindings.runtime.cudaLibraryGetGlobal
-.. autofunction:: cuda.bindings.runtime.cudaLibraryGetManaged
-.. autofunction:: cuda.bindings.runtime.cudaLibraryGetUnifiedFunction
-.. autofunction:: cuda.bindings.runtime.cudaLibraryGetKernelCount
-.. autofunction:: cuda.bindings.runtime.cudaLibraryEnumerateKernels
-.. autofunction:: cuda.bindings.runtime.cudaKernelSetAttributeForDevice
-
-Execution Context Management
-----------------------------
-
-This section describes the execution context management functions of the CUDA runtime application programming interface.
-
-
-
-
-
-**Overview**
-
-
-
-A CUDA execution context cudaExecutionContext_t serves as an abstraction for the contexts exposed by the CUDA Runtime, specifically green contexts and the primary context, and provides a unified programming model and API interface for contexts in the Runtime.
-
-There are two primary ways today to obtain an execution context:
-
-- cudaDeviceGetExecutionCtx: Returns the execution context that corresponds to the primary context of the specified device.
-
-
-
-
-
-
-
-- cudaGreenCtxCreate: Creates a green context with the specified resources and returns an execution context.
-
-
-
-
-
-
-
-
-
-Once you have an execution context at hand, you can perform context-level operations via the CUDA Runtime APIs. This includes:
-
-- Submitting work via streams created with cudaExecutionCtxStreamCreate.
-
-
-
-
-
-
-
-- Querying context via cudaExecutionCtxGetDevResource, cudaExecutionCtxGetDevice, etc.
-
-
-
-
-
-
-
-- Synchronizing and tracking context-level operations via cudaExecutionCtxSynchronize, cudaExecutionCtxRecordEvent, cudaExecutionCtxWaitEvent.
-
-
-
-
-
-
-
-- Performing context-level graph node operations via cudaGraphAddNode by specifying the context in ``nodeParams``\ . Note that individual node creation APIs, such as cudaGraphAddKernelNode, do not support specifying an execution context.
-
-
-
-
-
-
-
-
-
-Note: The above APIs take in an explicit cudaExecutionContext_t handle and ignores the context that is current to the calling thread. This enables explicit context-based programming without relying on thread-local state. If no context is specified, the APIs return cudaErrorInvalidValue.
-
-Note: Developers should treat cudaExecutionContext_t as an opaque handle and avoid assumptions about its underlying representation. The CUDA Runtime does not provide a way to convert this handle into driver-level contexts, such as ::CUcontext or ::CUgreenCtx.
-
-
-
-
-
-**Lifetime of CUDA Resources**
-
-
-
-The lifetime of CUDA resources (memory, streams, events, modules, etc) is not tied to the lifetime of the execution context. Their lifetime is tied to the device against which they were created. As such, usage of cudaDeviceReset() should be avoided to persist the lifetime of these resources.
-
-
-
-
-
-**APIs Operating on Current Context**
-
-
-
-The CUDA runtime does not provide a way to set an execution context as current. Since, the majority of the runtime APIs operate on the current context, we document below how the developer can work with these APIs.
-
-
-
-**APIs Operating on Device Resources**
-
-
-
-To work with these APIs (for example, cudaMalloc, cudaEventCreate, etc), developers are expected to call cudaSetDevice() prior to invoking them. Doing so does not impact functional correctness as these APIs operate on resources that are device-wide. If users have a context handle at hand, they can get the device handle from the context handle using cudaExecutionCtxGetDevice().
-
-
-
-
-
-**APIs Operating on Context Resources**
-
-
-
-These APIs (for example, cudaLaunchKernel, cudaMemcpyAsync, cudaMemsetAsync, etc) take in a stream and resources are inferred from the context bound to the stream at creation. See cudaExecutionCtxStreamCreate for more details. Developers are expected to use the stream-based APIs for context awareness and always pass an explicit stream handle to ensure context-awareness, and avoid reliance on the default NULL stream, which implicitly binds to the current context.
-
-
-
-
-
-
-
-**Green Contexts**
-
-
-
-Green contexts are a lightweight alternative to traditional contexts, that can be used to select a subset of device resources. This allows the developer to, for example, select SMs from distinct spatial partitions of the GPU and target them via CUDA stream operations, kernel launches, etc.
-
-Here are the broad initial steps to follow to get started:
-
-- (1) Start with an initial set of resources. For SM resources, they can be fetched via cudaDeviceGetDevResource. In case of workqueues, a new configuration can be used or an existing one queried via the cudaDeviceGetDevResource API.
-
-
-
-
-
-
-
-- (2) Modify these resources by either partitioning them (in case of SMs) or changing the configuration (in case of workqueues). To partition SMs, we recommend cudaDevSmResourceSplit. Changing the workqueue configuration can be done directly in place.
-
-
-
-
-
-
-
-- (3) Finalize the specification of resources by creating a descriptor via cudaDevResourceGenerateDesc.
-
-
-
-
-
-
-
-- (4) Create a green context via cudaGreenCtxCreate. This provisions the resource, such as workqueues (until this step it was only a configuration specification).
-
-
-
-
-
-
-
-- (5) Create a stream via cudaExecutionCtxStreamCreate, and use it throughout your application.
-
-
-
-
-
-
-
-
-
-SMs
-
-There are two possible partition operations - with cudaDevSmResourceSplitByCount the partitions created have to follow default SM count granularity requirements, so it will often be rounded up and aligned to a default value. On the other hand, cudaDevSmResourceSplit is explicit and allows for creation of non-equal groups. It will not round up automatically - instead it is the developer’s responsibility to query and set the correct values. These requirements can be queried with cudaDeviceGetDevResource to determine the alignment granularity (sm.smCoscheduledAlignment). A general guideline on the default values for each compute architecture:
-
-- On Compute Architecture 7.X, 8.X, and all Tegra SoC:
-
-
-
-
-
-  - The smCount must be a multiple of 2.
-
-
-
-
-
-
-
-  - The alignment (and default value of coscheduledSmCount) is 2.
-
-
-
-
-
-
-
-
-
-- On Compute Architecture 9.0+:
-
-
-
-
-
-  - The smCount must be a multiple of 8, or coscheduledSmCount if provided.
-
-
-
-
-
-
-
-  - The alignment (and default value of coscheduledSmCount) is 8. While the maximum value for coscheduled SM count is 32 on all Compute Architecture 9.0+, it's recommended to follow cluster size requirements. The portable cluster size and the max cluster size should be used in order to benefit from this co-scheduling.
-
-
-
-
-
-
-
-
-
-
-
-Workqueues
-
-For ``cudaDevResourceTypeWorkqueueConfig``\ , the resource specifies the expected maximum number of concurrent stream-ordered workloads via the ``wqConcurrencyLimit``\  field. The ``sharingScope``\  field determines how workqueue resources are shared:
-
-- ``cudaDevWorkqueueConfigScopeDeviceCtx:``\  Use all shared workqueue resources across all contexts (default driver behavior).
-
-
-
-
-
-
-
-- ``cudaDevWorkqueueConfigScopeGreenCtxBalanced:``\  When possible, use non-overlapping workqueue resources with other balanced green contexts.
-
-
-
-
-
-
-
-
-
-The maximum concurrency limit depends on ::CUDA_DEVICE_MAX_CONNECTIONS and can be queried from the device via cudaDeviceGetDevResource. Configurations may exceed this concurrency limit, but the driver will not guarantee that work submission remains non-overlapping.
-
-For ``cudaDevResourceTypeWorkqueue``\ , the resource represents a pre-existing workqueue that can be retrieved from existing execution contexts. This allows reusing workqueue resources across different execution contexts.
-
-On Concurrency
-
-Even if the green contexts have disjoint SM partitions, it is not guaranteed that the kernels launched in them will run concurrently or have forward progress guarantees. This is due to other resources that could cause a dependency. Using a combination of disjoint SMs and ``cudaDevWorkqueueConfigScopeGreenCtxBalanced``\  workqueue configurations can provide the best chance of avoiding interference. More resources will be added in the future to provide stronger guarantees.
-
-Additionally, there are two known scenarios, where its possible for the workload to run on more SMs than was provisioned (but never less).
-
-
-
-- On Volta+ MPS: When ``CUDA_MPS_ACTIVE_THREAD_PERCENTAGE``\  is used, the set of SMs that are used for running kernels can be scaled up to the value of SMs used for the MPS client.
-
-
-
-
-
-
-
-- On Compute Architecture 9.x: When a module with dynamic parallelism (CDP) is loaded, all future kernels running under green contexts may use and share an additional set of 2 SMs.
-
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetDevResource
-.. autofunction:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount
-.. autofunction:: cuda.bindings.runtime.cudaDevSmResourceSplit
-.. autofunction:: cuda.bindings.runtime.cudaDevResourceGenerateDesc
-.. autofunction:: cuda.bindings.runtime.cudaGreenCtxCreate
-.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxDestroy
-.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetDevResource
-.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetDevice
-.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetId
-.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxStreamCreate
-.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxSynchronize
-.. autofunction:: cuda.bindings.runtime.cudaStreamGetDevResource
-.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxRecordEvent
-.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxWaitEvent
-.. autofunction:: cuda.bindings.runtime.cudaDeviceGetExecutionCtx
-
-C++ API Routines
-----------------
-C++-style interface built on top of CUDA runtime API.
-impl_private
-
-
-
-
-
-
-
-This section describes the C++ high level API functions of the CUDA runtime application programming interface. To use these functions, your application needs to be compiled with the ``nvcc``\  compiler.
-
-
-Interactions with the CUDA Driver API
--------------------------------------
-
-This section describes the interactions between the CUDA Driver API and the CUDA Runtime API
-
-
-
-
-
-**Execution Contexts**
-
-
-
-The CUDA Runtime provides cudaExecutionContext_t as an abstraction over driver-level contexts—specifically, green contexts and the primary context.
-
-There are two primary ways to obtain an execution context:
-
-- cudaDeviceGetExecutionCtx: Returns the execution context that corresponds to the primary context of the specified device.
-
-
-
-
-
-
-
-- cudaGreenCtxCreate: Creates a green context with the specified resources and returns an execution context.
-
-
-
-
-
-
-
-
-
-Note: Developers should treat cudaExecutionContext_t as an opaque handle and avoid assumptions about its underlying representation. The CUDA Runtime does not provide a way to convert this handle into a ::CUcontext or ::CUgreenCtx.
-
-
-
-
-
-**Primary Context (aka Device Execution Context)**
-
-
-
-The primary context is the default execution context associated with a device in the Runtime. It can be obtained via a call to cudaDeviceGetExecutionCtx(). There is a one-to-one mapping between CUDA devices in the runtime and their primary contexts within a process.
-
-From the CUDA Runtime’s perspective, a device and its primary context are functionally synonymous.
-
-Unless explicitly overridden, either by making a different context current via the Driver API (e.g., ::cuCtxSetCurrent()) or by using an explicit execution context handle, the Runtime will implicitly initialize and use the primary context for API calls as needed.
-
-
-
-
-
-**Initialization and Tear-Down**
-
-
-
-Unless an explicit execution context is specified (see “Execution Context Management” for APIs), CUDA Runtime API calls operate on the CUDA Driver ::CUcontext which is current to the calling host thread. If no ::CUcontext is current to the calling thread when a CUDA Runtime API call which requires an active context is made, then the primary context (device execution context) for a device will be selected, made current to the calling thread, and initialized. The context will be initialized using the parameters specified by the CUDA Runtime API functions cudaSetDeviceFlags(), ::cudaD3D9SetDirect3DDevice(), ::cudaD3D10SetDirect3DDevice(), ::cudaD3D11SetDirect3DDevice(), cudaGLSetGLDevice(), and cudaVDPAUSetVDPAUDevice(). Note that these functions will fail with cudaErrorSetOnActiveProcess if they are called when the primary context for the specified device has already been initialized, except for cudaSetDeviceFlags() which will simply overwrite the previous settings.
-
-The function cudaInitDevice() ensures that the primary context is initialized for the requested device but does not make it current to the calling thread.
-
-The function cudaSetDevice() initializes the primary context for the specified device and makes it current to the calling thread by calling ::cuCtxSetCurrent().
-
-Primary contexts will remain active until they are explicitly deinitialized using cudaDeviceReset(). The function cudaDeviceReset() will deinitialize the primary context for the calling thread's current device immediately. The context will remain current to all of the threads that it was current to. The next CUDA Runtime API call on any thread which requires an active context will trigger the reinitialization of that device's primary context.
-
-Note that primary contexts are shared resources. It is recommended that the primary context not be reset except just before exit or to recover from an unspecified launch failure.
-
-
-
-
-
-**CUcontext Interoperability**
-
-
-
-Note that the use of multiple ::CUcontext s per device within a single process will substantially degrade performance and is strongly discouraged. Instead, it is highly recommended to either use execution contexts cudaExecutionContext_t or the implicit one-to-one device-to-primary context mapping for the process provided by the CUDA Runtime API.
-
-If a non-primary ::CUcontext created by the CUDA Driver API is current to a thread then the CUDA Runtime API calls to that thread will operate on that ::CUcontext, with some exceptions listed below. Interoperability between data types is discussed in the following sections.
-
-The function cudaDeviceEnablePeerAccess() and the rest of the peer access API may not be called when a non-primary CUcontext is current. To use the peer access APIs with a context created using the CUDA Driver API, it is necessary that the CUDA Driver API be used to access these features.
-
-All CUDA Runtime API state (e.g, global variables' addresses and values) travels with its underlying ::CUcontext. In particular, if a ::CUcontext is moved from one thread to another then all CUDA Runtime API state will move to that thread as well.
-
-Please note that attaching to legacy CUcontext (those with a version of 3010 as returned by ::cuCtxGetApiVersion()) is not possible. The CUDA Runtime will return cudaErrorIncompatibleDriverContext in such cases.
-
-
-
-
-
-**Interactions between CUstream and cudaStream_t**
-
-
-
-The types ::CUstream and cudaStream_t are identical and may be used interchangeably.
-
-
-
-
-
-**Interactions between CUevent and cudaEvent_t**
-
-
-
-The types ::CUevent and cudaEvent_t are identical and may be used interchangeably.
-
-
-
-
-
-**Interactions between CUarray and cudaArray_t**
-
-
-
-The types ::CUarray and struct ::cudaArray * represent the same data type and may be used interchangeably by casting the two types between each other.
-
-In order to use a ::CUarray in a CUDA Runtime API function which takes a struct ::cudaArray *, it is necessary to explicitly cast the ::CUarray to a struct ::cudaArray *.
-
-In order to use a struct ::cudaArray * in a CUDA Driver API function which takes a ::CUarray, it is necessary to explicitly cast the struct ::cudaArray * to a ::CUarray .
-
-
-
-
-
-**Interactions between CUgraphicsResource and cudaGraphicsResource_t**
-
-
-
-The types ::CUgraphicsResource and cudaGraphicsResource_t represent the same data type and may be used interchangeably by casting the two types between each other.
-
-In order to use a ::CUgraphicsResource in a CUDA Runtime API function which takes a cudaGraphicsResource_t, it is necessary to explicitly cast the ::CUgraphicsResource to a cudaGraphicsResource_t.
-
-In order to use a cudaGraphicsResource_t in a CUDA Driver API function which takes a ::CUgraphicsResource, it is necessary to explicitly cast the cudaGraphicsResource_t to a ::CUgraphicsResource.
-
-
-
-
-
-**Interactions between CUtexObject and cudaTextureObject_t**
-
-
-
-The types ::CUtexObject and cudaTextureObject_t represent the same data type and may be used interchangeably by casting the two types between each other.
-
-In order to use a ::CUtexObject in a CUDA Runtime API function which takes a cudaTextureObject_t, it is necessary to explicitly cast the ::CUtexObject to a cudaTextureObject_t.
-
-In order to use a cudaTextureObject_t in a CUDA Driver API function which takes a ::CUtexObject, it is necessary to explicitly cast the cudaTextureObject_t to a ::CUtexObject.
-
-
-
-
-
-**Interactions between CUsurfObject and cudaSurfaceObject_t**
-
-
-
-The types ::CUsurfObject and cudaSurfaceObject_t represent the same data type and may be used interchangeably by casting the two types between each other.
-
-In order to use a ::CUsurfObject in a CUDA Runtime API function which takes a cudaSurfaceObject_t, it is necessary to explicitly cast the ::CUsurfObject to a cudaSurfaceObject_t.
-
-In order to use a cudaSurfaceObject_t in a CUDA Driver API function which takes a ::CUsurfObject, it is necessary to explicitly cast the cudaSurfaceObject_t to a ::CUsurfObject.
-
-
-
-
-
-**Interactions between CUfunction and cudaFunction_t**
-
-
-
-The types ::CUfunction and cudaFunction_t represent the same data type and may be used interchangeably by casting the two types between each other.
-
-In order to use a cudaFunction_t in a CUDA Driver API function which takes a ::CUfunction, it is necessary to explicitly cast the cudaFunction_t to a ::CUfunction.
-
-
-
-
-
-**Interactions between CUkernel and cudaKernel_t**
-
-
-
-The types ::CUkernel and cudaKernel_t represent the same data type and may be used interchangeably by casting the two types between each other.
-
-In order to use a cudaKernel_t in a CUDA Driver API function which takes a ::CUkernel, it is necessary to explicitly cast the cudaKernel_t to a ::CUkernel.
-
-.. autofunction:: cuda.bindings.runtime.cudaGetKernel
-
 Data types used by CUDA Runtime
 -------------------------------
 
 
 
-.. autoclass:: cuda.bindings.runtime.cudaTextureDesc
-.. autoclass:: cuda.bindings.runtime.cudaEglPlaneDesc_st
-.. autoclass:: cuda.bindings.runtime.cudaEglFrame_st
 .. autoclass:: cuda.bindings.runtime.cudaChannelFormatDesc
 .. autoclass:: cuda.bindings.runtime.cudaArraySparseProperties
 .. autoclass:: cuda.bindings.runtime.cudaArrayMemoryRequirements
@@ -1178,794 +75,9 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaLaunchAttributeValue
 .. autoclass:: cuda.bindings.runtime.cudaLaunchAttribute_st
 .. autoclass:: cuda.bindings.runtime.cudaAsyncNotificationInfo
-.. autoclass:: cuda.bindings.runtime.cudaTextureAddressMode
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeWrap
-
-
-        Wrapping address mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeClamp
-
-
-        Clamp to edge address mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeMirror
-
-
-        Mirror address mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeBorder
-
-
-        Border address mode
-
-.. autoclass:: cuda.bindings.runtime.cudaTextureFilterMode
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModePoint
-
-
-        Point filter mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear
-
-
-        Linear filter mode
-
-.. autoclass:: cuda.bindings.runtime.cudaTextureReadMode
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeElementType
-
-
-        Read texture as specified element type
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeNormalizedFloat
-
-
-        Read texture as normalized float
-
-.. autoclass:: cuda.bindings.runtime.cudaSurfaceBoundaryMode
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeZero
-
-
-        Zero boundary mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp
-
-
-        Clamp boundary mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap
-
-
-        Trap boundary mode
-
-.. autoclass:: cuda.bindings.runtime.cudaSurfaceFormatMode
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeForced
-
-
-        Forced format mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeAuto
-
-
-        Auto format mode
-
-.. autoclass:: cuda.bindings.runtime.cudaEglFrameType
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglFrameType.cudaEglFrameTypeArray
-
-
-        Frame type CUDA array
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglFrameType.cudaEglFrameTypePitch
-
-
-        Frame type CUDA pointer
-
-.. autoclass:: cuda.bindings.runtime.cudaEglResourceLocationFlags
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglResourceLocationFlags.cudaEglResourceLocationSysmem
-
-
-        Resource location sysmem
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglResourceLocationFlags.cudaEglResourceLocationVidmem
-
-
-        Resource location vidmem
-
-.. autoclass:: cuda.bindings.runtime.cudaEglColorFormat
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420Planar
-
-
-        Y, U, V in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420SemiPlanar
-
-
-        Y, UV in two surfaces (UV as one surface) with VU byte ordering, width, height ratio same as YUV420Planar.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV422Planar
-
-
-        Y, U, V each in a separate surface, U/V width = 1/2 Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV422SemiPlanar
-
-
-        Y, UV in two surfaces with VU byte ordering, width, height ratio same as YUV422Planar.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatARGB
-
-
-        R/G/B/A four channels in one surface with BGRA byte ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatRGBA
-
-
-        R/G/B/A four channels in one surface with ABGR byte ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatL
-
-
-        single luminance channel in one surface.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatR
-
-
-        single color channel in one surface.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV444Planar
-
-
-        Y, U, V in three surfaces, each in a separate surface, U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV444SemiPlanar
-
-
-        Y, UV in two surfaces (UV as one surface) with VU byte ordering, width, height ratio same as YUV444Planar.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUYV422
-
-
-        Y, U, V in one surface, interleaved as UYVY in one channel.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY422
-
-
-        Y, U, V in one surface, interleaved as YUYV in one channel.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatABGR
-
-
-        R/G/B/A four channels in one surface with RGBA byte ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBGRA
-
-
-        R/G/B/A four channels in one surface with ARGB byte ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatA
-
-
-        Alpha color format - one channel in one surface.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatRG
-
-
-        R/G color format - two channels in one surface with GR byte ordering
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatAYUV
-
-
-        Y, U, V, A four channels in one surface, interleaved as VUYA.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU444SemiPlanar
-
-
-        Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU422SemiPlanar
-
-
-        Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420SemiPlanar
-
-
-        Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_444SemiPlanar
-
-
-        Y10, V10U10 in two surfaces (VU as one surface) with UV byte ordering, U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_420SemiPlanar
-
-
-        Y10, V10U10 in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_444SemiPlanar
-
-
-        Y12, V12U12 in two surfaces (VU as one surface) with UV byte ordering, U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_420SemiPlanar
-
-
-        Y12, V12U12 in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatVYUY_ER
-
-
-        Extended Range Y, U, V in one surface, interleaved as YVYU in one channel.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY_ER
-
-
-        Extended Range Y, U, V in one surface, interleaved as YUYV in one channel.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUYV_ER
-
-
-        Extended Range Y, U, V in one surface, interleaved as UYVY in one channel.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVYU_ER
-
-
-        Extended Range Y, U, V in one surface, interleaved as VYUY in one channel.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUVA_ER
-
-
-        Extended Range Y, U, V, A four channels in one surface, interleaved as AVUY.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatAYUV_ER
-
-
-        Extended Range Y, U, V, A four channels in one surface, interleaved as VUYA.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV444Planar_ER
-
-
-        Extended Range Y, U, V in three surfaces, U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV422Planar_ER
-
-
-        Extended Range Y, U, V in three surfaces, U/V width = 1/2 Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420Planar_ER
-
-
-        Extended Range Y, U, V in three surfaces, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV444SemiPlanar_ER
-
-
-        Extended Range Y, UV in two surfaces (UV as one surface) with VU byte ordering, U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV422SemiPlanar_ER
-
-
-        Extended Range Y, UV in two surfaces (UV as one surface) with VU byte ordering, U/V width = 1/2 Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420SemiPlanar_ER
-
-
-        Extended Range Y, UV in two surfaces (UV as one surface) with VU byte ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU444Planar_ER
-
-
-        Extended Range Y, V, U in three surfaces, U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU422Planar_ER
-
-
-        Extended Range Y, V, U in three surfaces, U/V width = 1/2 Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420Planar_ER
-
-
-        Extended Range Y, V, U in three surfaces, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU444SemiPlanar_ER
-
-
-        Extended Range Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU422SemiPlanar_ER
-
-
-        Extended Range Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420SemiPlanar_ER
-
-
-        Extended Range Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerRGGB
-
-
-        Bayer format - one channel in one surface with interleaved RGGB ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerBGGR
-
-
-        Bayer format - one channel in one surface with interleaved BGGR ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerGRBG
-
-
-        Bayer format - one channel in one surface with interleaved GRBG ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerGBRG
-
-
-        Bayer format - one channel in one surface with interleaved GBRG ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer10RGGB
-
-
-        Bayer10 format - one channel in one surface with interleaved RGGB ordering. Out of 16 bits, 10 bits used 6 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer10BGGR
-
-
-        Bayer10 format - one channel in one surface with interleaved BGGR ordering. Out of 16 bits, 10 bits used 6 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer10GRBG
-
-
-        Bayer10 format - one channel in one surface with interleaved GRBG ordering. Out of 16 bits, 10 bits used 6 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer10GBRG
-
-
-        Bayer10 format - one channel in one surface with interleaved GBRG ordering. Out of 16 bits, 10 bits used 6 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12RGGB
-
-
-        Bayer12 format - one channel in one surface with interleaved RGGB ordering. Out of 16 bits, 12 bits used 4 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12BGGR
-
-
-        Bayer12 format - one channel in one surface with interleaved BGGR ordering. Out of 16 bits, 12 bits used 4 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12GRBG
-
-
-        Bayer12 format - one channel in one surface with interleaved GRBG ordering. Out of 16 bits, 12 bits used 4 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12GBRG
-
-
-        Bayer12 format - one channel in one surface with interleaved GBRG ordering. Out of 16 bits, 12 bits used 4 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer14RGGB
-
-
-        Bayer14 format - one channel in one surface with interleaved RGGB ordering. Out of 16 bits, 14 bits used 2 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer14BGGR
-
-
-        Bayer14 format - one channel in one surface with interleaved BGGR ordering. Out of 16 bits, 14 bits used 2 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer14GRBG
-
-
-        Bayer14 format - one channel in one surface with interleaved GRBG ordering. Out of 16 bits, 14 bits used 2 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer14GBRG
-
-
-        Bayer14 format - one channel in one surface with interleaved GBRG ordering. Out of 16 bits, 14 bits used 2 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer20RGGB
-
-
-        Bayer20 format - one channel in one surface with interleaved RGGB ordering. Out of 32 bits, 20 bits used 12 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer20BGGR
-
-
-        Bayer20 format - one channel in one surface with interleaved BGGR ordering. Out of 32 bits, 20 bits used 12 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer20GRBG
-
-
-        Bayer20 format - one channel in one surface with interleaved GRBG ordering. Out of 32 bits, 20 bits used 12 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer20GBRG
-
-
-        Bayer20 format - one channel in one surface with interleaved GBRG ordering. Out of 32 bits, 20 bits used 12 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU444Planar
-
-
-        Y, V, U in three surfaces, each in a separate surface, U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU422Planar
-
-
-        Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420Planar
-
-
-        Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerIspRGGB
-
-
-        Nvidia proprietary Bayer ISP format - one channel in one surface with interleaved RGGB ordering and mapped to opaque integer datatype.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerIspBGGR
-
-
-        Nvidia proprietary Bayer ISP format - one channel in one surface with interleaved BGGR ordering and mapped to opaque integer datatype.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerIspGRBG
-
-
-        Nvidia proprietary Bayer ISP format - one channel in one surface with interleaved GRBG ordering and mapped to opaque integer datatype.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerIspGBRG
-
-
-        Nvidia proprietary Bayer ISP format - one channel in one surface with interleaved GBRG ordering and mapped to opaque integer datatype.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerBCCR
-
-
-        Bayer format - one channel in one surface with interleaved BCCR ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerRCCB
-
-
-        Bayer format - one channel in one surface with interleaved RCCB ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerCRBC
-
-
-        Bayer format - one channel in one surface with interleaved CRBC ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerCBRC
-
-
-        Bayer format - one channel in one surface with interleaved CBRC ordering.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer10CCCC
-
-
-        Bayer10 format - one channel in one surface with interleaved CCCC ordering. Out of 16 bits, 10 bits used 6 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12BCCR
-
-
-        Bayer12 format - one channel in one surface with interleaved BCCR ordering. Out of 16 bits, 12 bits used 4 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12RCCB
-
-
-        Bayer12 format - one channel in one surface with interleaved RCCB ordering. Out of 16 bits, 12 bits used 4 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12CRBC
-
-
-        Bayer12 format - one channel in one surface with interleaved CRBC ordering. Out of 16 bits, 12 bits used 4 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12CBRC
-
-
-        Bayer12 format - one channel in one surface with interleaved CBRC ordering. Out of 16 bits, 12 bits used 4 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12CCCC
-
-
-        Bayer12 format - one channel in one surface with interleaved CCCC ordering. Out of 16 bits, 12 bits used 4 bits No-op.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY
-
-
-        Color format for single Y plane.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420SemiPlanar_2020
-
-
-        Y, UV in two surfaces (UV as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420SemiPlanar_2020
-
-
-        Y, VU in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420Planar_2020
-
-
-        Y, U, V in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420Planar_2020
-
-
-        Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420SemiPlanar_709
-
-
-        Y, UV in two surfaces (UV as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420SemiPlanar_709
-
-
-        Y, VU in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420Planar_709
-
-
-        Y, U, V in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420Planar_709
-
-
-        Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_420SemiPlanar_709
-
-
-        Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_420SemiPlanar_2020
-
-
-        Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_422SemiPlanar_2020
-
-
-        Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_422SemiPlanar
-
-
-        Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_422SemiPlanar_709
-
-
-        Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY_ER
-
-
-        Extended Range Color format for single Y plane.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY_709_ER
-
-
-        Extended Range Color format for single Y plane.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10_ER
-
-
-        Extended Range Color format for single Y10 plane.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10_709_ER
-
-
-        Extended Range Color format for single Y10 plane.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12_ER
-
-
-        Extended Range Color format for single Y12 plane.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12_709_ER
-
-
-        Extended Range Color format for single Y12 plane.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUVA
-
-
-        Y, U, V, A four channels in one surface, interleaved as AVUY.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVYU
-
-
-        Y, U, V in one surface, interleaved as YVYU in one channel.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatVYUY
-
-
-        Y, U, V in one surface, interleaved as VYUY in one channel.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_420SemiPlanar_ER
-
-
-        Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER
-
-
-        Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_444SemiPlanar_ER
-
-
-        Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER
-
-
-        Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_420SemiPlanar_ER
-
-
-        Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER
-
-
-        Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_444SemiPlanar_ER
-
-
-        Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER
-
-
-        Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width = Y width, U/V height = Y height.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY709
-
-
-        Y, U, V in one surface, interleaved as UYVY in one channel.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY709_ER
-
-
-        Extended Range Y, U, V in one surface, interleaved as UYVY in one channel.
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY2020
-
-
-        Y, U, V in one surface, interleaved as UYVY in one channel.
-
+.. autoclass:: cuda.bindings.runtime.cudaTextureDesc
+.. autoclass:: cuda.bindings.runtime.cudaEglPlaneDesc_st
+.. autoclass:: cuda.bindings.runtime.cudaEglFrame_st
 .. autoclass:: cuda.bindings.runtime.cudaError_t
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaSuccess
@@ -5839,43 +3951,43 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.accessPolicyWindow`.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::accessPolicyWindow.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeCooperative
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.cooperative`.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::cooperative.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeSynchronizationPolicy
 
 
-        Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue.syncPolicy`.
+        Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue`::syncPolicy.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeClusterDimension
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::clusterDim.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeClusterSchedulingPolicyPreference
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.clusterSchedulingPolicyPreference`.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::clusterSchedulingPolicyPreference.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticStreamSerialization
 
 
-        Valid for launches. Setting :py:obj:`~.cudaLaunchAttributeValue.programmaticStreamSerializationAllowed` to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
+        Valid for launches. Setting :py:obj:`~.cudaLaunchAttributeValue`::programmaticStreamSerializationAllowed to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticEvent
 
 
-        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue.programmaticEvent` to record the event. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event programmatically in a future CUDA release. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling :py:obj:`~.cudaEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cudaEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. Note also this type of dependency allows, but does not guarantee, concurrent execution of tasks. 
+        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue`::programmaticEvent to record the event. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event programmatically in a future CUDA release. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling :py:obj:`~.cudaEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cudaEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. Note also this type of dependency allows, but does not guarantee, concurrent execution of tasks. 
 
          The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the :py:obj:`~.cudaEventDisableTiming` flag set).
 
@@ -5883,25 +3995,25 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePriority
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.priority`.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::priority.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomainMap
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.memSyncDomainMap`.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::memSyncDomainMap.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomain
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.memSyncDomain`.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::memSyncDomain.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePreferredClusterDimension
 
 
-        Valid for graph nodes and launches. Set :py:obj:`~.cudaLaunchAttributeValue.preferredClusterDim` to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with :py:obj:`~.cudaLaunchAttributeClusterDimension` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible. 
+        Valid for graph nodes and launches. Set :py:obj:`~.cudaLaunchAttributeValue`::preferredClusterDim to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with :py:obj:`~.cudaLaunchAttributeClusterDimension` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible. 
 
          Each type of cluster will have its enumeration / coordinate setup as if the grid consists solely of its type of cluster. For example, if the preferred substitute cluster dimensions double the regular cluster dimensions, there might be simultaneously a regular cluster indexed at (1,0,0), and a preferred cluster indexed at (1,0,0). In this example, the preferred substitute cluster (1,0,0) replaces regular clusters (2,0,0) and (3,0,0) and groups their blocks. 
 
@@ -5911,7 +4023,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent
 
 
-        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue.launchCompletionEvent` to record the event. 
+        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue`::launchCompletionEvent to record the event. 
 
          Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock. 
 
@@ -5935,7 +4047,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout
 
 
-        Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.cudaLaunchAttributeValue.sharedMemCarveout` to a percentage between 0-100 signals sets the shared memory carveout preference in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is only a hint, and the driver can choose a different configuration if required for the launch.
+        Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.cudaLaunchAttributeValue`::sharedMemCarveout to a percentage between 0-100 signals sets the shared memory carveout preference in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is only a hint, and the driver can choose a different configuration if required for the launch.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeNvlinkUtilCentricScheduling
@@ -5949,13 +4061,13 @@ Data types used by CUDA Runtime
 
          This attribute is a hint only. CUDA makes no functional or performance guarantee. Its applicability can be affected by many different factors, including driver version (i.e. CUDA doesn't guarantee the performance characteristics will be maintained between driver versions or a driver update could alter or regress previously observed perf characteristics.) It also doesn't guarantee a successful result, i.e. applying the attribute may not improve the performance of either the targeted kernel or the encapsulating application. 
 
-         Valid values for :py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0 (disabled) and 1 (enabled).
+         Valid values for :py:obj:`~.cudaLaunchAttributeValue`::nvlinkUtilCentricScheduling are 0 (disabled) and 1 (enabled).
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePortableClusterSizeMode
 
 
-        Valid for graph nodes, launches. This indicates whether the kernel launch is allowed to use a non-portable cluster size. Valid values for :py:obj:`~.cudaLaunchAttributeValue.portableClusterSizeMode` are values for :py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will return :py:obj:`~.cudaErrorInvalidValue`
+        Valid for graph nodes, launches. This indicates whether the kernel launch is allowed to use a non-portable cluster size. Valid values for :py:obj:`~.cudaLaunchAttributeValue`::portableClusterSizeMode are values for :py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will return :py:obj:`~.cudaErrorInvalidValue`
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeSharedMemoryMode
@@ -5990,11 +4102,794 @@ Data types used by CUDA Runtime
 
     .. autoattribute:: cuda.bindings.runtime.cudaLogLevel.cudaLogLevelWarning
 
-.. autoclass:: cuda.bindings.runtime.cudaTextureObject_t
-.. autoclass:: cuda.bindings.runtime.cudaSurfaceObject_t
-.. autoclass:: cuda.bindings.runtime.cudaEglPlaneDesc
-.. autoclass:: cuda.bindings.runtime.cudaEglFrame
-.. autoclass:: cuda.bindings.runtime.cudaEglStreamConnection
+.. autoclass:: cuda.bindings.runtime.cudaSurfaceBoundaryMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeZero
+
+
+        Zero boundary mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp
+
+
+        Clamp boundary mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap
+
+
+        Trap boundary mode
+
+.. autoclass:: cuda.bindings.runtime.cudaSurfaceFormatMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeForced
+
+
+        Forced format mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeAuto
+
+
+        Auto format mode
+
+.. autoclass:: cuda.bindings.runtime.cudaTextureAddressMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeWrap
+
+
+        Wrapping address mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeClamp
+
+
+        Clamp to edge address mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeMirror
+
+
+        Mirror address mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeBorder
+
+
+        Border address mode
+
+.. autoclass:: cuda.bindings.runtime.cudaTextureFilterMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModePoint
+
+
+        Point filter mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear
+
+
+        Linear filter mode
+
+.. autoclass:: cuda.bindings.runtime.cudaTextureReadMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeElementType
+
+
+        Read texture as specified element type
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeNormalizedFloat
+
+
+        Read texture as normalized float
+
+.. autoclass:: cuda.bindings.runtime.cudaEglFrameType
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglFrameType.cudaEglFrameTypeArray
+
+
+        Frame type CUDA array
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglFrameType.cudaEglFrameTypePitch
+
+
+        Frame type CUDA pointer
+
+.. autoclass:: cuda.bindings.runtime.cudaEglResourceLocationFlags
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglResourceLocationFlags.cudaEglResourceLocationSysmem
+
+
+        Resource location sysmem
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglResourceLocationFlags.cudaEglResourceLocationVidmem
+
+
+        Resource location vidmem
+
+.. autoclass:: cuda.bindings.runtime.cudaEglColorFormat
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420Planar
+
+
+        Y, U, V in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420SemiPlanar
+
+
+        Y, UV in two surfaces (UV as one surface) with VU byte ordering, width, height ratio same as YUV420Planar.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV422Planar
+
+
+        Y, U, V each in a separate surface, U/V width = 1/2 Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV422SemiPlanar
+
+
+        Y, UV in two surfaces with VU byte ordering, width, height ratio same as YUV422Planar.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatARGB
+
+
+        R/G/B/A four channels in one surface with BGRA byte ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatRGBA
+
+
+        R/G/B/A four channels in one surface with ABGR byte ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatL
+
+
+        single luminance channel in one surface.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatR
+
+
+        single color channel in one surface.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV444Planar
+
+
+        Y, U, V in three surfaces, each in a separate surface, U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV444SemiPlanar
+
+
+        Y, UV in two surfaces (UV as one surface) with VU byte ordering, width, height ratio same as YUV444Planar.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUYV422
+
+
+        Y, U, V in one surface, interleaved as UYVY in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY422
+
+
+        Y, U, V in one surface, interleaved as YUYV in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatABGR
+
+
+        R/G/B/A four channels in one surface with RGBA byte ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBGRA
+
+
+        R/G/B/A four channels in one surface with ARGB byte ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatA
+
+
+        Alpha color format - one channel in one surface.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatRG
+
+
+        R/G color format - two channels in one surface with GR byte ordering
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatAYUV
+
+
+        Y, U, V, A four channels in one surface, interleaved as VUYA.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU444SemiPlanar
+
+
+        Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU422SemiPlanar
+
+
+        Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420SemiPlanar
+
+
+        Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_444SemiPlanar
+
+
+        Y10, V10U10 in two surfaces (VU as one surface) with UV byte ordering, U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_420SemiPlanar
+
+
+        Y10, V10U10 in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_444SemiPlanar
+
+
+        Y12, V12U12 in two surfaces (VU as one surface) with UV byte ordering, U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_420SemiPlanar
+
+
+        Y12, V12U12 in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatVYUY_ER
+
+
+        Extended Range Y, U, V in one surface, interleaved as YVYU in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY_ER
+
+
+        Extended Range Y, U, V in one surface, interleaved as YUYV in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUYV_ER
+
+
+        Extended Range Y, U, V in one surface, interleaved as UYVY in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVYU_ER
+
+
+        Extended Range Y, U, V in one surface, interleaved as VYUY in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUVA_ER
+
+
+        Extended Range Y, U, V, A four channels in one surface, interleaved as AVUY.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatAYUV_ER
+
+
+        Extended Range Y, U, V, A four channels in one surface, interleaved as VUYA.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV444Planar_ER
+
+
+        Extended Range Y, U, V in three surfaces, U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV422Planar_ER
+
+
+        Extended Range Y, U, V in three surfaces, U/V width = 1/2 Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420Planar_ER
+
+
+        Extended Range Y, U, V in three surfaces, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV444SemiPlanar_ER
+
+
+        Extended Range Y, UV in two surfaces (UV as one surface) with VU byte ordering, U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV422SemiPlanar_ER
+
+
+        Extended Range Y, UV in two surfaces (UV as one surface) with VU byte ordering, U/V width = 1/2 Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420SemiPlanar_ER
+
+
+        Extended Range Y, UV in two surfaces (UV as one surface) with VU byte ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU444Planar_ER
+
+
+        Extended Range Y, V, U in three surfaces, U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU422Planar_ER
+
+
+        Extended Range Y, V, U in three surfaces, U/V width = 1/2 Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420Planar_ER
+
+
+        Extended Range Y, V, U in three surfaces, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU444SemiPlanar_ER
+
+
+        Extended Range Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU422SemiPlanar_ER
+
+
+        Extended Range Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420SemiPlanar_ER
+
+
+        Extended Range Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerRGGB
+
+
+        Bayer format - one channel in one surface with interleaved RGGB ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerBGGR
+
+
+        Bayer format - one channel in one surface with interleaved BGGR ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerGRBG
+
+
+        Bayer format - one channel in one surface with interleaved GRBG ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerGBRG
+
+
+        Bayer format - one channel in one surface with interleaved GBRG ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer10RGGB
+
+
+        Bayer10 format - one channel in one surface with interleaved RGGB ordering. Out of 16 bits, 10 bits used 6 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer10BGGR
+
+
+        Bayer10 format - one channel in one surface with interleaved BGGR ordering. Out of 16 bits, 10 bits used 6 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer10GRBG
+
+
+        Bayer10 format - one channel in one surface with interleaved GRBG ordering. Out of 16 bits, 10 bits used 6 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer10GBRG
+
+
+        Bayer10 format - one channel in one surface with interleaved GBRG ordering. Out of 16 bits, 10 bits used 6 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12RGGB
+
+
+        Bayer12 format - one channel in one surface with interleaved RGGB ordering. Out of 16 bits, 12 bits used 4 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12BGGR
+
+
+        Bayer12 format - one channel in one surface with interleaved BGGR ordering. Out of 16 bits, 12 bits used 4 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12GRBG
+
+
+        Bayer12 format - one channel in one surface with interleaved GRBG ordering. Out of 16 bits, 12 bits used 4 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12GBRG
+
+
+        Bayer12 format - one channel in one surface with interleaved GBRG ordering. Out of 16 bits, 12 bits used 4 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer14RGGB
+
+
+        Bayer14 format - one channel in one surface with interleaved RGGB ordering. Out of 16 bits, 14 bits used 2 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer14BGGR
+
+
+        Bayer14 format - one channel in one surface with interleaved BGGR ordering. Out of 16 bits, 14 bits used 2 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer14GRBG
+
+
+        Bayer14 format - one channel in one surface with interleaved GRBG ordering. Out of 16 bits, 14 bits used 2 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer14GBRG
+
+
+        Bayer14 format - one channel in one surface with interleaved GBRG ordering. Out of 16 bits, 14 bits used 2 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer20RGGB
+
+
+        Bayer20 format - one channel in one surface with interleaved RGGB ordering. Out of 32 bits, 20 bits used 12 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer20BGGR
+
+
+        Bayer20 format - one channel in one surface with interleaved BGGR ordering. Out of 32 bits, 20 bits used 12 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer20GRBG
+
+
+        Bayer20 format - one channel in one surface with interleaved GRBG ordering. Out of 32 bits, 20 bits used 12 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer20GBRG
+
+
+        Bayer20 format - one channel in one surface with interleaved GBRG ordering. Out of 32 bits, 20 bits used 12 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU444Planar
+
+
+        Y, V, U in three surfaces, each in a separate surface, U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU422Planar
+
+
+        Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420Planar
+
+
+        Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerIspRGGB
+
+
+        Nvidia proprietary Bayer ISP format - one channel in one surface with interleaved RGGB ordering and mapped to opaque integer datatype.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerIspBGGR
+
+
+        Nvidia proprietary Bayer ISP format - one channel in one surface with interleaved BGGR ordering and mapped to opaque integer datatype.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerIspGRBG
+
+
+        Nvidia proprietary Bayer ISP format - one channel in one surface with interleaved GRBG ordering and mapped to opaque integer datatype.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerIspGBRG
+
+
+        Nvidia proprietary Bayer ISP format - one channel in one surface with interleaved GBRG ordering and mapped to opaque integer datatype.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerBCCR
+
+
+        Bayer format - one channel in one surface with interleaved BCCR ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerRCCB
+
+
+        Bayer format - one channel in one surface with interleaved RCCB ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerCRBC
+
+
+        Bayer format - one channel in one surface with interleaved CRBC ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerCBRC
+
+
+        Bayer format - one channel in one surface with interleaved CBRC ordering.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer10CCCC
+
+
+        Bayer10 format - one channel in one surface with interleaved CCCC ordering. Out of 16 bits, 10 bits used 6 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12BCCR
+
+
+        Bayer12 format - one channel in one surface with interleaved BCCR ordering. Out of 16 bits, 12 bits used 4 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12RCCB
+
+
+        Bayer12 format - one channel in one surface with interleaved RCCB ordering. Out of 16 bits, 12 bits used 4 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12CRBC
+
+
+        Bayer12 format - one channel in one surface with interleaved CRBC ordering. Out of 16 bits, 12 bits used 4 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12CBRC
+
+
+        Bayer12 format - one channel in one surface with interleaved CBRC ordering. Out of 16 bits, 12 bits used 4 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12CCCC
+
+
+        Bayer12 format - one channel in one surface with interleaved CCCC ordering. Out of 16 bits, 12 bits used 4 bits No-op.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY
+
+
+        Color format for single Y plane.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420SemiPlanar_2020
+
+
+        Y, UV in two surfaces (UV as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420SemiPlanar_2020
+
+
+        Y, VU in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420Planar_2020
+
+
+        Y, U, V in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420Planar_2020
+
+
+        Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420SemiPlanar_709
+
+
+        Y, UV in two surfaces (UV as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420SemiPlanar_709
+
+
+        Y, VU in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUV420Planar_709
+
+
+        Y, U, V in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVU420Planar_709
+
+
+        Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_420SemiPlanar_709
+
+
+        Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_420SemiPlanar_2020
+
+
+        Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_422SemiPlanar_2020
+
+
+        Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_422SemiPlanar
+
+
+        Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_422SemiPlanar_709
+
+
+        Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY_ER
+
+
+        Extended Range Color format for single Y plane.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY_709_ER
+
+
+        Extended Range Color format for single Y plane.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10_ER
+
+
+        Extended Range Color format for single Y10 plane.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10_709_ER
+
+
+        Extended Range Color format for single Y10 plane.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12_ER
+
+
+        Extended Range Color format for single Y12 plane.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12_709_ER
+
+
+        Extended Range Color format for single Y12 plane.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYUVA
+
+
+        Y, U, V, A four channels in one surface, interleaved as AVUY.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatYVYU
+
+
+        Y, U, V in one surface, interleaved as YVYU in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatVYUY
+
+
+        Y, U, V in one surface, interleaved as VYUY in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_420SemiPlanar_ER
+
+
+        Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER
+
+
+        Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_444SemiPlanar_ER
+
+
+        Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER
+
+
+        Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_420SemiPlanar_ER
+
+
+        Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER
+
+
+        Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V height = 1/2 Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_444SemiPlanar_ER
+
+
+        Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER
+
+
+        Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width = Y width, U/V height = Y height.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY709
+
+
+        Y, U, V in one surface, interleaved as UYVY in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY709_ER
+
+
+        Extended Range Y, U, V in one surface, interleaved as UYVY in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY2020
+
+
+        Y, U, V in one surface, interleaved as UYVY in one channel.
+
 .. autoclass:: cuda.bindings.runtime.cudaDevResourceDesc_t
 .. autoclass:: cuda.bindings.runtime.cudaExecutionContext_t
 .. autoclass:: cuda.bindings.runtime.cudaArray_t
@@ -6035,24 +4930,11 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaAsyncCallback
 .. autoclass:: cuda.bindings.runtime.cudaLogsCallbackHandle
 .. autoclass:: cuda.bindings.runtime.cudaLogIterator
-.. autoattribute:: cuda.bindings.runtime.cudaTextureType1D
-.. autoattribute:: cuda.bindings.runtime.cudaTextureType2D
-.. autoattribute:: cuda.bindings.runtime.cudaTextureType3D
-.. autoattribute:: cuda.bindings.runtime.cudaTextureTypeCubemap
-.. autoattribute:: cuda.bindings.runtime.cudaTextureType1DLayered
-.. autoattribute:: cuda.bindings.runtime.cudaTextureType2DLayered
-.. autoattribute:: cuda.bindings.runtime.cudaTextureTypeCubemapLayered
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType1D
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType2D
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType3D
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceTypeCubemap
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType1DLayered
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType2DLayered
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered
-.. autoattribute:: cuda.bindings.runtime.CUDA_EGL_MAX_PLANES
-
-    Maximum number of planes per frame
-
+.. autoclass:: cuda.bindings.runtime.cudaSurfaceObject_t
+.. autoclass:: cuda.bindings.runtime.cudaTextureObject_t
+.. autoclass:: cuda.bindings.runtime.cudaEglPlaneDesc
+.. autoclass:: cuda.bindings.runtime.cudaEglFrame
+.. autoclass:: cuda.bindings.runtime.cudaEglStreamConnection
 .. autoattribute:: cuda.bindings.runtime.cudaHostAllocDefault
 
     Default page-locked allocation flag
@@ -6334,3 +5216,1085 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeDeviceUpdatableKernelNode
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttrValue
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType1D
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType2D
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType3D
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceTypeCubemap
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType1DLayered
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType2DLayered
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered
+.. autoattribute:: cuda.bindings.runtime.cudaTextureType1D
+.. autoattribute:: cuda.bindings.runtime.cudaTextureType2D
+.. autoattribute:: cuda.bindings.runtime.cudaTextureType3D
+.. autoattribute:: cuda.bindings.runtime.cudaTextureTypeCubemap
+.. autoattribute:: cuda.bindings.runtime.cudaTextureType1DLayered
+.. autoattribute:: cuda.bindings.runtime.cudaTextureType2DLayered
+.. autoattribute:: cuda.bindings.runtime.cudaTextureTypeCubemapLayered
+.. autoattribute:: cuda.bindings.runtime.CUDA_EGL_MAX_PLANES
+
+    Maximum number of planes per frame
+
+
+Device Management
+-----------------
+
+impl_private
+
+
+
+
+
+
+
+This section describes the device management functions of the CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaDeviceReset
+.. autofunction:: cuda.bindings.runtime.cudaDeviceSynchronize
+.. autofunction:: cuda.bindings.runtime.cudaDeviceSetLimit
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetLimit
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetCacheConfig
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetStreamPriorityRange
+.. autofunction:: cuda.bindings.runtime.cudaDeviceSetCacheConfig
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetByPCIBusId
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetPCIBusId
+.. autofunction:: cuda.bindings.runtime.cudaIpcGetEventHandle
+.. autofunction:: cuda.bindings.runtime.cudaIpcOpenEventHandle
+.. autofunction:: cuda.bindings.runtime.cudaIpcGetMemHandle
+.. autofunction:: cuda.bindings.runtime.cudaIpcOpenMemHandle
+.. autofunction:: cuda.bindings.runtime.cudaIpcCloseMemHandle
+.. autofunction:: cuda.bindings.runtime.cudaDeviceRegisterAsyncNotification
+.. autofunction:: cuda.bindings.runtime.cudaDeviceUnregisterAsyncNotification
+.. autofunction:: cuda.bindings.runtime.cudaGetDeviceCount
+.. autofunction:: cuda.bindings.runtime.cudaGetDeviceProperties
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetAttribute
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetHostAtomicCapabilities
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetDefaultMemPool
+.. autofunction:: cuda.bindings.runtime.cudaDeviceSetMemPool
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetMemPool
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetNvSciSyncAttributes
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetP2PAttribute
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetP2PAtomicCapabilities
+.. autofunction:: cuda.bindings.runtime.cudaChooseDevice
+.. autofunction:: cuda.bindings.runtime.cudaInitDevice
+.. autofunction:: cuda.bindings.runtime.cudaSetDevice
+.. autofunction:: cuda.bindings.runtime.cudaGetDevice
+.. autofunction:: cuda.bindings.runtime.cudaSetDeviceFlags
+.. autofunction:: cuda.bindings.runtime.cudaGetDeviceFlags
+
+Error Handling
+--------------
+
+This section describes the error handling functions of the CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaGetLastError
+.. autofunction:: cuda.bindings.runtime.cudaPeekAtLastError
+.. autofunction:: cuda.bindings.runtime.cudaGetErrorName
+.. autofunction:: cuda.bindings.runtime.cudaGetErrorString
+
+Stream Management
+-----------------
+
+This section describes the stream management functions of the CUDA runtime application programming interface.
+
+.. autoclass:: cuda.bindings.runtime.cudaStreamCallback_t
+.. autofunction:: cuda.bindings.runtime.cudaStreamCreate
+.. autofunction:: cuda.bindings.runtime.cudaStreamCreateWithFlags
+.. autofunction:: cuda.bindings.runtime.cudaStreamCreateWithPriority
+.. autofunction:: cuda.bindings.runtime.cudaStreamGetPriority
+.. autofunction:: cuda.bindings.runtime.cudaStreamGetFlags
+.. autofunction:: cuda.bindings.runtime.cudaStreamGetId
+.. autofunction:: cuda.bindings.runtime.cudaStreamGetDevice
+.. autofunction:: cuda.bindings.runtime.cudaCtxResetPersistingL2Cache
+.. autofunction:: cuda.bindings.runtime.cudaStreamCopyAttributes
+.. autofunction:: cuda.bindings.runtime.cudaStreamGetAttribute
+.. autofunction:: cuda.bindings.runtime.cudaStreamSetAttribute
+.. autofunction:: cuda.bindings.runtime.cudaStreamDestroy
+.. autofunction:: cuda.bindings.runtime.cudaStreamWaitEvent
+.. autofunction:: cuda.bindings.runtime.cudaStreamAddCallback
+.. autofunction:: cuda.bindings.runtime.cudaStreamSynchronize
+.. autofunction:: cuda.bindings.runtime.cudaStreamQuery
+.. autofunction:: cuda.bindings.runtime.cudaStreamAttachMemAsync
+.. autofunction:: cuda.bindings.runtime.cudaStreamBeginCapture
+.. autofunction:: cuda.bindings.runtime.cudaStreamBeginCaptureToGraph
+.. autofunction:: cuda.bindings.runtime.cudaThreadExchangeStreamCaptureMode
+.. autofunction:: cuda.bindings.runtime.cudaStreamEndCapture
+.. autofunction:: cuda.bindings.runtime.cudaStreamIsCapturing
+.. autofunction:: cuda.bindings.runtime.cudaStreamGetCaptureInfo
+.. autofunction:: cuda.bindings.runtime.cudaStreamUpdateCaptureDependencies
+
+Event Management
+----------------
+
+This section describes the event management functions of the CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaEventCreate
+.. autofunction:: cuda.bindings.runtime.cudaEventCreateWithFlags
+.. autofunction:: cuda.bindings.runtime.cudaEventRecord
+.. autofunction:: cuda.bindings.runtime.cudaEventQuery
+.. autofunction:: cuda.bindings.runtime.cudaEventSynchronize
+.. autofunction:: cuda.bindings.runtime.cudaEventDestroy
+.. autofunction:: cuda.bindings.runtime.cudaEventElapsedTime
+
+External Resource Interoperability
+----------------------------------
+
+This section describes the external resource interoperability functions of the CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaImportExternalMemory
+.. autofunction:: cuda.bindings.runtime.cudaExternalMemoryGetMappedBuffer
+.. autofunction:: cuda.bindings.runtime.cudaExternalMemoryGetMappedMipmappedArray
+.. autofunction:: cuda.bindings.runtime.cudaDestroyExternalMemory
+.. autofunction:: cuda.bindings.runtime.cudaImportExternalSemaphore
+.. autofunction:: cuda.bindings.runtime.cudaSignalExternalSemaphoresAsync
+.. autofunction:: cuda.bindings.runtime.cudaWaitExternalSemaphoresAsync
+.. autofunction:: cuda.bindings.runtime.cudaDestroyExternalSemaphore
+
+Execution Control
+-----------------
+
+This section describes the execution control functions of the CUDA runtime application programming interface.
+
+
+
+Some functions have overloaded C++ API template versions documented separately in the C++ API Routines module.
+
+.. autofunction:: cuda.bindings.runtime.cudaFuncSetCacheConfig
+.. autofunction:: cuda.bindings.runtime.cudaFuncGetAttributes
+.. autofunction:: cuda.bindings.runtime.cudaFuncSetAttribute
+.. autofunction:: cuda.bindings.runtime.cudaFuncGetParamCount
+.. autofunction:: cuda.bindings.runtime.cudaLaunchHostFunc
+.. autofunction:: cuda.bindings.runtime.cudaLaunchHostFunc_v2
+
+Occupancy
+---------
+
+This section describes the occupancy calculation functions of the CUDA runtime application programming interface.
+
+
+
+Besides the occupancy calculator functions (cudaOccupancyMaxActiveBlocksPerMultiprocessor and cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags), there are also C++ only occupancy-based launch configuration functions documented in C++ API Routines module.
+
+
+
+See cudaOccupancyMaxPotentialBlockSize (C++ API), cudaOccupancyMaxPotentialBlockSize (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMem (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMem (C++ API) cudaOccupancyAvailableDynamicSMemPerBlock (C++ API),
+
+.. autofunction:: cuda.bindings.runtime.cudaOccupancyMaxActiveBlocksPerMultiprocessor
+.. autofunction:: cuda.bindings.runtime.cudaOccupancyAvailableDynamicSMemPerBlock
+.. autofunction:: cuda.bindings.runtime.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
+
+Memory Management
+-----------------
+
+This section describes the memory management functions of the CUDA runtime application programming interface.
+
+
+
+Some functions have overloaded C++ API template versions documented separately in the C++ API Routines module.
+
+.. autofunction:: cuda.bindings.runtime.cudaMallocManaged
+.. autofunction:: cuda.bindings.runtime.cudaMalloc
+.. autofunction:: cuda.bindings.runtime.cudaMallocHost
+.. autofunction:: cuda.bindings.runtime.cudaMallocPitch
+.. autofunction:: cuda.bindings.runtime.cudaMallocArray
+.. autofunction:: cuda.bindings.runtime.cudaFree
+.. autofunction:: cuda.bindings.runtime.cudaFreeHost
+.. autofunction:: cuda.bindings.runtime.cudaFreeArray
+.. autofunction:: cuda.bindings.runtime.cudaFreeMipmappedArray
+.. autofunction:: cuda.bindings.runtime.cudaHostAlloc
+.. autofunction:: cuda.bindings.runtime.cudaHostRegister
+.. autofunction:: cuda.bindings.runtime.cudaHostUnregister
+.. autofunction:: cuda.bindings.runtime.cudaHostGetDevicePointer
+.. autofunction:: cuda.bindings.runtime.cudaHostGetFlags
+.. autofunction:: cuda.bindings.runtime.cudaMalloc3D
+.. autofunction:: cuda.bindings.runtime.cudaMalloc3DArray
+.. autofunction:: cuda.bindings.runtime.cudaMallocMipmappedArray
+.. autofunction:: cuda.bindings.runtime.cudaGetMipmappedArrayLevel
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy3D
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DPeer
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DPeerAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemGetInfo
+.. autofunction:: cuda.bindings.runtime.cudaArrayGetInfo
+.. autofunction:: cuda.bindings.runtime.cudaArrayGetPlane
+.. autofunction:: cuda.bindings.runtime.cudaArrayGetMemoryRequirements
+.. autofunction:: cuda.bindings.runtime.cudaMipmappedArrayGetMemoryRequirements
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy
+.. autofunction:: cuda.bindings.runtime.cudaMemcpyPeer
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy2D
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DToArray
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DFromArray
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DArrayToArray
+.. autofunction:: cuda.bindings.runtime.cudaMemcpyAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpyPeerAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpyBatchAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DBatchAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpyWithAttributesAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DWithAttributesAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DToArrayAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy2DFromArrayAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemset
+.. autofunction:: cuda.bindings.runtime.cudaMemset2D
+.. autofunction:: cuda.bindings.runtime.cudaMemset3D
+.. autofunction:: cuda.bindings.runtime.cudaMemsetAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemset2DAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemset3DAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemPrefetchAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemPrefetchBatchAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemDiscardBatchAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemDiscardAndPrefetchBatchAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemAdvise
+.. autofunction:: cuda.bindings.runtime.cudaMemRangeGetAttribute
+.. autofunction:: cuda.bindings.runtime.cudaMemRangeGetAttributes
+.. autofunction:: cuda.bindings.runtime.make_cudaPitchedPtr
+.. autofunction:: cuda.bindings.runtime.make_cudaPos
+.. autofunction:: cuda.bindings.runtime.make_cudaExtent
+
+Stream Ordered Memory Allocator
+-------------------------------
+
+**overview**
+
+
+
+The asynchronous allocator allows the user to allocate and free in stream order. All asynchronous accesses of the allocation must happen between the stream executions of the allocation and the free. If the memory is accessed outside of the promised stream order, a use before allocation / use after free error will cause undefined behavior.
+
+The allocator is free to reallocate the memory as long as it can guarantee that compliant memory accesses will not overlap temporally. The allocator may refer to internal stream ordering as well as inter-stream dependencies (such as CUDA events and null stream dependencies) when establishing the temporal guarantee. The allocator may also insert inter-stream dependencies to establish the temporal guarantee.
+
+
+
+
+
+**Supported Platforms**
+
+
+
+Whether or not a device supports the integrated stream ordered memory allocator may be queried by calling cudaDeviceGetAttribute() with the device attribute cudaDevAttrMemoryPoolsSupported.
+
+.. autofunction:: cuda.bindings.runtime.cudaMallocAsync
+.. autofunction:: cuda.bindings.runtime.cudaFreeAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemPoolTrimTo
+.. autofunction:: cuda.bindings.runtime.cudaMemPoolSetAttribute
+.. autofunction:: cuda.bindings.runtime.cudaMemPoolGetAttribute
+.. autofunction:: cuda.bindings.runtime.cudaMemPoolSetAccess
+.. autofunction:: cuda.bindings.runtime.cudaMemPoolGetAccess
+.. autofunction:: cuda.bindings.runtime.cudaMemPoolCreate
+.. autofunction:: cuda.bindings.runtime.cudaMemPoolDestroy
+.. autofunction:: cuda.bindings.runtime.cudaMemGetDefaultMemPool
+.. autofunction:: cuda.bindings.runtime.cudaMemGetMemPool
+.. autofunction:: cuda.bindings.runtime.cudaMemSetMemPool
+.. autofunction:: cuda.bindings.runtime.cudaMallocFromPoolAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemPoolExportToShareableHandle
+.. autofunction:: cuda.bindings.runtime.cudaMemPoolImportFromShareableHandle
+.. autofunction:: cuda.bindings.runtime.cudaMemPoolExportPointer
+.. autofunction:: cuda.bindings.runtime.cudaMemPoolImportPointer
+
+Unified Addressing
+------------------
+
+This section describes the unified addressing functions of the CUDA runtime application programming interface.
+
+
+
+
+
+**Overview**
+
+
+
+CUDA devices can share a unified address space with the host. 
+
+ For these devices there is no distinction between a device pointer and a host pointer -- the same pointer value may be used to access memory from the host program and from a kernel running on the device (with exceptions enumerated below).
+
+
+
+
+
+**Supported Platforms**
+
+
+
+Whether or not a device supports unified addressing may be queried by calling cudaGetDeviceProperties() with the device property cudaDeviceProp::unifiedAddressing.
+
+Unified addressing is automatically enabled in 64-bit processes .
+
+
+
+
+
+**Looking Up Information from Pointer Values**
+
+
+
+It is possible to look up information about the memory which backs a pointer value. For instance, one may want to know if a pointer points to host or device memory. As another example, in the case of device memory, one may want to know on which CUDA device the memory resides. These properties may be queried using the function cudaPointerGetAttributes()
+
+Since pointers are unique, it is not necessary to specify information about the pointers specified to cudaMemcpy() and other copy functions. 
+
+ The copy direction cudaMemcpyDefault may be used to specify that the CUDA runtime should infer the location of the pointer from its value.
+
+
+
+
+
+**Automatic Mapping of Host Allocated Host Memory**
+
+
+
+All host memory allocated through all devices using cudaMallocHost() and cudaHostAlloc() is always directly accessible from all devices that support unified addressing. This is the case regardless of whether or not the flags cudaHostAllocPortable and cudaHostAllocMapped are specified.
+
+The pointer value through which allocated host memory may be accessed in kernels on all devices that support unified addressing is the same as the pointer value through which that memory is accessed on the host. It is not necessary to call cudaHostGetDevicePointer() to get the device pointer for these allocations. 
+
+
+
+Note that this is not the case for memory allocated using the flag cudaHostAllocWriteCombined, as discussed below.
+
+
+
+
+
+**Direct Access of Peer Memory**
+
+
+
+Upon enabling direct access from a device that supports unified addressing to another peer device that supports unified addressing using cudaDeviceEnablePeerAccess() all memory allocated in the peer device using cudaMalloc() and cudaMallocPitch() will immediately be accessible by the current device. The device pointer value through which any peer's memory may be accessed in the current device is the same pointer value through which that memory may be accessed from the peer device.
+
+
+
+
+
+**Exceptions, Disjoint Addressing**
+
+
+
+Not all memory may be accessed on devices through the same pointer value through which they are accessed on the host. These exceptions are host memory registered using cudaHostRegister() and host memory allocated using the flag cudaHostAllocWriteCombined. For these exceptions, there exists a distinct host and device address for the memory. The device address is guaranteed to not overlap any valid host pointer range and is guaranteed to have the same value across all devices that support unified addressing. 
+
+
+
+This device address may be queried using cudaHostGetDevicePointer() when a device using unified addressing is current. Either the host or the unified device pointer value may be used to refer to this memory in cudaMemcpy() and similar functions using the cudaMemcpyDefault memory direction.
+
+.. autofunction:: cuda.bindings.runtime.cudaPointerGetAttributes
+
+Peer Device Memory Access
+-------------------------
+
+This section describes the peer device memory access functions of the CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaDeviceCanAccessPeer
+.. autofunction:: cuda.bindings.runtime.cudaDeviceEnablePeerAccess
+.. autofunction:: cuda.bindings.runtime.cudaDeviceDisablePeerAccess
+
+OpenGL Interoperability
+-----------------------
+
+impl_private
+
+
+
+This section describes the OpenGL interoperability functions of the CUDA runtime application programming interface. Note that mapping of OpenGL resources is performed with the graphics API agnostic, resource mapping interface described in Graphics Interopability.
+
+.. autoclass:: cuda.bindings.runtime.cudaGLDeviceList
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGLDeviceList.cudaGLDeviceListAll
+
+
+        The CUDA devices for all GPUs used by the current OpenGL context
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGLDeviceList.cudaGLDeviceListCurrentFrame
+
+
+        The CUDA devices for the GPUs used by the current OpenGL context in its currently rendering frame
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGLDeviceList.cudaGLDeviceListNextFrame
+
+
+        The CUDA devices for the GPUs to be used by the current OpenGL context in the next frame
+
+.. autofunction:: cuda.bindings.runtime.cudaGLGetDevices
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsGLRegisterImage
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsGLRegisterBuffer
+
+Direct3D 9 Interoperability
+---------------------------
+
+
+
+
+Direct3D 10 Interoperability
+----------------------------
+
+
+
+
+Direct3D 11 Interoperability
+----------------------------
+
+
+
+
+VDPAU Interoperability
+----------------------
+
+This section describes the VDPAU interoperability functions of the CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaVDPAUGetDevice
+.. autofunction:: cuda.bindings.runtime.cudaVDPAUSetVDPAUDevice
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsVDPAURegisterVideoSurface
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsVDPAURegisterOutputSurface
+
+EGL Interoperability
+--------------------
+
+This section describes the EGL interoperability functions of the CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsEGLRegisterImage
+.. autofunction:: cuda.bindings.runtime.cudaEGLStreamConsumerConnect
+.. autofunction:: cuda.bindings.runtime.cudaEGLStreamConsumerConnectWithFlags
+.. autofunction:: cuda.bindings.runtime.cudaEGLStreamConsumerDisconnect
+.. autofunction:: cuda.bindings.runtime.cudaEGLStreamConsumerAcquireFrame
+.. autofunction:: cuda.bindings.runtime.cudaEGLStreamConsumerReleaseFrame
+.. autofunction:: cuda.bindings.runtime.cudaEGLStreamProducerConnect
+.. autofunction:: cuda.bindings.runtime.cudaEGLStreamProducerDisconnect
+.. autofunction:: cuda.bindings.runtime.cudaEGLStreamProducerPresentFrame
+.. autofunction:: cuda.bindings.runtime.cudaEGLStreamProducerReturnFrame
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsResourceGetMappedEglFrame
+.. autofunction:: cuda.bindings.runtime.cudaEventCreateFromEGLSync
+
+Graphics Interoperability
+-------------------------
+
+This section describes the graphics interoperability functions of the CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsUnregisterResource
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsResourceSetMapFlags
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsMapResources
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsUnmapResources
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsResourceGetMappedPointer
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsSubResourceGetMappedArray
+.. autofunction:: cuda.bindings.runtime.cudaGraphicsResourceGetMappedMipmappedArray
+
+Texture Object Management
+-------------------------
+
+This section describes the low level texture object management functions of the CUDA runtime application programming interface. The texture object API is only supported on devices of compute capability 3.0 or higher.
+
+.. autofunction:: cuda.bindings.runtime.cudaGetChannelDesc
+.. autofunction:: cuda.bindings.runtime.cudaCreateChannelDesc
+.. autofunction:: cuda.bindings.runtime.cudaCreateTextureObject
+.. autofunction:: cuda.bindings.runtime.cudaDestroyTextureObject
+.. autofunction:: cuda.bindings.runtime.cudaGetTextureObjectResourceDesc
+.. autofunction:: cuda.bindings.runtime.cudaGetTextureObjectTextureDesc
+.. autofunction:: cuda.bindings.runtime.cudaGetTextureObjectResourceViewDesc
+
+Surface Object Management
+-------------------------
+
+This section describes the low level texture object management functions of the CUDA runtime application programming interface. The surface object API is only supported on devices of compute capability 3.0 or higher.
+
+.. autofunction:: cuda.bindings.runtime.cudaCreateSurfaceObject
+.. autofunction:: cuda.bindings.runtime.cudaDestroySurfaceObject
+.. autofunction:: cuda.bindings.runtime.cudaGetSurfaceObjectResourceDesc
+
+Version Management
+------------------
+
+
+
+.. autofunction:: cuda.bindings.runtime.cudaDriverGetVersion
+.. autofunction:: cuda.bindings.runtime.cudaRuntimeGetVersion
+.. autofunction:: cuda.bindings.runtime.getLocalRuntimeVersion
+
+Error Log Management Functions
+------------------------------
+
+This section describes the error log management functions of the CUDA runtime application programming interface. The Error Log Management interface will operate on both the CUDA Driver and CUDA Runtime.
+
+.. autoclass:: cuda.bindings.runtime.cudaLogsCallback_t
+.. autofunction:: cuda.bindings.runtime.cudaLogsRegisterCallback
+.. autofunction:: cuda.bindings.runtime.cudaLogsUnregisterCallback
+.. autofunction:: cuda.bindings.runtime.cudaLogsCurrent
+.. autofunction:: cuda.bindings.runtime.cudaLogsDumpToFile
+.. autofunction:: cuda.bindings.runtime.cudaLogsDumpToMemory
+
+Graph Management
+----------------
+
+This section describes the graph management functions of CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaGraphCreate
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddKernelNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeGetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeCopyAttributes
+.. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeGetAttribute
+.. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeSetAttribute
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddMemcpyNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphMemcpyNodeGetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphMemcpyNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddMemsetNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphMemsetNodeGetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphMemsetNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddHostNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphHostNodeGetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphHostNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddChildGraphNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphChildGraphNodeGetGraph
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddEmptyNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphClone
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeFindInClone
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetType
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetContainingGraph
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetLocalId
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetToolsId
+.. autofunction:: cuda.bindings.runtime.cudaGraphGetId
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecGetId
+.. autofunction:: cuda.bindings.runtime.cudaGraphGetNodes
+.. autofunction:: cuda.bindings.runtime.cudaGraphGetRootNodes
+.. autofunction:: cuda.bindings.runtime.cudaGraphGetEdges
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetDependencies
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetDependentNodes
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddDependencies
+.. autofunction:: cuda.bindings.runtime.cudaGraphRemoveDependencies
+.. autofunction:: cuda.bindings.runtime.cudaGraphDestroyNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphInstantiate
+.. autofunction:: cuda.bindings.runtime.cudaGraphInstantiateWithParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecGetFlags
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecKernelNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecMemcpyNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecMemsetNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecHostNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecUpdate
+.. autofunction:: cuda.bindings.runtime.cudaGraphLaunch
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecDestroy
+.. autofunction:: cuda.bindings.runtime.cudaGraphDestroy
+.. autofunction:: cuda.bindings.runtime.cudaGraphDebugDotPrint
+.. autofunction:: cuda.bindings.runtime.cudaUserObjectCreate
+.. autofunction:: cuda.bindings.runtime.cudaUserObjectRetain
+.. autofunction:: cuda.bindings.runtime.cudaUserObjectRelease
+.. autofunction:: cuda.bindings.runtime.cudaGraphRetainUserObject
+.. autofunction:: cuda.bindings.runtime.cudaGraphReleaseUserObject
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate
+.. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate_v2
+
+Driver Entry Point Access
+-------------------------
+
+This section describes the driver entry point access functions of CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaGetDriverEntryPoint
+.. autofunction:: cuda.bindings.runtime.cudaGetDriverEntryPointByVersion
+
+Library Management
+------------------
+
+This section describes the library management functions of the CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaLibraryLoadData
+.. autofunction:: cuda.bindings.runtime.cudaLibraryLoadFromFile
+.. autofunction:: cuda.bindings.runtime.cudaLibraryUnload
+.. autofunction:: cuda.bindings.runtime.cudaLibraryGetKernel
+.. autofunction:: cuda.bindings.runtime.cudaLibraryGetGlobal
+.. autofunction:: cuda.bindings.runtime.cudaLibraryGetManaged
+.. autofunction:: cuda.bindings.runtime.cudaLibraryGetUnifiedFunction
+.. autofunction:: cuda.bindings.runtime.cudaLibraryGetKernelCount
+.. autofunction:: cuda.bindings.runtime.cudaLibraryEnumerateKernels
+.. autofunction:: cuda.bindings.runtime.cudaKernelSetAttributeForDevice
+
+Execution Context Management
+----------------------------
+
+This section describes the execution context management functions of the CUDA runtime application programming interface.
+
+
+
+
+
+**Overview**
+
+
+
+A CUDA execution context cudaExecutionContext_t serves as an abstraction for the contexts exposed by the CUDA Runtime, specifically green contexts and the primary context, and provides a unified programming model and API interface for contexts in the Runtime.
+
+There are two primary ways today to obtain an execution context:
+
+- cudaDeviceGetExecutionCtx: Returns the execution context that corresponds to the primary context of the specified device.
+
+
+
+
+
+
+
+- cudaGreenCtxCreate: Creates a green context with the specified resources and returns an execution context.
+
+
+
+
+
+
+
+
+
+Once you have an execution context at hand, you can perform context-level operations via the CUDA Runtime APIs. This includes:
+
+- Submitting work via streams created with cudaExecutionCtxStreamCreate.
+
+
+
+
+
+
+
+- Querying context via cudaExecutionCtxGetDevResource, cudaExecutionCtxGetDevice, etc.
+
+
+
+
+
+
+
+- Synchronizing and tracking context-level operations via cudaExecutionCtxSynchronize, cudaExecutionCtxRecordEvent, cudaExecutionCtxWaitEvent.
+
+
+
+
+
+
+
+- Performing context-level graph node operations via cudaGraphAddNode by specifying the context in ``nodeParams``\ . Note that individual node creation APIs, such as cudaGraphAddKernelNode, do not support specifying an execution context.
+
+
+
+
+
+
+
+
+
+Note: The above APIs take in an explicit cudaExecutionContext_t handle and ignores the context that is current to the calling thread. This enables explicit context-based programming without relying on thread-local state. If no context is specified, the APIs return cudaErrorInvalidValue.
+
+Note: Developers should treat cudaExecutionContext_t as an opaque handle and avoid assumptions about its underlying representation. The CUDA Runtime does not provide a way to convert this handle into driver-level contexts, such as ::CUcontext or ::CUgreenCtx.
+
+
+
+
+
+**Lifetime of CUDA Resources**
+
+
+
+The lifetime of CUDA resources (memory, streams, events, modules, etc) is not tied to the lifetime of the execution context. Their lifetime is tied to the device against which they were created. As such, usage of cudaDeviceReset() should be avoided to persist the lifetime of these resources.
+
+
+
+
+
+**APIs Operating on Current Context**
+
+
+
+The CUDA runtime does not provide a way to set an execution context as current. Since, the majority of the runtime APIs operate on the current context, we document below how the developer can work with these APIs.
+
+
+
+**APIs Operating on Device Resources**
+
+
+
+To work with these APIs (for example, cudaMalloc, cudaEventCreate, etc), developers are expected to call cudaSetDevice() prior to invoking them. Doing so does not impact functional correctness as these APIs operate on resources that are device-wide. If users have a context handle at hand, they can get the device handle from the context handle using cudaExecutionCtxGetDevice().
+
+
+
+
+
+**APIs Operating on Context Resources**
+
+
+
+These APIs (for example, cudaLaunchKernel, cudaMemcpyAsync, cudaMemsetAsync, etc) take in a stream and resources are inferred from the context bound to the stream at creation. See cudaExecutionCtxStreamCreate for more details. Developers are expected to use the stream-based APIs for context awareness and always pass an explicit stream handle to ensure context-awareness, and avoid reliance on the default NULL stream, which implicitly binds to the current context.
+
+
+
+
+
+
+
+**Green Contexts**
+
+
+
+Green contexts are a lightweight alternative to traditional contexts, that can be used to select a subset of device resources. This allows the developer to, for example, select SMs from distinct spatial partitions of the GPU and target them via CUDA stream operations, kernel launches, etc.
+
+Here are the broad initial steps to follow to get started:
+
+- (1) Start with an initial set of resources. For SM resources, they can be fetched via cudaDeviceGetDevResource. In case of workqueues, a new configuration can be used or an existing one queried via the cudaDeviceGetDevResource API.
+
+
+
+
+
+
+
+- (2) Modify these resources by either partitioning them (in case of SMs) or changing the configuration (in case of workqueues). To partition SMs, we recommend cudaDevSmResourceSplit. Changing the workqueue configuration can be done directly in place.
+
+
+
+
+
+
+
+- (3) Finalize the specification of resources by creating a descriptor via cudaDevResourceGenerateDesc.
+
+
+
+
+
+
+
+- (4) Create a green context via cudaGreenCtxCreate. This provisions the resource, such as workqueues (until this step it was only a configuration specification).
+
+
+
+
+
+
+
+- (5) Create a stream via cudaExecutionCtxStreamCreate, and use it throughout your application.
+
+
+
+
+
+
+
+
+
+SMs
+
+There are two possible partition operations - with cudaDevSmResourceSplitByCount the partitions created have to follow default SM count granularity requirements, so it will often be rounded up and aligned to a default value. On the other hand, cudaDevSmResourceSplit is explicit and allows for creation of non-equal groups. It will not round up automatically - instead it is the developer’s responsibility to query and set the correct values. These requirements can be queried with cudaDeviceGetDevResource to determine the alignment granularity (sm.smCoscheduledAlignment). A general guideline on the default values for each compute architecture:
+
+- On Compute Architecture 7.X, 8.X, and all Tegra SoC:
+
+
+
+
+
+  - The smCount must be a multiple of 2.
+
+
+
+
+
+
+
+  - The alignment (and default value of coscheduledSmCount) is 2.
+
+
+
+
+
+
+
+
+
+- On Compute Architecture 9.0+:
+
+
+
+
+
+  - The smCount must be a multiple of 8, or coscheduledSmCount if provided.
+
+
+
+
+
+
+
+  - The alignment (and default value of coscheduledSmCount) is 8. While the maximum value for coscheduled SM count is 32 on all Compute Architecture 9.0+, it's recommended to follow cluster size requirements. The portable cluster size and the max cluster size should be used in order to benefit from this co-scheduling.
+
+
+
+
+
+
+
+
+
+
+
+Workqueues
+
+For ``cudaDevResourceTypeWorkqueueConfig``\ , the resource specifies the expected maximum number of concurrent stream-ordered workloads via the ``wqConcurrencyLimit``\  field. The ``sharingScope``\  field determines how workqueue resources are shared:
+
+- ``cudaDevWorkqueueConfigScopeDeviceCtx:``\  Use all shared workqueue resources across all contexts (default driver behavior).
+
+
+
+
+
+
+
+- ``cudaDevWorkqueueConfigScopeGreenCtxBalanced:``\  When possible, use non-overlapping workqueue resources with other balanced green contexts.
+
+
+
+
+
+
+
+
+
+The maximum concurrency limit depends on ::CUDA_DEVICE_MAX_CONNECTIONS and can be queried from the device via cudaDeviceGetDevResource. Configurations may exceed this concurrency limit, but the driver will not guarantee that work submission remains non-overlapping.
+
+For ``cudaDevResourceTypeWorkqueue``\ , the resource represents a pre-existing workqueue that can be retrieved from existing execution contexts. This allows reusing workqueue resources across different execution contexts.
+
+On Concurrency
+
+Even if the green contexts have disjoint SM partitions, it is not guaranteed that the kernels launched in them will run concurrently or have forward progress guarantees. This is due to other resources that could cause a dependency. Using a combination of disjoint SMs and ``cudaDevWorkqueueConfigScopeGreenCtxBalanced``\  workqueue configurations can provide the best chance of avoiding interference. More resources will be added in the future to provide stronger guarantees.
+
+Additionally, there are two known scenarios, where its possible for the workload to run on more SMs than was provisioned (but never less).
+
+
+
+- On Volta+ MPS: When ``CUDA_MPS_ACTIVE_THREAD_PERCENTAGE``\  is used, the set of SMs that are used for running kernels can be scaled up to the value of SMs used for the MPS client.
+
+
+
+
+
+
+
+- On Compute Architecture 9.x: When a module with dynamic parallelism (CDP) is loaded, all future kernels running under green contexts may use and share an additional set of 2 SMs.
+
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetDevResource
+.. autofunction:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount
+.. autofunction:: cuda.bindings.runtime.cudaDevSmResourceSplit
+.. autofunction:: cuda.bindings.runtime.cudaDevResourceGenerateDesc
+.. autofunction:: cuda.bindings.runtime.cudaGreenCtxCreate
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxDestroy
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetDevResource
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetDevice
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetId
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxStreamCreate
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxSynchronize
+.. autofunction:: cuda.bindings.runtime.cudaStreamGetDevResource
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxRecordEvent
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxWaitEvent
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetExecutionCtx
+
+C++ API Routines
+----------------
+C++-style interface built on top of CUDA runtime API.
+impl_private
+
+
+
+
+
+
+
+This section describes the C++ high level API functions of the CUDA runtime application programming interface. To use these functions, your application needs to be compiled with the ``nvcc``\  compiler.
+
+
+Interactions with the CUDA Driver API
+-------------------------------------
+
+This section describes the interactions between the CUDA Driver API and the CUDA Runtime API
+
+
+
+
+
+**Execution Contexts**
+
+
+
+The CUDA Runtime provides cudaExecutionContext_t as an abstraction over driver-level contexts—specifically, green contexts and the primary context.
+
+There are two primary ways to obtain an execution context:
+
+- cudaDeviceGetExecutionCtx: Returns the execution context that corresponds to the primary context of the specified device.
+
+
+
+
+
+
+
+- cudaGreenCtxCreate: Creates a green context with the specified resources and returns an execution context.
+
+
+
+
+
+
+
+
+
+Note: Developers should treat cudaExecutionContext_t as an opaque handle and avoid assumptions about its underlying representation. The CUDA Runtime does not provide a way to convert this handle into a ::CUcontext or ::CUgreenCtx.
+
+
+
+
+
+**Primary Context (aka Device Execution Context)**
+
+
+
+The primary context is the default execution context associated with a device in the Runtime. It can be obtained via a call to cudaDeviceGetExecutionCtx(). There is a one-to-one mapping between CUDA devices in the runtime and their primary contexts within a process.
+
+From the CUDA Runtime’s perspective, a device and its primary context are functionally synonymous.
+
+Unless explicitly overridden, either by making a different context current via the Driver API (e.g., ::cuCtxSetCurrent()) or by using an explicit execution context handle, the Runtime will implicitly initialize and use the primary context for API calls as needed.
+
+
+
+
+
+**Initialization and Tear-Down**
+
+
+
+Unless an explicit execution context is specified (see “Execution Context Management” for APIs), CUDA Runtime API calls operate on the CUDA Driver ::CUcontext which is current to the calling host thread. If no ::CUcontext is current to the calling thread when a CUDA Runtime API call which requires an active context is made, then the primary context (device execution context) for a device will be selected, made current to the calling thread, and initialized. The context will be initialized using the parameters specified by the CUDA Runtime API functions cudaSetDeviceFlags(), ::cudaD3D9SetDirect3DDevice(), ::cudaD3D10SetDirect3DDevice(), ::cudaD3D11SetDirect3DDevice(), cudaGLSetGLDevice(), and cudaVDPAUSetVDPAUDevice(). Note that these functions will fail with cudaErrorSetOnActiveProcess if they are called when the primary context for the specified device has already been initialized, except for cudaSetDeviceFlags() which will simply overwrite the previous settings.
+
+The function cudaInitDevice() ensures that the primary context is initialized for the requested device but does not make it current to the calling thread.
+
+The function cudaSetDevice() initializes the primary context for the specified device and makes it current to the calling thread by calling ::cuCtxSetCurrent().
+
+Primary contexts will remain active until they are explicitly deinitialized using cudaDeviceReset(). The function cudaDeviceReset() will deinitialize the primary context for the calling thread's current device immediately. The context will remain current to all of the threads that it was current to. The next CUDA Runtime API call on any thread which requires an active context will trigger the reinitialization of that device's primary context.
+
+Note that primary contexts are shared resources. It is recommended that the primary context not be reset except just before exit or to recover from an unspecified launch failure.
+
+
+
+
+
+**CUcontext Interoperability**
+
+
+
+Note that the use of multiple ::CUcontext s per device within a single process will substantially degrade performance and is strongly discouraged. Instead, it is highly recommended to either use execution contexts cudaExecutionContext_t or the implicit one-to-one device-to-primary context mapping for the process provided by the CUDA Runtime API.
+
+If a non-primary ::CUcontext created by the CUDA Driver API is current to a thread then the CUDA Runtime API calls to that thread will operate on that ::CUcontext, with some exceptions listed below. Interoperability between data types is discussed in the following sections.
+
+The function cudaDeviceEnablePeerAccess() and the rest of the peer access API may not be called when a non-primary CUcontext is current. To use the peer access APIs with a context created using the CUDA Driver API, it is necessary that the CUDA Driver API be used to access these features.
+
+All CUDA Runtime API state (e.g, global variables' addresses and values) travels with its underlying ::CUcontext. In particular, if a ::CUcontext is moved from one thread to another then all CUDA Runtime API state will move to that thread as well.
+
+Please note that attaching to legacy CUcontext (those with a version of 3010 as returned by ::cuCtxGetApiVersion()) is not possible. The CUDA Runtime will return cudaErrorIncompatibleDriverContext in such cases.
+
+
+
+
+
+**Interactions between CUstream and cudaStream_t**
+
+
+
+The types ::CUstream and cudaStream_t are identical and may be used interchangeably.
+
+
+
+
+
+**Interactions between CUevent and cudaEvent_t**
+
+
+
+The types ::CUevent and cudaEvent_t are identical and may be used interchangeably.
+
+
+
+
+
+**Interactions between CUarray and cudaArray_t**
+
+
+
+The types ::CUarray and struct ::cudaArray * represent the same data type and may be used interchangeably by casting the two types between each other.
+
+In order to use a ::CUarray in a CUDA Runtime API function which takes a struct ::cudaArray *, it is necessary to explicitly cast the ::CUarray to a struct ::cudaArray *.
+
+In order to use a struct ::cudaArray * in a CUDA Driver API function which takes a ::CUarray, it is necessary to explicitly cast the struct ::cudaArray * to a ::CUarray .
+
+
+
+
+
+**Interactions between CUgraphicsResource and cudaGraphicsResource_t**
+
+
+
+The types ::CUgraphicsResource and cudaGraphicsResource_t represent the same data type and may be used interchangeably by casting the two types between each other.
+
+In order to use a ::CUgraphicsResource in a CUDA Runtime API function which takes a cudaGraphicsResource_t, it is necessary to explicitly cast the ::CUgraphicsResource to a cudaGraphicsResource_t.
+
+In order to use a cudaGraphicsResource_t in a CUDA Driver API function which takes a ::CUgraphicsResource, it is necessary to explicitly cast the cudaGraphicsResource_t to a ::CUgraphicsResource.
+
+
+
+
+
+**Interactions between CUtexObject and cudaTextureObject_t**
+
+
+
+The types ::CUtexObject and cudaTextureObject_t represent the same data type and may be used interchangeably by casting the two types between each other.
+
+In order to use a ::CUtexObject in a CUDA Runtime API function which takes a cudaTextureObject_t, it is necessary to explicitly cast the ::CUtexObject to a cudaTextureObject_t.
+
+In order to use a cudaTextureObject_t in a CUDA Driver API function which takes a ::CUtexObject, it is necessary to explicitly cast the cudaTextureObject_t to a ::CUtexObject.
+
+
+
+
+
+**Interactions between CUsurfObject and cudaSurfaceObject_t**
+
+
+
+The types ::CUsurfObject and cudaSurfaceObject_t represent the same data type and may be used interchangeably by casting the two types between each other.
+
+In order to use a ::CUsurfObject in a CUDA Runtime API function which takes a cudaSurfaceObject_t, it is necessary to explicitly cast the ::CUsurfObject to a cudaSurfaceObject_t.
+
+In order to use a cudaSurfaceObject_t in a CUDA Driver API function which takes a ::CUsurfObject, it is necessary to explicitly cast the cudaSurfaceObject_t to a ::CUsurfObject.
+
+
+
+
+
+**Interactions between CUfunction and cudaFunction_t**
+
+
+
+The types ::CUfunction and cudaFunction_t represent the same data type and may be used interchangeably by casting the two types between each other.
+
+In order to use a cudaFunction_t in a CUDA Driver API function which takes a ::CUfunction, it is necessary to explicitly cast the cudaFunction_t to a ::CUfunction.
+
+
+
+
+
+**Interactions between CUkernel and cudaKernel_t**
+
+
+
+The types ::CUkernel and cudaKernel_t represent the same data type and may be used interchangeably by casting the two types between each other.
+
+In order to use a cudaKernel_t in a CUDA Driver API function which takes a ::CUkernel, it is necessary to explicitly cast the cudaKernel_t to a ::CUkernel.
+
+.. autofunction:: cuda.bindings.runtime.cudaGetKernel
+
+Profiler Control
+----------------
+
+This section describes the profiler control functions of the CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaProfilerStart
+.. autofunction:: cuda.bindings.runtime.cudaProfilerStop

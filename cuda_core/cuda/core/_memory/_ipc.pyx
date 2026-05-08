@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -7,16 +7,18 @@ cimport cpython
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
 from cuda.core._memory._memory_pool cimport _MemPool
-from cuda.core._stream cimport Stream
+from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
+    create_fd_handle,
     create_mempool_handle_ipc,
     deviceptr_import_ipc,
     get_last_error,
     as_cu,
+    as_intptr,
+    as_py,
 )
 
-from cuda.core._stream cimport default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
@@ -110,31 +112,24 @@ cdef class IPCAllocationHandle:
     def _init(cls, handle: int, uuid):  # no-cython-lint
         cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
         assert handle >= 0
-        self._handle = handle
+        self._h_fd = create_fd_handle(handle)
         self._uuid = uuid
         return self
 
     cpdef close(self):
         """Close the handle."""
-        if self._handle >= 0:
-            try:
-                os.close(self._handle)
-            finally:
-                self._handle = -1
-
-    def __dealloc__(self):
-        self.close()
+        self._h_fd.reset()
 
     def __int__(self) -> int:
-        if self._handle < 0:
+        if not self._h_fd or as_intptr(self._h_fd) < 0:
             raise ValueError(
                 f"Cannot convert IPCAllocationHandle to int: the handle (id={id(self)}) is closed."
             )
-        return self._handle
+        return as_py(self._h_fd)
 
     @property
     def handle(self) -> int:
-        return self._handle
+        return as_py(self._h_fd)
 
     @property
     def uuid(self) -> uuid.UUID:
@@ -175,10 +170,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
     """Import a buffer that was exported from another process."""
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
-    if stream is None:
-        # Note: match this behavior to _MemPool.allocate()
-        stream = default_stream()
-    cdef Stream s = <Stream>stream
+    cdef Stream s = Stream_accept(stream)
     cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
         mr._h_pool,
         ipc_descriptor.payload_ptr(),

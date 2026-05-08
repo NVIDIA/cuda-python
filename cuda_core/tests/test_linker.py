@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
+
+import inspect
 
 import pytest
 
@@ -92,7 +94,7 @@ def test_linker_init(compile_ptx_functions, options):
     linker = Linker(*compile_ptx_functions, options=options)
     object_code = linker.link("cubin")
     assert isinstance(object_code, ObjectCode)
-    assert linker.backend == ("driver" if is_culink_backend else "nvJitLink")
+    assert Linker.which_backend() == ("driver" if is_culink_backend else "nvJitLink")
 
 
 def test_linker_init_invalid_arch(compile_ptx_functions):
@@ -221,3 +223,60 @@ def test_linker_logs_cached_after_link(compile_ptx_functions):
     # Calling again should return the same observable values.
     assert linker.get_error_log() == err_log
     assert linker.get_info_log() == info_log
+
+
+def test_linker_handle(compile_ptx_functions):
+    """Linker.handle returns a non-null handle object."""
+    options = LinkerOptions(arch=ARCH)
+    linker = Linker(*compile_ptx_functions, options=options)
+    handle = linker.handle
+    assert handle is not None
+    assert int(handle) != 0
+
+
+@pytest.mark.skipif(is_culink_backend, reason="nvjitlink options only tested with nvjitlink backend")
+def test_linker_options_nvjitlink_options_as_str():
+    """_prepare_nvjitlink_options(as_bytes=False) returns plain strings."""
+    opts = LinkerOptions(arch=ARCH, debug=True, lineinfo=True)
+    options = opts._prepare_nvjitlink_options(as_bytes=False)
+    assert isinstance(options, list)
+    assert all(isinstance(o, str) for o in options)
+    assert f"-arch={ARCH}" in options
+    assert "-g" in options
+    assert "-lineinfo" in options
+
+
+class TestWhichBackendClassmethod:
+    def test_which_backend_returns_nvjitlink(self, monkeypatch):
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", True)
+        assert Linker.which_backend() == "nvJitLink"
+
+    def test_which_backend_returns_driver(self, monkeypatch):
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", False)
+        assert Linker.which_backend() == "driver"
+
+    def test_which_backend_invokes_probe_when_not_memoised(self, monkeypatch):
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
+        called = []
+
+        def fake_decide():
+            called.append(True)
+            return False  # False = not falling back to driver = nvJitLink
+
+        monkeypatch.setattr(_linker, "_decide_nvjitlink_or_driver", fake_decide)
+        result = Linker.which_backend()
+        assert result == "nvJitLink"
+        assert called, "_decide_nvjitlink_or_driver was not called"
+
+    def test_which_backend_is_classmethod(self):
+        attr = inspect.getattr_static(Linker, "which_backend")
+        assert isinstance(attr, classmethod)
+
+    def test_which_backend_is_not_property(self):
+        """which_backend is a classmethod, not a property.
+
+        This is an intentional breaking change from the prior ``backend`` property API.
+        All call sites must use parens: ``Linker.which_backend()``.
+        """
+        attr = inspect.getattr_static(Linker, "which_backend")
+        assert not isinstance(attr, property)

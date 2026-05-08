@@ -22,6 +22,10 @@
 #
 # ################################################################################
 
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core>0.6.0", "cupy-cuda13x"]
+# ///
+
 import os
 import sys
 
@@ -33,9 +37,9 @@ from cuda.core import (
     LaunchConfig,
     Program,
     ProgramOptions,
-    StridedMemoryView,
     launch,
 )
+from cuda.core.utils import StridedMemoryView
 from cuda.pathfinder import get_cuda_path_or_home
 
 # ---------------------------------------------------------------------------

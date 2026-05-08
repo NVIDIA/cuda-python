@@ -59,6 +59,12 @@ void clear_last_error() noexcept;
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
+extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
+extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
+extern decltype(&cuDevResourceGenerateDesc) p_cuDevResourceGenerateDesc;
+
+extern decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate;
 
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
@@ -142,6 +148,7 @@ extern NvJitLinkDestroyFn p_nvJitLinkDestroy;
 // ============================================================================
 
 using ContextHandle = std::shared_ptr<const CUcontext>;
+using GreenCtxHandle = std::shared_ptr<const CUgreenCtx>;
 using StreamHandle = std::shared_ptr<const CUstream>;
 using EventHandle = std::shared_ptr<const CUevent>;
 using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
@@ -154,6 +161,7 @@ using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
 using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
 using NvJitLinkHandle = std::shared_ptr<const NvJitLinkValue>;
 using CuLinkHandle = std::shared_ptr<const CUlinkState>;
+using FileDescriptorHandle = std::shared_ptr<const int>;
 
 
 // ============================================================================
@@ -162,6 +170,21 @@ using CuLinkHandle = std::shared_ptr<const CUlinkState>;
 
 // Function to create a non-owning context handle (references existing context).
 ContextHandle create_context_handle_ref(CUcontext ctx);
+
+// Create a context handle for the CUcontext view of the provided green context.
+// The returned ContextHandle keeps the green context alive, but the CUcontext
+// view is non-owning and is not destroyed independently.
+ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx);
+
+// Return the green context dependency associated with a ContextHandle, if any.
+GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept;
+
+// Create an owning green context handle from a list of device resources.
+GreenCtxHandle create_green_ctx_handle(CUdevResource* resources, unsigned int nbResources,
+                                       CUdevice dev, unsigned int flags);
+
+// Create a non-owning green context handle.
+GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx ctx);
 
 // Get handle to the primary context for a device (with thread-local caching)
 // Returns empty handle on error (caller must check)
@@ -192,6 +215,9 @@ StreamHandle create_stream_handle_ref(CUstream stream);
 // The owner is responsible for keeping the stream's context alive.
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
 
+// Return the context dependency associated with a stream handle, if any.
+ContextHandle get_stream_context(const StreamHandle& h) noexcept;
+
 // Get non-owning handle to the legacy default stream (CU_STREAM_LEGACY)
 // Note: Legacy stream has no specific context dependency.
 StreamHandle get_legacy_stream();
@@ -210,7 +236,7 @@ StreamHandle get_per_thread_stream();
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
 EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
-                                bool timing_disabled, bool busy_waited,
+                                bool timing_enabled, bool is_blocking_sync,
                                 bool ipc_enabled, int device_id);
 
 // Create an owning event handle without context dependency.
@@ -224,17 +250,17 @@ EventHandle create_event_handle_noctx(unsigned int flags);
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
 EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
-                                    bool busy_waited);
+                                    bool is_blocking_sync);
 
 // Create a non-owning event handle (references existing event).
 // Use for events that are managed by the CUDA graph or another owner.
 // The event will NOT be destroyed when the handle is released.
-// Metadata defaults to unknown (timing_disabled=true, device_id=-1).
+// Metadata defaults to unknown (timing_enabled=false, device_id=-1).
 EventHandle create_event_handle_ref(CUevent event);
 
 // Event metadata accessors (read from EventBox via pointer arithmetic)
-bool get_event_timing_disabled(const EventHandle& h) noexcept;
-bool get_event_busy_waited(const EventHandle& h) noexcept;
+bool get_event_timing_enabled(const EventHandle& h) noexcept;
+bool get_event_is_blocking_sync(const EventHandle& h) noexcept;
 bool get_event_ipc_enabled(const EventHandle& h) noexcept;
 int get_event_device_id(const EventHandle& h) noexcept;
 ContextHandle get_event_context(const EventHandle& h) noexcept;
@@ -414,6 +440,9 @@ GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_
 // Extract the owning graph handle from a node handle.
 GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept;
 
+// Zero the CUgraphNode resource inside the handle, marking it invalid.
+void invalidate_graph_node(const GraphNodeHandle& h) noexcept;
+
 // ============================================================================
 // Graphics resource handle functions
 // ============================================================================
@@ -478,11 +507,26 @@ CuLinkHandle create_culink_handle(CUlinkState state);
 CuLinkHandle create_culink_handle_ref(CUlinkState state);
 
 // ============================================================================
+// File descriptor handle functions
+// ============================================================================
+
+// Create an owning file descriptor handle.
+// When the last reference is released, POSIX close() is called.
+FileDescriptorHandle create_fd_handle(int fd);
+
+// Create a non-owning file descriptor handle (caller manages the fd).
+FileDescriptorHandle create_fd_handle_ref(int fd);
+
+// ============================================================================
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
 // as_cu() - extract the raw CUDA handle
 inline CUcontext as_cu(const ContextHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+inline CUgreenCtx as_cu(const GreenCtxHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
@@ -544,6 +588,10 @@ inline std::intptr_t as_intptr(const ContextHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
+inline std::intptr_t as_intptr(const GreenCtxHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
 inline std::intptr_t as_intptr(const StreamHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
@@ -596,6 +644,10 @@ inline std::intptr_t as_intptr(const CuLinkHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
+inline std::intptr_t as_intptr(const FileDescriptorHandle& h) noexcept {
+    return h ? static_cast<std::intptr_t>(*h) : -1;
+}
+
 // as_py() - convert handle to Python wrapper object (returns new reference)
 #if PY_VERSION_HEX < 0x030D0000
 extern "C" int _Py_IsFinalizing(void);
@@ -628,6 +680,10 @@ inline PyObject* make_py(const char* module_name, const char* class_name, std::i
 
 inline PyObject* as_py(const ContextHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUcontext", as_intptr(h));
+}
+
+inline PyObject* as_py(const GreenCtxHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgreenCtx", as_intptr(h));
 }
 
 inline PyObject* as_py(const StreamHandle& h) noexcept {
@@ -685,6 +741,10 @@ inline PyObject* as_py(const CuLinkHandle& h) noexcept {
 
 inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUgraphicsResource", as_intptr(h));
+}
+
+inline PyObject* as_py(const FileDescriptorHandle& h) noexcept {
+    return PyLong_FromSsize_t(as_intptr(h));
 }
 
 }  // namespace cuda_core

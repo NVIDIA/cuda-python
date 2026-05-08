@@ -53,9 +53,10 @@
 # effect popular in the demoscene). The window title shows the current FPS.
 # Close the window or press Escape to exit.
 #
-# Requirements
-# ============
-#   pip install pyglet
+
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core>0.6.0", "pyglet"]
+# ///
 
 import ctypes
 import sys

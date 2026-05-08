@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -21,8 +21,9 @@ def test_event_init_disabled():
         cuda.core._event.Event()  # Ensure back door is locked.
 
 
+@pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 def test_timing_success(init_cuda):
-    options = EventOptions(enable_timing=True)
+    options = EventOptions(timing_enabled=True)
     device = Device()
     stream = device.create_stream()
 
@@ -47,20 +48,20 @@ def test_timing_success(init_cuda):
     assert elapsed_time_ms > 10
 
 
-def test_is_sync_busy_waited(init_cuda):
-    options = EventOptions(enable_timing=False, busy_waited_sync=True)
+def test_is_blocking_sync(init_cuda):
+    options = EventOptions(timing_enabled=False, blocking_sync=True)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.is_sync_busy_waited is True
+    assert event.is_blocking_sync is True
 
-    options = EventOptions(enable_timing=False)
+    options = EventOptions(timing_enabled=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.is_sync_busy_waited is False
+    assert event.is_blocking_sync is False
 
 
 def test_sync(init_cuda):
-    options = EventOptions(enable_timing=False)
+    options = EventOptions(timing_enabled=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
     event.sync()
@@ -68,7 +69,7 @@ def test_sync(init_cuda):
 
 
 def test_is_done(init_cuda):
-    options = EventOptions(enable_timing=False)
+    options = EventOptions(timing_enabled=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
     # Without a sync, the captured work might not have yet completed
@@ -79,14 +80,14 @@ def test_is_done(init_cuda):
 def test_error_timing_disabled():
     device = Device()
     device.set_current()
-    enabled = EventOptions(enable_timing=True)
-    disabled = EventOptions(enable_timing=False)
+    enabled = EventOptions(timing_enabled=True)
+    disabled = EventOptions(timing_enabled=False)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)
     event2 = stream.record(options=disabled)
-    assert not event1.is_timing_disabled
-    assert event2.is_timing_disabled
+    assert event1.is_timing_enabled
+    assert not event2.is_timing_enabled
     stream.sync()
     with pytest.raises(RuntimeError, match="^Both Events must be created with timing enabled"):
         event2 - event1
@@ -101,7 +102,7 @@ def test_error_timing_disabled():
 def test_error_timing_recorded():
     device = Device()
     device.set_current()
-    enabled = EventOptions(enable_timing=True)
+    enabled = EventOptions(timing_enabled=True)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)
@@ -117,11 +118,12 @@ def test_error_timing_recorded():
         event3 - event2
 
 
+@pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()
     latch = LatchKernel(device)
-    enabled = EventOptions(enable_timing=True)
+    enabled = EventOptions(timing_enabled=True)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)
@@ -191,6 +193,54 @@ def test_event_type_safety(init_cuda):
     assert (event == "not an event") is False
     assert (event == 123) is False
     assert (event is None) is False
+
+
+def test_event_isub_not_implemented(init_cuda):
+    """Event.__isub__ returns NotImplemented for non-Event types."""
+    device = Device()
+    stream = device.create_stream()
+    event = stream.record()
+    result = event.__isub__(42)
+    assert result is NotImplemented
+
+
+def test_event_rsub_not_implemented(init_cuda):
+    """Event.__rsub__ returns NotImplemented for non-Event types."""
+    device = Device()
+    stream = device.create_stream()
+    event = stream.record()
+    result = event.__rsub__(42)
+    assert result is NotImplemented
+
+
+def test_event_ipc_descriptor_non_ipc(init_cuda):
+    """ipc_descriptor raises RuntimeError on a non-IPC event."""
+    device = Device()
+    stream = device.create_stream()
+    event = stream.record()
+    with pytest.raises(RuntimeError, match="not IPC-enabled"):
+        _ = event.ipc_descriptor
+
+
+def test_event_is_done_false(init_cuda):
+    """Event.is_done returns False when captured work has not yet completed."""
+    device = Device()
+    latch = LatchKernel(device)
+    stream = device.create_stream()
+    latch.launch(stream)
+    event = stream.record()
+    # The latch holds the kernel; the event cannot be done yet.
+    assert event.is_done is False
+    latch.release()
+    event.sync()
+
+
+def test_ipc_event_descriptor_direct_init():
+    """IPCEventDescriptor cannot be instantiated directly."""
+    import cuda.core._event as _event_module
+
+    with pytest.raises(RuntimeError, match="cannot be instantiated directly"):
+        _event_module.IPCEventDescriptor()
 
 
 # ============================================================================
