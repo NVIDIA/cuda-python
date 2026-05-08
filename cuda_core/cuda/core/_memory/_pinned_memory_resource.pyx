@@ -148,8 +148,7 @@ cdef class PinnedMemoryResource(_MemPool):
             _ipc.MP_from_allocation_handle(cls, alloc_handle))
         return mr
 
-    @property
-    def allocation_handle(self) -> IPCAllocationHandle:
+    def _get_allocation_handle(self) -> IPCAllocationHandle:
         """Shareable handle for this memory pool (requires IPC).
 
         The handle can be used to share the memory pool with other processes.
@@ -158,6 +157,8 @@ cdef class PinnedMemoryResource(_MemPool):
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
         return self._ipc_data._alloc_handle
+
+    allocation_handle = property(_get_allocation_handle)
 
     @property
     def device_id(self) -> int:

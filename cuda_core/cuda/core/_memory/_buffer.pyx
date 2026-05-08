@@ -190,12 +190,13 @@ cdef class Buffer:
         """
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
-    @property
-    def ipc_descriptor(self) -> IPCBufferDescriptor:
+    def _get_ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
         if self._ipc_data is None:
             self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
         return self._ipc_data.ipc_descriptor
+
+    ipc_descriptor = property(_get_ipc_descriptor)
 
     def close(self, stream: Stream | GraphBuilder | None = None):
         """Deallocate this buffer asynchronously on the given stream.

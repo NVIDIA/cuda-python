@@ -622,8 +622,7 @@ cdef class DeviceResources:
             self._query_sm(&res)
         return SMResource._from_dev_resource(res, self._device_id)
 
-    @property
-    def workqueue(self) -> WorkqueueResource:
+    def _get_workqueue(self) -> WorkqueueResource:
         """Return the :obj:`WorkqueueResource` for this device or context."""
         _check_green_ctx_support()
         _check_workqueue_support()
@@ -678,3 +677,5 @@ cdef class DeviceResources:
             raise RuntimeError(
                 "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
             )
+
+    workqueue = property(_get_workqueue)
