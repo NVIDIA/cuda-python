@@ -39,9 +39,9 @@
   "D": "tests/system/test_system_device.py::test_get_inforom_version|run",
   "E": "tests/system/test_system_device.py::test_get_minor_number|run",
   "F": "tests/system/test_system_device.py::test_get_nearest_gpus|run",
-  "G": "tests/system/test_system_device.py::test_get_p2p_status|run",
-  "H": "tests/system/test_system_device.py::test_get_topology_common_ancestor|run",
-  "I": "tests/system/test_system_device.py::test_get_topology_common_ancestor|setup",
+  "G": "tests/system/test_system_device.py::test_get_nearest_gpus|setup",
+  "H": "tests/system/test_system_device.py::test_get_p2p_status|run",
+  "I": "tests/system/test_system_device.py::test_get_topology_common_ancestor|run",
   "J": "tests/system/test_system_device.py::test_index|run",
   "K": "tests/system/test_system_device.py::test_mig|run",
   "L": "tests/system/test_system_device.py::test_module_id|run",
@@ -56,60 +56,59 @@
   "U": "tests/system/test_system_device.py::test_utilization|run",
   "V": "tests/system/test_system_device.py::test_uuid|run",
   "W": "tests/system/test_system_events.py::test_register_events|run",
-  "X": "tests/system/test_system_system.py::test_cuda_driver_version|run",
-  "Y": "tests/system/test_system_system.py::test_device_count|run",
-  "Z": "tests/system/test_system_system.py::test_devices|run",
-  "0": "tests/system/test_system_system.py::test_driver_version|run",
-  "1": "tests/system/test_system_system.py::test_get_driver_branch|run",
-  "2": "tests/system/test_system_system.py::test_get_process_name|run",
-  "3": "tests/system/test_system_system.py::test_gpu_driver_version|run",
-  "4": "tests/system/test_system_system.py::test_num_devices|run",
-  "5": "tests/test_device.py::test_device_id|run",
-  "6": "tests/test_device.py::test_to_system_device|run",
-  "7": "tests/test_memory.py::test_buffer_external_device[False]|run",
-  "8": "tests/test_memory.py::test_buffer_external_device[True]|run",
-  "9": "tests/test_memory.py::test_buffer_external_managed[False]|run",
-  "!": "tests/test_memory.py::test_buffer_external_managed[True]|run",
-  "#": "tests/test_memory.py::test_buffer_external_pinned_alloc[False]|run",
-  "$": "tests/test_memory.py::test_buffer_external_pinned_alloc[True]|run",
-  "%": "tests/test_memory.py::test_buffer_external_pinned_registered[False]|run",
-  "'": "tests/test_memory.py::test_buffer_external_pinned_registered[True]|run",
-  "(": "tests/test_memory_peer_access.py::test_peer_access_basic|setup",
-  ")": "tests/test_memory_peer_access.py::test_peer_access_shared_pool_queries_driver|setup",
-  "*": "tests/test_memory_peer_access.py::test_peer_access_transitions|setup",
-  "+": "tests/test_memory_peer_access.py::test_peer_accessible_by_accepts_int_and_device|setup",
-  ",": "tests/test_memory_peer_access.py::test_peer_accessible_by_bulk_ops_batch_one_call|setup",
-  "-": "tests/test_memory_peer_access.py::test_peer_accessible_by_iteration_order_is_sorted|setup",
-  ".": "tests/test_memory_peer_access.py::test_peer_accessible_by_mutable_set_interface|setup",
-  "/": "tests/test_memory_peer_access.py::test_peer_accessible_by_no_cache_across_proxies|setup",
-  ":": "tests/test_memory_peer_access.py::test_peer_accessible_by_rejects_invalid_inputs|setup",
-  ";": "tests/test_memory_peer_access.py::test_peer_accessible_by_repr|setup",
-  "=": "tests/test_memory_peer_access.py::test_peer_accessible_by_returns_proxy_type|setup",
-  "?": "tests/test_memory_peer_access.py::test_peer_accessible_by_setter_batches_one_call|setup",
-  "@": "tests/test_memory_peer_access.py::test_peer_accessible_by_silently_ignores_owner|setup",
-  "[": "tests/test_module.py::test_read_only_kernel_attributes[binary_version-int]|run",
-  "]": "tests/test_module.py::test_read_only_kernel_attributes[cache_mode_ca-bool]|run",
-  "^": "tests/test_module.py::test_read_only_kernel_attributes[cluster_scheduling_policy_preference-int]|run",
-  "_": "tests/test_module.py::test_read_only_kernel_attributes[cluster_size_must_be_set-bool]|run",
-  "`": "tests/test_module.py::test_read_only_kernel_attributes[const_size_bytes-int]|run",
-  "{": "tests/test_module.py::test_read_only_kernel_attributes[local_size_bytes-int]|run",
-  "|": "tests/test_module.py::test_read_only_kernel_attributes[max_dynamic_shared_size_bytes-int]|run",
-  "}": "tests/test_module.py::test_read_only_kernel_attributes[max_threads_per_block-int]|run",
-  "~": "tests/test_module.py::test_read_only_kernel_attributes[non_portable_cluster_size_allowed-bool]|run",
-  "ab": "tests/test_module.py::test_read_only_kernel_attributes[num_regs-int]|run",
-  "bb": "tests/test_module.py::test_read_only_kernel_attributes[preferred_shared_memory_carveout-int]|run",
-  "cb": "tests/test_module.py::test_read_only_kernel_attributes[ptx_version-int]|run",
-  "db": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_depth-int]|run",
-  "eb": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_height-int]|run",
-  "fb": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_width-int]|run",
-  "gb": "tests/test_module.py::test_read_only_kernel_attributes[shared_size_bytes-int]|run",
-  "hb": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_context-sample_context_alt]|run",
-  "ib": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_device-sample_device_alt]|run",
-  "jb": "tests/test_object_protocols.py::test_same_type_inequality[sample_context-sample_context_alt]|run",
-  "kb": "tests/test_object_protocols.py::test_same_type_inequality[sample_device-sample_device_alt]|run",
-  "lb": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_accepts_managed_buffer_on_nonzero_device|run",
-  "mb": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_rejects_tensor_from_other_device|run",
-  "nb": "tests/test_tensor_map.py::TestTensorMapReplaceAddress::test_replace_address_accepts_managed_buffer_on_nonzero_device|run"
+  "X": "tests/system/test_system_system.py::test_device_count|run",
+  "Y": "tests/system/test_system_system.py::test_devices|run",
+  "Z": "tests/system/test_system_system.py::test_get_driver_branch|run",
+  "0": "tests/system/test_system_system.py::test_get_process_name|run",
+  "1": "tests/system/test_system_system.py::test_kernel_mode_driver_version|run",
+  "2": "tests/system/test_system_system.py::test_num_devices|run",
+  "3": "tests/system/test_system_system.py::test_user_mode_driver_version|run",
+  "4": "tests/test_device.py::test_device_id|run",
+  "5": "tests/test_device.py::test_to_system_device|run",
+  "6": "tests/test_memory.py::test_buffer_external_device[False]|run",
+  "7": "tests/test_memory.py::test_buffer_external_device[True]|run",
+  "8": "tests/test_memory.py::test_buffer_external_managed[False]|run",
+  "9": "tests/test_memory.py::test_buffer_external_managed[True]|run",
+  "!": "tests/test_memory.py::test_buffer_external_pinned_alloc[False]|run",
+  "#": "tests/test_memory.py::test_buffer_external_pinned_alloc[True]|run",
+  "$": "tests/test_memory.py::test_buffer_external_pinned_registered[False]|run",
+  "%": "tests/test_memory.py::test_buffer_external_pinned_registered[True]|run",
+  "'": "tests/test_memory_peer_access.py::test_peer_access_basic|setup",
+  "(": "tests/test_memory_peer_access.py::test_peer_access_shared_pool_queries_driver|setup",
+  ")": "tests/test_memory_peer_access.py::test_peer_access_transitions|setup",
+  "*": "tests/test_memory_peer_access.py::test_peer_accessible_by_accepts_int_and_device|setup",
+  "+": "tests/test_memory_peer_access.py::test_peer_accessible_by_bulk_ops_batch_one_call|setup",
+  ",": "tests/test_memory_peer_access.py::test_peer_accessible_by_iteration_order_is_sorted|setup",
+  "-": "tests/test_memory_peer_access.py::test_peer_accessible_by_mutable_set_interface|setup",
+  ".": "tests/test_memory_peer_access.py::test_peer_accessible_by_no_cache_across_proxies|setup",
+  "/": "tests/test_memory_peer_access.py::test_peer_accessible_by_rejects_invalid_inputs|setup",
+  ":": "tests/test_memory_peer_access.py::test_peer_accessible_by_repr|setup",
+  ";": "tests/test_memory_peer_access.py::test_peer_accessible_by_returns_proxy_type|setup",
+  "=": "tests/test_memory_peer_access.py::test_peer_accessible_by_setter_batches_one_call|setup",
+  "?": "tests/test_memory_peer_access.py::test_peer_accessible_by_silently_ignores_owner|setup",
+  "@": "tests/test_module.py::test_read_only_kernel_attributes[binary_version-int]|run",
+  "[": "tests/test_module.py::test_read_only_kernel_attributes[cache_mode_ca-bool]|run",
+  "]": "tests/test_module.py::test_read_only_kernel_attributes[cluster_scheduling_policy_preference-int]|run",
+  "^": "tests/test_module.py::test_read_only_kernel_attributes[cluster_size_must_be_set-bool]|run",
+  "_": "tests/test_module.py::test_read_only_kernel_attributes[const_size_bytes-int]|run",
+  "`": "tests/test_module.py::test_read_only_kernel_attributes[local_size_bytes-int]|run",
+  "{": "tests/test_module.py::test_read_only_kernel_attributes[max_dynamic_shared_size_bytes-int]|run",
+  "|": "tests/test_module.py::test_read_only_kernel_attributes[max_threads_per_block-int]|run",
+  "}": "tests/test_module.py::test_read_only_kernel_attributes[non_portable_cluster_size_allowed-bool]|run",
+  "~": "tests/test_module.py::test_read_only_kernel_attributes[num_regs-int]|run",
+  "ab": "tests/test_module.py::test_read_only_kernel_attributes[preferred_shared_memory_carveout-int]|run",
+  "bb": "tests/test_module.py::test_read_only_kernel_attributes[ptx_version-int]|run",
+  "cb": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_depth-int]|run",
+  "db": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_height-int]|run",
+  "eb": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_width-int]|run",
+  "fb": "tests/test_module.py::test_read_only_kernel_attributes[shared_size_bytes-int]|run",
+  "gb": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_context-sample_context_alt]|run",
+  "hb": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_device-sample_device_alt]|run",
+  "ib": "tests/test_object_protocols.py::test_same_type_inequality[sample_context-sample_context_alt]|run",
+  "jb": "tests/test_object_protocols.py::test_same_type_inequality[sample_device-sample_device_alt]|run",
+  "kb": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_accepts_managed_buffer_on_nonzero_device|run",
+  "lb": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_rejects_tensor_from_other_device|run",
+  "mb": "tests/test_tensor_map.py::TestTensorMapReplaceAddress::test_replace_address_accepts_managed_buffer_on_nonzero_device|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -172,7 +171,7 @@
             <a id="nextFileLink" class="nav" href="z_dbb36602d1591427__nvml_context_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-07 01:22 +0000
+            created at 2026-05-08 01:21 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -224,12 +223,12 @@
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    Initializes Nvidia Management Library (NVML), ensuring it only happens once per process.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    if _NVML_STATE == _NVMLState.DISABLED_LIBRARY_NOT_FOUND or (</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">103 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnb</span></p>
-    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">        _NVML_STATE == _NVMLState.INITIALIZED and getpid() == _NVML_OWNER_PID</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">103 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnb</span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    if _NVML_STATE == _NVMLState.DISABLED_LIBRARY_NOT_FOUND or (</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">102 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmb</span></p>
+    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">        _NVML_STATE == _NVMLState.INITIALIZED and getpid() == _NVML_OWNER_PID</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">102 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmb</span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    ):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">        return</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">102 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnb</span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">        return</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">101 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmb</span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    _initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">1 ctx</label></span><span class="ctxs">10</span></p>
+    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    _initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">1 ctx</label></span><span class="ctxs">1Y</span></p>
     <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">cpdef inline bint is_initialized():</span>&nbsp;</span><span class="r"></span></p>
@@ -254,7 +253,7 @@
             <a class="nav" href="z_dbb36602d1591427__nvml_context_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-07 01:22 +0000
+            created at 2026-05-08 01:21 +0000
         </p>
     </div>
 </footer>
