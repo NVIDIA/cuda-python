@@ -11,7 +11,6 @@ from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set
 from cuda.core import (
     Device,
     DeviceMemoryResource,
-    GraphCompleteOptions,
     GraphMemoryResource,
     LaunchConfig,
     Program,
@@ -19,6 +18,7 @@ from cuda.core import (
     launch,
 )
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core.graph import GraphCompleteOptions
 
 
 def _common_kernels_alloc():

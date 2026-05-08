@@ -670,7 +670,7 @@ def make_program_cache_key(
     Returns
     -------
     bytes
-        A 32-byte blake2b digest suitable for use as a cache key.
+        An opaque bytes digest suitable for use as a cache key.
 
     Raises
     ------

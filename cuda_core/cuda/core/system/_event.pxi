@@ -95,6 +95,8 @@ cdef class DeviceEvents:
     cdef intptr_t _device_handle
 
     def __init__(self, device_handle: intptr_t, events: EventType | str | list[EventType | str]):
+        self._event_set = 0
+
         cdef unsigned long long event_bitmask
         if isinstance(events, (str, EventType)):
             events = [events]
@@ -120,7 +122,8 @@ cdef class DeviceEvents:
         nvml.device_register_events(self._device_handle, event_bitmask, self._event_set)
 
     def __dealloc__(self):
-        nvml.event_set_free(self._event_set)
+        if self._event_set != 0:
+            nvml.event_set_free(self._event_set)
 
     def wait(self, timeout_ms: int = 0) -> EventData:
         """
