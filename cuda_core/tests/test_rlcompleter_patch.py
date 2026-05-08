@@ -19,6 +19,7 @@ a fresh subprocess with a controlled combination of `PYTHONINSPECT` and
 import os
 import subprocess
 import sys
+import tempfile
 import textwrap
 
 import pytest
@@ -62,20 +63,29 @@ def _run_probe(*, pythoninspect: bool, opt_out: bool = False) -> subprocess.Comp
     # Don't let parent-environment values bleed into the subprocess.
     env.pop("PYTHONINSPECT", None)
     env.pop("CUDA_CORE_DONT_FIX_TAB_COMPLETION", None)
+    # Drop PYTHONPATH so the subprocess can't find a source-tree cuda.core
+    # via an inherited path entry; we want it to import the installed wheel.
+    env.pop("PYTHONPATH", None)
     if pythoninspect:
         env["PYTHONINSPECT"] = "1"
     if opt_out:
         env["CUDA_CORE_DONT_FIX_TAB_COMPLETION"] = "1"
-    return subprocess.run(  # noqa: S603
-        [sys.executable, "-c", _PROBE_SCRIPT],
-        capture_output=True,
-        text=True,
-        env=env,
-        check=False,
-        # PYTHONINSPECT keeps the interpreter alive after `-c`; close stdin
-        # so the implicit REPL exits immediately.
-        stdin=subprocess.DEVNULL,
-    )
+    # `python -c` puts the parent's CWD at the head of sys.path. If pytest is
+    # run from `cuda_core/` (which contains a `cuda/core/` source tree), that
+    # source tree shadows the installed package. Run the subprocess from a
+    # neutral temp dir to avoid this.
+    with tempfile.TemporaryDirectory() as tmpdir:
+        return subprocess.run(  # noqa: S603
+            [sys.executable, "-c", _PROBE_SCRIPT],
+            capture_output=True,
+            text=True,
+            env=env,
+            check=False,
+            # PYTHONINSPECT keeps the interpreter alive after `-c`; close stdin
+            # so the implicit REPL exits immediately.
+            stdin=subprocess.DEVNULL,
+            cwd=tmpdir,
+        )
 
 
 def test_unpatched_completion_crashes_on_non_ipc_resource():
