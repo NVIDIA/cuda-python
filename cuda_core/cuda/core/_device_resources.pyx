@@ -15,6 +15,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport ContextHandle, GreenCtxHandle, as_cu, get_context_green_ctx
 from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
 from cuda.core._utils.cuda_utils import is_sequence
+from cuda.core._utils.properties import python_property
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
 
 
@@ -622,7 +623,8 @@ cdef class DeviceResources:
             self._query_sm(&res)
         return SMResource._from_dev_resource(res, self._device_id)
 
-    def _get_workqueue(self) -> WorkqueueResource:
+    @python_property
+    def workqueue(self) -> WorkqueueResource:
         """Return the :obj:`WorkqueueResource` for this device or context."""
         _check_green_ctx_support()
         _check_workqueue_support()
@@ -677,5 +679,3 @@ cdef class DeviceResources:
             raise RuntimeError(
                 "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
             )
-
-    workqueue = property(_get_workqueue)

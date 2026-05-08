@@ -22,6 +22,7 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core._stream import Stream, StreamOptions
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.properties import python_property
 
 
 __all__ = ['Context', 'ContextOptions']
@@ -77,7 +78,8 @@ cdef class Context:
             return False
         return get_context_green_ctx(self._h_context).get() != NULL
 
-    def _get_resources(self) -> DeviceResources:
+    @python_property
+    def resources(self) -> DeviceResources:
         """Query the hardware resources provisioned for this context.
 
         For green contexts, returns the resources this context was created
@@ -89,8 +91,6 @@ cdef class Context:
         if not self._h_context:
             raise RuntimeError("Cannot query resources on a closed context")
         return DeviceResources._init_from_ctx(self._h_context, self._device_id)
-
-    resources = property(_get_resources)
 
     def create_stream(self, options: StreamOptions | None = None):
         """Create a new stream bound to this green context.

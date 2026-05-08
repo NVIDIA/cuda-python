@@ -11,6 +11,7 @@ import warnings
 
 from cuda.bindings import nvml
 
+from cuda.core._utils.properties import python_property
 from ._nvml_context cimport initialize
 from cuda.core.system.typing import (
     AddressingMode,
@@ -259,15 +260,14 @@ cdef class Device:
         """
         return self.pci_info.bus_id
 
-    def _get_numa_node_id(self) -> int:
+    @python_property
+    def numa_node_id(self) -> int:
         """
         The NUMA node of the given GPU device.
 
         This only applies to platforms where the GPUs are NUMA nodes.
         """
         return nvml.device_get_numa_node_id(self._handle)
-
-    numa_node_id = property(_get_numa_node_id)
 
     @property
     def arch(self) -> DeviceArch:
@@ -333,13 +333,12 @@ cdef class Device:
         """
         return nvml.device_get_minor_number(self._handle)
 
-    def _get_is_c2c_enabled(self) -> bool:
+    @python_property
+    def is_c2c_enabled(self) -> bool:
         """
         Whether the C2C (Chip-to-Chip) mode is enabled for this device.
         """
         return bool(nvml.device_get_c2c_mode_info_v(self._handle).is_c2c_enabled)
-
-    is_c2c_enabled = property(_get_is_c2c_enabled)
 
     @property
     def is_persistence_mode_enabled(self) -> bool:
@@ -577,7 +576,8 @@ cdef class Device:
         """
         return ClockInfo(self._handle, clock_type)
 
-    def _get_is_auto_boosted_clocks_enabled(self) -> tuple[bool, bool]:
+    @python_property
+    def is_auto_boosted_clocks_enabled(self) -> tuple[bool, bool]:
         """
         Retrieve the current state of auto boosted clocks on a device.
 
@@ -602,9 +602,8 @@ cdef class Device:
         current, default = nvml.device_get_auto_boosted_clocks_enabled(self._handle)
         return current == nvml.EnableState.FEATURE_ENABLED, default == nvml.EnableState.FEATURE_ENABLED
 
-    is_auto_boosted_clocks_enabled = property(_get_is_auto_boosted_clocks_enabled)
-
-    def _get_current_clock_event_reasons(self) -> list[ClocksEventReasons]:
+    @python_property
+    def current_clock_event_reasons(self) -> list[ClocksEventReasons]:
         """
         Retrieves the current :obj:`~ClocksEventReasons`.
 
@@ -621,9 +620,8 @@ cdef class Device:
             output_reasons.append(output_reason)
         return output_reasons
 
-    current_clock_event_reasons = property(_get_current_clock_event_reasons)
-
-    def _get_supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
+    @python_property
+    def supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
         """
         Retrieves supported :obj:`~ClocksEventReasons` that can be returned by
         :meth:`get_current_clock_event_reasons`.
@@ -643,8 +641,6 @@ cdef class Device:
             output_reasons.append(output_reason)
         return output_reasons
 
-    supported_clock_event_reasons = property(_get_supported_clock_event_reasons)
-
     ##########################################################################
     # COOLER
     # See external class definitions in _cooler.pxi
@@ -660,7 +656,8 @@ cdef class Device:
     # DEVICE ATTRIBUTES
     # See external class definitions in _device_attributes.pxi
 
-    def _get_attributes(self) -> DeviceAttributes:
+    @python_property
+    def attributes(self) -> DeviceAttributes:
         """
         :obj:`~_device.DeviceAttributes` object with various device attributes.
 
@@ -668,8 +665,6 @@ cdef class Device:
         systems.
         """
         return DeviceAttributes(nvml.device_get_attributes_v2(self._handle))
-
-    attributes = property(_get_attributes)
 
     #########################################################################
     # DISPLAY

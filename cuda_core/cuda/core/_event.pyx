@@ -36,6 +36,7 @@ from cuda.core._utils.cuda_utils import (
     CUDAError,
     check_multiprocessing_start_method,
 )
+from cuda.core._utils.properties import python_property
 
 
 @dataclass
@@ -197,7 +198,8 @@ cdef class Event:
     def __repr__(self) -> str:
         return f"<Event handle={as_intptr(self._h_event):#x}>"
 
-    def _get_ipc_descriptor(self) -> IPCEventDescriptor:
+    @python_property
+    def ipc_descriptor(self) -> IPCEventDescriptor:
         """Descriptor for sharing this event with other processes."""
         if self._ipc_descriptor is not None:
             return self._ipc_descriptor
@@ -209,8 +211,6 @@ cdef class Event:
         cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
         self._ipc_descriptor = IPCEventDescriptor._init(data_b, get_event_is_blocking_sync(self._h_event))
         return self._ipc_descriptor
-
-    ipc_descriptor = property(_get_ipc_descriptor)
 
     @classmethod
     def from_ipc_descriptor(cls, ipc_descriptor: IPCEventDescriptor) -> Event:
