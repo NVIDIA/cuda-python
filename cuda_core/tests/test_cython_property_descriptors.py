@@ -15,7 +15,6 @@ from cuda.core import (
     Event,
     PinnedMemoryResource,
 )
-from cuda.core.graph import GraphBuilder
 from cuda.core.system import CUDA_BINDINGS_NVML_IS_COMPATIBLE
 
 _PYTHON_PROPERTIES = [
@@ -25,7 +24,6 @@ _PYTHON_PROPERTIES = [
     pytest.param(Buffer, "ipc_descriptor", id="Buffer.ipc_descriptor"),
     pytest.param(Context, "resources", id="Context.resources"),
     pytest.param(DeviceResources, "workqueue", id="DeviceResources.workqueue"),
-    pytest.param(GraphBuilder, "is_building", id="GraphBuilder.is_building"),
 ]
 
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:

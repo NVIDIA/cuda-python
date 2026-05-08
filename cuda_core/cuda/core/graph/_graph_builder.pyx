@@ -300,7 +300,8 @@ class GraphBuilder:
             handle_return(driver.cuStreamBeginCapture(self._mnff.stream.handle, capture_mode))
         return self
 
-    def _get_is_building(self) -> bool:
+    @property
+    def is_building(self) -> bool:
         """Returns True if the graph builder is currently building."""
         capture_status = handle_return(driver.cuStreamGetCaptureInfo(self._mnff.stream.handle))[0]
         if capture_status == driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE:
@@ -313,8 +314,6 @@ class GraphBuilder:
             )
         else:
             raise NotImplementedError(f"Unsupported capture status type received: {capture_status}")
-
-    is_building = property(_get_is_building)
 
     def end_building(self) -> GraphBuilder:
         """Ends the building process."""
