@@ -32,7 +32,7 @@ from cuda.core._utils.clear_error_support import (
     raise_code_path_meant_to_be_unreachable,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-from cuda.core._utils.version cimport cy_driver_version
+from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
 from cuda.core._utils.cuda_utils import driver
 from cuda.bindings cimport cydriver
 
@@ -462,6 +462,11 @@ cdef class Kernel:
             raise NotImplementedError(
                 "Driver version 12.4 or newer is required for this function. "
                 f"Using driver version {'.'.join(map(str, cy_driver_version()))}"
+            )
+        if cy_binding_version() < (12, 4, 0):
+            raise NotImplementedError(
+                "cuda.bindings 12.4 or newer is required for this function. "
+                f"Using binding version {'.'.join(map(str, cy_binding_version()))}"
             )
         cdef size_t arg_pos = 0
         cdef list param_info_data = []
