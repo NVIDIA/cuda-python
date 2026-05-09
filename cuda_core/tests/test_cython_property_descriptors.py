@@ -45,10 +45,7 @@ def _iter_cuda_core_modules():
         for info in pkgutil.walk_packages(root.__path__, root.__name__ + "."):
             module_names.add(info.name)
 
-    module_names = {
-        n for n in module_names
-        if not any(n.endswith(s) for s in _NOT_ALLOWED_TO_IMPORT_SUFFIXES)
-    }
+    module_names = {n for n in module_names if not any(n.endswith(s) for s in _NOT_ALLOWED_TO_IMPORT_SUFFIXES)}
     for module_name in sorted(module_names):
         yield importlib.import_module(module_name)
 
