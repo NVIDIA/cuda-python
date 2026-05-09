@@ -20,10 +20,10 @@
   "k": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cupti_found_in_conda|run",
   "l": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cupti_search_order_conda_before_cuda_home|run",
   "m": "tests/test_driver_lib_loading.py::test_real_load_driver_lib[nvcudla]|run",
-  "n": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cufft]|run",
-  "o": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusolver]|run",
+  "n": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cublas]|run",
+  "o": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[curand]|run",
   "p": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[npp]|run",
-  "q": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cudla]|run",
+  "q": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvcudla]|run",
   "r": "tests/test_ctk_root_discovery.py::test_canary_finds_nvvm|run",
   "s": "tests/test_ctk_root_discovery.py::test_canary_returns_none_when_nvvm_not_in_ctk_root|run",
   "t": "tests/test_ctk_root_discovery.py::test_subprocess_probe_returns_abs_path_on_string_payload|run",
@@ -44,7 +44,7 @@
   "I": "tests/test_driver_lib_loading.py::test_load_lib_no_cache_dispatches_to_driver_path[nvcudla]|run",
   "J": "tests/test_driver_lib_loading.py::test_load_lib_no_cache_dispatches_to_driver_path[nvml]|run",
   "K": "tests/test_load_nvidia_dynamic_lib.py::test_runtime_error_on_non_64bit_python|run",
-  "L": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvcudla]|run"
+  "L": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cudla]|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -107,7 +107,7 @@
             <a id="nextFileLink" class="nav" href="z_b173e2ae1fca2bc7_platform_loader_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-08 01:21 +0000
+            created at 2026-05-09 01:23 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -257,7 +257,7 @@
     <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="key">def</span> <span class="nam">_loadable_via_canary_subprocess</span><span class="op">(</span><span class="nam">libname</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span> <span class="op">*</span><span class="op">,</span> <span class="nam">timeout</span><span class="op">:</span> <span class="nam">float</span> <span class="op">=</span> <span class="nam">_CANARY_PROBE_TIMEOUT_SECONDS</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs134" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t">    <span class="str">"""Return True if the canary subprocess can resolve ``libname`` via system search."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t">    <span class="key">return</span> <span class="nam">_resolve_system_loaded_abs_path_in_subprocess</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="nam">timeout</span><span class="op">=</span><span class="nam">timeout</span><span class="op">)</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">3 ctx</label></span><span class="ctxs">1mqL</span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t">    <span class="key">return</span> <span class="nam">_resolve_system_loaded_abs_path_in_subprocess</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="nam">timeout</span><span class="op">=</span><span class="nam">timeout</span><span class="op">)</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">3 ctx</label></span><span class="ctxs">1mLq</span></p>
     <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="key">def</span> <span class="nam">_try_ctk_root_canary</span><span class="op">(</span><span class="nam">ctx</span><span class="op">:</span> <span class="nam">SearchContext</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs139" class="ctx">(empty)</label></span></p>
@@ -434,7 +434,7 @@
             <a class="nav" href="z_b173e2ae1fca2bc7_platform_loader_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-08 01:21 +0000
+            created at 2026-05-09 01:23 +0000
         </p>
     </div>
 </footer>
