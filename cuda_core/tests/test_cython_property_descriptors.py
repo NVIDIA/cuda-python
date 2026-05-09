@@ -18,7 +18,11 @@ import cuda.core.system
 pytestmark = pytest.mark.no_cuda
 
 
-_NOT_ALLOWED_TO_IMPORT = {"cuda.core._tensor_bridge"}
+# Suffixes of module names that must not be imported (e.g. _tensor_bridge
+# depends on PyTorch symbols that are unavailable in most test environments).
+# Matched against the end of each discovered module name so that versioned
+# subpackages like cuda.core.cu12._tensor_bridge are also excluded.
+_NOT_ALLOWED_TO_IMPORT_SUFFIXES = {"._tensor_bridge"}
 
 _GETSET_FIELD_ALLOWLIST = {
     ("cuda.core._kernel_arg_handler", "ParamHolder", "ptr"),
@@ -41,7 +45,10 @@ def _iter_cuda_core_modules():
         for info in pkgutil.walk_packages(root.__path__, root.__name__ + "."):
             module_names.add(info.name)
 
-    module_names -= _NOT_ALLOWED_TO_IMPORT
+    module_names = {
+        n for n in module_names
+        if not any(n.endswith(s) for s in _NOT_ALLOWED_TO_IMPORT_SUFFIXES)
+    }
     for module_name in sorted(module_names):
         yield importlib.import_module(module_name)
 
