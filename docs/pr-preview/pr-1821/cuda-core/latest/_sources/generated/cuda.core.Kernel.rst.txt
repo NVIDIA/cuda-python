@@ -24,10 +24,10 @@ cuda.core.Kernel
    .. rubric:: Attributes
 
    
-   .. autoproperty:: arguments_info
-   .. autoproperty:: attributes
-   .. autoproperty:: handle
-   .. autoproperty:: num_arguments
-   .. autoproperty:: occupancy
+   .. autoattribute:: arguments_info
+   .. autoattribute:: attributes
+   .. autoattribute:: handle
+   .. autoattribute:: num_arguments
+   .. autoattribute:: occupancy
    
    

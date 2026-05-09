@@ -18,6 +18,7 @@ cuda.core.Linker
    .. automethod:: get_error_log
    .. automethod:: get_info_log
    .. automethod:: link
+   .. automethod:: which_backend
 
    
    
@@ -27,7 +28,6 @@ cuda.core.Linker
    .. rubric:: Attributes
 
    
-   .. autoproperty:: backend
-   .. autoproperty:: handle
+   .. autoattribute:: handle
    
    

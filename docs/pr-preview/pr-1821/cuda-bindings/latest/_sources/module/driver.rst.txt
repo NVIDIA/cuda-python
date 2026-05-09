@@ -5,24 +5,6 @@
 driver
 ------
 
-Profiler Control
-----------------
-
-This section describes the profiler control functions of the low-level CUDA driver application programming interface.
-
-.. autofunction:: cuda.bindings.driver.cuProfilerStart
-.. autofunction:: cuda.bindings.driver.cuProfilerStop
-
-VDPAU Interoperability
-----------------------
-
-This section describes the VDPAU interoperability functions of the low-level CUDA driver application programming interface.
-
-.. autofunction:: cuda.bindings.driver.cuVDPAUGetDevice
-.. autofunction:: cuda.bindings.driver.cuVDPAUCtxCreate
-.. autofunction:: cuda.bindings.driver.cuGraphicsVDPAURegisterVideoSurface
-.. autofunction:: cuda.bindings.driver.cuGraphicsVDPAURegisterOutputSurface
-
 Data types used by CUDA driver
 ------------------------------
 
@@ -498,7 +480,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_ATOMIC_REDUCTION
 
 
-        Perform a atomic reduction. See :py:obj:`~.CUstreamBatchMemOpParams`::atomicReduction
+        Perform a atomic reduction. See :py:obj:`~.CUstreamBatchMemOpParams.atomicReduction`
 
 
     .. autoattribute:: cuda.bindings.driver.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES
@@ -3573,7 +3555,7 @@ Data types used by CUDA driver
 
         Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error. 
 
-         :py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::devNode which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
+         :py:obj:`~.CUlaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable` can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.CUlaunchAttributeValue.deviceUpdatableKernelNode.devNode` which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
 
          Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via :py:obj:`~.cuGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via :py:obj:`~.cuGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to :py:obj:`~.cuGraphExecUpdate`. 
 
@@ -3597,7 +3579,7 @@ Data types used by CUDA driver
 
          This attribute is a hint only. CUDA makes no functional or performance guarantee. Its applicability can be affected by many different factors, including driver version (i.e. CUDA doesn't guarantee the performance characteristics will be maintained between driver versions or a driver update could alter or regress previously observed perf characteristics.) It also doesn't guarantee a successful result, i.e. applying the attribute may not improve the performance of either the targeted kernel or the encapsulating application. 
 
-         Valid values for :py:obj:`~.CUlaunchAttributeValue`::nvlinkUtilCentricScheduling are 0 (disabled) and 1 (enabled).
+         Valid values for :py:obj:`~.CUlaunchAttributeValue.nvlinkUtilCentricScheduling` are 0 (disabled) and 1 (enabled).
 
 
     .. autoattribute:: cuda.bindings.driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PORTABLE_CLUSTER_SIZE_MODE
@@ -7770,6 +7752,32 @@ Checkpoint and restore capabilities are currently restricted to Linux.
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessRestore
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessUnlock
 
+Profiler Control
+----------------
+
+This section describes the profiler control functions of the low-level CUDA driver application programming interface.
+
+.. autofunction:: cuda.bindings.driver.cuProfilerStart
+.. autofunction:: cuda.bindings.driver.cuProfilerStop
+
+EGL Interoperability
+--------------------
+
+This section describes the EGL interoperability functions of the low-level CUDA driver application programming interface.
+
+.. autofunction:: cuda.bindings.driver.cuGraphicsEGLRegisterImage
+.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerConnect
+.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerConnectWithFlags
+.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerDisconnect
+.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerAcquireFrame
+.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerReleaseFrame
+.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerConnect
+.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerDisconnect
+.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerPresentFrame
+.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerReturnFrame
+.. autofunction:: cuda.bindings.driver.cuGraphicsResourceGetMappedEglFrame
+.. autofunction:: cuda.bindings.driver.cuEventCreateFromEGLSync
+
 OpenGL Interoperability
 -----------------------
 
@@ -7798,20 +7806,12 @@ This section describes the OpenGL interoperability functions of the low-level CU
 .. autofunction:: cuda.bindings.driver.cuGraphicsGLRegisterImage
 .. autofunction:: cuda.bindings.driver.cuGLGetDevices
 
-EGL Interoperability
---------------------
+VDPAU Interoperability
+----------------------
 
-This section describes the EGL interoperability functions of the low-level CUDA driver application programming interface.
+This section describes the VDPAU interoperability functions of the low-level CUDA driver application programming interface.
 
-.. autofunction:: cuda.bindings.driver.cuGraphicsEGLRegisterImage
-.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerConnect
-.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerConnectWithFlags
-.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerDisconnect
-.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerAcquireFrame
-.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerReleaseFrame
-.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerConnect
-.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerDisconnect
-.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerPresentFrame
-.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerReturnFrame
-.. autofunction:: cuda.bindings.driver.cuGraphicsResourceGetMappedEglFrame
-.. autofunction:: cuda.bindings.driver.cuEventCreateFromEGLSync
+.. autofunction:: cuda.bindings.driver.cuVDPAUGetDevice
+.. autofunction:: cuda.bindings.driver.cuVDPAUCtxCreate
+.. autofunction:: cuda.bindings.driver.cuGraphicsVDPAURegisterVideoSurface
+.. autofunction:: cuda.bindings.driver.cuGraphicsVDPAURegisterOutputSurface

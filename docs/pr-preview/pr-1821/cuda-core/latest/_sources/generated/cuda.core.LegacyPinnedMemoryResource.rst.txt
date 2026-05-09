@@ -28,5 +28,6 @@ cuda.core.LegacyPinnedMemoryResource
    .. autoattribute:: device_id
    .. autoattribute:: is_device_accessible
    .. autoattribute:: is_host_accessible
+   .. autoattribute:: is_managed
    
    
