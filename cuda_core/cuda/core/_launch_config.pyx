@@ -74,8 +74,11 @@ cdef class LaunchConfig:
         # look up the device from stream. We probably need to defer the checks related to
         # device compute capability or attributes.
         # thread block clusters are supported starting H100
+        if cluster is not None or is_cooperative:
+            dev = Device()
+
         if cluster is not None:
-            cc = Device().compute_capability
+            cc = dev.compute_capability
             if cc < (9, 0):
                 raise CUDAError(
                     f"thread block clusters are not supported on devices with compute capability < 9.0 (got {cc})"
@@ -92,7 +95,7 @@ cdef class LaunchConfig:
 
         self.is_cooperative = is_cooperative
 
-        if self.is_cooperative and not Device().properties.cooperative_launch:
+        if self.is_cooperative and not dev.properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
 
     def _identity(self):
