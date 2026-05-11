@@ -357,3 +357,12 @@ Fixes and enhancements
   package size. Debug builds are now supported via
   ``--config-settings=debug=true``.
   (`#1890 <https://github.com/NVIDIA/cuda-python/pull/1890>`__)
+- Fixed tab completion silently breaking in the CPython REPL on some
+  ``cuda.core`` objects (for example, hitting Tab after ``mr.`` for a
+  ``DeviceMemoryResource`` would produce no suggestions due to a CPython
+  limitation interacting with Cython properties). When ``cuda.core`` is
+  imported in an interactive session it now applies a small patch to the
+  standard library REPL completer so tab completion works as expected.
+  If you would rather not have ``cuda.core`` modify the REPL completer, set
+  ``CUDA_CORE_DONT_FIX_TAB_COMPLETION=1`` to opt out.
+  (`#2053 <https://github.com/NVIDIA/cuda-python/issues/2053>`__)
