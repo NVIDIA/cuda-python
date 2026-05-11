@@ -159,7 +159,7 @@ ELSE:
         )
 
 
-def discard_batch(buffers, *, stream):
+def discard_batch(stream: Stream | GraphBuilder, buffers: Sequence[Buffer]) -> None:
     """Discard a batch of managed-memory ranges.
 
     Requires CUDA 13+. For a single buffer, use
@@ -167,12 +167,13 @@ def discard_batch(buffers, *, stream):
 
     Parameters
     ----------
+    stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
+        Stream for the asynchronous discard. First positional, required
+        (mirrors :func:`launch`).
     buffers : Sequence[:class:`Buffer`]
         Two or more managed allocations to discard. Resident pages are
         released without prefetching new contents; subsequent access is
         satisfied by lazy migration.
-    stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
-        Stream for the asynchronous discard (keyword-only).
 
     Raises
     ------
@@ -265,7 +266,11 @@ cdef void _do_single_advise(Buffer buf, object advice_value, object loc, bint al
             HANDLE_RETURN(cydriver.cuMemAdvise(cu_ptr, nbytes, advice_enum, dev_int))
 
 
-def prefetch_batch(buffers, locations, *, stream):
+def prefetch_batch(
+    stream: Stream | GraphBuilder,
+    buffers: Sequence[Buffer],
+    locations: Device | Host | Sequence[Device | Host],
+) -> None:
     """Prefetch a batch of managed-memory ranges to target locations.
 
     Requires CUDA 13+. For a single buffer, use
@@ -273,13 +278,14 @@ def prefetch_batch(buffers, locations, *, stream):
 
     Parameters
     ----------
+    stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
+        Stream for the asynchronous prefetch. First positional, required
+        (mirrors :func:`launch`).
     buffers : Sequence[:class:`Buffer`]
         Two or more managed allocations to operate on.
     locations : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | Sequence[...]
         Target location(s). A single location applies to all buffers; a
         sequence must match ``len(buffers)``.
-    stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
-        Stream for the asynchronous prefetch (keyword-only).
 
     Notes
     -----
@@ -414,7 +420,11 @@ cdef void _do_batch_prefetch(tuple bufs, tuple locs, Stream s):
             _do_single_prefetch(buf, locs[i], s)
 
 
-def discard_prefetch_batch(buffers, locations, *, stream):
+def discard_prefetch_batch(
+    stream: Stream | GraphBuilder,
+    buffers: Sequence[Buffer],
+    locations: Device | Host | Sequence[Device | Host],
+) -> None:
     """Discard a batch of managed-memory ranges and prefetch them to target locations.
 
     Requires CUDA 13+. For a single buffer, use
@@ -422,13 +432,14 @@ def discard_prefetch_batch(buffers, locations, *, stream):
 
     Parameters
     ----------
+    stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
+        Stream for the asynchronous operation. First positional, required
+        (mirrors :func:`launch`).
     buffers : Sequence[:class:`Buffer`]
         Two or more managed allocations to discard and re-prefetch.
     locations : :class:`~cuda.core.Device` | :class:`~cuda.core.Host` | Sequence[...]
         Target location(s). A single location applies to all buffers;
         a sequence must match ``len(buffers)``.
-    stream : :class:`~_stream.Stream` | :class:`~graph.GraphBuilder`
-        Stream for the asynchronous operation (keyword-only).
 
     Raises
     ------

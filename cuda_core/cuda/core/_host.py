@@ -51,8 +51,8 @@ class Host:
             inst = cache.get(key)
             if inst is None:
                 inst = object.__new__(cls)
-                object.__setattr__(inst, "_numa_id", numa_id)
-                object.__setattr__(inst, "_is_numa_current", is_numa_current)
+                inst._numa_id = numa_id
+                inst._is_numa_current = is_numa_current
                 cache[key] = inst
             return inst
 
@@ -68,9 +68,6 @@ class Host:
     def numa_current(cls) -> Host:
         """Construct a ``Host`` referring to the calling thread's NUMA node."""
         return cls._get_or_create(None, is_numa_current=True)
-
-    def __setattr__(self, name: str, value) -> None:
-        raise AttributeError(f"{type(self).__name__} is immutable; cannot set {name!r}")
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Host):
