@@ -318,10 +318,12 @@ class TestHost:
         with pytest.raises(ValueError, match="numa_id must be a non-negative int"):
             Host(numa_id=False)
 
-    def test_numa_current_only_via_classmethod(self):
-        # is_numa_current is internal state, only settable via Host.numa_current()
-        with pytest.raises(TypeError):
-            Host(is_numa_current=True)  # type: ignore[call-arg]
+    def test_numa_current_constructor_and_classmethod_agree(self):
+        # Host(is_numa_current=True) and Host.numa_current() return the same singleton.
+        assert Host(is_numa_current=True) is Host.numa_current()
+        # numa_id and is_numa_current are mutually exclusive.
+        with pytest.raises(ValueError, match="mutually exclusive"):
+            Host(numa_id=0, is_numa_current=True)
 
     def test_immutable(self):
         h = Host(numa_id=2)

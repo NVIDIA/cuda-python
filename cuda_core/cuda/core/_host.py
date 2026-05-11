@@ -10,11 +10,13 @@ from typing import ClassVar
 class Host:
     """Host (CPU) location for managed-memory operations.
 
-    Use one of the three forms:
+    Use one of the following forms:
 
     * ``Host()`` — generic host (any NUMA node).
     * ``Host(numa_id=N)`` — specific NUMA node ``N``.
-    * ``Host.numa_current()`` — NUMA node of the calling thread.
+    * ``Host.numa_current()`` or ``Host(is_numa_current=True)`` — NUMA node
+      of the calling thread. ``numa_id`` and ``is_numa_current`` are
+      mutually exclusive.
 
     ``Host`` is the symmetric counterpart of :class:`~cuda.core.Device`
     for managed-memory `prefetch`, `advise`, and `discard_prefetch`
@@ -35,10 +37,12 @@ class Host:
     _instances: ClassVar[dict[tuple[int | None, bool], Host]] = {}
     _instances_lock: ClassVar[threading.Lock] = threading.Lock()
 
-    def __new__(cls, numa_id: int | None = None) -> Host:
+    def __new__(cls, numa_id: int | None = None, *, is_numa_current: bool = False) -> Host:
+        if is_numa_current and numa_id is not None:
+            raise ValueError("numa_id and is_numa_current are mutually exclusive")
         if numa_id is not None and (isinstance(numa_id, bool) or not isinstance(numa_id, int) or numa_id < 0):
             raise ValueError(f"numa_id must be a non-negative int, got {numa_id!r}")
-        return cls._get_or_create(numa_id, is_numa_current=False)
+        return cls._get_or_create(numa_id, is_numa_current)
 
     @classmethod
     def _get_or_create(cls, numa_id: int | None, is_numa_current: bool) -> Host:
@@ -67,7 +71,7 @@ class Host:
     @classmethod
     def numa_current(cls) -> Host:
         """Construct a ``Host`` referring to the calling thread's NUMA node."""
-        return cls._get_or_create(None, is_numa_current=True)
+        return cls(is_numa_current=True)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Host):
