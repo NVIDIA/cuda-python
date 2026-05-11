@@ -61,13 +61,10 @@ _PROBE_SCRIPT = textwrap.dedent("""
 def _run_probe(*, pythoninspect: bool, opt_out: bool = False) -> subprocess.CompletedProcess:
     env = os.environ.copy()
     # Don't let parent-environment values bleed into the subprocess.
-    env.pop("PYTHONINSPECT", None)
     env.pop("CUDA_CORE_DONT_FIX_TAB_COMPLETION", None)
     # Drop PYTHONPATH so the subprocess can't find a source-tree cuda.core
     # via an inherited path entry; we want it to import the installed wheel.
     env.pop("PYTHONPATH", None)
-    if pythoninspect:
-        env["PYTHONINSPECT"] = "1"
     if opt_out:
         env["CUDA_CORE_DONT_FIX_TAB_COMPLETION"] = "1"
     # `python -c` puts the parent's CWD at the head of sys.path. If pytest is
