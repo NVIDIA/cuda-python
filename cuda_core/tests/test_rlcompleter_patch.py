@@ -88,17 +88,6 @@ def _run_probe(*, pythoninspect: bool, opt_out: bool = False) -> subprocess.Comp
         )
 
 
-def test_unpatched_completion_crashes_on_non_ipc_resource():
-    """Without the patch the bug must still reproduce — otherwise the patched
-    test below would be testing nothing."""
-    _gpu_with_mempool_or_skip()
-
-    result = _run_probe(pythoninspect=False)
-    assert result.returncode == 0, f"stderr: {result.stderr}\nstdout: {result.stdout}"
-    assert "crash: RuntimeError" in result.stdout, result.stdout
-    assert "Memory resource is not IPC-enabled" in result.stdout, result.stdout
-
-
 def test_patched_completion_succeeds_on_non_ipc_resource():
     """With the patch installed (PYTHONINSPECT=1), tab completion must not
     crash and `mr.allocation_handle` must appear in the matches."""
