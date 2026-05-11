@@ -175,7 +175,9 @@ def test_managed_memory_prefetch_supports_external_managed_allocations(location_
     plain.close()
 
 
-def test_managed_memory_discard_prefetch_supports_managed_pool_allocations(discard_prefetch_device, discard_prefetch_buffer):
+def test_managed_memory_discard_prefetch_supports_managed_pool_allocations(
+    discard_prefetch_device, discard_prefetch_buffer
+):
     device = discard_prefetch_device
     buffer = discard_prefetch_buffer
     stream = device.create_stream()
