@@ -41,7 +41,7 @@ def _patch_rlcompleter_for_cython_properties():
     # rlcompleter side effect.
     import os
 
-    if os.environ.get("CUDA_CORE_DONT_FIX_TAB_COMPLETION"):
+    if int(os.environ.get("CUDA_CORE_DONT_FIX_TAB_COMPLETION", "0")):
         # Explicit opt-out for users who don't want the global rlcompleter
         # side effect, even in an interactive session.
         return
