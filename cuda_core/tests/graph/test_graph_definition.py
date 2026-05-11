@@ -48,13 +48,13 @@ def _skip_if_no_managed_mempool():
         pytest.skip("Device does not support managed memory pool operations")
 
 
-def _driver_has_node_get_params():
-    from cuda.core._utils.version import driver_version
+def _has_node_get_params():
+    from cuda.core._utils.version import binding_version, driver_version
 
-    return driver_version() >= (13, 2, 0)
+    return driver_version() >= (13, 2, 0) and binding_version() >= (13, 2, 0)
 
 
-_HAS_NODE_GET_PARAMS = _driver_has_node_get_params()
+_HAS_NODE_GET_PARAMS = _has_node_get_params()
 
 
 def _bindings_major_version():
