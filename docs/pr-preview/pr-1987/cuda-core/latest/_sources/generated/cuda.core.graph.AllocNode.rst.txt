@@ -45,7 +45,6 @@ cuda.core.graph.AllocNode
    .. autoattribute:: handle
    .. autoattribute:: is_valid
    .. autoattribute:: memory_type
-   .. autoattribute:: options
    .. autoattribute:: peer_access
    .. autoattribute:: pred
    .. autoattribute:: succ

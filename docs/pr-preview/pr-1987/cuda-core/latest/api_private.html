@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=5af52104"></script>
+    <script src="_static/documentation_options.js?v=4f2b919f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev93';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.1.dev13';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -231,6 +231,13 @@
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
 <li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="api_nvml.html">
+    CUDA system information and NVIDIA Management Library (NVML)
+  </a>
+</li>
+
+
+<li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="environment_variables.html">
     Environment Variables
   </a>
@@ -240,6 +247,13 @@
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="contribute.html">
     Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="support.html">
+    cuda.core Support Policy
   </a>
 </li>
 
@@ -427,6 +441,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="api_nvml.html">
+    CUDA system information and NVIDIA Management Library (NVML)
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="environment_variables.html">
     Environment Variables
   </a>
@@ -436,6 +457,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="contribute.html">
     Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="support.html">
+    cuda.core Support Policy
   </a>
 </li>
 
@@ -501,9 +529,15 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Context.html">cuda.core.Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.SMResource.html">cuda.core.SMResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.WorkqueueResource.html">cuda.core.WorkqueueResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ContextOptions.html">cuda.core.ContextOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.SMResourceOptions.html">cuda.core.SMResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
@@ -521,7 +555,6 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.EmptyNode.html">cuda.core.graph.EmptyNode</a></li>
@@ -548,8 +581,18 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api_nvml.html">CUDA system information and NVIDIA Management Library (NVML)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_user_mode_driver_version.html">cuda.core.system.get_user_mode_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_kernel_mode_driver_version.html">cuda.core.system.get_kernel_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
@@ -557,36 +600,15 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.AddressingMode.html">cuda.core.system.AddressingMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.AffinityScope.html">cuda.core.system.AffinityScope</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ClockId.html">cuda.core.system.ClockId</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ClocksEventReasons.html">cuda.core.system.ClocksEventReasons</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ClockType.html">cuda.core.system.ClockType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.CoolerControl.html">cuda.core.system.CoolerControl</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.CoolerTarget.html">cuda.core.system.CoolerTarget</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceArch.html">cuda.core.system.DeviceArch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.EventType.html">cuda.core.system.EventType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FanControlPolicy.html">cuda.core.system.FanControlPolicy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.InforomObject.html">cuda.core.system.InforomObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkVersion.html">cuda.core.system.NvlinkVersion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.PcieUtilCounter.html">cuda.core.system.PcieUtilCounter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Pstates.html">cuda.core.system.Pstates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.TemperatureSensors.html">cuda.core.system.TemperatureSensors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.TemperatureThresholds.html">cuda.core.system.TemperatureThresholds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ThermalController.html">cuda.core.system.ThermalController</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.ThermalTarget.html">cuda.core.system.ThermalTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 </ul>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="support.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> Support Policy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Software License Agreement</a></li>
 </ul>
@@ -663,43 +685,76 @@
 <h1>CUDA runtime<a class="headerlink" href="#cuda-runtime" title="Link to this heading">#</a></h1>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.DevicePointerT.html#cuda.core.typing.DevicePointerT" title="cuda.core.typing.DevicePointerT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.DevicePointerT</span></code></a></p></td>
-<td><p>Represent a PEP 604 union type</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy" title="cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._peer_access_utils.PeerAccessibleBySetProxy</span></code></a>(mr)</p></td>
+<td><p>Live driver-backed view of the peer devices granted access to a memory pool.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationTypeT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationTypeT" title="cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._virtual_memory_resource.VirtualMemoryAllocationTypeT</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['pinned', 'managed']</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryLocationTypeT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryLocationTypeT" title="cuda.core._memory._virtual_memory_resource.VirtualMemoryLocationTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._virtual_memory_resource.VirtualMemoryLocationTypeT</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['device', 'host', 'host_numa', 'host_numa_current']</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryGranularityT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryGranularityT" title="cuda.core._memory._virtual_memory_resource.VirtualMemoryGranularityT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._virtual_memory_resource.VirtualMemoryGranularityT</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['minimum', 'recommended']</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT" title="cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._virtual_memory_resource.VirtualMemoryAccessTypeT</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['rw', 'r'] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryHandleTypeT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryHandleTypeT" title="cuda.core._memory._virtual_memory_resource.VirtualMemoryHandleTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._virtual_memory_resource.VirtualMemoryHandleTypeT</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['posix_fd', 'generic', 'win32_kmt', 'fabric'] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes" title="cuda.core._module.KernelAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelAttributes</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes" title="cuda.core._module.KernelAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelAttributes</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Read-only view of a kernel's per-device attributes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._module.KernelOccupancy.html#cuda.core._module.KernelOccupancy" title="cuda.core._module.KernelOccupancy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelOccupancy</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._module.KernelOccupancy.html#cuda.core._module.KernelOccupancy" title="cuda.core._module.KernelOccupancy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelOccupancy</span></code></a>(*args, **kwargs)</p></td>
 <td><p>This class offers methods to query occupancy metrics that help determine optimal launch parameters such as block size, grid size, and shared memory usage.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._module.ParamInfo.html#cuda.core._module.ParamInfo" title="cuda.core._module.ParamInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.ParamInfo</span></code></a>(offset, size)</p></td>
-<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._module.MaxPotentialBlockSizeOccupancyResult.html#cuda.core._module.MaxPotentialBlockSizeOccupancyResult" title="cuda.core._module.MaxPotentialBlockSizeOccupancyResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.MaxPotentialBlockSizeOccupancyResult</span></code></a></p></td>
 <td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">MaxPotential</span></code></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._module.ParamInfo.html#cuda.core._module.ParamInfo" title="cuda.core._module.ParamInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.ParamInfo</span></code></a>(offset, size)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.CompilerBackendType.html#cuda.core.typing.CompilerBackendType" title="cuda.core.typing.CompilerBackendType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.CompilerBackendType</span></code></a>(value[, names, ...])</p></td>
+<td><p>CompilerBackendType</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.DevicePointerType.html#cuda.core.typing.DevicePointerType" title="cuda.core.typing.DevicePointerType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.DevicePointerType</span></code></a></p></td>
+<td><p>Represent a PEP 604 union type</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.DeviceResourcesType.html#cuda.core.typing.DeviceResourcesType" title="cuda.core.typing.DeviceResourcesType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.DeviceResourcesType</span></code></a></p></td>
+<td><p>All the operations on a read-only sequence.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.GraphConditionalType.html#cuda.core.typing.GraphConditionalType" title="cuda.core.typing.GraphConditionalType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.GraphConditionalType</span></code></a>(value[, names, ...])</p></td>
+<td><p>GraphConditionalType</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.GraphMemoryType.html#cuda.core.typing.GraphMemoryType" title="cuda.core.typing.GraphMemoryType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.GraphMemoryType</span></code></a>(value[, names, ...])</p></td>
+<td><p>GraphMemoryType</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.ManagedMemoryLocationType.html#cuda.core.typing.ManagedMemoryLocationType" title="cuda.core.typing.ManagedMemoryLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.ManagedMemoryLocationType</span></code></a>(value[, ...])</p></td>
+<td><p>ManagedMemoryLocationType</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.ObjectCodeFormatType.html#cuda.core.typing.ObjectCodeFormatType" title="cuda.core.typing.ObjectCodeFormatType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.ObjectCodeFormatType</span></code></a>(value[, names, ...])</p></td>
+<td><p>ObjectCodeFormatType</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.PCHStatusType.html#cuda.core.typing.PCHStatusType" title="cuda.core.typing.PCHStatusType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.PCHStatusType</span></code></a>(value[, names, module, ...])</p></td>
+<td><p>PCHStatusType</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.ProcessStateType.html#cuda.core.typing.ProcessStateType" title="cuda.core.typing.ProcessStateType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.ProcessStateType</span></code></a></p></td>
+<td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['running', 'locked', 'checkpointed', 'failed']</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.SourceCodeType.html#cuda.core.typing.SourceCodeType" title="cuda.core.typing.SourceCodeType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.SourceCodeType</span></code></a>(value[, names, ...])</p></td>
+<td><p>SourceCodeType</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.VirtualMemoryAccessType.html#cuda.core.typing.VirtualMemoryAccessType" title="cuda.core.typing.VirtualMemoryAccessType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.VirtualMemoryAccessType</span></code></a>(value[, ...])</p></td>
+<td><p>VirtualMemoryAccessType</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.VirtualMemoryAllocationType.html#cuda.core.typing.VirtualMemoryAllocationType" title="cuda.core.typing.VirtualMemoryAllocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.VirtualMemoryAllocationType</span></code></a>(value[, ...])</p></td>
+<td><p>VirtualMemoryAllocationType</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.VirtualMemoryGranularityType.html#cuda.core.typing.VirtualMemoryGranularityType" title="cuda.core.typing.VirtualMemoryGranularityType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.VirtualMemoryGranularityType</span></code></a>(value[, ...])</p></td>
+<td><p>VirtualMemoryGranularityType</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.VirtualMemoryHandleType.html#cuda.core.typing.VirtualMemoryHandleType" title="cuda.core.typing.VirtualMemoryHandleType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.VirtualMemoryHandleType</span></code></a>(value[, ...])</p></td>
+<td><p>VirtualMemoryHandleType</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.VirtualMemoryLocationType.html#cuda.core.typing.VirtualMemoryLocationType" title="cuda.core.typing.VirtualMemoryLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.VirtualMemoryLocationType</span></code></a>(value[, ...])</p></td>
+<td><p>VirtualMemoryLocationType</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties" title="cuda.core._device.DeviceProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_device.DeviceProperties</span></code></a>(*args, **kwargs)</p></td>
 <td><p>A class to query various attributes of a CUDA device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._ipc.IPCAllocationHandle</span></code></a>(*arg, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._device_resources.DeviceResources.html#cuda.core._device_resources.DeviceResources" title="cuda.core._device_resources.DeviceResources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_device_resources.DeviceResources</span></code></a>(*args, ...)</p></td>
+<td><p>Namespace for hardware resource queries.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._ipc.IPCAllocationHandle</span></code></a>(*arg, **kwargs)</p></td>
 <td><p>Shareable handle to an IPC-enabled device memory pool.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor" title="cuda.core._memory._ipc.IPCBufferDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._ipc.IPCBufferDescriptor</span></code></a>(*arg, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor" title="cuda.core._memory._ipc.IPCBufferDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._ipc.IPCBufferDescriptor</span></code></a>(*arg, **kwargs)</p></td>
 <td><p>Serializable object describing a buffer that can be shared between processes.</p></td>
 </tr>
 </tbody>
@@ -721,7 +776,7 @@
 <h1>CUDA protocols<a class="headerlink" href="#cuda-protocols" title="Link to this heading">#</a></h1>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.IsStreamT.html#cuda.core.typing.IsStreamT" title="cuda.core.typing.IsStreamT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.IsStreamT</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.IsStreamType.html#cuda.core.typing.IsStreamType" title="cuda.core.typing.IsStreamType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.IsStreamType</span></code></a></p></td>
 <td><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Protocol</span></code></a>.</p></td>
 </tr>
 </tbody>
@@ -768,26 +823,14 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._device.GpuDynamicPstatesUtilization.html#cuda.core.system._device.GpuDynamicPstatesUtilization" title="cuda.core.system._device.GpuDynamicPstatesUtilization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.GpuDynamicPstatesUtilization</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._device.GpuP2PCapsIndex.html#cuda.core.system._device.GpuP2PCapsIndex" title="cuda.core.system._device.GpuP2PCapsIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.GpuP2PCapsIndex</span></code></a>(value)</p></td>
-<td><p>See <cite>nvmlGpuP2PCapsIndex_t</cite>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._device.GpuP2PStatus.html#cuda.core.system._device.GpuP2PStatus" title="cuda.core.system._device.GpuP2PStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.GpuP2PStatus</span></code></a>(value)</p></td>
-<td><p>See <cite>nvmlGpuP2PStatus_t</cite>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._device.GpuTopologyLevel.html#cuda.core.system._device.GpuTopologyLevel" title="cuda.core.system._device.GpuTopologyLevel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.GpuTopologyLevel</span></code></a>(value)</p></td>
-<td><p>Represents level relationships within a system between two GPUs The enums are spaced to allow for future relationships</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._device.InforomInfo.html#cuda.core.system._device.InforomInfo" title="cuda.core.system._device.InforomInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.InforomInfo</span></code></a>(Device device)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._device.InforomInfo.html#cuda.core.system._device.InforomInfo" title="cuda.core.system._device.InforomInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.InforomInfo</span></code></a>(Device device)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._device.MemoryInfo.html#cuda.core.system._device.MemoryInfo" title="cuda.core.system._device.MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.MemoryInfo</span></code></a>(memory_info)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._device.MemoryInfo.html#cuda.core.system._device.MemoryInfo" title="cuda.core.system._device.MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.MemoryInfo</span></code></a>(memory_info)</p></td>
 <td><p>Memory allocation information for a device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._device.MigInfo.html#cuda.core.system._device.MigInfo" title="cuda.core.system._device.MigInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.MigInfo</span></code></a>(Device device)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._device.MigInfo.html#cuda.core.system._device.MigInfo" title="cuda.core.system._device.MigInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.MigInfo</span></code></a>(Device device)</p></td>
 <td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._device.NvlinkInfo.html#cuda.core.system._device.NvlinkInfo" title="cuda.core.system._device.NvlinkInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.NvlinkInfo</span></code></a>(Device device, ...)</p></td>
-<td><p>Nvlink information for a device.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._device.PciInfo.html#cuda.core.system._device.PciInfo" title="cuda.core.system._device.PciInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.PciInfo</span></code></a>(pci_info_ext, int handle)</p></td>
 <td><p>PCI information about a GPU device.</p></td>
@@ -807,14 +850,79 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._device.ThermalSettings.html#cuda.core.system._device.ThermalSettings" title="cuda.core.system._device.ThermalSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.ThermalSettings</span></code></a>(thermal_settings)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._system_events.RegisteredSystemEvents.html#cuda.core.system._system_events.RegisteredSystemEvents" title="cuda.core.system._system_events.RegisteredSystemEvents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._system_events.RegisteredSystemEvents</span></code></a>(events)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._device.Utilization.html#cuda.core.system._device.Utilization" title="cuda.core.system._device.Utilization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.Utilization</span></code></a>(utilization)</p></td>
+<td><p>Utilization rates for a device.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._system_events.RegisteredSystemEvents.html#cuda.core.system._system_events.RegisteredSystemEvents" title="cuda.core.system._system_events.RegisteredSystemEvents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._system_events.RegisteredSystemEvents</span></code></a>(events)</p></td>
 <td><p>Represents a set of events that can be waited on for a specific device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._system_events.SystemEvent.html#cuda.core.system._system_events.SystemEvent" title="cuda.core.system._system_events.SystemEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._system_events.SystemEvent</span></code></a>(event_data)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._system_events.SystemEvent.html#cuda.core.system._system_events.SystemEvent" title="cuda.core.system._system_events.SystemEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._system_events.SystemEvent</span></code></a>(event_data)</p></td>
 <td><p>Data about a collection of system events.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._system_events.SystemEvents.html#cuda.core.system._system_events.SystemEvents" title="cuda.core.system._system_events.SystemEvents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._system_events.SystemEvents</span></code></a>(event_data)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._system_events.SystemEvents.html#cuda.core.system._system_events.SystemEvents" title="cuda.core.system._system_events.SystemEvents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._system_events.SystemEvents</span></code></a>(event_data)</p></td>
 <td><p>Data about a collection of system events.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.AddressingMode.html#cuda.core.system.typing.AddressingMode" title="cuda.core.system.typing.AddressingMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.AddressingMode</span></code></a>(value[, names, ...])</p></td>
+<td><p>Addressing mode of a device.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.AffinityScope.html#cuda.core.system.typing.AffinityScope" title="cuda.core.system.typing.AffinityScope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.AffinityScope</span></code></a>(value[, names, ...])</p></td>
+<td><p>Scope for affinity queries.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.ClockId.html#cuda.core.system.typing.ClockId" title="cuda.core.system.typing.ClockId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.ClockId</span></code></a>(value[, names, ...])</p></td>
+<td><p>Clock Ids.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.ClocksEventReasons.html#cuda.core.system.typing.ClocksEventReasons" title="cuda.core.system.typing.ClocksEventReasons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.ClocksEventReasons</span></code></a>(value[, ...])</p></td>
+<td><p>Reasons for a clocks event.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.ClockType.html#cuda.core.system.typing.ClockType" title="cuda.core.system.typing.ClockType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.ClockType</span></code></a>(value[, names, ...])</p></td>
+<td><p>Clock types.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.CoolerControl.html#cuda.core.system.typing.CoolerControl" title="cuda.core.system.typing.CoolerControl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.CoolerControl</span></code></a>(value[, names, ...])</p></td>
+<td><p>Cooler control type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.CoolerTarget.html#cuda.core.system.typing.CoolerTarget" title="cuda.core.system.typing.CoolerTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.CoolerTarget</span></code></a>(value[, names, ...])</p></td>
+<td><p>Cooler target.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.DeviceArch.html#cuda.core.system.typing.DeviceArch" title="cuda.core.system.typing.DeviceArch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.DeviceArch</span></code></a>(value)</p></td>
+<td><p>Device architecture.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.EventType</span></code></a>(value[, names, ...])</p></td>
+<td><p>Event types that can be waited on with <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceEvents</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.FanControlPolicy.html#cuda.core.system.typing.FanControlPolicy" title="cuda.core.system.typing.FanControlPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.FanControlPolicy</span></code></a>(value[, ...])</p></td>
+<td><p>Fan control policies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.FieldId.html#cuda.core.system.typing.FieldId" title="cuda.core.system.typing.FieldId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.FieldId</span></code></a>(value)</p></td>
+<td><p>FieldId</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.GpuP2PCapsIndex.html#cuda.core.system.typing.GpuP2PCapsIndex" title="cuda.core.system.typing.GpuP2PCapsIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.GpuP2PCapsIndex</span></code></a>(value[, ...])</p></td>
+<td><p>GPU peer-to-peer capabilities index.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.GpuP2PStatus.html#cuda.core.system.typing.GpuP2PStatus" title="cuda.core.system.typing.GpuP2PStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.GpuP2PStatus</span></code></a>(value[, names, ...])</p></td>
+<td><p>GPU peer-to-peer status.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.GpuTopologyLevel.html#cuda.core.system.typing.GpuTopologyLevel" title="cuda.core.system.typing.GpuTopologyLevel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.GpuTopologyLevel</span></code></a>(value[, ...])</p></td>
+<td><p>Represents level relationships within a system between two GPUs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.InforomObject.html#cuda.core.system.typing.InforomObject" title="cuda.core.system.typing.InforomObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.InforomObject</span></code></a>(value[, names, ...])</p></td>
+<td><p>InfoROM objects types.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.SystemEventType.html#cuda.core.system.typing.SystemEventType" title="cuda.core.system.typing.SystemEventType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.SystemEventType</span></code></a>(value[, ...])</p></td>
+<td><p>System event types.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.TemperatureThresholds.html#cuda.core.system.typing.TemperatureThresholds" title="cuda.core.system.typing.TemperatureThresholds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.TemperatureThresholds</span></code></a>(value[, ...])</p></td>
+<td><p>Temperature threshold types.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.ThermalController.html#cuda.core.system.typing.ThermalController" title="cuda.core.system.typing.ThermalController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.ThermalController</span></code></a>(value[, ...])</p></td>
+<td><p>Thermal controller types.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.ThermalTarget.html#cuda.core.system.typing.ThermalTarget" title="cuda.core.system.typing.ThermalTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.ThermalTarget</span></code></a>(value[, names, ...])</p></td>
+<td><p>Thermal sensor targets.</p></td>
 </tr>
 </tbody>
 </table>
@@ -855,7 +963,9 @@
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">CUDA runtime</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-graphs">CUDA graphs</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-protocols">CUDA protocols</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#nvml">NVML</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#nvml">NVML</a><ul class="pst-show_toc_level nav section-nav flex-column">
+</ul>
+</li>
 </ul>
 
   </nav></div>
