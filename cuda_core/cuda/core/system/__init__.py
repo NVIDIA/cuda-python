@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -11,12 +11,14 @@
 
 __all__ = [
     "CUDA_BINDINGS_NVML_IS_COMPATIBLE",
-    "get_driver_version",
-    "get_driver_version_full",
+    "get_kernel_mode_driver_version",
     "get_num_devices",
     "get_process_name",
+    "get_user_mode_driver_version",
 ]
 
+
+from cuda.core.system import typing
 
 from ._system import *
 

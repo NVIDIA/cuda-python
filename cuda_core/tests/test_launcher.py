@@ -26,6 +26,7 @@ from cuda.core import (
 )
 from cuda.core._memory._legacy import _SynchronousMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core.typing import ObjectCodeFormatType, SourceCodeType
 
 
 def test_launch_config_init(init_cuda):
@@ -126,8 +127,8 @@ def test_launch_config_native_conversion(init_cuda):
 
 def test_launch_invalid_values(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
-    program = Program(code, "c++")
-    mod = program.compile("cubin")
+    program = Program(code, SourceCodeType.CXX)
+    mod = program.compile(ObjectCodeFormatType.CUBIN)
 
     stream = Device().create_stream()
     ker = mod.get_kernel("my_kernel")

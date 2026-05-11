@@ -52,10 +52,10 @@ typedef struct AtenTensorOpaque* AtenTensorHandle;
 
 /*
  * IMPORTANT: Keep the AOTI_SHIM_API declaration list below in sync with
- * aoti_shim.def.  On Windows, build_hooks.py turns that .def file into the
- * stub import library that MSVC needs to link _tensor_bridge without making
- * PyTorch a build-time dependency.  If you add, remove, or rename an
- * imported AOTI symbol here, update aoti_shim.def in the same change.
+ * aoti_shim.def.  On Windows, setup.py generates that stub import library
+ * during build_ext so MSVC can link _tensor_bridge without making PyTorch a
+ * build-time dependency.  If you add, remove, or rename an imported AOTI
+ * symbol here, update aoti_shim.def in the same change.
  *
  * Exception: aoti_torch_get_current_cuda_stream lives in torch_cuda (not
  * torch_cpu) and is resolved lazily at runtime — see _tensor_bridge.pyx.

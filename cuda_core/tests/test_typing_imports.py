@@ -8,22 +8,26 @@
 def test_typing_module_imports():
     """All type aliases and protocols are importable from cuda.core.typing."""
     from cuda.core.typing import (
-        DevicePointerT,
-        IsStreamT,
+        DevicePointerType,
+        IsStreamType,
+        ProcessStateType,
     )
 
-    assert DevicePointerT is not None
-    assert IsStreamT is not None
+    assert DevicePointerType is not None
+    assert IsStreamType is not None
+    assert set(ProcessStateType.__args__) == {"running", "locked", "checkpointed", "failed"}
 
 
 def test_typing_matches_private_definitions():
     """cuda.core.typing re-exports match the original private definitions."""
-    from cuda.core._memory._buffer import DevicePointerT as _DevicePointerT
-    from cuda.core._stream import IsStreamT as _IsStreamT
+    from cuda.core._memory._buffer import DevicePointerType as _DevicePointerT
+    from cuda.core._stream import IsStreamType as _IsStreamT
     from cuda.core.typing import (
-        DevicePointerT,
-        IsStreamT,
+        DevicePointerType,
+        IsStreamType,
+        ProcessStateType,
     )
 
-    assert DevicePointerT is _DevicePointerT
-    assert IsStreamT is _IsStreamT
+    assert DevicePointerType is _DevicePointerT
+    assert IsStreamType is _IsStreamT
+    assert set(ProcessStateType.__args__) == {"running", "locked", "checkpointed", "failed"}
