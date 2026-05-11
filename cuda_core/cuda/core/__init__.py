@@ -29,6 +29,9 @@ del _import_versioned_module
 
 
 def _patch_rlcompleter_for_cython_properties():
+    # TODO: This can be removed when Python 3.13 is our minimum-supported version:
+    #   https://github.com/python/cpython/pull/149577
+
     # Cython @property on cdef class compiles to a C-level getset_descriptor,
     # which rlcompleter's narrow isinstance(..., property) check misses; the
     # fallback getattr() then invokes the descriptor and any non-AttributeError
@@ -37,14 +40,10 @@ def _patch_rlcompleter_for_cython_properties():
     # interactive mode so library users running scripts see no global
     # rlcompleter side effect.
     import os
-    import sys
 
     if os.environ.get("CUDA_CORE_DONT_FIX_TAB_COMPLETION"):
         # Explicit opt-out for users who don't want the global rlcompleter
         # side effect, even in an interactive session.
-        return
-    if not (hasattr(sys, "ps1") or sys.flags.inspect):
-        # Plain `python script.py`, `python -c ...`, pytest, etc.
         return
 
     import rlcompleter
