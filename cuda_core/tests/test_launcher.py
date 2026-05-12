@@ -25,7 +25,6 @@ from cuda.core import (
     launch,
 )
 from cuda.core._memory._legacy import _SynchronousMemoryResource
-from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.typing import ObjectCodeFormatType, SourceCodeType
 
 
