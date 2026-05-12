@@ -12,7 +12,10 @@ from libc.stdlib cimport free, malloc
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport ContextHandle, GreenCtxHandle, as_cu, get_context_green_ctx
+from cuda.core._resource_handles cimport (
+    ContextHandle, GreenCtxHandle, as_cu, get_context_green_ctx,
+    sm_resource_split, has_sm_resource_split,
+)
 from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
 from cuda.core._utils.cuda_utils import is_sequence
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
@@ -211,7 +214,9 @@ cdef inline bint _can_use_structured_sm_split():
     if _structured_split_checked != 0:
         return _structured_split_checked == 1
     IF CUDA_CORE_BUILD_MAJOR >= 13:
-        if cy_driver_version() >= (13, 1, 0) and cy_binding_version() >= (13, 1, 0):
+        if (has_sm_resource_split()
+                and cy_driver_version() >= (13, 1, 0)
+                and cy_binding_version() >= (13, 1, 0)):
             _structured_split_checked = 1
             return True
     _structured_split_checked = -1
@@ -300,13 +305,13 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 
             memset(&remaining, 0, sizeof(cydriver.CUdevResource))
             with nogil:
-                HANDLE_RETURN(cydriver.cuDevSmResourceSplit(
+                HANDLE_RETURN(sm_resource_split(
                     result,
                     <unsigned int>(n_groups),
                     &sm._resource,
                     &remaining,
                     0,
-                    params,
+                    <void*>params,
                 ))
 
             if result != NULL:

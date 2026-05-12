@@ -108,6 +108,9 @@ extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
 extern decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources;
 extern decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource;
 
+// SM resource split (13.1+ — may be null on older drivers/bindings)
+extern decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit;
+
 // ============================================================================
 // NVRTC function pointers
 //
@@ -746,5 +749,23 @@ inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
 inline PyObject* as_py(const FileDescriptorHandle& h) noexcept {
     return PyLong_FromSsize_t(as_intptr(h));
 }
+
+// ============================================================================
+// SM resource split wrapper (13.1+)
+//
+// Calls through p_cuDevSmResourceSplit if available, otherwise returns
+// CUDA_ERROR_NOT_SUPPORTED. This avoids a direct Cython cimport of the
+// cydriver cdef function, which would fail at module init on cuda-bindings
+// < 13.1 (see https://github.com/NVIDIA/cuda-python/issues/2063).
+// ============================================================================
+
+// groupParams is void* so the Cython declaration doesn't reference
+// CU_DEV_SM_RESOURCE_GROUP_PARAMS (absent from cuda-bindings 13.0 .pxd).
+CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
+                           const CUdevResource* input, CUdevResource* remainder,
+                           unsigned int flags, void* groupParams);
+
+// Returns true if the cuDevSmResourceSplit function pointer is available.
+bool has_sm_resource_split() noexcept;
 
 }  // namespace cuda_core
