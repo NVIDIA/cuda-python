@@ -283,3 +283,47 @@ mechanical. Use judgment to decide how much structure adds value.
   * Do not provide range of lines
   * Examples: `src/app.ts`, src/app.ts:42, b/server/index.js#L10,
     C:\repo\project\main.rs:12:5
+
+## Cursor Cloud specific instructions
+
+This section is for Cloud Agents running in VMs without CUDA hardware.
+
+### Environment overview
+
+- **pixi** is the primary environment manager. It is installed at
+  `~/.pixi/bin/pixi`; ensure `~/.pixi/bin` is on `PATH`.
+- The VM update script installs pixi and runs `pixi install` for the root
+  workspace and `cuda_pathfinder`. No manual dependency installation needed.
+
+### What can run without a GPU
+
+- `cuda_pathfinder` is pure Python: build, test (`pixi run -e default test`
+  from `cuda_pathfinder/`), and import all work without CUDA hardware.
+- Repo-wide **ruff lint/format** via `pixi run ruff check .` / `pixi run ruff
+  format --check .` from the repo root.
+- **pre-commit** checks: `pre-commit run --all-files` (needs
+  `pip install pre-commit` if not already present).
+
+### What requires CUDA
+
+- `cuda_bindings` and `cuda_core` require CUDA Toolkit headers (`CUDA_HOME` or
+  `CUDA_PATH`) to build from source and a GPU to run tests. These cannot be
+  built or tested in a GPU-less Cloud Agent VM.
+- `cuda_python` is a metapackage with no substantial runtime code.
+
+### Running tests
+
+- **cuda_pathfinder**: `cd cuda_pathfinder && pixi run -e default test`
+  (975+ tests, ~4 s).
+- Tests for other packages are orchestrated the same way but require CUDA; see
+  each package's `AGENTS.md`.
+
+### Gotchas
+
+- pixi lockfiles use an older format (v6); the `WARN` about upgrading to v7 is
+  safe to ignore and should not be acted upon (running `pixi lock` would change
+  committed lockfiles).
+- The root `pixi.toml` workspace tasks (`test`, `docs`) delegate to
+  sub-package pixi environments and are Linux-only.
+- `pre-commit` hooks download their own tool versions on first run (~25 s);
+  subsequent runs are fast.
