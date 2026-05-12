@@ -48,7 +48,7 @@ def test_to_system_device(deinit_cuda):
     # CUDA only returns a 2-byte PCI bus ID domain, whereas NVML returns a
     # 4-byte domain
     # MIG devices don't have pci_info, so skip the bus ID check if it's missing
-    with contextlib.suppress(_system.InvalidArgumentError):
+    with contextlib.suppress(RuntimeError):
         assert device.pci_bus_id == system_device.pci_info.bus_id[4:]
 
 
