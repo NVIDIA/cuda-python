@@ -10,6 +10,11 @@
 Fixes and enhancements
 ----------------------
 
+- Fixed ``ImportError`` when importing ``cuda.core`` with
+  ``cuda-bindings`` 13.0.x due to an unavailable driver function
+  (``cuDevSmResourceSplit``).
+  (`#2063 <https://github.com/NVIDIA/cuda-python/issues/2063>`__,
+  `#2064 <https://github.com/NVIDIA/cuda-python/pull/2064>`__)
 - When iterating over MIG devices with
   ``cuda.core.system.Device.mig.get_all_devices``, only available MIG devices will
   be returned. Previously, if any MIG device was unavailable, an exception would
