@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>CUDA system information and NVIDIA Management Library (NVML) &#8212; cuda.core</title>
+    <title>cuda.core.system API Reference &#8212; cuda.core</title>
   
   
   
@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=ba260dcd"></script>
+    <script src="_static/documentation_options.js?v=ea8e8fa0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev113';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev6';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -198,15 +198,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="examples.html">
-    Examples
+  <a class="nav-link nav-internal" href="install.html">
+    Installation
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="install.html">
-    Installation
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
   </a>
 </li>
 
@@ -234,7 +234,7 @@
                     
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="#">
-    CUDA system information and NVIDIA Management Library (NVML)
+    cuda.core.system API Reference
   </a>
 </li>
 
@@ -415,15 +415,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="examples.html">
-    Examples
+  <a class="nav-link nav-internal" href="install.html">
+    Installation
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="install.html">
-    Installation
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
   </a>
 </li>
 
@@ -444,7 +444,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#">
-    CUDA system information and NVIDIA Management Library (NVML)
+    cuda.core.system API Reference
   </a>
 </li>
 
@@ -523,8 +523,8 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Device.html">cuda.core.Device</a></li>
@@ -592,7 +592,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">CUDA system information and NVIDIA Management Library (NVML)</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_user_mode_driver_version.html">cuda.core.system.get_user_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_kernel_mode_driver_version.html">cuda.core.system.get_kernel_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
@@ -616,6 +616,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.0.1-notes.html">1.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.0.0-notes.html">1.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.6.0-notes.html">0.6.0</a></li>
@@ -666,7 +667,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">CUDA system information and NVIDIA Management Library (NVML)</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</span></li>
   </ul>
 </nav>
 </div>
@@ -683,8 +684,10 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-system-information-and-nvidia-management-library-nvml">
-<span id="module-cuda.core.system"></span><h1>CUDA system information and NVIDIA Management Library (NVML)<a class="headerlink" href="#cuda-system-information-and-nvidia-management-library-nvml" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-system-api-reference">
+<span id="module-cuda.core.system"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference<a class="headerlink" href="#cuda-core-system-api-reference" title="Link to this heading">#</a></h1>
+<p>This is the API reference for Pythonic access to CUDA system information,
+through the NVIDIA Management Library (NVML).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> support requires <code class="docutils literal notranslate"><span class="pre">cuda_bindings</span></code> 12.9.6 or later, or 13.2.0 or later.</p>
