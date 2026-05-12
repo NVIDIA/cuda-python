@@ -7,7 +7,7 @@ from cuda.bindings cimport cydriver
 
 cdef bint _is_py_host_trampoline(cydriver.CUhostFn fn) noexcept nogil
 
-cdef void _py_host_destructor(void* data) noexcept with gil
+cdef void _py_host_destructor(void* data) noexcept nogil
 
 cdef void _attach_user_object(
     cydriver.CUgraph graph, void* ptr,

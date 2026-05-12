@@ -14,6 +14,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
 cdef extern from "Python.h":
+    int Py_IsInitialized() nogil
     void _py_decref "Py_DECREF" (void*)
 
 
@@ -21,8 +22,10 @@ cdef void _py_host_trampoline(void* data) noexcept with gil:
     (<object>data)()
 
 
-cdef void _py_host_destructor(void* data) noexcept with gil:
-    _py_decref(data)
+cdef void _py_host_destructor(void* data) noexcept nogil:
+    if Py_IsInitialized():
+        with gil:
+            _py_decref(data)
 
 
 cdef bint _is_py_host_trampoline(cydriver.CUhostFn fn) noexcept nogil:
