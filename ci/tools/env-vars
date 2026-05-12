@@ -77,8 +77,14 @@ elif [[ "${1}" == "test" ]]; then
     TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
     if [[ ${BUILD_CUDA_MINOR} != ${TEST_CUDA_MINOR} ]]; then
       SKIP_CYTHON_TEST=1
+      # When the minor versions differ (e.g. build=13.2, test=13.0), use
+      # published bindings from PyPI instead of the just-built wheel.  This
+      # tests the real-world scenario where a user installs cuda-core
+      # alongside an older cuda-bindings release of the same major version.
+      USE_PUBLISHED_BINDINGS=1
     else
       SKIP_CYTHON_TEST=0
+      USE_PUBLISHED_BINDINGS=0
     fi
   fi
   # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort
@@ -97,6 +103,7 @@ elif [[ "${1}" == "test" ]]; then
     echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}"
     echo "TEST_CUDA_MAJOR=${TEST_CUDA_MAJOR}"
     echo "USE_BACKPORT_BINDINGS=${USE_BACKPORT_BINDINGS}"
+    echo "USE_PUBLISHED_BINDINGS=${USE_PUBLISHED_BINDINGS:-0}"
   } >> $GITHUB_ENV
 fi
 
