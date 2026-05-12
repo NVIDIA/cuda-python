@@ -170,6 +170,7 @@ jobs:
           Get-ChildItem -Recurse -Force | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Display structure of downloaded cuda.bindings artifacts
+        if: ${{ env.BINDINGS_SOURCE != 'published' }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
@@ -261,6 +262,7 @@ jobs:
         run: run-tests core
 
       - name: Ensure cuda-python installable
+        if: ${{ env.BINDINGS_SOURCE == 'main' }}
         run: |
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
             pip install --only-binary=:all: (Get-ChildItem -Filter cuda_python*.whl).FullName

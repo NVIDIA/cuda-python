@@ -184,6 +184,7 @@ jobs:
           ls -lahR .
 
       - name: Display structure of downloaded cuda.bindings artifacts
+        if: ${{ env.BINDINGS_SOURCE != 'published' }}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
@@ -285,6 +286,7 @@ jobs:
         run: run-tests core
 
       - name: Ensure cuda-python installable
+        if: ${{ env.BINDINGS_SOURCE == 'main' }}
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
             pip install --only-binary=:all: cuda_python*.whl
