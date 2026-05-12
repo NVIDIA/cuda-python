@@ -125,21 +125,21 @@ jobs:
           path: ./cuda_pathfinder
 
       - name: Download cuda-python build artifacts
-        if: ${{ env.USE_BACKPORT_BINDINGS == '0' }}
+        if: ${{ env.BINDINGS_SOURCE == 'main' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-python-wheel
           path: .
 
       - name: Download cuda.bindings build artifacts
-        if: ${{ env.USE_BACKPORT_BINDINGS == '0' }}
+        if: ${{ env.BINDINGS_SOURCE == 'main' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
-        if: ${{ env.USE_BACKPORT_BINDINGS == '1' }}
+        if: ${{ env.BINDINGS_SOURCE == 'backport' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -170,6 +170,7 @@ jobs:
           Get-ChildItem -Recurse -Force | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Display structure of downloaded cuda.bindings artifacts
+        if: ${{ env.BINDINGS_SOURCE != 'published' }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
@@ -261,6 +262,7 @@ jobs:
         run: run-tests core
 
       - name: Ensure cuda-python installable
+        if: ${{ env.BINDINGS_SOURCE == 'main' }}
         run: |
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
             pip install --only-binary=:all: (Get-ChildItem -Filter cuda_python*.whl).FullName
