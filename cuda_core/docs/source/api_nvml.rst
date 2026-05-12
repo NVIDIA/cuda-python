@@ -6,7 +6,7 @@
 ``cuda.core.system`` API Reference
 ==================================
 
-This is the API reference for pythonic access to CUDA system information,
+This is the API reference for Pythonic access to CUDA system information,
 through the NVIDIA Management Library (NVML).
 
 .. note::
