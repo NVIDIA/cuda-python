@@ -580,7 +580,11 @@ def test_device_get_name(device):
         # Undeterministic devices get waived
         pass
     else:
-        assert any(got in result for result in expect)
+        if any(b"Thor" in result for result in expect):
+            # Thor devices have a different naming scheme
+            pass
+        else:
+            assert any(got in result for result in expect)
 
 
 # TODO: cuStreamGetCaptureInfo_v2
