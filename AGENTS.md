@@ -293,30 +293,43 @@ This section is for Cloud Agents running in VMs without CUDA hardware.
 - **pixi** is the primary environment manager. It is installed at
   `~/.pixi/bin/pixi`; ensure `~/.pixi/bin` is on `PATH`.
 - The VM update script installs pixi and runs `pixi install` for the root
-  workspace and `cuda_pathfinder`. No manual dependency installation needed.
+  workspace and all sub-package environments. No manual dependency installation
+  needed.
+- Always use the **`cu13`** environment (not `default`) for `cuda_bindings`
+  and `cuda_core`. The `default` environment does not pin a CUDA version and
+  may fail to build due to header mismatches.
+
+### Building packages
+
+All three packages build from source using pixi, which pulls CUDA Toolkit
+headers from conda-forge (no local CUDA installation needed):
+
+- `cuda_pathfinder`: `cd cuda_pathfinder && pixi install -e default`
+- `cuda_bindings`: `cd cuda_bindings && pixi install -e cu13` (~35 s, Cython
+  compilation of 26 extension modules)
+- `cuda_core`: `cd cuda_core && pixi install -e cu13` (~60 s, builds
+  cuda_bindings as a path dependency then 38 extension modules)
 
 ### What can run without a GPU
 
-- `cuda_pathfinder` is pure Python: build, test (`pixi run -e default test`
-  from `cuda_pathfinder/`), and import all work without CUDA hardware.
+- `cuda_pathfinder`: build, test (`pixi run -e default test`), and import all
+  work without CUDA hardware.
+- `cuda_bindings`: builds and imports successfully (`pixi run -e cu13 python
+  -c "from cuda.bindings import driver, runtime, nvrtc"`).
+- `cuda_core`: builds all Cython extensions but **import fails at runtime**
+  without GPU drivers (`cuMemGetMemPool` symbol missing from cydriver). This is
+  expected; the build itself verifies compilation correctness.
 - Repo-wide **ruff lint/format** via `pixi run ruff check .` / `pixi run ruff
   format --check .` from the repo root.
 - **pre-commit** checks: `pre-commit run --all-files` (needs
   `pip install pre-commit` if not already present).
 
-### What requires CUDA
-
-- `cuda_bindings` and `cuda_core` require CUDA Toolkit headers (`CUDA_HOME` or
-  `CUDA_PATH`) to build from source and a GPU to run tests. These cannot be
-  built or tested in a GPU-less Cloud Agent VM.
-- `cuda_python` is a metapackage with no substantial runtime code.
-
 ### Running tests
 
 - **cuda_pathfinder**: `cd cuda_pathfinder && pixi run -e default test`
   (975+ tests, ~4 s).
-- Tests for other packages are orchestrated the same way but require CUDA; see
-  each package's `AGENTS.md`.
+- **cuda_bindings** / **cuda_core** tests require a GPU and CUDA drivers.
+  See each package's `AGENTS.md` for details.
 
 ### Gotchas
 
@@ -327,3 +340,5 @@ This section is for Cloud Agents running in VMs without CUDA hardware.
   sub-package pixi environments and are Linux-only.
 - `pre-commit` hooks download their own tool versions on first run (~25 s);
   subsequent runs are fast.
+- `cuda_bindings` `default` environment fails to build due to unpinned CUDA
+  version causing header/code mismatches. Always use `cu13` (or `cu12`).
