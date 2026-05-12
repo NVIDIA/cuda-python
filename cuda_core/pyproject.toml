@@ -94,7 +94,7 @@ include = ["cuda.core*"]
 include-package-data = false
 
 [tool.setuptools.package-data]
-"*" = ["*.pxd"]
+"*" = ["*.pxd", "*.pyi", "py.typed"]
 "cuda.core._include" = ["*.h", "*.hpp"]
 "cuda.core._cpp" = ["*.hpp"]
 
@@ -107,6 +107,16 @@ version_file = "cuda/core/_version.py"
 # Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
 tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-core-v*[0-9]*"]
+
+[tool.mypy]
+# Best to use minimum supported version here, so we don't accidentally use newer
+# type features.
+python_version = "3.10"
+explicit_package_bases = true
+namespace_packages = true
+mypy_path = "cuda_core"
+ignore_missing_imports = true
+implicit_reexport = true
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"
