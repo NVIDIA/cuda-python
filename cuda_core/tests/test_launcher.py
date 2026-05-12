@@ -86,6 +86,7 @@ def test_launch_config_native_cache_stable(init_cuda):
 def test_launch_config_native_cache_cooperative(init_cuda):
     """Cached cooperative config retains the cooperative attribute."""
     from cuda.core._launch_config import _to_native_launch_config
+
     try:
         config = LaunchConfig(grid=1, block=1, is_cooperative=True)
     except Exception:
