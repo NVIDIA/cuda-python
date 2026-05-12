@@ -12,10 +12,7 @@ from libc.stdlib cimport free, malloc
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport (
-    ContextHandle, GreenCtxHandle, as_cu, get_context_green_ctx,
-    sm_resource_split, has_sm_resource_split,
-)
+from cuda.core._resource_handles cimport ContextHandle, GreenCtxHandle, as_cu, get_context_green_ctx
 from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
 from cuda.core._utils.cuda_utils import is_sequence
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
@@ -205,6 +202,9 @@ cdef inline unsigned int _to_sm_count(object value) except? 0:
         raise ValueError(f"count must be non-negative, got {value}")
     return <unsigned int>(value)
 
+
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._resource_handles cimport sm_resource_split, has_sm_resource_split
 
 cdef int _structured_split_checked = 0
 
