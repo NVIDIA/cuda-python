@@ -1,6 +1,13 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import ctypes
+import os
+import shutil
+import subprocess
+import sys
+import textwrap
+
 import pytest
 
 cudla = pytest.importorskip("cuda.bindings.cudla")
@@ -20,6 +27,215 @@ requires_cudla_library = pytest.mark.skipif(
     not _cudla_library_available(),
     reason="cuDLA library not available (requires NVIDIA Orin with DLA)",
 )
+
+
+def _make_fence(fence_value):
+    fence = cudla.Fence()
+    fence.fence = fence_value
+    fence.type = int(cudla.FenceType.NVSCISYNC_FENCE)
+    return fence
+
+
+def _load_fake_cudla_library(tmp_path):
+    if sys.platform == "win32":
+        pytest.skip("fake cuDLA backend test is Linux-only")
+
+    compiler = shutil.which("cc") or shutil.which("gcc") or shutil.which("clang")
+    if compiler is None:
+        pytest.skip("no C compiler available for fake cuDLA backend test")
+
+    source_path = tmp_path / "fake_cudla.c"
+    library_path = tmp_path / "libfakecudla.so"
+    source_path.write_text(
+        textwrap.dedent(
+            """\
+            #include <stddef.h>
+            #include <stdint.h>
+
+            typedef int32_t cudlaStatus;
+            typedef int32_t cudlaModuleAttributeType;
+            typedef int32_t cudlaDevAttributeType;
+            typedef void* cudlaDevHandle;
+            typedef void* cudlaModule;
+
+            typedef union {
+                uint8_t unifiedAddressingSupported;
+                uint32_t deviceVersion;
+            } cudlaDevAttribute;
+
+            typedef struct {
+                char name[81];
+                uint64_t size;
+                uint64_t n;
+                uint64_t c;
+                uint64_t h;
+                uint64_t w;
+                uint8_t dataFormat;
+                uint8_t dataType;
+                uint8_t dataCategory;
+                uint8_t pixelFormat;
+                uint8_t pixelMapping;
+                uint32_t stride[8];
+            } cudlaModuleTensorDescriptor;
+
+            typedef union {
+                uint32_t numInputTensors;
+                uint32_t numOutputTensors;
+                cudlaModuleTensorDescriptor* inputTensorDesc;
+                cudlaModuleTensorDescriptor* outputTensorDesc;
+            } cudlaModuleAttribute;
+
+            typedef struct {
+                cudlaModule moduleHandle;
+                uint64_t** outputTensor;
+                uint32_t numOutputTensors;
+                uint32_t numInputTensors;
+                uint64_t** inputTensor;
+                void* waitEvents;
+                void* signalEvents;
+            } cudlaTask;
+
+            cudlaStatus cudlaGetVersion(uint64_t* version) {
+                if (version != NULL) {
+                    *version = 13002075ULL;
+                }
+                return 0;
+            }
+
+            cudlaStatus cudlaDeviceGetCount(uint64_t* numDevices) {
+                if (numDevices != NULL) {
+                    *numDevices = 1;
+                }
+                return 0;
+            }
+
+            cudlaStatus cudlaCreateDevice(const uint64_t device, cudlaDevHandle* devHandle, const uint32_t flags) {
+                (void)device;
+                (void)flags;
+                if (devHandle != NULL) {
+                    *devHandle = (void*)0x1234;
+                }
+                return 0;
+            }
+
+            cudlaStatus cudlaMemRegister(
+                const cudlaDevHandle devHandle,
+                const uint64_t* ptr,
+                const size_t size,
+                uint64_t** devPtr,
+                const uint32_t flags
+            ) {
+                (void)devHandle;
+                (void)ptr;
+                (void)size;
+                (void)flags;
+                if (devPtr != NULL) {
+                    *devPtr = (uint64_t*)0x5678;
+                }
+                return 0;
+            }
+
+            cudlaStatus cudlaModuleLoadFromMemory(
+                const cudlaDevHandle devHandle,
+                const uint8_t* moduleData,
+                const size_t moduleSize,
+                cudlaModule* moduleHandle,
+                const uint32_t flags
+            ) {
+                (void)devHandle;
+                (void)moduleData;
+                (void)moduleSize;
+                (void)flags;
+                if (moduleHandle != NULL) {
+                    *moduleHandle = (void*)0x2222;
+                }
+                return 0;
+            }
+
+            cudlaStatus cudlaModuleGetAttributes(
+                const cudlaModule moduleHandle,
+                const cudlaModuleAttributeType attrType,
+                cudlaModuleAttribute* attribute
+            ) {
+                (void)moduleHandle;
+                (void)attrType;
+                if (attribute != NULL) {
+                    attribute->numInputTensors = 0;
+                }
+                return 0;
+            }
+
+            cudlaStatus cudlaModuleUnload(const cudlaModule moduleHandle, const uint32_t flags) {
+                (void)moduleHandle;
+                (void)flags;
+                return 0;
+            }
+
+            cudlaStatus cudlaSubmitTask(
+                const cudlaDevHandle devHandle,
+                const cudlaTask* tasks,
+                const uint32_t numTasks,
+                void* stream,
+                const uint32_t flags
+            ) {
+                (void)devHandle;
+                (void)tasks;
+                (void)numTasks;
+                (void)stream;
+                (void)flags;
+                return 0;
+            }
+
+            cudlaStatus cudlaDeviceGetAttribute(
+                const cudlaDevHandle devHandle,
+                const cudlaDevAttributeType attrib,
+                cudlaDevAttribute* attribute
+            ) {
+                (void)devHandle;
+                (void)attrib;
+                if (attribute != NULL) {
+                    attribute->deviceVersion = 1;
+                }
+                return 0;
+            }
+
+            cudlaStatus cudlaMemUnregister(const cudlaDevHandle devHandle, const uint64_t* devPtr) {
+                (void)devHandle;
+                (void)devPtr;
+                return 0;
+            }
+
+            cudlaStatus cudlaGetLastError(const cudlaDevHandle devHandle) {
+                (void)devHandle;
+                return 0;
+            }
+
+            cudlaStatus cudlaDestroyDevice(const cudlaDevHandle devHandle) {
+                (void)devHandle;
+                return 0;
+            }
+
+            cudlaStatus cudlaSetTaskTimeoutInMs(const cudlaDevHandle devHandle, const uint32_t timeout) {
+                (void)devHandle;
+                (void)timeout;
+                return 0;
+            }
+            """
+        ),
+        encoding="utf-8",
+    )
+    try:
+        subprocess.run(  # noqa: S603 - trusted compiler path from shutil.which and temp test inputs
+            [compiler, "-shared", "-fPIC", "-o", str(library_path), str(source_path)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        pytest.skip(f"failed to build fake cuDLA backend test library: {exc}")
+
+    mode = getattr(ctypes, "RTLD_GLOBAL", getattr(os, "RTLD_GLOBAL", 0))
+    return ctypes.CDLL(str(library_path), mode=mode)
 
 
 # ---------------------------------------------------------------------------
@@ -247,6 +463,68 @@ class TestApiSurface:
         assert callable(getattr(cudla, func_name))
 
 
+class TestDocumentedApiSurface:
+    def test_documented_functions_exist(self):
+        documented = [
+            "import_external_memory",
+            "import_external_semaphore",
+            "get_nv_sci_sync_attributes",
+        ]
+        missing = [func_name for func_name in documented if not hasattr(cudla, func_name)]
+        assert not missing, f"documented cuDLA functions are missing: {missing}"
+
+    def test_documented_status_success_member_exists(self):
+        assert hasattr(cudla.Status, "SUCCESS")
+
+
+class TestFenceArraySemantics:
+    def test_wait_events_pre_fences_round_trip(self):
+        wait_events = cudla.WaitEvents()
+        wait_events.pre_fences = [_make_fence(0x1010), _make_fence(0x2020)]
+
+        pre_fences = wait_events.pre_fences
+        assert len(pre_fences) == 2
+        assert [fence.fence for fence in pre_fences] == [0x1010, 0x2020]
+
+    def test_signal_events_eof_fences_round_trip(self):
+        signal_events = cudla.SignalEvents()
+        signal_events.eof_fences = [_make_fence(0x3030), _make_fence(0x4040)]
+
+        eof_fences = signal_events.eof_fences
+        assert len(eof_fences) == 2
+        assert [fence.fence for fence in eof_fences] == [0x3030, 0x4040]
+
+
+class TestTaskReferenceRetention:
+    @pytest.mark.parametrize(
+        ("attr_name", "wrapper_factory"),
+        [
+            ("wait_events", cudla.WaitEvents),
+            ("signal_events", cudla.SignalEvents),
+        ],
+    )
+    def test_task_retains_assigned_event_wrappers(self, attr_name, wrapper_factory):
+        task = cudla.Task()
+        wrapper = wrapper_factory()
+
+        baseline_refcount = sys.getrefcount(wrapper)
+        setattr(task, attr_name, wrapper)
+
+        assert sys.getrefcount(wrapper) > baseline_refcount
+
+
+class TestStandaloneMode:
+    def test_create_device_accepts_standalone_mode_when_backend_supports_it(self, tmp_path):
+        if _cudla_library_available():
+            pytest.skip("requires a host without a preloaded cuDLA runtime")
+
+        fake_cudla = _load_fake_cudla_library(tmp_path)
+        assert fake_cudla is not None
+
+        handle = cudla.create_device(0, int(cudla.Mode.STANDALONE))
+        assert handle == 0x1234
+
+
 # ---------------------------------------------------------------------------
 # Function tests (hardware-gated -- skipped when libcudla.so is unavailable)
 # ---------------------------------------------------------------------------
@@ -273,14 +551,6 @@ class TestFunctions:
             assert handle != 0
         finally:
             cudla.destroy_device(handle)
-
-    def test_create_device_rejects_standalone(self):
-        with pytest.raises(cudla.CudlaError, match="ErrorUnsupportedOperation"):
-            cudla.create_device(0, int(cudla.Mode.STANDALONE))
-
-    def test_create_device_rejects_standalone_raw_int(self):
-        with pytest.raises(cudla.CudlaError, match="ErrorUnsupportedOperation"):
-            cudla.create_device(0, 1)
 
     def test_mem_register_unregister(self):
         from cuda.bindings import driver, runtime
