@@ -82,7 +82,7 @@ def main():
         device_array = cp.from_dlpack(device_buffer).view(dtype=dtype)
 
         # 2. Pinned Memory (CPU memory, GPU accessible)
-        pinned_buffer = pinned_mr.allocate(total_size, stream=stream)
+        pinned_buffer = pinned_mr.allocate(total_size)
         pinned_array = np.from_dlpack(pinned_buffer).view(dtype=dtype)
 
         # Initialize data

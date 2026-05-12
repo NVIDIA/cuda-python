@@ -11,10 +11,10 @@
 
 __all__ = [
     "CUDA_BINDINGS_NVML_IS_COMPATIBLE",
-    "get_driver_version",
-    "get_driver_version_full",
+    "get_kernel_mode_driver_version",
     "get_num_devices",
     "get_process_name",
+    "get_user_mode_driver_version",
 ]
 
 

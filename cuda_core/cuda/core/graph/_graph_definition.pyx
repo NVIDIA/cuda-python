@@ -23,13 +23,11 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
-from dataclasses import dataclass
-
 from cuda.core._utils.cuda_utils import driver
 
 from cuda.core.typing import GraphMemoryType
 
-__all__ = ['GraphCondition', 'GraphAllocOptions', 'GraphDefinition']
+__all__ = ['GraphCondition', 'GraphDefinition']
 
 
 cdef class GraphCondition:
@@ -69,42 +67,6 @@ cdef class GraphCondition:
     def handle(self) -> driver.CUgraphConditionalHandle:
         """The raw CUgraphConditionalHandle as an int."""
         return <unsigned long long>self._c_handle
-
-
-@dataclass
-class GraphAllocOptions:
-    """Options for graph memory allocation nodes.
-
-    Attributes
-    ----------
-    device : int or Device, optional
-        The device on which to allocate memory. If None (default),
-        uses the current CUDA context's device.
-    memory_type : GraphMemoryType | str, optional
-        Type of memory to allocate. One of:
-
-        - ``"device"`` (default): Pinned device memory, optimal for GPU kernels.
-        - ``"host"``: Pinned host memory, accessible from both host and device.
-          Useful for graphs containing host callback nodes. Note: may not be
-          supported on all systems/drivers.
-        - ``"managed"``: Managed/unified memory that automatically migrates
-          between host and device. Useful for mixed host/device access patterns.
-
-    peer_access : list of int or Device, optional
-        List of devices that should have read-write access to the
-        allocated memory. If None (default), only the allocating
-        device has access.
-
-    Notes
-    -----
-    - IPC (inter-process communication) is not supported for graph
-      memory allocation nodes per CUDA documentation.
-    - The allocation uses the device's default memory pool.
-    """
-
-    device: int | "Device" | None = None
-    memory_type: GraphMemoryType = GraphMemoryType.DEVICE
-    peer_access: list | None = None
 
 
 cdef class GraphDefinition:
@@ -147,12 +109,14 @@ cdef class GraphDefinition:
         n._h_node = create_graph_node_handle(<cydriver.CUgraphNode>NULL, self._h_graph)
         return n
 
-    def allocate(self, size_t size, options: GraphAllocOptions | None = None) -> "AllocNode":
+    def allocate(self, size_t size, *, device: "Device" | int | None = None,
+                 memory_type: GraphMemoryType = GraphMemoryType.DEVICE,
+                 peer_access: list["Device" | int] | None = None) -> "AllocNode":
         """Add an entry-point memory allocation node (no dependencies).
 
         See :meth:`GraphNode.allocate` for full documentation.
         """
-        return self._entry.allocate(size, options)
+        return self._entry.allocate(size, device=device, memory_type=memory_type, peer_access=peer_access)
 
     def deallocate(self, dptr) -> "FreeNode":
         """Add an entry-point memory free node (no dependencies).

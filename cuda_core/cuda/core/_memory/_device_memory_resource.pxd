@@ -9,7 +9,6 @@ from cuda.core._memory._ipc cimport IPCDataForMR
 cdef class DeviceMemoryResource(_MemPool):
     cdef:
         int _dev_id
-        object _peer_accessible_by
 
 
 cpdef DMR_mempool_get_access(DeviceMemoryResource, int)

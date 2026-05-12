@@ -168,10 +168,23 @@ cdef class Linker:
         else:
             return as_py(self._culink_handle)
 
-    @property
-    def backend(self) -> CompilerBackendType:
-        """Return this Linker instance's underlying :class:`CompilerBackendType`."""
-        return CompilerBackendType.NVJITLINK if self._use_nvjitlink else CompilerBackendType.DRIVER
+    @classmethod
+    def which_backend(cls) -> CompilerBackendType:
+        """Return which linking backend will be used.
+
+        Returns :attr:`~CompilerBackendType.NVJITLINK` when the nvJitLink
+        library is available and meets the minimum version requirement,
+        otherwise :attr:`~CompilerBackendType.DRIVER`.
+
+        .. note::
+
+            Prefer letting :class:`Linker` decide. Query ``which_backend()``
+            only when you need to dispatch based on input format (for
+            example: choose PTX vs. LTOIR before constructing a
+            ``Linker``). The returned value names an implementation
+            detail whose support matrix may shift across CTK releases.
+        """
+        return CompilerBackendType.DRIVER if _decide_nvjitlink_or_driver() else CompilerBackendType.NVJITLINK
 
 
 # =============================================================================

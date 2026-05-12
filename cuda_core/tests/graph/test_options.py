@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """Graph options and build mode tests."""
@@ -6,7 +6,8 @@
 import pytest
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
 
-from cuda.core import Device, GraphBuilder, GraphCompleteOptions, GraphDebugPrintOptions, LaunchConfig, launch
+from cuda.core import Device, LaunchConfig, launch
+from cuda.core.graph import GraphBuilder, GraphCompleteOptions, GraphDebugPrintOptions
 
 
 def test_graph_dot_print_options(init_cuda, tmp_path):

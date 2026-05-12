@@ -106,11 +106,18 @@ cdef class SMResourceOptions:
         Preferred co-scheduled SM count; the driver tries to satisfy
         this but may fall back to ``coscheduled_sm_count``.
         (Default to ``None``)
+    backfill : bool or Sequence[bool], optional
+        If ``True``, allow the driver to relax the co-scheduling
+        constraint when assigning SMs. This enables requesting
+        arbitrary aligned SM counts that the driver would otherwise
+        reject due to hardware topology constraints.
+        (Default to ``False``)
     """
 
     count: int | SequenceABC | None = None
     coscheduled_sm_count: int | SequenceABC | None = None
     preferred_coscheduled_sm_count: int | SequenceABC | None = None
+    backfill: bool | SequenceABC = False
 
 
 @dataclass
@@ -172,6 +179,12 @@ cdef inline int _resolve_group_count(SMResourceOptions options) except?-1:
         n_groups,
         count_is_scalar,
     )
+    _validate_split_field_length(
+        options.backfill,
+        "backfill",
+        n_groups,
+        count_is_scalar,
+    )
     return n_groups
 
 
@@ -190,6 +203,9 @@ cdef inline unsigned int _to_sm_count(object value) except? 0:
     return <unsigned int>(value)
 
 
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._resource_handles cimport sm_resource_split, has_sm_resource_split
+
 cdef int _structured_split_checked = 0
 
 cdef inline bint _can_use_structured_sm_split():
@@ -198,7 +214,9 @@ cdef inline bint _can_use_structured_sm_split():
     if _structured_split_checked != 0:
         return _structured_split_checked == 1
     IF CUDA_CORE_BUILD_MAJOR >= 13:
-        if cy_driver_version() >= (13, 1, 0) and cy_binding_version() >= (13, 1, 0):
+        if (has_sm_resource_split()
+                and cy_driver_version() >= (13, 1, 0)
+                and cy_binding_version() >= (13, 1, 0)):
             _structured_split_checked = 1
             return True
     _structured_split_checked = -1
@@ -243,6 +261,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
         cdef list counts = _broadcast_field(options.count, n_groups)
         cdef list coscheduled = _broadcast_field(options.coscheduled_sm_count, n_groups)
         cdef list preferred = _broadcast_field(options.preferred_coscheduled_sm_count, n_groups)
+        cdef list backfills = _broadcast_field(options.backfill, n_groups)
         cdef int i
 
         for i in range(n_groups):
@@ -252,7 +271,10 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
                 params[i].coscheduledSmCount = <unsigned int>(coscheduled[i])
             if preferred[i] is not None:
                 params[i].preferredCoscheduledSmCount = <unsigned int>(preferred[i])
-            params[i].flags = 0
+            params[i].flags = (
+                cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_BACKFILL
+                if backfills[i] else 0
+            )
         return 0
 
 
@@ -283,13 +305,13 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 
             memset(&remaining, 0, sizeof(cydriver.CUdevResource))
             with nogil:
-                HANDLE_RETURN(cydriver.cuDevSmResourceSplit(
+                HANDLE_RETURN(sm_resource_split(
                     result,
                     <unsigned int>(n_groups),
                     &sm._resource,
                     &remaining,
                     0,
-                    params,
+                    <void*>params,
                 ))
 
             if result != NULL:
