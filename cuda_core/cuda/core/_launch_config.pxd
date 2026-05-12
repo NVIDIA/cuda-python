@@ -18,7 +18,7 @@ cdef class LaunchConfig:
 
         vector[cydriver.CUlaunchAttribute] _attrs
         cydriver.CUlaunchConfig _cached_drv_cfg
-        bint _cache_valid
+        readonly bint _cache_valid
         object __weakref__
 
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self)

@@ -151,7 +151,10 @@ cdef class LaunchConfig:
         return drv_cfg
 
 
-# TODO: once all modules are cythonized, this function can be dropped in favor of the cdef method above
+# TODO: once all modules are cythonized, this function can be dropped in favor of the cdef method above.
+# NOTE: unlike the cdef method above, this cpdef wrapper creates Python driver objects on every call
+# and does NOT use the _cache_valid / _cached_drv_cfg cache. The cache is only in the cdef method,
+# which is called from _launcher.pyx and _module.pyx.
 cpdef object _to_native_launch_config(LaunchConfig config):
     """Convert LaunchConfig to native driver CUlaunchConfig.
 

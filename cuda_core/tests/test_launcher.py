@@ -70,8 +70,8 @@ def test_launch_config_fields_are_readonly():
             setattr(config, field, None)
 
 
-def test_launch_config_native_cache_stable(init_cuda):
-    """Second call to _to_native_launch_config returns consistent values (cache hit)."""
+def test_launch_config_native_conversion_stable(init_cuda):
+    """The cpdef _to_native_launch_config wrapper returns consistent values across calls."""
     from cuda.core._launch_config import _to_native_launch_config
 
     config = LaunchConfig(grid=(4, 1, 1), block=(32, 1, 1))
@@ -83,8 +83,8 @@ def test_launch_config_native_cache_stable(init_cuda):
     assert first.numAttrs == second.numAttrs == 0
 
 
-def test_launch_config_native_cache_cooperative(init_cuda):
-    """Cached cooperative config retains the cooperative attribute."""
+def test_launch_config_native_conversion_stable_cooperative(init_cuda):
+    """The cpdef _to_native_launch_config wrapper returns consistent attrs for cooperative configs."""
     from cuda.core._launch_config import _to_native_launch_config
 
     try:
@@ -94,6 +94,33 @@ def test_launch_config_native_cache_cooperative(init_cuda):
     first = _to_native_launch_config(config)
     second = _to_native_launch_config(config)
     assert first.numAttrs == second.numAttrs == 1
+
+
+def test_launch_config_native_conversion_stable_cluster(init_cuda):
+    """The cpdef _to_native_launch_config wrapper returns consistent values for cluster configs."""
+    from cuda.core._launch_config import _to_native_launch_config
+
+    try:
+        config = LaunchConfig(grid=2, cluster=2, block=32)
+    except CUDAError:
+        pytest.skip("Device does not support thread block clusters")
+    first = _to_native_launch_config(config)
+    second = _to_native_launch_config(config)
+    assert first.gridDimX == second.gridDimX == 4  # 2 clusters * 2 blocks/cluster
+    assert first.numAttrs == second.numAttrs == 1  # cluster dimension attribute
+
+
+def test_launch_config_cdef_cache_populated_by_launch(init_cuda):
+    """The cdef _to_native_launch_config cache (_cache_valid) is set after launch()."""
+    code = 'extern "C" __global__ void noop() {}'
+    program = Program(code, SourceCodeType.CXX)
+    ker = program.compile(ObjectCodeFormatType.CUBIN).get_kernel("noop")
+    stream = Device().create_stream()
+
+    config = LaunchConfig(grid=1, block=1)
+    assert not config._cache_valid
+    launch(stream, config, ker)
+    assert config._cache_valid
 
 
 def test_launch_config_cluster_grid_conversion(init_cuda):
