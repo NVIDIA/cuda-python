@@ -54,20 +54,12 @@ elif [[ "${test_module}" == "bindings" ]]; then
   fi
   popd
 elif [[ "${test_module}" == "core" ]]; then
-  # Install cuda.bindings for core tests.
-  # Three cases:
-  #   1. Major mismatch (USE_BACKPORT_BINDINGS=1): bindings installed from backport branch.
-  #   2. Minor mismatch (USE_PUBLISHED_BINDINGS=1): install published bindings from PyPI
-  #      to test the real-world scenario (e.g. cuda-core built with 13.2 bindings,
-  #      user installs cuda-bindings==13.0.*).
-  #   3. Exact match: bindings already installed in the previous test step.
-  if [[ "${USE_PUBLISHED_BINDINGS:-0}" == 1 ]]; then
-    TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
-    TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
+  # Install cuda.bindings for core tests based on BINDINGS_SOURCE.
+  if [[ "${BINDINGS_SOURCE}" == "published" ]]; then
     echo "Installing published cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.* from PyPI"
     pip install "cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*"
-  elif [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
-    echo "Installing bindings wheel"
+  elif [[ "${BINDINGS_SOURCE}" == "backport" || "${BINDINGS_SOURCE}" == "main" ]]; then
+    echo "Installing bindings wheel (source: ${BINDINGS_SOURCE})"
     if [[ "${LOCAL_CTK}" == 1 ]]; then
       pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
     else
