@@ -191,6 +191,15 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     FileDescriptorHandle create_fd_handle_ref "cuda_core::create_fd_handle_ref" (
         int fd) except+ nogil
 
+    # SM resource split (13.1+ wrapper — avoids direct cydriver cimport)
+    # groupParams is void* to avoid referencing CU_DEV_SM_RESOURCE_GROUP_PARAMS
+    # (which doesn't exist in cuda-bindings 13.0 .pxd). The C++ side casts it.
+    cydriver.CUresult sm_resource_split "cuda_core::sm_resource_split" (
+        cydriver.CUdevResource* result, unsigned int nbGroups,
+        const cydriver.CUdevResource* input, cydriver.CUdevResource* remainder,
+        unsigned int flags, void* groupParams) nogil
+    bint has_sm_resource_split "cuda_core::has_sm_resource_split" () noexcept nogil
+
 
 # =============================================================================
 # CUDA Driver API capsule
@@ -273,6 +282,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuGraphicsUnmapResources "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnmapResources)"
     void* p_cuGraphicsUnregisterResource "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnregisterResource)"
 
+    # SM resource split (13.1+)
+    void* p_cuDevSmResourceSplit "reinterpret_cast<void*&>(cuda_core::p_cuDevSmResourceSplit)"
+
     # NVRTC
     void* p_nvrtcDestroyProgram "reinterpret_cast<void*&>(cuda_core::p_nvrtcDestroyProgram)"
 
@@ -313,6 +325,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuGraphDestroy
     global p_cuLinkDestroy
     global p_cuGraphicsUnmapResources, p_cuGraphicsUnregisterResource
+    global p_cuDevSmResourceSplit
 
     # Context
     p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
@@ -373,9 +386,10 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuGraphicsUnmapResources = _get_driver_fn("cuGraphicsUnmapResources")
     p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")
 
+    # SM resource split (13.1+ — may not exist in older cuda-bindings)
+    p_cuDevSmResourceSplit = _get_optional_driver_fn("cuDevSmResourceSplit")
 
 _init_driver_fn_pointers()
-
 
 # =============================================================================
 # NVRTC function pointer initialization

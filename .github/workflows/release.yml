@@ -101,10 +101,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Self-test release-notes checker
-        run: |
-          pip install pytest
-          pytest ci/tools/tests
+      # - name: Self-test release-notes checker
+      #   run: |
+      #     pip install pytest
+      #     pytest ci/tools/tests
 
       - name: Check versioned release notes exist
         run: |

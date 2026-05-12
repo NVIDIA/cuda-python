@@ -1373,6 +1373,15 @@ class Device:
         -------
         cuda.core.Device
             The corresponding CUDA device.
+
+        Raises
+        ------
+        RuntimeError
+            No corresponding CUDA device is found for this NVML device.
+
+            For example, on a MIG system, the physical GPU will not have an
+            available CUDA device, since it can not be used directly, even
+            though it can be enumerated from NVML.
         """
 
     @classmethod
@@ -1721,6 +1730,9 @@ class Device:
     def pci_info(self) -> PciInfo:
         """
         :obj:`~_device.PciInfo` object with the PCI attributes of this device.
+
+        Non-physical devices, such as MIG devices, may not have PCI attributes.
+        In that case, this property will raise a `RuntimeError`.
         """
 
     @property

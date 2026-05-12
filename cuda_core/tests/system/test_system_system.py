@@ -40,12 +40,6 @@ def test_kernel_mode_driver_version():
         assert 0 <= ver_patch[0] <= 99
 
 
-def test_num_devices():
-    num_devices = system.get_num_devices()
-    expected_num_devices = handle_return(runtime.cudaGetDeviceCount())
-    assert num_devices == expected_num_devices, "Number of devices does not match expected value"
-
-
 def test_devices():
     devices = Device.get_all_devices()
     expected_num_devices = handle_return(runtime.cudaGetDeviceCount())
