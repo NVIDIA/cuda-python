@@ -154,6 +154,12 @@ cdef class Event:
         """
         self._h_event.reset()
 
+    def __isub__(self, other):  # type: ignore[misc]
+        return NotImplemented
+
+    def __rsub__(self, other):
+        return NotImplemented
+
     def __sub__(self, other: Event):
         # return self - other (in milliseconds)
         cdef float timing
