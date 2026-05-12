@@ -78,7 +78,11 @@ decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources = nullptr;
 decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource = nullptr;
 
 // SM resource split (13.1+ — may be null on older drivers/bindings)
+#if CUDA_VERSION >= 13010
 decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit = nullptr;
+#else
+void* p_cuDevSmResourceSplit = nullptr;
+#endif
 
 // NVRTC function pointers
 decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram = nullptr;
@@ -1329,12 +1333,16 @@ FileDescriptorHandle create_fd_handle_ref(int fd) {
 CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
                            const CUdevResource* input, CUdevResource* remainder,
                            unsigned int flags, void* groupParams) {
+#if CUDA_VERSION >= 13010
     if (!p_cuDevSmResourceSplit) {
         return CUDA_ERROR_NOT_SUPPORTED;
     }
     return p_cuDevSmResourceSplit(
         result, nbGroups, input, remainder, flags,
         static_cast<CU_DEV_SM_RESOURCE_GROUP_PARAMS*>(groupParams));
+#else
+    return CUDA_ERROR_NOT_SUPPORTED;
+#endif
 }
 
 bool has_sm_resource_split() noexcept {

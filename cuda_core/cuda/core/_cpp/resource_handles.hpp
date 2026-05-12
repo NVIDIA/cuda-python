@@ -109,7 +109,13 @@ extern decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources;
 extern decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource;
 
 // SM resource split (13.1+ — may be null on older drivers/bindings)
+#if CUDA_VERSION >= 13010
 extern decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit;
+#else
+// cuDevSmResourceSplit doesn't exist in CUDA < 13.1 headers, so use a
+// void* placeholder. The pointer is always null when built against 12.x.
+extern void* p_cuDevSmResourceSplit;
+#endif
 
 // ============================================================================
 // NVRTC function pointers
