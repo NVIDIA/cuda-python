@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import MutableSet
-from collections.abc import Set as AbstractSet
+from collections.abc import Set as Set
 from typing import Any
 
 from cuda.core.graph._graph_node import GraphNode
@@ -40,13 +40,13 @@ class AdjacencySetProxy(MutableSet):
     def clear(self):
         """Remove all edges in a single driver call."""
 
-    def __isub__(self, it: AbstractSet[Any]) -> 'AdjacencySetProxy':
+    def __isub__(self, it: Set[Any]) -> 'AdjacencySetProxy':
         """Remove edges to all nodes in *it* in a single driver call."""
 
     def update(self, *others):
         """Add edges to multiple nodes at once."""
 
-    def __ior__(self, it: AbstractSet[Any]) -> 'AdjacencySetProxy': # type: ignore[override,misc]
+    def __ior__(self, it: Set[Any]) -> 'AdjacencySetProxy': # type: ignore[override,misc]
         """Add edges to all nodes in *it* in a single driver call."""
 
     def __repr__(self):

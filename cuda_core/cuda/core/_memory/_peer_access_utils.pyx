@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, MutableSet, Set as AbstractSet
+from collections.abc import Callable, Iterable, MutableSet, Set
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -336,22 +336,22 @@ class PeerAccessibleBySetProxy(MutableSet):
         if to_add or to_remove:
             self._apply(to_add, to_remove)
 
-    def __ior__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy:  # type: ignore[override,misc]
+    def __ior__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:  # type: ignore[override,misc]
         self.update(other)
         return self
 
-    def __iand__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy:
+    def __iand__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
         self.intersection_update(other)
         return self
 
-    def __isub__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy:
+    def __isub__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
         if other is self:
             self.clear()
         else:
             self.difference_update(other)
         return self
 
-    def __ixor__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy:  # type: ignore[override,misc]
+    def __ixor__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:  # type: ignore[override,misc]
         self.symmetric_difference_update(other)
         return self
 

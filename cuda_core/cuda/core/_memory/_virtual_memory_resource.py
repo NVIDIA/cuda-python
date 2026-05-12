@@ -583,10 +583,7 @@ class VirtualMemoryResource(MemoryResource):
             Keyword-only. Unused because virtual memory operations are
             synchronous.
         """
-        if ptr is None:
-            ptr = 0
-        else:
-            ptr = int(ptr)
+        ptr = 0 if ptr is None else int(ptr)
 
         if stream is not None:
             from cuda.core._stream import Stream_accept

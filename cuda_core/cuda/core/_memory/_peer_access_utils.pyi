@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, MutableSet
-from collections.abc import Set as AbstractSet
+from collections.abc import Callable, Iterable, MutableSet, Set
 from dataclasses import dataclass
 from typing import Any
 
@@ -74,16 +73,16 @@ class PeerAccessibleBySetProxy(MutableSet):
     def symmetric_difference_update(self, other) -> None:
         """Toggle peer access for every device in ``other`` in one driver call."""
 
-    def __ior__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy: # type: ignore[override,misc]
+    def __ior__(self, other: Set[Any]) -> PeerAccessibleBySetProxy: # type: ignore[override,misc]
         ...
 
-    def __iand__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy:
+    def __iand__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
         ...
 
-    def __isub__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy:
+    def __isub__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
         ...
 
-    def __ixor__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy: # type: ignore[override,misc]
+    def __ixor__(self, other: Set[Any]) -> PeerAccessibleBySetProxy: # type: ignore[override,misc]
         ...
 
     def __repr__(self) -> str:
