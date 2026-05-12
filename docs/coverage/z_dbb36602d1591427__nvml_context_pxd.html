@@ -30,27 +30,27 @@
   "u": "tests/system/test_system_device.py::test_device_name|run",
   "v": "tests/system/test_system_device.py::test_device_pci_bus_id|run",
   "w": "tests/system/test_system_device.py::test_device_pci_info|run",
-  "x": "tests/system/test_system_device.py::test_device_serial|run",
-  "y": "tests/system/test_system_device.py::test_device_uuid_without_prefix|run",
-  "z": "tests/system/test_system_device.py::test_devices_are_the_same_architecture|run",
-  "A": "tests/system/test_system_device.py::test_display_mode|run",
-  "B": "tests/system/test_system_device.py::test_fan|run",
-  "C": "tests/system/test_system_device.py::test_field_values|run",
-  "D": "tests/system/test_system_device.py::test_get_inforom_version|run",
-  "E": "tests/system/test_system_device.py::test_get_minor_number|run",
-  "F": "tests/system/test_system_device.py::test_get_nearest_gpus|run",
-  "G": "tests/system/test_system_device.py::test_get_p2p_status|run",
-  "H": "tests/system/test_system_device.py::test_get_topology_common_ancestor|run",
-  "I": "tests/system/test_system_device.py::test_index|run",
-  "J": "tests/system/test_system_device.py::test_mig|run",
-  "K": "tests/system/test_system_device.py::test_module_id|run",
-  "L": "tests/system/test_system_device.py::test_numa_node_id|run",
-  "M": "tests/system/test_system_device.py::test_nvlink|run",
-  "N": "tests/system/test_system_device.py::test_persistence_mode_enabled|run",
-  "O": "tests/system/test_system_device.py::test_pstates|run",
-  "P": "tests/system/test_system_device.py::test_register_events|run",
-  "Q": "tests/system/test_system_device.py::test_repair_status|run",
-  "R": "tests/system/test_system_device.py::test_repair_status|setup",
+  "x": "tests/system/test_system_device.py::test_device_pci_info|setup",
+  "y": "tests/system/test_system_device.py::test_device_serial|run",
+  "z": "tests/system/test_system_device.py::test_device_uuid_without_prefix|run",
+  "A": "tests/system/test_system_device.py::test_devices_are_the_same_architecture|run",
+  "B": "tests/system/test_system_device.py::test_display_mode|run",
+  "C": "tests/system/test_system_device.py::test_fan|run",
+  "D": "tests/system/test_system_device.py::test_field_values|run",
+  "E": "tests/system/test_system_device.py::test_get_inforom_version|run",
+  "F": "tests/system/test_system_device.py::test_get_minor_number|run",
+  "G": "tests/system/test_system_device.py::test_get_nearest_gpus|run",
+  "H": "tests/system/test_system_device.py::test_get_p2p_status|run",
+  "I": "tests/system/test_system_device.py::test_get_topology_common_ancestor|run",
+  "J": "tests/system/test_system_device.py::test_index|run",
+  "K": "tests/system/test_system_device.py::test_mig|run",
+  "L": "tests/system/test_system_device.py::test_module_id|run",
+  "M": "tests/system/test_system_device.py::test_numa_node_id|run",
+  "N": "tests/system/test_system_device.py::test_nvlink|run",
+  "O": "tests/system/test_system_device.py::test_persistence_mode_enabled|run",
+  "P": "tests/system/test_system_device.py::test_pstates|run",
+  "Q": "tests/system/test_system_device.py::test_register_events|run",
+  "R": "tests/system/test_system_device.py::test_repair_status|run",
   "S": "tests/system/test_system_device.py::test_temperature|run",
   "T": "tests/system/test_system_device.py::test_to_cuda_device|run",
   "U": "tests/system/test_system_device.py::test_utilization|run",
@@ -106,9 +106,11 @@
   "hb": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_device-sample_device_alt]|run",
   "ib": "tests/test_object_protocols.py::test_same_type_inequality[sample_context-sample_context_alt]|run",
   "jb": "tests/test_object_protocols.py::test_same_type_inequality[sample_device-sample_device_alt]|run",
-  "kb": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_accepts_managed_buffer_on_nonzero_device|run",
-  "lb": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_rejects_tensor_from_other_device|run",
-  "mb": "tests/test_tensor_map.py::TestTensorMapReplaceAddress::test_replace_address_accepts_managed_buffer_on_nonzero_device|run"
+  "kb": "tests/test_rlcompleter_patch.py::test_opt_out_env_var_disables_patch_even_when_interactive|run",
+  "lb": "tests/test_rlcompleter_patch.py::test_patched_completion_succeeds_on_non_ipc_resource|run",
+  "mb": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_accepts_managed_buffer_on_nonzero_device|run",
+  "nb": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_rejects_tensor_from_other_device|run",
+  "ob": "tests/test_tensor_map.py::TestTensorMapReplaceAddress::test_replace_address_accepts_managed_buffer_on_nonzero_device|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -171,7 +173,7 @@
             <a id="nextFileLink" class="nav" href="z_dbb36602d1591427__nvml_context_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-11 01:26 +0000
+            created at 2026-05-12 01:24 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -223,10 +225,10 @@
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    Initializes Nvidia Management Library (NVML), ensuring it only happens once per process.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    if _NVML_STATE == _NVMLState.DISABLED_LIBRARY_NOT_FOUND or (</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">102 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmb</span></p>
-    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">        _NVML_STATE == _NVMLState.INITIALIZED and getpid() == _NVML_OWNER_PID</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">102 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmb</span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    if _NVML_STATE == _NVMLState.DISABLED_LIBRARY_NOT_FOUND or (</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">104 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbob</span></p>
+    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">        _NVML_STATE == _NVMLState.INITIALIZED and getpid() == _NVML_OWNER_PID</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">104 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbob</span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    ):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">        return</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">101 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmb</span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">        return</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">103 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbob</span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    _initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">1 ctx</label></span><span class="ctxs">1,</span></p>
     <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -253,7 +255,7 @@
             <a class="nav" href="z_dbb36602d1591427__nvml_context_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-11 01:26 +0000
+            created at 2026-05-12 01:24 +0000
         </p>
     </div>
 </footer>

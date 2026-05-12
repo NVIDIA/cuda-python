@@ -16,7 +16,7 @@
   "g": "tests/memory_ipc/test_peer_access.py::TestBufferPeerAccessAfterImport::test_main[True]|setup",
   "h": "tests/memory_ipc/test_peer_access.py::TestPeerAccessNotPreservedOnImport::test_main|setup",
   "i": "tests/system/test_system_device.py::test_device_count|run",
-  "j": "tests/system/test_system_device.py::test_repair_status|setup",
+  "j": "tests/system/test_system_device.py::test_device_pci_info|setup",
   "k": "tests/system/test_system_device.py::test_to_cuda_device|run",
   "l": "tests/system/test_system_system.py::test_device_count|run",
   "m": "tests/system/test_system_system.py::test_devices|run",
@@ -63,11 +63,13 @@
   "1": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_device-sample_device_alt]|run",
   "2": "tests/test_object_protocols.py::test_same_type_inequality[sample_context-sample_context_alt]|run",
   "3": "tests/test_object_protocols.py::test_same_type_inequality[sample_device-sample_device_alt]|run",
-  "4": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_accepts_managed_buffer_on_nonzero_device|run",
-  "5": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_rejects_tensor_from_other_device|run",
-  "6": "tests/test_tensor_map.py::TestTensorMapReplaceAddress::test_replace_address_accepts_managed_buffer_on_nonzero_device|run",
-  "7": "tests/system/test_system_system.py::test_nvml_version|run",
-  "8": "tests/system/test_system_system.py::test_get_process_name|run"
+  "4": "tests/test_rlcompleter_patch.py::test_opt_out_env_var_disables_patch_even_when_interactive|run",
+  "5": "tests/test_rlcompleter_patch.py::test_patched_completion_succeeds_on_non_ipc_resource|run",
+  "6": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_accepts_managed_buffer_on_nonzero_device|run",
+  "7": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_rejects_tensor_from_other_device|run",
+  "8": "tests/test_tensor_map.py::TestTensorMapReplaceAddress::test_replace_address_accepts_managed_buffer_on_nonzero_device|run",
+  "9": "tests/system/test_system_system.py::test_nvml_version|run",
+  "!": "tests/system/test_system_system.py::test_get_process_name|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -130,7 +132,7 @@
             <a id="nextFileLink" class="nav" href="z_dbb36602d1591427__system_events_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-11 01:26 +0000
+            created at 2026-05-12 01:24 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -229,9 +231,9 @@
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">    version: tuple[int, ...]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">        Tuple of integers representing the NVML version components.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">1 ctx</label></span><span class="ctxs">17</span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">1 ctx</label></span><span class="ctxs">19</span></p>
     <p class="mis show_mis"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        raise RuntimeError("NVML library is not available")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    return tuple(int(v) for v in nvml.system_get_nvml_version().split("."))</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">1 ctx</label></span><span class="ctxs">17</span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    return tuple(int(v) for v in nvml.system_get_nvml_version().split("."))</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">1 ctx</label></span><span class="ctxs">19</span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">def get_driver_branch() -> str:</span>&nbsp;</span><span class="r"><label for="ctxs90" class="ctx">(empty)</label></span></p>
@@ -253,9 +255,9 @@
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">    Return the number of devices in the system.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">    if CUDA_BINDINGS_NVML_IS_COMPATIBLE:</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">55 ctx</label></span><span class="ctxs">1efghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456</span></p>
-    <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">        initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">55 ctx</label></span><span class="ctxs">1efghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456</span></p>
-    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        return nvml.device_get_count_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">55 ctx</label></span><span class="ctxs">1efghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456</span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">    if CUDA_BINDINGS_NVML_IS_COMPATIBLE:</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">57 ctx</label></span><span class="ctxs">1efghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">        initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">57 ctx</label></span><span class="ctxs">1efghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        return nvml.device_get_count_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">57 ctx</label></span><span class="ctxs">1efghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678</span></p>
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">        return handle_return(runtime.cudaGetDeviceCount())</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -274,8 +276,8 @@
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">    name: str</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">        The process name.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">    initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs130"><span class="r"><label for="ctxs130" class="ctx">1 ctx</label></span><span class="ctxs">18</span></p>
-    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">    return nvml.system_get_process_name(pid)</span>&nbsp;</span><input type="checkbox" id="ctxs131"><span class="r"><label for="ctxs131" class="ctx">1 ctx</label></span><span class="ctxs">18</span></p>
+    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">    initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs130"><span class="r"><label for="ctxs130" class="ctx">1 ctx</label></span><span class="ctxs">1!</span></p>
+    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">    return nvml.system_get_process_name(pid)</span>&nbsp;</span><input type="checkbox" id="ctxs131"><span class="r"><label for="ctxs131" class="ctx">1 ctx</label></span><span class="ctxs">1!</span></p>
     <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">__all__ = [</span>&nbsp;</span><span class="r"><label for="ctxs134" class="ctx">(empty)</label></span></p>
@@ -296,7 +298,7 @@
             <a class="nav" href="z_dbb36602d1591427__system_events_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-11 01:26 +0000
+            created at 2026-05-12 01:24 +0000
         </p>
     </div>
 </footer>
