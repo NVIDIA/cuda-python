@@ -187,7 +187,7 @@ def test_device_get_memory_info(ngpus, handles):
 
 def test_device_get_utilization_rates(ngpus, handles):
     for i in range(ngpus):
-        with unsupported_before(handles[i], "FERMI"):
+        with unsupported_before(handles[i], None):
             urate = nvml.device_get_utilization_rates(handles[i])
         assert urate.gpu >= 0
         assert urate.memory >= 0

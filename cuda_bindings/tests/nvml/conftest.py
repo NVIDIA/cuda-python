@@ -106,8 +106,16 @@ def nmigs(handles):
 
 @pytest.fixture
 def mig_handles(nmigs):
-    handles = [nvml.device_get_mig_device_handle_by_index(i) for i in range(nmigs)]
-    assert len(handles) == nmigs
+    handles = []
+    for dev in all_devices():
+        for idx in range(nmigs):
+            try:
+                handle = nvml.device_get_mig_device_handle_by_index(dev, idx)
+            except nvml.NotFoundError:
+                # Not all MIG devices may be available
+                continue
+            else:
+                handles.append(handle)
     return handles
 
 
