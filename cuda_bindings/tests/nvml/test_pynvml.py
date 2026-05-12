@@ -47,7 +47,7 @@ def test_device_get_attributes(mig_handles):
 
     if mig_handles:
         for handle in mig_handles:
-            att = nvml.device_get_attributes(handle)
+            att = nvml.device_get_attributes_v2(handle)
             assert att is not None
     else:
         pytest.skip("No MIG devices found")
