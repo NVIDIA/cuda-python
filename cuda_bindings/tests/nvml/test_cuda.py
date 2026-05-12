@@ -3,6 +3,8 @@
 
 import os
 
+import pytest
+
 import cuda.bindings.driver as cuda
 from cuda.bindings import nvml
 
@@ -55,6 +57,10 @@ def get_cuda_device_names(sort_by_bus_id=True):
 def test_cuda_device_order():
     cuda_devices = get_cuda_device_names()
     nvml_devices = get_nvml_device_names()
+
+    if any("Thor" in device["name"] for device in nvml_devices):
+        pytest.skip("Skipping test on Thor, which has non-standard device naming")
+        return
 
     if "CUDA_VISIBLE_DEVICES" not in os.environ:
         # If that environment variable isn't set, the device lists should match exactly
