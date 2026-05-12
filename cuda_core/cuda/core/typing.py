@@ -4,11 +4,28 @@
 
 """Public type aliases, protocols, and enumerations used in cuda.core API signatures."""
 
-try:
-    from enum import StrEnum
-except ImportError:
-    from backports.strenum import StrEnum
+import sys
+from typing import TYPE_CHECKING
 from typing import Literal as _Literal
+from typing import TypeAlias as _TypeAlias
+
+if TYPE_CHECKING:
+    # `backports.strenum` ships no type stubs and typeshed conditionally gates
+    # `enum.StrEnum` behind `sys.version_info >= (3, 11)`. Declaring a minimal
+    # local shape here (mirroring typeshed's 3.11 StrEnum) lets mypy at
+    # `python_version = "3.10"` infer subclass members as `Literal[Foo.MEMBER]`
+    # rather than bare `str`.
+    from enum import Enum
+
+    class StrEnum(str, Enum):
+        _value_: str
+
+
+if not TYPE_CHECKING:
+    if sys.version_info >= (3, 11):
+        from enum import StrEnum
+    else:
+        from backports.strenum import StrEnum
 
 from cuda.core._context import DeviceResourcesType
 from cuda.core._stream import IsStreamType
@@ -36,7 +53,7 @@ __all__ = [
 
 # A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting
 # :attr:`Buffer.handle`.
-DevicePointerType = driver.CUdeviceptr | int | None
+DevicePointerType: _TypeAlias = driver.CUdeviceptr | int | None
 
 
 ProcessStateType = _Literal["running", "locked", "checkpointed", "failed"]

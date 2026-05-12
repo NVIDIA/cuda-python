@@ -15,7 +15,8 @@ from cuda.core._resource_handles cimport (
     graph_node_get_graph,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-from collections.abc import MutableSet
+from collections.abc import MutableSet, Set as AbstractSet
+from typing import Any
 
 
 # ---- Python MutableSet wrapper ----------------------------------------------
@@ -70,7 +71,7 @@ class AdjacencySetProxy(MutableSet):
         if members:
             (<_AdjacencySetCore>self._core).remove_edges(members)
 
-    def __isub__(self, it):
+    def __isub__(self, it: AbstractSet[Any]) -> "AdjacencySetProxy":
         """Remove edges to all nodes in *it* in a single driver call."""
         if it is self:
             self.clear()
@@ -98,7 +99,7 @@ class AdjacencySetProxy(MutableSet):
         if new:
             (<_AdjacencySetCore>self._core).add_edges(new)
 
-    def __ior__(self, it):
+    def __ior__(self, it: AbstractSet[Any]) -> "AdjacencySetProxy":  # type: ignore[override,misc]
         """Add edges to all nodes in *it* in a single driver call."""
         self.update(it)
         return self

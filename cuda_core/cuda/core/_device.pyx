@@ -39,6 +39,12 @@ from cuda.core._utils.cuda_utils import (
 )
 from cuda.core._stream cimport default_stream
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import cuda.core.system  # no-cython-lint
+    from cuda.core.graph import GraphBuilder
+
 # TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,
 # but it seems it is very convenient to expose them for testing purposes...
 _tls = threading.local()
@@ -1208,7 +1214,7 @@ class Device:
     def __reduce__(self):
         return Device, (self.device_id,)
 
-    def set_current(self, ctx: Context = None) -> Context | None:
+    def set_current(self, ctx: Context | None = None) -> Context | None:
         """Set device to be used for GPU executions.
 
         Initializes CUDA and sets the calling thread to a valid CUDA
@@ -1274,7 +1280,7 @@ class Device:
             self._has_inited = True
             self._context = Context._from_handle(Context, h_context, self._device_id)  # Store owning context
 
-    def create_context(self, options: ContextOptions = None) -> Context:
+    def create_context(self, options: ContextOptions | None = None) -> Context:
         """Create a new :obj:`~_context.Context` object.
 
         Note
@@ -1433,7 +1439,7 @@ class Device:
         self._check_context_initialized()
         handle_return(runtime.cudaDeviceSynchronize())
 
-    def create_graph_builder(self) -> "GraphBuilder":
+    def create_graph_builder(self) -> GraphBuilder:
         """Create a new :obj:`~graph.GraphBuilder` object.
 
         Returns

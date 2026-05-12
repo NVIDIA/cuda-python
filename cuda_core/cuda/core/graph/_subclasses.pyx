@@ -478,7 +478,7 @@ cdef class ChildGraphNode(GraphNode):
                 f" child=0x{as_intptr(self._h_child_graph):x}>")
 
     @property
-    def child_graph(self) -> "GraphDefinition":
+    def child_graph(self) -> GraphDefinition:
         """The embedded graph definition (non-owning wrapper)."""
         return GraphDefinition._from_handle(self._h_child_graph)
 
@@ -722,7 +722,7 @@ cdef class IfNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def then(self) -> "GraphDefinition":
+    def then(self) -> GraphDefinition:
         """The 'then' branch graph."""
         return self._branches[0]
 
@@ -735,12 +735,12 @@ cdef class IfElseNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def then(self) -> "GraphDefinition":
+    def then(self) -> GraphDefinition:
         """The ``then`` branch graph (executed when condition is non-zero)."""
         return self._branches[0]
 
     @property
-    def else_(self) -> "GraphDefinition":
+    def else_(self) -> GraphDefinition:
         """The ``else`` branch graph (executed when condition is zero)."""
         return self._branches[1]
 
@@ -753,7 +753,7 @@ cdef class WhileNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def body(self) -> "GraphDefinition":
+    def body(self) -> GraphDefinition:
         """The loop body graph."""
         return self._branches[0]
 

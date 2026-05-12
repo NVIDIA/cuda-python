@@ -12,12 +12,21 @@ from collections.abc import Sequence
 from contextlib import ExitStack
 from typing import Callable
 
-try:
-    from cuda.bindings import driver, nvrtc, runtime
-except ImportError:
-    from cuda import cuda as driver
-    from cuda import cudart as runtime
-    from cuda import nvrtc
+# TODO: Are we sure we don't need this fallback anymore?
+
+# (Previously wrapped in try/except ImportError for the legacy
+# `from cuda import cuda as driver` etc. import path.)
+# `as X` form is the PEP 484 explicit re-export marker, which type checkers
+# need to treat these names as part of the public API of this module.
+from cuda.bindings import driver as driver, nvrtc as nvrtc, runtime as runtime
+
+# Module-level annotations that reference `driver`, `nvrtc`, and `runtime` so
+# that stubgen-pyx keeps these imports in the generated `.pyi` (it would
+# otherwise trim them as unused). These names are not assigned, so they only
+# affect __annotations__ and have no runtime cost.
+_keep_driver_in_stub: 'driver.CUresult'
+_keep_nvrtc_in_stub: 'nvrtc.nvrtcResult'
+_keep_runtime_in_stub: 'runtime.cudaError_t'
 
 from cuda.bindings.nvvm import nvvmError
 from cuda.bindings.nvjitlink import nvJitLinkError

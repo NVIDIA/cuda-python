@@ -26,6 +26,11 @@ import uuid
 from cuda.core._memory._peer_access_utils import PeerAccessibleBySetProxy, replace_peer_accessible_by
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cuda.core._device import Device
+
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
 
 

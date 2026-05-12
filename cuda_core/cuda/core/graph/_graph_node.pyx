@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from cpython.ref cimport Py_INCREF
 
 from libc.stddef cimport size_t
@@ -65,10 +67,13 @@ from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.typing import GraphMemoryType
 
+if TYPE_CHECKING:
+    from cuda.core._device import Device
+
 __all__ = ['GraphNode']
 
 # See _cpp/REGISTRY_DESIGN.md (Level 2: Resource Handle -> Python Object)
-_node_registry = weakref.WeakValueDictionary()
+_node_registry: weakref.WeakValueDictionary[int, GraphNode] = weakref.WeakValueDictionary()
 
 
 cdef inline GraphNode _registered(GraphNode n):
@@ -126,7 +131,7 @@ cdef class GraphNode:
         return driver.CUgraphNodeType(<int>node_type)
 
     @property
-    def graph(self) -> "GraphDefinition":
+    def graph(self) -> GraphDefinition:
         """Return the GraphDefinition this node belongs to."""
         return GraphDefinition._from_handle(graph_node_get_graph(self._h_node))
 
@@ -219,9 +224,9 @@ cdef class GraphNode:
         """
         return GN_join(self, nodes)
 
-    def allocate(self, size_t size, *, device: "Device" | int | None = None,
+    def allocate(self, size_t size, *, device: Device | int | None = None,
                  memory_type: GraphMemoryType = GraphMemoryType.DEVICE,
-                 peer_access: list["Device" | int] | None = None) -> AllocNode:
+                 peer_access: list[Device | int] | None = None) -> AllocNode:
         """Add a memory allocation node depending on this node.
 
         Parameters

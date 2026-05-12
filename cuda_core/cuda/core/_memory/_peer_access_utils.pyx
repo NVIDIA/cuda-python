@@ -4,9 +4,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, MutableSet
+from collections.abc import Callable, Iterable, MutableSet, Set as AbstractSet
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._device_memory_resource cimport DeviceMemoryResource
@@ -336,22 +336,22 @@ class PeerAccessibleBySetProxy(MutableSet):
         if to_add or to_remove:
             self._apply(to_add, to_remove)
 
-    def __ior__(self, other):
+    def __ior__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy:  # type: ignore[override,misc]
         self.update(other)
         return self
 
-    def __iand__(self, other):
+    def __iand__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy:
         self.intersection_update(other)
         return self
 
-    def __isub__(self, other):
+    def __isub__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy:
         if other is self:
             self.clear()
         else:
             self.difference_update(other)
         return self
 
-    def __ixor__(self, other):
+    def __ixor__(self, other: AbstractSet[Any]) -> PeerAccessibleBySetProxy:  # type: ignore[override,misc]
         self.symmetric_difference_update(other)
         return self
 

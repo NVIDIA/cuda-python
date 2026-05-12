@@ -26,7 +26,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, HANDLE_RETURN_NVJITLINK
 
 import sys
 from dataclasses import dataclass
-from typing import Union
+from typing import TYPE_CHECKING, Union
 from warnings import warn
 
 from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
@@ -39,7 +39,17 @@ from cuda.core._utils.cuda_utils import (
     driver,
     is_sequence,
 )
-from cuda.core.typing import CompilerBackendType
+from cuda.core.typing import CompilerBackendType, ObjectCodeFormatType
+
+if TYPE_CHECKING:
+    import cuda.bindings.driver  # no-cython-lint
+    import cuda.bindings.nvjitlink  # no-cython-lint
+
+# Module-level annotations to ensure stubgen-pyx keeps the above imports in
+# the generated `.pyi` so that the LinkerHandleT forward references resolve.
+# These names are not assigned, so they only affect __annotations__.
+_keep_driver_in_stub: "cuda.bindings.driver.CUlinkState"
+_keep_nvjitlink_in_stub: "cuda.bindings.nvjitlink.nvJitLinkHandle"
 
 ctypedef const char* const_char_ptr
 ctypedef void* void_ptr
@@ -68,7 +78,7 @@ cdef class Linker:
         Options for the linker. If not provided, default options will be used.
     """
 
-    def __init__(self, *object_codes: ObjectCode, options: "LinkerOptions" = None):
+    def __init__(self, *object_codes: ObjectCode, options: LinkerOptions | None = None):
         Linker_init(self, object_codes, options)
 
     def link(self, target_type: ObjectCodeFormatType | str) -> ObjectCode:

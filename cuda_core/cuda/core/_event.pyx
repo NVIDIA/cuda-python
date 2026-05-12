@@ -31,11 +31,16 @@ from cuda.core._utils.cuda_utils cimport (
 import cython
 from dataclasses import dataclass
 import multiprocessing
+from typing import TYPE_CHECKING
 
 from cuda.core._utils.cuda_utils import (
     CUDAError,
     check_multiprocessing_start_method,
 )
+
+if TYPE_CHECKING:
+    import cuda.bindings.driver  # no-cython-lint
+    from cuda.core._device import Device
 
 
 @dataclass
@@ -148,12 +153,6 @@ cdef class Event:
         when the last reference is released.
         """
         self._h_event.reset()
-
-    def __isub__(self, other):
-        return NotImplemented
-
-    def __rsub__(self, other):
-        return NotImplemented
 
     def __sub__(self, other: Event):
         # return self - other (in milliseconds)
@@ -330,9 +329,12 @@ cdef class IPCEventDescriptor:
         self._is_blocking_sync = is_blocking_sync
         return self
 
-    def __eq__(self, IPCEventDescriptor rhs):
+    def __eq__(self, rhs) -> bool:
         # No need to check self._is_blocking_sync.
-        return self._reserved == rhs._reserved
+        if not isinstance(rhs, IPCEventDescriptor):
+            return NotImplemented
+        cdef IPCEventDescriptor _rhs = <IPCEventDescriptor>rhs
+        return self._reserved == _rhs._reserved
 
     def __reduce__(self):
         return IPCEventDescriptor._init, (self._reserved, self._is_blocking_sync)

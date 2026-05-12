@@ -11,7 +11,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import threading
+from typing import TYPE_CHECKING
 from warnings import warn
+
+if TYPE_CHECKING:
+    from cuda.core.utils._program_cache import ProgramCacheResource  # no-cython-lint
 
 from cuda.bindings import nvrtc
 from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
@@ -90,7 +94,7 @@ cdef class Program:
         name_expressions: tuple | list = (),
         logs=None,
         *,
-        cache: "ProgramCacheResource | None" = None,
+        cache: ProgramCacheResource | None = None,
     ) -> ObjectCode:
         """Compile the program to the specified target type.
 

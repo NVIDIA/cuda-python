@@ -26,6 +26,13 @@ from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
+import uuid
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cuda.core.graph import GraphBuilder
+    from cuda.core.typing import DevicePointerType
+
 
 cdef class _MemPoolAttributes:
     """Provides access to memory pool attributes."""
@@ -145,7 +152,7 @@ cdef class _MemPool(MemoryResource):
         cdef Stream s = Stream_accept(stream)
         return _MP_allocate(self, size, s)
 
-    def deallocate(self, ptr: "DevicePointerType", size_t size, *, stream: Stream | GraphBuilder):
+    def deallocate(self, ptr: DevicePointerType, size_t size, *, stream: Stream | GraphBuilder):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters

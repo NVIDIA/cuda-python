@@ -4,6 +4,7 @@
 
 import weakref
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from libc.stdint cimport intptr_t
 
@@ -21,6 +22,9 @@ from cuda.core._utils.cuda_utils import (
     driver,
     handle_return,
 )
+
+if TYPE_CHECKING:
+    from cuda.core.graph._graph_definition import GraphDefinition
 
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 

@@ -233,7 +233,9 @@ cdef class KernelAttributes:
         )
 
 
-MaxPotentialBlockSizeOccupancyResult = namedtuple("MaxPotential", ("min_grid_size", "max_block_size"))
+MaxPotentialBlockSizeOccupancyResult = namedtuple(
+    "MaxPotentialBlockSizeOccupancyResult", ("min_grid_size", "max_block_size")
+)
 
 
 cdef class KernelOccupancy:
@@ -520,7 +522,7 @@ cdef class Kernel:
         return self.handle
 
     @staticmethod
-    def from_handle(handle, mod: ObjectCode = None) -> Kernel:
+    def from_handle(handle, mod: ObjectCode | None = None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a kernel handle.
 
         Parameters

@@ -197,7 +197,9 @@ def _linker_backend_and_version(use_driver: bool) -> tuple[str, str]:
         return ("driver", str(_driver_version()))
     nvjitlink = sys.modules.get("cuda.bindings.nvjitlink")
     if nvjitlink is None:
-        from cuda.bindings import nvjitlink
+        from cuda.bindings import nvjitlink as _nvjitlink
+
+        nvjitlink = _nvjitlink
 
     return ("nvJitLink", str(nvjitlink.version()))
 

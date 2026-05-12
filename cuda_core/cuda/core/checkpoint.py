@@ -6,16 +6,14 @@ import ctypes as _ctypes
 from collections.abc import Mapping as _Mapping
 from typing import Any as _Any
 
+# TODO: Are we sure we don't need this fallback anymore?
+# (Previously wrapped in try/except ImportError for the legacy
+# `from cuda import cuda as _driver` import path.)
+from cuda.bindings import driver as _driver
 from cuda.core._utils.cuda_utils import handle_return as _handle_cuda_return
 from cuda.core._utils.version import binding_version as _binding_version
 from cuda.core._utils.version import driver_version as _driver_version
 from cuda.core.typing import ProcessStateType as _ProcessStateType
-
-try:
-    from cuda.bindings import driver as _driver
-except ImportError:
-    from cuda import cuda as _driver
-
 
 _PROCESS_STATE_NAME_ATTRS: tuple[tuple[str, _ProcessStateType], ...] = (
     ("CU_PROCESS_STATE_RUNNING", "running"),
@@ -218,7 +216,7 @@ def _make_restore_args(driver, gpu_mapping: _Mapping[_Any, _Any] | None):
     pairs = []
     for old_uuid, new_uuid in gpu_mapping.items():
         pair = driver.CUcheckpointGpuPair()
-        buffers = []
+        buffers: list = []  # holds ctypes string-buffer keepalives for the call below
         pair.oldUuid = _as_cuuuid(driver, old_uuid, buffers)
         pair.newUuid = _as_cuuuid(driver, new_uuid, buffers)
         pairs.append(pair)

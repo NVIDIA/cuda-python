@@ -38,7 +38,8 @@ def _binding_version() -> tuple[int, int, int]:
         parts = importlib.metadata.version("cuda-bindings").split(".")[:3]
     except importlib.metadata.PackageNotFoundError:
         return (0, 0, 0)  # For very old versions of cuda-python
-    return tuple(int(v) for v in parts)
+    parts_int = ([int(v) for v in parts] + [0, 0, 0])[:3]
+    return (parts_int[0], parts_int[1], parts_int[2])
 
 
 def _binding_version_has_usable_enum_docstrings(version: tuple[int, int, int]) -> bool:

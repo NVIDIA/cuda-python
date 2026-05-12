@@ -9,10 +9,10 @@ from cuda.bindings import nvml
 from cuda.core.system import exceptions
 
 
-_NVML_STATE = _NVMLState.UNINITIALIZED
+cdef _NVMLState _NVML_STATE = _NVMLState.UNINITIALIZED
 
 
-_NVML_OWNER_PID = 0
+cdef int _NVML_OWNER_PID = 0
 
 
 _lock = threading.Lock()

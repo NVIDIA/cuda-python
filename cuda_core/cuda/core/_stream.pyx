@@ -18,11 +18,12 @@ from cuda.core._utils.cuda_utils cimport (
 import cython
 import warnings
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, TYPE_CHECKING
 
 from cuda.core._context cimport Context
 from cuda.core._device_resources cimport DeviceResources
 from cuda.core._event import Event, EventOptions
+
 from cuda.core._resource_handles cimport (
     ContextHandle,
     EventHandle,
@@ -41,7 +42,10 @@ from cuda.core._resource_handles cimport (
     as_py,
 )
 
-
+if TYPE_CHECKING:
+    import cuda.bindings.driver  # no-cython-lint
+    from cuda.core._device import Device
+    from cuda.core.graph import GraphBuilder
 
 @dataclass
 cdef class StreamOptions:
@@ -116,8 +120,8 @@ cdef class Stream:
         return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
-    def _init(cls, obj: IsStreamType | None = None, options=None, device_id: int = None,
-              ctx: Context = None):
+    def _init(cls, obj: IsStreamType | None = None, options=None, device_id: int | None = None,
+              ctx: Context | None = None):
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
         cdef ContextHandle h_context
@@ -249,7 +253,7 @@ cdef class Stream:
         with nogil:
             HANDLE_RETURN(cydriver.cuStreamSynchronize(as_cu(self._h_stream)))
 
-    def record(self, event: Event = None, options: EventOptions = None) -> Event:
+    def record(self, event: Event | None = None, options: EventOptions | None = None) -> Event:
         """Record an event onto the stream.
 
         Creates an :obj:`~_event.Event` object (or reuses the given one) by
@@ -397,7 +401,7 @@ cdef class Stream:
 
         return Stream._init(obj=_stream_holder())
 
-    def create_graph_builder(self) -> "GraphBuilder":
+    def create_graph_builder(self) -> GraphBuilder:
         """Create a new :obj:`~graph.GraphBuilder` object.
 
         The new graph builder will be associated with this stream.
@@ -413,13 +417,8 @@ cdef class Stream:
         return GraphBuilder._init(stream=self, is_stream_owner=False)
 
 
-# c-only python objects, not public
-cdef Stream C_LEGACY_DEFAULT_STREAM = Stream._legacy_default()
-cdef Stream C_PER_THREAD_DEFAULT_STREAM = Stream._per_thread_default()
-
-# standard python objects, public
-LEGACY_DEFAULT_STREAM = C_LEGACY_DEFAULT_STREAM
-PER_THREAD_DEFAULT_STREAM = C_PER_THREAD_DEFAULT_STREAM
+LEGACY_DEFAULT_STREAM: Stream = Stream._legacy_default()
+PER_THREAD_DEFAULT_STREAM: Stream = Stream._per_thread_default()
 
 
 cpdef Stream default_stream():
@@ -441,9 +440,9 @@ cpdef Stream default_stream():
 
     # value is non-zero, including for weird stuff like 123foo
     if use_ptds:
-        return C_PER_THREAD_DEFAULT_STREAM
+        return PER_THREAD_DEFAULT_STREAM
     else:
-        return C_LEGACY_DEFAULT_STREAM
+        return LEGACY_DEFAULT_STREAM
 
 
 cdef inline int Stream_ensure_ctx(Stream self) except?-1 nogil:

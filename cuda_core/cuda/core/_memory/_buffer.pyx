@@ -28,15 +28,21 @@ from cuda.core._stream cimport Stream, Stream_accept, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
-from typing import TypeVar
+from typing import TYPE_CHECKING
 
+# ByteString was deprecated in favor of BufferProtocol in Python 3.12.
+# When Python 3.12 is our minimum version, we can update this.
+# mypy needs /something/ at the top-level, so we set that an then
+# override rather than putting both branches in an if/else.
+from collections.abc import ByteString as BufferProtocol
 if sys.version_info >= (3, 12):
     from collections.abc import Buffer as BufferProtocol
-else:
-    BufferProtocol = object
 
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
+
+if TYPE_CHECKING:
+    from cuda.core.graph import GraphBuilder
 
 
 # =============================================================================
@@ -218,7 +224,7 @@ cdef class Buffer:
         self.close()
         return False
 
-    def copy_to(self, dst: Buffer = None, *, stream: Stream | GraphBuilder) -> Buffer:
+    def copy_to(self, dst: Buffer | None = None, *, stream: Stream | GraphBuilder) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
         Copies the data from this buffer to the provided dst buffer.
@@ -330,7 +336,7 @@ cdef class Buffer:
         max_version: tuple[int, int] | None = None,
         dl_device: tuple[int, int] | None = None,
         copy: bool | None = None,
-    ) -> TypeVar("PyCapsule"):
+    ):
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
         if dl_device is not None:
@@ -369,7 +375,7 @@ cdef class Buffer:
         return self._mem_attrs.device_id
 
     @property
-    def handle(self) -> DevicePointerType:
+    def handle(self) -> int:
         """Return the buffer handle object.
 
         .. caution::

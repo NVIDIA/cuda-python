@@ -18,6 +18,12 @@ from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from functools import cache
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cuda.core._device import Device
+    from cuda.core.graph import GraphBuilder
+    from cuda.core.typing import DevicePointerType
 
 __all__ = ['GraphMemoryResource']
 
@@ -111,7 +117,7 @@ cdef class cyGraphMemoryResource(MemoryResource):
         cdef Stream s = Stream_accept(stream)
         return GMR_allocate(self, size, s)
 
-    def deallocate(self, ptr: "DevicePointerType", size_t size, *, stream: Stream | GraphBuilder):
+    def deallocate(self, ptr: DevicePointerType, size_t size, *, stream: Stream | GraphBuilder):
         """
         Deallocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """
