@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5bb1a482"></script>
+    <script src="../_static/documentation_options.js?v=6c492ee8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.1.dev1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.1.dev2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -691,6 +691,11 @@
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Fixed <code class="docutils literal notranslate"><span class="pre">ImportError</span></code> when importing <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.0.x due to an unavailable driver function
+(<code class="docutils literal notranslate"><span class="pre">cuDevSmResourceSplit</span></code>).
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2063">#2063</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2064">#2064</a>)</p></li>
 <li><p>When iterating over MIG devices with
 <code class="docutils literal notranslate"><span class="pre">cuda.core.system.Device.mig.get_all_devices</span></code>, only available MIG devices will
 be returned. Previously, if any MIG device was unavailable, an exception would
