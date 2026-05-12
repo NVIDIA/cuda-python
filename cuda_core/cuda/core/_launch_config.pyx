@@ -4,9 +4,7 @@
 
 from libc.string cimport memset
 
-from cuda.core._device import Device
 from cuda.core._utils.cuda_utils import (
-    CUDAError,
     cast_to_3_tuple,
     driver,
 )
@@ -70,19 +68,7 @@ cdef class LaunchConfig:
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
         self.block = cast_to_3_tuple("LaunchConfig.block", block)
 
-        # FIXME: Calling Device() strictly speaking is not quite right; we should instead
-        # look up the device from stream. We probably need to defer the checks related to
-        # device compute capability or attributes.
-        # thread block clusters are supported starting H100
-        if cluster is not None or is_cooperative:
-            dev = Device()
-
         if cluster is not None:
-            cc = dev.compute_capability
-            if cc < (9, 0):
-                raise CUDAError(
-                    f"thread block clusters are not supported on devices with compute capability < 9.0 (got {cc})"
-                )
             self.cluster = cast_to_3_tuple("LaunchConfig.cluster", cluster)
         else:
             self.cluster = None
@@ -94,9 +80,6 @@ cdef class LaunchConfig:
             self.shmem_size = shmem_size
 
         self.is_cooperative = is_cooperative
-
-        if self.is_cooperative and not dev.properties.cooperative_launch:
-            raise CUDAError("cooperative kernels are not supported on this device")
 
     def _identity(self):
         return tuple(getattr(self, attr) for attr in _LAUNCH_CONFIG_ATTRS)
