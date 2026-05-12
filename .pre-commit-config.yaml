@@ -51,6 +51,7 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - stubgen-pyx==0.2.6
+          - Cython==3.2.4
 
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
