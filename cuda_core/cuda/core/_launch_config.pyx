@@ -91,6 +91,7 @@ cdef class LaunchConfig:
             self.shmem_size = shmem_size
 
         self.is_cooperative = is_cooperative
+        self._cache_valid = False
 
         if self.is_cooperative and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
@@ -112,19 +113,19 @@ cdef class LaunchConfig:
         return hash(self._identity())
 
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self):
+        if self._cache_valid:
+            return self._cached_drv_cfg
+
         cdef cydriver.CUlaunchConfig drv_cfg
         cdef cydriver.CUlaunchAttribute attr
         memset(&drv_cfg, 0, sizeof(drv_cfg))
         self._attrs.resize(0)
 
-        # Handle grid dimensions and cluster configuration
         if self.cluster is not None:
-            # Convert grid from cluster units to block units
             drv_cfg.gridDimX = self.grid[0] * self.cluster[0]
             drv_cfg.gridDimY = self.grid[1] * self.cluster[1]
             drv_cfg.gridDimZ = self.grid[2] * self.cluster[2]
 
-            # Set up cluster attribute
             attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
             attr.value.clusterDim.x, attr.value.clusterDim.y, attr.value.clusterDim.z = self.cluster
             self._attrs.push_back(attr)
@@ -142,6 +143,11 @@ cdef class LaunchConfig:
         drv_cfg.numAttrs = self._attrs.size()
         drv_cfg.attrs = self._attrs.data()
 
+        # Cache the result. attrs points into self._attrs which is stable
+        # as long as _attrs is never resized after this point (guaranteed
+        # because we skip resize(0) on the fast path above).
+        self._cached_drv_cfg = drv_cfg
+        self._cache_valid = True
         return drv_cfg
 
 

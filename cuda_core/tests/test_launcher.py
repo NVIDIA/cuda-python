@@ -63,6 +63,38 @@ def test_launch_config_shmem_size():
     assert config.shmem_size == 0
 
 
+def test_launch_config_fields_are_readonly():
+    config = LaunchConfig(grid=(2, 2, 2), block=(4, 4, 4), shmem_size=256, is_cooperative=False)
+    for field in ("grid", "block", "cluster", "shmem_size", "is_cooperative"):
+        with pytest.raises(AttributeError):
+            setattr(config, field, None)
+
+
+def test_launch_config_native_cache_stable(init_cuda):
+    """Second call to _to_native_launch_config returns consistent values (cache hit)."""
+    from cuda.core._launch_config import _to_native_launch_config
+
+    config = LaunchConfig(grid=(4, 1, 1), block=(32, 1, 1))
+    first = _to_native_launch_config(config)
+    second = _to_native_launch_config(config)
+    assert first.gridDimX == second.gridDimX == 4
+    assert first.blockDimX == second.blockDimX == 32
+    assert first.sharedMemBytes == second.sharedMemBytes == 0
+    assert first.numAttrs == second.numAttrs == 0
+
+
+def test_launch_config_native_cache_cooperative(init_cuda):
+    """Cached cooperative config retains the cooperative attribute."""
+    from cuda.core._launch_config import _to_native_launch_config
+    try:
+        config = LaunchConfig(grid=1, block=1, is_cooperative=True)
+    except Exception:
+        pytest.skip("Device does not support cooperative launches")
+    first = _to_native_launch_config(config)
+    second = _to_native_launch_config(config)
+    assert first.numAttrs == second.numAttrs == 1
+
+
 def test_launch_config_cluster_grid_conversion(init_cuda):
     """Test that LaunchConfig preserves original grid values and conversion happens in native config."""
     try:
