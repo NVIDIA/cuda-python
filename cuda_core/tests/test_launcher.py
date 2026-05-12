@@ -65,9 +65,16 @@ def test_launch_config_shmem_size():
 
 def test_launch_config_fields_are_readonly():
     config = LaunchConfig(grid=(2, 2, 2), block=(4, 4, 4), shmem_size=256, is_cooperative=False)
-    for field in ("grid", "block", "cluster", "shmem_size", "is_cooperative"):
+    typed_values = {
+        "grid": (1, 1, 1),
+        "block": (1, 1, 1),
+        "cluster": (1, 1, 1),
+        "shmem_size": 0,
+        "is_cooperative": False,
+    }
+    for field, value in typed_values.items():
         with pytest.raises(AttributeError):
-            setattr(config, field, None)
+            setattr(config, field, value)
 
 
 def test_launch_config_native_conversion_stable(init_cuda):
@@ -89,7 +96,7 @@ def test_launch_config_native_conversion_stable_cooperative(init_cuda):
 
     try:
         config = LaunchConfig(grid=1, block=1, is_cooperative=True)
-    except Exception:
+    except CUDAError:
         pytest.skip("Device does not support cooperative launches")
     first = _to_native_launch_config(config)
     second = _to_native_launch_config(config)
@@ -111,7 +118,7 @@ def test_launch_config_native_conversion_stable_cluster(init_cuda):
 
 
 def test_launch_config_cdef_cache_populated_by_launch(init_cuda):
-    """The cdef _to_native_launch_config cache (_cache_valid) is set after launch()."""
+    """The cdef _to_native_launch_config cache (_cache_valid) is set after launch() and persists."""
     code = 'extern "C" __global__ void noop() {}'
     program = Program(code, SourceCodeType.CXX)
     ker = program.compile(ObjectCodeFormatType.CUBIN).get_kernel("noop")
@@ -119,6 +126,9 @@ def test_launch_config_cdef_cache_populated_by_launch(init_cuda):
 
     config = LaunchConfig(grid=1, block=1)
     assert not config._cache_valid
+    launch(stream, config, ker)
+    assert config._cache_valid
+    # Second launch reuses the cache (fast path) — _cache_valid stays True
     launch(stream, config, ker)
     assert config._cache_valid
 
