@@ -32,7 +32,7 @@ linux:
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 't4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', EXTRA_PACKAGES: 'torch' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
@@ -81,7 +81,7 @@ windows:
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.2.1', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'v100',       GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
-    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
+    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM', EXTRA_PACKAGES: 'torch' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.2.1', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }

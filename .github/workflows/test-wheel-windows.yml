@@ -69,7 +69,7 @@ jobs:
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
   test:
-    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }} (${{ matrix.DRIVER_MODE }})
+    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }} (${{ matrix.DRIVER_MODE }})${{ matrix.EXTRA_PACKAGES && format(', {0}', matrix.EXTRA_PACKAGES) || '' }}
     # The build stage could fail but we want the CI to keep moving.
     needs: compute-matrix
     strategy:
@@ -253,6 +253,13 @@ jobs:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests bindings
+
+      - name: Install extra packages for cuda.core tests
+        if: ${{ matrix.EXTRA_PACKAGES }}
+        env:
+          EXTRA_PACKAGES: ${{ matrix.EXTRA_PACKAGES }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: pip install $EXTRA_PACKAGES
 
       - name: Run cuda.core tests
         env:

@@ -77,7 +77,7 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> "$GITHUB_OUTPUT"
 
   test:
-    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format('(x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}
+    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format('(x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.EXTRA_PACKAGES && format(', {0}', matrix.EXTRA_PACKAGES) || '' }}
     needs: compute-matrix
     strategy:
       fail-fast: false
@@ -278,6 +278,12 @@ jobs:
           pushd benchmarks/cuda_bindings
           python run_pyperf.py --debug-single-value
           popd
+
+      - name: Install extra packages for cuda.core tests
+        if: ${{ matrix.EXTRA_PACKAGES }}
+        env:
+          EXTRA_PACKAGES: ${{ matrix.EXTRA_PACKAGES }}
+        run: pip install $EXTRA_PACKAGES
 
       - name: Run cuda.core tests
         env:
