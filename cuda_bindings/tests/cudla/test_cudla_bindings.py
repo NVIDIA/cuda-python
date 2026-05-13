@@ -229,5 +229,3 @@ class TestApiSurface:
     )
     def test_function_exists(self, func_name):
         assert callable(getattr(cudla, func_name))
-
-
