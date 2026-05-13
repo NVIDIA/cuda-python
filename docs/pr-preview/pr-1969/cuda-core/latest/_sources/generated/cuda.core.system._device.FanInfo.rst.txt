@@ -14,7 +14,7 @@ cuda.core.system.\_device.FanInfo
 
    
    .. automethod:: __init__
-   .. automethod:: set_default_fan_speed
+   .. automethod:: set_default_speed
 
    
    

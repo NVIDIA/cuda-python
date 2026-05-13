@@ -14,26 +14,30 @@ cuda.core.\_module.KernelAttributes
 
    
    .. automethod:: __init__
-   .. automethod:: binary_version
-   .. automethod:: cache_mode_ca
-   .. automethod:: cluster_scheduling_policy_preference
-   .. automethod:: cluster_size_must_be_set
-   .. automethod:: const_size_bytes
-   .. automethod:: local_size_bytes
-   .. automethod:: max_dynamic_shared_size_bytes
-   .. automethod:: max_threads_per_block
-   .. automethod:: non_portable_cluster_size_allowed
-   .. automethod:: num_regs
-   .. automethod:: preferred_shared_memory_carveout
-   .. automethod:: ptx_version
-   .. automethod:: required_cluster_depth
-   .. automethod:: required_cluster_height
-   .. automethod:: required_cluster_width
-   .. automethod:: shared_size_bytes
 
    
    
 
    
+   
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: binary_version
+   .. autoproperty:: cache_mode_ca
+   .. autoproperty:: cluster_scheduling_policy_preference
+   .. autoproperty:: cluster_size_must_be_set
+   .. autoproperty:: const_size_bytes
+   .. autoproperty:: local_size_bytes
+   .. autoproperty:: max_dynamic_shared_size_bytes
+   .. autoproperty:: max_threads_per_block
+   .. autoproperty:: non_portable_cluster_size_allowed
+   .. autoproperty:: num_regs
+   .. autoproperty:: preferred_shared_memory_carveout
+   .. autoproperty:: ptx_version
+   .. autoproperty:: required_cluster_depth
+   .. autoproperty:: required_cluster_height
+   .. autoproperty:: required_cluster_width
+   .. autoproperty:: shared_size_bytes
    
    
