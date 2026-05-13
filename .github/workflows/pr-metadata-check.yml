@@ -17,6 +17,10 @@ on:
       - reopened
       - ready_for_review
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   check-metadata:
     name: PR has assignee, labels, and milestone
