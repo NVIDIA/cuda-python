@@ -27,7 +27,8 @@ runs:
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         # Pre-process the component list to ensure hash uniqueness
-        CTK_REDIST_TOOL="${{ github.workspace }}/ci/tools/fetch_ctk_redistrib.py"
+        # Use the runtime workspace mount so this also works inside container jobs.
+        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
         CTK_CACHE_COMPONENTS=${{ inputs.cuda-components }}
         CTK_JSON_URL="https://developer.download.nvidia.com/compute/cuda/redist/redistrib_${{ inputs.cuda-version }}.json"
         CTK_CACHE_COMPONENTS="$(python "$CTK_REDIST_TOOL" filter-components \
@@ -68,7 +69,8 @@ runs:
         mkdir $CACHE_TMP_DIR
 
         # The binary archives (redist) are guaranteed to be updated as part of the release posting.
-        CTK_REDIST_TOOL="${{ github.workspace }}/ci/tools/fetch_ctk_redistrib.py"
+        # Use the runtime workspace mount so this also works inside container jobs.
+        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
         CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
         CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
         CTK_JSON_FILE="$CACHE_TMP_DIR/redistrib.json"
