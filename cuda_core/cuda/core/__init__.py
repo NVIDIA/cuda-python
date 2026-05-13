@@ -79,6 +79,14 @@ from cuda.core._device_resources import (
     WorkqueueResourceOptions,
 )
 from cuda.core._array import Array, ArrayFormat
+from cuda.core._texture import (
+    AddressMode,
+    FilterMode,
+    ReadMode,
+    ResourceDescriptor,
+    TextureDescriptor,
+    TextureObject,
+)
 from cuda.core._event import Event, EventOptions
 from cuda.core._graphics import GraphicsResource
 from cuda.core._launch_config import LaunchConfig
