@@ -56,7 +56,12 @@ def test_to_cuda_device():
     from cuda.core import Device as CudaDevice
 
     for device in system.Device.get_all_devices():
-        cuda_device = device.to_cuda_device()
+        try:
+            cuda_device = device.to_cuda_device()
+        except RuntimeError:
+            # Not all physical NVML devices may have a matching CUDA device
+            # when MIG is involved.
+            continue
 
         assert isinstance(cuda_device, CudaDevice)
         assert cuda_device.uuid == device.uuid_without_prefix
