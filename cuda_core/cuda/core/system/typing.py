@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.core._pycompat import StrEnum
+from cuda.core._utils.pycompat import StrEnum
 
 __all__ = [
     "AddressingMode",
