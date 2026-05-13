@@ -41,8 +41,8 @@ from cuda.core.graph._subclasses cimport (
 from cuda.core._resource_handles cimport (
     EventHandle,
     GraphHandle,
-    KernelHandle,
     GraphNodeHandle,
+    KernelHandle,
     as_cu,
     as_intptr,
     as_py,
@@ -50,13 +50,13 @@ from cuda.core._resource_handles cimport (
     create_graph_node_handle,
     graph_node_get_graph,
     invalidate_graph_node,
+    py_object_user_object_destroy,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 from cuda.core.graph._utils cimport (
     _attach_host_callback_to_graph,
     _attach_user_object,
-    _py_host_destructor,
 )
 
 import weakref
@@ -650,7 +650,7 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     if kernel_args is not None:
         Py_INCREF(kernel_args)
         _attach_user_object(as_cu(h_graph), <void*>kernel_args,
-                            <cydriver.CUhostFn>_py_host_destructor)
+                            <cydriver.CUhostFn>py_object_user_object_destroy)
 
     return _registered(KernelNode._create_with_params(
         create_graph_node_handle(new_node, h_graph),
