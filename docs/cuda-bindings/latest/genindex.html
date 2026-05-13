@@ -569,6 +569,7 @@
 <li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html">nvjitlink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvvm.html">nvvm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvfatbin.html">nvfatbin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/cudla.html">cudla</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="module/cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
@@ -1493,6 +1494,8 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.AccessPermissionFlags">AccessPermissionFlags (class in cuda.bindings.cudla)</a>
+</li>
       <li><a href="module/generated/cuda.bindings.nvml.AccountingStats.html#cuda.bindings.nvml.AccountingStats">AccountingStats (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1.html#cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1">ActiveVgpuInstanceInfo_v1 (class in cuda.bindings.nvml)</a>
@@ -1657,6 +1660,8 @@
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.create">(in module cuda.bindings.nvjitlink)</a>
 </li>
       </ul></li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.create_device">create_device() (in module cuda.bindings.cudla)</a>
+</li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.create_program">create_program() (in module cuda.bindings.nvvm)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUaccessProperty.CU_ACCESS_PROPERTY_NORMAL">CU_ACCESS_PROPERTY_NORMAL (cuda.bindings.driver.CUaccessProperty attribute)</a>
@@ -3876,6 +3881,8 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_PRE_LAUNCH_SYNC">CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_PRE_LAUNCH_SYNC (cuda.bindings.driver attribute)</a>
 </li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.Mode.CUDA_DLA">CUDA_DLA (cuda.bindings.cudla.Mode attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_EGL_INFINITE_TIMEOUT">CUDA_EGL_INFINITE_TIMEOUT (cuda.bindings.driver attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.CUDA_EGL_MAX_PLANES">CUDA_EGL_MAX_PLANES (cuda.bindings.runtime attribute)</a>
@@ -4938,10 +4945,10 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat">cudaEglColorFormat (class in cuda.bindings.runtime)</a>
 </li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatA">cudaEglColorFormatA (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatA">cudaEglColorFormatA (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatABGR">cudaEglColorFormatABGR (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatARGB">cudaEglColorFormatARGB (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
@@ -8324,7 +8331,13 @@
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.destroy">(in module cuda.bindings.nvjitlink)</a>
 </li>
       </ul></li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.destroy_device">destroy_device() (in module cuda.bindings.cudla)</a>
+</li>
       <li><a href="module/generated/cuda.bindings.nvml.DetachGpuState.html#cuda.bindings.nvml.DetachGpuState">DetachGpuState (class in cuda.bindings.nvml)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.DevAttribute">DevAttribute (class in cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.DevAttributeType">DevAttributeType (class in cuda.bindings.cudla)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_clear_accounting_pids.html#cuda.bindings.nvml.device_clear_accounting_pids">device_clear_accounting_pids() (in module cuda.bindings.nvml)</a>
 </li>
@@ -8357,6 +8370,8 @@
       <li><a href="module/generated/cuda.bindings.nvml.device_get_api_restriction.html#cuda.bindings.nvml.device_get_api_restriction">device_get_api_restriction() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_architecture.html#cuda.bindings.nvml.device_get_architecture">device_get_architecture() (in module cuda.bindings.nvml)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.device_get_attribute">device_get_attribute() (in module cuda.bindings.cudla)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_attributes_v2.html#cuda.bindings.nvml.device_get_attributes_v2">device_get_attributes_v2() (in module cuda.bindings.nvml)</a>
 </li>
@@ -8401,6 +8416,8 @@
       <li><a href="module/generated/cuda.bindings.nvml.device_get_conf_compute_protected_memory_usage.html#cuda.bindings.nvml.device_get_conf_compute_protected_memory_usage">device_get_conf_compute_protected_memory_usage() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_cooler_info.html#cuda.bindings.nvml.device_get_cooler_info">device_get_cooler_info() (in module cuda.bindings.nvml)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.device_get_count">device_get_count() (in module cuda.bindings.cudla)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_count_v2.html#cuda.bindings.nvml.device_get_count_v2">device_get_count_v2() (in module cuda.bindings.nvml)</a>
 </li>
@@ -8574,14 +8591,14 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_nvlink_error_counter.html#cuda.bindings.nvml.device_get_nvlink_error_counter">device_get_nvlink_error_counter() (in module cuda.bindings.nvml)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_nvlink_info.html#cuda.bindings.nvml.device_get_nvlink_info">device_get_nvlink_info() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_nvlink_remote_device_type.html#cuda.bindings.nvml.device_get_nvlink_remote_device_type">device_get_nvlink_remote_device_type() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_nvlink_remote_pci_info_v2.html#cuda.bindings.nvml.device_get_nvlink_remote_pci_info_v2">device_get_nvlink_remote_pci_info_v2() (in module cuda.bindings.nvml)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_nvlink_state.html#cuda.bindings.nvml.device_get_nvlink_state">device_get_nvlink_state() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_nvlink_supported_bw_modes.html#cuda.bindings.nvml.device_get_nvlink_supported_bw_modes">device_get_nvlink_supported_bw_modes() (in module cuda.bindings.nvml)</a>
@@ -8906,10 +8923,10 @@
       </ul></li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_INVALID_IR">ERROR_INVALID_IR (cuda.bindings.nvvm.Result attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_INVALID_NVVM">ERROR_INVALID_NVVM (cuda.bindings.nvfatbin.Result attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_INVALID_OPTION">ERROR_INVALID_OPTION (cuda.bindings.nvvm.Result attribute)</a>
 </li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_INVALID_PROGRAM">ERROR_INVALID_PROGRAM (cuda.bindings.nvvm.Result attribute)</a>
@@ -8962,6 +8979,10 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.ExcludedDeviceInfo.html#cuda.bindings.nvml.ExcludedDeviceInfo">ExcludedDeviceInfo (class in cuda.bindings.nvml)</a>
 </li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.ExternalMemoryHandleDesc">ExternalMemoryHandleDesc (class in cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.ExternalSemaphoreHandleDesc">ExternalSemaphoreHandleDesc (class in cuda.bindings.cudla)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -8980,9 +9001,13 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.FBCStats.html#cuda.bindings.nvml.FBCStats">FBCStats (class in cuda.bindings.nvml)</a>
 </li>
+      <li><a href="module/generated/cuda.bindings.cufile.FeatureFlags.html#cuda.bindings.cufile.FeatureFlags">FeatureFlags (class in cuda.bindings.cufile)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="module/generated/cuda.bindings.cufile.FeatureFlags.html#cuda.bindings.cufile.FeatureFlags">FeatureFlags (class in cuda.bindings.cufile)</a>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.Fence">Fence (class in cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.FenceType">FenceType (class in cuda.bindings.cudla)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.FieldId.html#cuda.bindings.nvml.FieldId">FieldId (class in cuda.bindings.nvml)</a>
 </li>
@@ -9022,6 +9047,8 @@
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_info_log_size">get_info_log_size() (in module cuda.bindings.nvjitlink)</a>
 </li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.get_last_error">get_last_error() (in module cuda.bindings.cudla)</a>
+</li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_linked_cubin">get_linked_cubin() (in module cuda.bindings.nvjitlink)</a>
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_linked_cubin_size">get_linked_cubin_size() (in module cuda.bindings.nvjitlink)</a>
@@ -9044,8 +9071,12 @@
 </li>
       <li><a href="module/generated/cuda.bindings.utils.get_ptx_ver.html#cuda.bindings.utils.get_ptx_ver">get_ptx_ver() (in module cuda.bindings.utils)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.cufile.get_version.html#cuda.bindings.cufile.get_version">get_version() (in module cuda.bindings.cufile)</a>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.get_version">get_version() (in module cuda.bindings.cudla)</a>
+
+      <ul>
+        <li><a href="module/generated/cuda.bindings.cufile.get_version.html#cuda.bindings.cufile.get_version">(in module cuda.bindings.cufile)</a>
 </li>
+      </ul></li>
       <li><a href="module/generated/cuda.bindings.nvml.get_vgpu_compatibility.html#cuda.bindings.nvml.get_vgpu_compatibility">get_vgpu_compatibility() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.get_vgpu_driver_capabilities.html#cuda.bindings.nvml.get_vgpu_driver_capabilities">get_vgpu_driver_capabilities() (in module cuda.bindings.nvml)</a>
@@ -9072,10 +9103,10 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.gpu_instance_get_compute_instance_remaining_capacity.html#cuda.bindings.nvml.gpu_instance_get_compute_instance_remaining_capacity">gpu_instance_get_compute_instance_remaining_capacity() (in module cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.gpu_instance_get_compute_instances.html#cuda.bindings.nvml.gpu_instance_get_compute_instances">gpu_instance_get_compute_instances() (in module cuda.bindings.nvml)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/generated/cuda.bindings.nvml.gpu_instance_get_compute_instances.html#cuda.bindings.nvml.gpu_instance_get_compute_instances">gpu_instance_get_compute_instances() (in module cuda.bindings.nvml)</a>
+</li>
       <li><a href="module/generated/cuda.bindings.nvml.gpu_instance_get_creatable_vgpus.html#cuda.bindings.nvml.gpu_instance_get_creatable_vgpus">gpu_instance_get_creatable_vgpus() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.gpu_instance_get_info.html#cuda.bindings.nvml.gpu_instance_get_info">gpu_instance_get_info() (in module cuda.bindings.nvml)</a>
@@ -9246,17 +9277,23 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.MAX_PLANES">MAX_PLANES (cuda.bindings.driver attribute)</a>
 </li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.mem_register">mem_register() (in module cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.mem_unregister">mem_unregister() (in module cuda.bindings.cudla)</a>
+</li>
       <li><a href="module/generated/cuda.bindings.nvml.Memory.html#cuda.bindings.nvml.Memory">Memory (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.Memory_v2.html#cuda.bindings.nvml.Memory_v2">Memory_v2 (class in cuda.bindings.nvml)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/generated/cuda.bindings.nvml.MemoryError.html#cuda.bindings.nvml.MemoryError">MemoryError</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.MemoryErrorType.html#cuda.bindings.nvml.MemoryErrorType">MemoryErrorType (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.MemoryLocation.html#cuda.bindings.nvml.MemoryLocation">MemoryLocation (class in cuda.bindings.nvml)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.Mode">Mode (class in cuda.bindings.cudla)</a>
 </li>
       <li>
     module
@@ -9269,6 +9306,20 @@
         <li><a href="module/utils.html#module-cuda.bindings.utils">cuda.bindings.utils</a>
 </li>
       </ul></li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.module_get_attributes">module_get_attributes() (in module cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.module_load_from_memory">module_load_from_memory() (in module cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.module_unload">module_unload() (in module cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.ModuleAttribute">ModuleAttribute (class in cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.ModuleAttributeType">ModuleAttributeType (class in cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.ModuleLoadFlags">ModuleLoadFlags (class in cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.ModuleTensorDescriptor">ModuleTensorDescriptor (class in cuda.bindings.cudla)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -9565,16 +9616,26 @@
 </li>
       <li><a href="module/generated/cuda.bindings.cufile.set_parameter_string.html#cuda.bindings.cufile.set_parameter_string">set_parameter_string() (in module cuda.bindings.cufile)</a>
 </li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.set_task_timeout_in_ms">set_task_timeout_in_ms() (in module cuda.bindings.cudla)</a>
+</li>
       <li><a href="module/generated/cuda.bindings.nvml.set_vgpu_version.html#cuda.bindings.nvml.set_vgpu_version">set_vgpu_version() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.shutdown.html#cuda.bindings.nvml.shutdown">shutdown() (in module cuda.bindings.nvml)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.SignalEvents">SignalEvents (class in cuda.bindings.cudla)</a>
 </li>
       <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.size">size() (in module cuda.bindings.nvfatbin)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.cufile.SizeTConfigParameter.html#cuda.bindings.cufile.SizeTConfigParameter">SizeTConfigParameter (class in cuda.bindings.cufile)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.cufile.Status.html#cuda.bindings.cufile.Status">Status (class in cuda.bindings.cufile)</a>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.Mode.STANDALONE">STANDALONE (cuda.bindings.cudla.Mode attribute)</a>
 </li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.Status">Status (class in cuda.bindings.cudla)</a>
+
+      <ul>
+        <li><a href="module/generated/cuda.bindings.cufile.Status.html#cuda.bindings.cufile.Status">(class in cuda.bindings.cufile)</a>
+</li>
+      </ul></li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUstreamCigDataType.STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST">STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST (cuda.bindings.driver.CUstreamCigDataType attribute)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.cufile.stream_deregister.html#cuda.bindings.cufile.stream_deregister">stream_deregister() (in module cuda.bindings.cufile)</a>
@@ -9582,6 +9643,12 @@
       <li><a href="module/generated/cuda.bindings.cufile.stream_register.html#cuda.bindings.cufile.stream_register">stream_register() (in module cuda.bindings.cufile)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.cufile.StringConfigParameter.html#cuda.bindings.cufile.StringConfigParameter">StringConfigParameter (class in cuda.bindings.cufile)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.SubmissionFlags">SubmissionFlags (class in cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.submit_task">submit_task() (in module cuda.bindings.cudla)</a>
+</li>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.Status.Success">Success (cuda.bindings.cudla.Status attribute)</a>
 </li>
       <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.SUCCESS">SUCCESS (cuda.bindings.nvfatbin.Result attribute)</a>
 
@@ -9591,14 +9658,14 @@
         <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.SUCCESS">(cuda.bindings.nvvm.Result attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/generated/cuda.bindings.nvml.system_event_set_create.html#cuda.bindings.nvml.system_event_set_create">system_event_set_create() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.system_event_set_free.html#cuda.bindings.nvml.system_event_set_free">system_event_set_free() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.system_event_set_wait.html#cuda.bindings.nvml.system_event_set_wait">system_event_set_wait() (in module cuda.bindings.nvml)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/generated/cuda.bindings.nvml.system_get_conf_compute_capabilities.html#cuda.bindings.nvml.system_get_conf_compute_capabilities">system_get_conf_compute_capabilities() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.system_get_conf_compute_gpus_ready_state.html#cuda.bindings.nvml.system_get_conf_compute_gpus_ready_state">system_get_conf_compute_gpus_ready_state() (in module cuda.bindings.nvml)</a>
@@ -9647,6 +9714,8 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.Task">Task (class in cuda.bindings.cudla)</a>
+</li>
       <li><a href="module/generated/cuda.bindings.nvml.TemperatureSensors.html#cuda.bindings.nvml.TemperatureSensors">TemperatureSensors (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.TemperatureThresholds.html#cuda.bindings.nvml.TemperatureThresholds">TemperatureThresholds (class in cuda.bindings.nvml)</a>
@@ -9885,10 +9954,12 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="module/generated/cuda.bindings.cufile.write.html#cuda.bindings.cufile.write">write() (in module cuda.bindings.cufile)</a>
+      <li><a href="module/cudla.html#cuda.bindings.cudla.WaitEvents">WaitEvents (class in cuda.bindings.cudla)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/generated/cuda.bindings.cufile.write.html#cuda.bindings.cufile.write">write() (in module cuda.bindings.cufile)</a>
+</li>
       <li><a href="module/generated/cuda.bindings.cufile.write_async.html#cuda.bindings.cufile.write_async">write_async() (in module cuda.bindings.cufile)</a>
 </li>
   </ul></td>
