@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import ctypes
 import sys
 
@@ -967,6 +968,102 @@ def test_vmm_allocator_grow_allocation(handle_type):
 
     # Clean up
     grown_buffer.close()
+
+
+@pytest.mark.parametrize("handle_type", get_handle_type())
+def test_vmm_allocator_grow_allocation_fast_path(handle_type):
+    """Exercise the contiguous-extension fast path in modify_allocation.
+
+    The dispatch in :func:`VirtualMemoryResource.modify_allocation` routes to
+    :func:`_grow_allocation_fast_path` only when the CUDA driver honors a
+    ``fixedAddr`` hint pointing immediately after an existing allocation. In
+    practice the driver almost always declines that hint, so
+    ``test_vmm_allocator_grow_allocation`` above always falls through to the
+    slow path and the fast-path bookkeeping is never exercised. This test
+    instead invokes :func:`_grow_allocation_fast_path` directly with a
+    separately reserved VA range so the bookkeeping at the tail of the
+    function (``buf._size = new_size``) is reached.
+
+    The extension is mapped at a disjoint VA, so the buffer ends up with a
+    bookkeeping ``size`` larger than the contiguously-mapped region rooted at
+    its handle. That is acceptable for a unit test of the fast-path
+    bookkeeping; we tear the buffer down by hand below.
+    """
+    device = Device()
+    device.set_current()
+
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    handle_type_name, _ = handle_type
+    options = VirtualMemoryResourceOptions(handle_type=handle_type_name)
+    vmm_mr = VirtualMemoryResource(device, config=options)
+
+    try:
+        buffer = vmm_mr.allocate(2 * 1024 * 1024)
+    except NotImplementedError:
+        assert handle_type_name == "win32"
+        return
+
+    # Build the prop the same way modify_allocation does, so cuMemCreate /
+    # _build_access_descriptors inside the fast path see the same shape as
+    # in production.
+    prop = driver.CUmemAllocationProp()
+    prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+    prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    prop.location.id = device.device_id
+    prop.allocFlags.gpuDirectRDMACapable = 0
+    if IS_WINDOWS:
+        prop.requestedHandleTypes = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32_KMT
+    else:
+        prop.requestedHandleTypes = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
+    prop.win32HandleMetaData = 0
+
+    gran = handle_return(
+        driver.cuMemGetAllocationGranularity(
+            prop, driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED
+        )
+    )
+
+    aligned_additional_size = ((2 * 1024 * 1024) + gran - 1) & ~(gran - 1)
+    original_size = buffer.size
+    original_handle = int(buffer.handle)
+    new_size = original_size + aligned_additional_size
+
+    # Reserve a VA range for the extension. The address is irrelevant for the
+    # purposes of exercising the fast path; only its validity matters.
+    new_ptr = handle_return(driver.cuMemAddressReserve(aligned_additional_size, gran, 0, 0))
+
+    try:
+        result = vmm_mr._grow_allocation_fast_path(buffer, new_size, prop, aligned_additional_size, new_ptr)
+
+        # Fast-path contract: same buffer, unchanged handle, updated size.
+        assert result is buffer
+        assert int(buffer.handle) == original_handle
+        assert buffer.size == new_size
+    finally:
+        # Tear down by hand. The buffer's bookkeeping size may now exceed the
+        # contiguous mapping rooted at its handle, so the standard close()
+        # path (which calls deallocate(handle, size)) cannot be used safely.
+        # Best-effort cleanup; on the current broken build the fast path
+        # raises before commit-tail work completes, so some of these may
+        # error -- suppress individually.
+        with contextlib.suppress(Exception):
+            ext_handle = handle_return(driver.cuMemRetainAllocationHandle(new_ptr))
+            try:
+                handle_return(driver.cuMemUnmap(new_ptr, aligned_additional_size))
+            finally:
+                handle_return(driver.cuMemRelease(ext_handle))
+        with contextlib.suppress(Exception):
+            handle_return(driver.cuMemAddressFree(new_ptr, aligned_additional_size))
+        with contextlib.suppress(Exception):
+            orig_handle = handle_return(driver.cuMemRetainAllocationHandle(original_handle))
+            try:
+                handle_return(driver.cuMemUnmap(original_handle, original_size))
+            finally:
+                handle_return(driver.cuMemRelease(orig_handle))
+        with contextlib.suppress(Exception):
+            handle_return(driver.cuMemAddressFree(original_handle, original_size))
 
 
 def test_vmm_allocator_rdma_unsupported_exception():

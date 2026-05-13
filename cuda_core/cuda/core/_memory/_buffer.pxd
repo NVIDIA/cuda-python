@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -18,13 +18,16 @@ cdef struct _MemAttrs:
 cdef class Buffer:
     cdef:
         DevicePtrHandle _h_ptr
-        size_t          _size
         MemoryResource  _memory_resource
         object          _ipc_data
         object          _owner
         _MemAttrs       _mem_attrs
         bint            _mem_attrs_inited
         object          __weakref__
+    cdef public:
+        # Python code in _memory/_virtual_memory_resource.py needs to update
+        # this value, though it is technically private.
+        size_t          _size
 
 
 cdef class MemoryResource:
