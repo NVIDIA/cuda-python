@@ -8,7 +8,7 @@
 #
 # Please keep the matrices sorted in ascending order by the following:
 #
-# [ARCH, PY_VER, CUDA_VER, LOCAL_CTK, GPU, GPU_COUNT, DRIVER]
+# [ARCH, PY_VER, CUDA_VER, LOCAL_CTK, GPU, GPU_COUNT, DRIVER, EXTRA_PACKAGES]
 #
 # Windows entries also include DRIVER_MODE.
 #
