@@ -29,9 +29,6 @@ cuDLA defines the following functions for DLA device management and inference.
 .. autofunction:: cuda.bindings.cudla.submit_task
 .. autofunction:: cuda.bindings.cudla.device_get_attribute
 .. autofunction:: cuda.bindings.cudla.get_last_error
-.. autofunction:: cuda.bindings.cudla.import_external_memory
-.. autofunction:: cuda.bindings.cudla.import_external_semaphore
-.. autofunction:: cuda.bindings.cudla.get_nv_sci_sync_attributes
 .. autofunction:: cuda.bindings.cudla.set_task_timeout_in_ms
 
 Types
@@ -52,7 +49,7 @@ Enums
 
 .. autoclass:: cuda.bindings.cudla.Status
 
-   .. autoattribute:: cuda.bindings.cudla.Status.SUCCESS
+   .. autoattribute:: cuda.bindings.cudla.Status.Success
 
 .. autoclass:: cuda.bindings.cudla.Mode
 
