@@ -54,10 +54,12 @@ elif [[ "${test_module}" == "bindings" ]]; then
   fi
   popd
 elif [[ "${test_module}" == "core" ]]; then
-  # If build/test majors match: cuda.bindings is installed in the previous step.
-  # If mismatch: cuda.bindings is installed from the backport branch.
-  if [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
-    echo "Installing bindings wheel"
+  # Install cuda.bindings for core tests based on BINDINGS_SOURCE.
+  if [[ "${BINDINGS_SOURCE}" == "published" ]]; then
+    echo "Installing published cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.* from PyPI"
+    pip install "cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*"
+  elif [[ "${BINDINGS_SOURCE}" == "backport" || "${BINDINGS_SOURCE}" == "main" ]]; then
+    echo "Installing bindings wheel (source: ${BINDINGS_SOURCE})"
     if [[ "${LOCAL_CTK}" == 1 ]]; then
       pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
     else
@@ -83,6 +85,8 @@ elif [[ "${test_module}" == "core" ]]; then
   # Constrain cuda-toolkit to the requested CTK version to avoid
   # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
   pip install "${WHL_EXTRA[@]}" --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${CUDA_VER_MINOR}.*"
+  echo "Installed packages before core tests:"
+  pip list
   echo "Running core tests"
   ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   # Currently our CI always installs the latest bindings (from either major version).

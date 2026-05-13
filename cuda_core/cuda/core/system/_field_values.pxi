@@ -3,9 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-FieldId = nvml.FieldId
-
-
 cdef class FieldValue:
     """
     Represents the data from a single field value.

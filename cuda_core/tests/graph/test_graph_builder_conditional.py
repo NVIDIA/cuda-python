@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """Tests for GraphBuilder conditional node capture (if, if-else, switch, while)."""
@@ -10,7 +10,8 @@ import pytest
 from helpers.graph_kernels import compile_conditional_kernels
 from helpers.marks import requires_module
 
-from cuda.core import Device, GraphBuilder, LaunchConfig, LegacyPinnedMemoryResource, launch
+from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
+from cuda.core.graph import GraphBuilder
 
 
 @pytest.mark.parametrize(

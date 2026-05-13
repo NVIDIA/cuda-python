@@ -19,7 +19,6 @@ from cuda.core.graph import (
     EventRecordNode,
     EventWaitNode,
     FreeNode,
-    GraphAllocOptions,
     GraphCompleteOptions,
     GraphDebugPrintOptions,
     GraphDefinition,
@@ -33,6 +32,7 @@ from cuda.core.graph import (
     SwitchNode,
     WhileNode,
 )
+from cuda.core.typing import GraphConditionalType, GraphMemoryType
 
 ALLOC_SIZE = 1024
 
@@ -48,13 +48,13 @@ def _skip_if_no_managed_mempool():
         pytest.skip("Device does not support managed memory pool operations")
 
 
-def _driver_has_node_get_params():
-    from cuda.core._utils.version import driver_version
+def _has_node_get_params():
+    from cuda.core._utils.version import binding_version, driver_version
 
-    return driver_version() >= (13, 2, 0)
+    return driver_version() >= (13, 2, 0) and binding_version() >= (13, 2, 0)
 
 
-_HAS_NODE_GET_PARAMS = _driver_has_node_get_params()
+_HAS_NODE_GET_PARAMS = _has_node_get_params()
 
 
 def _bindings_major_version():
@@ -268,23 +268,20 @@ def _build_alloc_node(g):
         "device_id": device_id,
         "memory_type": "device",
         "peer_access": (),
-        "options": GraphAllocOptions(device=device_id, memory_type="device"),
     }
 
 
 def _build_alloc_managed_node(g):
     _skip_if_no_managed_mempool()
     device_id = Device().device_id
-    options = GraphAllocOptions(memory_type="managed")
     entry = g.allocate(ALLOC_SIZE)
-    node = entry.allocate(ALLOC_SIZE, options)
+    node = entry.allocate(ALLOC_SIZE, memory_type=GraphMemoryType.MANAGED)
     return node, {
         "dptr": lambda v: v != 0,
         "bytesize": ALLOC_SIZE,
         "device_id": device_id,
         "memory_type": "managed",
         "peer_access": (),
-        "options": GraphAllocOptions(device=device_id, memory_type="managed"),
     }
 
 
@@ -386,7 +383,7 @@ def _build_host_callback_node(g):
 
     node = g.callback(my_callback)
     return node, {
-        "callback_fn": lambda v: v is my_callback,
+        "callback": lambda v: v is my_callback,
     }
 
 
@@ -421,7 +418,7 @@ def _build_if_then_node(g):
     node = g.if_then(condition)
     return node, {
         "condition": condition,
-        "cond_type": "if",
+        "cond_type": lambda v: isinstance(v, GraphConditionalType) and v == "if",
         "branches": lambda v: isinstance(v, tuple) and len(v) == 1,
         "then": lambda v: isinstance(v, GraphDefinition),
     }
@@ -432,7 +429,7 @@ def _build_if_else_node(g):
     node = g.if_else(condition)
     return node, {
         "condition": condition,
-        "cond_type": "if",
+        "cond_type": lambda v: isinstance(v, GraphConditionalType) and v == "if",
         "branches": lambda v: isinstance(v, tuple) and len(v) == 2,
         "then": lambda v: isinstance(v, GraphDefinition),
         "else_": lambda v: isinstance(v, GraphDefinition),
@@ -444,7 +441,7 @@ def _build_while_loop_node(g):
     node = g.while_loop(condition)
     return node, {
         "condition": condition,
-        "cond_type": "while",
+        "cond_type": lambda v: isinstance(v, GraphConditionalType) and v == "while",
         "branches": lambda v: isinstance(v, tuple) and len(v) == 1,
         "body": lambda v: isinstance(v, GraphDefinition),
     }
@@ -455,7 +452,7 @@ def _build_switch_node(g):
     node = g.switch(condition, 3)
     return node, {
         "condition": condition,
-        "cond_type": "switch",
+        "cond_type": lambda v: isinstance(v, GraphConditionalType) and v == "switch",
         "branches": lambda v: isinstance(v, tuple) and len(v) == 3,
     }
 
@@ -830,9 +827,8 @@ def test_alloc_free_chain(sample_graphdef):
 
 def test_alloc_memory_type_invalid(sample_graphdef):
     """Invalid memory type raises ValueError."""
-    options = GraphAllocOptions(memory_type="invalid")
     with pytest.raises(ValueError, match="Invalid memory_type"):
-        sample_graphdef.allocate(ALLOC_SIZE, options)
+        sample_graphdef.allocate(ALLOC_SIZE, memory_type="invalid")
 
 
 @pytest.mark.parametrize(
@@ -846,8 +842,7 @@ def test_alloc_device_option(sample_graphdef, device_spec):
     """Device can be specified as int or Device object."""
     _skip_if_no_mempool()
     device = Device()
-    options = GraphAllocOptions(device=device_spec(device))
-    node = sample_graphdef.allocate(ALLOC_SIZE, options)
+    node = sample_graphdef.allocate(ALLOC_SIZE, device=device_spec(device))
     assert node.dptr != 0
 
 
@@ -855,8 +850,7 @@ def test_alloc_peer_access(mempool_device_x2):
     """AllocNode.peer_access reflects requested peers."""
     d0, d1 = mempool_device_x2
     g = GraphDefinition()
-    options = GraphAllocOptions(device=d0.device_id, peer_access=[d1.device_id])
-    node = g.allocate(ALLOC_SIZE, options)
+    node = g.allocate(ALLOC_SIZE, device=d0.device_id, peer_access=[d1.device_id])
     assert d1.device_id in node.peer_access
 
 
