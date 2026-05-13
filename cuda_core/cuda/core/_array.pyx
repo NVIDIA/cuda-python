@@ -4,10 +4,13 @@
 
 from __future__ import annotations
 
+cimport cpython
 from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
+from cuda.core._memory._buffer cimport Buffer
+from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import enum
@@ -55,6 +58,128 @@ cdef inline int _get_current_device_id() except -1:
     with nogil:
         HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
     return <int>dev
+
+
+cdef void _fill_array_endpoint(
+    cydriver.CUDA_MEMCPY3D* p, Array arr, bint is_src
+) noexcept:
+    """Populate the src or dst array fields of a CUDA_MEMCPY3D struct."""
+    if is_src:
+        p.srcMemoryType = cydriver.CU_MEMORYTYPE_ARRAY
+        p.srcArray = arr._handle
+        p.srcXInBytes = 0
+        p.srcY = 0
+        p.srcZ = 0
+    else:
+        p.dstMemoryType = cydriver.CU_MEMORYTYPE_ARRAY
+        p.dstArray = arr._handle
+        p.dstXInBytes = 0
+        p.dstY = 0
+        p.dstZ = 0
+
+
+cdef int _fill_linear_endpoint(
+    cydriver.CUDA_MEMCPY3D* p,
+    object obj,
+    bint is_src,
+    size_t width_bytes,
+    size_t height,
+    cpython.Py_buffer* pybuf_out,
+) except -1:
+    """Populate the src or dst linear fields. Returns 1 if pybuf_out was
+    filled (caller must release it), 0 otherwise.
+    """
+    cdef intptr_t ptr
+    cdef int got_buffer = 0
+    if isinstance(obj, Buffer):
+        ptr = int((<Buffer>obj).handle)
+        if is_src:
+            p.srcMemoryType = cydriver.CU_MEMORYTYPE_DEVICE
+            p.srcDevice = <cydriver.CUdeviceptr>ptr
+            p.srcPitch = width_bytes
+            p.srcHeight = height
+            p.srcXInBytes = 0
+            p.srcY = 0
+            p.srcZ = 0
+        else:
+            p.dstMemoryType = cydriver.CU_MEMORYTYPE_DEVICE
+            p.dstDevice = <cydriver.CUdeviceptr>ptr
+            p.dstPitch = width_bytes
+            p.dstHeight = height
+            p.dstXInBytes = 0
+            p.dstY = 0
+            p.dstZ = 0
+        return 0
+
+    # Treat anything else as a host buffer via the Python buffer protocol.
+    cdef int flags = cpython.PyBUF_SIMPLE
+    if not is_src:
+        flags |= cpython.PyBUF_WRITABLE
+    if cpython.PyObject_GetBuffer(obj, pybuf_out, flags) != 0:
+        raise TypeError(
+            f"Source/destination must be a Buffer or a contiguous "
+            f"buffer-protocol object, got {type(obj).__name__}"
+        )
+    got_buffer = 1
+    if is_src:
+        p.srcMemoryType = cydriver.CU_MEMORYTYPE_HOST
+        p.srcHost = pybuf_out.buf
+        p.srcPitch = width_bytes
+        p.srcHeight = height
+        p.srcXInBytes = 0
+        p.srcY = 0
+        p.srcZ = 0
+    else:
+        p.dstMemoryType = cydriver.CU_MEMORYTYPE_HOST
+        p.dstHost = pybuf_out.buf
+        p.dstPitch = width_bytes
+        p.dstHeight = height
+        p.dstXInBytes = 0
+        p.dstY = 0
+        p.dstZ = 0
+    return 1
+
+
+cdef _copy3d(Array arr, object other, object stream, bint to_array):
+    """Issue a full-array async 3D memcpy between ``arr`` and ``other``.
+
+    Direction is determined by ``to_array``: True copies *into* arr, False
+    copies *out of* arr.
+    """
+    cdef cydriver.CUDA_MEMCPY3D params
+    cdef cpython.Py_buffer pybuf
+    cdef int got_buffer = 0
+    cdef intptr_t stream_handle
+    cdef cydriver.CUstream c_stream
+
+    if not isinstance(stream, Stream):
+        raise TypeError(f"stream must be a Stream, got {type(stream).__name__}")
+
+    memset(&params, 0, sizeof(params))
+    width_bytes, height, depth = arr._extent_bytes()
+    params.WidthInBytes = <size_t>width_bytes
+    params.Height = <size_t>height
+    params.Depth = <size_t>depth
+
+    try:
+        if to_array:
+            got_buffer = _fill_linear_endpoint(
+                &params, other, True, width_bytes, height, &pybuf
+            )
+            _fill_array_endpoint(&params, arr, False)
+        else:
+            _fill_array_endpoint(&params, arr, True)
+            got_buffer = _fill_linear_endpoint(
+                &params, other, False, width_bytes, height, &pybuf
+            )
+
+        stream_handle = int((<Stream>stream).handle)
+        c_stream = <cydriver.CUstream><void*>stream_handle
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpy3DAsync(&params, c_stream))
+    finally:
+        if got_buffer:
+            cpython.PyBuffer_Release(&pybuf)
 
 
 cdef class Array:
@@ -210,6 +335,51 @@ cdef class Array:
         """The :class:`Device` this array was allocated on."""
         from cuda.core._device import Device
         return Device(self._device_id)
+
+    def _extent_bytes(self):
+        """Return (width_bytes, height, depth) for cuMemcpy3D, with height/depth
+        normalized to >=1 for lower-rank arrays."""
+        cdef int rank = len(self._shape)
+        cdef size_t w = <size_t>self._shape[0] * <size_t>(
+            _FORMAT_ELEM_SIZE[self._format] * self._num_channels
+        )
+        cdef size_t h = <size_t>(self._shape[1] if rank >= 2 else 1)
+        cdef size_t d = <size_t>(self._shape[2] if rank >= 3 else 1)
+        return w, h, d
+
+    def copy_from(self, src, *, stream):
+        """Copy a full-array's worth of data into this array.
+
+        Parameters
+        ----------
+        src : Buffer or buffer-protocol object
+            Source data. Must contain at least ``self.size_bytes`` bytes
+            of contiguous data.
+        stream : Stream
+            Stream to issue the copy on.
+        """
+        _copy3d(self, src, stream, to_array=True)
+
+    def copy_to(self, dst, *, stream):
+        """Copy a full-array's worth of data out of this array.
+
+        Parameters
+        ----------
+        dst : Buffer or writable buffer-protocol object
+            Destination. Must have at least ``self.size_bytes`` bytes of
+            writable, contiguous space.
+        stream : Stream
+            Stream to issue the copy on.
+        """
+        _copy3d(self, dst, stream, to_array=False)
+
+    @property
+    def size_bytes(self):
+        """Total bytes of array storage (``prod(shape) * element_size``)."""
+        cdef size_t n = 1
+        for s in self._shape:
+            n *= <size_t>s
+        return n * <size_t>(_FORMAT_ELEM_SIZE[self._format] * self._num_channels)
 
     cpdef close(self):
         """Destroy the underlying ``CUarray`` if owned by this object."""
