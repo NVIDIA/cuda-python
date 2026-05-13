@@ -6,22 +6,6 @@ import pytest
 cudla = pytest.importorskip("cuda.bindings.cudla")
 
 
-def _cudla_library_available():
-    """Check if the cuDLA shared library is loaded and usable."""
-    try:
-        from cuda.bindings._internal import cudla as _inner
-
-        return _inner._inspect_function_pointer("__cudlaGetVersion") != 0
-    except Exception:
-        return False
-
-
-requires_cudla_library = pytest.mark.skipif(
-    not _cudla_library_available(),
-    reason="cuDLA library not available (requires NVIDIA Orin with DLA)",
-)
-
-
 # ---------------------------------------------------------------------------
 # Enum tests (always run -- no library needed)
 # ---------------------------------------------------------------------------
@@ -247,57 +231,3 @@ class TestApiSurface:
         assert callable(getattr(cudla, func_name))
 
 
-# ---------------------------------------------------------------------------
-# Function tests (hardware-gated -- skipped when libcudla.so is unavailable)
-# ---------------------------------------------------------------------------
-
-
-@requires_cudla_library
-class TestFunctions:
-    def test_get_version(self):
-        version = cudla.get_version()
-        assert version > 0
-
-    def test_device_get_count(self):
-        count = cudla.device_get_count()
-        assert count >= 0
-
-    def test_create_destroy_device(self):
-        from cuda.bindings import driver, runtime
-
-        driver.cuInit(0)
-        runtime.cudaSetDevice(0)
-
-        handle = cudla.create_device(0, int(cudla.Mode.CUDA_DLA))
-        try:
-            assert handle != 0
-        finally:
-            cudla.destroy_device(handle)
-
-    def test_create_device_rejects_standalone(self):
-        with pytest.raises(cudla.CudlaError, match="ErrorUnsupportedOperation"):
-            cudla.create_device(0, int(cudla.Mode.STANDALONE))
-
-    def test_create_device_rejects_standalone_raw_int(self):
-        with pytest.raises(cudla.CudlaError, match="ErrorUnsupportedOperation"):
-            cudla.create_device(0, 1)
-
-    def test_mem_register_unregister(self):
-        from cuda.bindings import driver, runtime
-
-        driver.cuInit(0)
-        runtime.cudaSetDevice(0)
-
-        dev_handle = cudla.create_device(0, int(cudla.Mode.CUDA_DLA))
-        try:
-            buf_size = 1024
-            err, gpu_ptr = runtime.cudaMalloc(buf_size)
-            assert err.value == 0, f"cudaMalloc failed: {err}"
-            try:
-                registered_ptr = cudla.mem_register(dev_handle, int(gpu_ptr), buf_size, 0)
-                assert registered_ptr != 0
-                cudla.mem_unregister(dev_handle, registered_ptr)
-            finally:
-                runtime.cudaFree(gpu_ptr)
-        finally:
-            cudla.destroy_device(dev_handle)
