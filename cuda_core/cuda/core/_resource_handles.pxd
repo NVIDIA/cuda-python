@@ -222,3 +222,12 @@ cdef CuLinkHandle create_culink_handle_ref(cydriver.CUlinkState state) except+ n
 # File descriptor handles
 cdef FileDescriptorHandle create_fd_handle(int fd) except+ nogil
 cdef FileDescriptorHandle create_fd_handle_ref(int fd) except+ nogil
+
+# SM resource split (13.1+ — calls through function pointer, safe on older bindings)
+# groupParams is void* here to avoid referencing CU_DEV_SM_RESOURCE_GROUP_PARAMS
+# (which doesn't exist in cuda-bindings 13.0 .pxd). The C++ side casts it.
+cdef cydriver.CUresult sm_resource_split(
+    cydriver.CUdevResource* result, unsigned int nbGroups,
+    const cydriver.CUdevResource* input, cydriver.CUdevResource* remainder,
+    unsigned int flags, void* groupParams) nogil
+cdef bint has_sm_resource_split() noexcept nogil
