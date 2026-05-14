@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 set -ex
@@ -42,6 +42,7 @@ cp ./nv-versions.json build/html
 cp source/_templates/main.html build/html/index.html
 
 # ensure that the latest docs is the one we built
+rm -rf build/html/latest
 if [[ $LATEST_ONLY == "0" ]]; then
     cp -r build/html/${SPHINX_CUDA_CORE_VER} build/html/latest
 else

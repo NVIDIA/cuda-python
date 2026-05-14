@@ -126,7 +126,7 @@ default = { features = [
 cu13 = { features = ["cu13", "test", "cython-tests", "local-deps"], solve-group = "cu13" }
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
 examples = { features = ["cu13", "examples", "local-deps"], solve-group = "examples" }
-docs = { features = ["cu13", "docs", "local-deps"], solve-group = "docs" }
+docs = { features = ["cu13", "docs"], solve-group = "docs" }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
@@ -196,16 +196,49 @@ cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
 
 [target.linux.tasks.docs-build]
 cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh"]
+depends-on = [{ task = "_docs-reinstall-core" }]
 default-environment = "docs"
 
 [target.linux.tasks.docs-build-latest]
 cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh", "latest-only"]
+depends-on = [{ task = "_docs-reinstall-core" }]
 default-environment = "docs"
 
 [target.linux.tasks.docs-debug]
 cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh", "latest-only"]
 env = { SPHINXOPTS = "-v -j 1 -d build/.doctrees" }
+depends-on = [{ task = "_docs-reinstall-core" }]
 default-environment = "docs"
+
+[target.linux.tasks._docs-reinstall-core]
+cmd = [
+    "pixi",
+    "reinstall",
+    "--manifest-path",
+    "$PIXI_PROJECT_ROOT",
+    "-e",
+    "docs",
+    "--locked",
+    "cuda-core",
+]
+default-environment = "docs"
+inputs = [
+    "pixi.toml",
+    "pixi.lock",
+    "pyproject.toml",
+    "setup.py",
+    "MANIFEST.in",
+    "DESCRIPTION.rst",
+    "cuda/**/*.py",
+    "cuda/**/*.pyx",
+    "cuda/**/*.pxd",
+    "cuda/**/*.pxi",
+    "cuda/**/*.cpp",
+    "cuda/**/*.def",
+    "cuda/**/*.h",
+    "cuda/**/*.hpp",
+    "cuda/**/*.md",
+]
 
 [target.win-64.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.bat"]
