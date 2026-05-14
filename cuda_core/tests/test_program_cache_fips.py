@@ -101,7 +101,7 @@ def test_make_program_cache_key_avoids_fips_blocked_blake2b(monkeypatch):
     monkeypatch.setattr(hashlib, "blake2b", _blake2b_disabled)
 
     key = keys_mod.make_program_cache_key(
-        code="extern \"C\" __global__ void k() {}",
+        code='extern "C" __global__ void k() {}',
         code_type="c++",
         options=ProgramOptions(arch="sm_80"),
         target_type="cubin",
