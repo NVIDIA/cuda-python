@@ -199,6 +199,7 @@ jobs:
           rmdir cuda-python-wheel
 
       - name: Display structure of downloaded cuda-python artifacts
+        if: ${{ env.BINDINGS_SOURCE == 'main' }}
         run: |
           pwd
           ls -lah cuda_python*.whl cuda_pathfinder/

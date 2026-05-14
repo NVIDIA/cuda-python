@@ -117,9 +117,17 @@ elif [[ "${test_module}" == "nightly-pytorch" || "${test_module}" == "nightly-nu
   # absolute (set via realpath in env-vars).
   PATHFINDER_WHL=($(realpath ./cuda_pathfinder/*.whl))
 
-  BINDINGS_WHL=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
-  if [[ "${LOCAL_CTK}" != 1 ]]; then
-    BINDINGS_WHL=("${BINDINGS_WHL[0]}[all]")
+  # Build bindings spec based on BINDINGS_SOURCE (set by env-vars):
+  #   main/backport → local wheel from artifacts dir
+  #   published     → install from PyPI by version
+  BINDINGS_ARGS=()
+  if [[ "${BINDINGS_SOURCE}" == "published" ]]; then
+    BINDINGS_ARGS+=("cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*")
+  else
+    BINDINGS_ARGS=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
+    if [[ "${LOCAL_CTK}" != 1 ]]; then
+      BINDINGS_ARGS=("${BINDINGS_ARGS[0]}[all]")
+    fi
   fi
 
   CORE_WHL=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
@@ -133,7 +141,7 @@ elif [[ "${test_module}" == "nightly-pytorch" || "${test_module}" == "nightly-nu
 
   PIP_ARGS=(
     "${PATHFINDER_WHL[@]}"
-    "${BINDINGS_WHL[@]}"
+    "${BINDINGS_ARGS[@]}"
     "${CORE_WHL[@]}"
     --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
   )

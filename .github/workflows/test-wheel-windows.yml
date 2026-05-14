@@ -185,6 +185,7 @@ jobs:
           rmdir cuda-python-wheel
 
       - name: Display structure of downloaded cuda-python artifacts
+        if: ${{ env.BINDINGS_SOURCE == 'main' }}
         run: |
           Get-Location
           Get-ChildItem cuda_python*.whl | Select-Object Mode, LastWriteTime, Length, FullName
