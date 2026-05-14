@@ -42,8 +42,10 @@ HEAD_SHA_FLAG=0
 while [[ $# -gt 0 ]]; do
     case "${1}" in
         --tag)
+            [[ -n "${MODE}" && "${MODE}" != "tag" ]] && { echo "Error: --tag and --branch are mutually exclusive" >&2; exit 1; }
             MODE="tag"; REF="${2}"; shift 2 ;;
         --branch)
+            [[ -n "${MODE}" && "${MODE}" != "branch" ]] && { echo "Error: --tag and --branch are mutually exclusive" >&2; exit 1; }
             MODE="branch"; REF="${2}"; shift 2 ;;
         --head-sha)
             HEAD_SHA_FLAG=1; shift ;;
