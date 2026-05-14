@@ -188,7 +188,6 @@ jobs:
         run: |
           Get-Location
           Get-ChildItem cuda_python*.whl | Select-Object Mode, LastWriteTime, Length, FullName
-          Get-ChildItem cuda_pathfinder/ | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Display structure of downloaded cuda.bindings artifacts
         if: ${{ env.BINDINGS_SOURCE != 'published' }}
