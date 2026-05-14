@@ -5,6 +5,7 @@ import multiprocessing
 import os
 import pathlib
 import sys
+from contextlib import contextmanager
 from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
@@ -101,6 +102,15 @@ def create_pinned_memory_resource_or_xfail(*args, xfail_device=None, **kwargs):
         return PinnedMemoryResource(*args, **kwargs)
     except CUDAError as e:
         xfail_if_mempool_oom(e, xfail_device)
+        raise
+
+
+@contextmanager
+def xfail_on_graph_mempool_oom(device=0):
+    try:
+        yield
+    except CUDAError as e:
+        xfail_if_mempool_oom(e, "cuGraphAddMemAllocNode", device)
         raise
 
 
