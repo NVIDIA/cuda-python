@@ -159,6 +159,38 @@ Tensor Memory Accelerator (TMA)
    TensorMapDescriptorOptions
 
 
+Textures and surfaces
+---------------------
+
+CUDA arrays back bindless texture and surface objects for kernel-side sampled
+reads and typed load/store. :class:`Array` is allocated through
+:meth:`Array.from_descriptor` and bound through a :class:`ResourceDescriptor`
+factory; linear (1D) and row-pitched 2D :class:`Buffer` views are also
+supported as texture backings.
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   Array
+   ResourceDescriptor
+   TextureObject
+   SurfaceObject
+
+   :template: dataclass.rst
+
+   TextureDescriptor
+
+.. autosummary::
+   :toctree: generated/
+
+   ArrayFormat
+   AddressMode
+   FilterMode
+   ReadMode
+
+
 CUDA compilation toolchain
 --------------------------
 
