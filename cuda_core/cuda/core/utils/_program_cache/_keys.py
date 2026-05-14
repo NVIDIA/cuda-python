@@ -35,7 +35,7 @@ from cuda.core._utils.cuda_utils import (
 )
 
 # Bump when the key schema changes in a way that invalidates existing caches.
-_KEY_SCHEMA_VERSION = 1
+_KEY_SCHEMA_VERSION = 2
 
 _VALID_CODE_TYPES = frozenset({"c++", "ptx", "nvvm"})
 _VALID_TARGET_TYPES = frozenset({"ptx", "cubin", "ltoir"})
@@ -768,7 +768,7 @@ def make_program_cache_key(
     option_bytes = backend.option_fingerprint(options, target_type)
     name_tags = backend.encode_name_expressions(name_expressions)
 
-    hasher = hashlib.blake2b(digest_size=32)
+    hasher = hashlib.sha256()
 
     def _update(label: str, payload: bytes) -> None:
         hasher.update(label.encode("ascii"))
