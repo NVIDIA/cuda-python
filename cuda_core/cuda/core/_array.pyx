@@ -242,6 +242,7 @@ cdef class Array:
         self._shape = shape_t
         self._format = int(format)
         self._num_channels = num_channels
+        self._surface_load_store = bool(surface_load_store)
         self._context = _get_current_context_ptr()
         self._device_id = _get_current_device_id()
 
@@ -303,6 +304,7 @@ cdef class Array:
             self._shape = (int(desc.Width),)
         self._format = <int>desc.Format
         self._num_channels = desc.NumChannels
+        self._surface_load_store = bool(desc.Flags & cydriver.CUDA_ARRAY3D_SURFACE_LDST)
         return self
 
     @property
@@ -335,6 +337,12 @@ cdef class Array:
         """The :class:`Device` this array was allocated on."""
         from cuda.core._device import Device
         return Device(self._device_id)
+
+    @property
+    def surface_load_store(self):
+        """True if this array was created with ``CUDA_ARRAY3D_SURFACE_LDST``
+        and can be bound as a :class:`SurfaceObject`."""
+        return self._surface_load_store
 
     def _extent_bytes(self):
         """Return (width_bytes, height, depth) for cuMemcpy3D, with height/depth

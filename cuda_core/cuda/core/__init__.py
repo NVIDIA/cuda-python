@@ -87,6 +87,7 @@ from cuda.core._texture import (
     TextureDescriptor,
     TextureObject,
 )
+from cuda.core._surface import SurfaceObject
 from cuda.core._event import Event, EventOptions
 from cuda.core._graphics import GraphicsResource
 from cuda.core._launch_config import LaunchConfig

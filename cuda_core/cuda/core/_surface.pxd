@@ -6,16 +6,12 @@ from libc.stdint cimport intptr_t
 from cuda.bindings cimport cydriver
 
 
-cdef class Array:
+cdef class SurfaceObject:
 
     cdef:
-        cydriver.CUarray _handle
-        tuple _shape                 # (w,), (w, h), or (w, h, d)
-        int _format                  # CUarray_format value
-        unsigned int _num_channels   # 1, 2, or 4
+        cydriver.CUsurfObject _handle
+        object _source_ref      # keep backing Array alive
         int _device_id
         intptr_t _context
-        bint _owning
-        bint _surface_load_store
 
     cpdef close(self)
