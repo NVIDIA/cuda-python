@@ -768,7 +768,10 @@ def make_program_cache_key(
     option_bytes = backend.option_fingerprint(options, target_type)
     name_tags = backend.encode_name_expressions(name_expressions)
 
-    hasher = hashlib.sha256()
+    # IMPORTANT: Must use a FIPS-approved hash algorithm (SHA-2 family).
+    # FIPS-enforcing systems can disable non-approved hashlib algorithms
+    # (for example blake2b) at the OpenSSL level. See #2043.
+    hasher = hashlib.sha384(usedforsecurity=False)
 
     def _update(label: str, payload: bytes) -> None:
         hasher.update(label.encode("ascii"))

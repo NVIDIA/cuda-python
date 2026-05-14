@@ -126,7 +126,7 @@ def _make_key(**overrides):
 def test_make_program_cache_key_returns_bytes():
     key = _make_key()
     assert isinstance(key, bytes)
-    assert len(key) == 32
+    assert len(key) == 48
 
 
 def test_make_program_cache_key_propagates_as_bytes_typeerror(monkeypatch):
