@@ -154,23 +154,6 @@ def test_surface_requires_ldst_flag(init_cuda):
         arr.close()
 
 
-def test_surface_rejects_non_array_resource(init_cuda):
-    # ResourceDescriptor only exposes from_array today, so use a fake kind.
-    arr = Array.from_descriptor(
-        shape=(8, 8),
-        format=ArrayFormat.UINT8,
-        num_channels=4,
-        surface_load_store=True,
-    )
-    try:
-        res = ResourceDescriptor.from_array(arr)
-        res._kind = "linear"  # simulate a future, unsupported resource kind
-        with pytest.raises(ValueError, match="array-backed"):
-            SurfaceObject.from_descriptor(res)
-    finally:
-        arr.close()
-
-
 def test_address_mode_normalization(init_cuda):
     arr = Array.from_descriptor(
         shape=(8, 8, 4), format=ArrayFormat.FLOAT32, num_channels=1
@@ -185,3 +168,183 @@ def test_address_mode_normalization(init_cuda):
         tex.close()
     finally:
         arr.close()
+
+
+# --- Linear / pitch2D resource descriptors -----------------------------------
+
+def _alloc_device_buffer(device, nbytes):
+    """Allocate a device Buffer using the device's default memory resource."""
+    return device.memory_resource.allocate(nbytes, stream=device.default_stream)
+
+
+def test_resource_descriptor_from_linear_defaults_size(init_cuda):
+    device = Device()
+    buf = _alloc_device_buffer(device, 4096)
+    try:
+        res = ResourceDescriptor.from_linear(
+            buf, format=ArrayFormat.FLOAT32, num_channels=1
+        )
+        assert res.kind == "linear"
+        assert res.format == ArrayFormat.FLOAT32
+        assert res.num_channels == 1
+        assert res.source is buf
+        # repr should include the kind/format hint
+        assert "linear" in repr(res)
+    finally:
+        buf.close()
+
+
+def test_resource_descriptor_from_linear_size_override(init_cuda):
+    device = Device()
+    buf = _alloc_device_buffer(device, 4096)
+    try:
+        res = ResourceDescriptor.from_linear(
+            buf, format=ArrayFormat.UINT32, num_channels=1, size_bytes=2048
+        )
+        assert res._size_bytes == 2048
+    finally:
+        buf.close()
+
+
+def test_resource_descriptor_from_linear_rejects_oversize(init_cuda):
+    device = Device()
+    buf = _alloc_device_buffer(device, 1024)
+    try:
+        with pytest.raises(ValueError, match="exceeds buffer.size"):
+            ResourceDescriptor.from_linear(
+                buf, format=ArrayFormat.UINT8, num_channels=1, size_bytes=2048
+            )
+    finally:
+        buf.close()
+
+
+def test_resource_descriptor_from_linear_rejects_bad_channels(init_cuda):
+    device = Device()
+    buf = _alloc_device_buffer(device, 1024)
+    try:
+        with pytest.raises(ValueError, match="num_channels"):
+            ResourceDescriptor.from_linear(
+                buf, format=ArrayFormat.UINT8, num_channels=3
+            )
+    finally:
+        buf.close()
+
+
+def test_resource_descriptor_from_linear_rejects_non_buffer():
+    with pytest.raises(TypeError, match="Buffer"):
+        ResourceDescriptor.from_linear(
+            object(), format=ArrayFormat.UINT8, num_channels=1
+        )
+
+
+def test_texture_object_from_linear(init_cuda):
+    """A linear-backed texture should bind even though sampling fields are
+    effectively ignored by the driver."""
+    device = Device()
+    # 1024 float elements
+    buf = _alloc_device_buffer(device, 1024 * 4)
+    try:
+        res = ResourceDescriptor.from_linear(
+            buf, format=ArrayFormat.FLOAT32, num_channels=1
+        )
+        tex = TextureObject.from_descriptor(res, TextureDescriptor())
+        try:
+            assert tex.handle != 0
+            assert tex.resource is res
+        finally:
+            tex.close()
+    finally:
+        buf.close()
+
+
+def test_resource_descriptor_from_pitch2d_validates_pitch(init_cuda):
+    device = Device()
+    buf = _alloc_device_buffer(device, 64 * 1024)
+    try:
+        # element_size = 4 (UINT32 * 1 channel); width=16 -> min_pitch=64
+        with pytest.raises(ValueError, match="pitch_bytes"):
+            ResourceDescriptor.from_pitch2d(
+                buf,
+                format=ArrayFormat.UINT32,
+                num_channels=1,
+                width=16,
+                height=8,
+                pitch_bytes=32,  # < 64 = width*element_size
+            )
+    finally:
+        buf.close()
+
+
+def test_resource_descriptor_from_pitch2d_validates_buffer_size(init_cuda):
+    device = Device()
+    buf = _alloc_device_buffer(device, 4096)
+    try:
+        with pytest.raises(ValueError, match="exceeds buffer.size"):
+            ResourceDescriptor.from_pitch2d(
+                buf,
+                format=ArrayFormat.UINT8,
+                num_channels=4,
+                width=64,
+                height=128,
+                pitch_bytes=512,  # 512 * 128 = 65536 > 4096
+            )
+    finally:
+        buf.close()
+
+
+def test_texture_object_from_pitch2d(init_cuda):
+    """A pitch2D-backed texture should bind given driver-aligned pitch."""
+    from cuda.bindings import driver
+
+    device = Device()
+    # Query the device's required texture pitch alignment (typically 32-512).
+    err, align = driver.cuDeviceGetAttribute(
+        driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT,
+        device.device_id,
+    )
+    assert int(err) == 0
+    pitch = max(int(align), 256)
+    height = 16
+    buf = _alloc_device_buffer(device, pitch * height)
+    try:
+        res = ResourceDescriptor.from_pitch2d(
+            buf,
+            format=ArrayFormat.UINT8,
+            num_channels=4,
+            width=32,
+            height=height,
+            pitch_bytes=pitch,
+        )
+        assert res.kind == "pitch2d"
+        assert "pitch2d" in repr(res)
+        tex = TextureObject.from_descriptor(res, TextureDescriptor())
+        try:
+            assert tex.handle != 0
+        finally:
+            tex.close()
+    finally:
+        buf.close()
+
+
+def test_surface_rejects_linear_and_pitch2d(init_cuda):
+    device = Device()
+    buf = _alloc_device_buffer(device, 4096)
+    try:
+        res_lin = ResourceDescriptor.from_linear(
+            buf, format=ArrayFormat.UINT32, num_channels=1
+        )
+        with pytest.raises(ValueError, match="array-backed"):
+            SurfaceObject.from_descriptor(res_lin)
+
+        res_p2 = ResourceDescriptor.from_pitch2d(
+            buf,
+            format=ArrayFormat.UINT8,
+            num_channels=4,
+            width=8,
+            height=8,
+            pitch_bytes=64,
+        )
+        with pytest.raises(ValueError, match="array-backed"):
+            SurfaceObject.from_descriptor(res_p2)
+    finally:
+        buf.close()

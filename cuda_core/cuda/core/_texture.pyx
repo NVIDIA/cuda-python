@@ -9,6 +9,8 @@ from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
 from cuda.core._array cimport Array
+from cuda.core._array import ArrayFormat, _FORMAT_ELEM_SIZE
+from cuda.core._memory._buffer cimport Buffer
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import enum
@@ -53,13 +55,26 @@ class ReadMode(enum.IntEnum):
 class ResourceDescriptor:
     """Describes the memory backing a :class:`TextureObject`.
 
-    Construct via the ``from_*`` classmethods. Only the ``from_array`` path is
-    implemented in this initial version; ``from_linear`` and ``from_pitch2d``
-    will follow once their metadata story (format/channel count on
-    :class:`Buffer`) is settled.
+    Construct via the ``from_*`` classmethods:
+
+    - :meth:`from_array` wraps a :class:`Array` (works for both
+      :class:`TextureObject` and :class:`SurfaceObject`).
+    - :meth:`from_linear` wraps a :class:`Buffer` as a typed 1D fetch. Texture
+      objects built from a linear resource do not support filtering,
+      normalized coordinates, or addressing modes.
+    - :meth:`from_pitch2d` wraps a :class:`Buffer` as a row-pitched 2D image.
+      Supports filtering and 2D addressing, but only 2D access.
+
+    Linear and pitch2D resources cannot back a :class:`SurfaceObject` — those
+    require an :class:`Array` allocated with ``surface_load_store=True``.
     """
 
-    __slots__ = ("_kind", "_source")
+    __slots__ = (
+        "_kind", "_source",
+        "_format", "_num_channels",
+        "_size_bytes",
+        "_width", "_height", "_pitch_bytes",
+    )
 
     def __init__(self):
         raise RuntimeError(
@@ -75,6 +90,125 @@ class ResourceDescriptor:
         self = cls.__new__(cls)
         self._kind = "array"
         self._source = array
+        self._format = None
+        self._num_channels = None
+        self._size_bytes = None
+        self._width = None
+        self._height = None
+        self._pitch_bytes = None
+        return self
+
+    @classmethod
+    def from_linear(cls, buffer, *, format, num_channels, size_bytes=None):
+        """Build a resource descriptor for a linear (typed 1D) texture fetch.
+
+        Parameters
+        ----------
+        buffer : Buffer
+            Device-memory backing. Must remain alive for the lifetime of any
+            :class:`TextureObject` built from this descriptor.
+        format : ArrayFormat
+            Element format.
+        num_channels : int
+            Channels per element. Must be 1, 2, or 4.
+        size_bytes : int, optional
+            Bytes of ``buffer`` to bind. Defaults to ``buffer.size``. Must not
+            exceed it.
+
+        Notes
+        -----
+        Texture objects built from a linear resource ignore the
+        :class:`TextureDescriptor` addressing/filtering fields — kernels read
+        through a typed 1D fetch with bounds checking only.
+        """
+        if not isinstance(buffer, Buffer):
+            raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
+        if not isinstance(format, ArrayFormat):
+            raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
+        if num_channels not in (1, 2, 4):
+            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels}")
+
+        buf_size = int(buffer.size)
+        if size_bytes is None:
+            size = buf_size
+        else:
+            size = int(size_bytes)
+            if size < 0:
+                raise ValueError(f"size_bytes must be >= 0, got {size}")
+            if size > buf_size:
+                raise ValueError(
+                    f"size_bytes ({size}) exceeds buffer.size ({buf_size})"
+                )
+
+        self = cls.__new__(cls)
+        self._kind = "linear"
+        self._source = buffer
+        self._format = int(format)
+        self._num_channels = int(num_channels)
+        self._size_bytes = size
+        self._width = None
+        self._height = None
+        self._pitch_bytes = None
+        return self
+
+    @classmethod
+    def from_pitch2d(
+        cls, buffer, *, format, num_channels, width, height, pitch_bytes
+    ):
+        """Build a resource descriptor for a row-pitched 2D image.
+
+        Parameters
+        ----------
+        buffer : Buffer
+            Device-memory backing. Must remain alive for the lifetime of any
+            :class:`TextureObject` built from this descriptor.
+        format : ArrayFormat
+            Element format.
+        num_channels : int
+            Channels per element. Must be 1, 2, or 4.
+        width : int
+            Image width, in elements.
+        height : int
+            Image height, in rows.
+        pitch_bytes : int
+            Distance between consecutive rows, in bytes. Must be at least
+            ``width * format_size * num_channels`` and meet the driver's
+            ``CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT``.
+        """
+        if not isinstance(buffer, Buffer):
+            raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
+        if not isinstance(format, ArrayFormat):
+            raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
+        if num_channels not in (1, 2, 4):
+            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels}")
+
+        w = int(width)
+        h = int(height)
+        p = int(pitch_bytes)
+        if w < 1:
+            raise ValueError(f"width must be >= 1, got {w}")
+        if h < 1:
+            raise ValueError(f"height must be >= 1, got {h}")
+        elem = _FORMAT_ELEM_SIZE[int(format)] * int(num_channels)
+        min_pitch = w * elem
+        if p < min_pitch:
+            raise ValueError(
+                f"pitch_bytes ({p}) must be >= width * element_size ({min_pitch})"
+            )
+        if p * h > int(buffer.size):
+            raise ValueError(
+                f"pitch_bytes * height ({p * h}) exceeds buffer.size ({int(buffer.size)})"
+            )
+
+        self = cls.__new__(cls)
+        self._kind = "pitch2d"
+        self._source = buffer
+        self._format = int(format)
+        self._num_channels = int(num_channels)
+        self._size_bytes = None
+        self._width = w
+        self._height = h
+        self._pitch_bytes = p
         return self
 
     @property
@@ -85,7 +219,29 @@ class ResourceDescriptor:
     def source(self):
         return self._source
 
+    @property
+    def format(self):
+        """The element :class:`ArrayFormat` (``None`` for array-backed)."""
+        return None if self._format is None else ArrayFormat(self._format)
+
+    @property
+    def num_channels(self):
+        """Channels per element (``None`` for array-backed)."""
+        return self._num_channels
+
     def __repr__(self):
+        if self._kind == "linear":
+            return (
+                f"ResourceDescriptor(kind='linear', format={self.format.name}, "
+                f"num_channels={self._num_channels}, size_bytes={self._size_bytes})"
+            )
+        if self._kind == "pitch2d":
+            return (
+                f"ResourceDescriptor(kind='pitch2d', format={self.format.name}, "
+                f"num_channels={self._num_channels}, "
+                f"width={self._width}, height={self._height}, "
+                f"pitch_bytes={self._pitch_bytes})"
+            )
         return f"ResourceDescriptor(kind={self._kind!r})"
 
 
@@ -221,10 +377,30 @@ cdef class TextureObject:
 
         # --- Resource descriptor ---
         cdef Array arr
+        cdef Buffer buf
+        cdef intptr_t devptr
         if resource_desc.kind == "array":
             arr = <Array>resource_desc.source
             res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
             res_desc.res.array.hArray = arr._handle
+        elif resource_desc.kind == "linear":
+            buf = <Buffer>resource_desc.source
+            devptr = int(buf.handle)
+            res_desc.resType = cydriver.CU_RESOURCE_TYPE_LINEAR
+            res_desc.res.linear.devPtr = <cydriver.CUdeviceptr>devptr
+            res_desc.res.linear.format = <cydriver.CUarray_format><int>resource_desc._format
+            res_desc.res.linear.numChannels = <unsigned int>resource_desc._num_channels
+            res_desc.res.linear.sizeInBytes = <size_t>resource_desc._size_bytes
+        elif resource_desc.kind == "pitch2d":
+            buf = <Buffer>resource_desc.source
+            devptr = int(buf.handle)
+            res_desc.resType = cydriver.CU_RESOURCE_TYPE_PITCH2D
+            res_desc.res.pitch2D.devPtr = <cydriver.CUdeviceptr>devptr
+            res_desc.res.pitch2D.format = <cydriver.CUarray_format><int>resource_desc._format
+            res_desc.res.pitch2D.numChannels = <unsigned int>resource_desc._num_channels
+            res_desc.res.pitch2D.width = <size_t>resource_desc._width
+            res_desc.res.pitch2D.height = <size_t>resource_desc._height
+            res_desc.res.pitch2D.pitchInBytes = <size_t>resource_desc._pitch_bytes
         else:
             raise NotImplementedError(
                 f"ResourceDescriptor kind {resource_desc.kind!r} is not yet supported"
