@@ -20,8 +20,8 @@ multiple components:
 - `CUPTI Python`_: Python APIs for creation of profiling tools that target CUDA Python applications via the CUDA Profiling Tools Interface (CUPTI)
 - `Accelerated Computing Hub`_: Open-source learning materials related to GPU computing. You will find user guides, tutorials, and other works freely available for all learners interested in GPU computing.
 
-.. _cuda.coop: https://nvidia.github.io/cccl/python/coop
-.. _cuda.compute: https://nvidia.github.io/cccl/python/compute
+.. _cuda.coop: https://nvidia.github.io/cccl/unstable/python/coop.html
+.. _cuda.compute: https://nvidia.github.io/cccl/unstable/python/compute/index.html
 .. _numba.cuda: https://nvidia.github.io/numba-cuda/
 .. _cuda.tile: https://docs.nvidia.com/cuda/cutile-python/
 .. _nvmath-python: https://docs.nvidia.com/cuda/nvmath-python/latest
@@ -50,8 +50,8 @@ be available, please refer to the `cuda.bindings`_ documentation for installatio
    cuda.core <https://nvidia.github.io/cuda-python/cuda-core/latest>
    cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/latest>
    cuda.pathfinder <https://nvidia.github.io/cuda-python/cuda-pathfinder/latest>
-   cuda.coop <https://nvidia.github.io/cccl/python/coop>
-   cuda.compute <https://nvidia.github.io/cccl/python/compute>
+   cuda.coop <https://nvidia.github.io/cccl/unstable/python/coop.html>
+   cuda.compute <https://nvidia.github.io/cccl/unstable/python/compute/index.html>
    numba.cuda <https://nvidia.github.io/numba-cuda/>
    cuda.tile <https://docs.nvidia.com/cuda/cutile-python/>
    nvmath-python <https://docs.nvidia.com/cuda/nvmath-python/>

@@ -213,7 +213,20 @@ cdef class Event:
 
     @classmethod
     def from_ipc_descriptor(cls, ipc_descriptor: IPCEventDescriptor) -> Event:
-        """Import an event that was exported from another process."""
+        """Import an event that was exported from another process.
+
+        Parameters
+        ----------
+        ipc_descriptor : :obj:`~_memory._ipc.IPCEventDescriptor`
+            The IPC descriptor obtained from :attr:`~Event.ipc_descriptor` in
+            another process.
+
+        Returns
+        -------
+        :obj:`~_event.Event`
+            A new event backed by the imported IPC handle.
+
+        """
         cdef cydriver.CUipcEventHandle data
         memcpy(data.reserved, <const void*><const char*>(ipc_descriptor._reserved), sizeof(data.reserved))
         cdef Event self = Event.__new__(cls)
@@ -317,9 +330,11 @@ cdef class IPCEventDescriptor:
         self._is_blocking_sync = is_blocking_sync
         return self
 
-    def __eq__(self, IPCEventDescriptor rhs):
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, IPCEventDescriptor):
+            return NotImplemented
         # No need to check self._is_blocking_sync.
-        return self._reserved == rhs._reserved
+        return self._reserved == (<IPCEventDescriptor>other)._reserved
 
     def __reduce__(self):
         return IPCEventDescriptor._init, (self._reserved, self._is_blocking_sync)

@@ -16,7 +16,7 @@ def try_create_condition(g, default_value=1):
 
 class StreamWrapper:
     """
-    A wrapper around Stream for testing IsStreamT conversions.
+    A wrapper around Stream for testing IsStreamType conversions.
     """
 
     def __init__(self, stream):

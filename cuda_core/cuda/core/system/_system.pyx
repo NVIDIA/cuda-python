@@ -15,7 +15,7 @@ try:
 except ImportError:
     CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
 else:
-    CUDA_BINDINGS_NVML_IS_COMPATIBLE = _BINDINGS_VERSION >= (13, 1, 2) or (_BINDINGS_VERSION[0] == 12 and _BINDINGS_VERSION[1:3] >= (9, 6))
+    CUDA_BINDINGS_NVML_IS_COMPATIBLE = _BINDINGS_VERSION >= (13, 2, 0) or (_BINDINGS_VERSION[0] == 12 and _BINDINGS_VERSION[1:3] >= (9, 6))
 
 
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
@@ -23,71 +23,64 @@ if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         from cuda.bindings import nvml
     except ImportError:
         CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
-    else:
-        # TODO: We need to be even more specific than version numbers for development.
-        # This can be removed once we have a release including everything we need.
-        for member in ["FieldId", "ClocksEventReasons"]:
-            if not hasattr(nvml, member):
-                CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
-                break
 
-if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from ._nvml_context import initialize
+    from cuda.core.system._nvml_context import initialize
 else:
     from cuda.core._utils.cuda_utils import driver, handle_return, runtime
 
 
-def get_driver_version(kernel_mode: bool = False) -> tuple[int, int]:
+def get_user_mode_driver_version() -> tuple[int, ...]:
     """
-    Get the driver version.
+    Get the user-mode (UMD / CUDA) driver version.
 
-    Parameters
-    ----------
-    kernel_mode: bool
-        When `True`, return the kernel-mode driver version, e.g. 580.65.06.
-        Otherwise, return the user-mode driver version, e.g. 13.0.1.
+    This is the most commonly needed version when checking CUDA driver
+    compatibility.  It works with all ``cuda-bindings`` versions.
 
     Returns
     -------
-    version: tuple[int, int]
-        Tuple in the format `(MAJOR, MINOR)`.
-    """
-    return get_driver_version_full(kernel_mode)[:2]
-
-
-def get_driver_version_full(kernel_mode: bool = False) -> tuple[int, int, int]:
-    """
-    Get the full driver version.
-
-    Parameters
-    ----------
-    kernel_mode: bool
-        When `True`, return the kernel-mode driver version, e.g. 580.65.06.
-        Otherwise, return the user-mode driver version, e.g. 13.0.1.
-
-    Returns
-    -------
-    version: tuple[int, int, int]
-        Tuple in the format `(MAJOR, MINOR, PATCH)`.
+    version : tuple[int, ...]
+        A 2-tuple ``(MAJOR, MINOR)``, e.g. ``(13, 0)`` for CUDA 13.0.
     """
     cdef int v
-    if kernel_mode:
-        if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-            raise ValueError("Kernel-mode driver version requires NVML support")
+    if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         initialize()
-        return tuple(int(v) for v in nvml.system_get_driver_version().split("."))
+        v = nvml.system_get_cuda_driver_version()
     else:
-        if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-            initialize()
-            v = nvml.system_get_cuda_driver_version()
-        else:
-            v = handle_return(driver.cuDriverGetVersion())
-        return (v // 1000, (v // 10) % 100, v % 10)
+        v = handle_return(driver.cuDriverGetVersion())
+    return (v // 1000, (v // 10) % 100)
+
+
+def get_kernel_mode_driver_version() -> tuple[int, ...]:
+    """
+    Get the kernel-mode (KMD / GPU) driver version, e.g. 580.65.06.
+
+    Returns
+    -------
+    version : tuple[int, ...]
+        Typically a 3-tuple ``(MAJOR, MINOR, PATCH)``
+        (2-tuple on WSL), e.g. ``(580, 65, 6)``.
+
+    Raises
+    ------
+    RuntimeError
+        If the NVML library is not available.
+    """
+    if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+        raise RuntimeError(
+            "get_kernel_mode_driver_version requires NVML support"
+        )
+    initialize()
+    return tuple(int(x) for x in nvml.system_get_driver_version().split("."))
 
 
 def get_nvml_version() -> tuple[int, ...]:
     """
     The version of the NVML library.
+
+    Returns
+    -------
+    version: tuple[int, ...]
+        Tuple of integers representing the NVML version components.
     """
     if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         raise RuntimeError("NVML library is not available")
@@ -97,6 +90,11 @@ def get_nvml_version() -> tuple[int, ...]:
 def get_driver_branch() -> str:
     """
     Retrieves the driver branch of the NVIDIA driver installed on the system.
+
+    Returns
+    -------
+    branch: str
+        The driver branch string (e.g., ``"560"``, ``"open"``, etc.).
     """
     if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         raise RuntimeError("NVML library is not available")
@@ -135,8 +133,8 @@ def get_process_name(pid: int) -> str:
 
 __all__ = [
     "get_driver_branch",
-    "get_driver_version",
-    "get_driver_version_full",
+    "get_kernel_mode_driver_version",
+    "get_user_mode_driver_version",
     "get_nvml_version",
     "get_num_devices",
     "get_process_name",

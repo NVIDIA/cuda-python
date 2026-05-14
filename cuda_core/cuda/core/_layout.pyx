@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -176,8 +176,15 @@ cdef class _StridedLayout:
                 f"_StridedLayout(shape={self.shape}, strides={self.strides}, itemsize={self.itemsize}, _slice_offset={self.slice_offset})"
             )
 
-    def __eq__(self : _StridedLayout, other : _StridedLayout) -> bool:
-        return self.itemsize == other.itemsize and self.slice_offset == other.slice_offset and _base_layout_equal(self.base, other.base)
+    def __eq__(self, other):
+        if not isinstance(other, _StridedLayout):
+            return NotImplemented
+        cdef _StridedLayout _other = <_StridedLayout>other
+        return (
+            self.itemsize == _other.itemsize
+            and self.slice_offset == _other.slice_offset
+            and _base_layout_equal(self.base, _other.base)
+        )
 
     @property
     def ndim(self : _StridedLayout):
@@ -460,7 +467,7 @@ cdef class _StridedLayout:
                 required_size = layout.required_size_in_bytes()
                 # allocate the memory on the device
                 device.set_current()
-                mem = device.allocate(required_size)
+                mem = device.allocate(required_size, stream=device.default_stream)
                 # create a view on the newly allocated device memory
                 b_view = StridedMemoryView.from_buffer(mem, layout, a_view.dtype)
                 return b_view

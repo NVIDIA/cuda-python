@@ -102,13 +102,19 @@ def _arr_size(arr):
 def _arr_is_c_contiguous(arr):
     if torch is not None and isinstance(arr, torch.Tensor):
         return arr.is_contiguous()
-    return arr.flags.c_contiguous if hasattr(arr, "flags") else arr.flags["C_CONTIGUOUS"]
+    return arr.flags.c_contiguous if hasattr(arr.flags, "c_contiguous") else arr.flags["C_CONTIGUOUS"]
 
 
 def _arr_is_writeable(arr):
     if torch is not None and isinstance(arr, torch.Tensor):
         return True  # torch tensors are writable by default
     return arr.flags.writeable if hasattr(arr.flags, "writeable") else True
+
+
+def _arr_dtype(arr):
+    if torch is not None and isinstance(arr, torch.Tensor):
+        return np.dtype(arr.__cuda_array_interface__["typestr"])
+    return arr.dtype
 
 
 def _cpu_array_samples():
@@ -171,7 +177,10 @@ class TestViewCPU:
         assert view.shape == expected_shape
         assert view.size == _arr_size(in_arr)
         strides_in_counts = _arr_strides_in_counts(in_arr)
-        assert (_arr_is_c_contiguous(in_arr) and view.strides is None) or view.strides == strides_in_counts
+        if view.strides is None:
+            assert _arr_is_c_contiguous(in_arr)
+        else:
+            assert view.strides == strides_in_counts
         assert view.device_id == -1
         assert view.is_device_accessible is False
         assert view.exporting_obj is in_arr
@@ -277,8 +286,8 @@ class TestViewGPU:
         assert view.shape == expected_shape
         assert view.size == _arr_size(in_arr)
         strides_in_counts = _arr_strides_in_counts(in_arr)
-        if _arr_is_c_contiguous(in_arr):
-            assert view.strides in (None, strides_in_counts)
+        if view.strides is None:
+            assert _arr_is_c_contiguous(in_arr)
         else:
             assert view.strides == strides_in_counts
         assert view.device_id == dev.device_id
@@ -307,7 +316,7 @@ def test_strided_memory_view_dlpack_export_cupy_roundtrip(init_cuda):
 
 
 def test_strided_memory_view_dlpack_export_requires_dtype(init_cuda):
-    buffer = init_cuda.memory_resource.allocate(16)
+    buffer = init_cuda.memory_resource.allocate(16, stream=init_cuda.default_stream)
     view = StridedMemoryView.from_buffer(
         buffer,
         shape=(16,),
@@ -343,15 +352,16 @@ class TestViewCudaArrayInterfaceGPU:
 
     def _check_view(self, view, in_arr, dev):
         assert isinstance(view, StridedMemoryView)
-        assert view.ptr == gpu_array_ptr(in_arr)
-        assert view.shape == in_arr.shape
-        assert view.size == in_arr.size
-        strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
-        if in_arr.flags["C_CONTIGUOUS"]:
-            assert view.strides is None
+        assert view.ptr == _arr_ptr(in_arr)
+        expected_shape = tuple(in_arr.shape)
+        assert view.shape == expected_shape
+        assert view.size == _arr_size(in_arr)
+        strides_in_counts = _arr_strides_in_counts(in_arr)
+        if view.strides is None:
+            assert _arr_is_c_contiguous(in_arr)
         else:
             assert view.strides == strides_in_counts
-        assert view.dtype == in_arr.dtype
+        assert view.dtype == _arr_dtype(in_arr)
         assert view.device_id == dev.device_id
         assert view.is_device_accessible is True
         assert view.exporting_obj is in_arr
@@ -383,7 +393,7 @@ def test_from_buffer(shape, dtype, stride_order, readonly):
     layout = _StridedLayout.dense(shape=shape, itemsize=dtype.itemsize, stride_order=stride_order)
     required_size = layout.required_size_in_bytes()
     assert required_size == math.prod(shape) * dtype.itemsize
-    buffer = dev.memory_resource.allocate(required_size)
+    buffer = dev.memory_resource.allocate(required_size, stream=dev.default_stream)
     view = StridedMemoryView.from_buffer(buffer, shape=shape, strides=layout.strides, dtype=dtype, is_readonly=readonly)
     assert view.exporting_obj is buffer
     assert view._layout == layout
@@ -407,7 +417,7 @@ def test_from_buffer_incompatible_dtype_and_itemsize(dtype, itemsize, msg):
     layout = _StridedLayout.dense((5,), 2)
     device = Device()
     device.set_current()
-    buffer = device.memory_resource.allocate(layout.required_size_in_bytes())
+    buffer = device.memory_resource.allocate(layout.required_size_in_bytes(), stream=device.default_stream)
     with pytest.raises(ValueError, match=msg):
         StridedMemoryView.from_buffer(buffer, (5,), dtype=dtype, itemsize=itemsize)
 
@@ -417,7 +427,7 @@ def test_from_buffer_sliced(stride_order):
     layout = _StridedLayout.dense((5, 7), 2, stride_order=stride_order)
     device = Device()
     device.set_current()
-    buffer = device.memory_resource.allocate(layout.required_size_in_bytes())
+    buffer = device.memory_resource.allocate(layout.required_size_in_bytes(), stream=device.default_stream)
     view = StridedMemoryView.from_buffer(buffer, (5, 7), dtype=np.dtype(np.int16))
     assert view.shape == (5, 7)
     assert int(buffer.handle) == view.ptr
@@ -435,7 +445,7 @@ def test_from_buffer_too_small():
     layout = _StridedLayout.dense((5, 4), 2)
     d = Device()
     d.set_current()
-    buffer = d.memory_resource.allocate(20)
+    buffer = d.memory_resource.allocate(20, stream=d.default_stream)
     with pytest.raises(ValueError, match="Expected at least 40 bytes, got 20 bytes."):
         StridedMemoryView.from_buffer(
             buffer,
@@ -449,7 +459,7 @@ def test_from_buffer_disallowed_negative_offset():
     layout = _StridedLayout((5, 4), (-4, 1), 1)
     d = Device()
     d.set_current()
-    buffer = d.memory_resource.allocate(20)
+    buffer = d.memory_resource.allocate(20, stream=d.default_stream)
     with pytest.raises(ValueError):
         StridedMemoryView.from_buffer(
             buffer,
@@ -581,7 +591,7 @@ def test_from_buffer_with_non_power_of_two_itemsize():
     layout = _StridedLayout(shape=shape, strides=None, itemsize=dtype.itemsize)
     required_size = layout.required_size_in_bytes()
     assert required_size == math.prod(shape) * dtype.itemsize
-    buffer = dev.memory_resource.allocate(required_size)
+    buffer = dev.memory_resource.allocate(required_size, stream=dev.default_stream)
     view = StridedMemoryView.from_buffer(buffer, shape=shape, strides=layout.strides, dtype=dtype, is_readonly=True)
     assert view.dtype == dtype
 

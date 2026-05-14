@@ -48,7 +48,6 @@ def test_check_driver_error():
 
 
 def test_check_runtime_error():
-    num_unexpected = 0
     for error in runtime.cudaError_t:
         if error == runtime.cudaError_t.cudaSuccess:
             assert cuda_utils._check_runtime_error(error) == 0
@@ -56,14 +55,7 @@ def test_check_runtime_error():
             with pytest.raises(cuda_utils.CUDAError) as e:
                 cuda_utils._check_runtime_error(error)
             msg = str(e)
-            if "UNEXPECTED ERROR CODE" in msg:
-                num_unexpected += 1
-            else:
-                # Example repr(error): <cudaError_t.cudaErrorUnknown: 999>
-                enum_name = repr(error).split(".", 1)[1].split(":", 1)[0]
-                assert enum_name in msg
-    # Smoke test: We don't want most to be unexpected.
-    assert num_unexpected < len(driver.CUresult) * 0.5
+            assert error.name in msg
 
 
 def test_driver_error_enum_has_non_empty_docstring():

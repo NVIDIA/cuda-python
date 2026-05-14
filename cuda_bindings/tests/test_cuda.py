@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import ctypes
-import platform
 import shutil
 import textwrap
 
@@ -12,6 +11,7 @@ import pytest
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
+from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 
 
 def driverVersionLessThan(target):
@@ -270,6 +270,7 @@ def test_cuda_memPool_attr():
 
     attr_list = [None] * 8
     err, pool = cuda.cuMemPoolCreate(poolProps)
+    xfail_if_mempool_oom(err, "cuMemPoolCreate", poolProps.location.id)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     for idx, attr in enumerate(
@@ -468,6 +469,12 @@ def test_cuda_graphMem_attr(device):
     params.bytesize = allocSize
 
     err, allocNode = cuda.cuGraphAddMemAllocNode(graph, None, 0, params)
+    if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY:
+        (destroy_err,) = cuda.cuGraphDestroy(graph)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        (destroy_err,) = cuda.cuStreamDestroy(stream)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        xfail_if_mempool_oom(err, "cuGraphAddMemAllocNode", device)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -550,29 +557,6 @@ def test_get_error_name_and_string():
     assert s == b"invalid device ordinal"
     _, s = cuda.cuGetErrorName(err)
     assert s == b"CUDA_ERROR_INVALID_DEVICE"
-
-
-@pytest.mark.skipif(not callableBinary("nvidia-smi"), reason="Binary existence needed")
-def test_device_get_name(device):
-    # TODO: Refactor this test once we have nvml bindings to avoid the use of subprocess
-    import subprocess
-
-    p = subprocess.check_output(
-        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"],  # noqa: S607
-        shell=False,
-        stderr=subprocess.PIPE,
-    )
-
-    delimiter = b"\r\n" if platform.system() == "Windows" else b"\n"
-    expect = p.split(delimiter)
-    size = 64
-    _, got = cuda.cuDeviceGetName(size, device)
-    got = got.split(b"\x00")[0]
-    if any(b"Unable to determine the device handle for" in result for result in expect):
-        # Undeterministic devices get waived
-        pass
-    else:
-        assert any(got in result for result in expect)
 
 
 # TODO: cuStreamGetCaptureInfo_v2
