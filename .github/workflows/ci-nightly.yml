@@ -90,6 +90,24 @@ jobs:
       test-mode: nightly-pytorch
       matrix_filter: 'map(select(.MODE == "nightly-pytorch"))'
 
+  test-pytorch-linux-aarch64:
+    name: "Nightly PyTorch (linux-aarch64)"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: find-wheels
+    permissions:
+      contents: read
+      actions: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: nightly
+      host-platform: linux-aarch64
+      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      test-mode: nightly-pytorch
+      matrix_filter: 'map(select(.MODE == "nightly-pytorch"))'
+
   test-pytorch-windows:
     name: "Nightly PyTorch (win-64)"
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -172,6 +190,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - test-pytorch-linux
+      - test-pytorch-linux-aarch64
       - test-pytorch-windows
       - test-numba-cuda-linux-64
       - test-numba-cuda-linux-aarch64
@@ -186,6 +205,8 @@ jobs:
           # default behaviour.
           if ${{ needs.test-pytorch-linux.result == 'cancelled' ||
                  needs.test-pytorch-linux.result == 'failure' ||
+                 needs.test-pytorch-linux-aarch64.result == 'cancelled' ||
+                 needs.test-pytorch-linux-aarch64.result == 'failure' ||
                  needs.test-pytorch-windows.result == 'cancelled' ||
                  needs.test-pytorch-windows.result == 'failure' ||
                  needs.test-numba-cuda-linux-64.result == 'cancelled' ||
