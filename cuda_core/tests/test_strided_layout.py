@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -927,3 +927,41 @@ def test_to_dense(layout_spec, new_stride_order):
     assert dense.is_dense
     assert dense.required_size_in_bytes() == np_ref.size * layout.itemsize
     assert dense.offset_bounds == (0, np_ref.size - 1)
+
+
+@pytest.mark.parametrize(
+    "other",
+    [
+        None,
+        "string",
+        42,
+        3.14,
+        (3, 4),
+        [1, 2, 3],
+        object(),
+    ],
+    ids=["None", "str", "int", "float", "tuple", "list", "object"],
+)
+def test_eq_returns_not_implemented_for_other_types(other):
+    """_StridedLayout.__eq__ returns False (via NotImplemented) for unrelated types.
+
+    Regression test for https://github.com/NVIDIA/cuda-python/issues/2050: comparing
+    a _StridedLayout to objects of unrelated types must not raise AttributeError /
+    TypeError; it must follow Python's rich-comparison protocol and yield False.
+    """
+    layout = _StridedLayout.dense((5, 3, 7), 4)
+    assert layout != other
+    assert not (layout == other)  # noqa: SIM201
+    assert other != layout
+    # Direct check of the protocol contract.
+    assert layout.__eq__(other) is NotImplemented
+
+
+def test_eq_reflexive_and_value_equality():
+    """_StridedLayout equality is reflexive and compares by value, not identity."""
+    a = _StridedLayout.dense((5, 3, 7), 4)
+    b = _StridedLayout.dense((5, 3, 7), 4)
+    c = _StridedLayout.dense((5, 3, 8), 4)
+    assert a == a
+    assert a == b
+    assert a != c
