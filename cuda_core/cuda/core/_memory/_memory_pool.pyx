@@ -17,6 +17,7 @@ from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     create_mempool_handle,
     deviceptr_alloc_from_pool,
+    get_last_error,
     as_cu,
     as_py,
 )
@@ -228,6 +229,9 @@ cdef int MP_init_create_pool(
 
     self._mempool_owned = True
     self._h_pool = create_mempool_handle(properties)
+    if not self._h_pool:
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError("Expected CUDA error was not recorded after create_mempool_handle returned an empty handle")
 
     if ipc_enabled:
         alloc_handle = _ipc.MP_export_mempool(self)
@@ -307,7 +311,8 @@ cdef inline Buffer _MP_allocate(_MemPool self, size_t size, Stream stream):
         check_not_capturing(s)
         h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)
     if not h_ptr:
-        raise RuntimeError("Failed to allocate memory from pool")
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError("Expected CUDA error was not recorded after deviceptr_alloc_from_pool returned an empty handle")
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 

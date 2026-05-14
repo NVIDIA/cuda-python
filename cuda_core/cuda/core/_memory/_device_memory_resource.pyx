@@ -13,6 +13,7 @@ from cuda.core._memory._ipc cimport IPCAllocationHandle
 from cuda.core._resource_handles cimport (
     as_cu,
     get_device_mempool,
+    get_last_error,
 )
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
@@ -262,6 +263,9 @@ cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):
 
     if opts is None:
         self._h_pool = get_device_mempool(dev_id)
+        if not self._h_pool:
+            HANDLE_RETURN(get_last_error())
+            raise RuntimeError("Expected CUDA error was not recorded after get_device_mempool returned an empty handle")
         self._mempool_owned = False
         MP_raise_release_threshold(self)
     else:

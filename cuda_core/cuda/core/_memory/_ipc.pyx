@@ -211,7 +211,8 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
     cdef int ipc_fd = int(alloc_handle)
     self._h_pool = create_mempool_handle_ipc(ipc_fd, IPC_HANDLE_TYPE)
     if not self._h_pool:
-        raise RuntimeError("Failed to import memory pool from IPC handle")
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError("Expected CUDA error was not recorded after create_mempool_handle_ipc returned an empty handle")
     self._ipc_data = IPCDataForMR(alloc_handle, True)
 
     # Register it.
