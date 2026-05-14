@@ -11,6 +11,8 @@ from cuda.bindings cimport cydriver
 from cuda.core._array cimport Array
 from cuda.core._array import ArrayFormat, _FORMAT_ELEM_SIZE
 from cuda.core._memory._buffer cimport Buffer
+from cuda.core._mipmapped_array cimport MipmappedArray
+from cuda.core._mipmapped_array import MipmappedArray as _PyMipmappedArray
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import enum
@@ -90,6 +92,31 @@ class ResourceDescriptor:
         self = cls.__new__(cls)
         self._kind = "array"
         self._source = array
+        self._format = None
+        self._num_channels = None
+        self._size_bytes = None
+        self._width = None
+        self._height = None
+        self._pitch_bytes = None
+        return self
+
+    @classmethod
+    def from_mipmapped_array(cls, mipmapped_array):
+        """Build a resource descriptor backed by a :class:`MipmappedArray`.
+
+        Suitable for binding to a :class:`TextureObject` for mipmapped
+        sampling. Not valid as a :class:`SurfaceObject` backing: surfaces
+        require a single :class:`Array` level (obtain via
+        :meth:`MipmappedArray.get_level`).
+        """
+        if not isinstance(mipmapped_array, _PyMipmappedArray):
+            raise TypeError(
+                f"mipmapped_array must be a MipmappedArray, got "
+                f"{type(mipmapped_array).__name__}"
+            )
+        self = cls.__new__(cls)
+        self._kind = "mipmapped_array"
+        self._source = mipmapped_array
         self._format = None
         self._num_channels = None
         self._size_bytes = None
@@ -377,12 +404,17 @@ cdef class TextureObject:
 
         # --- Resource descriptor ---
         cdef Array arr
+        cdef MipmappedArray mip
         cdef Buffer buf
         cdef intptr_t devptr
         if resource_desc.kind == "array":
             arr = <Array>resource_desc.source
             res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
             res_desc.res.array.hArray = arr._handle
+        elif resource_desc.kind == "mipmapped_array":
+            mip = <MipmappedArray>resource_desc.source
+            res_desc.resType = cydriver.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
+            res_desc.res.mipmap.hMipmappedArray = mip._handle
         elif resource_desc.kind == "linear":
             buf = <Buffer>resource_desc.source
             devptr = int(buf.handle)

@@ -245,6 +245,7 @@ cdef class Array:
         self._surface_load_store = bool(surface_load_store)
         self._context = _get_current_context_ptr()
         self._device_id = _get_current_device_id()
+        self._parent_ref = None
 
         cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format><int>format
         cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
@@ -291,6 +292,7 @@ cdef class Array:
         self._owning = owning
         self._context = _get_current_context_ptr()
         self._device_id = _get_current_device_id() if device_id is None else int(device_id)
+        self._parent_ref = None
 
         cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc
         with nogil:
@@ -394,6 +396,9 @@ cdef class Array:
         if self._handle != NULL and self._owning:
             HANDLE_RETURN(cydriver.cuArrayDestroy(self._handle))
         self._handle = NULL
+        # Drop the parent reference (if any) so a non-owning level Array
+        # stops pinning its MipmappedArray after close().
+        self._parent_ref = None
 
     def __dealloc__(self):
         # Cython destructors cannot raise; any cuArrayDestroy error here is

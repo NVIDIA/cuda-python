@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import gc
+
 import pytest
 
 import cuda.core
@@ -10,6 +12,7 @@ from cuda.core import (
     ArrayFormat,
     Device,
     FilterMode,
+    MipmappedArray,
     ReadMode,
     ResourceDescriptor,
     SurfaceObject,
@@ -348,3 +351,205 @@ def test_surface_rejects_linear_and_pitch2d(init_cuda):
             SurfaceObject.from_descriptor(res_p2)
     finally:
         buf.close()
+
+
+# --- MipmappedArray ----------------------------------------------------------
+
+def test_mipmapped_array_init_disabled():
+    with pytest.raises(
+        RuntimeError, match=r"^MipmappedArray cannot be instantiated directly"
+    ):
+        cuda.core._mipmapped_array.MipmappedArray()
+
+
+def test_mipmapped_array_from_descriptor_2d(init_cuda):
+    mip = MipmappedArray.from_descriptor(
+        shape=(64, 32),
+        format=ArrayFormat.FLOAT32,
+        num_channels=1,
+        num_levels=4,
+    )
+    try:
+        assert mip.shape == (64, 32)
+        assert mip.format == ArrayFormat.FLOAT32
+        assert mip.num_channels == 1
+        assert mip.num_levels == 4
+        assert mip.surface_load_store is False
+        assert mip.handle != 0
+        assert isinstance(mip.device, Device)
+    finally:
+        mip.close()
+
+
+def test_mipmapped_array_get_level_zero_matches_shape(init_cuda):
+    shape = (64, 32)
+    mip = MipmappedArray.from_descriptor(
+        shape=shape,
+        format=ArrayFormat.UINT8,
+        num_channels=4,
+        num_levels=4,
+    )
+    try:
+        lvl0 = mip.get_level(0)
+        try:
+            assert isinstance(lvl0, Array)
+            # Level 0 must match the base shape and rank.
+            assert lvl0.shape == shape
+            assert lvl0.format == ArrayFormat.UINT8
+            assert lvl0.num_channels == 4
+            assert lvl0.handle != 0
+        finally:
+            lvl0.close()
+    finally:
+        mip.close()
+
+
+def test_mipmapped_array_get_level_halves_dims(init_cuda):
+    shape = (64, 32)
+    num_levels = 4
+    mip = MipmappedArray.from_descriptor(
+        shape=shape,
+        format=ArrayFormat.UINT8,
+        num_channels=1,
+        num_levels=num_levels,
+    )
+    try:
+        for level in range(num_levels):
+            lvl = mip.get_level(level)
+            try:
+                # Each dim halves per level, with a floor of 1; rank is preserved.
+                expected = tuple(max(1, dim >> level) for dim in shape)
+                assert lvl.shape == expected, (
+                    f"level={level}: expected {expected}, got {lvl.shape}"
+                )
+            finally:
+                lvl.close()
+    finally:
+        mip.close()
+
+
+def test_mipmapped_array_get_level_out_of_range(init_cuda):
+    mip = MipmappedArray.from_descriptor(
+        shape=(16, 16),
+        format=ArrayFormat.UINT8,
+        num_channels=1,
+        num_levels=2,
+    )
+    try:
+        with pytest.raises(ValueError, match="num_levels"):
+            mip.get_level(mip.num_levels)
+        with pytest.raises(ValueError, match=">= 0"):
+            mip.get_level(-1)
+    finally:
+        mip.close()
+
+
+def test_mipmapped_array_rejects_zero_levels(init_cuda):
+    with pytest.raises(ValueError, match="num_levels"):
+        MipmappedArray.from_descriptor(
+            shape=(8, 8),
+            format=ArrayFormat.UINT8,
+            num_channels=1,
+            num_levels=0,
+        )
+
+
+def test_resource_descriptor_from_mipmapped_array(init_cuda):
+    mip = MipmappedArray.from_descriptor(
+        shape=(32, 16),
+        format=ArrayFormat.FLOAT32,
+        num_channels=1,
+        num_levels=3,
+    )
+    try:
+        res = ResourceDescriptor.from_mipmapped_array(mip)
+        assert res.kind == "mipmapped_array"
+        assert res.source is mip
+    finally:
+        mip.close()
+
+
+def test_resource_descriptor_from_mipmapped_array_rejects_non_mipmap():
+    with pytest.raises(TypeError, match="MipmappedArray"):
+        ResourceDescriptor.from_mipmapped_array(object())
+
+
+def test_texture_object_from_mipmapped_array(init_cuda):
+    mip = MipmappedArray.from_descriptor(
+        shape=(32, 32),
+        format=ArrayFormat.FLOAT32,
+        num_channels=1,
+        num_levels=3,
+    )
+    try:
+        res = ResourceDescriptor.from_mipmapped_array(mip)
+        # Use non-default mipmap params so the driver exercises that path.
+        tex_desc = TextureDescriptor(
+            address_mode=AddressMode.CLAMP,
+            filter_mode=FilterMode.LINEAR,
+            normalized_coords=True,
+            mipmap_filter_mode=FilterMode.LINEAR,
+            mipmap_level_bias=0.0,
+            min_mipmap_level_clamp=0.0,
+            max_mipmap_level_clamp=float(mip.num_levels - 1),
+        )
+        tex = TextureObject.from_descriptor(res, tex_desc)
+        try:
+            assert tex.handle != 0
+            assert tex.resource is res
+        finally:
+            tex.close()
+    finally:
+        mip.close()
+
+
+def test_surface_rejects_mipmapped_array(init_cuda):
+    mip = MipmappedArray.from_descriptor(
+        shape=(16, 16),
+        format=ArrayFormat.UINT8,
+        num_channels=4,
+        num_levels=2,
+        surface_load_store=True,
+    )
+    try:
+        res = ResourceDescriptor.from_mipmapped_array(mip)
+        with pytest.raises(ValueError, match="array-backed"):
+            SurfaceObject.from_descriptor(res)
+    finally:
+        mip.close()
+
+
+def test_mipmapped_array_level_keeps_parent_alive(init_cuda):
+    """Dropping the local parent reference must not invalidate the level Array;
+    the level holds an internal strong ref back to the MipmappedArray.
+
+    cdef classes don't natively support weakref, so we verify the parent
+    reference by inspecting the level Array's gc referents.
+    """
+    mip = MipmappedArray.from_descriptor(
+        shape=(16, 16),
+        format=ArrayFormat.UINT8,
+        num_channels=1,
+        num_levels=3,
+    )
+    parent_id = id(mip)
+    lvl = mip.get_level(1)
+    # Drop our local reference and force GC; the parent must survive because
+    # the level Array holds a strong ref via the internal _parent_ref slot.
+    del mip
+    gc.collect()
+
+    # The handle is still valid storage; the level still tracks the parent.
+    assert lvl.handle != 0
+    referents = gc.get_referents(lvl)
+    parents = [r for r in referents if isinstance(r, MipmappedArray)]
+    assert len(parents) == 1, (
+        f"level Array should reference exactly one MipmappedArray parent, got "
+        f"{parents!r}"
+    )
+    assert id(parents[0]) == parent_id, (
+        "level Array's parent ref is not the original MipmappedArray"
+    )
+    # Closing the level drops its parent ref. Don't access the parent past
+    # this point; cuMipmappedArrayDestroy may then run.
+    lvl.close()
