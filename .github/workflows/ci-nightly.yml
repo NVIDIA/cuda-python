@@ -57,33 +57,18 @@ jobs:
         run: |
           if [[ -n "${{ inputs.run-id }}" ]]; then
             RUN_ID="${{ inputs.run-id }}"
-            echo "Using manually specified run ID: $RUN_ID"
-          else
-            RUN_ID=$(gh run list \
-              -b main \
-              -L 1 \
-              -w "CI" \
-              -s success \
+            HEAD_SHA=$(gh run view "$RUN_ID" \
               -R "${{ github.repository }}" \
-              --json databaseId \
-              | jq -r '.[0].databaseId')
-
-            if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
-              echo "::error::No successful CI run found on main"
-              exit 1
-            fi
-            echo "Using latest successful CI run: $RUN_ID"
+              --json headSha | jq -r '.headSha')
+          else
+            # lookup-run-id --branch --head-sha prints two lines: run_id then head_sha
+            OUTPUT=$(./ci/tools/lookup-run-id --branch main --head-sha "${{ github.repository }}" "CI")
+            RUN_ID=$(echo "$OUTPUT" | sed -n '1p')
+            HEAD_SHA=$(echo "$OUTPUT" | sed -n '2p')
           fi
-
-          # Resolve the head SHA from the CI run — artifact names embed this.
-          HEAD_SHA=$(gh run view "$RUN_ID" \
-            -R "${{ github.repository }}" \
-            --json headSha \
-            | jq -r '.headSha')
 
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
-          echo "Source commit: $HEAD_SHA"
 
   # ── PyTorch interop tests ──
 
