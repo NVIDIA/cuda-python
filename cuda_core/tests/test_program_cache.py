@@ -1773,7 +1773,7 @@ def test_filestream_cache_size_cap_counts_tmp_files(tmp_path):
 
 def test_filestream_cache_handles_long_keys(tmp_path):
     """Arbitrary-length keys must not overflow per-component filename limits.
-    The filename is a fixed-length 256-bit digest; key uniqueness
+    The filename is a fixed-length 384-bit digest; key uniqueness
     relies on the digest's collision resistance."""
     from cuda.core.utils import FileStreamProgramCache
 
