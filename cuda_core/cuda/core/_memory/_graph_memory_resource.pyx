@@ -196,7 +196,12 @@ cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream 
         h_ptr = deviceptr_alloc_async(size, stream._h_stream)
     if not h_ptr:
         HANDLE_RETURN(get_last_error())
-        raise RuntimeError("Expected CUDA error was not recorded after deviceptr_alloc_async returned an empty handle")
+        raise RuntimeError(
+            f"Failed to allocate {size} bytes from GraphMemoryResource: "
+            "cuda-core returned an empty allocation handle without recording a CUDA error. "
+            "This is an internal cuda-core error; please report it with your CUDA driver, "
+            "CUDA Toolkit, and cuda-python versions."
+        )
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 
