@@ -17,6 +17,7 @@ from dataclasses import dataclass
 import threading
 import warnings
 
+from cuda.core._memory._managed_buffer import ManagedBuffer
 from cuda.core.typing import ManagedMemoryLocationType
 
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
@@ -113,9 +114,6 @@ cdef class ManagedMemoryResource(_MemPool):
             and instance methods (``prefetch``, ``discard``,
             ``discard_prefetch``).
         """
-        # Lazy import: ManagedBuffer is pure Python and lives outside this
-        # Cython module.
-        from cuda.core._memory._managed_buffer import ManagedBuffer
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)
