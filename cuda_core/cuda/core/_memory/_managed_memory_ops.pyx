@@ -15,6 +15,7 @@ from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
+from cuda.core._host import Host
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._memory._managed_location import _coerce_location
 
@@ -368,13 +369,10 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
             from cuda.core._device import Device
             return Device(loc_id)
         if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST:
-            from cuda.core._host import Host
             return Host()
         if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA:
-            from cuda.core._host import Host
             return Host(numa_id=loc_id)
         if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT:
-            from cuda.core._host import Host
             return Host.numa_current()
         return None  # CU_MEM_LOCATION_TYPE_INVALID — no preferred location
 
