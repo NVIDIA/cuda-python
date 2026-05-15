@@ -126,7 +126,7 @@ def _make_key(**overrides):
 def test_make_program_cache_key_returns_bytes():
     key = _make_key()
     assert isinstance(key, bytes)
-    assert len(key) == 48
+    assert len(key) == 32
 
 
 def test_make_program_cache_key_propagates_as_bytes_typeerror(monkeypatch):
@@ -1773,7 +1773,7 @@ def test_filestream_cache_size_cap_counts_tmp_files(tmp_path):
 
 def test_filestream_cache_handles_long_keys(tmp_path):
     """Arbitrary-length keys must not overflow per-component filename limits.
-    The filename is a fixed-length 384-bit digest; key uniqueness
+    The filename is a fixed-length 256-bit digest; key uniqueness
     relies on the digest's collision resistance."""
     from cuda.core.utils import FileStreamProgramCache
 

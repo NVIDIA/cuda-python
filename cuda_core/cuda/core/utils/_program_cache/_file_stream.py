@@ -428,11 +428,11 @@ class FileStreamProgramCache(ProgramCacheResource):
         # systems can disable non-approved hashlib algorithms (for example
         # blake2b) at the OpenSSL level. See #2043.
         #
-        # With a 384-bit SHA-384 digest, the cache relies on collision
+        # With a 256-bit SHA-256 digest, the cache relies on collision
         # resistance for key uniqueness -- two distinct keys hashing to the
-        # same path is astronomically unlikely (~2^-192 for practical
-        # collision work).
-        digest = hashlib.sha384(k, usedforsecurity=False).hexdigest()
+        # same path is astronomically unlikely (~2^128 practical collision
+        # work).
+        digest = hashlib.sha256(k, usedforsecurity=False).hexdigest()
         return self._entries / digest[:2] / digest[2:]
 
     # -- mapping API ---------------------------------------------------------
