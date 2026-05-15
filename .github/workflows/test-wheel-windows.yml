@@ -87,7 +87,7 @@ jobs:
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
   test:
-    name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }} (${{ matrix.DRIVER_MODE }})${{ matrix.TORCH_VER && format(', {0}', matrix.TORCH_VER) || '' }}${{ matrix.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
+    name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }} (${{ matrix.DRIVER_MODE }})${{ matrix.TORCH_VER && format(', {0}', matrix.TORCH_VER) || '' }}${{ matrix.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
     # The build stage could fail but we want the CI to keep moving.
     needs: compute-matrix
     strategy:

@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Nightly CI pipeline that tests optional dependencies (PyTorch, numba-cuda)
-# against the latest cuda-python wheels built on main.
+# against the latest cuda-python wheels built on main, and runs the standard
+# test suite on runners reserved for nightly-only use (e.g. arm64 l4×2).
 #
 # This workflow does NOT build wheels — it downloads them from the latest
-# successful CI run on main and runs integration tests with optional deps.
+# successful CI run on main and runs integration/standard tests.
 
 name: "CI: Nightly optional-deps"
 
@@ -191,6 +192,26 @@ jobs:
       test-mode: nightly-numba-cuda
       matrix_filter: 'map(select(.MODE == "nightly-numba-cuda"))'
 
+  # ── Standard tests on nightly-only runners ──
+
+  test-standard-linux-aarch64:
+    name: "Nightly standard (linux-aarch64)"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: find-wheels
+    permissions:
+      contents: read
+      actions: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: nightly
+      host-platform: linux-aarch64
+      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      test-mode: standard
+      matrix_filter: 'map(select(.MODE == "nightly-standard"))'
+
   # ── Status check ──
 
   checks:
@@ -205,6 +226,7 @@ jobs:
       - test-numba-cuda-linux-64
       - test-numba-cuda-linux-aarch64
       - test-numba-cuda-windows
+      - test-standard-linux-aarch64
     steps:
       - name: Exit
         run: |
@@ -227,7 +249,9 @@ jobs:
                  needs.test-numba-cuda-linux-aarch64.result == 'cancelled' ||
                  needs.test-numba-cuda-linux-aarch64.result == 'failure' ||
                  needs.test-numba-cuda-windows.result == 'cancelled' ||
-                 needs.test-numba-cuda-windows.result == 'failure' }}; then
+                 needs.test-numba-cuda-windows.result == 'failure' ||
+                 needs.test-standard-linux-aarch64.result == 'cancelled' ||
+                 needs.test-standard-linux-aarch64.result == 'failure' }}; then
             exit 1
           fi
           exit 0
