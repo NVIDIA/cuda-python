@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.get\_vgpu\_driver\_capabilities
-==================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: get_vgpu_driver_capabilities
