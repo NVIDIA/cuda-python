@@ -82,6 +82,15 @@ def has_recent_memory_pool_support() -> bool:
 SYSTEM_REQUIREMENTS = {
     "memory_pool_resources.py": has_recent_memory_pool_support,
     "gl_interop_plasma.py": has_display,
+    "gl_interop_fire.py": has_display,
+    "gl_interop_image_show.py": has_display,
+    "gl_interop_lenia.py": has_display,
+    "gl_interop_mandelbrot.py": has_display,
+    "gl_interop_mipmap_lod.py": has_display,
+    "gl_interop_ocean.py": has_display,
+    "gl_interop_reaction_diffusion.py": has_display,
+    "gl_interop_sdf_volume.py": has_display,
+    "gl_interop_texture_filter.py": has_display,
     "pytorch_example.py": lambda: (
         has_compute_capability_9_or_higher() and is_x86_64()
     ),  # PyTorch only provides CUDA support for x86_64
