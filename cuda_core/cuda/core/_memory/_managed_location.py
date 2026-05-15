@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from cuda.core._utils.version import binding_version
+from cuda.core._utils.version import binding_version, driver_version
 
 _LocationKind = Literal["device", "host", "host_numa", "host_numa_current"]
 
@@ -34,11 +34,15 @@ def _reject_numa_host_on_cuda12(spec: _LocSpec) -> None:
     deep inside the Cython layer with ``RuntimeError``, raise a
     ``TypeError`` at the call boundary with actionable wording.
     """
-    if binding_version() >= (13, 0, 0):
+    # The host-NUMA kinds map to CU_MEM_LOCATION_TYPE_HOST_NUMA{,_CURRENT},
+    # both added in CUDA 13. Require both bindings and the runtime driver to
+    # be 13.0+; bindings-only is insufficient (PR #2054 / #2064 precedent).
+    if binding_version() >= (13, 0, 0) and driver_version() >= (13, 0, 0):
         return
     if spec.kind in ("host_numa", "host_numa_current"):
         raise TypeError(
-            "Host(numa_id=...) / Host.numa_current() require a CUDA 13 build of cuda.core; use Host() on CUDA 12"
+            "Host(numa_id=...) / Host.numa_current() require both cuda-bindings 13.0+ "
+            "and a CUDA 13+ runtime driver; use Host() instead"
         )
 
 
