@@ -6,6 +6,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
+from cuda.core._utils.version import binding_version
+
 _LocationKind = Literal["device", "host", "host_numa", "host_numa_current"]
 
 
@@ -32,8 +34,6 @@ def _reject_numa_host_on_cuda12(spec: _LocSpec) -> None:
     deep inside the Cython layer with ``RuntimeError``, raise a
     ``TypeError`` at the call boundary with actionable wording.
     """
-    from cuda.core._utils.version import binding_version
-
     if binding_version() >= (13, 0, 0):
         return
     if spec.kind in ("host_numa", "host_numa_current"):
