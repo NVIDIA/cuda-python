@@ -20,8 +20,10 @@ on:
       - "main"
       - "pull-request/[0-9]+"
   schedule:
-    # 2 AM UTC daily, after the midnight main CI build finishes
-    - cron: "0 2 * * *"
+    # 2:17 AM UTC daily, after the midnight main CI build finishes.
+    # Avoid minute 0 because GitHub documents high scheduled-workflow load
+    # at the start of every hour, where queued jobs may be delayed or dropped.
+    - cron: "17 2 * * *"
   workflow_dispatch:
     inputs:
       run-id:
@@ -37,18 +39,12 @@ jobs:
     outputs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
       HEAD_SHA: ${{ steps.find.outputs.head_sha }}
-      CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
+      CUDA_BUILD_VER: ${{ steps.find.outputs.cuda_build_ver }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-depth: 1
-
-      - name: Get CUDA build versions
-        id: get-vars
-        run: |
-          cuda_build_ver=$(yq '.cuda.build.version' ci/versions.yml)
-          echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
 
       - name: Find latest successful CI run on main
         id: find
@@ -67,8 +63,25 @@ jobs:
             HEAD_SHA=$(echo "$OUTPUT" | sed -n '2p')
           fi
 
+          if [[ -z "$HEAD_SHA" || "$HEAD_SHA" == "null" ]]; then
+            echo "::error::Could not resolve head SHA for CI run $RUN_ID"
+            exit 1
+          fi
+
+          CUDA_BUILD_VER=$(gh api \
+            "repos/${{ github.repository }}/contents/ci/versions.yml?ref=$HEAD_SHA" \
+            --jq '.content' \
+            | base64 -d \
+            | yq '.cuda.build.version')
+
+          if [[ -z "$CUDA_BUILD_VER" || "$CUDA_BUILD_VER" == "null" ]]; then
+            echo "::error::Could not resolve CUDA build version from $HEAD_SHA"
+            exit 1
+          fi
+
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
+          echo "cuda_build_ver=$CUDA_BUILD_VER" >> $GITHUB_OUTPUT
 
   # ── PyTorch interop tests ──
 
@@ -189,6 +202,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     needs:
+      - find-wheels
       - test-pytorch-linux
       - test-pytorch-linux-aarch64
       - test-pytorch-windows
@@ -203,6 +217,9 @@ jobs:
           # See ci.yml for the full rationale on why we must use always()
           # and explicitly check each result rather than relying on the
           # default behaviour.
+          if ${{ needs.find-wheels.result != 'success' }}; then
+            exit 1
+          fi
           if ${{ needs.test-pytorch-linux.result == 'cancelled' ||
                  needs.test-pytorch-linux.result == 'failure' ||
                  needs.test-pytorch-linux-aarch64.result == 'cancelled' ||
