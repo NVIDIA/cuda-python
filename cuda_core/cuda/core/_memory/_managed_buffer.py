@@ -14,6 +14,7 @@ from cuda.core._memory._managed_memory_ops import (
     _do_single_discard_prefetch_py,
     _do_single_discard_py,
     _do_single_prefetch_py,
+    _read_preferred_location_v2,
 )
 from cuda.core._utils.cuda_utils import driver, handle_return
 from cuda.core._utils.version import binding_version
@@ -182,8 +183,6 @@ class ManagedBuffer(Buffer):
         as ``Host()``.
         """
         if binding_version() >= (13, 0, 0):
-            from cuda.core._memory._managed_memory_ops import _read_preferred_location_v2
-
             return _read_preferred_location_v2(self)
         # CUDA 12 legacy path (no NUMA info available).
         loc_id = _get_int_attr(self, _ATTR_PREFERRED)
