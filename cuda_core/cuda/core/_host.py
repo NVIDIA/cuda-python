@@ -73,7 +73,7 @@ class Host:
         """Construct a ``Host`` referring to the calling thread's NUMA node."""
         return cls(is_numa_current=True)
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other) -> bool:
         if not isinstance(other, Host):
             return NotImplemented
         return self is other
