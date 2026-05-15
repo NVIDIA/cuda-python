@@ -30,11 +30,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 import sys
 from typing import TypeVar
 
-if sys.version_info >= (3, 12):
-    from collections.abc import Buffer as BufferProtocol
-else:
-    BufferProtocol = object
-
+from cuda.core._utils.pycompat import BufferProtocol
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
 

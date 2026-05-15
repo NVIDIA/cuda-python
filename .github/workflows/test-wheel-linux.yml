@@ -29,6 +29,24 @@ on:
       skip-bindings-test:
         type: boolean
         default: false
+      run-id:
+        description: >
+          Workflow run ID to download artifacts from.
+          Defaults to the current run when empty.
+        type: string
+        default: ''
+      test-mode:
+        description: >
+          Test mode: 'standard' (default), 'nightly-pytorch', or
+          'nightly-numba-cuda'.
+        type: string
+        default: 'standard'
+      sha:
+        description: >
+          Commit SHA used to construct artifact names.
+          Defaults to github.sha (current run) when empty.
+        type: string
+        default: ''
 
 defaults:
   run:
@@ -77,7 +95,7 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> "$GITHUB_OUTPUT"
 
   test:
-    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format('(x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}
+    name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.TORCH_VER && format(', {0}', matrix.TORCH_VER) || '' }}${{ matrix.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
     needs: compute-matrix
     strategy:
       fail-fast: false
@@ -119,7 +137,7 @@ jobs:
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
           PY_VER: ${{ matrix.PY_VER }}
-          SHA: ${{ github.sha }}
+          SHA: ${{ inputs.sha || github.sha }}
           SKIP_BINDINGS_TEST_OVERRIDE: ${{ inputs.skip-bindings-test && '1' || '0' }}
         run: ./ci/tools/env-vars test
 
@@ -128,6 +146,8 @@ jobs:
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python build artifacts
         if: ${{ env.BINDINGS_SOURCE == 'main' }}
@@ -135,6 +155,8 @@ jobs:
         with:
           name: cuda-python-wheel
           path: .
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda.bindings build artifacts
         if: ${{ env.BINDINGS_SOURCE == 'main' }}
@@ -142,6 +164,8 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
         if: ${{ env.BINDINGS_SOURCE == 'backport' }}
@@ -160,11 +184,7 @@ jobs:
 
           OLD_BRANCH=${{ needs.compute-matrix.outputs.OLD_BRANCH }}
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s success -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
-          if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
-            echo "LATEST_PRIOR_RUN_ID not found!"
-            exit 1
-          fi
+          LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id --branch "${OLD_BRANCH}" NVIDIA/cuda-python "CI")
 
           gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
           rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
@@ -179,9 +199,10 @@ jobs:
           rmdir cuda-python-wheel
 
       - name: Display structure of downloaded cuda-python artifacts
+        if: ${{ env.BINDINGS_SOURCE != 'published' }}
         run: |
           pwd
-          ls -lahR .
+          ls -lah cuda_python*.whl cuda_pathfinder/
 
       - name: Display structure of downloaded cuda.bindings artifacts
         if: ${{ env.BINDINGS_SOURCE != 'published' }}
@@ -195,6 +216,8 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.bindings Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
@@ -207,6 +230,8 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core build artifacts
         run: |
@@ -219,6 +244,8 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
@@ -257,7 +284,9 @@ jobs:
       - name: Set up test repetition on nightly runs
         run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
+      # ── Standard test steps (skipped for nightly modes) ──
       - name: Run cuda.pathfinder tests with see_what_works
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
@@ -265,14 +294,14 @@ jobs:
         run: run-tests pathfinder
 
       - name: Run cuda.bindings tests
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ inputs.test-mode == 'standard' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests bindings
 
       - name: Run cuda.bindings benchmarks (smoke test)
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ inputs.test-mode == 'standard' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
           pip install pyperf
           pushd benchmarks/cuda_bindings
@@ -280,13 +309,14 @@ jobs:
           popd
 
       - name: Run cuda.core tests
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests core
 
       - name: Ensure cuda-python installable
-        if: ${{ env.BINDINGS_SOURCE == 'main' }}
+        if: ${{ inputs.test-mode == 'standard' && env.BINDINGS_SOURCE == 'main' }}
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
             pip install --only-binary=:all: cuda_python*.whl
@@ -295,6 +325,7 @@ jobs:
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
+        if: ${{ inputs.test-mode == 'standard' }}
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
@@ -303,8 +334,38 @@ jobs:
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
         run: run-tests pathfinder
+
+      # ── Nightly: install wheels + optional dep together ──
+      - name: Install cuda-python wheels + PyTorch
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          TORCH_VER: ${{ matrix.TORCH_VER }}
+          TORCH_CUDA: ${{ matrix.TORCH_CUDA }}
+        run: run-tests nightly-pytorch
+
+      - name: Install cuda-python wheels + numba-cuda
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests nightly-numba-cuda
+
+      # ── Nightly: run tests ──
+      - name: Run PyTorch interop tests
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        run: |
+          pushd cuda_core
+          pytest -rxXs -v --durations=0 tests/test_utils.py tests/example_tests/
+          popd
+
+      - name: Run numba-cuda tests
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        run: python -m numba.runtests numba.cuda.tests

@@ -13,6 +13,7 @@ from cuda.core._memory._ipc cimport IPCAllocationHandle
 from cuda.core._resource_handles cimport (
     as_cu,
     get_device_mempool,
+    get_last_error,
 )
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
@@ -262,6 +263,14 @@ cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):
 
     if opts is None:
         self._h_pool = get_device_mempool(dev_id)
+        if not self._h_pool:
+            HANDLE_RETURN(get_last_error())
+            raise RuntimeError(
+                f"Failed to initialize DeviceMemoryResource for device {dev_id}: "
+                "cuda-core returned an empty memory pool handle without recording a CUDA error. "
+                "This is an internal cuda-core error; please report it with your CUDA driver, "
+                "CUDA Toolkit, and cuda-python versions."
+            )
         self._mempool_owned = False
         MP_raise_release_threshold(self)
     else:

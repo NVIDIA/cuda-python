@@ -10,6 +10,7 @@ import pytest
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
+from conftest import xfail_on_graph_mempool_oom
 from cuda.core import Device, LaunchConfig
 from cuda.core.graph import (
     AllocNode,
@@ -201,13 +202,15 @@ _NONEMPTY_BUILDERS = [p for p in _ALL_BUILDERS if p.values[0] is not _build_empt
 def graph_spec(request, init_cuda):
     if request.param is not _build_empty:
         _skip_if_no_mempool()
-    return request.param()
+    with xfail_on_graph_mempool_oom():
+        return request.param()
 
 
 @pytest.fixture(params=_NONEMPTY_BUILDERS)
 def nonempty_graph_spec(request, init_cuda):
     _skip_if_no_mempool()
-    return request.param()
+    with xfail_on_graph_mempool_oom():
+        return request.param()
 
 
 # =============================================================================
@@ -562,7 +565,8 @@ def node_spec(request, init_cuda):
     if spec.needs_mempool:
         _skip_if_no_mempool()
     g = GraphDefinition()
-    node, expected_attrs = spec.builder(g)
+    with xfail_on_graph_mempool_oom():
+        node, expected_attrs = spec.builder(g)
     return spec, g, node, expected_attrs
 
 
@@ -803,18 +807,20 @@ def test_alloc_zero_size_fails(sample_graphdef):
 def test_free_creates_dependency(sample_graphdef):
     """Free node depends on its predecessor."""
     _skip_if_no_mempool()
-    alloc = sample_graphdef.allocate(ALLOC_SIZE)
-    free = alloc.deallocate(alloc.dptr)
+    with xfail_on_graph_mempool_oom():
+        alloc = sample_graphdef.allocate(ALLOC_SIZE)
+        free = alloc.deallocate(alloc.dptr)
     assert alloc in free.pred
 
 
 def test_alloc_free_chain(sample_graphdef):
     """Alloc and free can be chained."""
     _skip_if_no_mempool()
-    a1 = sample_graphdef.allocate(ALLOC_SIZE)
-    a2 = a1.allocate(ALLOC_SIZE)
-    f2 = a2.deallocate(a2.dptr)
-    f1 = f2.deallocate(a1.dptr)
+    with xfail_on_graph_mempool_oom():
+        a1 = sample_graphdef.allocate(ALLOC_SIZE)
+        a2 = a1.allocate(ALLOC_SIZE)
+        f2 = a2.deallocate(a2.dptr)
+        f1 = f2.deallocate(a1.dptr)
     assert a1 in a2.pred
     assert a2 in f2.pred
     assert f2 in f1.pred
@@ -842,7 +848,8 @@ def test_alloc_device_option(sample_graphdef, device_spec):
     """Device can be specified as int or Device object."""
     _skip_if_no_mempool()
     device = Device()
-    node = sample_graphdef.allocate(ALLOC_SIZE, device=device_spec(device))
+    with xfail_on_graph_mempool_oom(device):
+        node = sample_graphdef.allocate(ALLOC_SIZE, device=device_spec(device))
     assert node.dptr != 0
 
 
@@ -850,7 +857,8 @@ def test_alloc_peer_access(mempool_device_x2):
     """AllocNode.peer_access reflects requested peers."""
     d0, d1 = mempool_device_x2
     g = GraphDefinition()
-    node = g.allocate(ALLOC_SIZE, device=d0.device_id, peer_access=[d1.device_id])
+    with xfail_on_graph_mempool_oom(d0):
+        node = g.allocate(ALLOC_SIZE, device=d0.device_id, peer_access=[d1.device_id])
     assert d1.device_id in node.peer_access
 
 
@@ -863,8 +871,9 @@ def test_alloc_peer_access(mempool_device_x2):
 def test_join_merges_branches(sample_graphdef, num_branches):
     """join() with multiple branches creates correct dependencies."""
     _skip_if_no_mempool()
-    branches = [sample_graphdef.allocate(ALLOC_SIZE) for _ in range(num_branches)]
-    joined = sample_graphdef.join(*branches)
+    with xfail_on_graph_mempool_oom():
+        branches = [sample_graphdef.allocate(ALLOC_SIZE) for _ in range(num_branches)]
+        joined = sample_graphdef.join(*branches)
     assert isinstance(joined, EmptyNode)
     assert set(joined.pred) == set(branches)
 
@@ -956,8 +965,9 @@ def test_instantiate_empty_graph(sample_graphdef, inst_kwargs):
 def test_instantiate_with_nodes(sample_graphdef, inst_kwargs):
     """Graph with nodes can be instantiated."""
     _skip_if_no_mempool()
-    sample_graphdef.allocate(ALLOC_SIZE)
-    sample_graphdef.allocate(ALLOC_SIZE)
+    with xfail_on_graph_mempool_oom():
+        sample_graphdef.allocate(ALLOC_SIZE)
+        sample_graphdef.allocate(ALLOC_SIZE)
     graph = _instantiate(sample_graphdef, inst_kwargs)
     assert graph is not None
 
@@ -997,8 +1007,9 @@ def test_instantiate_and_execute_kernel(sample_graphdef, inst_kwargs):
 def test_instantiate_and_execute_alloc_free(sample_graphdef, inst_kwargs):
     """Graph with alloc/free can be executed."""
     _skip_if_no_mempool()
-    alloc = sample_graphdef.allocate(ALLOC_SIZE)
-    alloc.deallocate(alloc.dptr)
+    with xfail_on_graph_mempool_oom():
+        alloc = sample_graphdef.allocate(ALLOC_SIZE)
+        alloc.deallocate(alloc.dptr)
 
     stream = Device().create_stream()
     graph = _instantiate_and_upload(sample_graphdef, inst_kwargs, stream)
@@ -1010,9 +1021,10 @@ def test_instantiate_and_execute_alloc_free(sample_graphdef, inst_kwargs):
 def test_instantiate_and_execute_memset(sample_graphdef, inst_kwargs):
     """Graph with alloc/memset/free can be executed."""
     _skip_if_no_mempool()
-    alloc = sample_graphdef.allocate(ALLOC_SIZE)
-    ms = alloc.memset(alloc.dptr, 0xAB, ALLOC_SIZE)
-    ms.deallocate(alloc.dptr)
+    with xfail_on_graph_mempool_oom():
+        alloc = sample_graphdef.allocate(ALLOC_SIZE)
+        ms = alloc.memset(alloc.dptr, 0xAB, ALLOC_SIZE)
+        ms.deallocate(alloc.dptr)
 
     stream = Device().create_stream()
     graph = _instantiate_and_upload(sample_graphdef, inst_kwargs, stream)
@@ -1026,12 +1038,13 @@ def test_instantiate_and_execute_memcpy(sample_graphdef, inst_kwargs):
     _skip_if_no_mempool()
     import ctypes
 
-    src_alloc = sample_graphdef.allocate(ALLOC_SIZE)
-    dst_alloc = sample_graphdef.allocate(ALLOC_SIZE)
-    dep = sample_graphdef.join(src_alloc, dst_alloc)
-    ms = dep.memset(src_alloc.dptr, 0xAB, ALLOC_SIZE)
-    cp = ms.memcpy(dst_alloc.dptr, src_alloc.dptr, ALLOC_SIZE)
-    cp.deallocate(src_alloc.dptr)
+    with xfail_on_graph_mempool_oom():
+        src_alloc = sample_graphdef.allocate(ALLOC_SIZE)
+        dst_alloc = sample_graphdef.allocate(ALLOC_SIZE)
+        dep = sample_graphdef.join(src_alloc, dst_alloc)
+        ms = dep.memset(src_alloc.dptr, 0xAB, ALLOC_SIZE)
+        cp = ms.memcpy(dst_alloc.dptr, src_alloc.dptr, ALLOC_SIZE)
+        cp.deallocate(src_alloc.dptr)
 
     stream = Device().create_stream()
     graph = _instantiate_and_upload(sample_graphdef, inst_kwargs, stream)
@@ -1166,11 +1179,12 @@ def test_instantiate_and_execute_if_then(sample_graphdef):
     set_handle = mod.get_kernel("set_handle")
     add_one = mod.get_kernel("add_one")
 
-    alloc = sample_graphdef.allocate(ctypes.sizeof(ctypes.c_int))
-    ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
-    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition, 1)
-    if_node = setter.if_then(condition)
-    if_node.then.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
+    with xfail_on_graph_mempool_oom():
+        alloc = sample_graphdef.allocate(ctypes.sizeof(ctypes.c_int))
+        ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
+        setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition, 1)
+        if_node = setter.if_then(condition)
+        if_node.then.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
 
     graph = sample_graphdef.instantiate()
     stream = Device().create_stream()
@@ -1198,13 +1212,14 @@ def test_instantiate_and_execute_if_else(sample_graphdef):
     set_handle = mod.get_kernel("set_handle")
     add_one = mod.get_kernel("add_one")
 
-    alloc = sample_graphdef.allocate(ctypes.sizeof(ctypes.c_int))
-    ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
-    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition, 0)
-    ie_node = setter.if_else(condition)
-    ie_node.then.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
-    n1 = ie_node.else_.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
-    n1.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
+    with xfail_on_graph_mempool_oom():
+        alloc = sample_graphdef.allocate(ctypes.sizeof(ctypes.c_int))
+        ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
+        setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition, 0)
+        ie_node = setter.if_else(condition)
+        ie_node.then.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
+        n1 = ie_node.else_.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
+        n1.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
 
     graph = sample_graphdef.instantiate()
     stream = Device().create_stream()
@@ -1232,12 +1247,13 @@ def test_instantiate_and_execute_switch(sample_graphdef):
     set_handle = mod.get_kernel("set_handle")
     add_one = mod.get_kernel("add_one")
 
-    alloc = sample_graphdef.allocate(ctypes.sizeof(ctypes.c_int))
-    ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
-    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition, 2)
-    sw_node = setter.switch(condition, 4)
-    for branch in sw_node.branches:
-        branch.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
+    with xfail_on_graph_mempool_oom():
+        alloc = sample_graphdef.allocate(ctypes.sizeof(ctypes.c_int))
+        ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
+        setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition, 2)
+        sw_node = setter.switch(condition, 4)
+        for branch in sw_node.branches:
+            branch.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
 
     graph = sample_graphdef.instantiate()
     stream = Device().create_stream()
@@ -1272,7 +1288,8 @@ def test_conditional_node_type_preserved_by_nodes(sample_graphdef):
 def test_debug_dot_print_creates_file(sample_graphdef, dot_file):
     """debug_dot_print writes a DOT file."""
     _skip_if_no_mempool()
-    sample_graphdef.allocate(ALLOC_SIZE)
+    with xfail_on_graph_mempool_oom():
+        sample_graphdef.allocate(ALLOC_SIZE)
     sample_graphdef.debug_dot_print(str(dot_file))
     assert dot_file.exists()
     content = dot_file.read_text()
@@ -1282,7 +1299,8 @@ def test_debug_dot_print_creates_file(sample_graphdef, dot_file):
 def test_debug_dot_print_with_options(sample_graphdef, dot_file):
     """debug_dot_print accepts GraphDebugPrintOptions."""
     _skip_if_no_mempool()
-    sample_graphdef.allocate(ALLOC_SIZE)
+    with xfail_on_graph_mempool_oom():
+        sample_graphdef.allocate(ALLOC_SIZE)
     options = GraphDebugPrintOptions(verbose=True, handles=True)
     sample_graphdef.debug_dot_print(str(dot_file), options)
     assert dot_file.exists()
@@ -1291,6 +1309,7 @@ def test_debug_dot_print_with_options(sample_graphdef, dot_file):
 def test_debug_dot_print_invalid_options(sample_graphdef, dot_file):
     """debug_dot_print rejects invalid options type."""
     _skip_if_no_mempool()
-    sample_graphdef.allocate(ALLOC_SIZE)
+    with xfail_on_graph_mempool_oom():
+        sample_graphdef.allocate(ALLOC_SIZE)
     with pytest.raises(TypeError, match="options must be a GraphDebugPrintOptions"):
         sample_graphdef.debug_dot_print(str(dot_file), "invalid")

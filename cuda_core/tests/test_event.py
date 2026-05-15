@@ -243,6 +243,43 @@ def test_ipc_event_descriptor_direct_init():
         _event_module.IPCEventDescriptor()
 
 
+@pytest.mark.parametrize(
+    "other",
+    [None, "string", 42, 3.14, (b"\x00" * 64,), object()],
+    ids=["None", "str", "int", "float", "tuple", "object"],
+)
+def test_ipc_event_descriptor_eq_other_type(other):
+    """IPCEventDescriptor.__eq__ returns NotImplemented for unrelated types.
+
+    Regression test for https://github.com/NVIDIA/cuda-python/issues/2050: comparing
+    an IPCEventDescriptor to objects of unrelated types must not raise TypeError /
+    AttributeError; it must follow Python's rich-comparison protocol and yield False.
+    """
+    import cuda.core._event as _event_module
+
+    desc = _event_module.IPCEventDescriptor._init(b"\x00" * 64, True)
+    assert desc != other
+    assert not (desc == other)  # noqa: SIM201
+    assert other != desc
+    assert desc.__eq__(other) is NotImplemented
+
+
+def test_ipc_event_descriptor_eq_same_value():
+    """Two IPCEventDescriptors with the same _reserved compare equal."""
+    import cuda.core._event as _event_module
+
+    reserved = b"\x01" * 64
+    a = _event_module.IPCEventDescriptor._init(reserved, True)
+    b = _event_module.IPCEventDescriptor._init(reserved, True)
+    c = _event_module.IPCEventDescriptor._init(b"\x02" * 64, True)
+    assert a == a
+    assert a == b
+    assert a != c
+    # _is_blocking_sync is intentionally ignored by __eq__.
+    d = _event_module.IPCEventDescriptor._init(reserved, False)
+    assert a == d
+
+
 # ============================================================================
 # Event Hash Tests
 # ============================================================================
