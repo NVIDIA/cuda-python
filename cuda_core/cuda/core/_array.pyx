@@ -11,7 +11,11 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._stream cimport Stream
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport (
+    HANDLE_RETURN,
+    _get_current_context_ptr,
+    _get_current_device_id,
+)
 
 import enum
 
@@ -44,22 +48,6 @@ _FORMAT_ELEM_SIZE = {
 }
 
 
-cdef inline intptr_t _get_current_context_ptr() except? 0:
-    cdef cydriver.CUcontext ctx
-    with nogil:
-        HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-    if ctx == NULL:
-        raise RuntimeError("Array allocation requires an active CUDA context")
-    return <intptr_t>ctx
-
-
-cdef inline int _get_current_device_id() except -1:
-    cdef cydriver.CUdevice dev
-    with nogil:
-        HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
-    return <int>dev
-
-
 cdef void _fill_array_endpoint(
     cydriver.CUDA_MEMCPY3D* p, Array arr, bint is_src
 ) noexcept:
@@ -78,20 +66,73 @@ cdef void _fill_array_endpoint(
         p.dstZ = 0
 
 
+cdef int _fill_host_endpoint(
+    cydriver.CUDA_MEMCPY3D* p,
+    object obj,
+    bint is_src,
+    size_t width_bytes,
+    size_t height,
+    size_t required,
+    cpython.Py_buffer* pybuf_out,
+) except -1:
+    """Populate src/dst host fields from a buffer-protocol ``obj``.
+
+    Acquires a Py_buffer view; the caller is responsible for releasing it
+    (this function always returns with the view held when it returns 1).
+    """
+    cdef int flags = cpython.PyBUF_SIMPLE
+    if not is_src:
+        flags |= cpython.PyBUF_WRITABLE
+    if cpython.PyObject_GetBuffer(obj, pybuf_out, flags) != 0:
+        raise TypeError(
+            f"Source/destination must be a Buffer or a contiguous "
+            f"buffer-protocol object, got {type(obj).__name__}"
+        )
+    if <size_t>pybuf_out.len < required:
+        cpython.PyBuffer_Release(pybuf_out)
+        raise ValueError(
+            f"Host buffer has {pybuf_out.len} bytes, smaller than the array "
+            f"extent ({required} bytes)"
+        )
+    if is_src:
+        p.srcMemoryType = cydriver.CU_MEMORYTYPE_HOST
+        p.srcHost = pybuf_out.buf
+        p.srcPitch = width_bytes
+        p.srcHeight = height
+        p.srcXInBytes = 0
+        p.srcY = 0
+        p.srcZ = 0
+    else:
+        p.dstMemoryType = cydriver.CU_MEMORYTYPE_HOST
+        p.dstHost = pybuf_out.buf
+        p.dstPitch = width_bytes
+        p.dstHeight = height
+        p.dstXInBytes = 0
+        p.dstY = 0
+        p.dstZ = 0
+    return 1
+
+
 cdef int _fill_linear_endpoint(
     cydriver.CUDA_MEMCPY3D* p,
     object obj,
     bint is_src,
     size_t width_bytes,
     size_t height,
+    size_t depth,
     cpython.Py_buffer* pybuf_out,
 ) except -1:
     """Populate the src or dst linear fields. Returns 1 if pybuf_out was
     filled (caller must release it), 0 otherwise.
     """
     cdef intptr_t ptr
-    cdef int got_buffer = 0
+    cdef size_t required = width_bytes * height * depth
     if isinstance(obj, Buffer):
+        if <size_t>(<Buffer>obj).size < required:
+            raise ValueError(
+                f"Buffer size ({(<Buffer>obj).size} bytes) is smaller than "
+                f"the array extent ({required} bytes)"
+            )
         ptr = int((<Buffer>obj).handle)
         if is_src:
             p.srcMemoryType = cydriver.CU_MEMORYTYPE_DEVICE
@@ -110,34 +151,9 @@ cdef int _fill_linear_endpoint(
             p.dstY = 0
             p.dstZ = 0
         return 0
-
-    # Treat anything else as a host buffer via the Python buffer protocol.
-    cdef int flags = cpython.PyBUF_SIMPLE
-    if not is_src:
-        flags |= cpython.PyBUF_WRITABLE
-    if cpython.PyObject_GetBuffer(obj, pybuf_out, flags) != 0:
-        raise TypeError(
-            f"Source/destination must be a Buffer or a contiguous "
-            f"buffer-protocol object, got {type(obj).__name__}"
-        )
-    got_buffer = 1
-    if is_src:
-        p.srcMemoryType = cydriver.CU_MEMORYTYPE_HOST
-        p.srcHost = pybuf_out.buf
-        p.srcPitch = width_bytes
-        p.srcHeight = height
-        p.srcXInBytes = 0
-        p.srcY = 0
-        p.srcZ = 0
-    else:
-        p.dstMemoryType = cydriver.CU_MEMORYTYPE_HOST
-        p.dstHost = pybuf_out.buf
-        p.dstPitch = width_bytes
-        p.dstHeight = height
-        p.dstXInBytes = 0
-        p.dstY = 0
-        p.dstZ = 0
-    return 1
+    return _fill_host_endpoint(
+        p, obj, is_src, width_bytes, height, required, pybuf_out
+    )
 
 
 cdef _copy3d(Array arr, object other, object stream, bint to_array):
@@ -164,13 +180,13 @@ cdef _copy3d(Array arr, object other, object stream, bint to_array):
     try:
         if to_array:
             got_buffer = _fill_linear_endpoint(
-                &params, other, True, width_bytes, height, &pybuf
+                &params, other, True, width_bytes, height, depth, &pybuf
             )
             _fill_array_endpoint(&params, arr, False)
         else:
             _fill_array_endpoint(&params, arr, True)
             got_buffer = _fill_linear_endpoint(
-                &params, other, False, width_bytes, height, &pybuf
+                &params, other, False, width_bytes, height, depth, &pybuf
             )
 
         stream_handle = int((<Stream>stream).handle)
@@ -223,14 +239,14 @@ cdef class Array:
         Array
         """
         if not isinstance(format, ArrayFormat):
-            raise TypeError(f"format must be an ArrayFormat, got {type(format)}")
-        if num_channels not in (1, 2, 4):
-            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels}")
+            raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
+        if isinstance(num_channels, bool) or num_channels not in (1, 2, 4):
+            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels!r}")
 
         try:
             shape_t = tuple(int(s) for s in shape)
         except TypeError as e:
-            raise TypeError(f"shape must be a tuple of ints, got {type(shape)}") from e
+            raise TypeError(f"shape must be a tuple of ints, got {type(shape).__name__}") from e
         if not 1 <= len(shape_t) <= 3:
             raise ValueError(f"shape rank must be 1, 2, or 3, got {len(shape_t)}")
         for i, dim in enumerate(shape_t):
@@ -240,7 +256,7 @@ cdef class Array:
         cdef Array self = cls.__new__(cls)
         self._owning = True
         self._shape = shape_t
-        self._format = int(format)
+        self._format = <cydriver.CUarray_format><int>format
         self._num_channels = num_channels
         self._surface_load_store = bool(surface_load_store)
         self._context = _get_current_context_ptr()
@@ -304,7 +320,7 @@ cdef class Array:
             self._shape = (int(desc.Width), int(desc.Height))
         else:
             self._shape = (int(desc.Width),)
-        self._format = <int>desc.Format
+        self._format = desc.Format
         self._num_channels = desc.NumChannels
         self._surface_load_store = bool(desc.Flags & cydriver.CUDA_ARRAY3D_SURFACE_LDST)
         return self
@@ -393,12 +409,14 @@ cdef class Array:
 
     cpdef close(self):
         """Destroy the underlying ``CUarray`` if owned by this object."""
-        if self._handle != NULL and self._owning:
-            HANDLE_RETURN(cydriver.cuArrayDestroy(self._handle))
+        cdef cydriver.CUarray h = self._handle
+        cdef bint owning = self._owning
         self._handle = NULL
         # Drop the parent reference (if any) so a non-owning level Array
         # stops pinning its MipmappedArray after close().
         self._parent_ref = None
+        if h != NULL and owning:
+            HANDLE_RETURN(cydriver.cuArrayDestroy(h))
 
     def __dealloc__(self):
         # Cython destructors cannot raise; any cuArrayDestroy error here is

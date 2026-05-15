@@ -61,8 +61,6 @@ def main():
     dev.set_current()
     stream = dev.create_stream()
 
-    arr = None
-    tex = None
     coords_buf = None
     out_buf = None
     pinned_mr = LegacyPinnedMemoryResource()
@@ -72,33 +70,46 @@ def main():
         # buffer fed into copy_from must be laid out as H rows of W elements
         # (row-major), i.e. host_pattern.shape == (H, W).
         width, height = 16, 16
-        arr = Array.from_descriptor(
+        with Array.from_descriptor(
             shape=(width, height),
             format=ArrayFormat.FLOAT32,
             num_channels=1,
-        )
+        ) as arr:
+            # Plant a known pattern: pattern[y, x] = x + 100*y.
+            # Cast to float32 so the byte count matches the array's storage.
+            ys, xs = np.meshgrid(
+                np.arange(height, dtype=np.float32),
+                np.arange(width, dtype=np.float32),
+                indexing="ij",
+            )
+            pattern = (xs + 100.0 * ys).astype(np.float32)
+            assert pattern.shape == (height, width)
+            arr.copy_from(pattern, stream=stream)
 
-        # Plant a known pattern: pattern[y, x] = x + 100*y.
-        # Cast to float32 so the byte count matches the array's storage.
-        ys, xs = np.meshgrid(
-            np.arange(height, dtype=np.float32),
-            np.arange(width, dtype=np.float32),
-            indexing="ij",
-        )
-        pattern = (xs + 100.0 * ys).astype(np.float32)
-        assert pattern.shape == (height, width)
-        arr.copy_from(pattern, stream=stream)
+            # Build a linear-filtering, clamped, non-normalized texture.
+            res_desc = ResourceDescriptor.from_array(arr)
+            tex_desc = TextureDescriptor(
+                address_mode=AddressMode.CLAMP,
+                filter_mode=FilterMode.LINEAR,
+                read_mode=ReadMode.ELEMENT_TYPE,
+                normalized_coords=False,
+            )
+            with TextureObject.from_descriptor(
+                resource=res_desc, texture_descriptor=tex_desc
+            ) as tex:
+                _run_kernel_and_verify(
+                    dev, stream, tex, pattern, width, height, pinned_mr
+                )
+    finally:
+        stream.close()
 
-        # Build a linear-filtering, clamped, non-normalized texture.
-        res_desc = ResourceDescriptor.from_array(arr)
-        tex_desc = TextureDescriptor(
-            address_mode=AddressMode.CLAMP,
-            filter_mode=FilterMode.LINEAR,
-            read_mode=ReadMode.ELEMENT_TYPE,
-            normalized_coords=False,
-        )
-        tex = TextureObject.from_descriptor(res_desc, tex_desc)
 
+def _run_kernel_and_verify(dev, stream, tex, pattern, width, height, pinned_mr):
+    """Kernel launch + correctness check, isolated so the with-blocks in main()
+    stay readable. Owns its own pinned-buffer cleanup."""
+    coords_buf = None
+    out_buf = None
+    try:
         # Build the test coordinate list:
         # - Texel-center samples should return the exact planted value.
         # - Half-integer samples land between texels and exercise LINEAR
@@ -199,15 +210,10 @@ def main():
         print(f"  texel-center samples verified: {n_center}")
         print(f"  half-integer samples verified: {len(half_samples)}")
     finally:
-        if tex is not None:
-            tex.close()
-        if arr is not None:
-            arr.close()
         if coords_buf is not None:
             coords_buf.close()
         if out_buf is not None:
             out_buf.close()
-        stream.close()
 
 
 if __name__ == "__main__":

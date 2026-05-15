@@ -10,23 +10,11 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._array cimport Array
 from cuda.core._array import ArrayFormat
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-
-
-cdef inline intptr_t _get_current_context_ptr() except? 0:
-    cdef cydriver.CUcontext ctx
-    with nogil:
-        HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-    if ctx == NULL:
-        raise RuntimeError("MipmappedArray allocation requires an active CUDA context")
-    return <intptr_t>ctx
-
-
-cdef inline int _get_current_device_id() except -1:
-    cdef cydriver.CUdevice dev
-    with nogil:
-        HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
-    return <int>dev
+from cuda.core._utils.cuda_utils cimport (
+    HANDLE_RETURN,
+    _get_current_context_ptr,
+    _get_current_device_id,
+)
 
 
 cdef class MipmappedArray:
@@ -77,14 +65,14 @@ cdef class MipmappedArray:
         MipmappedArray
         """
         if not isinstance(format, ArrayFormat):
-            raise TypeError(f"format must be an ArrayFormat, got {type(format)}")
-        if num_channels not in (1, 2, 4):
-            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels}")
+            raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
+        if isinstance(num_channels, bool) or num_channels not in (1, 2, 4):
+            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels!r}")
 
         try:
             shape_t = tuple(int(s) for s in shape)
         except TypeError as e:
-            raise TypeError(f"shape must be a tuple of ints, got {type(shape)}") from e
+            raise TypeError(f"shape must be a tuple of ints, got {type(shape).__name__}") from e
         if not 1 <= len(shape_t) <= 3:
             raise ValueError(f"shape rank must be 1, 2, or 3, got {len(shape_t)}")
         for i, dim in enumerate(shape_t):
@@ -98,7 +86,7 @@ cdef class MipmappedArray:
         cdef MipmappedArray self = cls.__new__(cls)
         self._owning = True
         self._shape = shape_t
-        self._format = int(format)
+        self._format = <cydriver.CUarray_format><int>format
         self._num_channels = num_channels
         self._num_levels = <unsigned int>levels
         self._surface_load_store = bool(surface_load_store)
@@ -212,9 +200,11 @@ cdef class MipmappedArray:
         After ``close()`` any level :class:`Array` returned by :meth:`get_level`
         becomes invalid; callers must not access them.
         """
-        if self._handle != NULL and self._owning:
-            HANDLE_RETURN(cydriver.cuMipmappedArrayDestroy(self._handle))
+        cdef cydriver.CUmipmappedArray h = self._handle
+        cdef bint owning = self._owning
         self._handle = NULL
+        if h != NULL and owning:
+            HANDLE_RETURN(cydriver.cuMipmappedArrayDestroy(h))
 
     def __dealloc__(self):
         # Cython destructors cannot raise; any cuMipmappedArrayDestroy error

@@ -165,8 +165,9 @@ Textures and surfaces
 CUDA arrays back bindless texture and surface objects for kernel-side sampled
 reads and typed load/store. :class:`Array` is allocated through
 :meth:`Array.from_descriptor` and bound through a :class:`ResourceDescriptor`
-factory; linear (1D) and row-pitched 2D :class:`Buffer` views are also
-supported as texture backings.
+factory; linear (1D) and row-pitched 2D :class:`Buffer` views as well as
+mipmapped allocations (:class:`MipmappedArray`) are also supported as texture
+backings.
 
 .. autosummary::
    :toctree: generated/
@@ -174,6 +175,7 @@ supported as texture backings.
    :template: autosummary/cyclass.rst
 
    Array
+   MipmappedArray
    ResourceDescriptor
    TextureObject
    SurfaceObject

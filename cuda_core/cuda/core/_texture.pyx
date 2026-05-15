@@ -13,10 +13,14 @@ from cuda.core._array import ArrayFormat, _FORMAT_ELEM_SIZE
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._mipmapped_array cimport MipmappedArray
 from cuda.core._mipmapped_array import MipmappedArray as _PyMipmappedArray
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport (
+    HANDLE_RETURN,
+    _get_current_context_ptr,
+    _get_current_device_id,
+)
 
 import enum
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 # Driver texture-descriptor flag bits (CU_TRSF_*).
@@ -152,20 +156,28 @@ class ResourceDescriptor:
             raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
         if not isinstance(format, ArrayFormat):
             raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
-        if num_channels not in (1, 2, 4):
-            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels}")
+        if isinstance(num_channels, bool) or num_channels not in (1, 2, 4):
+            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels!r}")
 
         buf_size = int(buffer.size)
+        elem = _FORMAT_ELEM_SIZE[int(format)] * int(num_channels)
         if size_bytes is None:
             size = buf_size
         else:
             size = int(size_bytes)
-            if size < 0:
-                raise ValueError(f"size_bytes must be >= 0, got {size}")
             if size > buf_size:
                 raise ValueError(
                     f"size_bytes ({size}) exceeds buffer.size ({buf_size})"
                 )
+        if size < elem:
+            raise ValueError(
+                f"size_bytes ({size}) must be at least one element ({elem} bytes)"
+            )
+        if size % elem != 0:
+            raise ValueError(
+                f"size_bytes ({size}) must be a multiple of element size "
+                f"({elem} bytes for {format.name} x {num_channels})"
+            )
 
         self = cls.__new__(cls)
         self._kind = "linear"
@@ -206,8 +218,8 @@ class ResourceDescriptor:
             raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
         if not isinstance(format, ArrayFormat):
             raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
-        if num_channels not in (1, 2, 4):
-            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels}")
+        if isinstance(num_channels, bool) or num_channels not in (1, 2, 4):
+            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels!r}")
 
         w = int(width)
         h = int(height)
@@ -255,6 +267,26 @@ class ResourceDescriptor:
     def num_channels(self):
         """Channels per element (``None`` for array-backed)."""
         return self._num_channels
+
+    @property
+    def size_bytes(self):
+        """Bytes bound for a linear resource (``None`` for other kinds)."""
+        return self._size_bytes
+
+    @property
+    def width(self):
+        """Pitch2D image width, in elements (``None`` for other kinds)."""
+        return self._width
+
+    @property
+    def height(self):
+        """Pitch2D image height, in rows (``None`` for other kinds)."""
+        return self._height
+
+    @property
+    def pitch_bytes(self):
+        """Pitch2D row pitch, in bytes (``None`` for other kinds)."""
+        return self._pitch_bytes
 
     def __repr__(self):
         if self._kind == "linear":
@@ -320,23 +352,7 @@ class TextureDescriptor:
     border_color: tuple | None = None
 
 
-cdef inline intptr_t _get_current_context_ptr() except? 0:
-    cdef cydriver.CUcontext ctx
-    with nogil:
-        HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-    if ctx == NULL:
-        raise RuntimeError("TextureObject requires an active CUDA context")
-    return <intptr_t>ctx
-
-
-cdef inline int _get_current_device_id() except -1:
-    cdef cydriver.CUdevice dev
-    with nogil:
-        HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
-    return <int>dev
-
-
-cdef _normalize_address_modes(address_mode):
+def _normalize_address_modes(address_mode):
     """Return a 3-tuple of AddressMode values from a scalar or 1-3 tuple."""
     if isinstance(address_mode, AddressMode):
         return (address_mode, address_mode, address_mode)
@@ -378,23 +394,23 @@ cdef class TextureObject:
         )
 
     @classmethod
-    def from_descriptor(cls, resource_desc, texture_desc):
+    def from_descriptor(cls, *, resource, texture_descriptor):
         """Create a texture object from a resource + sampling descriptor.
 
         Parameters
         ----------
-        resource_desc : ResourceDescriptor
-        texture_desc : TextureDescriptor
+        resource : ResourceDescriptor
+        texture_descriptor : TextureDescriptor
         """
-        if not isinstance(resource_desc, ResourceDescriptor):
+        if not isinstance(resource, ResourceDescriptor):
             raise TypeError(
-                f"resource_desc must be a ResourceDescriptor, got "
-                f"{type(resource_desc).__name__}"
+                f"resource must be a ResourceDescriptor, got "
+                f"{type(resource).__name__}"
             )
-        if not isinstance(texture_desc, TextureDescriptor):
+        if not isinstance(texture_descriptor, TextureDescriptor):
             raise TypeError(
-                f"texture_desc must be a TextureDescriptor, got "
-                f"{type(texture_desc).__name__}"
+                f"texture_descriptor must be a TextureDescriptor, got "
+                f"{type(texture_descriptor).__name__}"
             )
 
         cdef cydriver.CUDA_RESOURCE_DESC res_desc
@@ -407,82 +423,91 @@ cdef class TextureObject:
         cdef MipmappedArray mip
         cdef Buffer buf
         cdef intptr_t devptr
-        if resource_desc.kind == "array":
-            arr = <Array>resource_desc.source
+        if resource.kind == "array":
+            arr = <Array>resource.source
             res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
             res_desc.res.array.hArray = arr._handle
-        elif resource_desc.kind == "mipmapped_array":
-            mip = <MipmappedArray>resource_desc.source
+        elif resource.kind == "mipmapped_array":
+            mip = <MipmappedArray>resource.source
             res_desc.resType = cydriver.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
             res_desc.res.mipmap.hMipmappedArray = mip._handle
-        elif resource_desc.kind == "linear":
-            buf = <Buffer>resource_desc.source
+        elif resource.kind == "linear":
+            buf = <Buffer>resource.source
             devptr = int(buf.handle)
             res_desc.resType = cydriver.CU_RESOURCE_TYPE_LINEAR
             res_desc.res.linear.devPtr = <cydriver.CUdeviceptr>devptr
-            res_desc.res.linear.format = <cydriver.CUarray_format><int>resource_desc._format
-            res_desc.res.linear.numChannels = <unsigned int>resource_desc._num_channels
-            res_desc.res.linear.sizeInBytes = <size_t>resource_desc._size_bytes
-        elif resource_desc.kind == "pitch2d":
-            buf = <Buffer>resource_desc.source
+            res_desc.res.linear.format = <cydriver.CUarray_format><int>resource._format
+            res_desc.res.linear.numChannels = <unsigned int>resource._num_channels
+            res_desc.res.linear.sizeInBytes = <size_t>resource._size_bytes
+        elif resource.kind == "pitch2d":
+            buf = <Buffer>resource.source
             devptr = int(buf.handle)
             res_desc.resType = cydriver.CU_RESOURCE_TYPE_PITCH2D
             res_desc.res.pitch2D.devPtr = <cydriver.CUdeviceptr>devptr
-            res_desc.res.pitch2D.format = <cydriver.CUarray_format><int>resource_desc._format
-            res_desc.res.pitch2D.numChannels = <unsigned int>resource_desc._num_channels
-            res_desc.res.pitch2D.width = <size_t>resource_desc._width
-            res_desc.res.pitch2D.height = <size_t>resource_desc._height
-            res_desc.res.pitch2D.pitchInBytes = <size_t>resource_desc._pitch_bytes
+            res_desc.res.pitch2D.format = <cydriver.CUarray_format><int>resource._format
+            res_desc.res.pitch2D.numChannels = <unsigned int>resource._num_channels
+            res_desc.res.pitch2D.width = <size_t>resource._width
+            res_desc.res.pitch2D.height = <size_t>resource._height
+            res_desc.res.pitch2D.pitchInBytes = <size_t>resource._pitch_bytes
         else:
             raise NotImplementedError(
-                f"ResourceDescriptor kind {resource_desc.kind!r} is not yet supported"
+                f"ResourceDescriptor kind {resource.kind!r} is not yet supported"
             )
 
         # --- Texture descriptor ---
-        modes = _normalize_address_modes(texture_desc.address_mode)
+        modes = _normalize_address_modes(texture_descriptor.address_mode)
         tex_desc.addressMode[0] = <cydriver.CUaddress_mode><int>modes[0]
         tex_desc.addressMode[1] = <cydriver.CUaddress_mode><int>modes[1]
         tex_desc.addressMode[2] = <cydriver.CUaddress_mode><int>modes[2]
 
-        if not isinstance(texture_desc.filter_mode, FilterMode):
-            raise TypeError("filter_mode must be a FilterMode")
-        tex_desc.filterMode = <cydriver.CUfilter_mode><int>texture_desc.filter_mode
+        if not isinstance(texture_descriptor.filter_mode, FilterMode):
+            raise TypeError(
+                f"filter_mode must be a FilterMode, got "
+                f"{type(texture_descriptor.filter_mode).__name__}"
+            )
+        tex_desc.filterMode = <cydriver.CUfilter_mode><int>texture_descriptor.filter_mode
 
-        if not isinstance(texture_desc.read_mode, ReadMode):
-            raise TypeError("read_mode must be a ReadMode")
+        if not isinstance(texture_descriptor.read_mode, ReadMode):
+            raise TypeError(
+                f"read_mode must be a ReadMode, got "
+                f"{type(texture_descriptor.read_mode).__name__}"
+            )
 
         cdef unsigned int flags = 0
         # CU_TRSF_READ_AS_INTEGER suppresses normalization, so it maps to
         # ReadMode.ELEMENT_TYPE.
-        if texture_desc.read_mode == ReadMode.ELEMENT_TYPE:
+        if texture_descriptor.read_mode == ReadMode.ELEMENT_TYPE:
             flags |= _TRSF_READ_AS_INTEGER
-        if texture_desc.normalized_coords:
+        if texture_descriptor.normalized_coords:
             flags |= _TRSF_NORMALIZED_COORDINATES
-        if texture_desc.srgb:
+        if texture_descriptor.srgb:
             flags |= _TRSF_SRGB
-        if texture_desc.disable_trilinear_optimization:
+        if texture_descriptor.disable_trilinear_optimization:
             flags |= _TRSF_DISABLE_TRILINEAR_OPTIMIZATION
-        if texture_desc.seamless_cubemap:
+        if texture_descriptor.seamless_cubemap:
             flags |= _TRSF_SEAMLESS_CUBEMAP
         tex_desc.flags = flags
 
-        if texture_desc.max_anisotropy < 0:
+        if texture_descriptor.max_anisotropy < 0:
             raise ValueError("max_anisotropy must be >= 0")
-        tex_desc.maxAnisotropy = <unsigned int>texture_desc.max_anisotropy
+        tex_desc.maxAnisotropy = <unsigned int>texture_descriptor.max_anisotropy
 
-        if not isinstance(texture_desc.mipmap_filter_mode, FilterMode):
-            raise TypeError("mipmap_filter_mode must be a FilterMode")
-        tex_desc.mipmapFilterMode = <cydriver.CUfilter_mode><int>texture_desc.mipmap_filter_mode
-        tex_desc.mipmapLevelBias = <float>texture_desc.mipmap_level_bias
-        tex_desc.minMipmapLevelClamp = <float>texture_desc.min_mipmap_level_clamp
-        tex_desc.maxMipmapLevelClamp = <float>texture_desc.max_mipmap_level_clamp
+        if not isinstance(texture_descriptor.mipmap_filter_mode, FilterMode):
+            raise TypeError(
+                f"mipmap_filter_mode must be a FilterMode, got "
+                f"{type(texture_descriptor.mipmap_filter_mode).__name__}"
+            )
+        tex_desc.mipmapFilterMode = <cydriver.CUfilter_mode><int>texture_descriptor.mipmap_filter_mode
+        tex_desc.mipmapLevelBias = <float>texture_descriptor.mipmap_level_bias
+        tex_desc.minMipmapLevelClamp = <float>texture_descriptor.min_mipmap_level_clamp
+        tex_desc.maxMipmapLevelClamp = <float>texture_descriptor.max_mipmap_level_clamp
 
         cdef int i
-        if texture_desc.border_color is None:
+        if texture_descriptor.border_color is None:
             for i in range(4):
                 tex_desc.borderColor[i] = 0.0
         else:
-            bc = tuple(texture_desc.border_color)
+            bc = tuple(texture_descriptor.border_color)
             if len(bc) != 4:
                 raise ValueError(
                     f"border_color must have 4 elements, got {len(bc)}"
@@ -491,8 +516,8 @@ cdef class TextureObject:
                 tex_desc.borderColor[i] = <float>bc[i]
 
         cdef TextureObject self = cls.__new__(cls)
-        self._source_ref = resource_desc
-        self._texture_desc = texture_desc
+        self._source_ref = resource
+        self._texture_desc = texture_descriptor
         self._context = _get_current_context_ptr()
         self._device_id = _get_current_device_id()
 
@@ -524,10 +549,11 @@ cdef class TextureObject:
 
     cpdef close(self):
         """Destroy the underlying ``CUtexObject``."""
-        if self._handle != 0:
-            HANDLE_RETURN(cydriver.cuTexObjectDestroy(self._handle))
+        cdef cydriver.CUtexObject h = self._handle
         self._handle = 0
         self._source_ref = None
+        if h != 0:
+            HANDLE_RETURN(cydriver.cuTexObjectDestroy(h))
 
     def __dealloc__(self):
         # Cython destructors cannot raise; any cuTexObjectDestroy error is

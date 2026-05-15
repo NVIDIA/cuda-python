@@ -4,7 +4,7 @@
 
 cimport cpython
 from cpython.object cimport PyObject
-from libc.stdint cimport int64_t, int32_t, uint8_t, uint16_t, uint32_t
+from libc.stdint cimport int64_t, int32_t, intptr_t, uint8_t, uint16_t, uint32_t
 
 from cuda.bindings cimport cydriver, cynvrtc, cynvvm, cynvjitlink
 
@@ -23,6 +23,12 @@ cdef int HANDLE_RETURN_NVRTC(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err)
 cdef int HANDLE_RETURN_NVVM(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except?-1 nogil
 cdef int HANDLE_RETURN_NVJITLINK(
     cynvjitlink.nvJitLinkHandle handle, cynvjitlink.nvJitLinkResult err) except?-1 nogil
+
+
+# Helpers for retrieving the current CUDA context and device. Raise if no
+# active context is bound to the calling thread.
+cdef intptr_t _get_current_context_ptr() except? 0
+cdef int _get_current_device_id() except? -1
 
 
 # TODO: stop exposing these within the codebase?

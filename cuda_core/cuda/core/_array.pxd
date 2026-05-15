@@ -11,7 +11,7 @@ cdef class Array:
     cdef:
         cydriver.CUarray _handle
         tuple _shape                 # (w,), (w, h), or (w, h, d)
-        int _format                  # CUarray_format value
+        cydriver.CUarray_format _format
         unsigned int _num_channels   # 1, 2, or 4
         int _device_id
         intptr_t _context

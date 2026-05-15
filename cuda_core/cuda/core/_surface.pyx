@@ -10,23 +10,11 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._array cimport Array
 from cuda.core._texture import ResourceDescriptor
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-
-
-cdef inline intptr_t _get_current_context_ptr() except? 0:
-    cdef cydriver.CUcontext ctx
-    with nogil:
-        HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-    if ctx == NULL:
-        raise RuntimeError("SurfaceObject requires an active CUDA context")
-    return <intptr_t>ctx
-
-
-cdef inline int _get_current_device_id() except -1:
-    cdef cydriver.CUdevice dev
-    with nogil:
-        HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
-    return <int>dev
+from cuda.core._utils.cuda_utils cimport (
+    HANDLE_RETURN,
+    _get_current_context_ptr,
+    _get_current_device_id,
+)
 
 
 cdef class SurfaceObject:
@@ -58,31 +46,31 @@ cdef class SurfaceObject:
         """
         if not isinstance(array, Array):
             raise TypeError(f"array must be an Array, got {type(array).__name__}")
-        return cls.from_descriptor(ResourceDescriptor.from_array(array))
+        return cls.from_descriptor(resource=ResourceDescriptor.from_array(array))
 
     @classmethod
-    def from_descriptor(cls, resource_desc):
+    def from_descriptor(cls, *, resource):
         """Create a surface object from a :class:`ResourceDescriptor`.
 
         Parameters
         ----------
-        resource_desc : ResourceDescriptor
+        resource : ResourceDescriptor
             Must wrap an :class:`Array` allocated with
             ``surface_load_store=True``. Linear/pitch2d resources are not
             valid surface backings.
         """
-        if not isinstance(resource_desc, ResourceDescriptor):
+        if not isinstance(resource, ResourceDescriptor):
             raise TypeError(
-                f"resource_desc must be a ResourceDescriptor, got "
-                f"{type(resource_desc).__name__}"
+                f"resource must be a ResourceDescriptor, got "
+                f"{type(resource).__name__}"
             )
-        if resource_desc.kind != "array":
+        if resource.kind != "array":
             raise ValueError(
                 f"SurfaceObject requires an array-backed ResourceDescriptor, "
-                f"got kind={resource_desc.kind!r}"
+                f"got kind={resource.kind!r}"
             )
 
-        cdef Array arr = <Array>resource_desc.source
+        cdef Array arr = <Array>resource.source
         if not arr.surface_load_store:
             raise ValueError(
                 "Array must be created with surface_load_store=True to be "
@@ -95,7 +83,7 @@ cdef class SurfaceObject:
         res_desc.res.array.hArray = arr._handle
 
         cdef SurfaceObject self = cls.__new__(cls)
-        self._source_ref = resource_desc
+        self._source_ref = resource
         self._context = _get_current_context_ptr()
         self._device_id = _get_current_device_id()
 
@@ -122,10 +110,11 @@ cdef class SurfaceObject:
 
     cpdef close(self):
         """Destroy the underlying ``CUsurfObject``."""
-        if self._handle != 0:
-            HANDLE_RETURN(cydriver.cuSurfObjectDestroy(self._handle))
+        cdef cydriver.CUsurfObject h = self._handle
         self._handle = 0
         self._source_ref = None
+        if h != 0:
+            HANDLE_RETURN(cydriver.cuSurfObjectDestroy(h))
 
     def __dealloc__(self):
         # Cython destructors cannot raise; any cuSurfObjectDestroy error is
