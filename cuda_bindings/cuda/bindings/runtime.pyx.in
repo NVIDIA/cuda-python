@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1568+g289771de9.d20260413. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -19423,10 +19423,9 @@ cdef class cudaLaunchAttributeValue:
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
-        ::cudaEventRecordWithFlags. Does not accept
-        cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
-        is set to non-0, each block launch will automatically trigger the
-        event.
+        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
+        - `int` triggerAtBlockStart - If this is set to non-0, each block
+        launch will automatically trigger the event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -19463,7 +19462,7 @@ cdef class cudaLaunchAttributeValue:
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
-        flags, see ::cudaEventRecordWithFlags. Does not accept
+        flags, see cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
@@ -21243,7 +21242,31 @@ def cudaDeviceGetLimit(limit not None : cudaLimit):
 
 @cython.embedsignature(True)
 def cudaDeviceGetTexture1DLinearMaxWidth(fmtDesc : Optional[cudaChannelFormatDesc], int device):
-    """"""
+    """ Returns the maximum number of elements allocatable in a 1D linear texture for a given element size.
+
+    Returns in `maxWidthInElements` the maximum number of elements
+    allocatable in a 1D linear texture for given format descriptor
+    `fmtDesc`.
+
+    Parameters
+    ----------
+    fmtDesc : :py:obj:`~.cudaChannelFormatDesc`
+        Texture format description.
+    None : int
+        None
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorUnsupportedLimit`, :py:obj:`~.cudaErrorInvalidValue`
+    maxWidthInElements : int
+        Returns maximum number of texture elements allocatable for given
+        `fmtDesc`.
+
+    See Also
+    --------
+    :py:obj:`~.cuDeviceGetTexture1DLinearMaxWidth`
+    """
     cdef size_t maxWidthInElements = 0
     cdef cyruntime.cudaChannelFormatDesc* cyfmtDesc_ptr = <cyruntime.cudaChannelFormatDesc*>fmtDesc._pvt_ptr if fmtDesc is not None else NULL
     with nogil:
@@ -21257,13 +21280,7 @@ def cudaDeviceGetTexture1DLinearMaxWidth(fmtDesc : Optional[cudaChannelFormatDes
 
 @cython.embedsignature(True)
 def cudaDeviceGetCacheConfig():
-    """ Returns the maximum number of elements allocatable in a 1D linear texture for a given element size.
-
-    Returns in `maxWidthInElements` the maximum number of elements
-    allocatable in a 1D linear texture for given format descriptor
-    `fmtDesc`.
-
-    Returns the preferred cache configuration for the current device.
+    """ Returns the preferred cache configuration for the current device.
 
     On devices where the L1 cache and shared memory use the same hardware
     resources, this returns through `pCacheConfig` the preferred cache
@@ -21293,16 +21310,12 @@ def cudaDeviceGetCacheConfig():
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorUnsupportedLimit`, :py:obj:`~.cudaErrorInvalidValue`
         :py:obj:`~.cudaSuccess`
-    maxWidthInElements : :py:obj:`~.cudaFuncCache`
-        Returns maximum number of texture elements allocatable for given
-        `fmtDesc`.
+    pCacheConfig : :py:obj:`~.cudaFuncCache`
+        Returned cache configuration
 
     See Also
     --------
-    :py:obj:`~.cuDeviceGetTexture1DLinearMaxWidth`
-
     :py:obj:`~.cudaDeviceSetCacheConfig`, :py:obj:`~.cudaFuncSetCacheConfig (C API)`, cudaFuncSetCacheConfig (C++ API), :py:obj:`~.cuCtxGetCacheConfig`
     """
     cdef cyruntime.cudaFuncCache pCacheConfig
@@ -21774,7 +21787,38 @@ def cudaIpcCloseMemHandle(devPtr):
 
 @cython.embedsignature(True)
 def cudaDeviceFlushGPUDirectRDMAWrites(target not None : cudaFlushGPUDirectRDMAWritesTarget, scope not None : cudaFlushGPUDirectRDMAWritesScope):
-    """"""
+    """ Blocks until remote writes are visible to the specified scope.
+
+    Blocks until remote writes to the target context via mappings created
+    through GPUDirect RDMA APIs, like nvidia_p2p_get_pages (see
+    https://docs.nvidia.com/cuda/gpudirect-rdma for more information), are
+    visible to the specified scope.
+
+    If the scope equals or lies within the scope indicated by
+    :py:obj:`~.cudaDevAttrGPUDirectRDMAWritesOrdering`, the call will be a
+    no-op and can be safely omitted for performance. This can be determined
+    by comparing the numerical values between the two enums, with smaller
+    scopes having smaller values.
+
+    Users may query support for this API via
+    :py:obj:`~.cudaDevAttrGPUDirectRDMAFlushWritesOptions`.
+
+    Parameters
+    ----------
+    target : :py:obj:`~.cudaFlushGPUDirectRDMAWritesTarget`
+        The target of the operation, see cudaFlushGPUDirectRDMAWritesTarget
+    scope : :py:obj:`~.cudaFlushGPUDirectRDMAWritesScope`
+        The scope of the operation, see cudaFlushGPUDirectRDMAWritesScope
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorNotSupported`,
+
+    See Also
+    --------
+    :py:obj:`~.cuFlushGPUDirectRDMAWrites`
+    """
     cdef cyruntime.cudaFlushGPUDirectRDMAWritesTarget cytarget = int(target)
     cdef cyruntime.cudaFlushGPUDirectRDMAWritesScope cyscope = int(scope)
     with nogil:
@@ -21798,23 +21842,7 @@ cdef void cudaAsyncNotificationCallbackWrapper(cyruntime.cudaAsyncNotificationIn
 
 @cython.embedsignature(True)
 def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
-    """ Blocks until remote writes are visible to the specified scope.
-
-    Blocks until remote writes to the target context via mappings created
-    through GPUDirect RDMA APIs, like nvidia_p2p_get_pages (see
-    https://docs.nvidia.com/cuda/gpudirect-rdma for more information), are
-    visible to the specified scope.
-
-    If the scope equals or lies within the scope indicated by
-    :py:obj:`~.cudaDevAttrGPUDirectRDMAWritesOrdering`, the call will be a
-    no-op and can be safely omitted for performance. This can be determined
-    by comparing the numerical values between the two enums, with smaller
-    scopes having smaller values.
-
-    Users may query support for this API via
-    :py:obj:`~.cudaDevAttrGPUDirectRDMAFlushWritesOptions`.
-
-    Registers a callback function to receive async notifications
+    """ Registers a callback function to receive async notifications.
 
     Registers `callbackFunc` to receive async notifications.
 
@@ -21836,25 +21864,23 @@ def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
 
     Parameters
     ----------
-    target : int
-        The target of the operation, see cudaFlushGPUDirectRDMAWritesTarget
-    scope : :py:obj:`~.cudaAsyncCallback`
-        The scope of the operation, see cudaFlushGPUDirectRDMAWritesScope
-    device : Any
+    device : int
         The device on which to register the callback
+    callbackFunc : :py:obj:`~.cudaAsyncCallback`
+        The function to register as a callback
+    userData : Any
+        A generic pointer to user data. This is passed into the callback
+        function.
 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorNotSupported`,
         :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorNotSupported` :py:obj:`~.cudaErrorInvalidDevice` :py:obj:`~.cudaErrorInvalidValue` :py:obj:`~.cudaErrorNotPermitted` :py:obj:`~.cudaErrorUnknown`
-    callbackFunc : :py:obj:`~.cudaAsyncCallbackHandle_t`
-        The function to register as a callback
+    callback : :py:obj:`~.cudaAsyncCallbackHandle_t`
+        A handle representing the registered callback instance
 
     See Also
     --------
-    :py:obj:`~.cuFlushGPUDirectRDMAWrites`
-
     :py:obj:`~.cudaDeviceUnregisterAsyncNotification`
     """
     cdef cyruntime.cudaAsyncCallback cycallbackFunc
@@ -24502,32 +24528,6 @@ def cudaEventRecord(event, stream):
 
 @cython.embedsignature(True)
 def cudaEventRecordWithFlags(event, stream, unsigned int flags):
-    """"""
-    cdef cyruntime.cudaStream_t cystream
-    if stream is None:
-        pstream = 0
-    elif isinstance(stream, (cudaStream_t,driver.CUstream)):
-        pstream = int(stream)
-    else:
-        pstream = int(cudaStream_t(stream))
-    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cdef cyruntime.cudaEvent_t cyevent
-    if event is None:
-        pevent = 0
-    elif isinstance(event, (cudaEvent_t,driver.CUevent)):
-        pevent = int(event)
-    else:
-        pevent = int(cudaEvent_t(event))
-    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
-    with nogil:
-        err = cyruntime.cudaEventRecordWithFlags(cyevent, cystream, flags)
-    return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaEventQuery' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaEventQuery(event):
     """ Records an event.
 
     Captures in `event` the contents of `stream` at the time of this call.
@@ -24553,7 +24553,50 @@ def cudaEventQuery(event):
     - :py:obj:`~.cudaEventRecordExternal`: Event is captured in the graph
       as an external event node when performing stream capture.
 
-    Queries an event's status
+    Parameters
+    ----------
+    event : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Event to record
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Stream in which to record event
+    flags : unsigned int
+        Parameters for the operation(See above)
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorLaunchFailure`
+
+    See Also
+    --------
+    :py:obj:`~.cudaEventCreate (C API)`, :py:obj:`~.cudaEventCreateWithFlags`, :py:obj:`~.cudaEventQuery`, :py:obj:`~.cudaEventSynchronize`, :py:obj:`~.cudaEventDestroy`, :py:obj:`~.cudaEventElapsedTime`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaEventRecord`, :py:obj:`~.cuEventRecord`,
+    """
+    cdef cyruntime.cudaStream_t cystream
+    if stream is None:
+        pstream = 0
+    elif isinstance(stream, (cudaStream_t,driver.CUstream)):
+        pstream = int(stream)
+    else:
+        pstream = int(cudaStream_t(stream))
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cdef cyruntime.cudaEvent_t cyevent
+    if event is None:
+        pevent = 0
+    elif isinstance(event, (cudaEvent_t,driver.CUevent)):
+        pevent = int(event)
+    else:
+        pevent = int(cudaEvent_t(event))
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    with nogil:
+        err = cyruntime.cudaEventRecordWithFlags(cyevent, cystream, flags)
+    return (_cudaError_t(err),)
+{{endif}}
+
+{{if 'cudaEventQuery' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaEventQuery(event):
+    """ Queries an event's status.
 
     Queries the status of all work currently captured by `event`. See
     :py:obj:`~.cudaEventRecord()` for details on what is captured by an
@@ -24570,18 +24613,15 @@ def cudaEventQuery(event):
     Parameters
     ----------
     event : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
-        Event to record
+        Event to query
 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorLaunchFailure`
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorNotReady`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorLaunchFailure`
 
     See Also
     --------
-    :py:obj:`~.cudaEventCreate (C API)`, :py:obj:`~.cudaEventCreateWithFlags`, :py:obj:`~.cudaEventQuery`, :py:obj:`~.cudaEventSynchronize`, :py:obj:`~.cudaEventDestroy`, :py:obj:`~.cudaEventElapsedTime`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaEventRecord`, :py:obj:`~.cuEventRecord`,
-
     :py:obj:`~.cudaEventCreate (C API)`, :py:obj:`~.cudaEventCreateWithFlags`, :py:obj:`~.cudaEventRecord`, :py:obj:`~.cudaEventSynchronize`, :py:obj:`~.cudaEventDestroy`, :py:obj:`~.cudaEventElapsedTime`, :py:obj:`~.cuEventQuery`
     """
     cdef cyruntime.cudaEvent_t cyevent
@@ -27912,48 +27952,6 @@ def cudaMipmappedArrayGetMemoryRequirements(mipmap, int device):
 
 @cython.embedsignature(True)
 def cudaArrayGetSparseProperties(array):
-    """"""
-    cdef cyruntime.cudaArray_t cyarray
-    if array is None:
-        parray = 0
-    elif isinstance(array, (cudaArray_t,)):
-        parray = int(array)
-    else:
-        parray = int(cudaArray_t(array))
-    cyarray = <cyruntime.cudaArray_t><void_ptr>parray
-    cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties()
-    with nogil:
-        err = cyruntime.cudaArrayGetSparseProperties(<cyruntime.cudaArraySparseProperties*>sparseProperties._pvt_ptr, cyarray)
-    if err != cyruntime.cudaSuccess:
-        return (_cudaError_t(err), None)
-    return (_cudaError_t_SUCCESS, sparseProperties)
-{{endif}}
-
-{{if 'cudaMipmappedArrayGetSparseProperties' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaMipmappedArrayGetSparseProperties(mipmap):
-    """"""
-    cdef cyruntime.cudaMipmappedArray_t cymipmap
-    if mipmap is None:
-        pmipmap = 0
-    elif isinstance(mipmap, (cudaMipmappedArray_t,)):
-        pmipmap = int(mipmap)
-    else:
-        pmipmap = int(cudaMipmappedArray_t(mipmap))
-    cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmap
-    cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties()
-    with nogil:
-        err = cyruntime.cudaMipmappedArrayGetSparseProperties(<cyruntime.cudaArraySparseProperties*>sparseProperties._pvt_ptr, cymipmap)
-    if err != cyruntime.cudaSuccess:
-        return (_cudaError_t(err), None)
-    return (_cudaError_t_SUCCESS, sparseProperties)
-{{endif}}
-
-{{if 'cudaMemcpy' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaMemcpy(dst, src, size_t count, kind not None : cudaMemcpyKind):
     """ Returns the layout properties of a sparse CUDA array.
 
     Returns the layout properties of a sparse CUDA array in
@@ -27974,7 +27972,43 @@ def cudaMemcpy(dst, src, size_t count, kind not None : cudaMemcpyKind):
     obtain the sparse properties of the entire CUDA mipmapped array to
     which `array` belongs to.
 
-    Returns the layout properties of a sparse CUDA mipmapped array
+    Parameters
+    ----------
+    array : :py:obj:`~.cudaArray_t`
+        The CUDA array to get the sparse properties of
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
+    sparseProperties : :py:obj:`~.cudaArraySparseProperties`
+        Pointer to return the :py:obj:`~.cudaArraySparseProperties`
+
+    See Also
+    --------
+    :py:obj:`~.cudaMipmappedArrayGetSparseProperties`, :py:obj:`~.cuMemMapArrayAsync`
+    """
+    cdef cyruntime.cudaArray_t cyarray
+    if array is None:
+        parray = 0
+    elif isinstance(array, (cudaArray_t,)):
+        parray = int(array)
+    else:
+        parray = int(cudaArray_t(array))
+    cyarray = <cyruntime.cudaArray_t><void_ptr>parray
+    cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties()
+    with nogil:
+        err = cyruntime.cudaArrayGetSparseProperties(<cyruntime.cudaArraySparseProperties*>sparseProperties._pvt_ptr, cyarray)
+    if err != cyruntime.cudaSuccess:
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, sparseProperties)
+{{endif}}
+
+{{if 'cudaMipmappedArrayGetSparseProperties' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaMipmappedArrayGetSparseProperties(mipmap):
+    """ Returns the layout properties of a sparse CUDA mipmapped array.
 
     Returns the sparse array layout properties in `sparseProperties`. If
     the CUDA mipmapped array is not allocated with flag
@@ -27994,7 +28028,43 @@ def cudaMemcpy(dst, src, size_t count, kind not None : cudaMemcpyKind):
     :py:obj:`~.cudaArraySparseProperties.miptailFirstLevel` is valid only
     if :py:obj:`~.cudaArraySparseProperties.miptailSize` is non-zero.
 
-    Copies data between host and device
+    Parameters
+    ----------
+    mipmap : :py:obj:`~.cudaMipmappedArray_t`
+        The CUDA mipmapped array to get the sparse properties of
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
+    sparseProperties : :py:obj:`~.cudaArraySparseProperties`
+        Pointer to return :py:obj:`~.cudaArraySparseProperties`
+
+    See Also
+    --------
+    :py:obj:`~.cudaArrayGetSparseProperties`, :py:obj:`~.cuMemMapArrayAsync`
+    """
+    cdef cyruntime.cudaMipmappedArray_t cymipmap
+    if mipmap is None:
+        pmipmap = 0
+    elif isinstance(mipmap, (cudaMipmappedArray_t,)):
+        pmipmap = int(mipmap)
+    else:
+        pmipmap = int(cudaMipmappedArray_t(mipmap))
+    cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmap
+    cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties()
+    with nogil:
+        err = cyruntime.cudaMipmappedArrayGetSparseProperties(<cyruntime.cudaArraySparseProperties*>sparseProperties._pvt_ptr, cymipmap)
+    if err != cyruntime.cudaSuccess:
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, sparseProperties)
+{{endif}}
+
+{{if 'cudaMemcpy' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaMemcpy(dst, src, size_t count, kind not None : cudaMemcpyKind):
+    """ Copies data between host and device.
 
     Copies `count` bytes from the memory area pointed to by `src` to the
     memory area pointed to by `dst`, where `kind` specifies the direction
@@ -28012,28 +28082,22 @@ def cudaMemcpy(dst, src, size_t count, kind not None : cudaMemcpyKind):
 
     Parameters
     ----------
-    sparseProperties : Any
-        Pointer to return the :py:obj:`~.cudaArraySparseProperties`
-    array : Any
-        The CUDA array to get the sparse properties of
-    sparseProperties : size_t
-        Pointer to return :py:obj:`~.cudaArraySparseProperties`
-    mipmap : :py:obj:`~.cudaMemcpyKind`
-        The CUDA mipmapped array to get the sparse properties of
+    dst : Any
+        Destination memory address
+    src : Any
+        Source memory address
+    count : size_t
+        Size in bytes to copy
+    kind : :py:obj:`~.cudaMemcpyKind`
+        Type of transfer
 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidMemcpyDirection`
 
     See Also
     --------
-    :py:obj:`~.cudaMipmappedArrayGetSparseProperties`, :py:obj:`~.cuMemMapArrayAsync`
-
-    :py:obj:`~.cudaArrayGetSparseProperties`, :py:obj:`~.cuMemMapArrayAsync`
-
     :py:obj:`~.cudaMemcpy2D`, :py:obj:`~.cudaMemcpy2DToArray`, :py:obj:`~.cudaMemcpy2DFromArray`, :py:obj:`~.cudaMemcpy2DArrayToArray`, :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy2DAsync`, :py:obj:`~.cudaMemcpy2DToArrayAsync`, :py:obj:`~.cudaMemcpy2DFromArrayAsync`, :py:obj:`~.cudaMemcpyToSymbolAsync`, :py:obj:`~.cudaMemcpyFromSymbolAsync`, :py:obj:`~.cuMemcpyDtoH`, :py:obj:`~.cuMemcpyHtoD`, :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpy`
     """
     cdef _HelperInputVoidPtrStruct cydstHelper
@@ -33556,7 +33620,61 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
 
 @cython.embedsignature(True)
 def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, dst, src, size_t count, kind not None : cudaMemcpyKind):
-    """"""
+    """ Creates a 1D memcpy node and adds it to a graph.
+
+    Creates a new 1D memcpy node and adds it to `graph` with
+    `numDependencies` dependencies specified via `pDependencies`. It is
+    possible for `numDependencies` to be 0, in which case the node will be
+    placed at the root of the graph. `pDependencies` may not have any
+    duplicate entries. A handle to the new node will be returned in
+    `pGraphNode`.
+
+    When the graph is launched, the node will copy `count` bytes from the
+    memory area pointed to by `src` to the memory area pointed to by `dst`,
+    where `kind` specifies the direction of the copy, and must be one of
+    :py:obj:`~.cudaMemcpyHostToHost`, :py:obj:`~.cudaMemcpyHostToDevice`,
+    :py:obj:`~.cudaMemcpyDeviceToHost`,
+    :py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
+    Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
+    type of transfer is inferred from the pointer values. However,
+    :py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
+    unified virtual addressing. Launching a memcpy node with dst and src
+    pointers that do not match the direction of the copy results in an
+    undefined behavior.
+
+    Memcpy nodes have some additional restrictions with regards to managed
+    memory, if the system contains at least one device which has a zero
+    value for the device attribute
+    :py:obj:`~.cudaDevAttrConcurrentManagedAccess`.
+
+    Parameters
+    ----------
+    graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which to add the node
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
+        Dependencies of the node
+    numDependencies : size_t
+        Number of dependencies
+    dst : Any
+        Destination memory address
+    src : Any
+        Source memory address
+    count : size_t
+        Size in bytes to copy
+    kind : :py:obj:`~.cudaMemcpyKind`
+        Type of transfer
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    pGraphNode : :py:obj:`~.cudaGraphNode_t`
+        Returns newly created node
+
+    See Also
+    --------
+    :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
@@ -33599,111 +33717,24 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[tuple[cudaGraphNode
 
 @cython.embedsignature(True)
 def cudaGraphMemcpyNodeGetParams(node):
-    """ Creates a memcpy node to copy to a symbol on the device and adds it to a graph.
-
-    Creates a new memcpy node to copy to `symbol` and adds it to `graph`
-    with `numDependencies` dependencies specified via `pDependencies`. It
-    is possible for `numDependencies` to be 0, in which case the node will
-    be placed at the root of the graph. `pDependencies` may not have any
-    duplicate entries. A handle to the new node will be returned in
-    `pGraphNode`.
-
-    When the graph is launched, the node will copy `count` bytes from the
-    memory area pointed to by `src` to the memory area pointed to by
-    `offset` bytes from the start of symbol `symbol`. The memory areas may
-    not overlap. `symbol` is a variable that resides in global or constant
-    memory space. `kind` can be either :py:obj:`~.cudaMemcpyHostToDevice`,
-    :py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-    Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-    type of transfer is inferred from the pointer values. However,
-    :py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-    unified virtual addressing.
-
-    Memcpy nodes have some additional restrictions with regards to managed
-    memory, if the system contains at least one device which has a zero
-    value for the device attribute
-    :py:obj:`~.cudaDevAttrConcurrentManagedAccess`.
-
-    Creates a memcpy node to copy from a symbol on the device and adds it
-    to a graph
-
-    Creates a new memcpy node to copy from `symbol` and adds it to `graph`
-    with `numDependencies` dependencies specified via `pDependencies`. It
-    is possible for `numDependencies` to be 0, in which case the node will
-    be placed at the root of the graph. `pDependencies` may not have any
-    duplicate entries. A handle to the new node will be returned in
-    `pGraphNode`.
-
-    When the graph is launched, the node will copy `count` bytes from the
-    memory area pointed to by `offset` bytes from the start of symbol
-    `symbol` to the memory area pointed to by `dst`. The memory areas may
-    not overlap. `symbol` is a variable that resides in global or constant
-    memory space. `kind` can be either :py:obj:`~.cudaMemcpyDeviceToHost`,
-    :py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-    Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-    type of transfer is inferred from the pointer values. However,
-    :py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-    unified virtual addressing.
-
-    Memcpy nodes have some additional restrictions with regards to managed
-    memory, if the system contains at least one device which has a zero
-    value for the device attribute
-    :py:obj:`~.cudaDevAttrConcurrentManagedAccess`.
-
-    Creates a 1D memcpy node and adds it to a graph
-
-    Creates a new 1D memcpy node and adds it to `graph` with
-    `numDependencies` dependencies specified via `pDependencies`. It is
-    possible for `numDependencies` to be 0, in which case the node will be
-    placed at the root of the graph. `pDependencies` may not have any
-    duplicate entries. A handle to the new node will be returned in
-    `pGraphNode`.
-
-    When the graph is launched, the node will copy `count` bytes from the
-    memory area pointed to by `src` to the memory area pointed to by `dst`,
-    where `kind` specifies the direction of the copy, and must be one of
-    :py:obj:`~.cudaMemcpyHostToHost`, :py:obj:`~.cudaMemcpyHostToDevice`,
-    :py:obj:`~.cudaMemcpyDeviceToHost`,
-    :py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-    Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-    type of transfer is inferred from the pointer values. However,
-    :py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-    unified virtual addressing. Launching a memcpy node with dst and src
-    pointers that do not match the direction of the copy results in an
-    undefined behavior.
-
-    Memcpy nodes have some additional restrictions with regards to managed
-    memory, if the system contains at least one device which has a zero
-    value for the device attribute
-    :py:obj:`~.cudaDevAttrConcurrentManagedAccess`.
-
-    Returns a memcpy node's parameters
+    """ Returns a memcpy node's parameters.
 
     Returns the parameters of memcpy node `node` in `pNodeParams`.
 
     Parameters
     ----------
-    pGraphNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
-        Returns newly created node
+    node : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to get the parameters for
 
     Returns
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-    graph : :py:obj:`~.cudaMemcpy3DParms`
-        Graph to which to add the node
+    pNodeParams : :py:obj:`~.cudaMemcpy3DParms`
+        Pointer to return the parameters
 
     See Also
     --------
-    :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNodeFromSymbol`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemsetNode`
-
-    :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNodeToSymbol`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemsetNode`
-
-    :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemsetNode`
-
     :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`
     """
     cdef cyruntime.cudaGraphNode_t cynode
@@ -33764,7 +33795,46 @@ def cudaGraphMemcpyNodeSetParams(node, pNodeParams : Optional[cudaMemcpy3DParms]
 
 @cython.embedsignature(True)
 def cudaGraphMemcpyNodeSetParams1D(node, dst, src, size_t count, kind not None : cudaMemcpyKind):
-    """"""
+    """ Sets a memcpy node's parameters to perform a 1-dimensional copy.
+
+    Sets the parameters of memcpy node `node` to the copy described by the
+    provided parameters.
+
+    When the graph is launched, the node will copy `count` bytes from the
+    memory area pointed to by `src` to the memory area pointed to by `dst`,
+    where `kind` specifies the direction of the copy, and must be one of
+    :py:obj:`~.cudaMemcpyHostToHost`, :py:obj:`~.cudaMemcpyHostToDevice`,
+    :py:obj:`~.cudaMemcpyDeviceToHost`,
+    :py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
+    Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
+    type of transfer is inferred from the pointer values. However,
+    :py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
+    unified virtual addressing. Launching a memcpy node with dst and src
+    pointers that do not match the direction of the copy results in an
+    undefined behavior.
+
+    Parameters
+    ----------
+    node : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to set the parameters for
+    dst : Any
+        Destination memory address
+    src : Any
+        Source memory address
+    count : size_t
+        Size in bytes to copy
+    kind : :py:obj:`~.cudaMemcpyKind`
+        Type of transfer
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+
+    See Also
+    --------
+    :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`
+    """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
         pnode = 0
@@ -33789,57 +33859,7 @@ def cudaGraphMemcpyNodeSetParams1D(node, dst, src, size_t count, kind not None :
 
 @cython.embedsignature(True)
 def cudaGraphAddMemsetNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, pMemsetParams : Optional[cudaMemsetParams]):
-    """ Sets a memcpy node's parameters to copy to a symbol on the device.
-
-    Sets the parameters of memcpy node `node` to the copy described by the
-    provided parameters.
-
-    When the graph is launched, the node will copy `count` bytes from the
-    memory area pointed to by `src` to the memory area pointed to by
-    `offset` bytes from the start of symbol `symbol`. The memory areas may
-    not overlap. `symbol` is a variable that resides in global or constant
-    memory space. `kind` can be either :py:obj:`~.cudaMemcpyHostToDevice`,
-    :py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-    Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-    type of transfer is inferred from the pointer values. However,
-    :py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-    unified virtual addressing.
-
-    Sets a memcpy node's parameters to copy from a symbol on the device
-
-    Sets the parameters of memcpy node `node` to the copy described by the
-    provided parameters.
-
-    When the graph is launched, the node will copy `count` bytes from the
-    memory area pointed to by `offset` bytes from the start of symbol
-    `symbol` to the memory area pointed to by `dst`. The memory areas may
-    not overlap. `symbol` is a variable that resides in global or constant
-    memory space. `kind` can be either :py:obj:`~.cudaMemcpyDeviceToHost`,
-    :py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-    Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-    type of transfer is inferred from the pointer values. However,
-    :py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-    unified virtual addressing.
-
-    Sets a memcpy node's parameters to perform a 1-dimensional copy
-
-    Sets the parameters of memcpy node `node` to the copy described by the
-    provided parameters.
-
-    When the graph is launched, the node will copy `count` bytes from the
-    memory area pointed to by `src` to the memory area pointed to by `dst`,
-    where `kind` specifies the direction of the copy, and must be one of
-    :py:obj:`~.cudaMemcpyHostToHost`, :py:obj:`~.cudaMemcpyHostToDevice`,
-    :py:obj:`~.cudaMemcpyDeviceToHost`,
-    :py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-    Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-    type of transfer is inferred from the pointer values. However,
-    :py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-    unified virtual addressing. Launching a memcpy node with dst and src
-    pointers that do not match the direction of the copy results in an
-    undefined behavior.
-
-    Creates a memset node and adds it to a graph
+    """ Creates a memset node and adds it to a graph.
 
     Creates a new memset node and adds it to `graph` with `numDependencies`
     dependencies specified via `pDependencies`. It is possible for
@@ -33852,33 +33872,24 @@ def cudaGraphAddMemsetNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
 
     Parameters
     ----------
-    symbol : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
-        Device symbol address
-    src : list[:py:obj:`~.cudaGraphNode_t`]
-        Source memory address
-    count : size_t
-        Size in bytes to copy
-    offset : :py:obj:`~.cudaMemsetParams`
-        Offset from start of symbol in bytes
+    graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which to add the node
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
+        Dependencies of the node
+    numDependencies : size_t
+        Number of dependencies
+    pMemsetParams : :py:obj:`~.cudaMemsetParams`
+        Parameters for the memory set
 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDevice`
-    node : :py:obj:`~.cudaGraphNode_t`
-        Node to set the parameters for
+    pGraphNode : :py:obj:`~.cudaGraphNode_t`
+        Returns newly created node
 
     See Also
     --------
-    :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`
-
-    :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`
-
-    :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`
-
     :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaGraphMemsetNodeGetParams`, :py:obj:`~.cudaGraphMemsetNodeSetParams`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`
     """
     pDependencies = [] if pDependencies is None else pDependencies
@@ -34342,7 +34353,42 @@ def cudaGraphAddEmptyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t]
 
 @cython.embedsignature(True)
 def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, event):
-    """"""
+    """ Creates an event record node and adds it to a graph.
+
+    Creates a new event record node and adds it to `hGraph` with
+    `numDependencies` dependencies specified via `dependencies` and event
+    specified in `event`. It is possible for `numDependencies` to be 0, in
+    which case the node will be placed at the root of the graph.
+    `dependencies` may not have any duplicate entries. A handle to the new
+    node will be returned in `phGraphNode`.
+
+    Each launch of the graph will record `event` to capture execution of
+    the node's dependencies.
+
+    These nodes may not be used in loops or conditionals.
+
+    Parameters
+    ----------
+    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which to add the node
+    dependencies : list[:py:obj:`~.cudaGraphNode_t`]
+        Dependencies of the node
+    numDependencies : size_t
+        Number of dependencies
+    event : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Event for the node
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    phGraphNode : :py:obj:`~.cudaGraphNode_t`
+        Returns newly created node
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
         pevent = 0
@@ -34387,7 +34433,26 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[tuple[cudaGraphN
 
 @cython.embedsignature(True)
 def cudaGraphEventRecordNodeGetEvent(node):
-    """"""
+    """ Returns the event associated with an event record node.
+
+    Returns the event of event record node `hNode` in `event_out`.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to get the event for
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    event_out : :py:obj:`~.cudaEvent_t`
+        Pointer to return the event
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
+    """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
         pnode = 0
@@ -34408,7 +34473,26 @@ def cudaGraphEventRecordNodeGetEvent(node):
 
 @cython.embedsignature(True)
 def cudaGraphEventRecordNodeSetEvent(node, event):
-    """"""
+    """ Sets an event record node's event.
+
+    Sets the event of event record node `hNode` to `event`.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to set the event for
+    event : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Event to use
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
+    """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
         pevent = 0
@@ -34434,7 +34518,45 @@ def cudaGraphEventRecordNodeSetEvent(node, event):
 
 @cython.embedsignature(True)
 def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, event):
-    """"""
+    """ Creates an event wait node and adds it to a graph.
+
+    Creates a new event wait node and adds it to `hGraph` with
+    `numDependencies` dependencies specified via `dependencies` and event
+    specified in `event`. It is possible for `numDependencies` to be 0, in
+    which case the node will be placed at the root of the graph.
+    `dependencies` may not have any duplicate entries. A handle to the new
+    node will be returned in `phGraphNode`.
+
+    The graph node will wait for all work captured in `event`. See
+    :py:obj:`~.cuEventRecord()` for details on what is captured by an
+    event. The synchronization will be performed efficiently on the device
+    when applicable. `event` may be from a different context or device than
+    the launch stream.
+
+    These nodes may not be used in loops or conditionals.
+
+    Parameters
+    ----------
+    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which to add the node
+    dependencies : list[:py:obj:`~.cudaGraphNode_t`]
+        Dependencies of the node
+    numDependencies : size_t
+        Number of dependencies
+    event : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Event for the node
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    phGraphNode : :py:obj:`~.cudaGraphNode_t`
+        Returns newly created node
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
         pevent = 0
@@ -34479,7 +34601,26 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[tuple[cudaGraphNod
 
 @cython.embedsignature(True)
 def cudaGraphEventWaitNodeGetEvent(node):
-    """"""
+    """ Returns the event associated with an event wait node.
+
+    Returns the event of event wait node `hNode` in `event_out`.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to get the event for
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    event_out : :py:obj:`~.cudaEvent_t`
+        Pointer to return the event
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
+    """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
         pnode = 0
@@ -34500,7 +34641,26 @@ def cudaGraphEventWaitNodeGetEvent(node):
 
 @cython.embedsignature(True)
 def cudaGraphEventWaitNodeSetEvent(node, event):
-    """"""
+    """ Sets an event wait node's event.
+
+    Sets the event of event wait node `hNode` to `event`.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to set the event for
+    event : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Event to use
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
+    """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
         pevent = 0
@@ -34526,7 +34686,41 @@ def cudaGraphEventWaitNodeSetEvent(node, event):
 
 @cython.embedsignature(True)
 def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaExternalSemaphoreSignalNodeParams]):
-    """"""
+    """ Creates an external semaphore signal node and adds it to a graph.
+
+    Creates a new external semaphore signal node and adds it to `graph`
+    with `numDependencies` dependencies specified via `dependencies` and
+    arguments specified in `nodeParams`. It is possible for
+    `numDependencies` to be 0, in which case the node will be placed at the
+    root of the graph. `dependencies` may not have any duplicate entries. A
+    handle to the new node will be returned in `pGraphNode`.
+
+    Performs a signal operation on a set of externally allocated semaphore
+    objects when the node is launched. The operation(s) will occur after
+    all of the node's dependencies have completed.
+
+    Parameters
+    ----------
+    graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which to add the node
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
+        Dependencies of the node
+    numDependencies : size_t
+        Number of dependencies
+    nodeParams : :py:obj:`~.cudaExternalSemaphoreSignalNodeParams`
+        Parameters for the node
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    pGraphNode : :py:obj:`~.cudaGraphNode_t`
+        Returns newly created node
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
@@ -34564,7 +34758,32 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[tup
 
 @cython.embedsignature(True)
 def cudaGraphExternalSemaphoresSignalNodeGetParams(hNode):
-    """"""
+    """ Returns an external semaphore signal node's parameters.
+
+    Returns the parameters of an external semaphore signal node `hNode` in
+    `params_out`. The `extSemArray` and `paramsArray` returned in
+    `params_out`, are owned by the node. This memory remains valid until
+    the node is destroyed or its parameters are modified, and should not be
+    modified directly. Use
+    :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams` to update
+    the parameters of this node.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to get the parameters for
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    params_out : :py:obj:`~.cudaExternalSemaphoreSignalNodeParams`
+        Pointer to return the parameters
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+    """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
         phNode = 0
@@ -34585,7 +34804,27 @@ def cudaGraphExternalSemaphoresSignalNodeGetParams(hNode):
 
 @cython.embedsignature(True)
 def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[cudaExternalSemaphoreSignalNodeParams]):
-    """"""
+    """ Sets an external semaphore signal node's parameters.
+
+    Sets the parameters of an external semaphore signal node `hNode` to
+    `nodeParams`.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to set the parameters for
+    nodeParams : :py:obj:`~.cudaExternalSemaphoreSignalNodeParams`
+        Parameters to copy
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+    """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
         phNode = 0
@@ -34604,7 +34843,41 @@ def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[
 
 @cython.embedsignature(True)
 def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaExternalSemaphoreWaitNodeParams]):
-    """"""
+    """ Creates an external semaphore wait node and adds it to a graph.
+
+    Creates a new external semaphore wait node and adds it to `graph` with
+    `numDependencies` dependencies specified via `dependencies` and
+    arguments specified in `nodeParams`. It is possible for
+    `numDependencies` to be 0, in which case the node will be placed at the
+    root of the graph. `dependencies` may not have any duplicate entries. A
+    handle to the new node will be returned in `pGraphNode`.
+
+    Performs a wait operation on a set of externally allocated semaphore
+    objects when the node is launched. The node's dependencies will not be
+    launched until the wait operation has completed.
+
+    Parameters
+    ----------
+    graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which to add the node
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
+        Dependencies of the node
+    numDependencies : size_t
+        Number of dependencies
+    nodeParams : :py:obj:`~.cudaExternalSemaphoreWaitNodeParams`
+        Parameters for the node
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    pGraphNode : :py:obj:`~.cudaGraphNode_t`
+        Returns newly created node
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
@@ -34642,7 +34915,32 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[tuple
 
 @cython.embedsignature(True)
 def cudaGraphExternalSemaphoresWaitNodeGetParams(hNode):
-    """"""
+    """ Returns an external semaphore wait node's parameters.
+
+    Returns the parameters of an external semaphore wait node `hNode` in
+    `params_out`. The `extSemArray` and `paramsArray` returned in
+    `params_out`, are owned by the node. This memory remains valid until
+    the node is destroyed or its parameters are modified, and should not be
+    modified directly. Use
+    :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams` to update
+    the parameters of this node.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to get the parameters for
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    params_out : :py:obj:`~.cudaExternalSemaphoreWaitNodeParams`
+        Pointer to return the parameters
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+    """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
         phNode = 0
@@ -34663,7 +34961,27 @@ def cudaGraphExternalSemaphoresWaitNodeGetParams(hNode):
 
 @cython.embedsignature(True)
 def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[cudaExternalSemaphoreWaitNodeParams]):
-    """"""
+    """ Sets an external semaphore wait node's parameters.
+
+    Sets the parameters of an external semaphore wait node `hNode` to
+    `nodeParams`.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to set the parameters for
+    nodeParams : :py:obj:`~.cudaExternalSemaphoreWaitNodeParams`
+        Parameters to copy
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+    """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
         phNode = 0
@@ -34682,269 +35000,7 @@ def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[cu
 
 @cython.embedsignature(True)
 def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaMemAllocNodeParams]):
-    """"""
-    pDependencies = [] if pDependencies is None else pDependencies
-    if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
-    cdef cyruntime.cudaGraph_t cygraph
-    if graph is None:
-        pgraph = 0
-    elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
-        pgraph = int(graph)
-    else:
-        pgraph = int(cudaGraph_t(graph))
-    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-    cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
-    cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
-    if len(pDependencies) > 1:
-        cypDependencies = <cyruntime.cudaGraphNode_t*> calloc(len(pDependencies), sizeof(cyruntime.cudaGraphNode_t))
-        if cypDependencies is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(pDependencies)) + 'x' + str(sizeof(cyruntime.cudaGraphNode_t)))
-        else:
-            for idx in range(len(pDependencies)):
-                cypDependencies[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>pDependencies[idx])._pvt_ptr[0]
-    elif len(pDependencies) == 1:
-        cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
-    if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    cdef cyruntime.cudaMemAllocNodeParams* cynodeParams_ptr = <cyruntime.cudaMemAllocNodeParams*>nodeParams._pvt_ptr if nodeParams is not None else NULL
-    with nogil:
-        err = cyruntime.cudaGraphAddMemAllocNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cynodeParams_ptr)
-    if len(pDependencies) > 1 and cypDependencies is not NULL:
-        free(cypDependencies)
-    if err != cyruntime.cudaSuccess:
-        return (_cudaError_t(err), None)
-    return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphMemAllocNodeGetParams' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaGraphMemAllocNodeGetParams(node):
-    """"""
-    cdef cyruntime.cudaGraphNode_t cynode
-    if node is None:
-        pnode = 0
-    elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
-        pnode = int(node)
-    else:
-        pnode = int(cudaGraphNode_t(node))
-    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef cudaMemAllocNodeParams params_out = cudaMemAllocNodeParams()
-    with nogil:
-        err = cyruntime.cudaGraphMemAllocNodeGetParams(cynode, <cyruntime.cudaMemAllocNodeParams*>params_out._pvt_ptr)
-    if err != cyruntime.cudaSuccess:
-        return (_cudaError_t(err), None)
-    return (_cudaError_t_SUCCESS, params_out)
-{{endif}}
-
-{{if 'cudaGraphAddMemFreeNode' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, dptr):
-    """"""
-    pDependencies = [] if pDependencies is None else pDependencies
-    if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
-    cdef cyruntime.cudaGraph_t cygraph
-    if graph is None:
-        pgraph = 0
-    elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
-        pgraph = int(graph)
-    else:
-        pgraph = int(cudaGraph_t(graph))
-    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-    cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
-    cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
-    if len(pDependencies) > 1:
-        cypDependencies = <cyruntime.cudaGraphNode_t*> calloc(len(pDependencies), sizeof(cyruntime.cudaGraphNode_t))
-        if cypDependencies is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(pDependencies)) + 'x' + str(sizeof(cyruntime.cudaGraphNode_t)))
-        else:
-            for idx in range(len(pDependencies)):
-                cypDependencies[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>pDependencies[idx])._pvt_ptr[0]
-    elif len(pDependencies) == 1:
-        cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
-    if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    cdef _HelperInputVoidPtrStruct cydptrHelper
-    cdef void* cydptr = _helper_input_void_ptr(dptr, &cydptrHelper)
-    with nogil:
-        err = cyruntime.cudaGraphAddMemFreeNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cydptr)
-    if len(pDependencies) > 1 and cypDependencies is not NULL:
-        free(cypDependencies)
-    _helper_input_void_ptr_free(&cydptrHelper)
-    if err != cyruntime.cudaSuccess:
-        return (_cudaError_t(err), None)
-    return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphMemFreeNodeGetParams' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaGraphMemFreeNodeGetParams(node):
-    """"""
-    cdef cyruntime.cudaGraphNode_t cynode
-    if node is None:
-        pnode = 0
-    elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
-        pnode = int(node)
-    else:
-        pnode = int(cudaGraphNode_t(node))
-    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef void_ptr dptr_out = 0
-    cdef void* cydptr_out_ptr = <void*>&dptr_out
-    with nogil:
-        err = cyruntime.cudaGraphMemFreeNodeGetParams(cynode, cydptr_out_ptr)
-    if err != cyruntime.cudaSuccess:
-        return (_cudaError_t(err), None)
-    return (_cudaError_t_SUCCESS, dptr_out)
-{{endif}}
-
-{{if 'cudaDeviceGraphMemTrim' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaDeviceGraphMemTrim(int device):
-    """"""
-    with nogil:
-        err = cyruntime.cudaDeviceGraphMemTrim(device)
-    return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceGetGraphMemAttribute' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaDeviceGetGraphMemAttribute(int device, attr not None : cudaGraphMemAttributeType):
-    """"""
-    cdef cyruntime.cudaGraphMemAttributeType cyattr = int(attr)
-    cdef _HelperCUgraphMem_attribute cyvalue = _HelperCUgraphMem_attribute(attr, 0, is_getter=True)
-    cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
-    with nogil:
-        err = cyruntime.cudaDeviceGetGraphMemAttribute(device, cyattr, cyvalue_ptr)
-    if err != cyruntime.cudaSuccess:
-        return (_cudaError_t(err), None)
-    return (_cudaError_t_SUCCESS, cyvalue.pyObj())
-{{endif}}
-
-{{if 'cudaDeviceSetGraphMemAttribute' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaDeviceSetGraphMemAttribute(int device, attr not None : cudaGraphMemAttributeType, value):
-    """"""
-    cdef cyruntime.cudaGraphMemAttributeType cyattr = int(attr)
-    cdef _HelperCUgraphMem_attribute cyvalue = _HelperCUgraphMem_attribute(attr, value, is_getter=False)
-    cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
-    with nogil:
-        err = cyruntime.cudaDeviceSetGraphMemAttribute(device, cyattr, cyvalue_ptr)
-    return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphClone' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaGraphClone(originalGraph):
-    """ Creates an event record node and adds it to a graph.
-
-    Creates a new event record node and adds it to `hGraph` with
-    `numDependencies` dependencies specified via `dependencies` and event
-    specified in `event`. It is possible for `numDependencies` to be 0, in
-    which case the node will be placed at the root of the graph.
-    `dependencies` may not have any duplicate entries. A handle to the new
-    node will be returned in `phGraphNode`.
-
-    Each launch of the graph will record `event` to capture execution of
-    the node's dependencies.
-
-    These nodes may not be used in loops or conditionals.
-
-    Returns the event associated with an event record node
-
-    Returns the event of event record node `hNode` in `event_out`.
-
-    Sets an event record node's event
-
-    Sets the event of event record node `hNode` to `event`.
-
-    Creates an event wait node and adds it to a graph
-
-    Creates a new event wait node and adds it to `hGraph` with
-    `numDependencies` dependencies specified via `dependencies` and event
-    specified in `event`. It is possible for `numDependencies` to be 0, in
-    which case the node will be placed at the root of the graph.
-    `dependencies` may not have any duplicate entries. A handle to the new
-    node will be returned in `phGraphNode`.
-
-    The graph node will wait for all work captured in `event`. See
-    :py:obj:`~.cuEventRecord()` for details on what is captured by an
-    event. The synchronization will be performed efficiently on the device
-    when applicable. `event` may be from a different context or device than
-    the launch stream.
-
-    These nodes may not be used in loops or conditionals.
-
-    Returns the event associated with an event wait node
-
-    Returns the event of event wait node `hNode` in `event_out`.
-
-    Sets an event wait node's event
-
-    Sets the event of event wait node `hNode` to `event`.
-
-    Creates an external semaphore signal node and adds it to a graph
-
-    Creates a new external semaphore signal node and adds it to `graph`
-    with `numDependencies` dependencies specified via `dependencies` and
-    arguments specified in `nodeParams`. It is possible for
-    `numDependencies` to be 0, in which case the node will be placed at the
-    root of the graph. `dependencies` may not have any duplicate entries. A
-    handle to the new node will be returned in `pGraphNode`.
-
-    Performs a signal operation on a set of externally allocated semaphore
-    objects when the node is launched. The operation(s) will occur after
-    all of the node's dependencies have completed.
-
-    Returns an external semaphore signal node's parameters
-
-    Returns the parameters of an external semaphore signal node `hNode` in
-    `params_out`. The `extSemArray` and `paramsArray` returned in
-    `params_out`, are owned by the node. This memory remains valid until
-    the node is destroyed or its parameters are modified, and should not be
-    modified directly. Use
-    :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams` to update
-    the parameters of this node.
-
-    Sets an external semaphore signal node's parameters
-
-    Sets the parameters of an external semaphore signal node `hNode` to
-    `nodeParams`.
-
-    Creates an external semaphore wait node and adds it to a graph
-
-    Creates a new external semaphore wait node and adds it to `graph` with
-    `numDependencies` dependencies specified via `dependencies` and
-    arguments specified in `nodeParams`. It is possible for
-    `numDependencies` to be 0, in which case the node will be placed at the
-    root of the graph. `dependencies` may not have any duplicate entries. A
-    handle to the new node will be returned in `pGraphNode`.
-
-    Performs a wait operation on a set of externally allocated semaphore
-    objects when the node is launched. The node's dependencies will not be
-    launched until the wait operation has completed.
-
-    Returns an external semaphore wait node's parameters
-
-    Returns the parameters of an external semaphore wait node `hNode` in
-    `params_out`. The `extSemArray` and `paramsArray` returned in
-    `params_out`, are owned by the node. This memory remains valid until
-    the node is destroyed or its parameters are modified, and should not be
-    modified directly. Use
-    :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams` to update
-    the parameters of this node.
-
-    Sets an external semaphore wait node's parameters
-
-    Sets the parameters of an external semaphore wait node `hNode` to
-    `nodeParams`.
-
-    Creates an allocation node and adds it to a graph
+    """ Creates an allocation node and adds it to a graph.
 
     Creates a new allocation node and adds it to `graph` with
     `numDependencies` dependencies specified via `pDependencies` and
@@ -34996,14 +35052,109 @@ def cudaGraphClone(originalGraph):
 
     - The graph cannot be cloned.
 
-    Returns a memory alloc node's parameters
+    Parameters
+    ----------
+    graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which to add the node
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
+        Dependencies of the node
+    numDependencies : size_t
+        Number of dependencies
+    nodeParams : :py:obj:`~.cudaMemAllocNodeParams`
+        Parameters for the node
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorOutOfMemory`
+    pGraphNode : :py:obj:`~.cudaGraphNode_t`
+        Returns newly created node
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemAllocNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    """
+    pDependencies = [] if pDependencies is None else pDependencies
+    if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+    cdef cyruntime.cudaGraph_t cygraph
+    if graph is None:
+        pgraph = 0
+    elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
+        pgraph = int(graph)
+    else:
+        pgraph = int(cudaGraph_t(graph))
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
+    cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    if len(pDependencies) > 1:
+        cypDependencies = <cyruntime.cudaGraphNode_t*> calloc(len(pDependencies), sizeof(cyruntime.cudaGraphNode_t))
+        if cypDependencies is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(pDependencies)) + 'x' + str(sizeof(cyruntime.cudaGraphNode_t)))
+        else:
+            for idx in range(len(pDependencies)):
+                cypDependencies[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>pDependencies[idx])._pvt_ptr[0]
+    elif len(pDependencies) == 1:
+        cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
+    if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
+    cdef cyruntime.cudaMemAllocNodeParams* cynodeParams_ptr = <cyruntime.cudaMemAllocNodeParams*>nodeParams._pvt_ptr if nodeParams is not None else NULL
+    with nogil:
+        err = cyruntime.cudaGraphAddMemAllocNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cynodeParams_ptr)
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
+        free(cypDependencies)
+    if err != cyruntime.cudaSuccess:
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
+{{endif}}
+
+{{if 'cudaGraphMemAllocNodeGetParams' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphMemAllocNodeGetParams(node):
+    """ Returns a memory alloc node's parameters.
 
     Returns the parameters of a memory alloc node `hNode` in `params_out`.
     The `poolProps` and `accessDescs` returned in `params_out`, are owned
     by the node. This memory remains valid until the node is destroyed. The
     returned parameters must not be modified.
 
-    Creates a memory free node and adds it to a graph
+    Parameters
+    ----------
+    node : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to get the parameters for
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    params_out : :py:obj:`~.cudaMemAllocNodeParams`
+        Pointer to return the parameters
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`
+    """
+    cdef cyruntime.cudaGraphNode_t cynode
+    if node is None:
+        pnode = 0
+    elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
+        pnode = int(node)
+    else:
+        pnode = int(cudaGraphNode_t(node))
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cdef cudaMemAllocNodeParams params_out = cudaMemAllocNodeParams()
+    with nogil:
+        err = cyruntime.cudaGraphMemAllocNodeGetParams(cynode, <cyruntime.cudaMemAllocNodeParams*>params_out._pvt_ptr)
+    if err != cyruntime.cudaSuccess:
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, params_out)
+{{endif}}
+
+{{if 'cudaGraphAddMemFreeNode' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, dptr):
+    """ Creates a memory free node and adds it to a graph.
 
     Creates a new memory free node and adds it to `graph` with
     `numDependencies` dependencies specified via `pDependencies` and
@@ -35033,18 +35184,138 @@ def cudaGraphClone(originalGraph):
 
     - The graph cannot be cloned.
 
-    Returns a memory free node's parameters
+    Parameters
+    ----------
+    graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which to add the node
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
+        Dependencies of the node
+    numDependencies : size_t
+        Number of dependencies
+    dptr : Any
+        Address of memory to free
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorOutOfMemory`
+    pGraphNode : :py:obj:`~.cudaGraphNode_t`
+        Returns newly created node
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    """
+    pDependencies = [] if pDependencies is None else pDependencies
+    if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+    cdef cyruntime.cudaGraph_t cygraph
+    if graph is None:
+        pgraph = 0
+    elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
+        pgraph = int(graph)
+    else:
+        pgraph = int(cudaGraph_t(graph))
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
+    cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    if len(pDependencies) > 1:
+        cypDependencies = <cyruntime.cudaGraphNode_t*> calloc(len(pDependencies), sizeof(cyruntime.cudaGraphNode_t))
+        if cypDependencies is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(pDependencies)) + 'x' + str(sizeof(cyruntime.cudaGraphNode_t)))
+        else:
+            for idx in range(len(pDependencies)):
+                cypDependencies[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>pDependencies[idx])._pvt_ptr[0]
+    elif len(pDependencies) == 1:
+        cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
+    if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
+    cdef _HelperInputVoidPtrStruct cydptrHelper
+    cdef void* cydptr = _helper_input_void_ptr(dptr, &cydptrHelper)
+    with nogil:
+        err = cyruntime.cudaGraphAddMemFreeNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cydptr)
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
+        free(cypDependencies)
+    _helper_input_void_ptr_free(&cydptrHelper)
+    if err != cyruntime.cudaSuccess:
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
+{{endif}}
+
+{{if 'cudaGraphMemFreeNodeGetParams' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphMemFreeNodeGetParams(node):
+    """ Returns a memory free node's parameters.
 
     Returns the address of a memory free node `hNode` in `dptr_out`.
 
-    Free unused memory that was cached on the specified device for use with
-    graphs back to the OS.
+    Parameters
+    ----------
+    node : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to get the parameters for
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    dptr_out : Any
+        Pointer to return the device address
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`
+    """
+    cdef cyruntime.cudaGraphNode_t cynode
+    if node is None:
+        pnode = 0
+    elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
+        pnode = int(node)
+    else:
+        pnode = int(cudaGraphNode_t(node))
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cdef void_ptr dptr_out = 0
+    cdef void* cydptr_out_ptr = <void*>&dptr_out
+    with nogil:
+        err = cyruntime.cudaGraphMemFreeNodeGetParams(cynode, cydptr_out_ptr)
+    if err != cyruntime.cudaSuccess:
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, dptr_out)
+{{endif}}
+
+{{if 'cudaDeviceGraphMemTrim' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDeviceGraphMemTrim(int device):
+    """ Free unused memory that was cached on the specified device for use with graphs back to the OS.
 
     Blocks which are not in use by a graph that is either currently
     executing or scheduled to execute are freed back to the operating
     system.
 
-    Query asynchronous allocation attributes related to graphs
+    Parameters
+    ----------
+    device : int
+        The device for which cached memory should be freed.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`
+    """
+    with nogil:
+        err = cyruntime.cudaDeviceGraphMemTrim(device)
+    return (_cudaError_t(err),)
+{{endif}}
+
+{{if 'cudaDeviceGetGraphMemAttribute' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDeviceGetGraphMemAttribute(int device, attr not None : cudaGraphMemAttributeType):
+    """ Query asynchronous allocation attributes related to graphs.
 
     Valid attributes are:
 
@@ -35063,7 +35334,39 @@ def cudaGraphClone(originalGraph):
       memory, in bytes, currently allocated for use by the CUDA graphs
       asynchronous allocator.
 
-    Set asynchronous allocation attributes related to graphs
+    Parameters
+    ----------
+    device : int
+        Specifies the scope of the query
+    attr : :py:obj:`~.cudaGraphMemAttributeType`
+        attribute to get
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`
+    value : Any
+        retrieved value
+
+    See Also
+    --------
+    :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`
+    """
+    cdef cyruntime.cudaGraphMemAttributeType cyattr = int(attr)
+    cdef _HelperCUgraphMem_attribute cyvalue = _HelperCUgraphMem_attribute(attr, 0, is_getter=True)
+    cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
+    with nogil:
+        err = cyruntime.cudaDeviceGetGraphMemAttribute(device, cyattr, cyvalue_ptr)
+    if err != cyruntime.cudaSuccess:
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, cyvalue.pyObj())
+{{endif}}
+
+{{if 'cudaDeviceSetGraphMemAttribute' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDeviceSetGraphMemAttribute(int device, attr not None : cudaGraphMemAttributeType, value):
+    """ Set asynchronous allocation attributes related to graphs.
 
     Valid attributes are:
 
@@ -35075,7 +35378,37 @@ def cudaGraphClone(originalGraph):
       memory, in bytes, currently allocated for use by the CUDA graphs
       asynchronous allocator.
 
-    Clones a graph
+    Parameters
+    ----------
+    device : int
+        Specifies the scope of the query
+    attr : :py:obj:`~.cudaGraphMemAttributeType`
+        attribute to get
+    value : Any
+        pointer to value to set
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`
+
+    See Also
+    --------
+    :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`
+    """
+    cdef cyruntime.cudaGraphMemAttributeType cyattr = int(attr)
+    cdef _HelperCUgraphMem_attribute cyvalue = _HelperCUgraphMem_attribute(attr, value, is_getter=False)
+    cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
+    with nogil:
+        err = cyruntime.cudaDeviceSetGraphMemAttribute(device, cyattr, cyvalue_ptr)
+    return (_cudaError_t(err),)
+{{endif}}
+
+{{if 'cudaGraphClone' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphClone(originalGraph):
+    """ Clones a graph.
 
     This function creates a copy of `originalGraph` and returns it in
     `pGraphClone`. All parameters are copied into the cloned graph. The
@@ -35087,75 +35420,18 @@ def cudaGraphClone(originalGraph):
 
     Parameters
     ----------
-    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
-        Graph to which to add the node
+    originalGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to clone
 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorOutOfMemory`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorOutOfMemory`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorMemoryAllocation`
-    phGraphNode : :py:obj:`~.cudaGraph_t`
-        Returns newly created node
+    pGraphClone : :py:obj:`~.cudaGraph_t`
+        Returns newly created cloned graph
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
-
-    :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
-
-    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
-
-    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
-
-    :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
-
-    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
-
-    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
-
-    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
-
-    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
-
-    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
-
-    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
-
-    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
-
-    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemAllocNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
-
-    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`
-
-    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
-
-    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`
-
-    :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`
-
-    :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`
-
-    :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`
-
     :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphNodeFindInClone`
 
     Notes
@@ -36176,27 +36452,6 @@ def cudaGraphInstantiate(graph, unsigned long long flags):
 
 @cython.embedsignature(True)
 def cudaGraphInstantiateWithFlags(graph, unsigned long long flags):
-    """"""
-    cdef cyruntime.cudaGraph_t cygraph
-    if graph is None:
-        pgraph = 0
-    elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
-        pgraph = int(graph)
-    else:
-        pgraph = int(cudaGraph_t(graph))
-    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-    cdef cudaGraphExec_t pGraphExec = cudaGraphExec_t()
-    with nogil:
-        err = cyruntime.cudaGraphInstantiateWithFlags(<cyruntime.cudaGraphExec_t*>pGraphExec._pvt_ptr, cygraph, flags)
-    if err != cyruntime.cudaSuccess:
-        return (_cudaError_t(err), None)
-    return (_cudaError_t_SUCCESS, pGraphExec)
-{{endif}}
-
-{{if 'cudaGraphInstantiateWithParams' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaGraphInstantiateWithParams(graph, instantiateParams : Optional[cudaGraphInstantiateParams]):
     """ Creates an executable graph from a graph.
 
     Instantiates `graph` as an executable graph. The graph is validated for
@@ -36264,7 +36519,46 @@ def cudaGraphInstantiateWithParams(graph, instantiateParams : Optional[cudaGraph
       - Both operands must be accessible from the current device, and the
         current device must match the device of other nodes in the graph.
 
-    Creates an executable graph from a graph
+    Parameters
+    ----------
+    graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to instantiate
+    flags : unsigned long long
+        Flags to control instantiation. See
+        :py:obj:`~.CUgraphInstantiate_flags`.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    pGraphExec : :py:obj:`~.cudaGraphExec_t`
+        Returns instantiated graph
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphUpload`, :py:obj:`~.cudaGraphLaunch`, :py:obj:`~.cudaGraphExecDestroy`
+    """
+    cdef cyruntime.cudaGraph_t cygraph
+    if graph is None:
+        pgraph = 0
+    elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
+        pgraph = int(graph)
+    else:
+        pgraph = int(cudaGraph_t(graph))
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cdef cudaGraphExec_t pGraphExec = cudaGraphExec_t()
+    with nogil:
+        err = cyruntime.cudaGraphInstantiateWithFlags(<cyruntime.cudaGraphExec_t*>pGraphExec._pvt_ptr, cygraph, flags)
+    if err != cyruntime.cudaSuccess:
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphExec)
+{{endif}}
+
+{{if 'cudaGraphInstantiateWithParams' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphInstantiateWithParams(graph, instantiateParams : Optional[cudaGraphInstantiateParams]):
+    """ Creates an executable graph from a graph.
 
     Instantiates `graph` as an executable graph according to the
     `instantiateParams` structure. The graph is validated for any
@@ -36376,22 +36670,18 @@ def cudaGraphInstantiateWithParams(graph, instantiateParams : Optional[cudaGraph
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to instantiate
-    flags : :py:obj:`~.cudaGraphInstantiateParams`
-        Flags to control instantiation. See
-        :py:obj:`~.CUgraphInstantiate_flags`.
+    instantiateParams : :py:obj:`~.cudaGraphInstantiateParams`
+        Instantiation parameters
 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
     pGraphExec : :py:obj:`~.cudaGraphExec_t`
         Returns instantiated graph
 
     See Also
     --------
-    :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphUpload`, :py:obj:`~.cudaGraphLaunch`, :py:obj:`~.cudaGraphExecDestroy`
-
     :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphInstantiateWithFlags`, :py:obj:`~.cudaGraphExecDestroy`
     """
     cdef cyruntime.cudaGraph_t cygraph
@@ -36605,7 +36895,49 @@ def cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
 
 @cython.embedsignature(True)
 def cudaGraphExecMemcpyNodeSetParams1D(hGraphExec, node, dst, src, size_t count, kind not None : cudaMemcpyKind):
-    """"""
+    """ Sets the parameters for a memcpy node in the given graphExec to perform a 1-dimensional copy.
+
+    Updates the work represented by `node` in `hGraphExec` as though `node`
+    had contained the given params at instantiation. `node` must remain in
+    the graph which was used to instantiate `hGraphExec`. Changed edges to
+    and from `node` are ignored.
+
+    `src` and `dst` must be allocated from the same contexts as the
+    original source and destination memory. The instantiation-time memory
+    operands must be 1-dimensional. Zero-length operations are not
+    supported.
+
+    The modifications only affect future launches of `hGraphExec`. Already
+    enqueued or running launches of `hGraphExec` are not affected by this
+    call. `node` is also not modified by this call.
+
+    Returns :py:obj:`~.cudaErrorInvalidValue` if the memory operands'
+    mappings changed or the original memory operands are multidimensional.
+
+    Parameters
+    ----------
+    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        The executable graph in which to set the specified node
+    node : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Memcpy node from the graph which was used to instantiate graphExec
+    dst : Any
+        Destination memory address
+    src : Any
+        Source memory address
+    count : size_t
+        Size in bytes to copy
+    kind : :py:obj:`~.cudaMemcpyKind`
+        Type of transfer
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNode1D`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
         pnode = 0
@@ -36638,66 +36970,7 @@ def cudaGraphExecMemcpyNodeSetParams1D(hGraphExec, node, dst, src, size_t count,
 
 @cython.embedsignature(True)
 def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : Optional[cudaMemsetParams]):
-    """ Sets the parameters for a memcpy node in the given graphExec to copy to a symbol on the device.
-
-    Updates the work represented by `node` in `hGraphExec` as though `node`
-    had contained the given params at instantiation. `node` must remain in
-    the graph which was used to instantiate `hGraphExec`. Changed edges to
-    and from `node` are ignored.
-
-    `src` and `symbol` must be allocated from the same contexts as the
-    original source and destination memory. The instantiation-time memory
-    operands must be 1-dimensional. Zero-length operations are not
-    supported.
-
-    The modifications only affect future launches of `hGraphExec`. Already
-    enqueued or running launches of `hGraphExec` are not affected by this
-    call. `node` is also not modified by this call.
-
-    Returns :py:obj:`~.cudaErrorInvalidValue` if the memory operands'
-    mappings changed or the original memory operands are multidimensional.
-
-    Sets the parameters for a memcpy node in the given graphExec to copy
-    from a symbol on the device
-
-    Updates the work represented by `node` in `hGraphExec` as though `node`
-    had contained the given params at instantiation. `node` must remain in
-    the graph which was used to instantiate `hGraphExec`. Changed edges to
-    and from `node` are ignored.
-
-    `symbol` and `dst` must be allocated from the same contexts as the
-    original source and destination memory. The instantiation-time memory
-    operands must be 1-dimensional. Zero-length operations are not
-    supported.
-
-    The modifications only affect future launches of `hGraphExec`. Already
-    enqueued or running launches of `hGraphExec` are not affected by this
-    call. `node` is also not modified by this call.
-
-    Returns :py:obj:`~.cudaErrorInvalidValue` if the memory operands'
-    mappings changed or the original memory operands are multidimensional.
-
-    Sets the parameters for a memcpy node in the given graphExec to perform
-    a 1-dimensional copy
-
-    Updates the work represented by `node` in `hGraphExec` as though `node`
-    had contained the given params at instantiation. `node` must remain in
-    the graph which was used to instantiate `hGraphExec`. Changed edges to
-    and from `node` are ignored.
-
-    `src` and `dst` must be allocated from the same contexts as the
-    original source and destination memory. The instantiation-time memory
-    operands must be 1-dimensional. Zero-length operations are not
-    supported.
-
-    The modifications only affect future launches of `hGraphExec`. Already
-    enqueued or running launches of `hGraphExec` are not affected by this
-    call. `node` is also not modified by this call.
-
-    Returns :py:obj:`~.cudaErrorInvalidValue` if the memory operands'
-    mappings changed or the original memory operands are multidimensional.
-
-    Sets the parameters for a memset node in the given graphExec.
+    """ Sets the parameters for a memset node in the given graphExec.
 
     Updates the work represented by `node` in `hGraphExec` as though `node`
     had contained `pNodeParams` at instantiation. `node` must remain in the
@@ -36728,26 +37001,17 @@ def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
         The executable graph in which to set the specified node
     node : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
-        Memcpy node from the graph which was used to instantiate graphExec
-    symbol : :py:obj:`~.cudaMemsetParams`
-        Device symbol address
+        Memset node from the graph which was used to instantiate graphExec
+    pNodeParams : :py:obj:`~.cudaMemsetParams`
+        Updated Parameters to set
 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNodeToSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
-
-    :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNodeFromSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
-
-    :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNode1D`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
-
     :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
     """
     cdef cyruntime.cudaGraphNode_t cynode
@@ -36831,7 +37095,43 @@ def cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams : Optional[cuda
 
 @cython.embedsignature(True)
 def cudaGraphExecChildGraphNodeSetParams(hGraphExec, node, childGraph):
-    """"""
+    """ Updates node parameters in the child graph node in the given graphExec.
+
+    Updates the work represented by `node` in `hGraphExec` as though the
+    nodes contained in `node's` graph had the parameters contained in
+    `childGraph's` nodes at instantiation. `node` must remain in the graph
+    which was used to instantiate `hGraphExec`. Changed edges to and from
+    `node` are ignored.
+
+    The modifications only affect future launches of `hGraphExec`. Already
+    enqueued or running launches of `hGraphExec` are not affected by this
+    call. `node` is also not modified by this call.
+
+    The topology of `childGraph`, as well as the node insertion order, must
+    match that of the graph contained in `node`. See
+    :py:obj:`~.cudaGraphExecUpdate()` for a list of restrictions on what
+    can be updated in an instantiated graph. The update is recursive, so
+    child graph nodes contained within the top level child graph will also
+    be updated.
+
+    Parameters
+    ----------
+    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        The executable graph in which to set the specified node
+    node : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Host node from the graph which was used to instantiate graphExec
+    childGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        The graph supplying the updated parameters
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphChildGraphNodeGetGraph`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    """
     cdef cyruntime.cudaGraph_t cychildGraph
     if childGraph is None:
         pchildGraph = 0
@@ -36865,7 +37165,36 @@ def cudaGraphExecChildGraphNodeSetParams(hGraphExec, node, childGraph):
 
 @cython.embedsignature(True)
 def cudaGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event):
-    """"""
+    """ Sets the event for an event record node in the given graphExec.
+
+    Sets the event of an event record node in an executable graph
+    `hGraphExec`. The node is identified by the corresponding node `hNode`
+    in the non-executable graph, from which the executable graph was
+    instantiated.
+
+    The modifications only affect future launches of `hGraphExec`. Already
+    enqueued or running launches of `hGraphExec` are not affected by this
+    call. `hNode` is also not modified by this call.
+
+    Parameters
+    ----------
+    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        The executable graph in which to set the specified node
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Event record node from the graph from which graphExec was
+        instantiated
+    event : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Updated event to use
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
         pevent = 0
@@ -36899,7 +37228,36 @@ def cudaGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event):
 
 @cython.embedsignature(True)
 def cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event):
-    """"""
+    """ Sets the event for an event wait node in the given graphExec.
+
+    Sets the event of an event wait node in an executable graph
+    `hGraphExec`. The node is identified by the corresponding node `hNode`
+    in the non-executable graph, from which the executable graph was
+    instantiated.
+
+    The modifications only affect future launches of `hGraphExec`. Already
+    enqueued or running launches of `hGraphExec` are not affected by this
+    call. `hNode` is also not modified by this call.
+
+    Parameters
+    ----------
+    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        The executable graph in which to set the specified node
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Event wait node from the graph from which graphExec was
+        instantiated
+    event : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Updated event to use
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
         pevent = 0
@@ -36933,7 +37291,40 @@ def cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event):
 
 @cython.embedsignature(True)
 def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodeParams : Optional[cudaExternalSemaphoreSignalNodeParams]):
-    """"""
+    """ Sets the parameters for an external semaphore signal node in the given graphExec.
+
+    Sets the parameters of an external semaphore signal node in an
+    executable graph `hGraphExec`. The node is identified by the
+    corresponding node `hNode` in the non-executable graph, from which the
+    executable graph was instantiated.
+
+    `hNode` must not have been removed from the original graph.
+
+    The modifications only affect future launches of `hGraphExec`. Already
+    enqueued or running launches of `hGraphExec` are not affected by this
+    call. `hNode` is also not modified by this call.
+
+    Changing `nodeParams->numExtSems` is not supported.
+
+    Parameters
+    ----------
+    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        The executable graph in which to set the specified node
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        semaphore signal node from the graph from which graphExec was
+        instantiated
+    nodeParams : :py:obj:`~.cudaExternalSemaphoreSignalNodeParams`
+        Updated Parameters to set
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
         phNode = 0
@@ -36960,7 +37351,40 @@ def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodePa
 
 @cython.embedsignature(True)
 def cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams : Optional[cudaExternalSemaphoreWaitNodeParams]):
-    """"""
+    """ Sets the parameters for an external semaphore wait node in the given graphExec.
+
+    Sets the parameters of an external semaphore wait node in an executable
+    graph `hGraphExec`. The node is identified by the corresponding node
+    `hNode` in the non-executable graph, from which the executable graph
+    was instantiated.
+
+    `hNode` must not have been removed from the original graph.
+
+    The modifications only affect future launches of `hGraphExec`. Already
+    enqueued or running launches of `hGraphExec` are not affected by this
+    call. `hNode` is also not modified by this call.
+
+    Changing `nodeParams->numExtSems` is not supported.
+
+    Parameters
+    ----------
+    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        The executable graph in which to set the specified node
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        semaphore wait node from the graph from which graphExec was
+        instantiated
+    nodeParams : :py:obj:`~.cudaExternalSemaphoreWaitNodeParams`
+        Updated Parameters to set
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
         phNode = 0
@@ -36987,7 +37411,44 @@ def cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodePara
 
 @cython.embedsignature(True)
 def cudaGraphNodeSetEnabled(hGraphExec, hNode, unsigned int isEnabled):
-    """"""
+    """ Enables or disables the specified node in the given graphExec.
+
+    Sets `hNode` to be either enabled or disabled. Disabled nodes are
+    functionally equivalent to empty nodes until they are reenabled.
+    Existing node parameters are not affected by disabling/enabling the
+    node.
+
+    The node is identified by the corresponding node `hNode` in the non-
+    executable graph, from which the executable graph was instantiated.
+
+    `hNode` must not have been removed from the original graph.
+
+    The modifications only affect future launches of `hGraphExec`. Already
+    enqueued or running launches of `hGraphExec` are not affected by this
+    call. `hNode` is also not modified by this call.
+
+    Parameters
+    ----------
+    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        The executable graph in which to set the specified node
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node from the graph from which graphExec was instantiated
+    isEnabled : unsigned int
+        Node is enabled if != 0, otherwise the node is disabled
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphNodeGetEnabled`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate` :py:obj:`~.cudaGraphLaunch`
+
+    Notes
+    -----
+    Currently only kernel, memset and memcpy nodes are supported.
+    """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
         phNode = 0
@@ -37013,7 +37474,37 @@ def cudaGraphNodeSetEnabled(hGraphExec, hNode, unsigned int isEnabled):
 
 @cython.embedsignature(True)
 def cudaGraphNodeGetEnabled(hGraphExec, hNode):
-    """"""
+    """ Query whether a node in the given graphExec is enabled.
+
+    Sets isEnabled to 1 if `hNode` is enabled, or 0 if `hNode` is disabled.
+
+    The node is identified by the corresponding node `hNode` in the non-
+    executable graph, from which the executable graph was instantiated.
+
+    `hNode` must not have been removed from the original graph.
+
+    Parameters
+    ----------
+    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        The executable graph in which to set the specified node
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node from the graph from which graphExec was instantiated
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+    isEnabled : unsigned int
+        Location to return the enabled status of the node
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphNodeSetEnabled`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate` :py:obj:`~.cudaGraphLaunch`
+
+    Notes
+    -----
+    Currently only kernel, memset and memcpy nodes are supported.
+    """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
         phNode = 0
@@ -37042,106 +37533,7 @@ def cudaGraphNodeGetEnabled(hGraphExec, hNode):
 
 @cython.embedsignature(True)
 def cudaGraphExecUpdate(hGraphExec, hGraph):
-    """ Updates node parameters in the child graph node in the given graphExec.
-
-    Updates the work represented by `node` in `hGraphExec` as though the
-    nodes contained in `node's` graph had the parameters contained in
-    `childGraph's` nodes at instantiation. `node` must remain in the graph
-    which was used to instantiate `hGraphExec`. Changed edges to and from
-    `node` are ignored.
-
-    The modifications only affect future launches of `hGraphExec`. Already
-    enqueued or running launches of `hGraphExec` are not affected by this
-    call. `node` is also not modified by this call.
-
-    The topology of `childGraph`, as well as the node insertion order, must
-    match that of the graph contained in `node`. See
-    :py:obj:`~.cudaGraphExecUpdate()` for a list of restrictions on what
-    can be updated in an instantiated graph. The update is recursive, so
-    child graph nodes contained within the top level child graph will also
-    be updated.
-
-    Sets the event for an event record node in the given graphExec
-
-    Sets the event of an event record node in an executable graph
-    `hGraphExec`. The node is identified by the corresponding node `hNode`
-    in the non-executable graph, from which the executable graph was
-    instantiated.
-
-    The modifications only affect future launches of `hGraphExec`. Already
-    enqueued or running launches of `hGraphExec` are not affected by this
-    call. `hNode` is also not modified by this call.
-
-    Sets the event for an event wait node in the given graphExec
-
-    Sets the event of an event wait node in an executable graph
-    `hGraphExec`. The node is identified by the corresponding node `hNode`
-    in the non-executable graph, from which the executable graph was
-    instantiated.
-
-    The modifications only affect future launches of `hGraphExec`. Already
-    enqueued or running launches of `hGraphExec` are not affected by this
-    call. `hNode` is also not modified by this call.
-
-    Sets the parameters for an external semaphore signal node in the given
-    graphExec
-
-    Sets the parameters of an external semaphore signal node in an
-    executable graph `hGraphExec`. The node is identified by the
-    corresponding node `hNode` in the non-executable graph, from which the
-    executable graph was instantiated.
-
-    `hNode` must not have been removed from the original graph.
-
-    The modifications only affect future launches of `hGraphExec`. Already
-    enqueued or running launches of `hGraphExec` are not affected by this
-    call. `hNode` is also not modified by this call.
-
-    Changing `nodeParams->numExtSems` is not supported.
-
-    Sets the parameters for an external semaphore wait node in the given
-    graphExec
-
-    Sets the parameters of an external semaphore wait node in an executable
-    graph `hGraphExec`. The node is identified by the corresponding node
-    `hNode` in the non-executable graph, from which the executable graph
-    was instantiated.
-
-    `hNode` must not have been removed from the original graph.
-
-    The modifications only affect future launches of `hGraphExec`. Already
-    enqueued or running launches of `hGraphExec` are not affected by this
-    call. `hNode` is also not modified by this call.
-
-    Changing `nodeParams->numExtSems` is not supported.
-
-    Enables or disables the specified node in the given graphExec
-
-    Sets `hNode` to be either enabled or disabled. Disabled nodes are
-    functionally equivalent to empty nodes until they are reenabled.
-    Existing node parameters are not affected by disabling/enabling the
-    node.
-
-    The node is identified by the corresponding node `hNode` in the non-
-    executable graph, from which the executable graph was instantiated.
-
-    `hNode` must not have been removed from the original graph.
-
-    The modifications only affect future launches of `hGraphExec`. Already
-    enqueued or running launches of `hGraphExec` are not affected by this
-    call. `hNode` is also not modified by this call.
-
-    Query whether a node in the given graphExec is enabled
-
-    Sets isEnabled to 1 if `hNode` is enabled, or 0 if `hNode` is disabled.
-
-    The node is identified by the corresponding node `hNode` in the non-
-    executable graph, from which the executable graph was instantiated.
-
-    `hNode` must not have been removed from the original graph.
-
-    Check whether an executable graph can be updated with a graph and
-    perform the update if possible
+    """ Check whether an executable graph can be updated with a graph and perform the update if possible.
 
     Updates the node parameters in the instantiated graph specified by
     `hGraphExec` with the node parameters in a topologically identical
@@ -37274,47 +37666,20 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
     Parameters
     ----------
     hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
-        The executable graph in which to set the specified node
-    node : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
-        Host node from the graph which was used to instantiate graphExec
+        The instantiated graph to be updated
+    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        The graph containing the updated parameters
 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorGraphExecUpdateFailure`,
-    childGraph : :py:obj:`~.cudaGraphExecUpdateResultInfo`
-        The graph supplying the updated parameters
+    resultInfo : :py:obj:`~.cudaGraphExecUpdateResultInfo`
+        the error info structure
 
     See Also
     --------
-    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphChildGraphNodeGetGraph`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
-
-    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
-
-    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
-
-    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
-
-    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
-
-    :py:obj:`~.cudaGraphNodeGetEnabled`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate` :py:obj:`~.cudaGraphLaunch`
-
-    :py:obj:`~.cudaGraphNodeSetEnabled`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate` :py:obj:`~.cudaGraphLaunch`
-
     :py:obj:`~.cudaGraphInstantiate`
-
-    Notes
-    -----
-    Currently only kernel, memset and memcpy nodes are supported.
-
-    Currently only kernel, memset and memcpy nodes are supported.
     """
     cdef cyruntime.cudaGraph_t cyhGraph
     if hGraph is None:
@@ -37344,7 +37709,30 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
 
 @cython.embedsignature(True)
 def cudaGraphUpload(graphExec, stream):
-    """"""
+    """ Uploads an executable graph in a stream.
+
+    Uploads `hGraphExec` to the device in `hStream` without executing it.
+    Uploads of the same `hGraphExec` will be serialized. Each upload is
+    ordered behind both any previous work in `hStream` and any previous
+    launches of `hGraphExec`. Uses memory cached by `stream` to back the
+    allocations owned by `graphExec`.
+
+    Parameters
+    ----------
+    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        Executable graph to upload
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Stream in which to upload the graph
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphLaunch`, :py:obj:`~.cudaGraphExecDestroy`
+    """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
         pstream = 0
@@ -37370,15 +37758,7 @@ def cudaGraphUpload(graphExec, stream):
 
 @cython.embedsignature(True)
 def cudaGraphLaunch(graphExec, stream):
-    """ Uploads an executable graph in a stream.
-
-    Uploads `hGraphExec` to the device in `hStream` without executing it.
-    Uploads of the same `hGraphExec` will be serialized. Each upload is
-    ordered behind both any previous work in `hStream` and any previous
-    launches of `hGraphExec`. Uses memory cached by `stream` to back the
-    allocations owned by `graphExec`.
-
-    Launches an executable graph in a stream
+    """ Launches an executable graph in a stream.
 
     Executes `graphExec` in `stream`. Only one instance of `graphExec` may
     be executing at a time. Each launch is ordered behind both any previous
@@ -37393,21 +37773,18 @@ def cudaGraphLaunch(graphExec, stream):
 
     Parameters
     ----------
-    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
-        Executable graph to upload
-    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
-        Stream in which to upload the graph
+    graphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        Executable graph to launch
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Stream in which to launch the graph
 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
 
     See Also
     --------
-    :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphLaunch`, :py:obj:`~.cudaGraphExecDestroy`
-
     :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphUpload`, :py:obj:`~.cudaGraphExecDestroy`
     """
     cdef cyruntime.cudaStream_t cystream

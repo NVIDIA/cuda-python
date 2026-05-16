@@ -330,9 +330,11 @@ cdef class IPCEventDescriptor:
         self._is_blocking_sync = is_blocking_sync
         return self
 
-    def __eq__(self, IPCEventDescriptor rhs):
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, IPCEventDescriptor):
+            return NotImplemented
         # No need to check self._is_blocking_sync.
-        return self._reserved == rhs._reserved
+        return self._reserved == (<IPCEventDescriptor>other)._reserved
 
     def __reduce__(self):
         return IPCEventDescriptor._init, (self._reserved, self._is_blocking_sync)

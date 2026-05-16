@@ -36,7 +36,7 @@ dependencies = ["cuda-pathfinder >=1.4.2"]
 
 [project.optional-dependencies]
 all = [
-    "cuda-toolkit[nvrtc,nvjitlink,nvvm,nvfatbin]==13.*",
+    "cuda-toolkit[nvrtc,nvjitlink,nvvm,nvfatbin,cudla]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform == 'linux'",
 ]
 

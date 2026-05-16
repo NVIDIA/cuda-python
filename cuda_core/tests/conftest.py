@@ -5,6 +5,7 @@ import multiprocessing
 import os
 import pathlib
 import sys
+from contextlib import contextmanager
 from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
@@ -87,6 +88,8 @@ def create_managed_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
         return ManagedMemoryResource(*args, **kwargs)
     except CUDAError as e:
         xfail_if_mempool_oom(e, _device_id_from_resource_options(xfail_device, args, kwargs))
+        if "CUDA_ERROR_NOT_SUPPORTED" in str(e):
+            pytest.skip("ManagedMemoryResource is not supported on this platform/device")
         raise
     except RuntimeError as e:
         if "requires CUDA 13.0" in str(e):
@@ -99,6 +102,15 @@ def create_pinned_memory_resource_or_xfail(*args, xfail_device=None, **kwargs):
         return PinnedMemoryResource(*args, **kwargs)
     except CUDAError as e:
         xfail_if_mempool_oom(e, xfail_device)
+        raise
+
+
+@contextmanager
+def xfail_on_graph_mempool_oom(device=0):
+    try:
+        yield
+    except CUDAError as e:
+        xfail_if_mempool_oom(e, "cuGraphAddMemAllocNode", device)
         raise
 
 
