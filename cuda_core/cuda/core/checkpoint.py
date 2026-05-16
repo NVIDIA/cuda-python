@@ -235,12 +235,9 @@ def _make_restore_args(driver, gpu_mapping: _Mapping[_Any, _Any] | None):
 def _as_cuuuid(driver, value, buffers):
     """Convert *value* to a ``CUuuid``.
 
-    Accepts a ``CUuuid`` instance (returned as-is) or a UUID string in
-    the ``"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"`` format returned by
-    :attr:`Device.uuid`.
+    Accepts a UUID string in the ``"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"``
+    format returned by :attr:`Device.uuid`.
     """
-    if isinstance(value, driver.CUuuid):
-        return value
     if isinstance(value, str):
         try:
             raw = bytes.fromhex(value.replace("-", ""))
@@ -253,7 +250,7 @@ def _as_cuuuid(driver, value, buffers):
         buf = _ctypes.create_string_buffer(raw, 16)
         buffers.append(buf)
         return driver.CUuuid(_ctypes.addressof(buf))
-    raise TypeError("GPU UUID values must be CUDA UUID objects or UUID strings")
+    raise TypeError("GPU UUID values must be UUID strings")
 
 
 __all__ = [
