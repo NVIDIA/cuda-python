@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-FanControlPolicy = nvml.FanControlPolicy
+_FAN_CONTROL_POLICY_MAPPING = {
+    nvml.FanControlPolicy.TEMPERATURE_CONTINUOUS_SW: FanControlPolicy.TEMPERATURE_CONTROLLED,
+    nvml.FanControlPolicy.MANUAL: FanControlPolicy.MANUAL,
+}
 
 
 cdef class FanInfo:
@@ -62,10 +65,9 @@ cdef class FanInfo:
         For all discrete products with dedicated fans.
 
         Normally, the driver dynamically adjusts the fan based on
-        the needs of the GPU.  But when user set fan speed using :property:`speed`
-        the driver will attempt to make the fan achieve the setting in
-        :property:`speed`.  The actual current speed of the fan
-        is reported in :property:`speed`.
+        the needs of the GPU. But when users set fan speed using ``speed``,
+        the driver will attempt to make the fan achieve that setting.
+        The actual current speed of the fan is reported in ``speed``.
 
         The fan speed is expressed as a percentage of the product's maximum
         noise tolerance fan speed.  This value may exceed 100% in certain cases.
@@ -95,9 +97,9 @@ cdef class FanInfo:
 
         For all CUDA-capable discrete products with fans.
         """
-        return FanControlPolicy(nvml.device_get_fan_control_policy_v2(self._handle, self._fan))
+        return _FAN_CONTROL_POLICY_MAPPING[nvml.device_get_fan_control_policy_v2(self._handle, self._fan)]
 
-    def set_default_fan_speed(self):
+    def set_default_speed(self):
         """
         Set the speed of the fan control policy to default.
 

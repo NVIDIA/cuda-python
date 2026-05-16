@@ -1,14 +1,22 @@
-# `cuda.core`: (experimental) Pythonic CUDA module
+# `cuda.core`: Pythonic CUDA module
 
 Currently under active development; see [the documentation](https://nvidia.github.io/cuda-python/cuda-core/latest/) for more details.
 
 ## Installing
 
-Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html) for instructions and required/optional dependencies.
+Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cuda-core/latest/install.html) for instructions and required/optional dependencies.
 
 ## Developing
 
 This subpackage adheres to the developing practices described in the parent metapackage [CONTRIBUTING.md](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md).
+
+## Debugging
+
+Pass the `pip` / `uv` configuration option `-C="debug=True"` or
+`--config-settings="debug=True"` to explicitly to build debuggable binaries.
+Debuggable binaries are built by default for editable builds.
+
+Debuggable builds are not supported on Windows.
 
 ## Testing
 

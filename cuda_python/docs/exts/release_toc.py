@@ -3,8 +3,17 @@
 
 from pathlib import Path
 
-from packaging.version import Version
+from packaging.version import InvalidVersion, Version
 from sphinx.directives.other import TocTree
+
+
+def _version_sort_key(docname):
+    version_text = Path(docname).name.removesuffix("-notes")
+    normalized = version_text.replace(".x", ".999999")
+    try:
+        return (1, Version(normalized))
+    except InvalidVersion:
+        return (0, version_text)
 
 
 class TocTreeSorted(TocTree):
@@ -20,11 +29,11 @@ class TocTreeSorted(TocTree):
         if not entries:
             return
 
-        entries = [(Version(Path(x[1]).name.removesuffix("-notes")), x[1]) for x in entries]
-        entries.sort(key=lambda x: x[0], reverse=True)
-        entries = [(str(x[0]), x[1]) for x in entries]
+        entries = [(Path(x[1]).name.removesuffix("-notes"), x[1]) for x in entries]
+        entries.sort(key=lambda x: _version_sort_key(x[1]), reverse=True)
         toctree["entries"] = entries
 
 
 def setup(app):
     app.add_directive("toctree", TocTreeSorted, override=True)
+    return {"parallel_read_safe": True, "parallel_write_safe": True}

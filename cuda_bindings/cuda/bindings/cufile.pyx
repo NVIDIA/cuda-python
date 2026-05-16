@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1568+g289771de9.d20260413. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -74,7 +74,6 @@ _py_anon_pod1_dtype = _numpy.dtype((
         "handle": (_numpy.intp, 0),
     }
     ))
-
 
 cdef class _py_anon_pod1:
     """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod1`.
@@ -389,20 +388,16 @@ io_events_dtype = _get_io_events_dtype_offsets()
 
 cdef class IOEvents:
     """Empty-initialize an array of `CUfileIOEvents_t`.
-
     The resulting object is of length `size` and of dtype `io_events_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `CUfileIOEvents_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=io_events_dtype)
@@ -728,20 +723,16 @@ per_gpu_stats_dtype = _get_per_gpu_stats_dtype_offsets()
 
 cdef class PerGpuStats:
     """Empty-initialize an array of `CUfilePerGpuStats_t`.
-
     The resulting object is of length `size` and of dtype `per_gpu_stats_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `CUfilePerGpuStats_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=per_gpu_stats_dtype)
@@ -1192,20 +1183,16 @@ descr_dtype = _get_descr_dtype_offsets()
 
 cdef class Descr:
     """Empty-initialize an array of `CUfileDescr_t`.
-
     The resulting object is of length `size` and of dtype `descr_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `CUfileDescr_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=descr_dtype)
@@ -1348,7 +1335,6 @@ _py_anon_pod2_dtype = _numpy.dtype((
         "batch": (_py_anon_pod3_dtype, 0),
     }
     ))
-
 
 cdef class _py_anon_pod2:
     """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod2`.
@@ -2144,20 +2130,16 @@ io_params_dtype = _get_io_params_dtype_offsets()
 
 cdef class IOParams:
     """Empty-initialize an array of `CUfileIOParams_t`.
-
     The resulting object is of length `size` and of dtype `io_params_dtype`.
     If default-constructed, the instance represents a single struct.
 
     Args:
         size (int): number of structs, default=1.
 
-
     .. seealso:: `CUfileIOParams_t`
     """
     cdef:
         readonly object _data
-
-
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=io_params_dtype)
@@ -2641,7 +2623,6 @@ cdef class StatsLevel3:
             obj._owned = False
         obj._readonly = readonly
         return obj
-
 
 
 ###############################################################################
@@ -3252,10 +3233,10 @@ cpdef get_stats_l3(intptr_t stats):
     check_status(__status__)
 
 
-cpdef size_t get_bar_size_in_kb(int gpu_ind_ex) except? 0:
+cpdef size_t get_bar_size_in_kb(int gpu_index) except? 0:
     cdef size_t bar_size
     with nogil:
-        __status__ = cuFileGetBARSizeInKB(gpu_ind_ex, &bar_size)
+        __status__ = cuFileGetBARSizeInKB(gpu_index, &bar_size)
     check_status(__status__)
     return bar_size
 

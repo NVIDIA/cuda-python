@@ -52,24 +52,44 @@ elif [[ "${1}" == "test" ]]; then
   BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${BUILD_CUDA_VER})"
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
   CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CUDA_VER}-${HOST_PLATFORM}"
+
+  # BINDINGS_SOURCE controls which cuda-bindings to install at test time:
+  #   main      — use the just-built bindings wheel from this CI run
+  #   backport  — fetch bindings from the prior (N-1) branch
+  #   published — install from PyPI (cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*)
+  #
+  # SKIP_CUDA_BINDINGS_TEST / SKIP_CYTHON_TEST control which *tests* to run
+  # (they do NOT affect installation — that's BINDINGS_SOURCE's job).
+
+  BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${BUILD_CUDA_VER})"
+  TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
+
   if [[ ${BUILD_CUDA_MAJOR} != ${TEST_CUDA_MAJOR} ]]; then
+    # Major mismatch (e.g. build=13.x, test=12.x): use the backport branch.
+    BINDINGS_SOURCE=backport
+    SKIP_CUDA_BINDINGS_TEST=1
+    SKIP_CYTHON_TEST=1
+  elif [[ ${BUILD_CUDA_MINOR} != ${TEST_CUDA_MINOR} ]]; then
+    # Same major, minor mismatch (e.g. build=13.2, test=13.0): use published
+    # bindings from PyPI to test the real-world backward-compat scenario.
+    BINDINGS_SOURCE=published
     SKIP_CUDA_BINDINGS_TEST=1
     SKIP_CYTHON_TEST=1
   else
-    SKIP_CUDA_BINDINGS_TEST=0
-    BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${BUILD_CUDA_VER})"
-    TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
-    if [[ ${BUILD_CUDA_MINOR} != ${TEST_CUDA_MINOR} ]]; then
-      SKIP_CYTHON_TEST=1
+    # Exact match: use the just-built bindings wheel.
+    BINDINGS_SOURCE=main
+    if [[ "${SKIP_BINDINGS_TEST_OVERRIDE:-0}" == "1" ]]; then
+      SKIP_CUDA_BINDINGS_TEST=1
     else
-      SKIP_CYTHON_TEST=0
+      SKIP_CUDA_BINDINGS_TEST=0
     fi
+    SKIP_CYTHON_TEST=0
   fi
   # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort
   # We only test compute-sanitizer on python 3.12 arbitrarily; we don't need to use sanitizer on the entire matrix
   # Only local ctk installs have compute-sanitizer; there is no wheel for it
   if [[ "${PY_VER}" == "3.12" && "${CUDA_VER}" != "11.8.0" && "${LOCAL_CTK}" == 1 && "${HOST_PLATFORM}" == linux* ]]; then
-    echo "LATEST_CUDA_VERSION=$(bash .github/workflows/guess_latest.sh $TEST_CUDA_MAJOR)" >> $GITHUB_ENV
+    echo "LATEST_CUDA_VERSION=$(bash ci/tools/guess_latest.sh $TEST_CUDA_MAJOR)" >> $GITHUB_ENV
     SETUP_SANITIZER=1
   else
     SETUP_SANITIZER=0
@@ -77,9 +97,11 @@ elif [[ "${1}" == "test" ]]; then
   fi
   {
     echo "SETUP_SANITIZER=${SETUP_SANITIZER}"
+    echo "BINDINGS_SOURCE=${BINDINGS_SOURCE}"
     echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}"
     echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}"
     echo "TEST_CUDA_MAJOR=${TEST_CUDA_MAJOR}"
+    echo "TEST_CUDA_MINOR=${TEST_CUDA_MINOR}"
   } >> $GITHUB_ENV
 fi
 

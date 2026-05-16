@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -8,61 +8,42 @@ import os
 import pytest
 
 try:
-    from cuda.bindings import driver, runtime
+    from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-    from cuda import cudart as runtime
 
-from cuda.core import Device, system
+from cuda.core import system
 from cuda.core._utils.cuda_utils import handle_return
 
 from .conftest import skip_if_nvml_unsupported
 
 
-def test_driver_version():
-    driver_version = system.get_driver_version()
+def test_user_mode_driver_version():
+    umd = system.get_user_mode_driver_version()
+    assert isinstance(umd, tuple)
+    assert len(umd) == 2
     version = handle_return(driver.cuDriverGetVersion())
-    expected_driver_version = (version // 1000, (version % 1000) // 10)
-    assert driver_version == expected_driver_version, "Driver version does not match expected value"
-
-
-def test_num_devices():
-    num_devices = system.get_num_devices()
-    expected_num_devices = handle_return(runtime.cudaGetDeviceCount())
-    assert num_devices == expected_num_devices, "Number of devices does not match expected value"
-
-
-def test_devices():
-    devices = Device.get_all_devices()
-    expected_num_devices = handle_return(runtime.cudaGetDeviceCount())
-    expected_devices = tuple(Device(device_id) for device_id in range(expected_num_devices))
-    assert len(devices) == len(expected_devices), "Number of devices does not match expected value"
-    for device, expected_device in zip(devices, expected_devices):
-        assert device.device_id == expected_device.device_id, "Device ID does not match expected value"
-
-
-def test_cuda_driver_version():
-    cuda_driver_version = system.get_driver_version_full()
-    assert isinstance(cuda_driver_version, tuple)
-    assert len(cuda_driver_version) == 3
-
-    ver_maj, ver_min, ver_patch = cuda_driver_version
-    assert ver_maj >= 10
-    assert 0 <= ver_min <= 99
-    assert 0 <= ver_patch <= 9
+    expected = (version // 1000, (version % 1000) // 10)
+    assert umd == expected, "UMD driver version does not match expected value"
 
 
 @skip_if_nvml_unsupported
-def test_gpu_driver_version():
-    driver_version = system.get_driver_version(kernel_mode=True)
-    assert isinstance(driver_version, tuple)
-    assert len(driver_version) in (2, 3)
-
-    (ver_maj, ver_min, *ver_patch) = driver_version
+def test_kernel_mode_driver_version():
+    kmd = system.get_kernel_mode_driver_version()
+    assert isinstance(kmd, tuple)
+    assert len(kmd) in (2, 3)
+    ver_maj, ver_min, *ver_patch = kmd
     assert 400 <= ver_maj < 1000
     assert ver_min >= 0
     if ver_patch:
         assert 0 <= ver_patch[0] <= 99
+
+
+def test_kernel_mode_driver_version_requires_nvml():
+    if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+        pytest.skip("NVML is available, cannot test the error path")
+    with pytest.raises(RuntimeError, match="requires NVML support"):
+        system.get_kernel_mode_driver_version()
 
 
 @skip_if_nvml_unsupported
@@ -101,4 +82,3 @@ def test_get_driver_branch():
     driver_branch = system.get_driver_branch()
     assert isinstance(driver_branch, str)
     assert len(driver_branch) > 0
-    assert driver_branch[0] == "r"

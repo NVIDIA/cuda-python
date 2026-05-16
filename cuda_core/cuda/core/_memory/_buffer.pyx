@@ -22,20 +22,16 @@ from cuda.core._resource_handles cimport (
     as_cu,
     set_deallocation_stream,
 )
+from cuda.core.typing import DevicePointerType
 
-from cuda.core._stream cimport Stream, Stream_accept
+from cuda.core._stream cimport Stream, Stream_accept, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
 from typing import TypeVar
 
-if sys.version_info >= (3, 12):
-    from collections.abc import Buffer as BufferProtocol
-else:
-    BufferProtocol = object
-
-from cuda.core._dlpack import DLDeviceType, make_py_capsule
-from cuda.core._utils.cuda_utils import driver
+from cuda.core._utils.pycompat import BufferProtocol
+from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
 
 
@@ -49,12 +45,24 @@ cdef void _mr_dealloc_callback(
     size_t size,
     const StreamHandle& h_stream,
 ) noexcept:
-    """Called by the C++ deleter to deallocate via MemoryResource.deallocate."""
+    """Called by the C++ deleter to deallocate via MemoryResource.deallocate.
+
+    This is the C++ teardown path: there is no Python caller frame from
+    which to obtain a stream. If the device-pointer handle was created
+    without ``set_deallocation_stream`` being called (e.g. buffers minted
+    via ``Buffer.from_handle(ptr, size, mr=mr)`` from DLPack import,
+    third-party adapters, or other foreign sources), ``h_stream`` is
+    empty here. Stream-ordered MR ``deallocate`` overrides reject
+    ``stream=None`` (issue #2001), so without a fallback the destructor
+    would print a warning and leak the allocation. Fall back to the
+    legacy/per-thread default stream so the free still happens; this is
+    the unique exception to the "no implicit default-stream fallback"
+    policy because the teardown has no other source of truth.
+    """
+    cdef Stream stream
     try:
-        stream = None
-        if h_stream:
-            stream = Stream._from_handle(Stream, h_stream)
-        mr.deallocate(int(ptr), size, stream)
+        stream = Stream._from_handle(Stream, h_stream) if h_stream else default_stream()
+        mr.deallocate(int(ptr), size, stream=stream)
     except Exception as exc:
         print(f"Warning: mr.deallocate() failed during Buffer destruction: {exc}",
               file=sys.stderr)
@@ -65,11 +73,6 @@ register_mr_dealloc_callback(_mr_dealloc_callback)
 __all__ = ['Buffer', 'MemoryResource']
 
 
-DevicePointerT = driver.CUdeviceptr | int | None
-"""
-A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting
-:attr:`Buffer.handle`.
-"""
 
 cdef class Buffer:
     """Represent a handle to allocated memory.
@@ -97,7 +100,7 @@ cdef class Buffer:
 
     @classmethod
     def _init(
-        cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
+        cls, ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         ipc_descriptor: IPCBufferDescriptor | None = None,
         owner : object | None = None
     ):
@@ -124,22 +127,26 @@ cdef class Buffer:
 
     @staticmethod
     def _reduce_helper(mr, ipc_descriptor):
-        return Buffer.from_ipc_descriptor(mr, ipc_descriptor)
+        # The parent process's stream is not portable across processes, so the
+        # pickle path cannot thread an explicit stream through. Seed the
+        # imported buffer's deallocation with the current context's default
+        # stream; the receiver can override via buffer.close(stream).
+        return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self):
         # Must not serialize the parent's stream!
-        return Buffer._reduce_helper, (self.memory_resource, self.get_ipc_descriptor())
+        return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
     @staticmethod
     def from_handle(
-        ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
+        ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         owner: object | None = None,
     ) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
         Parameters
         ----------
-        ptr : :obj:`~_memory.DevicePointerT`
+        ptr : :obj:`~_memory.DevicePointerType`
             Allocated buffer handle object
         size : int
             Memory size of the buffer
@@ -163,13 +170,25 @@ cdef class Buffer:
     @classmethod
     def from_ipc_descriptor(
         cls, mr: DeviceMemoryResource | PinnedMemoryResource, ipc_descriptor: IPCBufferDescriptor,
-        stream: Stream = None
+        *, stream: Stream
     ) -> Buffer:
-        """Import a buffer that was exported from another process."""
+        """Import a buffer that was exported from another process.
+
+        Parameters
+        ----------
+        mr : :obj:`~_memory.DeviceMemoryResource` | :obj:`~_memory.PinnedMemoryResource`
+            The IPC-enabled memory resource matching the exporting process.
+        ipc_descriptor : :obj:`~_memory.IPCBufferDescriptor`
+            The descriptor exported from another process.
+        stream : :obj:`~_stream.Stream`
+            Keyword-only. The stream used for asynchronous deallocation when
+            the buffer is closed or garbage collected.
+        """
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
-    def get_ipc_descriptor(self) -> IPCBufferDescriptor:
-        """Export a buffer allocated for sharing between processes."""
+    @property
+    def ipc_descriptor(self) -> IPCBufferDescriptor:
+        """Descriptor for sharing this buffer with other processes."""
         if self._ipc_data is None:
             self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
         return self._ipc_data.ipc_descriptor
@@ -182,7 +201,7 @@ cdef class Buffer:
 
         Parameters
         ----------
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             The stream object to use for asynchronous deallocation. If None,
             the deallocation stream stored in the handle is used.
         """
@@ -204,9 +223,10 @@ cdef class Buffer:
 
         Parameters
         ----------
-        dst : :obj:`~_memory.Buffer`
-            Source buffer to copy data from
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+        dst : :obj:`~_memory.Buffer`, optional
+            Destination buffer to copy data to. If not provided, a new buffer
+            is allocated using this buffer's memory resource.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
 
@@ -218,7 +238,7 @@ cdef class Buffer:
             if self._memory_resource is None:
                 raise ValueError("a destination buffer must be provided (this "
                                  "buffer does not have a memory_resource)")
-            dst = self._memory_resource.allocate(src_size, s)
+            dst = self._memory_resource.allocate(src_size, stream=s)
 
         cdef size_t dst_size = dst._size
         if dst_size != src_size:
@@ -237,7 +257,7 @@ cdef class Buffer:
         ----------
         src : :obj:`~_memory.Buffer`
             Source buffer to copy data from
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
 
@@ -262,7 +282,7 @@ cdef class Buffer:
         value : int | :obj:`collections.abc.Buffer`
             - int: Must be in range [0, 256). Converted to 1 byte.
             - :obj:`collections.abc.Buffer`: Must be 1, 2, or 4 bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Stream for the asynchronous fill operation.
 
         Raises
@@ -323,16 +343,7 @@ cdef class Buffer:
         return capsule
 
     def __dlpack_device__(self) -> tuple[int, int]:
-        cdef bint d = self.is_device_accessible
-        cdef bint h = self.is_host_accessible
-        if d and (not h):
-            return (DLDeviceType.kDLCUDA, self.device_id)
-        if d and h:
-            # TODO: this can also be kDLCUDAManaged, we need more fine-grained checks
-            return (DLDeviceType.kDLCUDAHost, 0)
-        if (not d) and h:
-            return (DLDeviceType.kDLCPU, 0)
-        raise BufferError("buffer is neither device-accessible nor host-accessible")
+        return classify_dl_device(self)
 
     def __buffer__(self, flags: int, /) -> memoryview:
         # Support for Python-level buffer protocol as per PEP 688.
@@ -354,7 +365,7 @@ cdef class Buffer:
         return self._mem_attrs.device_id
 
     @property
-    def handle(self) -> DevicePointerT:
+    def handle(self) -> DevicePointerType:
         """Return the buffer handle object.
 
         .. caution::
@@ -395,6 +406,16 @@ cdef class Buffer:
             return self._memory_resource.is_host_accessible
         _init_mem_attrs(self)
         return self._mem_attrs.is_host_accessible
+
+    @property
+    def is_managed(self) -> bool:
+        """Return True if this buffer is CUDA managed (unified) memory, otherwise False."""
+        _init_mem_attrs(self)
+        if self._mem_attrs.is_managed:
+            return True
+        # Pool-allocated managed memory does not set CU_POINTER_ATTRIBUTE_IS_MANAGED,
+        # so fall back to the memory resource when it advertises managed allocations.
+        return self._memory_resource is not None and self._memory_resource.is_managed
 
     @property
     def is_mapped(self) -> bool:
@@ -459,6 +480,7 @@ cdef inline int _query_memory_attrs(
         out.is_host_accessible = True
         out.is_device_accessible = False
         out.device_id = -1
+        out.is_managed = False
     elif (
         is_managed
         or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
@@ -467,10 +489,12 @@ cdef inline int _query_memory_attrs(
         out.is_host_accessible = True
         out.is_device_accessible = True
         out.device_id = device_id
+        out.is_managed = is_managed
     elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
         out.is_host_accessible = False
         out.is_device_accessible = True
         out.device_id = device_id
+        out.is_managed = False
     else:
         with cython.gil:
             raise ValueError(f"Unsupported memory type: {memory_type}")
@@ -489,17 +513,17 @@ cdef class MemoryResource:
     resource's respective property.)
     """
 
-    def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
-            The stream on which to perform the allocation asynchronously.
-            If None, it is up to each memory resource implementation to decide
-            and document the behavior.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the allocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
 
         Returns
         -------
@@ -509,19 +533,19 @@ cdef class MemoryResource:
         """
         raise TypeError("MemoryResource.allocate must be implemented by subclasses.")
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: DevicePointerType, size_t size, *, stream: Stream | GraphBuilder):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
         ----------
-        ptr : :obj:`~_memory.DevicePointerT`
+        ptr : :obj:`~_memory.DevicePointerType`
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
-            The stream on which to perform the deallocation asynchronously.
-            If None, it is up to each memory resource implementation to decide
-            and document the behavior.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the deallocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
         """
         raise TypeError("MemoryResource.deallocate must be implemented by subclasses.")
 
@@ -534,6 +558,11 @@ cdef class MemoryResource:
     def is_host_accessible(self) -> bool:
         """Whether buffers allocated by this resource are host-accessible."""
         raise TypeError("MemoryResource.is_host_accessible must be implemented by subclasses.")
+
+    @property
+    def is_managed(self) -> bool:
+        """Whether buffers allocated by this resource are CUDA managed (unified) memory."""
+        return False
 
     @property
     def device_id(self) -> int:

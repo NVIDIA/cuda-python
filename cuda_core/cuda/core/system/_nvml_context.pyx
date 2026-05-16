@@ -6,7 +6,7 @@ import threading
 
 from cuda.bindings import nvml
 
-from . import exceptions
+from cuda.core.system import exceptions
 
 
 _NVML_STATE = _NVMLState.UNINITIALIZED

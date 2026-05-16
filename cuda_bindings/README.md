@@ -10,6 +10,14 @@ Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cud
 
 This subpackage adheres to the developing practices described in the parent metapackage [CONTRIBUTING.md](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md).
 
+## Debugging
+
+Pass the `pip` / `uv` configuration option `-C="debug=True"` or
+`--config-settings="debug=True"` to explicitly to build debuggable binaries.
+Debuggable binaries are built by default for editable builds.
+
+Debuggable builds are not supported on Windows.
+
 ## Testing
 
 Testing dependencies can be installed using the `[test]` optional dependency identifier. For example, `pip install -v -e .[test]`.
@@ -50,9 +58,6 @@ In addition, extra examples are included:
   launch a kernel on the device. Includes device memory allocation /
   deallocation, transfers between host and device, creation and usage of
   streams, and context management.
-* `examples/extra/numba_emm_plugin.py`: Implements a Numba External Memory Management
-  plugin, showing that this CUDA Python Driver API can coexist with other
-  wrappers of the driver API.
 
 To run these samples:
 * `python -m pytest tests/cython/` against editable installations

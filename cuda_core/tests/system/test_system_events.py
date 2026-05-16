@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -11,6 +11,7 @@ import helpers
 import pytest
 
 from cuda.core import system
+from cuda.core.system import typing
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="System events not supported on WSL or Windows")
@@ -22,6 +23,10 @@ def test_register_events():
 
     # Also, some hardware doesn't support any event types.
 
-    events = system.register_events([system.SystemEventType.GPU_DRIVER_UNBIND])
+    try:
+        events = system.register_events([typing.SystemEventType.UNBIND])
+    except system.UnknownError:
+        pytest.skip("system events may only be registered once per process")
+
     with pytest.raises(system.TimeoutError):
         events.wait(timeout_ms=500, buffer_size=1)

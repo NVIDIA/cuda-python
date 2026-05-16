@@ -13,19 +13,18 @@ from cuda.core._memory._ipc cimport IPCAllocationHandle
 from cuda.core._resource_handles cimport (
     as_cu,
     get_device_mempool,
+    get_last_error,
 )
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
-from cpython.mem cimport PyMem_Malloc, PyMem_Free
-
 from dataclasses import dataclass
 import multiprocessing
 import platform  # no-cython-lint
 import uuid
 
-from ._peer_access_utils import plan_peer_access_update
+from cuda.core._memory._peer_access_utils import PeerAccessibleBySetProxy, replace_peer_accessible_by
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
@@ -89,19 +88,19 @@ cdef class DeviceMemoryResource(_MemPool):
     :class:`DeviceMemoryResource` and can be distinguished via
     :attr:`DeviceMemoryResource.is_mapped`.
 
-    An MR is shared via an allocation handle obtained by calling
-    :meth:`DeviceMemoryResource.get_allocation_handle`. The allocation handle
-    has a platform-specific interpretation; however, memory IPC is currently
-    only supported for Linux, and in that case allocation handles are file
-    descriptors. After sending an allocation handle to another process, it can
-    be used to create an MMR by invoking
+    An MR is shared via an allocation handle accessed through the
+    :attr:`DeviceMemoryResource.allocation_handle` property. The allocation
+    handle has a platform-specific interpretation; however, memory IPC is
+    currently only supported for Linux, and in that case allocation handles
+    are file descriptors. After sending an allocation handle to another
+    process, it can be used to create an MMR by invoking
     :meth:`DeviceMemoryResource.from_allocation_handle`.
 
-    Buffers can be shared as serializable descriptors obtained by calling
-    :meth:`Buffer.get_ipc_descriptor`. In a receiving process, a shared buffer is
-    created by invoking :meth:`Buffer.from_ipc_descriptor` with an MMR and
-    buffer descriptor, where the MMR corresponds to the MR that created the
-    described buffer.
+    Buffers can be shared as serializable descriptors accessed through the
+    :attr:`Buffer.ipc_descriptor` property. In a receiving process, a shared
+    buffer is created by invoking :meth:`Buffer.from_ipc_descriptor` with an
+    MMR and buffer descriptor, where the MMR corresponds to the MR that
+    created the described buffer.
 
     To help manage the association between memory resources and buffers, a
     registry is provided. Every MR has a unique identifier (UUID). MMRs can be
@@ -131,7 +130,6 @@ cdef class DeviceMemoryResource(_MemPool):
 
     def __cinit__(self, *args, **kwargs):
         self._dev_id = cydriver.CU_DEVICE_INVALID
-        self._peer_accessible_by = None
 
     def __init__(self, device_id: Device | int, options=None):
         _DMR_init(self, device_id, options)
@@ -191,18 +189,14 @@ cdef class DeviceMemoryResource(_MemPool):
             _ipc.MP_from_allocation_handle(cls, alloc_handle))
         from .._device import Device
         mr._dev_id = Device(device_id).device_id
-        mr._peer_accessible_by = ()
         return mr
 
-    def get_allocation_handle(self) -> IPCAllocationHandle:
-        """Export the memory pool handle to be shared (requires IPC).
+    @property
+    def allocation_handle(self) -> IPCAllocationHandle:
+        """Shareable handle for this memory pool (requires IPC).
 
         The handle can be used to share the memory pool with other processes.
         The handle is cached in this `MemoryResource` and owned by it.
-
-        Returns
-        -------
-            The shareable handle for the memory pool.
         """
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
@@ -220,30 +214,23 @@ cdef class DeviceMemoryResource(_MemPool):
         pool. Access can be modified at any time and affects all allocations
         from this memory pool.
 
-        Returns a tuple of sorted device IDs that currently have peer access to
-        allocations from this memory pool.
-
-        When setting, accepts a sequence of Device objects or device IDs.
-        Setting to an empty sequence revokes all peer access.
-
-        For non-owned pools (the default or current device pool), the state
-        is always queried from the driver to reflect changes made by other
-        wrappers or direct driver calls.
+        Returns a set-like proxy of :obj:`~_device.Device` objects that manages
+        peer access. Inputs are accepted as either :obj:`~_device.Device`
+        objects or device-ordinal :class:`int` values.
 
         Examples
         --------
         >>> dmr = DeviceMemoryResource(0)
-        >>> dmr.peer_accessible_by = [1]  # Grant access to device 1
-        >>> assert dmr.peer_accessible_by == (1,)
-        >>> dmr.peer_accessible_by = []  # Revoke access
+        >>> dmr.peer_accessible_by = {1}   # grant access to device 1
+        >>> assert 1 in dmr.peer_accessible_by
+        >>> dmr.peer_accessible_by.add(2)  # update access to include device 2
+        >>> dmr.peer_accessible_by = []    # revoke peer access
         """
-        if not self._mempool_owned:
-            _DMR_query_peer_access(self)
-        return self._peer_accessible_by
+        return PeerAccessibleBySetProxy(self)
 
     @peer_accessible_by.setter
     def peer_accessible_by(self, devices):
-        _DMR_set_peer_accessible_by(self, devices)
+        replace_peer_accessible_by(self, devices)
 
     @property
     def is_device_accessible(self) -> bool:
@@ -254,81 +241,6 @@ cdef class DeviceMemoryResource(_MemPool):
     def is_host_accessible(self) -> bool:
         """Return False. This memory resource does not provide host-accessible buffers."""
         return False
-
-
-cdef inline _DMR_query_peer_access(DeviceMemoryResource self):
-    """Query the driver for the actual peer access state of this pool."""
-    cdef int total
-    cdef cydriver.CUmemAccess_flags flags
-    cdef cydriver.CUmemLocation location
-    cdef list peers = []
-
-    with nogil:
-        HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
-
-    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    for dev_id in range(total):
-        if dev_id == self._dev_id:
-            continue
-        location.id = dev_id
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(self._h_pool), &location))
-        if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:
-            peers.append(dev_id)
-
-    self._peer_accessible_by = tuple(sorted(peers))
-
-
-cdef inline _DMR_set_peer_accessible_by(DeviceMemoryResource self, devices):
-    from .._device import Device
-
-    this_dev = Device(self._dev_id)
-    cdef object resolve_device_id = lambda dev: Device(dev).device_id
-    cdef object plan
-    cdef tuple target_ids
-    cdef tuple to_add
-    cdef tuple to_rm
-    if not self._mempool_owned:
-        _DMR_query_peer_access(self)
-    plan = plan_peer_access_update(
-        owner_device_id=self._dev_id,
-        current_peer_ids=self._peer_accessible_by,
-        requested_devices=devices,
-        resolve_device_id=resolve_device_id,
-        can_access_peer=this_dev.can_access_peer,
-    )
-    target_ids = plan.target_ids
-    to_add = plan.to_add
-    to_rm = plan.to_remove
-    cdef size_t count = len(to_add) + len(to_rm)
-    cdef cydriver.CUmemAccessDesc* access_desc = NULL
-    cdef size_t i = 0
-
-    if count > 0:
-        access_desc = <cydriver.CUmemAccessDesc*>PyMem_Malloc(count * sizeof(cydriver.CUmemAccessDesc))
-        if access_desc == NULL:
-            raise MemoryError("Failed to allocate memory for access descriptors")
-
-        try:
-            for dev_id in to_add:
-                access_desc[i].flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-                access_desc[i].location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-                access_desc[i].location.id = dev_id
-                i += 1
-
-            for dev_id in to_rm:
-                access_desc[i].flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_NONE
-                access_desc[i].location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-                access_desc[i].location.id = dev_id
-                i += 1
-
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), access_desc, count))
-        finally:
-            if access_desc != NULL:
-                PyMem_Free(access_desc)
-
-        self._peer_accessible_by = tuple(target_ids)
 
 
 cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):
@@ -351,10 +263,17 @@ cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):
 
     if opts is None:
         self._h_pool = get_device_mempool(dev_id)
+        if not self._h_pool:
+            HANDLE_RETURN(get_last_error())
+            raise RuntimeError(
+                f"Failed to initialize DeviceMemoryResource for device {dev_id}: "
+                "cuda-core returned an empty memory pool handle without recording a CUDA error. "
+                "This is an internal cuda-core error; please report it with your CUDA driver, "
+                "CUDA Toolkit, and cuda-python versions."
+            )
         self._mempool_owned = False
         MP_raise_release_threshold(self)
     else:
-        self._peer_accessible_by = ()
         MP_init_create_pool(
             self,
             cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
@@ -404,7 +323,7 @@ def _deep_reduce_device_memory_resource(mr):
     check_multiprocessing_start_method()
     from .._device import Device
     device = Device(mr.device_id)
-    alloc_handle = mr.get_allocation_handle()
+    alloc_handle = mr.allocation_handle
     return mr.from_allocation_handle, (device, alloc_handle)
 
 

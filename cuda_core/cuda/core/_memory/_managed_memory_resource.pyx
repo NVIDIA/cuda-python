@@ -6,16 +6,17 @@ from __future__ import annotations
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._memory._memory_pool cimport _MemPool, MP_init_create_pool, MP_init_current_pool
-from cuda.core._utils.cuda_utils cimport (
-    HANDLE_RETURN,
-    check_or_create_options,
-)
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._memory._memory_pool cimport _MemPool
+from cuda.core._memory._memory_pool cimport MP_init_create_pool, MP_init_current_pool  # no-cython-lint
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport check_or_create_options  # no-cython-lint
+from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
 from dataclasses import dataclass
 import threading
 import warnings
+
+from cuda.core.typing import ManagedMemoryLocationType
 
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
 
@@ -31,7 +32,7 @@ cdef class ManagedMemoryResourceOptions:
         meaning depends on ``preferred_location_type``.
         (Default to ``None``)
 
-    preferred_location_type : ``"device"`` | ``"host"`` | ``"host_numa"`` | None, optional
+    preferred_location_type : ManagedMemoryLocationType | str | None, optional
         Controls how ``preferred_location`` is interpreted.
 
         When set to ``None`` (the default), legacy behavior is used:
@@ -55,7 +56,7 @@ cdef class ManagedMemoryResourceOptions:
         (Default to ``None``)
     """
     preferred_location: int | None = None
-    preferred_location_type: str | None = None
+    preferred_location_type: ManagedMemoryLocationType | str | None = None
 
 
 cdef class ManagedMemoryResource(_MemPool):
@@ -98,7 +99,7 @@ cdef class ManagedMemoryResource(_MemPool):
         return -1
 
     @property
-    def preferred_location(self) -> tuple | None:
+    def preferred_location(self) -> tuple[ManagedMemoryLocationType, int | None] | None:
         """The preferred location for managed memory allocations.
 
         Returns ``None`` if no preferred location is set (driver decides),
@@ -109,8 +110,8 @@ cdef class ManagedMemoryResource(_MemPool):
         if self._pref_loc_type is None:
             return None
         if self._pref_loc_type == "host":
-            return ("host", None)
-        return (self._pref_loc_type, self._pref_loc_id)
+            return (ManagedMemoryLocationType.HOST, None)
+        return (ManagedMemoryLocationType(self._pref_loc_type), self._pref_loc_id)
 
     @property
     def is_device_accessible(self) -> bool:
@@ -120,6 +121,11 @@ cdef class ManagedMemoryResource(_MemPool):
     @property
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
+        return True
+
+    @property
+    def is_managed(self) -> bool:
+        """Return True. This memory resource provides managed (unified) memory buffers."""
         return True
 
 

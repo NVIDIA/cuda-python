@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 """Tests for device-side graph launch (GPU kernel launching a CUDA graph)."""
 
@@ -9,7 +9,6 @@ from helpers.marks import requires_module
 
 from cuda.core import (
     Device,
-    GraphCompleteOptions,
     LaunchConfig,
     LegacyPinnedMemoryResource,
     Linker,
@@ -19,6 +18,7 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
+from cuda.core.graph import GraphCompleteOptions
 
 
 def _get_device_arch():
@@ -95,7 +95,7 @@ def test_device_launch_basic(init_cuda):
 
     # Allocate and initialize memory
     mr = LegacyPinnedMemoryResource()
-    buf = mr.allocate(4, stream=stream)
+    buf = mr.allocate(4)
     arr = np.from_dlpack(buf).view(np.int32)
     arr[0] = 0
     stream.sync()
@@ -145,7 +145,7 @@ def test_device_launch_multiple(init_cuda):
 
     # Allocate and initialize memory
     mr = LegacyPinnedMemoryResource()
-    buf = mr.allocate(4, stream=stream)
+    buf = mr.allocate(4)
     arr = np.from_dlpack(buf).view(np.int32)
     arr[0] = 0
     stream.sync()

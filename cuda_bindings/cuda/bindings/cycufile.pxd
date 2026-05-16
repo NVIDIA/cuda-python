@@ -197,8 +197,10 @@ cdef extern from '<cufile.h>':
 cdef extern from '<cufile.h>':
     ctypedef void* CUfileHandle_t 'CUfileHandle_t'
 
+
 cdef extern from '<cufile.h>':
     ctypedef void* CUfileBatchHandle_t 'CUfileBatchHandle_t'
+
 
 cdef extern from '<cufile.h>':
     ctypedef struct CUfileError_t 'CUfileError_t':
@@ -365,7 +367,6 @@ cdef extern from '<cufile.h>':
         CUfileStatsLevel2_t detailed
         uint32_t num_gpus
         CUfilePerGpuStats_t per_gpu_stats[16]
-
 
 
 cdef extern from *:

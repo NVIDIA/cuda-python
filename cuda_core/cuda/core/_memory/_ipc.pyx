@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -7,7 +7,7 @@ cimport cpython
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
 from cuda.core._memory._memory_pool cimport _MemPool
-from cuda.core._stream cimport Stream
+from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     create_fd_handle,
@@ -19,7 +19,6 @@ from cuda.core._resource_handles cimport (
     as_py,
 )
 
-from cuda.core._stream cimport default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
@@ -171,10 +170,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
     """Import a buffer that was exported from another process."""
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
-    if stream is None:
-        # Note: match this behavior to _MemPool.allocate()
-        stream = default_stream()
-    cdef Stream s = <Stream>stream
+    cdef Stream s = Stream_accept(stream)
     cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
         mr._h_pool,
         ipc_descriptor.payload_ptr(),
@@ -215,7 +211,13 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
     cdef int ipc_fd = int(alloc_handle)
     self._h_pool = create_mempool_handle_ipc(ipc_fd, IPC_HANDLE_TYPE)
     if not self._h_pool:
-        raise RuntimeError("Failed to import memory pool from IPC handle")
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError(
+            f"Failed to import {cls.__name__} from an allocation handle: "
+            "cuda-core returned an empty memory pool handle without recording a CUDA error. "
+            "This is an internal cuda-core error; please report it with your CUDA driver, "
+            "CUDA Toolkit, and cuda-python versions."
+        )
     self._ipc_data = IPCDataForMR(alloc_handle, True)
 
     # Register it.

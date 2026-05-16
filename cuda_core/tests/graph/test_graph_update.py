@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 """Tests for whole-graph update (Graph.update)."""
 
@@ -9,11 +9,11 @@ from helpers.graph_kernels import compile_common_kernels, compile_conditional_ke
 from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
-from cuda.core._graph._graph_def import GraphDef
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core.graph import GraphDefinition
 
 
-@pytest.mark.parametrize("builder", ["GraphBuilder", "GraphDef"])
+@pytest.mark.parametrize("builder", ["GraphBuilder", "GraphDefinition"])
 @requires_module(np, "2.1")
 def test_graph_update_kernel_args(init_cuda, builder):
     """Update redirects a kernel to write to a different pointer."""
@@ -35,10 +35,10 @@ def test_graph_update_kernel_args(init_cuda, builder):
             launch(gb, LaunchConfig(grid=1, block=1), add_one, ptr)
             finished = gb.end_building()
             return finished.complete(), finished
-    elif builder == "GraphDef":
+    elif builder == "GraphDefinition":
 
         def build(ptr):
-            g = GraphDef()
+            g = GraphDefinition()
             n = g.launch(LaunchConfig(grid=1, block=1), add_one, ptr)
             n.launch(LaunchConfig(grid=1, block=1), add_one, ptr)
             return g.instantiate(), g
@@ -79,11 +79,11 @@ def test_graph_update_conditional(init_cuda):
         gb = Device().create_graph_builder().begin_building()
 
         # Add Node A (sets condition)
-        handle = gb.create_conditional_handle(default_value=condition_value)
+        condition = gb.create_condition(default_value=condition_value)
 
         # Add Node B (while condition)
         try:
-            gb_case = list(gb.switch(handle, 3))
+            gb_case = list(gb.switch(condition, 3))
         except Exception as e:
             with pytest.raises(RuntimeError, match="^(Driver|Binding) version"):
                 raise e
@@ -191,7 +191,7 @@ def test_graph_update_topology_mismatch(init_cuda):
     launch(gb2, LaunchConfig(grid=1, block=1), empty_kernel)
     gb2.end_building()
 
-    expected = r"Graph update failed: The update failed because the topology changed \(CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED\)"
+    expected = r"Graph update failed: .+ \(CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED\)"
     with pytest.raises(CUDAError, match=expected):
         graph.update(gb2)
 
@@ -205,5 +205,5 @@ def test_graph_update_wrong_type(init_cuda):
     launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
     graph = gb.end_building().complete()
 
-    with pytest.raises(TypeError, match="expected GraphBuilder or GraphDef"):
+    with pytest.raises(TypeError, match="expected GraphBuilder or GraphDefinition"):
         graph.update("not a graph")

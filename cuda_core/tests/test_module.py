@@ -33,6 +33,20 @@ __global__ void saxpy(const T a,
 """
 
 
+def _is_nvfatbin_available():
+    """Check if nvfatbin bindings are available."""
+    try:
+        from cuda.bindings import nvfatbin
+
+        nvfatbin.version()
+        return True
+    except Exception:
+        return False
+
+
+nvfatbin_available = pytest.mark.skipif(not _is_nvfatbin_available(), reason="nvfatbin bindings not available")
+
+
 @pytest.fixture(scope="module")
 def cuda12_4_prerequisite_check():
     return binding_version() >= (12, 0, 0) and driver_version() >= (12, 4, 0)
@@ -41,6 +55,31 @@ def cuda12_4_prerequisite_check():
 def test_kernel_attributes_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelAttributes cannot be instantiated directly\."):
         cuda.core._module.KernelAttributes()  # Ensure back door is locked.
+
+
+def test_kernel_attributes_per_device_view(get_saxpy_kernel_cubin):
+    """kernel.attributes[device] returns a per-device view; values match."""
+    kernel, _ = get_saxpy_kernel_cubin
+    dev = Device()
+
+    default_view = kernel.attributes
+    int_view = kernel.attributes[dev.device_id]
+    dev_view = kernel.attributes[dev]
+
+    # Same value via every access path (default view = current device).
+    assert default_view.num_regs == int_view.num_regs == dev_view.num_regs
+    assert default_view.max_threads_per_block == int_view.max_threads_per_block
+
+    # The bound views are distinct objects from the default view.
+    assert int_view is not default_view
+    assert int_view is not dev_view
+
+
+def test_kernel_attributes_indexing_rejects_invalid_device(get_saxpy_kernel_cubin):
+    """kernel.attributes[bad] raises through the Device(...) constructor."""
+    kernel, _ = get_saxpy_kernel_cubin
+    with pytest.raises((TypeError, ValueError, OverflowError)):
+        kernel.attributes["not a device"]
 
 
 def test_kernel_occupancy_init_disabled():
@@ -90,6 +129,44 @@ def get_saxpy_kernel_ltoir(init_cuda):
     return mod
 
 
+@pytest.fixture
+def get_saxpy_fatbin(init_cuda):
+    from cuda.bindings import nvfatbin
+
+    dev = Device()
+    arch = dev.arch
+
+    # Pick a second arch different from the current device
+    second_arch = "75" if arch != "75" else "80"
+
+    # Compile to cubin for current device arch
+    prog = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(arch=f"sm_{arch}"))
+    mod = prog.compile(
+        "cubin",
+        name_expressions=("saxpy<float>", "saxpy<double>"),
+    )
+    cubin = mod.code
+    sym_map = mod.symbol_mapping
+
+    # Compile to PTX targeting the second arch
+    ptx_mod = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(arch=f"sm_{second_arch}")).compile(
+        "ptx",
+        name_expressions=("saxpy<float>", "saxpy<double>"),
+    )
+    ptx = ptx_mod.code
+
+    # Create fatbin with both cubin + PTX
+    handle = nvfatbin.create([], 0)
+    nvfatbin.add_cubin(handle, cubin, len(cubin), arch, "saxpy")
+    nvfatbin.add_ptx(handle, ptx, len(ptx), second_arch, "saxpy", f"-arch=sm_{second_arch}")
+    fatbin_size = nvfatbin.size(handle)
+    fatbin = bytearray(fatbin_size)
+    nvfatbin.get(handle, fatbin)
+    nvfatbin.destroy(handle)
+
+    return bytes(fatbin), sym_map
+
+
 def test_get_kernel(init_cuda):
     kernel = """extern "C" __global__ void ABC() { }"""
 
@@ -130,16 +207,18 @@ def test_get_kernel(init_cuda):
 )
 def test_read_only_kernel_attributes(get_saxpy_kernel_cubin, attr, expected_type):
     kernel, _ = get_saxpy_kernel_cubin
-    method = getattr(kernel.attributes, attr)
-    # get the value without providing a device ordinal
-    value = method()
-    assert value is not None
 
-    # get the value for each device on the system, using either the device object or ordinal
-    for device in Device.get_all_devices():
-        value = method(device)
-        value = method(device.device_id)
+    # Default view: property access on the current-device view.
+    value = getattr(kernel.attributes, attr)
+    assert value is not None
     assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
+
+    # Per-device views via __getitem__: each device, both Device and ordinal forms.
+    for device in Device.get_all_devices():
+        value = getattr(kernel.attributes[device], attr)
+        assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
+        value = getattr(kernel.attributes[device.device_id], attr)
+        assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
 
 
 def test_object_code_load_ptx(get_saxpy_kernel_ptx):
@@ -218,6 +297,28 @@ def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path):
     assert mod_obj.code == str(ltoir_file)
     assert mod_obj.code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
+
+
+@nvfatbin_available
+def test_object_code_load_fatbin(get_saxpy_fatbin):
+    fatbin, sym_map = get_saxpy_fatbin
+    assert isinstance(fatbin, bytes)
+    mod_obj = ObjectCode.from_fatbin(fatbin, symbol_mapping=sym_map)
+    assert mod_obj.code == fatbin
+    assert mod_obj.code_type == "fatbin"
+    mod_obj.get_kernel("saxpy<double>")  # force loading
+
+
+@nvfatbin_available
+def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path):
+    fatbin, sym_map = get_saxpy_fatbin
+    assert isinstance(fatbin, bytes)
+    fatbin_file = tmp_path / "test.fatbin"
+    fatbin_file.write_bytes(fatbin)
+    mod_obj = ObjectCode.from_fatbin(str(fatbin_file), symbol_mapping=sym_map)
+    assert mod_obj.code == str(fatbin_file)
+    assert mod_obj.code_type == "fatbin"
+    mod_obj.get_kernel("saxpy<double>")  # force loading
 
 
 def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):
@@ -310,7 +411,7 @@ def test_occupancy_max_active_block_per_multiprocessor(get_saxpy_kernel_cubin, b
     kernel_smem_size_per_sm = num_blocks_per_sm * smem_size_per_block
     assert kernel_threads_per_sm <= dev_props.max_threads_per_multiprocessor
     assert kernel_smem_size_per_sm <= dev_props.max_shared_memory_per_multiprocessor
-    assert kernel.attributes.num_regs() * num_blocks_per_sm <= dev_props.max_registers_per_multiprocessor
+    assert kernel.attributes.num_regs * num_blocks_per_sm <= dev_props.max_registers_per_multiprocessor
 
 
 @pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 256, 0])
@@ -387,9 +488,8 @@ def test_occupancy_max_active_clusters(get_saxpy_kernel_cubin, cluster):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.LaunchConfig(grid=128, block=64, cluster=cluster)
     query_fn = kernel.occupancy.max_active_clusters
-    max_active_clusters = query_fn(launch_config)
-    assert isinstance(max_active_clusters, int)
-    assert max_active_clusters >= 0
+    with pytest.raises(TypeError, match=r"keyword-only argument"):
+        query_fn(launch_config)
     max_active_clusters = query_fn(launch_config, stream=dev.default_stream)
     assert isinstance(max_active_clusters, int)
     assert max_active_clusters >= 0
@@ -402,9 +502,8 @@ def test_occupancy_max_potential_cluster_size(get_saxpy_kernel_cubin):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.LaunchConfig(grid=128, block=64)
     query_fn = kernel.occupancy.max_potential_cluster_size
-    max_potential_cluster_size = query_fn(launch_config)
-    assert isinstance(max_potential_cluster_size, int)
-    assert max_potential_cluster_size >= 0
+    with pytest.raises(TypeError, match=r"keyword-only argument"):
+        query_fn(launch_config)
     max_potential_cluster_size = query_fn(launch_config, stream=dev.default_stream)
     assert isinstance(max_potential_cluster_size, int)
     assert max_potential_cluster_size >= 0
@@ -432,7 +531,7 @@ def test_kernel_from_handle(get_saxpy_kernel_cubin):
     assert isinstance(kernel_from_handle, Kernel)
 
     # Verify we can access kernel attributes
-    max_threads = kernel_from_handle.attributes.max_threads_per_block()
+    max_threads = kernel_from_handle.attributes.max_threads_per_block
     assert isinstance(max_threads, int)
     assert max_threads > 0
 
@@ -450,7 +549,7 @@ def test_kernel_from_handle_no_module(get_saxpy_kernel_cubin):
     assert isinstance(kernel_from_handle, Kernel)
 
     # Verify we can still access kernel attributes
-    max_threads = kernel_from_handle.attributes.max_threads_per_block()
+    max_threads = kernel_from_handle.attributes.max_threads_per_block
     assert isinstance(max_threads, int)
     assert max_threads > 0
 
@@ -525,7 +624,7 @@ def test_kernel_from_handle_library_mismatch_warning(init_cuda):
         assert len(w) == 1
         assert "does not match" in str(w[0].message)
 
-    assert k.attributes.max_threads_per_block() > 0
+    assert k.attributes.max_threads_per_block > 0
 
 
 def test_kernel_from_handle_foreign_kernel(init_cuda):
@@ -541,7 +640,7 @@ def test_kernel_from_handle_foreign_kernel(init_cuda):
     handle = int(cu_kernel)
 
     k = Kernel.from_handle(handle)
-    assert k.attributes.max_threads_per_block() > 0
+    assert k.attributes.max_threads_per_block > 0
 
 
 def test_kernel_keeps_library_alive(init_cuda):
@@ -584,7 +683,7 @@ def test_kernel_keeps_library_alive(init_cuda):
     result = np.from_dlpack(host_buf).view(np.int32)
     result[:] = 0
 
-    dev_buf = device.memory_resource.allocate(4)
+    dev_buf = device.memory_resource.allocate(4, stream=device.default_stream)
 
     # Launch kernel
     config = cuda.core.LaunchConfig(grid=1, block=1)

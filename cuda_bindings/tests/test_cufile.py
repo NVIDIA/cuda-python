@@ -9,7 +9,7 @@ import pathlib
 import platform
 import subprocess
 import tempfile
-from contextlib import suppress
+from contextlib import contextmanager, suppress
 from functools import cache
 
 import pytest
@@ -26,6 +26,16 @@ logging.basicConfig(
 )
 
 cufile = pytest.importorskip("cuda.bindings.cufile", reason="skipping tests on Windows")
+
+
+@contextmanager
+def _cufile_driver_session():
+    """Open the cuFile driver for a block; always close in a finally (mirrors try/finally)."""
+    cufile.driver_open()
+    try:
+        yield
+    finally:
+        cufile.driver_close()
 
 
 @pytest.fixture
@@ -138,6 +148,51 @@ def ctx():
     yield
 
     cuda.cuDevicePrimaryCtxRelease(device)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _cufile_driver_prewarm():
+    """Prime libcufile with one driver_open/close cycle before any test runs.
+
+    The cuFile test module mixes two incompatible regimes:
+
+    - Driver-open tests (buf_register_*, cufile_read_write, batch_io, stats,
+      etc.) need cuFileDriverOpen; they use the function-scope `driver`
+      fixture to open/close per test.
+    - Driver-closed tests (test_set_get_parameter_*, test_set_parameter_posix_*)
+      must run with the driver CLOSED — libcufile rejects parameter-set calls
+      when the driver is open (DRIVER_ALREADY_OPEN, 5026).
+
+    Workaround for NVIDIA libcufile 1.17.1 bug: calling cuFileSetParameterSizeT
+    (or similar pre-open configuration APIs) BEFORE the first cuFileDriverOpen
+    leaves an internal version list uninitialized such that a later
+    cuFileDriverOpen SIGFPEs in CUFileDrv::ReadVersionInfo (div-by-zero).
+    Under random ordering, a driver-closed test can run before any
+    driver-open test, poisoning libcufile and tearing down pytest with a fatal
+    signal on the next driver_open.
+
+    One open/close cycle up front primes libcufile's version list. After that,
+    both regimes work: the per-test `driver` fixture can open/close freely,
+    and parameter-set tests run against the (now properly initialized) closed
+    driver.
+
+    Note: per-test driver_open/close is not ideal on throughput grounds, but
+    it is forced by the libcufile API — parameter-set tests cannot coexist
+    with a session-wide open driver.
+    """
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, dctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(dctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        cufile.driver_open()
+        cufile.driver_close()
+    finally:
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
 @pytest.fixture
@@ -1377,7 +1432,7 @@ def test_batch_io_large_operations():
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
-@pytest.mark.usefixtures("ctx")
+@pytest.mark.usefixtures("ctx", "cufile_env_json")
 def test_set_get_parameter_size_t():
     """Test setting and getting size_t parameters with cuFile validation."""
     param_val_pairs = (
@@ -1394,8 +1449,13 @@ def test_set_get_parameter_size_t():
         (cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM, 4),  # Max 4 parallel requests
     )
 
+    # Snapshot baselines after driver_open so getters reflect merged config (defaults + JSON),
+    # not pre-open pending state that could restore invalid values (e.g. 0 for per-buffer cache).
+    with _cufile_driver_session():
+        originals = {param: cufile.get_parameter_size_t(param) for param, _ in param_val_pairs}
+
     def test_param(param, val):
-        orig_val = cufile.get_parameter_size_t(param)
+        orig_val = originals[param]
         cufile.set_parameter_size_t(param, val)
         retrieved_val = cufile.get_parameter_size_t(param)
         assert retrieved_val == val
@@ -1409,9 +1469,11 @@ def test_set_get_parameter_size_t():
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
-@pytest.mark.usefixtures("ctx")
+@pytest.mark.usefixtures("ctx", "cufile_env_json")
 def test_set_get_parameter_bool():
     """Test setting and getting boolean parameters with cuFile validation."""
+    # Load the compat-enabled test config before the first driver_open so the compat
+    # bool params can still be round-tripped on systems without nvidia-fs.
     param_val_pairs = (
         (cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE, True),
         (cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, False),
@@ -1426,28 +1488,29 @@ def test_set_get_parameter_bool():
         (cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION, False),
         (cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, True),
     )
+    # PROFILE_NVTX is deprecated (CTK 13.1.0+); cuFile >= 1.16 rejects bool getters for it.
+    if cufile.get_version() >= 1160:
+        param_val_pairs = tuple((p, v) for p, v in param_val_pairs if p is not cufile.BoolConfigParameter.PROFILE_NVTX)
+
+    with _cufile_driver_session():
+        originals = {param: cufile.get_parameter_bool(param) for param, _ in param_val_pairs}
 
     def test_param(param, val):
-        orig_val = cufile.get_parameter_bool(param)
+        orig_val = originals[param]
         cufile.set_parameter_bool(param, val)
         retrieved_val = cufile.get_parameter_bool(param)
         assert retrieved_val is val
         cufile.set_parameter_bool(param, orig_val)
 
-    try:
-        # Test setting and getting various boolean parameters
-        for param, val in param_val_pairs:
-            test_param(param, val)
-    except cufile.cuFileError:
-        if cufile.get_version() < 1160:
-            raise
-        assert param is cufile.BoolConfigParameter.PROFILE_NVTX  # Deprecated in CTK 13.1.0
+    # Test setting and getting various boolean parameters
+    for param, val in param_val_pairs:
+        test_param(param, val)
 
 
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
-@pytest.mark.usefixtures("ctx")
+@pytest.mark.usefixtures("ctx", "cufile_env_json")
 def test_set_get_parameter_string(tmp_path):
     """Test setting and getting string parameters with cuFile validation."""
     temp_dir = tempfile.gettempdir()
@@ -1468,8 +1531,11 @@ def test_set_get_parameter_string(tmp_path):
         ),  # Test log directory
     )
 
+    with _cufile_driver_session():
+        originals = {param: cufile.get_parameter_string(param, 256) for param, _, _ in param_val_pairs}
+
     def test_param(param, val, default_val):
-        orig_val = cufile.get_parameter_string(param, 256)
+        orig_val = originals[param]
 
         val_b = val.encode("utf-8")
         val_buf = ctypes.create_string_buffer(val_b)
@@ -1896,8 +1962,7 @@ def driver_config(slab_sizes, slab_counts):
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
-@pytest.mark.usefixtures("ctx")
-def test_set_parameter_posix_pool_slab_array(slab_sizes, slab_counts, driver_config):
+def test_set_parameter_posix_pool_slab_array(slab_sizes, slab_counts, driver_config, driver):
     """Test cuFile POSIX pool slab array configuration."""
     # After setting parameters, retrieve them back to verify
     n_slab_sizes = len(slab_sizes)
@@ -1908,11 +1973,8 @@ def test_set_parameter_posix_pool_slab_array(slab_sizes, slab_counts, driver_con
     retrieved_counts_addr = ctypes.addressof(retrieved_counts)
 
     # Open cuFile driver AFTER setting parameters
-    cufile.driver_open()
-    try:
+    with _cufile_driver_session():
         cufile.get_parameter_posix_pool_slab_array(retrieved_sizes_addr, retrieved_counts_addr, n_slab_sizes)
-    finally:
-        cufile.driver_close()
 
     # Verify they match what we set
     assert list(retrieved_sizes) == slab_sizes

@@ -34,15 +34,15 @@ class TestObjectSerializationDirect:
         process.start()
 
         # Send a memory resource by allocation handle.
-        alloc_handle = mr.get_allocation_handle()
+        alloc_handle = mr.allocation_handle
         mp.reduction.send_handle(parent_conn, alloc_handle.handle, process.pid)
 
         # Send a buffer.
-        buffer1 = mr.allocate(NBYTES)
+        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
         parent_conn.send(buffer1)  # directly
 
-        buffer2 = mr.allocate(NBYTES)
-        parent_conn.send(buffer2.get_ipc_descriptor())  # by descriptor
+        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
+        parent_conn.send(buffer2.ipc_descriptor)  # by descriptor
 
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
@@ -68,7 +68,7 @@ class TestObjectSerializationDirect:
         # Receive the buffers.
         buffer1 = conn.recv()  # directly
         buffer_desc = conn.recv()
-        buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc)  # by descriptor
+        buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc, stream=device.default_stream)  # by descriptor
 
         # Modify the buffers.
         pgen = PatternGen(device, NBYTES)
@@ -98,7 +98,7 @@ class TestObjectSerializationWithMR:
         assert uuid == mr.uuid
 
         # Send a buffer.
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=device.default_stream)
         pipe[0].put(buffer)
 
         # Wait for the child process.
@@ -140,9 +140,9 @@ class TestObjectPassing:
         # Define the objects.
         device = ipc_device
         mr = ipc_memory_resource
-        alloc_handle = mr.get_allocation_handle()
-        buffer = mr.allocate(NBYTES)
-        buffer_desc = buffer.get_ipc_descriptor()
+        alloc_handle = mr.allocation_handle
+        buffer = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer_desc = buffer.ipc_descriptor
 
         pgen = PatternGen(device, NBYTES)
         pgen.fill_buffer(buffer, seed=False)
