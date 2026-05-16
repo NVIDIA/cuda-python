@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/_memory/_ipc.pyx: 52.50%</title>
+    <title>Coverage for cuda/core/_memory/_ipc.pyx: 51.64%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
@@ -158,7 +158,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;_memory&#8201;/&#8201;_ipc.pyx</b>:
-            <span class="pc_cov">52.50%</span>
+            <span class="pc_cov">51.64%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -200,9 +200,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">120 statements &nbsp;</span>
+            <span class="text">122 statements &nbsp;</span>
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">63<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">57<span class="text"> missing</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">59<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -211,7 +211,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__managed_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-15 01:29 +0000
+            created at 2026-05-16 01:20 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -439,46 +439,52 @@
     <p class="mis show_mis"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">    cdef int ipc_fd = int(alloc_handle)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">    self._h_pool = create_mempool_handle_ipc(ipc_fd, IPC_HANDLE_TYPE)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">    if not self._h_pool:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">        raise RuntimeError("Failed to import memory pool from IPC handle")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">    self._ipc_data = IPCDataForMR(alloc_handle, True)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">    # Register it.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">    if uuid is not None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">        registered = self.register(uuid)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">        assert registered is self</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">cdef _MemPool MP_from_registry(uuid):</span>&nbsp;</span><span class="r"><label for="ctxs225" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">        return registry[uuid]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">    except KeyError:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">        raise RuntimeError(f"Memory resource {uuid} was not found") from None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">        HANDLE_RETURN(get_last_error())</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">        raise RuntimeError(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">            f"Failed to import {cls.__name__} from an allocation handle: "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">            "cuda-core returned an empty memory pool handle without recording a CUDA error. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">            "This is an internal cuda-core error; please report it with your CUDA driver, "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">            "CUDA Toolkit, and cuda-python versions."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">    self._ipc_data = IPCDataForMR(alloc_handle, True)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">    # Register it.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">    if uuid is not None:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">        registered = self.register(uuid)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">        assert registered is self</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">cdef _MemPool MP_register(_MemPool self, uuid):</span>&nbsp;</span><span class="r"><label for="ctxs232" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">    existing = registry.get(uuid)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">    if existing is not None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">        return existing</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">    assert self.uuid is None or self.uuid == uuid</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">    registry[uuid] = self</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">    self._ipc_data._alloc_handle._uuid = uuid</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">cdef IPCAllocationHandle MP_export_mempool(_MemPool self):</span>&nbsp;</span><span class="r"><label for="ctxs242" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">    # Note: This is Linux only (int for file descriptor)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    cdef int fd</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">91 ctx</label></span><span class="ctxs">2Z 0 a 1 b 2 3 4 g 5 h 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbc d kblbmbnbobpbi j k l e f qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbn GbHbIbS JbKbo p </span></p>
-    <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(</span>&nbsp;</span><input type="checkbox" id="ctxs246"><span class="r"><label for="ctxs246" class="ctx">91 ctx</label></span><span class="ctxs">2Z 0 a 1 b 2 3 4 g 5 h 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbc d kblbmbnbobpbi j k l e f qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbn GbHbIbS JbKbo p </span></p>
-    <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">            &amp;fd, as_cu(self._h_pool), IPC_HANDLE_TYPE, 0)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs249"><span class="r"><label for="ctxs249" class="ctx">91 ctx</label></span><span class="ctxs">2Z 0 a 1 b 2 3 4 g 5 h 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbc d kblbmbnbobpbi j k l e f qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbn GbHbIbS JbKbo p </span></p>
-    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        return IPCAllocationHandle._init(fd, uuid.uuid4())</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">91 ctx</label></span><span class="ctxs">2Z 0 a 1 b 2 3 4 g 5 h 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbc d kblbmbnbobpbi j k l e f qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbn GbHbIbS JbKbo p </span></p>
-    <p class="mis show_mis"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">    except:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">        os.close(fd)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">        raise</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">cdef _MemPool MP_from_registry(uuid):</span>&nbsp;</span><span class="r"><label for="ctxs231" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">        return registry[uuid]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">    except KeyError:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">        raise RuntimeError(f"Memory resource {uuid} was not found") from None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">cdef _MemPool MP_register(_MemPool self, uuid):</span>&nbsp;</span><span class="r"><label for="ctxs238" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">    existing = registry.get(uuid)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">    if existing is not None:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">        return existing</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">    assert self.uuid is None or self.uuid == uuid</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">    registry[uuid] = self</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    self._ipc_data._alloc_handle._uuid = uuid</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">cdef IPCAllocationHandle MP_export_mempool(_MemPool self):</span>&nbsp;</span><span class="r"><label for="ctxs248" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">    # Note: This is Linux only (int for file descriptor)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">    cdef int fd</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs251"><span class="r"><label for="ctxs251" class="ctx">91 ctx</label></span><span class="ctxs">2Z 0 a 1 b 2 3 4 g 5 h 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbc d kblbmbnbobpbi j k l e f qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbn GbHbIbS JbKbo p </span></p>
+    <p class="run"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(</span>&nbsp;</span><input type="checkbox" id="ctxs252"><span class="r"><label for="ctxs252" class="ctx">91 ctx</label></span><span class="ctxs">2Z 0 a 1 b 2 3 4 g 5 h 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbc d kblbmbnbobpbi j k l e f qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbn GbHbIbS JbKbo p </span></p>
+    <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">            &amp;fd, as_cu(self._h_pool), IPC_HANDLE_TYPE, 0)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs255"><span class="r"><label for="ctxs255" class="ctx">91 ctx</label></span><span class="ctxs">2Z 0 a 1 b 2 3 4 g 5 h 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbc d kblbmbnbobpbi j k l e f qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbn GbHbIbS JbKbo p </span></p>
+    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">        return IPCAllocationHandle._init(fd, uuid.uuid4())</span>&nbsp;</span><input type="checkbox" id="ctxs256"><span class="r"><label for="ctxs256" class="ctx">91 ctx</label></span><span class="ctxs">2Z 0 a 1 b 2 3 4 g 5 h 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbc d kblbmbnbobpbi j k l e f qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbn GbHbIbS JbKbo p </span></p>
+    <p class="mis show_mis"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">    except:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">        os.close(fd)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">        raise</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -488,7 +494,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__managed_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-15 01:29 +0000
+            created at 2026-05-16 01:20 +0000
         </p>
     </div>
 </footer>
