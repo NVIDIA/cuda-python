@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import ByteString as BufferProtocol
-
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
 from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._memory._pinned_memory_resource import PinnedMemoryResource
 from cuda.core._stream import Stream
+from cuda.core._utils.pycompat import BufferProtocol
 from cuda.core.graph import GraphBuilder
 from cuda.core.typing import DevicePointerType
 

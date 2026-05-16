@@ -113,7 +113,7 @@ class _StridedLayout:
     def __repr__(self: _StridedLayout) -> str:
         ...
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other):
         ...
 
     @property

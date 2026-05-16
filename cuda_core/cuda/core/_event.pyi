@@ -175,7 +175,7 @@ class IPCEventDescriptor:
     def _init(reserved: bytes, is_blocking_sync: cython.bint):
         ...
 
-    def __eq__(self, rhs) -> bool:
+    def __eq__(self, other) -> bool:
         ...
 
     def __reduce__(self):

@@ -30,14 +30,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 import sys
 from typing import TYPE_CHECKING
 
-# ByteString was deprecated in favor of BufferProtocol in Python 3.12.
-# When Python 3.12 is our minimum version, we can update this.
-# mypy needs /something/ at the top-level, so we set that an then
-# override rather than putting both branches in an if/else.
-from collections.abc import ByteString as BufferProtocol
-if sys.version_info >= (3, 12):
-    from collections.abc import Buffer as BufferProtocol
-
+from cuda.core._utils.pycompat import BufferProtocol
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
 

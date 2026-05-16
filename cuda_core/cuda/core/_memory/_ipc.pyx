@@ -211,7 +211,13 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
     cdef int ipc_fd = int(alloc_handle)
     self._h_pool = create_mempool_handle_ipc(ipc_fd, IPC_HANDLE_TYPE)
     if not self._h_pool:
-        raise RuntimeError("Failed to import memory pool from IPC handle")
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError(
+            f"Failed to import {cls.__name__} from an allocation handle: "
+            "cuda-core returned an empty memory pool handle without recording a CUDA error. "
+            "This is an internal cuda-core error; please report it with your CUDA driver, "
+            "CUDA Toolkit, and cuda-python versions."
+        )
     self._ipc_data = IPCDataForMR(alloc_handle, True)
 
     # Register it.

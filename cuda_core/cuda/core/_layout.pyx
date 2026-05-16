@@ -176,11 +176,15 @@ cdef class _StridedLayout:
                 f"_StridedLayout(shape={self.shape}, strides={self.strides}, itemsize={self.itemsize}, _slice_offset={self.slice_offset})"
             )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other):
         if not isinstance(other, _StridedLayout):
             return NotImplemented
         cdef _StridedLayout _other = <_StridedLayout>other
-        return self.itemsize == _other.itemsize and self.slice_offset == _other.slice_offset and _base_layout_equal(self.base, _other.base)
+        return (
+            self.itemsize == _other.itemsize
+            and self.slice_offset == _other.slice_offset
+            and _base_layout_equal(self.base, _other.base)
+        )
 
     @property
     def ndim(self : _StridedLayout):

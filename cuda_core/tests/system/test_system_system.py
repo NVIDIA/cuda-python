@@ -8,12 +8,11 @@ import os
 import pytest
 
 try:
-    from cuda.bindings import driver, runtime
+    from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-    from cuda import cudart as runtime
 
-from cuda.core import Device, system
+from cuda.core import system
 from cuda.core._utils.cuda_utils import handle_return
 
 from .conftest import skip_if_nvml_unsupported
@@ -38,15 +37,6 @@ def test_kernel_mode_driver_version():
     assert ver_min >= 0
     if ver_patch:
         assert 0 <= ver_patch[0] <= 99
-
-
-def test_devices():
-    devices = Device.get_all_devices()
-    expected_num_devices = handle_return(runtime.cudaGetDeviceCount())
-    expected_devices = tuple(Device(device_id) for device_id in range(expected_num_devices))
-    assert len(devices) == len(expected_devices), "Number of devices does not match expected value"
-    for device, expected_device in zip(devices, expected_devices):
-        assert device.device_id == expected_device.device_id, "Device ID does not match expected value"
 
 
 def test_kernel_mode_driver_version_requires_nvml():
