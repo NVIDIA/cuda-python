@@ -35811,7 +35811,7 @@ def cudaGraphGetNodes(graph, size_t numNodes = 0):
     if cudaError_t(err) == cudaError_t(0):
         pynodes = [cudaGraphNode_t() for _ in range(_graph_length)]
         for idx in range(_graph_length):
-            string.memcpy((<cudaGraphNode_t>pynodes[idx])._pvt_ptr, &cynodes[idx], sizeof(cyruntime.cudaGraphNode_t))
+            (<cudaGraphNode_t>pynodes[idx])._pvt_ptr[0] = cynodes[idx]
     if cynodes is not NULL:
         free(cynodes)
     if err != cyruntime.cudaSuccess:
@@ -35872,7 +35872,7 @@ def cudaGraphGetRootNodes(graph, size_t pNumRootNodes = 0):
     if cudaError_t(err) == cudaError_t(0):
         pypRootNodes = [cudaGraphNode_t() for _ in range(_graph_length)]
         for idx in range(_graph_length):
-            string.memcpy((<cudaGraphNode_t>pypRootNodes[idx])._pvt_ptr, &cypRootNodes[idx], sizeof(cyruntime.cudaGraphNode_t))
+            (<cudaGraphNode_t>pypRootNodes[idx])._pvt_ptr[0] = cypRootNodes[idx]
     if cypRootNodes is not NULL:
         free(cypRootNodes)
     if err != cyruntime.cudaSuccess:
@@ -35956,19 +35956,19 @@ def cudaGraphGetEdges(graph, size_t numEdges = 0):
     if cudaError_t(err) == cudaError_t(0):
         pyfrom_ = [cudaGraphNode_t() for _ in range(_graph_length)]
         for idx in range(_graph_length):
-            string.memcpy((<cudaGraphNode_t>pyfrom_[idx])._pvt_ptr, &cyfrom_[idx], sizeof(cyruntime.cudaGraphNode_t))
+            (<cudaGraphNode_t>pyfrom_[idx])._pvt_ptr[0] = cyfrom_[idx]
     if cyfrom_ is not NULL:
         free(cyfrom_)
     if cudaError_t(err) == cudaError_t(0):
         pyto = [cudaGraphNode_t() for _ in range(_graph_length)]
         for idx in range(_graph_length):
-            string.memcpy((<cudaGraphNode_t>pyto[idx])._pvt_ptr, &cyto[idx], sizeof(cyruntime.cudaGraphNode_t))
+            (<cudaGraphNode_t>pyto[idx])._pvt_ptr[0] = cyto[idx]
     if cyto is not NULL:
         free(cyto)
     if cudaError_t(err) == cudaError_t(0):
         pyedgeData = [cudaGraphEdgeData() for _ in range(_graph_length)]
         for idx in range(_graph_length):
-            string.memcpy((<cudaGraphEdgeData>pyedgeData[idx])._pvt_ptr, &cyedgeData[idx], sizeof(cyruntime.cudaGraphEdgeData))
+            (<cudaGraphEdgeData>pyedgeData[idx])._pvt_ptr[0] = cyedgeData[idx]
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cyruntime.cudaSuccess:
@@ -36043,13 +36043,13 @@ def cudaGraphNodeGetDependencies(node, size_t pNumDependencies = 0):
     if cudaError_t(err) == cudaError_t(0):
         pypDependencies = [cudaGraphNode_t() for _ in range(_graph_length)]
         for idx in range(_graph_length):
-            string.memcpy((<cudaGraphNode_t>pypDependencies[idx])._pvt_ptr, &cypDependencies[idx], sizeof(cyruntime.cudaGraphNode_t))
+            (<cudaGraphNode_t>pypDependencies[idx])._pvt_ptr[0] = cypDependencies[idx]
     if cypDependencies is not NULL:
         free(cypDependencies)
     if cudaError_t(err) == cudaError_t(0):
         pyedgeData = [cudaGraphEdgeData() for _ in range(_graph_length)]
         for idx in range(_graph_length):
-            string.memcpy((<cudaGraphEdgeData>pyedgeData[idx])._pvt_ptr, &cyedgeData[idx], sizeof(cyruntime.cudaGraphEdgeData))
+            (<cudaGraphEdgeData>pyedgeData[idx])._pvt_ptr[0] = cyedgeData[idx]
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cyruntime.cudaSuccess:
@@ -36124,13 +36124,13 @@ def cudaGraphNodeGetDependentNodes(node, size_t pNumDependentNodes = 0):
     if cudaError_t(err) == cudaError_t(0):
         pypDependentNodes = [cudaGraphNode_t() for _ in range(_graph_length)]
         for idx in range(_graph_length):
-            string.memcpy((<cudaGraphNode_t>pypDependentNodes[idx])._pvt_ptr, &cypDependentNodes[idx], sizeof(cyruntime.cudaGraphNode_t))
+            (<cudaGraphNode_t>pypDependentNodes[idx])._pvt_ptr[0] = cypDependentNodes[idx]
     if cypDependentNodes is not NULL:
         free(cypDependentNodes)
     if cudaError_t(err) == cudaError_t(0):
         pyedgeData = [cudaGraphEdgeData() for _ in range(_graph_length)]
         for idx in range(_graph_length):
-            string.memcpy((<cudaGraphEdgeData>pyedgeData[idx])._pvt_ptr, &cyedgeData[idx], sizeof(cyruntime.cudaGraphEdgeData))
+            (<cudaGraphEdgeData>pyedgeData[idx])._pvt_ptr[0] = cyedgeData[idx]
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cyruntime.cudaSuccess:
