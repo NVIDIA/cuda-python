@@ -6,6 +6,7 @@ import pytest
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
+from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 
 
 def supportsMemoryPool():
@@ -87,12 +88,14 @@ def test_interop_graphNode():
 def test_interop_memPool():
     # DRV to RT
     err_dr, pool = cuda.cuDeviceGetDefaultMemPool(0)
+    xfail_if_mempool_oom(err_dr, "cuDeviceGetDefaultMemPool", 0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
     (err_rt,) = cudart.cudaDeviceSetMemPool(0, pool)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
     # RT to DRV
     err_rt, pool = cudart.cudaDeviceGetDefaultMemPool(0)
+    xfail_if_mempool_oom(err_rt, "cudaDeviceGetDefaultMemPool", 0)
     assert err_rt == cudart.cudaError_t.cudaSuccess
     (err_dr,) = cuda.cuDeviceSetMemPool(0, pool)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
