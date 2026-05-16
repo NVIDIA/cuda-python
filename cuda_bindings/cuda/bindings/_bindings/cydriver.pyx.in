@@ -519,7 +519,7 @@ cdef int _cuPythonInit() except -1 nogil:
     cdef char libPath[260]
 
     with gil, __symbol_lock:
-        usePTDS = os.getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=0)
+        usePTDS = bool(int(os.getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=0)))
 
         # Load library
         libPath[0] = 0
