@@ -519,6 +519,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.2.1-notes.html">13.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.1.0-notes.html">13.1.0</a></li>
@@ -572,6 +573,7 @@
 <li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html">nvjitlink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvvm.html">nvvm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvfatbin.html">nvfatbin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/cudla.html">cudla</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="module/cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
@@ -3078,6 +3080,49 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvfatbin.html#types">Types</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result"><code class="docutils literal notranslate"><span class="pre">Result</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module/cudla.html">cudla</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module/cudla.html#note">Note</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/cudla.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.get_version"><code class="docutils literal notranslate"><span class="pre">get_version()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.device_get_count"><code class="docutils literal notranslate"><span class="pre">device_get_count()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.create_device"><code class="docutils literal notranslate"><span class="pre">create_device()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.destroy_device"><code class="docutils literal notranslate"><span class="pre">destroy_device()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.mem_register"><code class="docutils literal notranslate"><span class="pre">mem_register()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.mem_unregister"><code class="docutils literal notranslate"><span class="pre">mem_unregister()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.module_load_from_memory"><code class="docutils literal notranslate"><span class="pre">module_load_from_memory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.module_get_attributes"><code class="docutils literal notranslate"><span class="pre">module_get_attributes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.module_unload"><code class="docutils literal notranslate"><span class="pre">module_unload()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.submit_task"><code class="docutils literal notranslate"><span class="pre">submit_task()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.device_get_attribute"><code class="docutils literal notranslate"><span class="pre">device_get_attribute()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.get_last_error"><code class="docutils literal notranslate"><span class="pre">get_last_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.set_task_timeout_in_ms"><code class="docutils literal notranslate"><span class="pre">set_task_timeout_in_ms()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="module/cudla.html#types">Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.ExternalMemoryHandleDesc"><code class="docutils literal notranslate"><span class="pre">ExternalMemoryHandleDesc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.ExternalSemaphoreHandleDesc"><code class="docutils literal notranslate"><span class="pre">ExternalSemaphoreHandleDesc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.ModuleTensorDescriptor"><code class="docutils literal notranslate"><span class="pre">ModuleTensorDescriptor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.Fence"><code class="docutils literal notranslate"><span class="pre">Fence</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.DevAttribute"><code class="docutils literal notranslate"><span class="pre">DevAttribute</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.ModuleAttribute"><code class="docutils literal notranslate"><span class="pre">ModuleAttribute</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.WaitEvents"><code class="docutils literal notranslate"><span class="pre">WaitEvents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.SignalEvents"><code class="docutils literal notranslate"><span class="pre">SignalEvents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.Task"><code class="docutils literal notranslate"><span class="pre">Task</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="module/cudla.html#enums">Enums</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.Status"><code class="docutils literal notranslate"><span class="pre">Status</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.Mode"><code class="docutils literal notranslate"><span class="pre">Mode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.ModuleAttributeType"><code class="docutils literal notranslate"><span class="pre">ModuleAttributeType</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.FenceType"><code class="docutils literal notranslate"><span class="pre">FenceType</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.ModuleLoadFlags"><code class="docutils literal notranslate"><span class="pre">ModuleLoadFlags</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.SubmissionFlags"><code class="docutils literal notranslate"><span class="pre">SubmissionFlags</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.AccessPermissionFlags"><code class="docutils literal notranslate"><span class="pre">AccessPermissionFlags</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/cudla.html#cuda.bindings.cudla.DevAttributeType"><code class="docutils literal notranslate"><span class="pre">DevAttributeType</span></code></a></li>
 </ul>
 </li>
 </ul>
