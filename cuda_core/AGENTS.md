@@ -63,3 +63,21 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   call-site consistency.
 - Prefer explicit error propagation over silent fallback paths.
 - If you change public behavior, update tests and docs under `docs/source/`.
+- For new public APIs or broad feature work, sketch the API and behavior in an
+  issue/design discussion before opening a large implementation PR. Reviewers
+  often block major `cuda_core` features until API shape, examples, and
+  docs/release-note coverage are clear.
+- Feature availability checks should query CUDA driver/device capabilities
+  instead of hard-coding broad platform skips. Prefer properties such as
+  capability flags over assumptions like "Windows", "Linux", or "WSL".
+- Keep CUDA 12.x and 13.x build compatibility in mind. Do not directly cimport
+  newly generated binding symbols unless older supported CUDA-major builds are
+  gated or have a wrapper/fallback path.
+- Resource and context-manager code must preserve stream ordering, ownership,
+  and exception semantics. `close()`/cleanup paths should use the stream that
+  established the resource ordering, and `__exit__` should avoid masking a
+  user's original exception where practical.
+- Tests should cover the behavior users exercise, not just private helpers.
+  Avoid large module-stubbing tests for simple implementation choices; prefer
+  focused regressions around the public API or the smallest stable internal
+  boundary.
