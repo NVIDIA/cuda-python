@@ -5,33 +5,21 @@
 
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
-    echo "Usage: $(basename "$0") ctk-major-minor-patch" 1>&2
+if [[ $# -ne 2 ]]; then
+    echo "Usage: $(basename "$0") python_major_minor cuda_major_minor_patch" 1>&2
     exit 1
 fi
 
-cuda_version="$1"
-cuda_major="${cuda_version%%.*}"
+python_major_minor="$1"
+cuda_major_minor_patch="$2"
+cuda_major="${cuda_major_minor_patch%%.*}"
 uname_m="$(uname -m)"
-case "$cuda_major" in
-    12)
-        python_version=3.12
-        ;;
-    13)
-        python_version=3.14
-        ;;
-    *)
-        echo "Unsupported CUDA major version for this helper: $cuda_major" 1>&2
-        echo "Expected a 12.x or 13.x toolkit version." 1>&2
-        exit 1
-        ;;
-esac
 
 eval "$(conda shell.bash hook)"
 
-conda create --yes -n "pathfinder_testing_cu$cuda_version" "python=$python_version" cuda-toolkit="$cuda_version"
+conda create --yes -n "pathfinder_testing_cu$cuda_major_minor_patch" "python=$python_major_minor" cuda-toolkit="$cuda_major_minor_patch"
 set +u
-conda activate "pathfinder_testing_cu$cuda_version"
+conda activate "pathfinder_testing_cu$cuda_major_minor_patch"
 set -u
 
 # Keep this list aligned with the Linux-installable subset of
@@ -52,7 +40,7 @@ cpkgs=(
 # Keep the conda environment aligned with platform-scoped pyproject groups.
 if [[ "$uname_m" == "aarch64" ]]; then
     cpkgs+=("libnvpl-fft-dev")
-    if [[ "$cuda_major" == "13" ]]; then
+    if (( cuda_major >= 13 )); then
         cpkgs+=("libcudla-dev")
     fi
 fi
