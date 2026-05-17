@@ -88,7 +88,7 @@ cdef class ManagedMemoryResource(_MemPool):
     memory pools.
     """
 
-    def __init__(self, options=None):
+    def __init__(self, options: ManagedMemoryResourceOptions | dict | None = None) -> None:
         _MMR_init(self, options)
 
     @property
@@ -305,7 +305,7 @@ cdef inline _check_concurrent_managed_access():
         _concurrent_access_warned = True
 
 
-def reset_concurrent_access_warning():
+def reset_concurrent_access_warning() -> None:
     """Reset the concurrent access warning flag for testing purposes."""
     global _concurrent_access_warned
     _concurrent_access_warned = False

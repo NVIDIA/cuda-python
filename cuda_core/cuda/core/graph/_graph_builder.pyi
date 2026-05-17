@@ -109,14 +109,14 @@ class GraphBuilder:
     class _MembersNeededForFinalize:
         __slots__ = ('conditional_graph', 'graph', 'is_join_required', 'is_stream_owner', 'stream')
 
-        def __init__(self, graph_builder_obj, stream_obj, is_stream_owner, conditional_graph, is_join_required):
+        def __init__(self, graph_builder_obj: GraphBuilder, stream_obj: Stream | None, is_stream_owner: bool, conditional_graph, is_join_required: bool) -> None:
             ...
 
-        def close(self):
+        def close(self) -> None:
             ...
     __slots__ = ('__weakref__', '_building_ended', '_mnff')
 
-    def __init__(self):
+    def __init__(self) -> None:
         ...
 
     @classmethod
@@ -131,7 +131,7 @@ class GraphBuilder:
     def is_join_required(self) -> bool:
         """Returns True if this graph builder must be joined before building is ended."""
 
-    def begin_building(self, mode='relaxed') -> GraphBuilder:
+    def begin_building(self, mode: str='relaxed') -> GraphBuilder:
         """Begins the building process.
 
         Build `mode` for controlling interaction with other API calls must be one of the following:
@@ -170,7 +170,7 @@ class GraphBuilder:
 
         """
 
-    def debug_dot_print(self, path, options: GraphDebugPrintOptions | None=None):
+    def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None=None) -> None:
         """Generates a DOT debug file for the graph builder.
 
         Parameters
@@ -202,7 +202,7 @@ class GraphBuilder:
         """
 
     @staticmethod
-    def join(*graph_builders) -> GraphBuilder:
+    def join(*graph_builders: GraphBuilder) -> GraphBuilder:
         """Joins multiple graph builders into a single graph builder.
 
         The returned builder inherits work dependencies from the provided builders.
@@ -225,7 +225,7 @@ class GraphBuilder:
     def _get_conditional_context(self) -> driver.CUcontext:
         ...
 
-    def create_condition(self, default_value=None) -> GraphCondition:
+    def create_condition(self, default_value: int | None=None) -> GraphCondition:
         """Create a condition variable for use with conditional nodes.
 
         The returned :class:`GraphCondition` object is passed to conditional-node
@@ -335,7 +335,7 @@ class GraphBuilder:
 
         """
 
-    def close(self):
+    def close(self) -> None:
         """Destroy the graph builder.
 
         Closes the associated stream if we own it. Borrowed stream
@@ -343,7 +343,7 @@ class GraphBuilder:
 
         """
 
-    def embed(self, child: GraphBuilder):
+    def embed(self, child: GraphBuilder) -> None:
         """Embed a previously-built :obj:`~graph.GraphBuilder` as a child node.
 
         Parameters
@@ -352,7 +352,7 @@ class GraphBuilder:
             The child graph builder. Must have finished building.
         """
 
-    def callback(self, fn, *, user_data=None):
+    def callback(self, fn, *, user_data=None) -> None:
         """Add a host callback to the graph during stream capture.
 
         The callback runs on the host CPU when the graph reaches this point
@@ -395,21 +395,21 @@ class Graph:
     class _MembersNeededForFinalize:
         __slots__ = 'graph'
 
-        def __init__(self, graph_obj, graph):
+        def __init__(self, graph_obj: Graph, graph: driver.CUgraphExec) -> None:
             ...
 
-        def close(self):
+        def close(self) -> None:
             ...
     __slots__ = ('__weakref__', '_mnff')
 
-    def __init__(self):
+    def __init__(self) -> None:
         ...
 
     @classmethod
     def _init(cls, graph):
         ...
 
-    def close(self):
+    def close(self) -> None:
         """Destroy the graph."""
 
     @property
@@ -436,7 +436,7 @@ class Graph:
 
         """
 
-    def upload(self, stream: Stream):
+    def upload(self, stream: Stream) -> None:
         """Uploads the graph in a stream.
 
         Parameters
@@ -446,7 +446,7 @@ class Graph:
 
         """
 
-    def launch(self, stream: Stream):
+    def launch(self, stream: Stream) -> None:
         """Launches the graph in a stream.
 
         Parameters

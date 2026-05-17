@@ -7,12 +7,12 @@ import threading
 _NVMLState = int
 _lock = threading.Lock()
 
-def _initialize():
+def _initialize() -> None:
     """
     Initializes Nvidia Management Library (NVML), ensuring it only happens once per process.
     """
 
-def validate():
+def validate() -> None:
     """
     Validate NVML state.
 
@@ -29,5 +29,5 @@ def validate():
         If no GPUs are available.
     """
 
-def _get_nvml_state():
+def _get_nvml_state() -> _NVMLState:
     ...

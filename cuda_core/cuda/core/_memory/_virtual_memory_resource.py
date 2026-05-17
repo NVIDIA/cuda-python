@@ -165,7 +165,7 @@ class VirtualMemoryResource(MemoryResource):
         in cuda.core should already meet the common needs.
     """
 
-    def __init__(self, device_id: Device | int, config: VirtualMemoryResourceOptions | None = None):
+    def __init__(self, device_id: Device | int, config: VirtualMemoryResourceOptions | None = None) -> None:
         self.device: Device | None = Device(device_id)
         self.config = check_or_create_options(
             VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False

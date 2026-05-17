@@ -60,11 +60,11 @@ class GraphicsResource:
             mapped buffer, if one exists.
         """
 
-    def __init__(self):
+    def __init__(self) -> None:
         ...
 
     @classmethod
-    def from_gl_buffer(cls, gl_buffer: int, *, flags=None, stream=None) -> GraphicsResource:
+    def from_gl_buffer(cls, gl_buffer: int, *, flags: str | tuple[str, ...] | list[str] | None=None, stream: Stream | None=None) -> GraphicsResource:
         """Register an OpenGL buffer object for CUDA access.
 
         Parameters
@@ -111,7 +111,7 @@ class GraphicsResource:
         """
 
     @classmethod
-    def from_gl_image(cls, image: int, target: int, *, flags=None) -> GraphicsResource:
+    def from_gl_image(cls, image: int, target: int, *, flags: str | tuple[str, ...] | list[str] | None=None) -> GraphicsResource:
         """Register an OpenGL texture or renderbuffer for CUDA access.
 
         Parameters
@@ -177,7 +177,7 @@ class GraphicsResource:
             If the mapping fails.
         """
 
-    def unmap(self, *, stream: Stream | None=None):
+    def unmap(self, *, stream: Stream | None=None) -> None:
         """Unmap this graphics resource, releasing it back to the graphics API.
 
         After unmapping, the :class:`~cuda.core.Buffer` previously returned
@@ -215,7 +215,7 @@ class GraphicsResource:
     def resource_handle(self) -> int:
         """Alias for :attr:`handle`."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         ...
 __all__ = ['GraphicsResource']
 _REGISTER_FLAGS = {'none': cydriver.CU_GRAPHICS_REGISTER_FLAGS_NONE, 'read_only': cydriver.CU_GRAPHICS_REGISTER_FLAGS_READ_ONLY, 'write_discard': cydriver.CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD, 'surface_load_store': cydriver.CU_GRAPHICS_REGISTER_FLAGS_SURFACE_LDST, 'texture_gather': cydriver.CU_GRAPHICS_REGISTER_FLAGS_TEXTURE_GATHER}

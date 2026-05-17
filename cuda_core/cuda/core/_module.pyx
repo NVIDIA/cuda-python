@@ -50,7 +50,7 @@ cdef class KernelAttributes:
     is visible through the others.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
     @staticmethod
@@ -85,7 +85,7 @@ cdef class KernelAttributes:
         self._cache[cache_key] = result
         return result
 
-    def __getitem__(self, device) -> KernelAttributes:
+    def __getitem__(self, device: Device | int) -> KernelAttributes:
         """Return a view of these attributes bound to a specific device.
 
         Parameters
@@ -243,7 +243,7 @@ cdef class KernelOccupancy:
     launch parameters such as block size, grid size, and shared memory usage.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("KernelOccupancy cannot be instantiated directly. Please use Kernel APIs.")
 
     @staticmethod
@@ -441,7 +441,7 @@ cdef class Kernel:
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
     @staticmethod
@@ -507,7 +507,7 @@ cdef class Kernel:
         return self._occupancy
 
     @property
-    def handle(self):
+    def handle(self) -> object:
         """Return the underlying kernel handle object.
 
         .. caution::
@@ -518,11 +518,11 @@ cdef class Kernel:
         return as_py(self._h_kernel)
 
     @property
-    def _handle(self):
+    def _handle(self) -> object:
         return self.handle
 
     @staticmethod
-    def from_handle(handle, mod: ObjectCode | None = None) -> Kernel:
+    def from_handle(handle: int, mod: ObjectCode | None = None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a kernel handle.
 
         Parameters
@@ -563,7 +563,7 @@ cdef class Kernel:
             k._keepalive = mod
         return k
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Kernel):
             return NotImplemented
         return as_intptr(self._h_kernel) == as_intptr((<Kernel>other)._h_kernel)
@@ -593,7 +593,7 @@ cdef class ObjectCode:
     :class:`~cuda.core.Program`
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError(
             "ObjectCode objects cannot be instantiated directly. "
             "Please use ObjectCode APIs (from_cubin, from_ptx) or Program APIs (compile)."
@@ -618,7 +618,7 @@ cdef class ObjectCode:
     def _reduce_helper(module, code_type, name, symbol_mapping):
         return ObjectCode._init(module, code_type, name=name if name else "", symbol_mapping=symbol_mapping)
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
@@ -751,7 +751,7 @@ cdef class ObjectCode:
         raise_code_path_meant_to_be_unreachable()
         return -1
 
-    def get_kernel(self, name) -> Kernel:
+    def get_kernel(self, name: str | bytes) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
         Parameters
@@ -801,7 +801,7 @@ cdef class ObjectCode:
         return dict(self._sym_map)
 
     @property
-    def handle(self):
+    def handle(self) -> object:
         """Return the underlying handle object.
 
         .. caution::
@@ -812,7 +812,7 @@ cdef class ObjectCode:
         self._lazy_load_module()
         return as_py(self._h_library)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, ObjectCode):
             return NotImplemented
         # Trigger lazy load for both objects to compare handles

@@ -42,7 +42,7 @@ class SystemEvents:
     def __init__(self, event_data: nvml.SystemEventData_v1):
         ...
 
-    def __len__(self):
+    def __len__(self) -> int:
         ...
 
     def __getitem__(self, idx: int) -> SystemEvent:

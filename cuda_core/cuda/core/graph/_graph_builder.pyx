@@ -205,7 +205,7 @@ class GraphBuilder:
     class _MembersNeededForFinalize:
         __slots__ = ("conditional_graph", "graph", "is_join_required", "is_stream_owner", "stream")
 
-        def __init__(self, graph_builder_obj, stream_obj, is_stream_owner, conditional_graph, is_join_required):
+        def __init__(self, graph_builder_obj: GraphBuilder, stream_obj: Stream | None, is_stream_owner: bool, conditional_graph, is_join_required: bool) -> None:
             self.stream = stream_obj
             self.is_stream_owner = is_stream_owner
             self.graph = None
@@ -213,7 +213,7 @@ class GraphBuilder:
             self.is_join_required = is_join_required
             weakref.finalize(graph_builder_obj, self.close)
 
-        def close(self):
+        def close(self) -> None:
             if self.stream:
                 if not self.is_join_required:
                     capture_status = handle_return(driver.cuStreamGetCaptureInfo(self.stream.handle))[0]
@@ -234,7 +234,7 @@ class GraphBuilder:
 
     __slots__ = ("__weakref__", "_building_ended", "_mnff")
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise NotImplementedError(
             "directly creating a Graph object can be ambiguous. Please either "
             "call Device.create_graph_builder() or stream.create_graph_builder()"
@@ -260,7 +260,7 @@ class GraphBuilder:
         """Returns True if this graph builder must be joined before building is ended."""
         return self._mnff.is_join_required
 
-    def begin_building(self, mode="relaxed") -> GraphBuilder:
+    def begin_building(self, mode: str = "relaxed") -> GraphBuilder:
         """Begins the building process.
 
         Build `mode` for controlling interaction with other API calls must be one of the following:
@@ -352,7 +352,7 @@ class GraphBuilder:
 
         return _instantiate_graph(self._mnff.graph, options)
 
-    def debug_dot_print(self, path, options: GraphDebugPrintOptions | None = None):
+    def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None = None) -> None:
         """Generates a DOT debug file for the graph builder.
 
         Parameters
@@ -401,7 +401,7 @@ class GraphBuilder:
         return tuple(result)
 
     @staticmethod
-    def join(*graph_builders) -> GraphBuilder:
+    def join(*graph_builders: GraphBuilder) -> GraphBuilder:
         """Joins multiple graph builders into a single graph builder.
 
         The returned builder inherits work dependencies from the provided builders.
@@ -446,7 +446,7 @@ class GraphBuilder:
     def _get_conditional_context(self) -> driver.CUcontext:
         return self._mnff.stream.context.handle
 
-    def create_condition(self, default_value=None) -> GraphCondition:
+    def create_condition(self, default_value: int | None = None) -> GraphCondition:
         """Create a condition variable for use with conditional nodes.
 
         The returned :class:`GraphCondition` object is passed to conditional-node
@@ -667,7 +667,7 @@ class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return self._cond_with_params(node_params)[0]
 
-    def close(self):
+    def close(self) -> None:
         """Destroy the graph builder.
 
         Closes the associated stream if we own it. Borrowed stream
@@ -676,7 +676,7 @@ class GraphBuilder:
         """
         self._mnff.close()
 
-    def embed(self, child: GraphBuilder):
+    def embed(self, child: GraphBuilder) -> None:
         """Embed a previously-built :obj:`~graph.GraphBuilder` as a child node.
 
         Parameters
@@ -716,7 +716,7 @@ class GraphBuilder:
             )
         )
 
-    def callback(self, fn, *, user_data=None):
+    def callback(self, fn, *, user_data=None) -> None:
         """Add a host callback to the graph during stream capture.
 
         The callback runs on the host CPU when the graph reaches this point
@@ -782,18 +782,18 @@ class Graph:
     class _MembersNeededForFinalize:
         __slots__ = "graph"
 
-        def __init__(self, graph_obj, graph):
+        def __init__(self, graph_obj: Graph, graph: driver.CUgraphExec) -> None:
             self.graph = graph
             weakref.finalize(graph_obj, self.close)
 
-        def close(self):
+        def close(self) -> None:
             if self.graph:
                 handle_return(driver.cuGraphExecDestroy(self.graph))
                 self.graph = None
 
     __slots__ = ("__weakref__", "_mnff")
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise RuntimeError("directly constructing a Graph instance is not supported")
 
     @classmethod
@@ -802,7 +802,7 @@ class Graph:
         self._mnff = Graph._MembersNeededForFinalize(self, graph)
         return self
 
-    def close(self):
+    def close(self) -> None:
         """Destroy the graph."""
         self._mnff.close()
 
@@ -855,7 +855,7 @@ class Graph:
             raise CUDAError(msg)
         HANDLE_RETURN(err)
 
-    def upload(self, stream: Stream):
+    def upload(self, stream: Stream) -> None:
         """Uploads the graph in a stream.
 
         Parameters
@@ -866,7 +866,7 @@ class Graph:
         """
         handle_return(driver.cuGraphUpload(self._mnff.graph, stream.handle))
 
-    def launch(self, stream: Stream):
+    def launch(self, stream: Stream) -> None:
         """Launches the graph in a stream.
 
         Parameters

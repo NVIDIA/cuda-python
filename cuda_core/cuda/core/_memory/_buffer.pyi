@@ -21,17 +21,17 @@ class Buffer:
     Support for data interchange mechanisms are provided by DLPack.
     """
 
-    def __cinit__(self):
+    def __cinit__(self) -> None:
         ...
 
     def _clear(self):
         ...
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
     @classmethod
-    def _init(cls, ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, ipc_descriptor: IPCBufferDescriptor | None=None, owner: object | None=None):
+    def _init(cls, ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, ipc_descriptor: IPCBufferDescriptor | None=None, owner: object | None=None) -> Buffer:
         """Create a Buffer from a raw pointer.
 
         When ``mr`` is provided, the buffer takes ownership: ``mr.deallocate()``
@@ -43,7 +43,7 @@ class Buffer:
     def _reduce_helper(mr, ipc_descriptor):
         ...
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         ...
 
     @staticmethod
@@ -91,7 +91,7 @@ class Buffer:
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
 
-    def close(self, stream: Stream | GraphBuilder | None=None):
+    def close(self, stream: Stream | GraphBuilder | None=None) -> None:
         """Deallocate this buffer asynchronously on the given stream.
 
         This buffer is released back to their memory resource
@@ -128,7 +128,7 @@ class Buffer:
 
         """
 
-    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder):
+    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
         Parameters
@@ -141,7 +141,7 @@ class Buffer:
 
         """
 
-    def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder):
+    def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:
         """Fill this buffer with a repeating byte pattern.
 
         Parameters
@@ -164,7 +164,7 @@ class Buffer:
 
         """
 
-    def __dlpack__(self, *, stream: int | None=None, max_version: tuple[int, int] | None=None, dl_device: tuple[int, int] | None=None, copy: bool | None=None):
+    def __dlpack__(self, *, stream: int | None=None, max_version: tuple[int, int] | None=None, dl_device: tuple[int, int] | None=None, copy: bool | None=None) -> object:
         ...
 
     def __dlpack_device__(self) -> tuple[int, int]:
@@ -173,7 +173,7 @@ class Buffer:
     def __buffer__(self, flags: int, /) -> memoryview:
         ...
 
-    def __release_buffer__(self, buffer: memoryview, /):
+    def __release_buffer__(self, buffer: memoryview, /) -> None:
         ...
 
     @property
@@ -190,7 +190,7 @@ class Buffer:
             handle, call ``int(Buffer.handle)``.
         """
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         ...
 
     def __hash__(self) -> int:
@@ -258,7 +258,7 @@ class MemoryResource:
             depending on the resource's properties.
         """
 
-    def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder):
+    def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder) -> None:
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters

@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from cuda.core._device import Device
 from cuda.core._memory._ipc import IPCAllocationHandle
 from cuda.core._memory._memory_pool import _MemPool
+from cuda.core._memory._peer_access_utils import PeerAccessibleBySetProxy
 
 
 @dataclass
@@ -107,13 +108,13 @@ class DeviceMemoryResource(_MemPool):
     associated MMR.
     """
 
-    def __cinit__(self, *args, **kwargs):
+    def __cinit__(self, *args, **kwargs) -> None:
         ...
 
-    def __init__(self, device_id: Device | int, options=None):
+    def __init__(self, device_id: Device | int, options: DeviceMemoryResourceOptions | dict | None=None) -> None:
         ...
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         ...
 
     @staticmethod
@@ -174,7 +175,7 @@ class DeviceMemoryResource(_MemPool):
         """The associated device ordinal."""
 
     @property
-    def peer_accessible_by(self):
+    def peer_accessible_by(self) -> PeerAccessibleBySetProxy:
         """
         Get or set the devices that can access allocations from this memory
         pool. Access can be modified at any time and affects all allocations
@@ -194,7 +195,7 @@ class DeviceMemoryResource(_MemPool):
         """
 
     @peer_accessible_by.setter
-    def peer_accessible_by(self, devices):
+    def peer_accessible_by(self, devices) -> None:
         ...
 
     @property
@@ -206,7 +207,7 @@ class DeviceMemoryResource(_MemPool):
         """Return False. This memory resource does not provide host-accessible buffers."""
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
 
-def DMR_mempool_get_access(dmr: DeviceMemoryResource, device_id: int):
+def DMR_mempool_get_access(dmr: DeviceMemoryResource, device_id: int) -> str:
     """
     Probes peer access from the given device using cuMemPoolGetAccess.
 

@@ -153,7 +153,7 @@ cdef class Linker:
             return (<bytearray>self._drv_log_bufs[0]).decode(
                 "utf-8", errors="backslashreplace").rstrip('\x00')
 
-    def close(self):
+    def close(self) -> None:
         """Destroy this linker."""
         if self._use_nvjitlink:
             self._nvjitlink_handle.reset()
@@ -296,7 +296,7 @@ class LinkerOptions:
     split_compile_extended: int | None = None
     no_cache: bool | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         _lazy_init()
         self._name = self.name.encode()
 

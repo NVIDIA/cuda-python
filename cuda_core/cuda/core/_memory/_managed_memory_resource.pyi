@@ -74,7 +74,7 @@ class ManagedMemoryResource(_MemPool):
     memory pools.
     """
 
-    def __init__(self, options=None):
+    def __init__(self, options: ManagedMemoryResourceOptions | dict | None=None) -> None:
         ...
 
     @property
@@ -104,5 +104,5 @@ class ManagedMemoryResource(_MemPool):
         """Return True. This memory resource provides managed (unified) memory buffers."""
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
 
-def reset_concurrent_access_warning():
+def reset_concurrent_access_warning() -> None:
     """Reset the concurrent access warning flag for testing purposes."""

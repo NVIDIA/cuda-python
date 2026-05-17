@@ -9,6 +9,7 @@ import cuda.bindings.driver
 import cython
 from cuda.core._context import Context
 from cuda.core._device import Device
+from cuda.core._device_resources import DeviceResources
 from cuda.core._event import Event, EventOptions
 from cuda.core.graph import GraphBuilder
 
@@ -64,15 +65,15 @@ class Stream:
         reference and allows the Python owner to be GC'd.
         """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
     @classmethod
-    def _legacy_default(cls):
+    def _legacy_default(cls) -> Stream:
         """Return the legacy default stream (supports subclassing)."""
 
     @classmethod
-    def _per_thread_default(cls):
+    def _per_thread_default(cls) -> Stream:
         """Return the per-thread default stream (supports subclassing)."""
 
     @classmethod
@@ -85,7 +86,7 @@ class Stream:
     def __hash__(self) -> int:
         ...
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         ...
 
     def __repr__(self) -> str:
@@ -109,7 +110,7 @@ class Stream:
     def priority(self) -> int:
         """Return the stream priority."""
 
-    def sync(self):
+    def sync(self) -> None:
         """Synchronize the stream."""
 
     def record(self, event: Event | None=None, options: EventOptions | None=None) -> Event:
@@ -132,7 +133,7 @@ class Stream:
 
         """
 
-    def wait(self, event_or_stream: Event | Stream):
+    def wait(self, event_or_stream: Event | Stream) -> None:
         """Wait for a CUDA event or a CUDA stream.
 
         Waiting for an event or a stream establishes a stream order.
@@ -167,7 +168,7 @@ class Stream:
         """Return the :obj:`~_context.Context` associated with this stream."""
 
     @property
-    def resources(self):
+    def resources(self) -> DeviceResources:
         """Query the hardware resources provisioned for this stream's context.
 
         For streams created from a green context, returns the resources

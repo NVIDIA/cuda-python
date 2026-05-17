@@ -12,11 +12,11 @@ class IPCDataForBuffer:
         ...
 
     @property
-    def ipc_descriptor(self):
+    def ipc_descriptor(self) -> IPCBufferDescriptor:
         ...
 
     @property
-    def is_mapped(self):
+    def is_mapped(self) -> bool:
         ...
 
 class IPCDataForMR:
@@ -26,41 +26,41 @@ class IPCDataForMR:
         ...
 
     @property
-    def alloc_handle(self):
+    def alloc_handle(self) -> IPCAllocationHandle:
         ...
 
     @property
-    def is_mapped(self):
+    def is_mapped(self) -> bool:
         ...
 
     @property
-    def uuid(self):
+    def uuid(self) -> uuid.UUID | None:
         ...
 
 class IPCBufferDescriptor:
     """Serializable object describing a buffer that can be shared between processes."""
 
-    def __init__(self, *arg, **kwargs):
+    def __init__(self, *arg, **kwargs) -> None:
         ...
 
     @staticmethod
     def _init(reserved: bytes, size: int):
         ...
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         ...
 
     @property
-    def size(self):
+    def size(self) -> int:
         ...
 
 class IPCAllocationHandle:
     """Shareable handle to an IPC-enabled device memory pool."""
 
-    def close(self):
+    def close(self) -> None:
         """Close the handle."""
 
-    def __init__(self, *arg, **kwargs):
+    def __init__(self, *arg, **kwargs) -> None:
         ...
 
     @classmethod

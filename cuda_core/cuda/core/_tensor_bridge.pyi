@@ -48,6 +48,9 @@ Credit: Emilio Castillo (ecastillo@nvidia.com) – original tensor-bridge POC.
 """
 from __future__ import annotations
 
+import numpy
+from cuda.core._memoryview import StridedMemoryView
+
 AOTITorchError = int
 
 def sync_torch_stream(device_index: int, consumer_s: int) -> int:
@@ -59,10 +62,10 @@ def sync_torch_stream(device_index: int, consumer_s: int) -> int:
     the same.
     """
 
-def resolve_aoti_dtype(dtype_code: int):
+def resolve_aoti_dtype(dtype_code: int) -> numpy.dtype:
     """Python-callable wrapper around _get_aoti_dtype (for lazy resolution)."""
 
-def view_as_torch_tensor(obj: object, stream_ptr: object, view=None):
+def view_as_torch_tensor(obj: object, stream_ptr: object, view: StridedMemoryView | None=None) -> StridedMemoryView:
     """Create/populate a :class:`StridedMemoryView` from a ``torch.Tensor``.
 
     This is a fast path that avoids DLPack/CAI protocol overhead by

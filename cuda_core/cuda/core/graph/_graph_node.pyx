@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import TYPE_CHECKING
 
 from cpython.ref cimport Py_INCREF
@@ -100,7 +101,7 @@ cdef class GraphNode:
             return "<GraphNode entry>"
         return f"<GraphNode handle=0x{<uintptr_t>node:x}>"
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, GraphNode):
             return NotImplemented
         cdef GraphNode o = <GraphNode>other
@@ -114,7 +115,7 @@ cdef class GraphNode:
         return hash((as_intptr(self._h_node), as_intptr(g)))
 
     @property
-    def type(self):
+    def type(self) -> driver.CUgraphNodeType | None:
         """Return the CUDA graph node type.
 
         Returns
@@ -144,14 +145,14 @@ cdef class GraphNode:
         return as_py(self._h_node)
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Whether this node is valid (not destroyed).
 
         Returns ``False`` after :meth:`destroy` has been called.
         """
         return as_intptr(self._h_node) != 0
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy this node and remove all its edges from the parent graph.
 
         After this call, :attr:`is_valid` returns ``False`` and the node
@@ -167,23 +168,23 @@ cdef class GraphNode:
         invalidate_graph_node(self._h_node)
 
     @property
-    def pred(self):
+    def pred(self) -> AdjacencySetProxy:
         """A mutable set-like view of this node's predecessors."""
         return AdjacencySetProxy(self, False)
 
     @pred.setter
-    def pred(self, value):
+    def pred(self, value: Iterable[GraphNode]) -> None:
         p = AdjacencySetProxy(self, False)
         p.clear()
         p.update(value)
 
     @property
-    def succ(self):
+    def succ(self) -> AdjacencySetProxy:
         """A mutable set-like view of this node's successors."""
         return AdjacencySetProxy(self, True)
 
     @succ.setter
-    def succ(self, value):
+    def succ(self, value: Iterable[GraphNode]) -> None:
         s = AdjacencySetProxy(self, True)
         s.clear()
         s.update(value)

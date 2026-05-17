@@ -15,7 +15,7 @@ from cuda.core._resource_handles cimport (
     graph_node_get_graph,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-from collections.abc import MutableSet, Set as Set
+from collections.abc import Iterator, MutableSet, Set
 from typing import Any
 
 
@@ -27,7 +27,7 @@ class AdjacencySetProxy(MutableSet):
 
     __slots__ = ("_core",)
 
-    def __init__(self, node, bint is_fwd):
+    def __init__(self, node: GraphNode, bint is_fwd) -> None:
         self._core = _AdjacencySetCore(node, is_fwd)
 
     # Used by operators such as &|^ to create non-proxy views when needed.
@@ -37,18 +37,18 @@ class AdjacencySetProxy(MutableSet):
 
     # --- abstract methods required by MutableSet ---
 
-    def __contains__(self, x):
+    def __contains__(self, x: object) -> bool:
         if not isinstance(x, GraphNode):
             return False
         return (<_AdjacencySetCore>self._core).contains(<GraphNode>x)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[GraphNode]:
         return iter((<_AdjacencySetCore>self._core).query())
 
-    def __len__(self):
+    def __len__(self) -> int:
         return (<_AdjacencySetCore>self._core).count()
 
-    def add(self, value):
+    def add(self, value: GraphNode) -> None:
         if not isinstance(value, GraphNode):
             raise TypeError(
                 f"expected GraphNode, got {type(value).__name__}")
@@ -56,7 +56,7 @@ class AdjacencySetProxy(MutableSet):
             return
         (<_AdjacencySetCore>self._core).add_edge(<GraphNode>value)
 
-    def discard(self, value):
+    def discard(self, value: GraphNode) -> None:
         if not isinstance(value, GraphNode):
             return
         if value not in self:
@@ -65,7 +65,7 @@ class AdjacencySetProxy(MutableSet):
 
     # --- override for bulk efficiency ---
 
-    def clear(self):
+    def clear(self) -> None:
         """Remove all edges in a single driver call."""
         members = (<_AdjacencySetCore>self._core).query()
         if members:
@@ -81,7 +81,7 @@ class AdjacencySetProxy(MutableSet):
                 (<_AdjacencySetCore>self._core).remove_edges(to_remove)
         return self
 
-    def update(self, *others):
+    def update(self, *others) -> None:
         """Add edges to multiple nodes at once."""
         nodes = []
         for other in others:
@@ -104,7 +104,7 @@ class AdjacencySetProxy(MutableSet):
         self.update(it)
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{" + ", ".join(repr(n) for n in self) + "}"
 
 

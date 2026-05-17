@@ -39,10 +39,10 @@ class Program:
     def __init__(self, code: str | bytes | bytearray, code_type: SourceCodeType | str, options: ProgramOptions | None=None):
         ...
 
-    def close(self):
+    def close(self) -> None:
         """Destroy this program."""
 
-    def compile(self, target_type: ObjectCodeFormatType | str, name_expressions: tuple | list=..., logs=None, *, cache: ProgramCacheResource | None=None) -> ObjectCode:
+    def compile(self, target_type: ObjectCodeFormatType | str, name_expressions: tuple | list=..., logs: object=None, *, cache: ProgramCacheResource | None=None) -> ObjectCode:
         """Compile the program to the specified target type.
 
         Parameters
@@ -368,7 +368,7 @@ class ProgramOptions:
     use_libdevice: bool | None = None
     numba_debug: bool | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         ...
 
     def _prepare_nvrtc_options(self) -> list[bytes]:
@@ -410,7 +410,7 @@ class ProgramOptions:
         >>> nvrtc_options = options.as_bytes("nvrtc")
         """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         ...
 
     def _prepare_extra_sources_bytes(self) -> list[tuple[bytes, bytes]] | None:

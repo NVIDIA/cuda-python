@@ -19,11 +19,11 @@ _lock = threading.Lock()
 
 
 # For testing
-def _get_nvml_state():
+def _get_nvml_state() -> _NVMLState:
     return _NVML_STATE
 
 
-cpdef _initialize():
+cpdef void _initialize() except *:
     """
     Initializes Nvidia Management Library (NVML), ensuring it only happens once per process.
     """
@@ -55,7 +55,7 @@ cpdef _initialize():
             raise RuntimeError(f"Unhandled initialisation state ({_NVML_STATE=}, {_NVML_OWNER_PID=})")
 
 
-cpdef validate():
+cpdef void validate() except *:
     """
     Validate NVML state.
 

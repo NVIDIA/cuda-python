@@ -5,9 +5,10 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
+import cuda.bindings.driver
 from cuda.core._device_resources import (DeviceResources, SMResource,
                                          WorkqueueResource)
-from cuda.core._stream import StreamOptions
+from cuda.core._stream import Stream, StreamOptions
 
 
 class Context:
@@ -20,15 +21,15 @@ class Context:
     def close(self):
         """Release this context wrapper's underlying CUDA handles."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
     @property
-    def handle(self):
+    def handle(self) -> cuda.bindings.driver.CUcontext | None:
         """Return the underlying CUcontext handle."""
 
     @property
-    def _handle(self):
+    def _handle(self) -> cuda.bindings.driver.CUcontext | None:
         ...
 
     @property
@@ -46,7 +47,7 @@ class Context:
         Raises :class:`RuntimeError` if the context has been closed.
         """
 
-    def create_stream(self, options: StreamOptions | None=None):
+    def create_stream(self, options: StreamOptions | None=None) -> Stream:
         """Create a new stream bound to this green context.
 
         This method is only available on green contexts. For primary
@@ -63,7 +64,7 @@ class Context:
             Newly created stream object.
         """
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         ...
 
     def __hash__(self) -> int:

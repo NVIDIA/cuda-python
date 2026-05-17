@@ -1222,7 +1222,7 @@ class Device:
     """
     _handle: int
 
-    def __init__(self, *, index: int | None=None, uuid: bytes | str | None=None, pci_bus_id: bytes | str | None=None):
+    def __init__(self, *, index: int | None=None, uuid: bytes | str | None=None, pci_bus_id: bytes | str | None=None) -> None:
         ...
 
     @property
@@ -1490,7 +1490,7 @@ class Device:
             affinity for the device.
         """
 
-    def set_cpu_affinity(self):
+    def set_cpu_affinity(self) -> None:
         """
         Sets the ideal affinity for the calling thread and device.
 
@@ -1499,7 +1499,7 @@ class Device:
         Supported on Linux only.
         """
 
-    def clear_cpu_affinity(self):
+    def clear_cpu_affinity(self) -> None:
         """
         Clear all affinity bindings for the calling thread.
 

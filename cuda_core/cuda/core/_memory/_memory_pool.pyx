@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 cdef class _MemPoolAttributes:
     """Provides access to memory pool attributes."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("_MemPoolAttributes cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @staticmethod
@@ -47,7 +47,7 @@ cdef class _MemPoolAttributes:
         self._h_pool = h_pool
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(%s)" % ", ".join(
             f"{attr}={getattr(self, attr)}" for attr in dir(self)
                                             if not attr.startswith("_")
@@ -59,56 +59,56 @@ cdef class _MemPoolAttributes:
         return 0
 
     @property
-    def reuse_follow_event_dependencies(self):
+    def reuse_follow_event_dependencies(self) -> bool:
         """Allow memory to be reused when there are event dependencies between streams."""
         cdef int value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES, &value)
         return bool(value)
 
     @property
-    def reuse_allow_opportunistic(self):
+    def reuse_allow_opportunistic(self) -> bool:
         """Allow reuse of completed frees without dependencies."""
         cdef int value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC, &value)
         return bool(value)
 
     @property
-    def reuse_allow_internal_dependencies(self):
+    def reuse_allow_internal_dependencies(self) -> bool:
         """Allow insertion of new stream dependencies for memory reuse."""
         cdef int value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES, &value)
         return bool(value)
 
     @property
-    def release_threshold(self):
+    def release_threshold(self) -> int:
         """Amount of reserved memory to hold before OS release."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &value)
         return int(value)
 
     @property
-    def reserved_mem_current(self):
+    def reserved_mem_current(self) -> int:
         """Current amount of backing memory allocated."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT, &value)
         return int(value)
 
     @property
-    def reserved_mem_high(self):
+    def reserved_mem_high(self) -> int:
         """High watermark of backing memory allocated."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH, &value)
         return int(value)
 
     @property
-    def used_mem_current(self):
+    def used_mem_current(self) -> int:
         """Current amount of memory in use."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_CURRENT, &value)
         return int(value)
 
     @property
-    def used_mem_high(self):
+    def used_mem_high(self) -> int:
         """High watermark of memory in use."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_HIGH, &value)
@@ -123,7 +123,7 @@ cdef class _MemPool(MemoryResource):
         self._ipc_data = None
         self._attributes = None
 
-    def close(self):
+    def close(self) -> None:
         """
         Close the memory resource and destroy the associated memory pool
         if owned.
@@ -153,7 +153,13 @@ cdef class _MemPool(MemoryResource):
         cdef Stream s = Stream_accept(stream)
         return _MP_allocate(self, size, s)
 
-    def deallocate(self, ptr: DevicePointerType, size_t size, *, stream: Stream | GraphBuilder):
+    def deallocate(
+        self,
+        ptr: DevicePointerType,
+        size_t size,
+        *,
+        stream: Stream | GraphBuilder
+    ) -> None:
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters

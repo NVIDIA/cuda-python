@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -267,7 +267,7 @@ cdef inline int prepare_numpy_arg(
 
 cdef class ParamHolder:
 
-    def __init__(self, kernel_args):
+    def __init__(self, kernel_args: tuple) -> None:
         if len(kernel_args) == 0:
             self.ptr = 0
             return

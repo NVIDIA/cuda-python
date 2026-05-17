@@ -62,11 +62,11 @@ cdef class DeviceProperties:
         int _handle
         dict _cache
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("DeviceProperties cannot be instantiated directly. Please use Device APIs.")
 
     @classmethod
-    def _init(cls, handle):
+    def _init(cls, handle: int) -> DeviceProperties:
         cdef DeviceProperties self = DeviceProperties.__new__(cls)
         self._handle = handle
         self._cache = {}
@@ -976,7 +976,7 @@ class Device:
         "__weakref__",
     )
 
-    def __new__(cls, device_id: Device | int | None = None):
+    def __new__(cls, device_id: Device | int | None = None) -> Device:
         if isinstance(device_id, Device):
             return device_id
 
@@ -997,7 +997,7 @@ class Device:
 
 
     @classmethod
-    def get_all_devices(cls):
+    def get_all_devices(cls) -> tuple[Device, ...]:
         """
         Query the available device instances.
 
@@ -1178,7 +1178,7 @@ class Device:
         return self._memory_resource
 
     @memory_resource.setter
-    def memory_resource(self, mr):
+    def memory_resource(self, mr: MemoryResource) -> None:
         from cuda.core._memory import MemoryResource
         assert_type(mr, MemoryResource)
         self._memory_resource = mr
@@ -1196,22 +1196,22 @@ class Device:
         """
         return default_stream()
 
-    def __int__(self):
+    def __int__(self) -> int:
         """Return device_id."""
         return self._device_id
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Device {self._device_id} ({self.name})>"
 
     def __hash__(self) -> int:
         return hash(self.uuid)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Device):
             return NotImplemented
         return self._device_id == other._device_id
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         return Device, (self.device_id,)
 
     def set_current(self, ctx: Context | None = None) -> Context | None:
@@ -1400,7 +1400,7 @@ class Device:
         cdef Context ctx = self._context
         return cyEvent._init(cyEvent, self._device_id, ctx._h_context, options, True)
 
-    def allocate(self, size, *, stream: Stream | GraphBuilder) -> Buffer:
+    def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`
@@ -1428,7 +1428,7 @@ class Device:
         self._check_context_initialized()
         return self.memory_resource.allocate(size, stream=stream)
 
-    def sync(self):
+    def sync(self) -> None:
         """Synchronize the device.
 
         Note

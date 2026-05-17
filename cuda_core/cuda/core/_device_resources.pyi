@@ -80,7 +80,7 @@ class SMResource:
     def flags(self) -> int:
         """Raw flags from the underlying SM resource."""
 
-    def split(self, options, *, dry_run: bool=False):
+    def split(self, options: SMResourceOptions, *, dry_run: bool=False) -> tuple[list[SMResource], SMResource]:
         """Split this SM resource into groups and a remainder.
 
         Parameters
@@ -107,14 +107,14 @@ class WorkqueueResource:
     cannot be instantiated directly.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
     @property
     def handle(self) -> int:
         """Return the address of the underlying config ``CUdevResource`` struct."""
 
-    def configure(self, options):
+    def configure(self, options: WorkqueueResourceOptions) -> None:
         """Configure the workqueue resource in place.
 
         Parameters
@@ -134,7 +134,7 @@ class DeviceResources:
     This class cannot be instantiated directly.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
     @property

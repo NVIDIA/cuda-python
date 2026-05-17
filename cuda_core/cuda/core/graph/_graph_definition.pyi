@@ -4,7 +4,12 @@
 from __future__ import annotations
 
 from cuda.core._device import Device
+from cuda.core._event import Event
+from cuda.core._launch_config import LaunchConfig
+from cuda.core._module import Kernel
 from cuda.core._utils.cuda_utils import driver
+from cuda.core.graph._graph_builder import (Graph, GraphCompleteOptions,
+                                            GraphDebugPrintOptions)
 from cuda.core.graph._graph_node import GraphNode
 from cuda.core.graph._subclasses import (AllocNode, ChildGraphNode, EmptyNode,
                                          EventRecordNode, EventWaitNode,
@@ -34,7 +39,7 @@ class GraphCondition:
     def __repr__(self) -> str:
         ...
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         ...
 
     def __hash__(self) -> int:
@@ -58,7 +63,7 @@ class GraphDefinition:
     def __repr__(self) -> str:
         ...
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         ...
 
     def __hash__(self) -> int:
@@ -74,19 +79,19 @@ class GraphDefinition:
         See :meth:`GraphNode.allocate` for full documentation.
         """
 
-    def deallocate(self, dptr) -> FreeNode:
+    def deallocate(self, dptr: int) -> FreeNode:
         """Add an entry-point memory free node (no dependencies).
 
         See :meth:`GraphNode.deallocate` for full documentation.
         """
 
-    def memset(self, dst, value, width: int, height: int=1, pitch: int=0) -> MemsetNode:
+    def memset(self, dst: int, value, width: int, height: int=1, pitch: int=0) -> MemsetNode:
         """Add an entry-point memset node (no dependencies).
 
         See :meth:`GraphNode.memset` for full documentation.
         """
 
-    def launch(self, config, kernel, *args) -> KernelNode:
+    def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add an entry-point kernel launch node (no dependencies).
 
         See :meth:`GraphNode.launch` for full documentation.
@@ -101,7 +106,7 @@ class GraphDefinition:
             A new EmptyNode with no dependencies.
         """
 
-    def join(self, *nodes) -> EmptyNode:
+    def join(self, *nodes: GraphNode) -> EmptyNode:
         """Create an empty node that depends on all given nodes.
 
         Parameters
@@ -115,7 +120,7 @@ class GraphDefinition:
             A new EmptyNode that depends on all input nodes.
         """
 
-    def memcpy(self, dst, src, size: int) -> MemcpyNode:
+    def memcpy(self, dst: int, src: int, size: int) -> MemcpyNode:
         """Add an entry-point memcpy node (no dependencies).
 
         See :meth:`GraphNode.memcpy` for full documentation.
@@ -127,13 +132,13 @@ class GraphDefinition:
         See :meth:`GraphNode.embed` for full documentation.
         """
 
-    def record(self, event) -> EventRecordNode:
+    def record(self, event: Event) -> EventRecordNode:
         """Add an entry-point event record node (no dependencies).
 
         See :meth:`GraphNode.record` for full documentation.
         """
 
-    def wait(self, event) -> EventWaitNode:
+    def wait(self, event: Event) -> EventWaitNode:
         """Add an entry-point event wait node (no dependencies).
 
         See :meth:`GraphNode.wait` for full documentation.
@@ -188,7 +193,7 @@ class GraphDefinition:
         See :meth:`GraphNode.switch` for full documentation.
         """
 
-    def instantiate(self, options=None):
+    def instantiate(self, options: GraphCompleteOptions | None=None) -> Graph:
         """Instantiate the graph definition into an executable Graph.
 
         Parameters
@@ -202,7 +207,7 @@ class GraphDefinition:
             An executable graph that can be launched on a stream.
         """
 
-    def debug_dot_print(self, path: str, options=None) -> None:
+    def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None=None) -> None:
         """Write a GraphViz DOT representation of the graph to a file.
 
         Parameters

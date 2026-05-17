@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, MutableSet, Set
+from collections.abc import Callable, Iterable, Iterator, MutableSet, Set
 from dataclasses import dataclass
 from typing import Any
 
+from cuda.core._device import Device
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
 
 
@@ -36,41 +37,41 @@ class PeerAccessibleBySetProxy(MutableSet):
     """
     __slots__ = ('_mr',)
 
-    def __init__(self, mr):
+    def __init__(self, mr: DeviceMemoryResource) -> None:
         ...
 
     @classmethod
     def _from_iterable(cls, it):
         ...
 
-    def __contains__(self, value) -> bool:
+    def __contains__(self, value: object) -> bool:
         ...
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Device]:
         ...
 
     def __len__(self) -> int:
         ...
 
-    def add(self, value) -> None:
+    def add(self, value: Device | int) -> None:
         """Grant peer access from ``value`` to allocations in this pool."""
 
-    def discard(self, value) -> None:
+    def discard(self, value: Device | int) -> None:
         """Revoke peer access from ``value`` to allocations in this pool."""
 
     def clear(self) -> None:
         """Revoke all peer access in a single driver call."""
 
-    def update(self, *others) -> None:
+    def update(self, *others: Iterable[Device | int]) -> None:
         """Grant peer access to every device in ``others`` in one driver call."""
 
-    def difference_update(self, *others) -> None:
+    def difference_update(self, *others: Iterable[Device | int]) -> None:
         """Revoke peer access for every device in ``others`` in one driver call."""
 
-    def intersection_update(self, *others) -> None:
+    def intersection_update(self, *others: Iterable[Device | int]) -> None:
         """Restrict peer access to the intersection in a single driver call."""
 
-    def symmetric_difference_update(self, other) -> None:
+    def symmetric_difference_update(self, other: Iterable[Device | int]) -> None:
         """Toggle peer access for every device in ``other`` in one driver call."""
 
     def __ior__(self, other: Set[Any]) -> PeerAccessibleBySetProxy: # type: ignore[override,misc]
@@ -97,7 +98,7 @@ class PeerAccessibleBySetProxy(MutableSet):
         removals bypass that check (revoking is always permitted).
         """
 
-def replace_peer_accessible_by(mr: DeviceMemoryResource, devices):
+def replace_peer_accessible_by(mr: DeviceMemoryResource, devices) -> None:
     """Replace the full peer-access set in a single batched driver call.
 
     Backs the ``mr.peer_accessible_by = [...]`` setter. Uses the same planner

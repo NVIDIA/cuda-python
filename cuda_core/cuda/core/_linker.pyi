@@ -72,7 +72,7 @@ class Linker:
             The info log.
         """
 
-    def close(self):
+    def close(self) -> None:
         """Destroy this linker."""
 
     @property
@@ -200,7 +200,7 @@ class LinkerOptions:
     split_compile_extended: int | None = None
     no_cache: bool | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         ...
 
     def _prepare_nvjitlink_options(self, as_bytes: bool=False) -> list[bytes] | list[str]:

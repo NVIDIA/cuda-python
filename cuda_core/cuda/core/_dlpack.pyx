@@ -89,7 +89,7 @@ cdef inline int setup_dl_tensor_layout(DLTensor* dl_tensor, object buf) except -
     return 0
 
 
-def classify_dl_device(buf) -> tuple[int, int]:
+def classify_dl_device(buf: object) -> tuple[int, int]:
     """Classify a buffer into a DLPack (device_type, device_id) pair.
 
     ``buf`` must expose ``is_device_accessible``, ``is_host_accessible``,

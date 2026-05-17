@@ -69,22 +69,22 @@ class Event:
         when the last reference is released.
         """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
-    def __isub__(self, other): # type: ignore[misc]
+    def __isub__(self, other: object): # type: ignore[misc]
         ...
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: object):
         ...
 
-    def __sub__(self, other: Event):
+    def __sub__(self, other: Event) -> float:
         ...
 
     def __hash__(self) -> int:
         ...
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         ...
 
     def __repr__(self) -> str:
@@ -125,7 +125,7 @@ class Event:
         thread blocks on :meth:`sync` instead of busy-waiting), otherwise False.
         """
 
-    def sync(self):
+    def sync(self) -> None:
         """Synchronize until the event completes.
 
         If the event was created with ``blocking_sync=True``, the
@@ -168,17 +168,17 @@ class Event:
 class IPCEventDescriptor:
     """Serializable object describing an event that can be shared between processes."""
 
-    def __init__(self, *arg, **kwargs):
+    def __init__(self, *arg, **kwargs) -> None:
         ...
 
     @staticmethod
     def _init(reserved: bytes, is_blocking_sync: cython.bint):
         ...
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         ...
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         ...
 
 def _reduce_event(event):

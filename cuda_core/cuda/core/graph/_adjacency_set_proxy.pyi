@@ -3,8 +3,7 @@
 """Mutable-set proxy for graph node predecessors and successors."""
 from __future__ import annotations
 
-from collections.abc import MutableSet
-from collections.abc import Set as Set
+from collections.abc import Iterator, MutableSet, Set
 from typing import Any
 
 from cuda.core.graph._graph_node import GraphNode
@@ -15,41 +14,41 @@ class AdjacencySetProxy(MutableSet):
     write through to the underlying CUDA graph."""
     __slots__ = ('_core',)
 
-    def __init__(self, node, is_fwd: bool):
+    def __init__(self, node: GraphNode, is_fwd: bool) -> None:
         ...
 
     @classmethod
     def _from_iterable(cls, it):
         ...
 
-    def __contains__(self, x):
+    def __contains__(self, x: object) -> bool:
         ...
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[GraphNode]:
         ...
 
-    def __len__(self):
+    def __len__(self) -> int:
         ...
 
-    def add(self, value):
+    def add(self, value: GraphNode) -> None:
         ...
 
-    def discard(self, value):
+    def discard(self, value: GraphNode) -> None:
         ...
 
-    def clear(self):
+    def clear(self) -> None:
         """Remove all edges in a single driver call."""
 
     def __isub__(self, it: Set[Any]) -> 'AdjacencySetProxy':
         """Remove edges to all nodes in *it* in a single driver call."""
 
-    def update(self, *others):
+    def update(self, *others) -> None:
         """Add edges to multiple nodes at once."""
 
     def __ior__(self, it: Set[Any]) -> 'AdjacencySetProxy': # type: ignore[override,misc]
         """Add edges to all nodes in *it* in a single driver call."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         ...
 
 class _AdjacencySetCore:

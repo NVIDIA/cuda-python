@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
-from typing import Callable
+from typing import Any, Callable
 
 from cuda.bindings import cydriver
 from cuda.bindings import driver as driver
@@ -36,7 +36,7 @@ class Transaction:
         commit(): Disarm all undo actions; nothing will be rolled back on exit.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         ...
 
     def __enter__(self):
@@ -45,13 +45,13 @@ class Transaction:
     def __exit__(self, exc_type, exc, tb):
         ...
 
-    def append(self, fn, /, *args, **kwargs):
+    def append(self, fn: Callable, /, *args, **kwargs) -> None:
         """
         Register an undo action (runs if the with-block exits without commit()).
         Values are bound now via partial so late mutations don't bite you.
         """
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Disarm all undo actions. After this, exiting the with-block does nothing.
         """
@@ -99,10 +99,10 @@ def _parse_fill_value(value) -> tuple:
         If value byte length is not 1, 2, or 4.
     """
 
-def cast_to_3_tuple(label, cfg):
+def cast_to_3_tuple(label: str, cfg: int | tuple[int, ...]) -> tuple[int, int, int]:
     ...
 
-def handle_return(result: tuple, handle=None):
+def handle_return(result: tuple, handle=None) -> Any:
     ...
 
 def _handle_boolean_option(option: bool) -> str:
@@ -123,22 +123,22 @@ def precondition(checker: Callable[..., None], what: str='') -> Callable:
         Callable: A decorator that creates the wrapping.
     """
 
-def is_sequence(obj):
+def is_sequence(obj: object) -> bool:
     """
     Check if the given object is a sequence (list or tuple).
     """
 
-def is_nested_sequence(obj):
+def is_nested_sequence(obj: object) -> bool:
     """
     Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
     """
 
-def reset_fork_warning():
+def reset_fork_warning() -> None:
     """Reset the fork warning check flag for testing purposes.
 
     This function is intended for use in tests to allow multiple test runs
     to check the warning behavior.
     """
 
-def check_multiprocessing_start_method():
+def check_multiprocessing_start_method() -> None:
     """Check if multiprocessing start method is 'fork' and warn if so."""

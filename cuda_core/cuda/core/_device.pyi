@@ -21,11 +21,11 @@ class DeviceProperties:
     Attributes are read-only and provide information about the device.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
     @classmethod
-    def _init(cls, handle):
+    def _init(cls, handle: int) -> DeviceProperties:
         ...
 
     @property
@@ -634,14 +634,14 @@ class Device:
     """
     __slots__ = ('_device_id', '_memory_resource', '_has_inited', '_properties', '_resources', '_uuid', '_context', '__weakref__')
 
-    def __new__(cls, device_id: Device | int | None=None):
+    def __new__(cls, device_id: Device | int | None=None) -> Device:
         ...
 
     def _check_context_initialized(self):
         ...
 
     @classmethod
-    def get_all_devices(cls):
+    def get_all_devices(cls) -> tuple[Device, ...]:
         """
         Query the available device instances.
 
@@ -737,7 +737,7 @@ class Device:
         """Return :obj:`~_memory.MemoryResource` associated with this device."""
 
     @memory_resource.setter
-    def memory_resource(self, mr):
+    def memory_resource(self, mr: MemoryResource) -> None:
         ...
 
     @property
@@ -752,19 +752,19 @@ class Device:
 
         """
 
-    def __int__(self):
+    def __int__(self) -> int:
         """Return device_id."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         ...
 
     def __hash__(self) -> int:
         ...
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         ...
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         ...
 
     def set_current(self, ctx: Context | None=None) -> Context | None:
@@ -865,7 +865,7 @@ class Device:
 
         """
 
-    def allocate(self, size, *, stream: Stream | GraphBuilder) -> Buffer:
+    def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`
@@ -891,7 +891,7 @@ class Device:
 
         """
 
-    def sync(self):
+    def sync(self) -> None:
         """Synchronize the device.
 
         Note

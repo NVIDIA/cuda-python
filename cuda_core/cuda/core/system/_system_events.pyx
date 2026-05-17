@@ -59,7 +59,7 @@ cdef class SystemEvents:
     def __init__(self, event_data: nvml.SystemEventData_v1):
         self._event_data = event_data
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._event_data)
 
     def __getitem__(self, idx: int) -> SystemEvent:

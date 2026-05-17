@@ -16,7 +16,7 @@ class DLDeviceType(IntEnum):
 def make_py_capsule(buf: object, versioned: bool) -> object:
     ...
 
-def classify_dl_device(buf) -> tuple[int, int]:
+def classify_dl_device(buf: object) -> tuple[int, int]:
     """Classify a buffer into a DLPack (device_type, device_id) pair.
 
     ``buf`` must expose ``is_device_accessible``, ``is_host_accessible``,

@@ -13,44 +13,44 @@ from cuda.core.typing import DevicePointerType
 
 class GraphMemoryResourceAttributes:
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
     @classmethod
-    def _init(cls, device_id: int):
+    def _init(cls, device_id: int) -> GraphMemoryResourceAttributes:
         ...
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         ...
 
     @property
-    def reserved_mem_current(self):
+    def reserved_mem_current(self) -> int:
         """Current amount of backing memory allocated."""
 
     @property
-    def reserved_mem_high(self):
+    def reserved_mem_high(self) -> int:
         """
         High watermark of backing memory allocated. It can be set to zero to
         reset it to the current usage.
         """
 
     @reserved_mem_high.setter
-    def reserved_mem_high(self, value: int):
+    def reserved_mem_high(self, value: int) -> None:
         ...
 
     @property
-    def used_mem_current(self):
+    def used_mem_current(self) -> int:
         """Current amount of memory in use."""
 
     @property
-    def used_mem_high(self):
+    def used_mem_high(self) -> int:
         """
         High watermark of memory in use. It can be set to zero to reset it to
         the current usage.
         """
 
     @used_mem_high.setter
-    def used_mem_high(self, value: int):
+    def used_mem_high(self, value: int) -> None:
         ...
 
 class cyGraphMemoryResource(MemoryResource):
@@ -63,15 +63,15 @@ class cyGraphMemoryResource(MemoryResource):
         Allocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """
 
-    def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder):
+    def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder) -> None:
         """
         Deallocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """
 
-    def close(self):
+    def close(self) -> None:
         """No operation (provided for compatibility)."""
 
-    def trim(self):
+    def trim(self) -> None:
         """Free unused memory that was cached on the specified device for use with graphs back to the OS."""
 
     @property
@@ -109,11 +109,11 @@ class GraphMemoryResource(cyGraphMemoryResource):
         Device or Device ordinal for which a graph memory resource is obtained.
     """
 
-    def __new__(cls, device_id: int | Device):
+    def __new__(cls, device_id: int | Device) -> GraphMemoryResource:
         ...
 
     @classmethod
     @cache
-    def _create(cls, device_id: int):
+    def _create(cls, device_id: int) -> GraphMemoryResource:
         ...
 __all__ = ['GraphMemoryResource']

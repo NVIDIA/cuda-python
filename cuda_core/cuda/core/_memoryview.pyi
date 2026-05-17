@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+from collections.abc import Callable
 
 import numpy
 from cuda.core._layout import _StridedLayout
@@ -163,7 +164,7 @@ class StridedMemoryView:
         Same as calling :meth:`from_buffer` with the current buffer.
         """
 
-    def as_tensor_map(self, box_dim=None, *, options=None, element_strides=None, data_type=None, interleave=None, swizzle=None, l2_promotion=None, oob_fill=None):
+    def as_tensor_map(self, box_dim: tuple[int, ...] | None=None, *, options: object=None, element_strides: tuple[int, ...] | None=None, data_type: object=None, interleave: object=None, swizzle: object=None, l2_promotion: object=None, oob_fill: object=None) -> object:
         """Create a tiled :obj:`TensorMapDescriptor` from this view.
 
         This is the public entry point for creating tiled tensor map
@@ -172,7 +173,7 @@ class StridedMemoryView:
         options via ``options=``.
         """
 
-    def copy_from(self, other: StridedMemoryView, stream: Stream, allocator=None, blocking: bool | None=None):
+    def copy_from(self, other: StridedMemoryView, stream: Stream, allocator: object=None, blocking: bool | None=None) -> None:
         """
         Copies the data from the other view into this view.
 
@@ -201,14 +202,14 @@ class StridedMemoryView:
                     * for host-to-device or device-to-host, it defaults to ``True`` (blocking).
         """
 
-    def copy_to(self, other: StridedMemoryView, stream: Stream | None=None, allocator=None, blocking: bool | None=None):
+    def copy_to(self, other: StridedMemoryView, stream: Stream | None=None, allocator: object=None, blocking: bool | None=None) -> None:
         """
         Copies the data from this view into the ``other`` view.
 
         For details, see :meth:`copy_from`.
         """
 
-    def __dlpack__(self, *, stream: int | None=None, max_version: tuple[int, int] | None=None, dl_device: tuple[int, int] | None=None, copy: bool | None=None):
+    def __dlpack__(self, *, stream: int | None=None, max_version: tuple[int, int] | None=None, dl_device: tuple[int, int] | None=None, copy: bool | None=None) -> object:
         ...
 
     def __dlpack_device__(self) -> tuple[int, int]:
@@ -248,7 +249,7 @@ class StridedMemoryView:
         a :obj:`NotImplementedError` will be raised.
         """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         ...
 
 class _StridedMemoryViewProxy:
@@ -256,7 +257,7 @@ class _StridedMemoryViewProxy:
     def view(self, stream_ptr=None) -> StridedMemoryView:
         ...
 
-    def __init__(self, obj):
+    def __init__(self, obj: object) -> None:
         ...
 _SMV_DLPACK_EXCHANGE_API_CAPSULE = ...
 
@@ -274,7 +275,7 @@ def _typestr2dtype(typestr: str):
 def _typestr2itemsize(typestr: str):
     ...
 
-def args_viewable_as_strided_memory(arg_indices: tuple):
+def args_viewable_as_strided_memory(arg_indices: tuple) -> 'Callable[[Callable], Callable]':
     """
     Decorator to create proxy objects to :obj:`StridedMemoryView` for the
     specified positional arguments.

@@ -13,42 +13,42 @@ from cuda.core.typing import DevicePointerType
 class _MemPoolAttributes:
     """Provides access to memory pool attributes."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         ...
 
     @property
-    def reuse_follow_event_dependencies(self):
+    def reuse_follow_event_dependencies(self) -> bool:
         """Allow memory to be reused when there are event dependencies between streams."""
 
     @property
-    def reuse_allow_opportunistic(self):
+    def reuse_allow_opportunistic(self) -> bool:
         """Allow reuse of completed frees without dependencies."""
 
     @property
-    def reuse_allow_internal_dependencies(self):
+    def reuse_allow_internal_dependencies(self) -> bool:
         """Allow insertion of new stream dependencies for memory reuse."""
 
     @property
-    def release_threshold(self):
+    def release_threshold(self) -> int:
         """Amount of reserved memory to hold before OS release."""
 
     @property
-    def reserved_mem_current(self):
+    def reserved_mem_current(self) -> int:
         """Current amount of backing memory allocated."""
 
     @property
-    def reserved_mem_high(self):
+    def reserved_mem_high(self) -> int:
         """High watermark of backing memory allocated."""
 
     @property
-    def used_mem_current(self):
+    def used_mem_current(self) -> int:
         """Current amount of memory in use."""
 
     @property
-    def used_mem_high(self):
+    def used_mem_high(self) -> int:
         """High watermark of memory in use."""
 
 class _MemPool(MemoryResource):
@@ -56,7 +56,7 @@ class _MemPool(MemoryResource):
     def __cinit__(self):
         ...
 
-    def close(self):
+    def close(self) -> None:
         """
         Close the memory resource and destroy the associated memory pool
         if owned.
@@ -81,7 +81,7 @@ class _MemPool(MemoryResource):
             resource was created for.
         """
 
-    def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder):
+    def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder) -> None:
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters

@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, MutableSet, Set
+from collections.abc import Callable, Iterable, Iterator, MutableSet, Set
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -176,7 +176,7 @@ def _apply_peer_access_diff(mr, to_add, to_remove):
     _set_pool_access(mr, add_tuple, remove_tuple)
 
 
-cpdef replace_peer_accessible_by(DeviceMemoryResource mr, devices):
+cpdef void replace_peer_accessible_by(DeviceMemoryResource mr, devices):
     """Replace the full peer-access set in a single batched driver call.
 
     Backs the ``mr.peer_accessible_by = [...]`` setter. Uses the same planner
@@ -220,7 +220,7 @@ class PeerAccessibleBySetProxy(MutableSet):
 
     __slots__ = ("_mr",)
 
-    def __init__(self, mr):
+    def __init__(self, mr: DeviceMemoryResource) -> None:
         self._mr = mr
 
     @classmethod
@@ -232,7 +232,7 @@ class PeerAccessibleBySetProxy(MutableSet):
 
     # --- abstract MutableSet methods ---
 
-    def __contains__(self, value) -> bool:
+    def __contains__(self, value: object) -> bool:
         try:
             dev_id = _resolve_peer_device_id(value)
         except (TypeError, ValueError):
@@ -242,7 +242,7 @@ class PeerAccessibleBySetProxy(MutableSet):
             return False
         return _peer_access_includes(mr, dev_id)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Device]:
         from cuda.core._device import Device
 
         return iter(Device(dev_id) for dev_id in _query_peer_access_ids(self._mr))
@@ -250,7 +250,7 @@ class PeerAccessibleBySetProxy(MutableSet):
     def __len__(self) -> int:
         return len(_query_peer_access_ids(self._mr))
 
-    def add(self, value) -> None:
+    def add(self, value: Device | int) -> None:
         """Grant peer access from ``value`` to allocations in this pool."""
         dev_id = _resolve_peer_device_id(value)
         cdef DeviceMemoryResource mr = <DeviceMemoryResource>self._mr
@@ -263,7 +263,7 @@ class PeerAccessibleBySetProxy(MutableSet):
             raise ValueError(f"Device {mr._dev_id} cannot access peer: {dev_id}")
         _apply_peer_access_diff(mr, (dev_id,), ())
 
-    def discard(self, value) -> None:
+    def discard(self, value: Device | int) -> None:
         """Revoke peer access from ``value`` to allocations in this pool."""
         try:
             dev_id = _resolve_peer_device_id(value)
@@ -282,7 +282,7 @@ class PeerAccessibleBySetProxy(MutableSet):
         """Revoke all peer access in a single driver call."""
         self._apply((), _query_peer_access_ids(self._mr))
 
-    def update(self, *others) -> None:
+    def update(self, *others: Iterable[Device | int]) -> None:
         """Grant peer access to every device in ``others`` in one driver call."""
         to_add = []
         for other in others:
@@ -290,7 +290,7 @@ class PeerAccessibleBySetProxy(MutableSet):
         if to_add:
             self._apply(to_add, ())
 
-    def difference_update(self, *others) -> None:
+    def difference_update(self, *others: Iterable[Device | int]) -> None:
         """Revoke peer access for every device in ``others`` in one driver call."""
         revoke_ids = set()
         for other in others:
@@ -304,7 +304,7 @@ class PeerAccessibleBySetProxy(MutableSet):
         if to_remove:
             self._apply((), to_remove)
 
-    def intersection_update(self, *others) -> None:
+    def intersection_update(self, *others: Iterable[Device | int]) -> None:
         """Restrict peer access to the intersection in a single driver call."""
         keep_ids = None
         for other in others:
@@ -322,7 +322,7 @@ class PeerAccessibleBySetProxy(MutableSet):
         if to_remove:
             self._apply((), to_remove)
 
-    def symmetric_difference_update(self, other) -> None:
+    def symmetric_difference_update(self, other: Iterable[Device | int]) -> None:
         """Toggle peer access for every device in ``other`` in one driver call."""
         toggle_ids = set()
         for value in other:

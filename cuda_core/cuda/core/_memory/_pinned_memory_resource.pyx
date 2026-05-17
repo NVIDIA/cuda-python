@@ -88,10 +88,10 @@ cdef class PinnedMemoryResource(_MemPool):
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
 
-    def __init__(self, options=None):
+    def __init__(self, options: PinnedMemoryResourceOptions | dict | None = None) -> None:
         _PMR_init(self, options)
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         return PinnedMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod

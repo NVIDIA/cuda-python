@@ -133,13 +133,17 @@ cdef class DeviceMemoryResource(_MemPool):
     associated MMR.
     """
 
-    def __cinit__(self, *args, **kwargs):
+    def __cinit__(self, *args, **kwargs) -> None:
         self._dev_id = cydriver.CU_DEVICE_INVALID
 
-    def __init__(self, device_id: Device | int, options=None):
+    def __init__(
+        self,
+        device_id: Device | int,
+        options: DeviceMemoryResourceOptions | dict | None = None
+    ) -> None:
         _DMR_init(self, device_id, options)
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         return DeviceMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
@@ -213,7 +217,7 @@ cdef class DeviceMemoryResource(_MemPool):
         return self._dev_id
 
     @property
-    def peer_accessible_by(self):
+    def peer_accessible_by(self) -> PeerAccessibleBySetProxy:
         """
         Get or set the devices that can access allocations from this memory
         pool. Access can be modified at any time and affects all allocations
@@ -234,7 +238,7 @@ cdef class DeviceMemoryResource(_MemPool):
         return PeerAccessibleBySetProxy(self)
 
     @peer_accessible_by.setter
-    def peer_accessible_by(self, devices):
+    def peer_accessible_by(self, devices) -> None:
         replace_peer_accessible_by(self, devices)
 
     @property
@@ -290,7 +294,7 @@ cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):
 
 
 # Note: this is referenced in instructions to debug nvbug 5698116.
-cpdef DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
+cpdef str DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
     """
     Probes peer access from the given device using cuMemPoolGetAccess.
 

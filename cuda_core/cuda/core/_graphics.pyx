@@ -83,14 +83,20 @@ cdef class GraphicsResource:
                 pass
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise RuntimeError(
             "GraphicsResource objects cannot be instantiated directly. "
             "Use GraphicsResource.from_gl_buffer() or GraphicsResource.from_gl_image()."
         )
 
     @classmethod
-    def from_gl_buffer(cls, int gl_buffer, *, flags=None, stream=None) -> GraphicsResource:
+    def from_gl_buffer(
+        cls,
+        int gl_buffer,
+        *,
+        flags: str | tuple[str, ...] | list[str] | None = None,
+        stream: Stream | None = None
+    ) -> GraphicsResource:
         """Register an OpenGL buffer object for CUDA access.
 
         Parameters
@@ -151,7 +157,11 @@ cdef class GraphicsResource:
 
     @classmethod
     def from_gl_image(
-        cls, int image, int target, *, flags=None
+        cls,
+        int image,
+        int target,
+        *,
+        flags: str | tuple[str, ...] | list[str] | None = None
     ) -> GraphicsResource:
         """Register an OpenGL texture or renderbuffer for CUDA access.
 
@@ -268,7 +278,7 @@ cdef class GraphicsResource:
         self._mapped_buffer = buf
         return buf
 
-    def unmap(self, *, stream: Stream | None = None):
+    def unmap(self, *, stream: Stream | None = None) -> None:
         """Unmap this graphics resource, releasing it back to the graphics API.
 
         After unmapping, the :class:`~cuda.core.Buffer` previously returned
@@ -348,7 +358,7 @@ cdef class GraphicsResource:
         """Alias for :attr:`handle`."""
         return self.handle
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         mapped_str = " mapped" if self.is_mapped else ""
         closed_str = " closed" if not self._handle else ""
         return f"<GraphicsResource handle={as_intptr(self._handle):#x}{mapped_str}{closed_str}>"

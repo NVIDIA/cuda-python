@@ -35,7 +35,7 @@ class LaunchConfig:
         Whether this config can be used to launch a cooperative kernel.
     """
 
-    def __init__(self, grid=None, cluster=None, block=None, shmem_size=None, is_cooperative=False):
+    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False) -> None:
         """Initialize LaunchConfig with validation.
 
         Parameters
@@ -55,10 +55,10 @@ class LaunchConfig:
     def _identity(self):
         ...
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation of LaunchConfig."""
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         ...
 
     def __hash__(self) -> int:

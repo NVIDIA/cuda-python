@@ -1,19 +1,23 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
 
-def assert_type(obj, expected_type):
+from typing import NoReturn
+
+
+def assert_type(obj: object, expected_type: type) -> None:
     """Ensure obj is of expected_type, else raise AssertionError with a clear message."""
     if not isinstance(obj, expected_type):
         raise TypeError(f"Expected type {expected_type.__name__}, but got {type(obj).__name__}")
 
 
-def assert_type_str_or_bytes_like(obj):
+def assert_type_str_or_bytes_like(obj: object) -> None:
     """Ensure obj is of type str or bytes, else raise AssertionError with a clear message."""
     if not isinstance(obj, (str, bytes, bytearray)):
         raise TypeError(f"Expected type str or bytes or bytearray, but got {type(obj).__name__}")
 
 
-def raise_code_path_meant_to_be_unreachable():
+def raise_code_path_meant_to_be_unreachable() -> NoReturn:
     raise RuntimeError("This code path is meant to be unreachable.")

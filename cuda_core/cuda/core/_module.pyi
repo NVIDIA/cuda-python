@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import namedtuple
 
+from cuda.core._device import Device
 from cuda.core._launch_config import LaunchConfig
 from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils import driver
@@ -20,10 +21,10 @@ class KernelAttributes:
     is visible through the others.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
-    def __getitem__(self, device) -> KernelAttributes:
+    def __getitem__(self, device: Device | int) -> KernelAttributes:
         """Return a view of these attributes bound to a specific device.
 
         Parameters
@@ -118,7 +119,7 @@ class KernelOccupancy:
     launch parameters such as block size, grid size, and shared memory usage.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
     def max_active_blocks_per_multiprocessor(self, block_size: int, dynamic_shared_memory_size: int) -> int:
@@ -247,7 +248,7 @@ class Kernel:
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
     @property
@@ -267,7 +268,7 @@ class Kernel:
         """Get the occupancy information for launching this kernel."""
 
     @property
-    def handle(self):
+    def handle(self) -> object:
         """Return the underlying kernel handle object.
 
         .. caution::
@@ -277,11 +278,11 @@ class Kernel:
         """
 
     @property
-    def _handle(self):
+    def _handle(self) -> object:
         ...
 
     @staticmethod
-    def from_handle(handle, mod: ObjectCode | None=None) -> Kernel:
+    def from_handle(handle: int, mod: ObjectCode | None=None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a kernel handle.
 
         Parameters
@@ -295,7 +296,7 @@ class Kernel:
             cuda.core.
         """
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         ...
 
     def __hash__(self) -> int:
@@ -318,7 +319,7 @@ class ObjectCode:
     :class:`~cuda.core.Program`
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
     @classmethod
@@ -329,7 +330,7 @@ class ObjectCode:
     def _reduce_helper(module, code_type, name, symbol_mapping):
         ...
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         ...
 
     @staticmethod
@@ -434,7 +435,7 @@ class ObjectCode:
             them (default to no mappings).
         """
 
-    def get_kernel(self, name) -> Kernel:
+    def get_kernel(self, name: str | bytes) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
         Parameters
@@ -466,7 +467,7 @@ class ObjectCode:
         """Return a copy of the symbol mapping dictionary."""
 
     @property
-    def handle(self):
+    def handle(self) -> object:
         """Return the underlying handle object.
 
         .. caution::
@@ -475,7 +476,7 @@ class ObjectCode:
             handle, call ``int(ObjectCode.handle)``.
         """
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         ...
 
     def __hash__(self) -> int:

@@ -14,6 +14,7 @@ import ctypes
 import functools
 import sys
 import warnings
+from collections.abc import Callable  # no-cython-lint  # used in string annotations below
 
 import numpy
 
@@ -370,16 +371,16 @@ cdef class StridedMemoryView:
 
     def as_tensor_map(
         self,
-        box_dim=None,
+        box_dim: tuple[int, ...] | None = None,
         *,
-        options=None,
-        element_strides=None,
-        data_type=None,
-        interleave=None,
-        swizzle=None,
-        l2_promotion=None,
-        oob_fill=None,
-    ):
+        options: object = None,
+        element_strides: tuple[int, ...] | None = None,
+        data_type: object = None,
+        interleave: object = None,
+        swizzle: object = None,
+        l2_promotion: object = None,
+        oob_fill: object = None,
+    ) -> object:
         """Create a tiled :obj:`TensorMapDescriptor` from this view.
 
         This is the public entry point for creating tiled tensor map
@@ -407,10 +408,12 @@ cdef class StridedMemoryView:
         return TensorMapDescriptor._from_tiled(self, box_dim, **kwargs)
 
     def copy_from(
-        self, other : StridedMemoryView, stream : Stream,
-        allocator = None,
-        blocking : bool | None = None,
-    ):
+        self,
+        other: StridedMemoryView,
+        stream: Stream,
+        allocator: object = None,
+        blocking: bool | None = None,
+    ) -> None:
         """
         Copies the data from the other view into this view.
 
@@ -441,10 +444,12 @@ cdef class StridedMemoryView:
         raise NotImplementedError("Sorry, not supported: copy_from")
 
     def copy_to(
-        self, other : StridedMemoryView, stream : Stream | None = None,
-        allocator = None,
-        blocking : bool | None = None,
-    ):
+        self,
+        other: StridedMemoryView,
+        stream: Stream | None = None,
+        allocator: object = None,
+        blocking: bool | None = None,
+    ) -> None:
         """
         Copies the data from this view into the ``other`` view.
 
@@ -459,7 +464,7 @@ cdef class StridedMemoryView:
         max_version: tuple[int, int] | None = None,
         dl_device: tuple[int, int] | None = None,
         copy: bool | None = None,
-    ):
+    ) -> object:
         # Similar to Buffer.__dlpack__: no implicit synchronization is performed.
         if dl_device is not None:
             raise BufferError("Sorry, not supported: dl_device other than None")
@@ -522,7 +527,7 @@ cdef class StridedMemoryView:
         """
         return self.get_dtype()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (f"StridedMemoryView(ptr={self.ptr},\n"
               + f"                  shape={self.shape},\n"
               + f"                  strides={self.strides},\n"
@@ -1006,7 +1011,7 @@ cdef class _StridedMemoryViewProxy:
         object obj
         bint has_dlpack
 
-    def __init__(self, obj):
+    def __init__(self, obj: object) -> None:
         self.obj = obj
         self.has_dlpack = check_has_dlpack(obj)
 
@@ -1239,7 +1244,7 @@ cpdef StridedMemoryView view_as_array_interface(obj, view=None):
     return buf
 
 
-def args_viewable_as_strided_memory(tuple arg_indices):
+def args_viewable_as_strided_memory(tuple arg_indices) -> "Callable[[Callable], Callable]":
     """
     Decorator to create proxy objects to :obj:`StridedMemoryView` for the
     specified positional arguments.
@@ -1268,9 +1273,9 @@ def args_viewable_as_strided_memory(tuple arg_indices):
     arg_indices : tuple
         The indices of the target positional arguments.
     """
-    def wrapped_func_with_indices(func):
+    def wrapped_func_with_indices(func: "Callable") -> "Callable":
         @functools.wraps(func)
-        def wrapped_func(*args, **kwargs):
+        def wrapped_func(*args, **kwargs) -> object:
             args = list(args)
             cdef int idx
             for idx in arg_indices:

@@ -29,7 +29,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
 
     # TODO: support creating this MR with flags that are later passed to cuMemHostAlloc?
 
-    def allocate(self, size, *, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size: int, *, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
         ``cuMemAllocHost`` is synchronous, so this resource ignores any
@@ -60,7 +60,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
             ptr = 0
         return Buffer._init(ptr, size, self)
 
-    def deallocate(self, ptr: DevicePointerType, size, *, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder | None = None) -> None:
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -101,12 +101,12 @@ class LegacyPinnedMemoryResource(MemoryResource):
 class _SynchronousMemoryResource(MemoryResource):
     __slots__ = ("_device_id",)
 
-    def __init__(self, device_id):
+    def __init__(self, device_id: int) -> None:
         from .._device import Device
 
         self._device_id = Device(device_id).device_id
 
-    def allocate(self, size, *, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size: int, *, stream: Stream | GraphBuilder | None = None) -> Buffer:
         # cuMemAlloc is synchronous; stream is accepted (and validated)
         # for interface conformance but not used.
         from cuda.core._stream import Stream_accept
@@ -120,7 +120,7 @@ class _SynchronousMemoryResource(MemoryResource):
             ptr = 0
         return Buffer._init(ptr, size, self)
 
-    def deallocate(self, ptr, size, *, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder | None = None) -> None:
         from cuda.core._stream import Stream_accept
 
         if stream is not None:

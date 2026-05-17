@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 import numpy
 from cuda.bindings import cydriver
+from cuda.core._device import Device
 
 
 class TensorMapDataType:
@@ -104,7 +105,7 @@ class TensorMapDescriptorOptions:
     l2_promotion: TensorMapL2Promotion = TensorMapL2Promotion.NONE
     oob_fill: TensorMapOOBFill = TensorMapOOBFill.NONE
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         ...
 
 class TensorMapDescriptor:
@@ -125,7 +126,7 @@ class TensorMapDescriptor:
         ...
 
     @property
-    def device(self):
+    def device(self) -> Device | None:
         """Return the :obj:`~cuda.core.Device` associated with this descriptor."""
 
     @classmethod
@@ -267,7 +268,7 @@ class TensorMapDescriptor:
             16-byte aligned, or other constraints are violated.
         """
 
-    def replace_address(self, tensor):
+    def replace_address(self, tensor: object) -> None:
         """Replace the global memory address in this tensor map descriptor.
 
         This is useful when the tensor data has been reallocated but the
@@ -281,7 +282,7 @@ class TensorMapDescriptor:
             device-accessible memory with a 16-byte-aligned pointer.
         """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         ...
 _TMA_DT_UINT8 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT8)
 _TMA_DT_UINT16 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT16)

@@ -92,7 +92,7 @@ cdef class Stream:
     object, or created directly through using an existing handle
     using Stream.from_handle().
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError(
             "Stream objects cannot be instantiated directly. "
             "Please use Device APIs (create_stream) or other Stream APIs (from_handle)."
@@ -110,12 +110,12 @@ cdef class Stream:
         return s
 
     @classmethod
-    def _legacy_default(cls):
+    def _legacy_default(cls) -> Stream:
         """Return the legacy default stream (supports subclassing)."""
         return Stream._from_handle(cls, get_legacy_stream())
 
     @classmethod
-    def _per_thread_default(cls):
+    def _per_thread_default(cls) -> Stream:
         """Return the per-thread default stream (supports subclassing)."""
         return Stream._from_handle(cls, get_per_thread_stream())
 
@@ -208,7 +208,7 @@ cdef class Stream:
     def __hash__(self) -> int:
         return hash(as_intptr(self._h_stream))
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Stream):
             return NotImplemented
         return as_intptr(self._h_stream) == as_intptr((<Stream>other)._h_stream)
@@ -248,7 +248,7 @@ cdef class Stream:
             self._priority = prio
         return self._priority
 
-    def sync(self):
+    def sync(self) -> None:
         """Synchronize the stream."""
         with nogil:
             HANDLE_RETURN(cydriver.cuStreamSynchronize(as_cu(self._h_stream)))
@@ -289,7 +289,7 @@ cdef class Stream:
             HANDLE_RETURN(cydriver.cuEventRecord(e, as_cu(self._h_stream)))
         return event
 
-    def wait(self, event_or_stream: Event | Stream):
+    def wait(self, event_or_stream: Event | Stream) -> None:
         """Wait for a CUDA event or a CUDA stream.
 
         Waiting for an event or a stream establishes a stream order.
@@ -359,7 +359,7 @@ cdef class Stream:
         return Context._from_handle(Context, self._h_context, self._device_id)
 
     @property
-    def resources(self):
+    def resources(self) -> DeviceResources:
         """Query the hardware resources provisioned for this stream's context.
 
         For streams created from a green context, returns the resources
@@ -396,7 +396,7 @@ cdef class Stream:
         """
 
         class _stream_holder:
-            def __cuda_stream__(self):
+            def __cuda_stream__(self) -> tuple[int, int]:
                 return (0, handle)
 
         return Stream._init(obj=_stream_holder())

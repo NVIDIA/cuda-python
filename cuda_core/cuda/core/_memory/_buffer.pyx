@@ -86,7 +86,7 @@ cdef class Buffer:
 
     Support for data interchange mechanisms are provided by DLPack.
     """
-    def __cinit__(self):
+    def __cinit__(self) -> None:
         self._clear()
 
     def _clear(self):
@@ -97,7 +97,7 @@ cdef class Buffer:
         self._owner = None
         self._mem_attrs_inited = False
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Buffer objects cannot be instantiated directly. "
                            "Please use MemoryResource APIs.")
 
@@ -106,7 +106,7 @@ cdef class Buffer:
         cls, ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         ipc_descriptor: IPCBufferDescriptor | None = None,
         owner : object | None = None
-    ):
+    ) -> Buffer:
         """Create a Buffer from a raw pointer.
 
         When ``mr`` is provided, the buffer takes ownership: ``mr.deallocate()``
@@ -136,7 +136,7 @@ cdef class Buffer:
         # stream; the receiver can override via buffer.close(stream).
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         # Must not serialize the parent's stream!
         return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
@@ -196,7 +196,7 @@ cdef class Buffer:
             self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
         return self._ipc_data.ipc_descriptor
 
-    def close(self, stream: Stream | GraphBuilder | None = None):
+    def close(self, stream: Stream | GraphBuilder | None = None) -> None:
         """Deallocate this buffer asynchronously on the given stream.
 
         This buffer is released back to their memory resource
@@ -253,7 +253,7 @@ cdef class Buffer:
                 as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, as_cu(s._h_stream)))
         return dst
 
-    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder):
+    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
         Parameters
@@ -277,7 +277,7 @@ cdef class Buffer:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(
                 as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, as_cu(s._h_stream)))
 
-    def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder):
+    def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:
         """Fill this buffer with a repeating byte pattern.
 
         Parameters
@@ -329,7 +329,7 @@ cdef class Buffer:
         max_version: tuple[int, int] | None = None,
         dl_device: tuple[int, int] | None = None,
         copy: bool | None = None,
-    ):
+    ) -> object:
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
         if dl_device is not None:
@@ -355,7 +355,7 @@ cdef class Buffer:
         #   2. This Buffer object is host accessible
         raise NotImplementedError("WIP: Buffer.__buffer__ hasn't been implemented yet.")
 
-    def __release_buffer__(self, buffer: memoryview, /):
+    def __release_buffer__(self, buffer: memoryview, /) -> None:
         # Supporting method paired with __buffer__.
         raise NotImplementedError("WIP: Buffer.__release_buffer__ hasn't been implemented yet.")
 
@@ -380,7 +380,7 @@ cdef class Buffer:
         # that expect a raw pointer value
         return as_intptr(self._h_ptr)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Buffer):
             return NotImplemented
         cdef Buffer other_buf = <Buffer>other
@@ -536,7 +536,13 @@ cdef class MemoryResource:
         """
         raise TypeError("MemoryResource.allocate must be implemented by subclasses.")
 
-    def deallocate(self, ptr: DevicePointerType, size_t size, *, stream: Stream | GraphBuilder):
+    def deallocate(
+        self,
+        ptr: DevicePointerType,
+        size_t size,
+        *,
+        stream: Stream | GraphBuilder
+    ) -> None:
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters

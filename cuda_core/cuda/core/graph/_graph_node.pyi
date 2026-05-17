@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 import weakref
+from collections.abc import Iterable
 
 from cuda.core._device import Device
 from cuda.core._event import Event
 from cuda.core._launch_config import LaunchConfig
 from cuda.core._module import Kernel
 from cuda.core._utils.cuda_utils import driver
+from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
 from cuda.core.graph._graph_definition import GraphCondition, GraphDefinition
 from cuda.core.graph._subclasses import (AllocNode, ChildGraphNode, EmptyNode,
                                          EventRecordNode, EventWaitNode,
@@ -31,14 +33,14 @@ class GraphNode:
     def __repr__(self) -> str:
         ...
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         ...
 
     def __hash__(self) -> int:
         ...
 
     @property
-    def type(self):
+    def type(self) -> driver.CUgraphNodeType | None:
         """Return the CUDA graph node type.
 
         Returns
@@ -59,13 +61,13 @@ class GraphNode:
         """
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Whether this node is valid (not destroyed).
 
         Returns ``False`` after :meth:`destroy` has been called.
         """
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy this node and remove all its edges from the parent graph.
 
         After this call, :attr:`is_valid` returns ``False`` and the node
@@ -74,19 +76,19 @@ class GraphNode:
         """
 
     @property
-    def pred(self):
+    def pred(self) -> AdjacencySetProxy:
         """A mutable set-like view of this node's predecessors."""
 
     @pred.setter
-    def pred(self, value):
+    def pred(self, value: Iterable[GraphNode]) -> None:
         ...
 
     @property
-    def succ(self):
+    def succ(self) -> AdjacencySetProxy:
         """A mutable set-like view of this node's successors."""
 
     @succ.setter
-    def succ(self, value):
+    def succ(self, value: Iterable[GraphNode]) -> None:
         ...
 
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
