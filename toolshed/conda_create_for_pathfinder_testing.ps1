@@ -33,7 +33,5 @@ $cpkgs = @(
     "libmathdx-dev"
 )
 
-foreach ($cpkg in $cpkgs) {
-    Write-Host "CONDA INSTALL: $cpkg"
-    conda install -y -c conda-forge $cpkg
-}
+Write-Host "CONDA INSTALL: $($cpkgs -join ' ')"
+conda install -y -c conda-forge @cpkgs

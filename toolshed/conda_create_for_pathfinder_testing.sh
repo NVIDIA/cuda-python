@@ -57,9 +57,7 @@ if [[ "$uname_m" == "aarch64" ]]; then
     fi
 fi
 
-for cpkg in "${cpkgs[@]}"; do
-    echo "CONDA INSTALL: $cpkg"
-    set +u
-    conda install -y -c conda-forge "$cpkg"
-    set -u
-done
+echo "CONDA INSTALL: ${cpkgs[*]}"
+set +u
+conda install -y -c conda-forge "${cpkgs[@]}"
+set -u
