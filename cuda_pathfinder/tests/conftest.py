@@ -31,6 +31,11 @@ def info_summary_append(request):
     return _append
 
 
+@pytest.fixture
+def disable_process_wide_compatibility_guard_rails(monkeypatch):
+    monkeypatch.setenv("CUDA_PATHFINDER_COMPATIBILITY_GUARD_RAILS", "off")
+
+
 def skip_if_missing_libnvcudla_so(libname: str, *, timeout: float) -> None:
     if libname not in ("cudla", "nvcudla"):
         return

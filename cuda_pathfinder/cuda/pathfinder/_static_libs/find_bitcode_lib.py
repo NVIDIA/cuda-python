@@ -30,6 +30,7 @@ class _BitcodeLibInfo(TypedDict):
     rel_path: str
     site_packages_dirs: tuple[str, ...]
     available_on_windows: bool
+    ctk_companion_tags: tuple[str, ...]
 
 
 _SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
@@ -41,18 +42,21 @@ _SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
             "nvidia/cuda_nvcc/nvvm/libdevice",
         ),
         "available_on_windows": True,
+        "ctk_companion_tags": ("toolchain_cuda_nvcc",),
     },
     "nccl_device": {
         "filename": "libnccl_device.bc",
         "rel_path": "lib",
         "site_packages_dirs": ("nvidia/nccl/lib",),
         "available_on_windows": False,
+        "ctk_companion_tags": ("api_nccl",),
     },
     "nvshmem_device": {
         "filename": "libnvshmem_device.bc",
         "rel_path": "lib",
         "site_packages_dirs": ("nvidia/nvshmem/lib",),
         "available_on_windows": False,
+        "ctk_companion_tags": ("api_nvshmem",),
     },
 }
 
@@ -62,6 +66,9 @@ SUPPORTED_BITCODE_LIBS: tuple[str, ...] = tuple(
         name for name, info in _SUPPORTED_BITCODE_LIBS_INFO.items() if not IS_WINDOWS or info["available_on_windows"]
     )
 )
+SUPPORTED_BITCODE_LIBS_CTK_COMPANION_TAGS = {
+    name: info["ctk_companion_tags"] for name, info in _SUPPORTED_BITCODE_LIBS_INFO.items()
+}
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
@@ -130,6 +137,7 @@ class _FindBitcodeLib:
         raise BitcodeLibNotFoundError(f'Failure finding "{self.filename}": {err}\n{att}')
 
 
+@functools.cache
 def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
     """Locate a bitcode library by name.
 
@@ -169,7 +177,6 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
     finder.raise_not_found_error()
 
 
-@functools.cache
 def find_bitcode_lib(name: str) -> str:
     """Find the absolute path to a bitcode library.
 
@@ -178,3 +185,6 @@ def find_bitcode_lib(name: str) -> str:
         BitcodeLibNotFoundError: If the bitcode library cannot be found.
     """
     return locate_bitcode_lib(name).abs_path
+
+
+find_bitcode_lib.cache_clear = locate_bitcode_lib.cache_clear  # type: ignore[attr-defined]

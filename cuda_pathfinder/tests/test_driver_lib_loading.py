@@ -37,6 +37,8 @@ _LOADER_MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib.LOADER"
 _CUDA_DESC = LIB_DESCRIPTORS["cuda"]
 _NVML_DESC = LIB_DESCRIPTORS["nvml"]
 
+pytestmark = pytest.mark.usefixtures("disable_process_wide_compatibility_guard_rails")
+
 
 def _make_loaded_dl(path, found_via):
     return LoadedDL(path, False, 0xDEAD, found_via)
@@ -163,8 +165,9 @@ def test_real_load_driver_lib(info_summary_append, libname):
 def test_real_query_driver_cuda_version(info_summary_append):
     driver_info._load_nvidia_dynamic_lib.cache_clear()
     driver_info.query_driver_cuda_version.cache_clear()
+    driver_info.query_driver_release_version.cache_clear()
     try:
-        version = driver_info.query_driver_cuda_version()
+        driver_cuda_version = driver_info.query_driver_cuda_version()
     except driver_info.QueryDriverCudaVersionError as exc:
         if STRICTNESS == "all_must_work":
             raise
@@ -173,8 +176,35 @@ def test_real_query_driver_cuda_version(info_summary_append):
     finally:
         driver_info._load_nvidia_dynamic_lib.cache_clear()
         driver_info.query_driver_cuda_version.cache_clear()
+        driver_info.query_driver_release_version.cache_clear()
 
-    info_summary_append(f"driver_version={version.major}.{version.minor} (encoded={version.encoded})")
-    assert version.encoded > 0
-    assert version.major == version.encoded // 1000
-    assert version.minor == (version.encoded % 1000) // 10
+    info_summary_append(
+        "driver_cuda_version="
+        f"{driver_cuda_version.major}.{driver_cuda_version.minor} "
+        f"(encoded={driver_cuda_version.encoded})"
+    )
+    assert driver_cuda_version.encoded > 0
+    assert driver_cuda_version.major == driver_cuda_version.encoded // 1000
+    assert driver_cuda_version.minor == (driver_cuda_version.encoded % 1000) // 10
+
+
+def test_real_query_driver_release_version(info_summary_append):
+    driver_info._load_nvidia_dynamic_lib.cache_clear()
+    driver_info.query_driver_release_version.cache_clear()
+    try:
+        driver_release_version = driver_info.query_driver_release_version()
+    except driver_info.QueryDriverReleaseVersionError as exc:
+        if STRICTNESS == "all_must_work":
+            raise
+        info_summary_append(f"driver release unavailable: {exc.__class__.__name__}: {exc}")
+        return
+    finally:
+        driver_info._load_nvidia_dynamic_lib.cache_clear()
+        driver_info.query_driver_release_version.cache_clear()
+
+    info_summary_append(
+        f"driver_release_version={driver_release_version.text} "
+        f"(branch={driver_release_version.branch}, components={driver_release_version.components})"
+    )
+    assert driver_release_version.branch >= 400
+    assert driver_release_version.components[0] == driver_release_version.branch

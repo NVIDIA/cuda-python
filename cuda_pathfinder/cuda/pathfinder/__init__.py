@@ -7,10 +7,19 @@
 #     cuda_pathfinder/docs/source/api.rst
 # to keep the documentation in sync.
 
-from cuda.pathfinder._binaries.find_nvidia_binary_utility import (
-    find_nvidia_binary_utility as find_nvidia_binary_utility,
-)
 from cuda.pathfinder._binaries.supported_nvidia_binaries import SUPPORTED_BINARIES as _SUPPORTED_BINARIES
+from cuda.pathfinder._compatibility_guard_rails import (
+    CompatibilityCheckError as CompatibilityCheckError,
+)
+from cuda.pathfinder._compatibility_guard_rails import (
+    CompatibilityGuardRails as CompatibilityGuardRails,
+)
+from cuda.pathfinder._compatibility_guard_rails import (
+    CompatibilityInsufficientMetadataError as CompatibilityInsufficientMetadataError,
+)
+from cuda.pathfinder._compatibility_guard_rails import (
+    DriverCtkCompatibilityError as DriverCtkCompatibilityError,
+)
 from cuda.pathfinder._dynamic_libs.load_dl_common import (
     DynamicLibNotAvailableError as DynamicLibNotAvailableError,
 )
@@ -19,16 +28,38 @@ from cuda.pathfinder._dynamic_libs.load_dl_common import (
     DynamicLibUnknownError as DynamicLibUnknownError,
 )
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL as LoadedDL
-from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     SUPPORTED_LIBNAMES as SUPPORTED_NVIDIA_LIBNAMES,
 )
 from cuda.pathfinder._headers.find_nvidia_headers import LocatedHeaderDir as LocatedHeaderDir
-from cuda.pathfinder._headers.find_nvidia_headers import find_nvidia_header_directory as find_nvidia_header_directory
-from cuda.pathfinder._headers.find_nvidia_headers import (
+from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK
+from cuda.pathfinder._process_wide_compatibility_guard_rails import (
+    find_bitcode_lib as find_bitcode_lib,
+)
+from cuda.pathfinder._process_wide_compatibility_guard_rails import (
+    find_nvidia_binary_utility as find_nvidia_binary_utility,
+)
+from cuda.pathfinder._process_wide_compatibility_guard_rails import (
+    find_nvidia_header_directory as find_nvidia_header_directory,
+)
+from cuda.pathfinder._process_wide_compatibility_guard_rails import (
+    find_static_lib as find_static_lib,
+)
+from cuda.pathfinder._process_wide_compatibility_guard_rails import (
+    load_nvidia_dynamic_lib as load_nvidia_dynamic_lib,
+)
+from cuda.pathfinder._process_wide_compatibility_guard_rails import (
+    locate_bitcode_lib as locate_bitcode_lib,
+)
+from cuda.pathfinder._process_wide_compatibility_guard_rails import (
     locate_nvidia_header_directory as locate_nvidia_header_directory,
 )
-from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK
+from cuda.pathfinder._process_wide_compatibility_guard_rails import (
+    locate_static_lib as locate_static_lib,
+)
+from cuda.pathfinder._process_wide_compatibility_guard_rails import (
+    process_wide_compatibility_guard_rails as _process_wide_compatibility_guard_rails,
+)
 from cuda.pathfinder._static_libs.find_bitcode_lib import (
     SUPPORTED_BITCODE_LIBS as _SUPPORTED_BITCODE_LIBS,
 )
@@ -37,12 +68,6 @@ from cuda.pathfinder._static_libs.find_bitcode_lib import (
 )
 from cuda.pathfinder._static_libs.find_bitcode_lib import (
     LocatedBitcodeLib as LocatedBitcodeLib,
-)
-from cuda.pathfinder._static_libs.find_bitcode_lib import (
-    find_bitcode_lib as find_bitcode_lib,
-)
-from cuda.pathfinder._static_libs.find_bitcode_lib import (
-    locate_bitcode_lib as locate_bitcode_lib,
 )
 from cuda.pathfinder._static_libs.find_static_lib import (
     SUPPORTED_STATIC_LIBS as _SUPPORTED_STATIC_LIBS,
@@ -53,15 +78,15 @@ from cuda.pathfinder._static_libs.find_static_lib import (
 from cuda.pathfinder._static_libs.find_static_lib import (
     StaticLibNotFoundError as StaticLibNotFoundError,
 )
-from cuda.pathfinder._static_libs.find_static_lib import (
-    find_static_lib as find_static_lib,
-)
-from cuda.pathfinder._static_libs.find_static_lib import (
-    locate_static_lib as locate_static_lib,
-)
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home as get_cuda_path_or_home
 
 from cuda.pathfinder._version import __version__  # isort: skip
+
+#: Process-wide default compatibility guard rails instance. Public APIs can
+#: delegate through this singleton while the explicit ``CompatibilityGuardRails``
+#: class remains available for advanced use cases.
+process_wide_compatibility_guard_rails = _process_wide_compatibility_guard_rails
+
 
 # Indirections to help Sphinx find the docstrings.
 #: Mapping from short CUDA Toolkit (CTK) library names to their canonical

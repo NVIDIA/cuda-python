@@ -17,6 +17,7 @@ from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG,
 
 _VALID_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _VALID_PACKAGED_WITH_VALUES = {"ctk", "other", "driver"}
+_VALID_RELATION_NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 _CATALOG_BY_NAME = {spec.name: spec for spec in DESCRIPTOR_CATALOG}
 
 
@@ -96,3 +97,75 @@ def test_ctk_root_canary_anchors_reference_known_ctk_libs(spec: DescriptorSpec):
 def test_only_ctk_libs_define_ctk_root_canary_anchors(spec: DescriptorSpec):
     if spec.ctk_root_canary_anchor_libnames:
         assert spec.packaged_with == "ctk", f"{spec.name} defines canary anchors but is not a CTK lib"
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+def test_dynamic_link_component_names_are_valid(spec: DescriptorSpec):
+    if spec.dynamic_link_component is not None:
+        assert _VALID_RELATION_NAME_RE.match(spec.dynamic_link_component)
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+def test_dynamic_link_components_are_not_assigned_to_driver_libs(spec: DescriptorSpec):
+    if spec.dynamic_link_component is not None:
+        assert spec.packaged_with != "driver"
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+def test_ctk_companion_tags_are_unique_and_valid(spec: DescriptorSpec):
+    assert len(spec.ctk_companion_tags) == len(set(spec.ctk_companion_tags))
+    for tag in spec.ctk_companion_tags:
+        assert _VALID_RELATION_NAME_RE.match(tag)
+
+
+def test_dynamic_link_components_encode_authored_groups():
+    grouped: dict[str, set[str]] = {}
+    for spec in DESCRIPTOR_CATALOG:
+        if spec.dynamic_link_component is None:
+            continue
+        grouped.setdefault(spec.dynamic_link_component, set()).add(spec.name)
+
+    assert grouped == {
+        "cuda_blas_solver_runtime": {
+            "cublas",
+            "cublasLt",
+            "cublasmp",
+            "cudart",
+            "cudss",
+            "cusolver",
+            "cusolverMg",
+            "cusolverMp",
+            "cusparse",
+            "cutensor",
+            "cutensorMg",
+            "nccl",
+            "nvJitLink",
+            "nvblas",
+        },
+        "cufft_nvshmem": {
+            "cufft",
+            "cufftMp",
+            "cufftw",
+            "nvshmem_host",
+        },
+        "cufile": {
+            "cufile",
+        },
+        "npp": {
+            "nppc",
+            "nppial",
+            "nppicc",
+            "nppidei",
+            "nppif",
+            "nppig",
+            "nppim",
+            "nppist",
+            "nppisu",
+            "nppitc",
+            "npps",
+        },
+        "nvrtc_mathdx": {
+            "mathdx",
+            "nvrtc",
+        },
+    }
