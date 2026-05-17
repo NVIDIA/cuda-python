@@ -133,6 +133,21 @@ def _device_id_from_resource_options(device, args, kwargs):
     return 0
 
 
+def _require_ipc_mempool_devices(devices):
+    """Return devices if they all support IPC-enabled mempools, otherwise skip."""
+    from helpers import IS_WSL, supports_ipc_mempool
+
+    checked_devices = tuple(devices)
+
+    if not all(device.properties.handle_type_posix_file_descriptor_supported for device in checked_devices):
+        pytest.skip("Device does not support IPC")
+
+    if IS_WSL or not all(supports_ipc_mempool(device) for device in checked_devices):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
+    return devices
+
+
 @pytest.fixture(scope="session", autouse=True)
 def session_setup():
     # Always init CUDA.
@@ -199,25 +214,13 @@ def deinit_all_contexts_function():
 @pytest.fixture
 def ipc_device():
     """Obtains a device suitable for IPC-enabled mempool tests, or skips."""
-    # Check if IPC is supported on this platform/device
     device = Device(0)
     device.set_current()
 
     if not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
 
-    # Note: Linux specific. Once Windows support for IPC is implemented, this
-    # test should be updated.
-    if not device.properties.handle_type_posix_file_descriptor_supported:
-        pytest.skip("Device does not support IPC")
-
-    # Skip on WSL or if driver rejects IPC-enabled mempool creation on this platform/device
-    from helpers import IS_WSL, supports_ipc_mempool
-
-    if IS_WSL or not supports_ipc_mempool(device):
-        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
-
-    return device
+    return _require_ipc_mempool_devices((device,))[0]
 
 
 @pytest.fixture(
@@ -289,15 +292,7 @@ def mempool_device_x3():
 @pytest.fixture
 def ipc_mempool_device_x2(mempool_device_x2):
     """Fixture that provides two IPC-capable mempool devices, or skips."""
-    from helpers import IS_WSL, supports_ipc_mempool
-
-    if not all(device.properties.handle_type_posix_file_descriptor_supported for device in mempool_device_x2):
-        pytest.skip("Device does not support IPC")
-
-    if IS_WSL or not all(supports_ipc_mempool(device) for device in mempool_device_x2):
-        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
-
-    return mempool_device_x2
+    return _require_ipc_mempool_devices(mempool_device_x2)
 
 
 @pytest.fixture(
