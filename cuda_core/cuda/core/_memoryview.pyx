@@ -43,7 +43,7 @@ cdef dict _torch_type_cache = {}
 cdef object _torch_version_ok = None
 
 cdef inline bint _torch_version_check():
-    """Return True if 2.3 <= torch <= 2.11 (known AOTI ABI range). Memoized.
+    """Return True if 2.3 <= torch <= 2.12 (known AOTI ABI range). Memoized.
 
     Lower bound: AOTI functions we use were introduced in PyTorch 2.3.
     Upper bound: the ``pyobj_to_aten_handle`` trick relies on the
@@ -64,7 +64,7 @@ cdef inline bint _torch_version_check():
     try:
         major, minor = int(torch.__version__.split(".")[0]), \
                        int(torch.__version__.split(".")[1])
-        _torch_version_ok = (2, 3) <= (major, minor) <= (2, 11)
+        _torch_version_ok = (2, 3) <= (major, minor) <= (2, 12)
     except (ValueError, IndexError):
         _torch_version_ok = False
     return <bint>_torch_version_ok

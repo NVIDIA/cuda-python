@@ -11,7 +11,8 @@ from collections import namedtuple
 from cuda.core._device import Device
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._launch_config import LaunchConfig
-from cuda.core._stream cimport Stream
+from cuda.core._stream cimport Stream, Stream_accept
+from cuda.core._program import ObjectCodeFormatType
 from cuda.core._resource_handles cimport (
     LibraryHandle,
     KernelHandle,
@@ -31,7 +32,7 @@ from cuda.core._utils.clear_error_support import (
     raise_code_path_meant_to_be_unreachable,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-from cuda.core._utils.version cimport cy_driver_version
+from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
 from cuda.core._utils.cuda_utils import driver
 from cuda.bindings cimport cydriver
 
@@ -367,7 +368,7 @@ cdef class KernelOccupancy:
             ))
         return dynamic_smem_size
 
-    def max_potential_cluster_size(self, config: LaunchConfig, stream: Stream | None = None) -> int:
+    def max_potential_cluster_size(self, config: LaunchConfig, *, stream: Stream) -> int:
         """Maximum potential cluster size.
 
         The maximum potential cluster size for this kernel and given launch configuration.
@@ -376,8 +377,10 @@ cdef class KernelOccupancy:
         ----------
             config: :obj:`~_launch_config.LaunchConfig`
                 Kernel launch configuration. Cluster dimensions in the configuration are ignored.
-            stream: :obj:`~Stream`, optional
-                The stream on which this kernel is to be launched.
+            stream: :obj:`~Stream`
+                Keyword-only. The stream on which this kernel is to be launched.
+                Must be passed explicitly; pass ``device.default_stream`` to
+                use the default stream.
 
         Returns
         -------
@@ -385,17 +388,15 @@ cdef class KernelOccupancy:
             The maximum cluster size that can be launched for this kernel and launch configuration.
         """
         cdef cydriver.CUlaunchConfig drv_cfg = (<LaunchConfig>config)._to_native_launch_config()
-        cdef Stream s
-        if stream is not None:
-            s = <Stream>stream
-            drv_cfg.hStream = as_cu(s._h_stream)
+        cdef Stream s = Stream_accept(stream)
+        drv_cfg.hStream = as_cu(s._h_stream)
         cdef int cluster_size
         cdef cydriver.CUfunction func = <cydriver.CUfunction>as_cu(self._h_kernel)
         with nogil:
             HANDLE_RETURN(cydriver.cuOccupancyMaxPotentialClusterSize(&cluster_size, func, &drv_cfg))
         return cluster_size
 
-    def max_active_clusters(self, config: LaunchConfig, stream: Stream | None = None) -> int:
+    def max_active_clusters(self, config: LaunchConfig, *, stream: Stream) -> int:
         """Maximum number of active clusters on the target device.
 
         The maximum number of clusters that could concurrently execute on the target device.
@@ -404,8 +405,10 @@ cdef class KernelOccupancy:
         ----------
             config: :obj:`~_launch_config.LaunchConfig`
                 Kernel launch configuration.
-            stream: :obj:`~Stream`, optional
-                The stream on which this kernel is to be launched.
+            stream: :obj:`~Stream`
+                Keyword-only. The stream on which this kernel is to be launched.
+                Must be passed explicitly; pass ``device.default_stream`` to
+                use the default stream.
 
         Returns
         -------
@@ -413,10 +416,8 @@ cdef class KernelOccupancy:
             The maximum number of clusters that could co-exist on the target device.
         """
         cdef cydriver.CUlaunchConfig drv_cfg = (<LaunchConfig>config)._to_native_launch_config()
-        cdef Stream s
-        if stream is not None:
-            s = <Stream>stream
-            drv_cfg.hStream = as_cu(s._h_stream)
+        cdef Stream s = Stream_accept(stream)
+        drv_cfg.hStream = as_cu(s._h_stream)
         cdef int num_clusters
         cdef cydriver.CUfunction func = <cydriver.CUfunction>as_cu(self._h_kernel)
         with nogil:
@@ -461,6 +462,11 @@ cdef class Kernel:
             raise NotImplementedError(
                 "Driver version 12.4 or newer is required for this function. "
                 f"Using driver version {'.'.join(map(str, cy_driver_version()))}"
+            )
+        if cy_binding_version() < (12, 4, 0):
+            raise NotImplementedError(
+                "cuda.bindings 12.4 or newer is required for this function. "
+                f"Using binding version {'.'.join(map(str, cy_binding_version()))}"
             )
         cdef size_t arg_pos = 0
         cdef list param_info_data = []
@@ -569,7 +575,7 @@ cdef class Kernel:
 
 CodeTypeT = bytes | bytearray | str
 
-cdef tuple _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
+cdef tuple _supported_code_type = tuple(ObjectCodeFormatType.__members__.values())
 
 cdef class ObjectCode:
     """Represent a compiled program to be loaded onto the device.
@@ -599,7 +605,7 @@ cdef class ObjectCode:
         # _h_library is assigned during _lazy_load_module
         self._h_library = LibraryHandle()  # Empty handle
 
-        self._code_type = code_type
+        self._code_type = str(code_type)
         self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
         self._name = name if name else ""
@@ -629,7 +635,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "cubin", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.CUBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_ptx(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -647,7 +653,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "ptx", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.PTX, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_ltoir(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -665,7 +671,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "ltoir", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.LTOIR, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_fatbin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -683,7 +689,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "fatbin", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.FATBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -701,7 +707,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "object", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.OBJECT, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -719,7 +725,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "library", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.LIBRARY, name=name, symbol_mapping=symbol_mapping)
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
@@ -758,7 +764,7 @@ cdef class ObjectCode:
 
         """
         self._lazy_load_module()
-        supported_code_types = ("cubin", "ptx", "fatbin")
+        supported_code_types = (ObjectCodeFormatType.CUBIN, ObjectCodeFormatType.PTX, ObjectCodeFormatType.FATBIN)
         if self._code_type not in supported_code_types:
             raise RuntimeError(f'Unsupported code type "{self._code_type}" ({supported_code_types=})')
         try:

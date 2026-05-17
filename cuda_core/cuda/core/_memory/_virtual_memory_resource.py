@@ -1,11 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Iterable, Literal
+from typing import TYPE_CHECKING, Iterable
 
 if TYPE_CHECKING:
     from cuda.core._stream import Stream
@@ -21,14 +21,15 @@ from cuda.core._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
 )
 from cuda.core._utils.version import binding_version
+from cuda.core.typing import (
+    VirtualMemoryAccessType,
+    VirtualMemoryAllocationType,
+    VirtualMemoryGranularityType,
+    VirtualMemoryHandleType,
+    VirtualMemoryLocationType,
+)
 
 __all__ = ["VirtualMemoryResource", "VirtualMemoryResourceOptions"]
-
-VirtualMemoryHandleTypeT = Literal["posix_fd", "generic", "win32_kmt", "fabric"] | None
-VirtualMemoryLocationTypeT = Literal["device", "host", "host_numa", "host_numa_current"]
-VirtualMemoryGranularityT = Literal["minimum", "recommended"]
-VirtualMemoryAccessTypeT = Literal["rw", "r"] | None
-VirtualMemoryAllocationTypeT = Literal["pinned", "managed"]
 
 
 @dataclass
@@ -38,18 +39,18 @@ class VirtualMemoryResourceOptions:
 
     Attributes
     ----------
-    allocation_type: :obj:`~_memory.VirtualMemoryAllocationTypeT`
+    allocation_type: :obj:`~_memory.VirtualMemoryAllocationType` | str
         Controls the type of allocation.
-    location_type: :obj:`~_memory.VirtualMemoryLocationTypeT`
+    location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
         Controls the location of the allocation.
-    handle_type: :obj:`~_memory.VirtualMemoryHandleTypeT`
+    handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
         Export handle type for the physical allocation. Use
         ``"posix_fd"`` on Linux if you plan to
         import/export the allocation (required for cuMemRetainAllocationHandle).
         Use `None` if you don't need an exportable handle.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
-    granularity: :obj:`~_memory.VirtualMemoryGranularityT`
+    granularity: :obj:`~_memory.VirtualMemoryGranularityType` | str
         Controls granularity query and size rounding.
     addr_hint: int
         A (optional) virtual address hint to try to reserve at. Setting it to 0 lets the CUDA driver decide.
@@ -57,50 +58,53 @@ class VirtualMemoryResourceOptions:
         Alignment for the VA reservation. If `None`, use the queried granularity.
     peers: Iterable[int]
         Extra device IDs that should be granted access in addition to ``device``.
-    self_access: :obj:`~_memory.VirtualMemoryAccessTypeT`
+    self_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
         Access flags for the owning device.
-    peer_access: :obj:`~_memory.VirtualMemoryAccessTypeT`
+    peer_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
         Access flags for peers.
     """
 
-    # Human-friendly strings; normalized in __post_init__
-    allocation_type: VirtualMemoryAllocationTypeT = "pinned"
-    location_type: VirtualMemoryLocationTypeT = "device"
-    handle_type: VirtualMemoryHandleTypeT = "posix_fd"
-    granularity: VirtualMemoryGranularityT = "recommended"
+    allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
+    location_type: VirtualMemoryLocationType = VirtualMemoryLocationType.DEVICE
+    handle_type: VirtualMemoryHandleType = VirtualMemoryHandleType.POSIX_FD
+    granularity: VirtualMemoryGranularityType = VirtualMemoryGranularityType.RECOMMENDED
     gpu_direct_rdma: bool = False
     addr_hint: int | None = 0
     addr_align: int | None = None
     peers: Iterable[int] = field(default_factory=tuple)
-    self_access: VirtualMemoryAccessTypeT = "rw"
-    peer_access: VirtualMemoryAccessTypeT = "rw"
+    self_access: VirtualMemoryAccessType = VirtualMemoryAccessType.READ_WRITE
+    peer_access: VirtualMemoryAccessType = VirtualMemoryAccessType.READ_WRITE
 
     _a = driver.CUmemAccess_flags
-    _access_flags = {"rw": _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": _a.CU_MEM_ACCESS_FLAGS_PROT_READ, None: 0}  # noqa: RUF012
+    _access_flags = {  # noqa: RUF012
+        VirtualMemoryAccessType.READ_WRITE: _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE,
+        VirtualMemoryAccessType.READ: _a.CU_MEM_ACCESS_FLAGS_PROT_READ,
+        None: 0,
+    }
     _h = driver.CUmemAllocationHandleType
     _handle_types = {  # noqa: RUF012
         None: _h.CU_MEM_HANDLE_TYPE_NONE,
-        "posix_fd": _h.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
-        "win32_kmt": _h.CU_MEM_HANDLE_TYPE_WIN32_KMT,
-        "fabric": _h.CU_MEM_HANDLE_TYPE_FABRIC,
+        VirtualMemoryHandleType.POSIX_FD: _h.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
+        VirtualMemoryHandleType.WIN32_KMT: _h.CU_MEM_HANDLE_TYPE_WIN32_KMT,
+        VirtualMemoryHandleType.FABRIC: _h.CU_MEM_HANDLE_TYPE_FABRIC,
     }
     _g = driver.CUmemAllocationGranularity_flags
     _granularity = {  # noqa: RUF012
-        "recommended": _g.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED,
-        "minimum": _g.CU_MEM_ALLOC_GRANULARITY_MINIMUM,
+        VirtualMemoryGranularityType.RECOMMENDED: _g.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED,
+        VirtualMemoryGranularityType.MINIMUM: _g.CU_MEM_ALLOC_GRANULARITY_MINIMUM,
     }
     _l = driver.CUmemLocationType
     _location_type = {  # noqa: RUF012
-        "device": _l.CU_MEM_LOCATION_TYPE_DEVICE,
-        "host": _l.CU_MEM_LOCATION_TYPE_HOST,
-        "host_numa": _l.CU_MEM_LOCATION_TYPE_HOST_NUMA,
-        "host_numa_current": _l.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
+        VirtualMemoryLocationType.DEVICE: _l.CU_MEM_LOCATION_TYPE_DEVICE,
+        VirtualMemoryLocationType.HOST: _l.CU_MEM_LOCATION_TYPE_HOST,
+        VirtualMemoryLocationType.HOST_NUMA: _l.CU_MEM_LOCATION_TYPE_HOST_NUMA,
+        VirtualMemoryLocationType.HOST_NUMA_CURRENT: _l.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
     }
     _t = driver.CUmemAllocationType
     # CUDA 13+ exposes MANAGED in CUmemAllocationType; older 12.x does not
-    _allocation_type = {"pinned": _t.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
+    _allocation_type = {VirtualMemoryAllocationType.PINNED: _t.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
     if binding_version() >= (13, 0, 0):
-        _allocation_type["managed"] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED
+        _allocation_type[VirtualMemoryAllocationType.MANAGED] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED
 
     @staticmethod
     def _access_to_flags(spec: str):
@@ -470,7 +474,7 @@ class VirtualMemoryResource(MemoryResource):
 
         return descs
 
-    def allocate(self, size: int, stream: Stream | None = None) -> Buffer:
+    def allocate(self, size: int, *, stream: Stream | None = None) -> Buffer:
         """
         Allocate a buffer of the given size using CUDA virtual memory.
 
@@ -479,7 +483,8 @@ class VirtualMemoryResource(MemoryResource):
         size : int
             The size in bytes of the buffer to allocate.
         stream : Stream, optional
-            CUDA stream to associate with the allocation (not currently supported).
+            Keyword-only. Unused because virtual memory operations are
+            synchronous.
 
         Returns
         -------
@@ -488,8 +493,6 @@ class VirtualMemoryResource(MemoryResource):
 
         Raises
         ------
-        NotImplementedError
-            If a stream is provided or if the location type is not device memory.
         CUDAError
             If any CUDA driver API call fails during allocation.
 
@@ -501,7 +504,9 @@ class VirtualMemoryResource(MemoryResource):
         specified in the resource's configuration.
         """
         if stream is not None:
-            raise NotImplementedError("Stream is not supported with VirtualMemoryResource")
+            from cuda.core._stream import Stream_accept
+
+            Stream_accept(stream)
 
         config = self.config
         # ---- Build allocation properties ----
@@ -554,10 +559,24 @@ class VirtualMemoryResource(MemoryResource):
         buf = Buffer.from_handle(ptr=ptr, size=aligned_size, mr=self)
         return buf
 
-    def deallocate(self, ptr: int, size: int, stream: Stream | None = None) -> None:  # noqa: ARG002
+    def deallocate(self, ptr: int, size: int, *, stream: Stream | None = None) -> None:
         """
         Deallocate memory on the device using CUDA VMM APIs.
+
+        Parameters
+        ----------
+        ptr : int
+            The pointer to the memory to deallocate.
+        size : int
+            The size in bytes of the memory to deallocate.
+        stream : Stream, optional
+            Keyword-only. Unused because virtual memory operations are
+            synchronous.
         """
+        if stream is not None:
+            from cuda.core._stream import Stream_accept
+
+            Stream_accept(stream)
         result, handle = driver.cuMemRetainAllocationHandle(ptr)
         raise_if_driver_error(result)
         (result,) = driver.cuMemUnmap(ptr, size)

@@ -3,8 +3,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-CoolerControl = nvml.CoolerControl
-CoolerTarget = nvml.CoolerTarget
+_COOLER_CONTROL_MAPPING = {
+    nvml.CoolerControl.THERMAL_COOLER_SIGNAL_TOGGLE: CoolerControl.TOGGLE,
+    nvml.CoolerControl.THERMAL_COOLER_SIGNAL_VARIABLE: CoolerControl.VARIABLE,
+}
+
+
+_COOLER_TARGET_MAPPING = {
+    nvml.CoolerTarget.THERMAL_NONE: CoolerTarget.NONE,
+    nvml.CoolerTarget.THERMAL_GPU: CoolerTarget.GPU,
+    nvml.CoolerTarget.THERMAL_MEMORY: CoolerTarget.MEMORY,
+    nvml.CoolerTarget.THERMAL_POWER_SUPPLY: CoolerTarget.POWER_SUPPLY,
+}
 
 
 cdef class CoolerInfo:
@@ -14,14 +24,13 @@ cdef class CoolerInfo:
         self._cooler_info = cooler_info
 
     @property
-    def signal_type(self) -> CoolerControl:
+    def signal_type(self) -> CoolerControl | None:
         """
         The cooler's control signal characteristics.
 
-        The possible types are restricted, variable and toggle.  See
-        :class:`CoolerControl` for details.
+        The possible types are variable and toggle.
         """
-        return CoolerControl(self._cooler_info.signal_type)
+        return _COOLER_CONTROL_MAPPING.get(self._cooler_info.signal_type, None)
 
     @property
     def target(self) -> list[CoolerTarget]:
@@ -32,4 +41,11 @@ cdef class CoolerInfo:
         :class:`CoolerTarget` for details.
         """
         cdef uint64_t[1] targets = [self._cooler_info.target]
-        return [CoolerTarget(1 << ev) for ev in _unpack_bitmask(targets)]
+        output_targets = []
+        for target in _unpack_bitmask(targets):
+            try:
+                output_target = _COOLER_TARGET_MAPPING[1 << target]
+            except KeyError:
+                raise ValueError(f"Unknown cooler target bit: {1 << target}")
+            output_targets.append(output_target)
+        return output_targets

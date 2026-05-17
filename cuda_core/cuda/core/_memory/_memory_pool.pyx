@@ -11,12 +11,13 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
 from cuda.core._memory cimport _ipc
-from cuda.core._stream cimport default_stream, Stream_accept, Stream
+from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._resource_handles cimport (
     MemoryPoolHandle,
     DevicePtrHandle,
     create_mempool_handle,
     deviceptr_alloc_from_pool,
+    get_last_error,
     as_cu,
     as_py,
 )
@@ -122,16 +123,17 @@ cdef class _MemPool(MemoryResource):
         """
         _MP_close(self)
 
-    def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
-            The stream on which to perform the allocation asynchronously.
-            If None, an internal stream is used.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the allocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
 
         Returns
         -------
@@ -141,25 +143,25 @@ cdef class _MemPool(MemoryResource):
         """
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
-        stream = Stream_accept(stream) if stream is not None else default_stream()
-        return _MP_allocate(self, size, <Stream> stream)
+        cdef Stream s = Stream_accept(stream)
+        return _MP_allocate(self, size, s)
 
-    def deallocate(self, ptr: "DevicePointerT", size_t size, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: "DevicePointerType", size_t size, *, stream: Stream | GraphBuilder):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
         ----------
-        ptr : :obj:`~_memory.DevicePointerT`
+        ptr : :obj:`~_memory.DevicePointerType`
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
-            The stream on which to perform the deallocation asynchronously.
-            If the buffer is deallocated without an explicit stream, the allocation stream
-            is used.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the deallocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
         """
-        stream = Stream_accept(stream) if stream is not None else default_stream()
-        _MP_deallocate(self, <uintptr_t>ptr, size, <Stream> stream)
+        cdef Stream s = Stream_accept(stream)
+        _MP_deallocate(self, <uintptr_t>ptr, size, s)
 
     @property
     def attributes(self) -> _MemPoolAttributes:
@@ -227,6 +229,14 @@ cdef int MP_init_create_pool(
 
     self._mempool_owned = True
     self._h_pool = create_mempool_handle(properties)
+    if not self._h_pool:
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError(
+            f"Failed to initialize {self.__class__.__name__}: "
+            "cuda-core returned an empty memory pool handle without recording a CUDA error. "
+            "This is an internal cuda-core error; please report it with your CUDA driver, "
+            "CUDA Toolkit, and cuda-python versions."
+        )
 
     if ipc_enabled:
         alloc_handle = _ipc.MP_export_mempool(self)
@@ -306,7 +316,13 @@ cdef inline Buffer _MP_allocate(_MemPool self, size_t size, Stream stream):
         check_not_capturing(s)
         h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)
     if not h_ptr:
-        raise RuntimeError("Failed to allocate memory from pool")
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError(
+            f"Failed to allocate {size} bytes from {self.__class__.__name__}: "
+            "cuda-core returned an empty allocation handle without recording a CUDA error. "
+            "This is an internal cuda-core error; please report it with your CUDA driver, "
+            "CUDA Toolkit, and cuda-python versions."
+        )
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 
