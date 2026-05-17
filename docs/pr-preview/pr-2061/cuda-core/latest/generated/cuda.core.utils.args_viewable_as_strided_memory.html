@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=193d38cc"></script>
+    <script src="../_static/documentation_options.js?v=bd45bcd5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev24';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -691,7 +691,13 @@
 <h1>cuda.core.utils.args_viewable_as_strided_memory<a class="headerlink" href="#cuda-core-utils-args-viewable-as-strided-memory" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.core.utils.args_viewable_as_strided_memory">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.utils.</span></span><span class="sig-name descname"><span class="pre">args_viewable_as_strided_memory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tuple</span> <span class="pre">arg_indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.utils.args_viewable_as_strided_memory" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.core.utils.</span></span><span class="sig-name descname"><span class="pre">args_viewable_as_strided_memory</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">tuple</span> <span class="pre">arg_indices</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'Callable[[Callable],</span> <span class="pre">Callable]'</span></span></span></span><a class="headerlink" href="#cuda.core.utils.args_viewable_as_strided_memory" title="Link to this definition">#</a></dt>
 <dd><p>Decorator to create proxy objects to <a class="reference internal" href="cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> for the
 specified positional arguments.</p>
 <p>This allows array/tensor attributes to be accessed inside the function
