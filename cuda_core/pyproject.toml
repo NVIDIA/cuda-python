@@ -54,8 +54,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-cu12 = ["cuda-bindings[all]==12.*"]
-cu13 = ["cuda-bindings[all]==13.*"]
+cu12 = ["cuda-bindings[all]==12.*", "cuda-toolkit==12.*"]
+cu13 = ["cuda-bindings[all]==13.*", "cuda-toolkit==13.*"]
 
 [dependency-groups]
 test = ["cython>=3.2,<3.3", "setuptools", "pytest>=6.2.4", "pytest-benchmark", "pytest-randomly", "pytest-repeat", "pytest-rerunfailures", "cloudpickle", "psutil", "cffi"]

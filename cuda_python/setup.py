@@ -32,6 +32,8 @@ setup(
     version=version,
     install_requires=[
         f"cuda-bindings{matcher}{version}",
+        "cuda-core~=1.0.0",
+        "cuda-cccl~=1.0.0",
         "cuda-pathfinder~=1.1",
     ],
     extras_require={
