@@ -217,7 +217,7 @@ jobs:
               fi
 
               case "$COLLABORATOR_PERMISSION" in
-                admin|maintain|write|triage)
+                admin|maintain|triage)
                   HAS_TRUSTED_SIGNAL=true
                   LABEL_ACTION="not needed (collaborator permission is a trusted signal)"
                   TRUSTED_SIGNALS="collaborator_permission:$COLLABORATOR_PERMISSION"
