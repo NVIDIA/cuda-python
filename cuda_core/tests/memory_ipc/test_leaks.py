@@ -33,7 +33,7 @@ def test_alloc_handle(ipc_memory_resource):
 
 
 def exec_success(obj, number=1):
-    """Succesfully run a child process."""
+    """Successfully run a child process."""
     for _ in range(number):
         process = mp.Process(target=child_main, args=(obj,))
         process.start()
