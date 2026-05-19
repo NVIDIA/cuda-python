@@ -58,8 +58,8 @@ def test_find_binary_search_path_includes_site_packages_conda_cuda(monkeypatch, 
     )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
-    which_mock = mocker.patch.object(
-        binary_finder_module.shutil, "which", return_value=os.path.join(os.sep, "resolved", "nvcc")
+    finder_mock = mocker.patch.object(
+        binary_finder_module, "_find_binary_in_dirs", return_value=os.path.join(os.sep, "resolved", "nvcc")
     )
 
     result = find_nvidia_binary_utility("nvcc")
@@ -71,7 +71,7 @@ def test_find_binary_search_path_includes_site_packages_conda_cuda(monkeypatch, 
         os.path.join(conda_prefix, "bin"),
         os.path.join(cuda_home, "bin"),
     ]
-    which_mock.assert_called_once_with("nvcc", path=os.pathsep.join(expected_dirs))
+    finder_mock.assert_called_once_with("nvcc", expected_dirs)
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
@@ -92,8 +92,8 @@ def test_find_binary_windows_extension_and_search_dirs(monkeypatch, mocker):
     )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
-    which_mock = mocker.patch.object(
-        binary_finder_module.shutil, "which", return_value=os.path.join(os.sep, "resolved", "nvcc.exe")
+    finder_mock = mocker.patch.object(
+        binary_finder_module, "_find_binary_in_dirs", return_value=os.path.join(os.sep, "resolved", "nvcc.exe")
     )
 
     result = find_nvidia_binary_utility("nvcc")
@@ -107,12 +107,16 @@ def test_find_binary_windows_extension_and_search_dirs(monkeypatch, mocker):
         os.path.join(cuda_home, "bin", "x86_64"),
         os.path.join(cuda_home, "bin"),
     ]
-    which_mock.assert_called_once_with("nvcc.exe", path=os.pathsep.join(expected_dirs))
+    finder_mock.assert_called_once_with("nvcc.exe", expected_dirs)
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
-def test_find_binary_returns_none_with_no_candidates(monkeypatch, mocker):
+def test_find_binary_returns_none_with_no_candidates(monkeypatch, mocker, tmp_path):
     site_key = os.path.join("nvidia", "cuda_nvcc", "bin")
+    cwd = tmp_path / "cwd"
+    cwd.mkdir()
+    (cwd / "nvcc").write_text("")
+    monkeypatch.chdir(cwd)
 
     mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
     mocker.patch.object(
@@ -123,13 +127,11 @@ def test_find_binary_returns_none_with_no_candidates(monkeypatch, mocker):
     find_sub_dirs_mock = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
-    which_mock = mocker.patch.object(binary_finder_module.shutil, "which", return_value=None)
 
     result = find_nvidia_binary_utility("nvcc")
 
     assert result is None
     find_sub_dirs_mock.assert_called_once_with(site_key.split(os.sep))
-    which_mock.assert_called_once_with("nvcc", path="")
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
@@ -142,7 +144,7 @@ def test_find_binary_without_site_packages_entry(monkeypatch, mocker):
     find_sub_dirs_mock = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
-    which_mock = mocker.patch.object(binary_finder_module.shutil, "which", return_value=None)
+    finder_mock = mocker.patch.object(binary_finder_module, "_find_binary_in_dirs", return_value=None)
 
     result = find_nvidia_binary_utility("nvcc")
 
@@ -152,7 +154,7 @@ def test_find_binary_without_site_packages_entry(monkeypatch, mocker):
         os.path.join(conda_prefix, "bin"),
         os.path.join(cuda_home, "bin"),
     ]
-    which_mock.assert_called_once_with("nvcc", path=os.pathsep.join(expected_dirs))
+    finder_mock.assert_called_once_with("nvcc", expected_dirs)
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
@@ -162,14 +164,39 @@ def test_find_binary_cache_negative_result(monkeypatch, mocker):
     mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
-    which_mock = mocker.patch.object(binary_finder_module.shutil, "which", return_value=None)
+    finder_mock = mocker.patch.object(binary_finder_module, "_find_binary_in_dirs", return_value=None)
 
     first = find_nvidia_binary_utility("nvcc")
     second = find_nvidia_binary_utility("nvcc")
 
     assert first is None
     assert second is None
-    which_mock.assert_called_once_with("nvcc", path="")
+    finder_mock.assert_called_once_with("nvcc", [])
+
+
+@pytest.mark.usefixtures("clear_find_binary_cache")
+def test_find_binary_windows_ignores_current_directory(monkeypatch, mocker, tmp_path):
+    cwd = tmp_path / "cwd"
+    cuda_home = tmp_path / "cuda"
+    trusted_dir = cuda_home / "bin" / "x64"
+    cwd.mkdir()
+    trusted_dir.mkdir(parents=True)
+    (cwd / "nvcc.exe").write_text("malicious")
+    trusted_binary = trusted_dir / "nvcc.exe"
+    trusted_binary.write_text("trusted")
+
+    monkeypatch.chdir(cwd)
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    find_sub_dirs_mock = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=str(cuda_home))
+
+    result = find_nvidia_binary_utility("nvcc")
+
+    assert result == os.path.normpath(os.path.abspath(trusted_binary))
+    assert result != os.path.normpath(os.path.abspath(cwd / "nvcc.exe"))
+    find_sub_dirs_mock.assert_not_called()
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")

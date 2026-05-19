@@ -3,7 +3,6 @@
 
 import functools
 import os
-import shutil
 
 from cuda.pathfinder._binaries import supported_nvidia_binaries
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
@@ -26,6 +25,24 @@ def _normalize_utility_name(utility_name: str) -> str:
     if IS_WINDOWS and not utility_name.lower().endswith((".exe", ".bat", ".cmd")):
         return f"{utility_name}.exe"
     return utility_name
+
+
+def _is_binary_candidate(path: str) -> bool:
+    if not os.path.isfile(path):
+        return False
+    if IS_WINDOWS:
+        return True
+    return os.access(path, os.X_OK)
+
+
+def _find_binary_in_dirs(binary_name: str, dirs: list[str]) -> str | None:
+    for dirpath in dirs:
+        if not dirpath:
+            continue
+        candidate = os.path.join(dirpath, binary_name)
+        if _is_binary_candidate(candidate):
+            return os.path.normpath(os.path.abspath(candidate))
+    return None
 
 
 @functools.cache
@@ -73,6 +90,8 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         (``.exe``, ``.bat``, ``.cmd``). On Unix-like systems, executables
         are identified by the ``X_OK`` (execute) permission bit.
 
+        The process current working directory and ``PATH`` are not searched.
+
     Example:
         >>> from cuda.pathfinder import find_nvidia_binary_utility
         >>> nvdisasm = find_nvidia_binary_utility("nvdisasm")
@@ -90,7 +109,7 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         dirs.extend(find_sub_dirs_all_sitepackages(sub_dir.split(os.sep)))
 
     # 2. Search in Conda environment
-    if (conda_prefix := os.environ.get("CONDA_PREFIX")) is not None:
+    if conda_prefix := os.environ.get("CONDA_PREFIX"):
         if IS_WINDOWS:
             dirs.append(os.path.join(conda_prefix, "Library", "bin"))
         else:
@@ -104,4 +123,4 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         dirs.append(os.path.join(cuda_home, "bin"))
 
     normalized_name = _normalize_utility_name(utility_name)
-    return shutil.which(normalized_name, path=os.pathsep.join(dirs))
+    return _find_binary_in_dirs(normalized_name, dirs)
