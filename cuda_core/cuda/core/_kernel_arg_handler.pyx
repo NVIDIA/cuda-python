@@ -12,6 +12,7 @@ from libcpp cimport nullptr
 from libcpp cimport vector
 
 import ctypes
+from typing import Sequence
 
 import numpy
 
@@ -267,7 +268,7 @@ cdef inline int prepare_numpy_arg(
 
 cdef class ParamHolder:
 
-    def __init__(self, kernel_args: tuple) -> None:
+    def __init__(self, kernel_args: Sequence) -> None:
         if len(kernel_args) == 0:
             self.ptr = 0
             return

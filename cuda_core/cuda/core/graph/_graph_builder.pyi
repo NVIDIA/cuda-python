@@ -131,7 +131,7 @@ class GraphBuilder:
     def is_join_required(self) -> bool:
         """Returns True if this graph builder must be joined before building is ended."""
 
-    def begin_building(self, mode: str='relaxed') -> GraphBuilder:
+    def begin_building(self, mode: str | None='relaxed') -> GraphBuilder:
         """Begins the building process.
 
         Build `mode` for controlling interaction with other API calls must be one of the following:

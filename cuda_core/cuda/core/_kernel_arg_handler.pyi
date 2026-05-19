@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from typing import Sequence
+
 from libcpp.complex import complex as cpp_complex
 
 
 class ParamHolder:
 
-    def __init__(self, kernel_args: tuple) -> None:
+    def __init__(self, kernel_args: Sequence) -> None:
         ...
 
     def __dealloc__(self):

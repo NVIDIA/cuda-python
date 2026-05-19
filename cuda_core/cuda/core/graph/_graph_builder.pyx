@@ -260,7 +260,7 @@ class GraphBuilder:
         """Returns True if this graph builder must be joined before building is ended."""
         return self._mnff.is_join_required
 
-    def begin_building(self, mode: str = "relaxed") -> GraphBuilder:
+    def begin_building(self, mode: str | None = "relaxed") -> GraphBuilder:
         """Begins the building process.
 
         Build `mode` for controlling interaction with other API calls must be one of the following:
@@ -366,7 +366,9 @@ class GraphBuilder:
         if not self._building_ended:
             raise RuntimeError("Graph has not finished building.")
         flags = options._to_flags() if options else 0
-        handle_return(driver.cuGraphDebugDotPrint(self._mnff.graph, path, flags))
+        cdef bytes path_bytes = path.encode('utf-8')
+        cdef const char* c_path = path_bytes
+        handle_return(driver.cuGraphDebugDotPrint(self._mnff.graph, c_path, flags))
 
     def split(self, count: int) -> tuple[GraphBuilder, ...]:
         """Splits the original graph builder into multiple graph builders.

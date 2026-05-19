@@ -282,7 +282,7 @@ class Kernel:
         ...
 
     @staticmethod
-    def from_handle(handle: int, mod: ObjectCode | None=None) -> Kernel:
+    def from_handle(handle, mod: ObjectCode | None=None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a kernel handle.
 
         Parameters
