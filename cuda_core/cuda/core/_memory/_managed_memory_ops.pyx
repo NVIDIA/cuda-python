@@ -367,6 +367,16 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
                 loc_arr.data(), loc_indices.data(), <size_t>n,
                 0, hstream,
             ))
+ELSE:
+    def _read_preferred_location_v2(Buffer buf):
+        # Symbol exists so _managed_buffer.py can `from ... import
+        # _read_preferred_location_v2` unconditionally at module top.
+        # `ManagedBuffer.preferred_location` gates on both
+        # binding_version() and driver_version() >= (13, 0, 0) before
+        # calling, so this path is unreachable on a cu12 build.
+        raise NotImplementedError(
+            "_read_preferred_location_v2 requires a CUDA 13 build of cuda.core"
+        )
 
 
 cdef void _do_batch_prefetch(tuple bufs, tuple locs, Stream s):
