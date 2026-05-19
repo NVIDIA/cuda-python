@@ -44,8 +44,13 @@ def alloc_persistent(size: int) -> int:
     return ptr
 
 
-def compile_and_load(kernel_source: str) -> int:
-    """Compile CUDA C source and returns the CUmodule handle"""
+def register_module(module) -> int:
+    _modules.append(module)
+    return module
+
+
+def compile_cubin(kernel_source: str) -> bytes:
+    """Compile CUDA C source with NVRTC and return the raw cubin bytes."""
     ensure_context()
 
     err, major = cuda.cuDeviceGetAttribute(
@@ -76,11 +81,18 @@ def compile_and_load(kernel_source: str) -> int:
     cubin = b" " * cubin_size
     (err,) = nvrtc.nvrtcGetCUBIN(prog, cubin)
     assert_drv(err)
+    (err,) = nvrtc.nvrtcDestroyProgram(prog)
+    assert_drv(err)
 
+    return cubin
+
+
+def compile_and_load(kernel_source: str) -> int:
+    """Compile CUDA C source and return the CUmodule handle."""
+    cubin = compile_cubin(kernel_source)
     err, module = cuda.cuModuleLoadData(cubin)
     assert_drv(err)
-    _modules.append(module)
-    return module
+    return register_module(module)
 
 
 def cleanup() -> None:

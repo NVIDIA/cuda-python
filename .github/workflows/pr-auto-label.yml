@@ -20,4 +20,4 @@ jobs:
       pull-requests: write
     steps:
       - name: Apply labels
-        uses: actions/labeler@634933edcd8ababfe52f92936142cc22ac488b1b  # v6.0.1
+        uses: actions/labeler@e52e4fb63ed5cd0e07abaad9826b2a893ccb921f  # main (include actions/labeler#917)

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -11,10 +11,11 @@ from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, Mem
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     deviceptr_alloc_async,
+    get_last_error,
     as_cu,
 )
 
-from cuda.core._stream cimport default_stream, Stream_accept, Stream
+from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from functools import cache
@@ -104,19 +105,19 @@ cdef class cyGraphMemoryResource(MemoryResource):
     def __cinit__(self, int device_id):
         self._device_id = device_id
 
-    def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """
         Allocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """
-        stream = Stream_accept(stream) if stream is not None else default_stream()
-        return GMR_allocate(self, size, <Stream> stream)
+        cdef Stream s = Stream_accept(stream)
+        return GMR_allocate(self, size, s)
 
-    def deallocate(self, ptr: "DevicePointerT", size_t size, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: "DevicePointerType", size_t size, *, stream: Stream | GraphBuilder):
         """
         Deallocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """
-        stream = Stream_accept(stream) if stream is not None else default_stream()
-        return GMR_deallocate(ptr, size, <Stream> stream)
+        cdef Stream s = Stream_accept(stream)
+        return GMR_deallocate(ptr, size, s)
 
     def close(self):
         """No operation (provided for compatibility)."""
@@ -194,7 +195,13 @@ cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream 
         check_capturing(s)
         h_ptr = deviceptr_alloc_async(size, stream._h_stream)
     if not h_ptr:
-        raise RuntimeError("Failed to allocate memory asynchronously")
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError(
+            f"Failed to allocate {size} bytes from GraphMemoryResource: "
+            "cuda-core returned an empty allocation handle without recording a CUDA error. "
+            "This is an internal cuda-core error; please report it with your CUDA driver, "
+            "CUDA Toolkit, and cuda-python versions."
+        )
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 

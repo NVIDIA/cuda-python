@@ -3,7 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-InforomObject = nvml.InforomObject
+_INFOROM_OBJECT_MAPPING = {
+    InforomObject.OEM: nvml.InforomObject.INFOROM_OEM,
+    InforomObject.ECC: nvml.InforomObject.INFOROM_ECC,
+    InforomObject.POWER: nvml.InforomObject.INFOROM_POWER,
+    InforomObject.DEN: nvml.InforomObject.INFOROM_DEN,
+}
 
 
 cdef class InforomInfo:
@@ -12,7 +17,7 @@ cdef class InforomInfo:
     def __init__(self, device: Device):
         self._device = device
 
-    def get_version(self, inforom: InforomObject) -> str:
+    def get_version(self, inforom: InforomObject | str) -> str:
         """
         Retrieves the InfoROM version for a given InfoROM object.
 
@@ -31,7 +36,14 @@ cdef class InforomInfo:
         str
             The InfoROM version.
         """
-        return nvml.device_get_inforom_version(self._device._handle, inforom)
+        try:
+            inforom_enum = _INFOROM_OBJECT_MAPPING[inforom]
+        except KeyError:
+            raise ValueError(
+                f"Invalid InfoROM object: {inforom}. "
+                f"Must be one of {list(InforomObject.__members__.values())}"
+            ) from None
+        return nvml.device_get_inforom_version(self._device._handle, inforom_enum)
 
     @property
     def image_version(self) -> str:

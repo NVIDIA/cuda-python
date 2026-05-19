@@ -20,7 +20,7 @@ from cuda.core._stream import Stream
 from math import prod
 
 
-def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kernel: Kernel, *kernel_args):
+def launch(stream: Stream | GraphBuilder | IsStreamType, config: LaunchConfig, kernel: Kernel, *kernel_args):
     """Launches a :obj:`~_module.Kernel`
     object with launch-time configuration.
 
@@ -52,7 +52,7 @@ def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kern
 
     drv_cfg = conf._to_native_launch_config()
     drv_cfg.hStream = as_cu(s._h_stream)
-    if conf.cooperative_launch:
+    if conf.is_cooperative:
         _check_cooperative_launch(kernel, conf, s)
     with nogil:
         HANDLE_RETURN(cydriver.cuLaunchKernelEx(&drv_cfg, func_handle, args_ptr, NULL))

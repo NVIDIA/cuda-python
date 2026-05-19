@@ -5,6 +5,7 @@
 *.h binary
 *.hpp binary
 # Exception: headers we own
+benchmarks/cuda_bindings/benchmarks/cpp/*.hpp -binary text diff
 cuda_bindings/cuda/bindings/_bindings/*.h -binary text diff
 cuda_bindings/cuda/bindings/_lib/*.h -binary text diff
 cuda_core/cuda/core/_cpp/*.h -binary text diff

@@ -26,7 +26,7 @@ authors = [
 ]
 license = "Apache-2.0"
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: End Users/Desktop",
@@ -50,6 +50,7 @@ classifiers = [
 dependencies = [
     "cuda-pathfinder >=1.4.2",
     "numpy",
+    "backports.strenum; python_version < '3.11'",
 ]
 
 [project.optional-dependencies]
@@ -109,7 +110,6 @@ git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--mat
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"
-enable = "cpython-freethreading"
 build-verbosity = 1
 
 [tool.cibuildwheel.linux]
@@ -118,4 +118,4 @@ archs = "native"
 [tool.cibuildwheel.windows]
 archs = "AMD64"
 before-build = "pip install delvewheel"
-repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
+repair-wheel-command = "delvewheel repair --namespace-pkg cuda --exclude \"torch_cpu.dll;torch_python.dll\" -w {dest_dir} {wheel}"

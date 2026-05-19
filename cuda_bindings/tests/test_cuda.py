@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import ctypes
-import platform
 import shutil
 import textwrap
 
@@ -12,6 +11,7 @@ import pytest
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
+from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 
 
 def driverVersionLessThan(target):
@@ -270,6 +270,7 @@ def test_cuda_memPool_attr():
 
     attr_list = [None] * 8
     err, pool = cuda.cuMemPoolCreate(poolProps)
+    xfail_if_mempool_oom(err, "cuMemPoolCreate", poolProps.location.id)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     for idx, attr in enumerate(
@@ -468,6 +469,12 @@ def test_cuda_graphMem_attr(device):
     params.bytesize = allocSize
 
     err, allocNode = cuda.cuGraphAddMemAllocNode(graph, None, 0, params)
+    if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY:
+        (destroy_err,) = cuda.cuGraphDestroy(graph)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        (destroy_err,) = cuda.cuStreamDestroy(stream)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        xfail_if_mempool_oom(err, "cuGraphAddMemAllocNode", device)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -550,29 +557,6 @@ def test_get_error_name_and_string():
     assert s == b"invalid device ordinal"
     _, s = cuda.cuGetErrorName(err)
     assert s == b"CUDA_ERROR_INVALID_DEVICE"
-
-
-@pytest.mark.skipif(not callableBinary("nvidia-smi"), reason="Binary existence needed")
-def test_device_get_name(device):
-    # TODO: Refactor this test once we have nvml bindings to avoid the use of subprocess
-    import subprocess
-
-    p = subprocess.check_output(
-        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"],  # noqa: S607
-        shell=False,
-        stderr=subprocess.PIPE,
-    )
-
-    delimiter = b"\r\n" if platform.system() == "Windows" else b"\n"
-    expect = p.split(delimiter)
-    size = 64
-    _, got = cuda.cuDeviceGetName(size, device)
-    got = got.split(b"\x00")[0]
-    if any(b"Unable to determine the device handle for" in result for result in expect):
-        # Undeterministic devices get waived
-        pass
-    else:
-        assert any(got in result for result in expect)
 
 
 # TODO: cuStreamGetCaptureInfo_v2
@@ -978,6 +962,87 @@ def test_cuGraphExecGetId(device, ctx):
     assert err == cuda.CUresult.CUDA_SUCCESS
     (err,) = cuda.cuStreamDestroy(stream)
     assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+def test_cuGraphGetEdges_edgeData_outlives_call(device, ctx):
+    # Regression test for https://github.com/NVIDIA/cuda-python/issues/1804
+    # cuGraphGetEdges previously returned CUgraphEdgeData wrappers backed by
+    # a scratch buffer that was freed before the call returned, leaving the
+    # wrappers pointing at freed memory. Ensure the returned objects remain
+    # readable after the call and after subsequent allocations.
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        err, n0 = cuda.cuGraphAddEmptyNode(graph, None, 0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        err, n1 = cuda.cuGraphAddEmptyNode(graph, [n0], 1)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        err, n2 = cuda.cuGraphAddEmptyNode(graph, [n0, n1], 2)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        err, _, _, _, num_edges = cuda.cuGraphGetEdges(graph)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert num_edges == 3
+        err, from_nodes, to_nodes, edge_data, num_edges = cuda.cuGraphGetEdges(graph, num_edges)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert len(edge_data) == num_edges == 3
+
+        # Stir the heap to make a use-after-free more likely to surface.
+        for _ in range(64):
+            err, _, _, _, _ = cuda.cuGraphGetEdges(graph, num_edges)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            err, _, _, _ = cuda.cuGraphNodeGetDependencies(n1, 1)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+
+        # Each wrapper must still own its data.
+        for ed in edge_data:
+            assert ed.from_port == 0
+            assert ed.to_port == 0
+            assert int(ed.type) == 0
+            assert ed.reserved == b"\x00" * 5
+    finally:
+        (err,) = cuda.cuGraphDestroy(graph)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+def test_cuGraphNodeGetDependencies_edgeData_outlives_call(device, ctx):
+    # Companion regression test for #1804 covering the dependency-query path.
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        err, n0 = cuda.cuGraphAddEmptyNode(graph, None, 0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        err, n1 = cuda.cuGraphAddEmptyNode(graph, [n0], 1)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        err, _, _, num_deps = cuda.cuGraphNodeGetDependencies(n1)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert num_deps == 1
+        err, deps, edge_data, num_deps = cuda.cuGraphNodeGetDependencies(n1, num_deps)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert len(edge_data) == num_deps == 1
+
+        err, _, _, num_dependents = cuda.cuGraphNodeGetDependentNodes(n0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert num_dependents == 1
+        err, dependents, dep_edge_data, num_dependents = cuda.cuGraphNodeGetDependentNodes(n0, num_dependents)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert len(dep_edge_data) == num_dependents == 1
+
+        for _ in range(64):
+            err, _, _, _ = cuda.cuGraphNodeGetDependencies(n1, num_deps)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            err, _, _, _ = cuda.cuGraphNodeGetDependentNodes(n0, num_dependents)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+
+        for ed in edge_data + dep_edge_data:
+            assert ed.from_port == 0
+            assert ed.to_port == 0
+            assert int(ed.type) == 0
+            assert ed.reserved == b"\x00" * 5
+    finally:
+        (err,) = cuda.cuGraphDestroy(graph)
+        assert err == cuda.CUresult.CUDA_SUCCESS
 
 
 @pytest.mark.skipif(

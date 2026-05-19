@@ -38,6 +38,12 @@ int main(int argc, char** argv) {
     check_cu(cuStreamCreate(&stream, CU_STREAM_NON_BLOCKING), "cuStreamCreate failed");
 
     bench::BenchmarkSuite suite(options);
+    // Drain the persistent stream after calibration for completeness.
+    // stream_create_destroy uses a local stream, but stream_query/synchronize
+    // observe the persistent one.
+    suite.set_post_calibrate([&]() {
+        check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed");
+    });
 
     // --- stream_create_destroy ---
     {
