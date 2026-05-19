@@ -476,7 +476,7 @@ class TestManagedBuffer:
         # rejected at the boundary first (TypeError).
         with pytest.raises(
             (ValueError, TypeError),
-            match="does not support location_type='host_numa'|require a CUDA 13 build",
+            match=r"does not support location_type='host_numa'|cuda-bindings 13\.0\+",
         ):
             buf.accessed_by.add(Host(numa_id=_INVALID_HOST_DEVICE_ORDINAL))
 
@@ -495,13 +495,13 @@ class TestManagedBuffer:
         # accessed_by rejects host_numa (CUDA 13: kind check; CUDA 12: boundary)
         with pytest.raises(
             (ValueError, TypeError),
-            match="does not support location_type='host_numa'|require a CUDA 13 build",
+            match=r"does not support location_type='host_numa'|cuda-bindings 13\.0\+",
         ):
             buf.accessed_by.add(Host(numa_id=0))
 
         # accessed_by rejects host_numa_current (same reasoning)
         with pytest.raises(
             (ValueError, TypeError),
-            match="does not support location_type='host_numa_current'|require a CUDA 13 build",
+            match=r"does not support location_type='host_numa_current'|cuda-bindings 13\.0\+",
         ):
             buf.accessed_by.add(Host.numa_current())
