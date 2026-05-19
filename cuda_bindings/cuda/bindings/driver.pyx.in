@@ -11081,6 +11081,7 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
         {{if 'CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st.paramArray' in found_struct}}
         if self._paramArray is not NULL:
             free(self._paramArray)
+            self._pvt_ptr[0].paramArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -11217,6 +11218,7 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
         {{if 'CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st.paramArray' in found_struct}}
         if self._paramArray is not NULL:
             free(self._paramArray)
+            self._pvt_ptr[0].paramArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -14625,6 +14627,7 @@ cdef class CUlaunchConfig_st:
         {{if 'CUlaunchConfig_st.attrs' in found_struct}}
         if self._attrs is not NULL:
             free(self._attrs)
+            self._pvt_ptr[0].attrs = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -15087,10 +15090,12 @@ cdef class CUctxCreateParams_st:
         {{if 'CUctxCreateParams_st.execAffinityParams' in found_struct}}
         if self._execAffinityParams is not NULL:
             free(self._execAffinityParams)
+            self._pvt_ptr[0].execAffinityParams = NULL
         {{endif}}
         {{if 'CUctxCreateParams_st.cigParams' in found_struct}}
         if self._cigParams is not NULL:
             free(self._cigParams)
+            self._pvt_ptr[0].cigParams = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -15277,6 +15282,7 @@ cdef class CUstreamCigCaptureParams_st:
         {{if 'CUstreamCigCaptureParams_st.streamCigParams' in found_struct}}
         if self._streamCigParams is not NULL:
             free(self._streamCigParams)
+            self._pvt_ptr[0].streamCigParams = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -20491,10 +20497,12 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
         {{if 'CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -20618,10 +20626,12 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
         {{if 'CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -20745,10 +20755,12 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
         {{if 'CUDA_EXT_SEM_WAIT_NODE_PARAMS_st.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'CUDA_EXT_SEM_WAIT_NODE_PARAMS_st.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -20872,10 +20884,12 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
         {{if 'CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -23304,6 +23318,7 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
         {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v1_st.accessDescs' in found_struct}}
         if self._accessDescs is not NULL:
             free(self._accessDescs)
+            self._pvt_ptr[0].accessDescs = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -23466,6 +23481,7 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
         {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v2_st.accessDescs' in found_struct}}
         if self._accessDescs is not NULL:
             free(self._accessDescs)
+            self._pvt_ptr[0].accessDescs = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -24481,6 +24497,7 @@ cdef class CUcheckpointRestoreArgs_st:
         {{if 'CUcheckpointRestoreArgs_st.gpuPairs' in found_struct}}
         if self._gpuPairs is not NULL:
             free(self._gpuPairs)
+            self._pvt_ptr[0].gpuPairs = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -25248,6 +25265,7 @@ cdef class CUdevResource_st:
         {{if 'CUdevResource_st.nextResource' in found_struct}}
         if self._nextResource is not NULL:
             free(self._nextResource)
+            self._pvt_ptr[0].nextResource = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
