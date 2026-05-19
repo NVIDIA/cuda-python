@@ -125,12 +125,19 @@ Python or Cython type annotations should be included for all public APIs.  Avoid
 the use of `Any` unless absolutely necessary.  The argument and return types as
 defined in the docstrings should match the type annotations.
 
+The use of `if typing.TYPE_CHECK:` blocks is often necessary to avoid import
+cycles.  However, this can occasionally mask symbols used by Sphinx to make
+cross-references in the docs.  If importing an object doesn't create a cycle, it
+should be imported outside of an `if typing.TYPE_CHECK:` block, even if it is
+only used in type annotations.
+
 ### Semantics
 
-Designs involving manual resource management should be avoided.  Where
-appropriate, provide context managers (implemented with `__enter__` and
-`__exit__`, not `contextlib.contextmanager`) or RAII using a `__del__` or
-`__dealloc__` method.
+APIs should exist for both manual resource management (such as `close()`) and
+automatic resource management, using context managers or destructors where
+appropriate.  Context managers should be implemented with `__enter__` and
+`__exit__`, not `contextlib.contextmanager`.  For destructors use `__dealloc__`
+where possible, otherwise `__del__`.
 
 ### Documentation
 
