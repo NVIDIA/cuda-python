@@ -125,11 +125,7 @@ Python or Cython type annotations should be included for all public APIs.  Avoid
 the use of `Any` unless absolutely necessary.  The argument and return types as
 defined in the docstrings should match the type annotations.
 
-The use of `if typing.TYPE_CHECK:` blocks is often necessary to avoid import
-cycles.  However, this can occasionally mask symbols used by Sphinx to make
-cross-references in the docs.  If importing an object doesn't create a cycle, it
-should be imported outside of an `if typing.TYPE_CHECK:` block, even if it is
-only used in type annotations.
+Python imports should generally be outside of an if typing.TYPE_CHECK: block, even if the imported object is only used in type annotations. Use if typing.TYPE_CHECK: only to avoid creating import cycles. (This guidance maximizes compatibility with the cross-reference mechanisms in Sphinx.)
 
 ### Semantics
 
