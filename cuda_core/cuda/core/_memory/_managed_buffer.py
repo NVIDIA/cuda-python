@@ -103,8 +103,17 @@ class AccessedBySetProxy(MutableSet):
         _advise_one(self._buf, _SET_ACCESSED_BY, location)
 
     def discard(self, location: Device | Host) -> None:
-        """Apply ``unset_accessed_by`` advice for ``location``."""
+        """Apply ``unset_accessed_by`` advice for ``location``.
+
+        Per the ``MutableSet`` contract, ``discard`` is a no-op for elements
+        not in the set. ``set_accessed_by`` only accepts ``Device`` and the
+        generic ``Host()`` — NUMA-aware host variants (``Host(numa_id=...)``,
+        ``Host.numa_current()``) can never enter the set, so discarding them
+        is silently ignored rather than forwarded to the driver.
+        """
         if not isinstance(location, (Device, Host)):
+            return
+        if isinstance(location, Host) and (location.numa_id is not None or location.is_numa_current):
             return
         _advise_one(self._buf, _UNSET_ACCESSED_BY, location)
 
