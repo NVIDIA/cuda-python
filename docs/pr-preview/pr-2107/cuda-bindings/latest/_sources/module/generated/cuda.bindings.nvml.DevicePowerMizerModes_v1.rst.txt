@@ -1,0 +1,34 @@
+﻿cuda.bindings.nvml.DevicePowerMizerModes\_v1
+============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: DevicePowerMizerModes_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DevicePowerMizerModes_v1.__init__
+      ~DevicePowerMizerModes_v1.from_buffer
+      ~DevicePowerMizerModes_v1.from_data
+      ~DevicePowerMizerModes_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DevicePowerMizerModes_v1.current_mode
+      ~DevicePowerMizerModes_v1.mode
+      ~DevicePowerMizerModes_v1.ptr
+      ~DevicePowerMizerModes_v1.supported_power_mizer_modes
+   
+   
