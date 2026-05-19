@@ -34,6 +34,8 @@ jobs:
           - "3.13"
           - "3.14"
           - "3.14t"
+          - "3.15"
+          - "3.15t"
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
@@ -327,6 +329,7 @@ jobs:
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
 
       - name: verify free-threaded build
         if: endsWith(matrix.python-version, 't')
