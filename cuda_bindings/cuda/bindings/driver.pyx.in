@@ -11148,6 +11148,7 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
     def paramArray(self, val):
         if len(val) == 0:
             free(self._paramArray)
+            self._paramArray = NULL
             self._paramArray_length = 0
             self._pvt_ptr[0].paramArray = NULL
         else:
@@ -11283,6 +11284,7 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
     def paramArray(self, val):
         if len(val) == 0:
             free(self._paramArray)
+            self._paramArray = NULL
             self._paramArray_length = 0
             self._pvt_ptr[0].paramArray = NULL
         else:
@@ -14774,6 +14776,7 @@ cdef class CUlaunchConfig_st:
     def attrs(self, val):
         if len(val) == 0:
             free(self._attrs)
+            self._attrs = NULL
             self._attrs_length = 0
             self._pvt_ptr[0].attrs = NULL
         else:
@@ -15124,6 +15127,7 @@ cdef class CUctxCreateParams_st:
     def execAffinityParams(self, val):
         if len(val) == 0:
             free(self._execAffinityParams)
+            self._execAffinityParams = NULL
             self._execAffinityParams_length = 0
             self._pvt_ptr[0].execAffinityParams = NULL
         else:
@@ -15155,6 +15159,7 @@ cdef class CUctxCreateParams_st:
     def cigParams(self, val):
         if len(val) == 0:
             free(self._cigParams)
+            self._cigParams = NULL
             self._cigParams_length = 0
             self._pvt_ptr[0].cigParams = NULL
         else:
@@ -15296,6 +15301,7 @@ cdef class CUstreamCigCaptureParams_st:
     def streamCigParams(self, val):
         if len(val) == 0:
             free(self._streamCigParams)
+            self._streamCigParams = NULL
             self._streamCigParams_length = 0
             self._pvt_ptr[0].streamCigParams = NULL
         else:
@@ -20525,6 +20531,7 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -20548,6 +20555,7 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
@@ -20650,6 +20658,7 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -20673,6 +20682,7 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
@@ -20775,6 +20785,7 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -20798,6 +20809,7 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
@@ -20900,6 +20912,7 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -20923,6 +20936,7 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
@@ -23346,6 +23360,7 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
     def accessDescs(self, val):
         if len(val) == 0:
             free(self._accessDescs)
+            self._accessDescs = NULL
             self._accessDescs_length = 0
             self._pvt_ptr[0].accessDescs = NULL
         else:
@@ -23507,6 +23522,7 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
     def accessDescs(self, val):
         if len(val) == 0:
             free(self._accessDescs)
+            self._accessDescs = NULL
             self._accessDescs_length = 0
             self._pvt_ptr[0].accessDescs = NULL
         else:
@@ -24507,6 +24523,7 @@ cdef class CUcheckpointRestoreArgs_st:
     def gpuPairs(self, val):
         if len(val) == 0:
             free(self._gpuPairs)
+            self._gpuPairs = NULL
             self._gpuPairs_length = 0
             self._pvt_ptr[0].gpuPairs = NULL
         else:
@@ -25345,6 +25362,7 @@ cdef class CUdevResource_st:
     def nextResource(self, val):
         if len(val) == 0:
             free(self._nextResource)
+            self._nextResource = NULL
             self._nextResource_length = 0
             self._pvt_ptr[0].nextResource = NULL
         else:
