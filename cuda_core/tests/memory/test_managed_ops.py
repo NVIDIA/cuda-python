@@ -23,6 +23,12 @@ _HOST_LOCATION_ID = -1
 _INVALID_HOST_DEVICE_ORDINAL = 0
 
 
+# TODO: replace with ``buf.last_prefetch_location`` once ``ManagedBuffer``
+# exposes mem-range attributes directly (tracked as a follow-up to PR #1775).
+def _last_prefetch_location(buf):
+    return _get_int_attr(buf, driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION)
+
+
 def _skip_if_raw_managed_alloc_unsupported(device):
     # Raw `cuMemAllocManaged` capability — distinct from conftest's
     # `skip_if_managed_memory_unsupported`, which gates `ManagedMemoryResource`
@@ -121,18 +127,12 @@ def test_managed_memory_prefetch_supports_managed_pool_allocations(memory_pool_d
 
     buffer.prefetch(Host(), stream=stream)
     stream.sync()
-    last_location = _get_int_attr(
-        buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-    )
+    last_location = _last_prefetch_location(buffer)
     assert last_location == _HOST_LOCATION_ID
 
     buffer.prefetch(device, stream=stream)
     stream.sync()
-    last_location = _get_int_attr(
-        buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-    )
+    last_location = _last_prefetch_location(buffer)
     assert last_location == device.device_id
 
     buffer.close()
@@ -169,10 +169,7 @@ def test_managed_memory_prefetch_supports_external_managed_allocations(location_
     buffer.prefetch(location_ops_device, stream=stream)
     stream.sync()
 
-    last_location = _get_int_attr(
-        buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-    )
+    last_location = _last_prefetch_location(buffer)
     assert last_location == location_ops_device.device_id
 
     plain.close()
@@ -191,10 +188,7 @@ def test_managed_memory_discard_prefetch_supports_managed_pool_allocations(
     buffer.discard_prefetch(device, stream=stream)
     stream.sync()
 
-    last_location = _get_int_attr(
-        buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-    )
+    last_location = _last_prefetch_location(buffer)
     assert last_location == device.device_id
 
 
@@ -210,10 +204,7 @@ def test_managed_memory_discard_prefetch_supports_external_managed_allocations(d
     buffer.discard_prefetch(device, stream=stream)
     stream.sync()
 
-    last_location = _get_int_attr(
-        buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-    )
+    last_location = _last_prefetch_location(buffer)
     assert last_location == device.device_id
 
     plain.close()
@@ -419,10 +410,7 @@ class TestPrefetchBatch:
         stream.sync()
 
         for buf in bufs:
-            last = _get_int_attr(
-                buf,
-                driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-            )
+            last = _last_prefetch_location(buf)
             assert last == device.device_id
             buf.close()
 
@@ -436,14 +424,8 @@ class TestPrefetchBatch:
         prefetch_batch(stream, bufs, [Host(), device])
         stream.sync()
 
-        last0 = _get_int_attr(
-            bufs[0],
-            driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-        )
-        last1 = _get_int_attr(
-            bufs[1],
-            driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-        )
+        last0 = _last_prefetch_location(bufs[0])
+        last1 = _last_prefetch_location(bufs[1])
         assert last0 == _HOST_LOCATION_ID
         assert last1 == device.device_id
         for buf in bufs:
@@ -517,10 +499,7 @@ class TestDiscardPrefetchBatch:
         discard_prefetch_batch(stream, bufs, device)
         stream.sync()
         for buf in bufs:
-            last = _get_int_attr(
-                buf,
-                driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-            )
+            last = _last_prefetch_location(buf)
             assert last == device.device_id
             buf.close()
 
@@ -686,10 +665,7 @@ class TestManagedBuffer:
         try:
             buf.prefetch(device, stream=stream)
             stream.sync()
-            last = _get_int_attr(
-                buf,
-                driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-            )
+            last = _last_prefetch_location(buf)
             assert last == device.device_id
         finally:
             buf.close()
@@ -716,8 +692,5 @@ class TestManagedBuffer:
         stream.sync()
         buf.discard_prefetch(device, stream=stream)
         stream.sync()
-        last = _get_int_attr(
-            buf,
-            driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-        )
+        last = _last_prefetch_location(buf)
         assert last == device.device_id
