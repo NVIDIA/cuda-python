@@ -23,8 +23,8 @@ _HOST_LOCATION_ID = -1
 _INVALID_HOST_DEVICE_ORDINAL = 0
 
 
-# TODO: replace with ``buf.last_prefetch_location`` once ``ManagedBuffer``
-# exposes mem-range attributes directly (tracked as a follow-up to PR #1775).
+# TODO(#2109): replace with ``buf.last_prefetch_location`` once
+# ``ManagedBuffer`` exposes mem-range attributes directly.
 def _last_prefetch_location(buf):
     return _get_int_attr(buf, driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION)
 
