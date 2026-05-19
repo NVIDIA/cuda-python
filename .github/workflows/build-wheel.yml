@@ -164,12 +164,20 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
+        uses: pypa/cibuildwheel@54327ab9d35de03b359ac25c97de9417d94639c0  # v4.0.0rc1
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
+          # no-op for stable Python versions because CIBW_BUILD still filters
+          # the target version.
+          CIBW_ENABLE: cpython-prerelease
+          # v4.0 made delvewheel the default Windows repair command. We rely
+          # on cuda.pathfinder for runtime DLL discovery, so preserve the
+          # previous behaviour (no automatic DLL bundling) for now.
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
@@ -228,12 +236,20 @@ jobs:
           if-no-files-found: error
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
+        uses: pypa/cibuildwheel@54327ab9d35de03b359ac25c97de9417d94639c0  # v4.0.0rc1
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
+          # no-op for stable Python versions because CIBW_BUILD still filters
+          # the target version.
+          CIBW_ENABLE: cpython-prerelease
+          # v4.0 made delvewheel the default Windows repair command. We rely
+          # on cuda.pathfinder for runtime DLL discovery, so preserve the
+          # previous behaviour (no automatic DLL bundling) for now.
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
@@ -414,12 +430,20 @@ jobs:
           rmdir $OLD_BASENAME
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
+        uses: pypa/cibuildwheel@54327ab9d35de03b359ac25c97de9417d94639c0  # v4.0.0rc1
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
+          # no-op for stable Python versions because CIBW_BUILD still filters
+          # the target version.
+          CIBW_ENABLE: cpython-prerelease
+          # v4.0 made delvewheel the default Windows repair command. We rely
+          # on cuda.pathfinder for runtime DLL discovery, so preserve the
+          # previous behaviour (no automatic DLL bundling) for now.
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
