@@ -964,6 +964,87 @@ def test_cuGraphExecGetId(device, ctx):
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
+def test_cuGraphGetEdges_edgeData_outlives_call(device, ctx):
+    # Regression test for https://github.com/NVIDIA/cuda-python/issues/1804
+    # cuGraphGetEdges previously returned CUgraphEdgeData wrappers backed by
+    # a scratch buffer that was freed before the call returned, leaving the
+    # wrappers pointing at freed memory. Ensure the returned objects remain
+    # readable after the call and after subsequent allocations.
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        err, n0 = cuda.cuGraphAddEmptyNode(graph, None, 0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        err, n1 = cuda.cuGraphAddEmptyNode(graph, [n0], 1)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        err, n2 = cuda.cuGraphAddEmptyNode(graph, [n0, n1], 2)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        err, _, _, _, num_edges = cuda.cuGraphGetEdges(graph)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert num_edges == 3
+        err, from_nodes, to_nodes, edge_data, num_edges = cuda.cuGraphGetEdges(graph, num_edges)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert len(edge_data) == num_edges == 3
+
+        # Stir the heap to make a use-after-free more likely to surface.
+        for _ in range(64):
+            err, _, _, _, _ = cuda.cuGraphGetEdges(graph, num_edges)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            err, _, _, _ = cuda.cuGraphNodeGetDependencies(n1, 1)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+
+        # Each wrapper must still own its data.
+        for ed in edge_data:
+            assert ed.from_port == 0
+            assert ed.to_port == 0
+            assert int(ed.type) == 0
+            assert ed.reserved == b"\x00" * 5
+    finally:
+        (err,) = cuda.cuGraphDestroy(graph)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+def test_cuGraphNodeGetDependencies_edgeData_outlives_call(device, ctx):
+    # Companion regression test for #1804 covering the dependency-query path.
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        err, n0 = cuda.cuGraphAddEmptyNode(graph, None, 0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        err, n1 = cuda.cuGraphAddEmptyNode(graph, [n0], 1)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        err, _, _, num_deps = cuda.cuGraphNodeGetDependencies(n1)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert num_deps == 1
+        err, deps, edge_data, num_deps = cuda.cuGraphNodeGetDependencies(n1, num_deps)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert len(edge_data) == num_deps == 1
+
+        err, _, _, num_dependents = cuda.cuGraphNodeGetDependentNodes(n0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert num_dependents == 1
+        err, dependents, dep_edge_data, num_dependents = cuda.cuGraphNodeGetDependentNodes(n0, num_dependents)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert len(dep_edge_data) == num_dependents == 1
+
+        for _ in range(64):
+            err, _, _, _ = cuda.cuGraphNodeGetDependencies(n1, num_deps)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            err, _, _, _ = cuda.cuGraphNodeGetDependentNodes(n0, num_dependents)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+
+        for ed in edge_data + dep_edge_data:
+            assert ed.from_port == 0
+            assert ed.to_port == 0
+            assert int(ed.type) == 0
+            assert ed.reserved == b"\x00" * 5
+    finally:
+        (err,) = cuda.cuGraphDestroy(graph)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+
 @pytest.mark.skipif(
     driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetLocalId"),
     reason="Requires CUDA 13.1+",
