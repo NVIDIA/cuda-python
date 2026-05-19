@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7498810f"></script>
+    <script src="../_static/documentation_options.js?v=d0e00516"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev118';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev119';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -750,6 +750,11 @@ generic <code class="docutils literal notranslate"><span class="pre">Host()</spa
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core._memory._managed_buffer.AccessedBySetProxy.discard" title="Link to this definition">#</a></dt>
 <dd><p>Apply <code class="docutils literal notranslate"><span class="pre">unset_accessed_by</span></code> advice for <code class="docutils literal notranslate"><span class="pre">location</span></code>.</p>
+<p>Per the <code class="docutils literal notranslate"><span class="pre">MutableSet</span></code> contract, <code class="docutils literal notranslate"><span class="pre">discard</span></code> is a no-op for elements
+not in the set. <code class="docutils literal notranslate"><span class="pre">set_accessed_by</span></code> only accepts <code class="docutils literal notranslate"><span class="pre">Device</span></code> and the
+generic <code class="docutils literal notranslate"><span class="pre">Host()</span></code> — NUMA-aware host variants (<code class="docutils literal notranslate"><span class="pre">Host(numa_id=...)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Host.numa_current()</span></code>) can never enter the set, so discarding them
+is silently ignored rather than forwarded to the driver.</p>
 </dd></dl>
 
 <dl class="py method">
