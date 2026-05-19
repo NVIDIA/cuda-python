@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0, generator version 49a8141. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 {{if 'Windows' == platform.system()}}
 import os
 cimport cuda.bindings._lib.windll as windll
@@ -501,7 +501,7 @@ cdef int _cuPythonInit() except -1 nogil:
     cdef char libPath[260]
 
     with gil, __symbol_lock:
-        usePTDS = os.getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=0)
+        usePTDS = bool(int(os.getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=0)))
 
         # Load library
         libPath[0] = 0

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1588+g61faef43a. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -38711,7 +38711,9 @@ def cuStreamGetCaptureInfo(hStream):
     with nogil:
         err = cydriver.cuStreamGetCaptureInfo(cyhStream, &captureStatus_out, <cydriver.cuuint64_t*>id_out._pvt_ptr, <cydriver.CUgraph*>graph_out._pvt_ptr, &cydependencies_out, &numDependencies_out)
     if CUresult(err) == CUresult(0):
-        pydependencies_out = [CUgraphNode(init_value=<void_ptr>cydependencies_out[idx]) for idx in range(numDependencies_out)]
+        pydependencies_out = [CUgraphNode() for _ in range(numDependencies_out)]
+        for idx in range(numDependencies_out):
+            (<CUgraphNode>pydependencies_out[idx])._pvt_ptr[0] = cydependencies_out[idx]
     if err != cydriver.CUDA_SUCCESS:
         return (_CUresult(err), None, None, None, None, None)
     return (_CUresult_SUCCESS, CUstreamCaptureStatus(captureStatus_out), id_out, graph_out, pydependencies_out, numDependencies_out)
@@ -38809,9 +38811,13 @@ def cuStreamGetCaptureInfo_v3(hStream):
     with nogil:
         err = cydriver.cuStreamGetCaptureInfo_v3(cyhStream, &captureStatus_out, <cydriver.cuuint64_t*>id_out._pvt_ptr, <cydriver.CUgraph*>graph_out._pvt_ptr, &cydependencies_out, &cyedgeData_out, &numDependencies_out)
     if CUresult(err) == CUresult(0):
-        pydependencies_out = [CUgraphNode(init_value=<void_ptr>cydependencies_out[idx]) for idx in range(numDependencies_out)]
+        pydependencies_out = [CUgraphNode() for _ in range(numDependencies_out)]
+        for idx in range(numDependencies_out):
+            (<CUgraphNode>pydependencies_out[idx])._pvt_ptr[0] = cydependencies_out[idx]
     if CUresult(err) == CUresult(0):
-        pyedgeData_out = [CUgraphEdgeData(_ptr=<void_ptr>&cyedgeData_out[idx]) for idx in range(numDependencies_out)]
+        pyedgeData_out = [CUgraphEdgeData() for _ in range(numDependencies_out)]
+        for idx in range(numDependencies_out):
+            (<CUgraphEdgeData>pyedgeData_out[idx])._pvt_ptr[0] = cyedgeData_out[idx]
     if err != cydriver.CUDA_SUCCESS:
         return (_CUresult(err), None, None, None, None, None, None)
     return (_CUresult_SUCCESS, CUstreamCaptureStatus(captureStatus_out), id_out, graph_out, pydependencies_out, pyedgeData_out, numDependencies_out)
@@ -45204,7 +45210,9 @@ def cuGraphGetNodes(hGraph, size_t numNodes = 0):
     with nogil:
         err = cydriver.cuGraphGetNodes(cyhGraph, cynodes, &numNodes)
     if CUresult(err) == CUresult(0):
-        pynodes = [CUgraphNode(init_value=<void_ptr>cynodes[idx]) for idx in range(_graph_length)]
+        pynodes = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pynodes[idx])._pvt_ptr[0] = cynodes[idx]
     if cynodes is not NULL:
         free(cynodes)
     if err != cydriver.CUDA_SUCCESS:
@@ -45263,7 +45271,9 @@ def cuGraphGetRootNodes(hGraph, size_t numRootNodes = 0):
     with nogil:
         err = cydriver.cuGraphGetRootNodes(cyhGraph, cyrootNodes, &numRootNodes)
     if CUresult(err) == CUresult(0):
-        pyrootNodes = [CUgraphNode(init_value=<void_ptr>cyrootNodes[idx]) for idx in range(_graph_length)]
+        pyrootNodes = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pyrootNodes[idx])._pvt_ptr[0] = cyrootNodes[idx]
     if cyrootNodes is not NULL:
         free(cyrootNodes)
     if err != cydriver.CUDA_SUCCESS:
@@ -45332,11 +45342,15 @@ def cuGraphGetEdges(hGraph, size_t numEdges = 0):
     with nogil:
         err = cydriver.cuGraphGetEdges(cyhGraph, cyfrom_, cyto, &numEdges)
     if CUresult(err) == CUresult(0):
-        pyfrom_ = [CUgraphNode(init_value=<void_ptr>cyfrom_[idx]) for idx in range(_graph_length)]
+        pyfrom_ = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pyfrom_[idx])._pvt_ptr[0] = cyfrom_[idx]
     if cyfrom_ is not NULL:
         free(cyfrom_)
     if CUresult(err) == CUresult(0):
-        pyto = [CUgraphNode(init_value=<void_ptr>cyto[idx]) for idx in range(_graph_length)]
+        pyto = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pyto[idx])._pvt_ptr[0] = cyto[idx]
     if cyto is not NULL:
         free(cyto)
     if err != cydriver.CUDA_SUCCESS:
@@ -45418,15 +45432,21 @@ def cuGraphGetEdges_v2(hGraph, size_t numEdges = 0):
     with nogil:
         err = cydriver.cuGraphGetEdges_v2(cyhGraph, cyfrom_, cyto, cyedgeData, &numEdges)
     if CUresult(err) == CUresult(0):
-        pyfrom_ = [CUgraphNode(init_value=<void_ptr>cyfrom_[idx]) for idx in range(_graph_length)]
+        pyfrom_ = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pyfrom_[idx])._pvt_ptr[0] = cyfrom_[idx]
     if cyfrom_ is not NULL:
         free(cyfrom_)
     if CUresult(err) == CUresult(0):
-        pyto = [CUgraphNode(init_value=<void_ptr>cyto[idx]) for idx in range(_graph_length)]
+        pyto = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pyto[idx])._pvt_ptr[0] = cyto[idx]
     if cyto is not NULL:
         free(cyto)
     if CUresult(err) == CUresult(0):
-        pyedgeData = [CUgraphEdgeData(_ptr=<void_ptr>&cyedgeData[idx]) for idx in range(_graph_length)]
+        pyedgeData = [CUgraphEdgeData() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphEdgeData>pyedgeData[idx])._pvt_ptr[0] = cyedgeData[idx]
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cydriver.CUDA_SUCCESS:
@@ -45486,7 +45506,9 @@ def cuGraphNodeGetDependencies(hNode, size_t numDependencies = 0):
     with nogil:
         err = cydriver.cuGraphNodeGetDependencies(cyhNode, cydependencies, &numDependencies)
     if CUresult(err) == CUresult(0):
-        pydependencies = [CUgraphNode(init_value=<void_ptr>cydependencies[idx]) for idx in range(_graph_length)]
+        pydependencies = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pydependencies[idx])._pvt_ptr[0] = cydependencies[idx]
     if cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
@@ -45559,11 +45581,15 @@ def cuGraphNodeGetDependencies_v2(hNode, size_t numDependencies = 0):
     with nogil:
         err = cydriver.cuGraphNodeGetDependencies_v2(cyhNode, cydependencies, cyedgeData, &numDependencies)
     if CUresult(err) == CUresult(0):
-        pydependencies = [CUgraphNode(init_value=<void_ptr>cydependencies[idx]) for idx in range(_graph_length)]
+        pydependencies = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pydependencies[idx])._pvt_ptr[0] = cydependencies[idx]
     if cydependencies is not NULL:
         free(cydependencies)
     if CUresult(err) == CUresult(0):
-        pyedgeData = [CUgraphEdgeData(_ptr=<void_ptr>&cyedgeData[idx]) for idx in range(_graph_length)]
+        pyedgeData = [CUgraphEdgeData() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphEdgeData>pyedgeData[idx])._pvt_ptr[0] = cyedgeData[idx]
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cydriver.CUDA_SUCCESS:
@@ -45623,7 +45649,9 @@ def cuGraphNodeGetDependentNodes(hNode, size_t numDependentNodes = 0):
     with nogil:
         err = cydriver.cuGraphNodeGetDependentNodes(cyhNode, cydependentNodes, &numDependentNodes)
     if CUresult(err) == CUresult(0):
-        pydependentNodes = [CUgraphNode(init_value=<void_ptr>cydependentNodes[idx]) for idx in range(_graph_length)]
+        pydependentNodes = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pydependentNodes[idx])._pvt_ptr[0] = cydependentNodes[idx]
     if cydependentNodes is not NULL:
         free(cydependentNodes)
     if err != cydriver.CUDA_SUCCESS:
@@ -45696,11 +45724,15 @@ def cuGraphNodeGetDependentNodes_v2(hNode, size_t numDependentNodes = 0):
     with nogil:
         err = cydriver.cuGraphNodeGetDependentNodes_v2(cyhNode, cydependentNodes, cyedgeData, &numDependentNodes)
     if CUresult(err) == CUresult(0):
-        pydependentNodes = [CUgraphNode(init_value=<void_ptr>cydependentNodes[idx]) for idx in range(_graph_length)]
+        pydependentNodes = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pydependentNodes[idx])._pvt_ptr[0] = cydependentNodes[idx]
     if cydependentNodes is not NULL:
         free(cydependentNodes)
     if CUresult(err) == CUresult(0):
-        pyedgeData = [CUgraphEdgeData(_ptr=<void_ptr>&cyedgeData[idx]) for idx in range(_graph_length)]
+        pyedgeData = [CUgraphEdgeData() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphEdgeData>pyedgeData[idx])._pvt_ptr[0] = cyedgeData[idx]
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cydriver.CUDA_SUCCESS:
