@@ -6,11 +6,10 @@
 ``cuda.core`` API Reference
 ===========================
 
-This is the main API reference for ``cuda.core``. The package has not yet
-reached version 1.0.0, and APIs may change between minor versions, possibly
-without deprecation warnings. Once version 1.0.0 is released, APIs will
-be considered stable and will follow semantic versioning with appropriate
-deprecation periods for breaking changes.
+This is the main API reference for ``cuda.core``. As of version 1.0.0, all
+APIs are considered stable and follow `Semantic Versioning <https://semver.org/>`_
+with appropriate deprecation periods for breaking changes. See the
+:doc:`support policy <support>` for details.
 
 
 Devices and execution
@@ -104,7 +103,6 @@ launched on a :class:`Stream`.
 
    :template: dataclass.rst
 
-   graph.GraphAllocOptions
    graph.GraphCompleteOptions
    graph.GraphDebugPrintOptions
 
@@ -181,6 +179,26 @@ CUDA compilation toolchain
    ProgramOptions
    LinkerOptions
 
+Program caches
+``````````````
+
+``Program.compile`` accepts a ``cache=`` keyword argument that integrates
+with any :class:`~cuda.core.utils.ProgramCacheResource`, so callers can
+avoid recompiling identical source + options + target without writing the
+:func:`~cuda.core.utils.make_program_cache_key` lookup by hand.
+
+.. currentmodule:: cuda.core.utils
+
+.. autosummary::
+   :toctree: generated/
+
+   ProgramCacheResource
+   InMemoryProgramCache
+   FileStreamProgramCache
+   make_program_cache_key
+
+.. currentmodule:: cuda.core
+
 
 CUDA process checkpointing
 --------------------------
@@ -244,57 +262,17 @@ execution.
    checkpoint.Process
 
 
-CUDA system information and NVIDIA Management Library (NVML)
-------------------------------------------------------------
-
-Basic functions
-```````````````
-
-.. autosummary::
-   :toctree: generated/
-
-   system.get_driver_version
-   system.get_driver_version_full
-   system.get_driver_branch
-   system.get_num_devices
-   system.get_nvml_version
-   system.get_process_name
-   system.get_topology_common_ancestor
-   system.get_p2p_status
-
-Events
-``````
-
-.. autosummary::
-   :toctree: generated/
-
-   system.register_events
-   system.SystemEventType
-
-Types
-`````
-
-.. autosummary::
-   :toctree: generated/
-
-   :template: autosummary/cyclass.rst
-
-   system.Device
-   system.NvlinkInfo
-
-.. module:: cuda.core.utils
-
 Utility functions
 -----------------
 
 .. autosummary::
    :toctree: generated/
 
-   args_viewable_as_strided_memory
-   prefetch_batch
-   discard_batch
-   discard_prefetch_batch
+   utils.args_viewable_as_strided_memory
+   utils.prefetch_batch
+   utils.discard_batch
+   utils.discard_prefetch_batch
 
    :template: autosummary/cyclass.rst
 
-   StridedMemoryView
+   utils.StridedMemoryView

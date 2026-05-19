@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a34920f7"></script>
+    <script src="../_static/documentation_options.js?v=7498810f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev167';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev118';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -198,15 +198,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../examples.html">
-    Examples
+  <a class="nav-link nav-internal" href="../install.html">
+    Installation
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../install.html">
-    Installation
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
   </a>
 </li>
 
@@ -233,6 +233,13 @@
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
 <li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api_nvml.html">
+    cuda.core.system API Reference
+  </a>
+</li>
+
+
+<li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../environment_variables.html">
     Environment Variables
   </a>
@@ -242,6 +249,13 @@
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
     Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../support.html">
+    cuda.core Support Policy
   </a>
 </li>
 
@@ -401,15 +415,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../examples.html">
-    Examples
+  <a class="nav-link nav-internal" href="../install.html">
+    Installation
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../install.html">
-    Installation
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
   </a>
 </li>
 
@@ -429,6 +443,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_nvml.html">
+    cuda.core.system API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../environment_variables.html">
     Environment Variables
   </a>
@@ -438,6 +459,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../contribute.html">
     Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    cuda.core Support Policy
   </a>
 </li>
 
@@ -495,8 +523,8 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
@@ -531,7 +559,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCondition.html">cuda.core.graph.GraphCondition</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EmptyNode.html">cuda.core.graph.EmptyNode</a></li>
@@ -558,19 +585,11 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.discard_batch.html">cuda.core.utils.discard_batch</a></li>
@@ -578,15 +597,32 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_nvml.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_user_mode_driver_version.html">cuda.core.system.get_user_mode_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_kernel_mode_driver_version.html">cuda.core.system.get_kernel_mode_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 </ul>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> Support Policy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">Software License Agreement</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.1.0-notes.html">1.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.0.1-notes.html">1.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.0.0-notes.html">1.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
@@ -676,16 +712,21 @@ APIs.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core._memory._buffer.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.allocate" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.allocate" title="Link to this definition">#</a></dt>
 <dd><p>Allocate a buffer of the requested size.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuMemAllocHost</span></code> is synchronous, so this resource ignores any
+supplied stream. The argument is accepted (and validated when
+non-<code class="docutils literal notranslate"><span class="pre">None</span></code>) for interface conformance with stream-ordered
+memory resources.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to allocate, in bytes.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – Currently ignored</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – Keyword-only. Validated when provided but otherwise unused.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -704,7 +745,8 @@ APIs.</p>
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">ptr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DevicePointerType</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.deallocate" title="Link to this definition">#</a></dt>
@@ -714,7 +756,8 @@ APIs.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerType</span></code>) – The pointer or handle to the buffer to deallocate.</p></li>
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to deallocate, in bytes.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><em>Stream</em></a>) – The stream on which to perform the deallocation synchronously.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – Keyword-only. If provided, <code class="docutils literal notranslate"><span class="pre">stream.sync()</span></code> is called before the
+host allocation is freed. <code class="docutils literal notranslate"><span class="pre">None</span></code> skips the sync.</p></li>
 </ul>
 </dd>
 </dl>
