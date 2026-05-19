@@ -20,64 +20,24 @@ from cuda.core._utils.cuda_utils import driver
 from cuda.core._memory._managed_location import _coerce_location
 
 
-cdef dict _MANAGED_ADVICE_ALIASES = {
-    "set_read_mostly": "CU_MEM_ADVISE_SET_READ_MOSTLY",
-    "unset_read_mostly": "CU_MEM_ADVISE_UNSET_READ_MOSTLY",
-    "set_preferred_location": "CU_MEM_ADVISE_SET_PREFERRED_LOCATION",
-    "unset_preferred_location": "CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION",
-    "set_accessed_by": "CU_MEM_ADVISE_SET_ACCESSED_BY",
-    "unset_accessed_by": "CU_MEM_ADVISE_UNSET_ACCESSED_BY",
-}
-
-cdef frozenset _MANAGED_ADVICE_IGNORE_LOCATION = frozenset((
-    "set_read_mostly",
-    "unset_read_mostly",
-    "unset_preferred_location",
-))
-
 cdef frozenset _ALL_LOCATION_TYPES = frozenset(("device", "host", "host_numa", "host_numa_current"))
 cdef frozenset _DEVICE_HOST_NUMA = frozenset(("device", "host", "host_numa"))
 cdef frozenset _DEVICE_HOST_ONLY = frozenset(("device", "host"))
 
-cdef dict _MANAGED_ADVICE_ALLOWED_LOCTYPES = {
-    "set_read_mostly": _DEVICE_HOST_NUMA,
-    "unset_read_mostly": _DEVICE_HOST_NUMA,
-    "set_preferred_location": _ALL_LOCATION_TYPES,
-    "unset_preferred_location": _DEVICE_HOST_NUMA,
-    "set_accessed_by": _DEVICE_HOST_ONLY,
-    "unset_accessed_by": _DEVICE_HOST_ONLY,
+cdef set _ADVICE_IGNORES_LOCATION = {
+    driver.CUmem_advise.CU_MEM_ADVISE_SET_READ_MOSTLY,
+    driver.CUmem_advise.CU_MEM_ADVISE_UNSET_READ_MOSTLY,
+    driver.CUmem_advise.CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION,
 }
 
-# Reverse lookup: enum value → alias. Built once at module load.
-cdef dict _ADVICE_ENUM_TO_ALIAS = {
-    getattr(driver.CUmem_advise, attr_name): alias
-    for alias, attr_name in _MANAGED_ADVICE_ALIASES.items()
-    if hasattr(driver.CUmem_advise, attr_name)
+cdef dict _ADVICE_ALLOWED_LOCTYPES = {
+    driver.CUmem_advise.CU_MEM_ADVISE_SET_READ_MOSTLY:          _DEVICE_HOST_NUMA,
+    driver.CUmem_advise.CU_MEM_ADVISE_UNSET_READ_MOSTLY:        _DEVICE_HOST_NUMA,
+    driver.CUmem_advise.CU_MEM_ADVISE_SET_PREFERRED_LOCATION:   _ALL_LOCATION_TYPES,
+    driver.CUmem_advise.CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: _DEVICE_HOST_NUMA,
+    driver.CUmem_advise.CU_MEM_ADVISE_SET_ACCESSED_BY:          _DEVICE_HOST_ONLY,
+    driver.CUmem_advise.CU_MEM_ADVISE_UNSET_ACCESSED_BY:        _DEVICE_HOST_ONLY,
 }
-
-
-cdef tuple _normalize_managed_advice(object advice):
-    cdef str alias
-    cdef str attr_name
-    if isinstance(advice, str):
-        alias = advice.lower()
-        attr_name = _MANAGED_ADVICE_ALIASES.get(alias)
-        if attr_name is None:
-            raise ValueError(
-                "advice must be one of "
-                f"{tuple(sorted(_MANAGED_ADVICE_ALIASES))!r}, got {advice!r}"
-            )
-        return alias, getattr(driver.CUmem_advise, attr_name)
-
-    if isinstance(advice, driver.CUmem_advise):
-        alias = _ADVICE_ENUM_TO_ALIAS.get(advice)
-        if alias is None:
-            raise ValueError(f"Unsupported advice value: {advice!r}")
-        return alias, advice
-
-    raise TypeError(
-        "advice must be a cuda.bindings.driver.CUmem_advise value or a supported string alias"
-    )
 
 
 cdef void _require_managed_buffer(Buffer self, str what):
@@ -232,17 +192,21 @@ def _advise_one(Buffer buf, advice, location):
     public API.
     """
     _require_managed_buffer(buf, "advise")
-    cdef str advice_name
-    cdef object advice_value
-    advice_name, advice_value = _normalize_managed_advice(advice)
-    cdef bint allow_none = advice_name in _MANAGED_ADVICE_IGNORE_LOCATION
-    cdef frozenset allowed_kinds = _MANAGED_ADVICE_ALLOWED_LOCTYPES[advice_name]
+    if not isinstance(advice, driver.CUmem_advise):
+        raise TypeError(
+            f"advice must be a cuda.bindings.driver.CUmem_advise value, "
+            f"got {type(advice).__name__}"
+        )
+    cdef frozenset allowed_kinds = _ADVICE_ALLOWED_LOCTYPES.get(advice)
+    if allowed_kinds is None:
+        raise ValueError(f"Unsupported advice value: {advice!r}")
+    cdef bint allow_none = advice in _ADVICE_IGNORES_LOCATION
     cdef object loc = _coerce_location(location, allow_none=allow_none)
     if loc is not None and loc.kind not in allowed_kinds:
         raise ValueError(
-            f"advise '{advice_name}' does not support location_type='{loc.kind}'"
+            f"advise {advice.name} does not support location_type='{loc.kind}'"
         )
-    _do_single_advise(buf, advice_value, loc, allow_none)
+    _do_single_advise(buf, advice, loc, allow_none)
 
 
 cdef void _do_single_advise(Buffer buf, object advice_value, object loc, bint allow_none):
