@@ -23,7 +23,10 @@ _HOST_LOCATION_ID = -1
 _INVALID_HOST_DEVICE_ORDINAL = 0
 
 
-def _skip_if_managed_allocation_unsupported(device):
+def _skip_if_raw_managed_alloc_unsupported(device):
+    # Raw `cuMemAllocManaged` capability — distinct from conftest's
+    # `skip_if_managed_memory_unsupported`, which gates `ManagedMemoryResource`
+    # pool creation. Used by tests that exercise `DummyUnifiedMemoryResource`.
     try:
         if not device.properties.managed_memory:
             pytest.skip("Device does not support managed memory operations")
@@ -32,7 +35,7 @@ def _skip_if_managed_allocation_unsupported(device):
 
 
 def _skip_if_managed_location_ops_unsupported(device):
-    _skip_if_managed_allocation_unsupported(device)
+    _skip_if_raw_managed_alloc_unsupported(device)
     try:
         if not device.properties.concurrent_managed_access:
             pytest.skip("Device does not support concurrent managed memory access")
@@ -557,7 +560,7 @@ class TestManagedBuffer:
         from cuda.core import Buffer
 
         device = Device()
-        _skip_if_managed_allocation_unsupported(device)
+        _skip_if_raw_managed_alloc_unsupported(device)
         device.set_current()
         # Allocate an external managed pointer through the dummy MR, then
         # adopt it as a ManagedBuffer via from_handle.
