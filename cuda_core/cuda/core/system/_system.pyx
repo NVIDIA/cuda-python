@@ -157,8 +157,11 @@ def get_process_name(pid: int) -> str:
         # running processes on devices. To ensure the name is cached for the
         # requested PID, we walk all devices and query their running processes.
         for i in range(nvml.device_get_count_v2()):
-            dev_h = nvml.device_get_handle_by_index_v2(i)
-            nvml.device_get_compute_running_processes_v3(dev_h)
+            try:
+                dev_h = nvml.device_get_handle_by_index_v2(i)
+                nvml.device_get_compute_running_processes_v3(dev_h)
+            except nvml.NvmlError:
+                continue
         return nvml.system_get_process_name(pid)
 
     initialize()
