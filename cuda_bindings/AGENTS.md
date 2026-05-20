@@ -35,10 +35,8 @@ subpackage in the `cuda-python` monorepo.
   defined in `build_hooks.py`; update those rules when introducing new symbols.
 - **Platform split files**: keep `_linux.pyx` and `_windows.pyx` variants
   aligned when behavior should be equivalent.
-- **Lint at the source**: if formatting or lint fixes affect generated files,
-  make the fix in the generation source (`cython-gen`, `cybind`, templates, or
-  sync source) or exclude generated outputs from the check. Otherwise the next
-  regeneration will reintroduce the same issue.
+- **Don't lint generated files:** If a file has the comment "This code was
+  automatically generated...", do not perform any formatting or lint fixes.
 - **Cython copies**: prefer typed assignment for wrapper-owned C struct copies
   over raw `memcpy` when the generated Cython/C types can define the copy size.
 
@@ -76,5 +74,5 @@ subpackage in the `cuda-python` monorepo.
   through an existing Python wrapper instead of directly cimporting the new
   generated Cython symbol.
 - For external contributions touching generated `cuda_bindings` code, ask for a
-  reproducer and environment details, then route fixes through the generation
-  source rather than accepting one-off generated edits.
+  reproducer and environment details. Do not accept one-off generated edits;
+  NVIDIA maintainers should route accepted fixes through the generation source.

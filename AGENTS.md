@@ -38,9 +38,11 @@ across the repository, in addition to any package-specific `AGENTS.md`.
 - Add targeted regression tests for behavioral fixes. Do not add elaborate
   tests that mostly prove an implementation detail or require large module
   stubbing unless that is the only practical way to cover the bug.
-- Do not weaken tests just to pass a platform or CI configuration. Avoid broad
-  platform skips such as "skip all WSL" or "skip all Windows"; query CUDA
-  driver/device capability or the specific missing library/feature instead.
+- Do not weaken tests just to pass a platform or CI configuration. Use the
+  tightest available skip criteria: broad OS skips are appropriate only when
+  upstream documentation or the support matrix says the feature is unsupported
+  on that OS; otherwise query the specific CUDA driver/device capability or
+  missing library/feature.
 - Preserve real user workflows in tests. Do not change global CUDA state, skip
   real loading paths, or disable release-note/doc checks merely to reduce CI
   load unless reviewers have agreed to that behavior change.
@@ -53,9 +55,9 @@ across the repository, in addition to any package-specific `AGENTS.md`.
 - Do not hand-edit generated binding artifacts as a shortcut. Fix the generator
   source or templates and regenerate/sync outputs so the next generation does
   not reintroduce the same review issue.
-- Lint or formatting changes that touch generated files should either be made
-  in the generator (`cython-gen`, `cybind`, templates, or sync source) or should
-  exclude generated outputs from the check.
+- Use `.pre-commit-config.yaml` as the source of truth for linting and
+  formatting. Do not perform formatting or lint fixes on files marked "This code
+  was automatically generated..." unless the repo config explicitly opts them in.
 - Keep builds working across the supported CUDA major versions. Do not cimport
   or call newly generated Cython symbols directly unless the older supported
   CUDA-major build is gated or has a wrapper/fallback path.
