@@ -1303,6 +1303,12 @@ buffer that was freed before the call returned, leaving every wrapper holding
 a dangling pointer. The returned wrappers now own deep copies of the edge
 data.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1804">Issue #1804</a>)</p></li>
+<li><p>Fixed a double-free in the generated setters for list-valued struct members
+(e.g. <code class="docutils literal notranslate"><span class="pre">CUlaunchConfig.attrs</span></code>, <code class="docutils literal notranslate"><span class="pre">CUDA_MEM_ALLOC_NODE_PARAMS.accessDescs</span></code>,
+external-semaphore and batch-mem-op node parameter arrays, and their runtime
+counterparts). Assigning an empty list freed the internal buffer but left
+the cached pointer non-NULL, so a subsequent assignment or <code class="docutils literal notranslate"><span class="pre">__dealloc__</span></code>
+would call <code class="docutils literal notranslate"><span class="pre">free()</span></code> again on the dangling pointer.</p></li>
 </ul>
 </section>
 <section id="miscellaneous">

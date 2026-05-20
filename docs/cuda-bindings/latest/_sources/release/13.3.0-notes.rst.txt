@@ -23,6 +23,13 @@ Bugfixes
   data.
   (`Issue #1804 <https://github.com/NVIDIA/cuda-python/issues/1804>`_)
 
+* Fixed a double-free in the generated setters for list-valued struct members
+  (e.g. ``CUlaunchConfig.attrs``, ``CUDA_MEM_ALLOC_NODE_PARAMS.accessDescs``,
+  external-semaphore and batch-mem-op node parameter arrays, and their runtime
+  counterparts). Assigning an empty list freed the internal buffer but left
+  the cached pointer non-NULL, so a subsequent assignment or ``__dealloc__``
+  would call ``free()`` again on the dangling pointer.
+
 
 Miscellaneous
 -------------
