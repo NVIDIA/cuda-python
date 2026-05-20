@@ -2,7 +2,10 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import ctypes
+import os.path
 import shutil
+import subprocess
+import sys
 import textwrap
 
 import numpy as np
@@ -1270,3 +1273,79 @@ def test_buffer_reference():
     ptr = ctypes.cast(memcpyParams.memcpy.copyParams.dstHost, ctypes.POINTER(ctypes.c_uint8))
     x = np.ctypeslib.as_array(ptr, shape=(size,))
     assert np.all(x == 2)
+
+
+def test_array_setter_no_double_free_after_clearing_with_empty_list():
+    # Regression test for a double-free in the generated setters for
+    # list-valued struct members (e.g. CUlaunchConfig.attrs,
+    # CUDA_MEM_ALLOC_NODE_PARAMS.accessDescs, ...). Assigning an empty list
+    # used to free the internal buffer but leave the cached pointer non-NULL;
+    # the next assignment (or __dealloc__) would call free() on that dangling
+    # pointer, causing a double-free that glibc aborts via SIGABRT.
+    #
+    # CUlaunchConfig.attrs is exercised here as one representative instance;
+    # the same pattern was applied across many setters in driver.pyx.in and
+    # runtime.pyx.in.
+    #
+    # The reproducer runs in a subprocess so that a glibc abort surfaces as
+    # a non-zero return code instead of tearing down the pytest process.
+    code = textwrap.dedent(
+        """
+        import cuda.bindings.driver as cuda
+
+        params = cuda.CUlaunchConfig()
+        # Allocate the internal buffer.
+        params.attrs = [cuda.CUlaunchAttribute() for _ in range(4)]
+        # Free it. Pre-fix, self._attrs is left pointing at freed memory.
+        params.attrs = []
+        # Length mismatch (0 vs 8) takes the else branch and calls free()
+        # again on the dangling pointer.
+        params.attrs = [cuda.CUlaunchAttribute() for _ in range(8)]
+        """
+    )
+    proc = subprocess.run([sys.executable, "-c", code], capture_output=True, cwd=os.path.dirname(__file__))  # noqa: S603
+    assert proc.returncode == 0, (
+        f"reproducer subprocess exited with code {proc.returncode}; stderr: {proc.stderr.decode(errors='replace')}"
+    )
+
+
+def test_dealloc_clears_array_field_in_external_struct():
+    # Regression test for the externally-owned-memory case of the same bug.
+    #
+    # When a wrapper aliases an externally-owned struct (constructed with
+    # `_ptr=...`), `__dealloc__` used to free its internal buffer but leave
+    # `self._pvt_ptr[0].<field>` pointing at the freed memory. Anyone still
+    # holding the external struct (the owning wrapper, a parent struct, or
+    # the CUDA driver itself) would see a dangling pointer.
+    #
+    # CUlaunchConfig.attrs is exercised here as one representative instance;
+    # the same pattern was applied across the `__dealloc__` methods in
+    # driver.pyx.in and runtime.pyx.in.
+    outer = cuda.CUlaunchConfig()
+    # `inner` aliases the same underlying struct as `outer`.
+    inner = cuda.CUlaunchConfig(_ptr=outer.getPtr())
+    # Allocates a buffer and writes its pointer into the shared struct's
+    # `attrs` field.
+    inner.attrs = [cuda.CUlaunchAttribute() for _ in range(4)]
+
+    # Locate `attrs` in the C struct by scanning for the just-written
+    # pointer. The struct is small and only `attrs` is non-NULL.
+    struct_addr = outer.getPtr()
+    word_size = ctypes.sizeof(ctypes.c_void_p)
+    scan_words = 128 // word_size
+    words = (ctypes.c_void_p * scan_words).from_address(struct_addr)
+    attrs_offset = next(
+        (i * word_size for i, p in enumerate(words) if p),
+        None,
+    )
+    assert attrs_offset is not None, "attrs pointer was not written into the C struct"
+
+    # Destroy the wrapper. With the fix, __dealloc__ also clears the field
+    # in the externally-owned struct; without it, the field remains dangling.
+    del inner
+
+    attrs_after = ctypes.c_void_p.from_address(struct_addr + attrs_offset).value
+    assert attrs_after is None, (
+        f"external struct still holds a dangling pointer ({attrs_after:#x}) "
+        "where attrs was, after the aliasing wrapper was destroyed"
+    )

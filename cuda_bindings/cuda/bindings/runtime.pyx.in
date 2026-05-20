@@ -11464,6 +11464,7 @@ cdef class cudaMemAllocNodeParams:
         {{if 'cudaMemAllocNodeParams.accessDescs' in found_struct}}
         if self._accessDescs is not NULL:
             free(self._accessDescs)
+            self._pvt_ptr[0].accessDescs = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -11520,6 +11521,7 @@ cdef class cudaMemAllocNodeParams:
     def accessDescs(self, val):
         if len(val) == 0:
             free(self._accessDescs)
+            self._accessDescs = NULL
             self._accessDescs_length = 0
             self._pvt_ptr[0].accessDescs = NULL
         else:
@@ -11613,6 +11615,7 @@ cdef class cudaMemAllocNodeParamsV2:
         {{if 'cudaMemAllocNodeParamsV2.accessDescs' in found_struct}}
         if self._accessDescs is not NULL:
             free(self._accessDescs)
+            self._pvt_ptr[0].accessDescs = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -11669,6 +11672,7 @@ cdef class cudaMemAllocNodeParamsV2:
     def accessDescs(self, val):
         if len(val) == 0:
             free(self._accessDescs)
+            self._accessDescs = NULL
             self._accessDescs_length = 0
             self._pvt_ptr[0].accessDescs = NULL
         else:
@@ -16375,6 +16379,7 @@ cdef class cudaDevResource_st:
         {{if 'cudaDevResource_st.nextResource' in found_struct}}
         if self._nextResource is not NULL:
             free(self._nextResource)
+            self._pvt_ptr[0].nextResource = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -16489,6 +16494,7 @@ cdef class cudaDevResource_st:
     def nextResource(self, val):
         if len(val) == 0:
             free(self._nextResource)
+            self._nextResource = NULL
             self._nextResource_length = 0
             self._pvt_ptr[0].nextResource = NULL
         else:
@@ -17054,10 +17060,12 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
         {{if 'cudaExternalSemaphoreSignalNodeParams.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'cudaExternalSemaphoreSignalNodeParams.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -17094,6 +17102,7 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -17117,6 +17126,7 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
@@ -17179,10 +17189,12 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
         {{if 'cudaExternalSemaphoreSignalNodeParamsV2.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'cudaExternalSemaphoreSignalNodeParamsV2.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -17219,6 +17231,7 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -17242,6 +17255,7 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
@@ -17304,10 +17318,12 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
         {{if 'cudaExternalSemaphoreWaitNodeParams.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'cudaExternalSemaphoreWaitNodeParams.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -17344,6 +17360,7 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -17367,6 +17384,7 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
@@ -17429,10 +17447,12 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
         {{if 'cudaExternalSemaphoreWaitNodeParamsV2.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'cudaExternalSemaphoreWaitNodeParamsV2.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -17469,6 +17489,7 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -17492,6 +17513,7 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
