@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,10 +37,10 @@
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
 
 
@@ -51,7 +51,7 @@
     <script src="../_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'module/runtime';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -304,11 +304,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
     </div>
     
@@ -502,11 +509,18 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
       </div>
     
@@ -523,6 +537,8 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.3.0-notes.html">13.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.2.1-notes.html">13.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.0-notes.html">13.1.0</a></li>
@@ -576,6 +592,7 @@
 <li class="toctree-l2"><a class="reference internal" href="nvjitlink.html">nvjitlink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nvvm.html">nvvm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nvfatbin.html">nvfatbin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cudla.html">cudla</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
@@ -4415,10 +4432,9 @@ through cudaDevAttrMemSyncDomainCount.
    Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
    the following fields: - `cudaEvent_t` event - Event to fire when
    all blocks trigger it.    - `int` flags; - Event record flags, see
-   ::cudaEventRecordWithFlags. Does not accept
-   cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
-   is set to non-0, each block launch will automatically trigger the
-   event.
+   cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
+   - `int` triggerAtBlockStart - If this is set to non-0, each block
+   launch will automatically trigger the event.
 
    :type: anon_struct18
 
@@ -4465,7 +4481,7 @@ through cudaDevAttrMemSyncDomainCount.
    Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
    with the following fields: - `cudaEvent_t` event - Event to fire
    when the last block launches.    - `int` flags - Event record
-   flags, see ::cudaEventRecordWithFlags. Does not accept
+   flags, see cudaEventRecordWithFlags. Does not accept
    cudaEventRecordExternal.
 
    :type: anon_struct20
@@ -10881,10 +10897,9 @@ through cudaDevAttrMemSyncDomainCount.
    Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
    the following fields: - `cudaEvent_t` event - Event to fire when
    all blocks trigger it.    - `int` flags; - Event record flags, see
-   ::cudaEventRecordWithFlags. Does not accept
-   cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
-   is set to non-0, each block launch will automatically trigger the
-   event.
+   cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
+   - `int` triggerAtBlockStart - If this is set to non-0, each block
+   launch will automatically trigger the event.
 
    :type: anon_struct18
 
@@ -10931,7 +10946,7 @@ through cudaDevAttrMemSyncDomainCount.
    Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
    with the following fields: - `cudaEvent_t` event - Event to fire
    when the last block launches.    - `int` flags - Event record
-   flags, see ::cudaEventRecordWithFlags. Does not accept
+   flags, see cudaEventRecordWithFlags. Does not accept
    cudaEventRecordExternal.
 
    :type: anon_struct20
@@ -11948,13 +11963,7 @@ Returns in `*pValue` the current size of `limit`. The following
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceGetCacheConfig">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetCacheConfig</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceGetCacheConfig" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns the maximum number of elements allocatable in a 1D linear texture for a given element size.
-
-Returns in `maxWidthInElements` the maximum number of elements
-allocatable in a 1D linear texture for given format descriptor
-`fmtDesc`.
-
-Returns the preferred cache configuration for the current device.
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns the preferred cache configuration for the current device.
 
 On devices where the L1 cache and shared memory use the same hardware
 resources, this returns through `pCacheConfig` the preferred cache
@@ -11981,16 +11990,10 @@ The supported cache configurations are:
 - :py:obj:`~.cudaFuncCachePreferEqual`: prefer equal size L1 cache and
   shared memory
 
-:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorUnsupportedLimit`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`
-          * **maxWidthInElements** (:py:obj:`~.cudaFuncCache`) -- Returns maximum number of texture elements allocatable for given
-            `fmtDesc`.
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`
+          * **pCacheConfig** (:py:obj:`~.cudaFuncCache`) -- Returned cache configuration
 
-.. seealso::
-
-   :py:obj:`~.cuDeviceGetTexture1DLinearMaxWidth`
-
-   :py:obj:`~.cudaDeviceSetCacheConfig`, :py:obj:`~.cudaFuncSetCacheConfig (C API)`, cudaFuncSetCacheConfig (C++ API), :py:obj:`~.cuCtxGetCacheConfig`
+.. seealso:: :py:obj:`~.cudaDeviceSetCacheConfig`, :py:obj:`~.cudaFuncSetCacheConfig (C API)`, cudaFuncSetCacheConfig (C++ API), :py:obj:`~.cuCtxGetCacheConfig`
 </pre></div>
 </div>
 </dd></dl>
@@ -12344,23 +12347,7 @@ functionality by calling :py:obj:`~.cudaDeviceGetAttribute` with
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceRegisterAsyncNotification" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Blocks until remote writes are visible to the specified scope.
-
-Blocks until remote writes to the target context via mappings created
-through GPUDirect RDMA APIs, like nvidia_p2p_get_pages (see
-https://docs.nvidia.com/cuda/gpudirect-rdma for more information), are
-visible to the specified scope.
-
-If the scope equals or lies within the scope indicated by
-:py:obj:`~.cudaDevAttrGPUDirectRDMAWritesOrdering`, the call will be a
-no-op and can be safely omitted for performance. This can be determined
-by comparing the numerical values between the two enums, with smaller
-scopes having smaller values.
-
-Users may query support for this API via
-:py:obj:`~.cudaDevAttrGPUDirectRDMAFlushWritesOptions`.
-
-Registers a callback function to receive async notifications
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Registers a callback function to receive async notifications.
 
 Registers `callbackFunc` to receive async notifications.
 
@@ -12380,18 +12367,18 @@ in an undefined order and may be serialized.
 Returns in `*callback` a handle representing the registered callback
 instance.
 
-:param target: The target of the operation, see cudaFlushGPUDirectRDMAWritesTarget
-:type target: int
-:param scope: The scope of the operation, see cudaFlushGPUDirectRDMAWritesScope
-:type scope: :py:obj:`~.cudaAsyncCallback`
 :param device: The device on which to register the callback
-:type device: Any
+:type device: int
+:param callbackFunc: The function to register as a callback
+:type callbackFunc: :py:obj:`~.cudaAsyncCallback`
+:param userData: A generic pointer to user data. This is passed into the callback
+                 function.
+:type userData: Any
 
-:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorNotSupported`,
-            :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorNotSupported` :py:obj:`~.cudaErrorInvalidDevice` :py:obj:`~.cudaErrorInvalidValue` :py:obj:`~.cudaErrorNotPermitted` :py:obj:`~.cudaErrorUnknown`
-          * **callbackFunc** (:py:obj:`~.cudaAsyncCallbackHandle_t`) -- The function to register as a callback
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorNotSupported` :py:obj:`~.cudaErrorInvalidDevice` :py:obj:`~.cudaErrorInvalidValue` :py:obj:`~.cudaErrorNotPermitted` :py:obj:`~.cudaErrorUnknown`
+          * **callback** (:py:obj:`~.cudaAsyncCallbackHandle_t`) -- A handle representing the registered callback instance
 
-.. seealso:: :py:obj:`~.cuFlushGPUDirectRDMAWrites`, :py:obj:`~.cudaDeviceUnregisterAsyncNotification`
+.. seealso:: :py:obj:`~.cudaDeviceUnregisterAsyncNotification`
 </pre></div>
 </div>
 </dd></dl>
@@ -14049,32 +14036,7 @@ work, so for example :py:obj:`~.cudaEventQuery()` would return
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaEventQuery">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaEventQuery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaEventQuery" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Records an event.
-
-Captures in `event` the contents of `stream` at the time of this call.
-`event` and `stream` must be on the same CUDA context. Calls such as
-:py:obj:`~.cudaEventQuery()` or :py:obj:`~.cudaStreamWaitEvent()` will
-then examine or wait for completion of the work that was captured. Uses
-of `stream` after this call do not modify `event`. See note on default
-stream behavior for what is captured in the default case.
-
-:py:obj:`~.cudaEventRecordWithFlags()` can be called multiple times on
-the same event and will overwrite the previously captured state. Other
-APIs such as :py:obj:`~.cudaStreamWaitEvent()` use the most recently
-captured state at the time of the API call, and are not affected by
-later calls to :py:obj:`~.cudaEventRecordWithFlags()`. Before the first
-call to :py:obj:`~.cudaEventRecordWithFlags()`, an event represents an
-empty set of work, so for example :py:obj:`~.cudaEventQuery()` would
-return :py:obj:`~.cudaSuccess`.
-
-flags include:
-
-- :py:obj:`~.cudaEventRecordDefault`: Default event creation flag.
-
-- :py:obj:`~.cudaEventRecordExternal`: Event is captured in the graph
-  as an external event node when performing stream capture.
-
-Queries an event&#39;s status
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Queries an event&#39;s status.
 
 Queries the status of all work currently captured by `event`. See
 :py:obj:`~.cudaEventRecord()` for details on what is captured by an
@@ -14088,18 +14050,13 @@ For the purposes of Unified Memory, a return value of
 :py:obj:`~.cudaSuccess` is equivalent to having called
 :py:obj:`~.cudaEventSynchronize()`.
 
-:param event: Event to record
+:param event: Event to query
 :type event: :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
 
-:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorLaunchFailure`
-          :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorNotReady`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorLaunchFailure`
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorNotReady`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorLaunchFailure`
 :rtype: cudaError_t
 
-.. seealso::
-
-   :py:obj:`~.cudaEventCreate (C API)`, :py:obj:`~.cudaEventCreateWithFlags`, :py:obj:`~.cudaEventQuery`, :py:obj:`~.cudaEventSynchronize`, :py:obj:`~.cudaEventDestroy`, :py:obj:`~.cudaEventElapsedTime`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaEventRecord`, :py:obj:`~.cuEventRecord`,
-
-   :py:obj:`~.cudaEventCreate (C API)`, :py:obj:`~.cudaEventCreateWithFlags`, :py:obj:`~.cudaEventRecord`, :py:obj:`~.cudaEventSynchronize`, :py:obj:`~.cudaEventDestroy`, :py:obj:`~.cudaEventElapsedTime`, :py:obj:`~.cuEventQuery`
+.. seealso:: :py:obj:`~.cudaEventCreate (C API)`, :py:obj:`~.cudaEventCreateWithFlags`, :py:obj:`~.cudaEventRecord`, :py:obj:`~.cudaEventSynchronize`, :py:obj:`~.cudaEventDestroy`, :py:obj:`~.cudaEventElapsedTime`, :py:obj:`~.cuEventQuery`
 </pre></div>
 </div>
 </dd></dl>
@@ -16506,47 +16463,7 @@ the alignment necessary for mapping the CUDA mipmapped array.
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemcpy">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemcpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind:</span> <span class="pre">cudaMemcpyKind</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemcpy" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns the layout properties of a sparse CUDA array.
-
-    Returns the layout properties of a sparse CUDA array in
-    `sparseProperties`. If the CUDA array is not allocated with flag
-    :py:obj:`~.cudaArraySparse` :py:obj:`~.cudaErrorInvalidValue` will be
-    returned.
-
-    If the returned value in :py:obj:`~.cudaArraySparseProperties.flags`
-    contains :py:obj:`~.cudaArraySparsePropertiesSingleMipTail`, then
-    :py:obj:`~.cudaArraySparseProperties.miptailSize` represents the total
-    size of the array. Otherwise, it will be zero. Also, the returned value
-    in :py:obj:`~.cudaArraySparseProperties.miptailFirstLevel` is always
-    zero. Note that the `array` must have been allocated using
-    :py:obj:`~.cudaMallocArray` or :py:obj:`~.cudaMalloc3DArray`. For CUDA
-    arrays obtained using :py:obj:`~.cudaMipmappedArrayGetLevel`,
-    :py:obj:`~.cudaErrorInvalidValue` will be returned. Instead,
-    :py:obj:`~.cudaMipmappedArrayGetSparseProperties` must be used to
-    obtain the sparse properties of the entire CUDA mipmapped array to
-    which `array` belongs to.
-
-    Returns the layout properties of a sparse CUDA mipmapped array
-
-    Returns the sparse array layout properties in `sparseProperties`. If
-    the CUDA mipmapped array is not allocated with flag
-    :py:obj:`~.cudaArraySparse` :py:obj:`~.cudaErrorInvalidValue` will be
-    returned.
-
-    For non-layered CUDA mipmapped arrays,
-    :py:obj:`~.cudaArraySparseProperties.miptailSize` returns the size of
-    the mip tail region. The mip tail region includes all mip levels whose
-    width, height or depth is less than that of the tile. For layered CUDA
-    mipmapped arrays, if :py:obj:`~.cudaArraySparseProperties.flags`
-    contains :py:obj:`~.cudaArraySparsePropertiesSingleMipTail`, then
-    :py:obj:`~.cudaArraySparseProperties.miptailSize` specifies the size of
-    the mip tail of all layers combined. Otherwise,
-    :py:obj:`~.cudaArraySparseProperties.miptailSize` specifies mip tail
-    size per layer. The returned value of
-    :py:obj:`~.cudaArraySparseProperties.miptailFirstLevel` is valid only
-    if :py:obj:`~.cudaArraySparseProperties.miptailSize` is non-zero.
-
-    Copies data between host and device
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Copies data between host and device.
 
     Copies `count` bytes from the memory area pointed to by `src` to the
     memory area pointed to by `dst`, where `kind` specifies the direction
@@ -16565,28 +16482,22 @@ ote_sync
 
     Parameters
     ----------
-    sparseProperties : Any
-        Pointer to return the :py:obj:`~.cudaArraySparseProperties`
-    array : Any
-        The CUDA array to get the sparse properties of
-    sparseProperties : size_t
-        Pointer to return :py:obj:`~.cudaArraySparseProperties`
-    mipmap : :py:obj:`~.cudaMemcpyKind`
-        The CUDA mipmapped array to get the sparse properties of
+    dst : Any
+        Destination memory address
+    src : Any
+        Source memory address
+    count : size_t
+        Size in bytes to copy
+    kind : :py:obj:`~.cudaMemcpyKind`
+        Type of transfer
 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
-        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidMemcpyDirection`
 
     See Also
     --------
-    :py:obj:`~.cudaMipmappedArrayGetSparseProperties`, :py:obj:`~.cuMemMapArrayAsync`
-
-    :py:obj:`~.cudaArrayGetSparseProperties`, :py:obj:`~.cuMemMapArrayAsync`
-
     :py:obj:`~.cudaMemcpy2D`, :py:obj:`~.cudaMemcpy2DToArray`, :py:obj:`~.cudaMemcpy2DFromArray`, :py:obj:`~.cudaMemcpy2DArrayToArray`, :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy2DAsync`, :py:obj:`~.cudaMemcpy2DToArrayAsync`, :py:obj:`~.cudaMemcpy2DFromArrayAsync`, :py:obj:`~.cudaMemcpyToSymbolAsync`, :py:obj:`~.cudaMemcpyFromSymbolAsync`, :py:obj:`~.cuMemcpyDtoH`, :py:obj:`~.cuMemcpyHtoD`, :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpy`
 </pre></div>
 </div>
@@ -21128,98 +21039,17 @@ value for the device attribute
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphMemcpyNodeGetParams">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphMemcpyNodeGetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphMemcpyNodeGetParams" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates a memcpy node to copy to a symbol on the device and adds it to a graph.
-
-Creates a new memcpy node to copy to `symbol` and adds it to `graph`
-with `numDependencies` dependencies specified via `pDependencies`. It
-is possible for `numDependencies` to be 0, in which case the node will
-be placed at the root of the graph. `pDependencies` may not have any
-duplicate entries. A handle to the new node will be returned in
-`pGraphNode`.
-
-When the graph is launched, the node will copy `count` bytes from the
-memory area pointed to by `src` to the memory area pointed to by
-`offset` bytes from the start of symbol `symbol`. The memory areas may
-not overlap. `symbol` is a variable that resides in global or constant
-memory space. `kind` can be either :py:obj:`~.cudaMemcpyHostToDevice`,
-:py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-type of transfer is inferred from the pointer values. However,
-:py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-unified virtual addressing.
-
-Memcpy nodes have some additional restrictions with regards to managed
-memory, if the system contains at least one device which has a zero
-value for the device attribute
-:py:obj:`~.cudaDevAttrConcurrentManagedAccess`.
-
-Creates a memcpy node to copy from a symbol on the device and adds it
-to a graph
-
-Creates a new memcpy node to copy from `symbol` and adds it to `graph`
-with `numDependencies` dependencies specified via `pDependencies`. It
-is possible for `numDependencies` to be 0, in which case the node will
-be placed at the root of the graph. `pDependencies` may not have any
-duplicate entries. A handle to the new node will be returned in
-`pGraphNode`.
-
-When the graph is launched, the node will copy `count` bytes from the
-memory area pointed to by `offset` bytes from the start of symbol
-`symbol` to the memory area pointed to by `dst`. The memory areas may
-not overlap. `symbol` is a variable that resides in global or constant
-memory space. `kind` can be either :py:obj:`~.cudaMemcpyDeviceToHost`,
-:py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-type of transfer is inferred from the pointer values. However,
-:py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-unified virtual addressing.
-
-Memcpy nodes have some additional restrictions with regards to managed
-memory, if the system contains at least one device which has a zero
-value for the device attribute
-:py:obj:`~.cudaDevAttrConcurrentManagedAccess`.
-
-Creates a 1D memcpy node and adds it to a graph
-
-Creates a new 1D memcpy node and adds it to `graph` with
-`numDependencies` dependencies specified via `pDependencies`. It is
-possible for `numDependencies` to be 0, in which case the node will be
-placed at the root of the graph. `pDependencies` may not have any
-duplicate entries. A handle to the new node will be returned in
-`pGraphNode`.
-
-When the graph is launched, the node will copy `count` bytes from the
-memory area pointed to by `src` to the memory area pointed to by `dst`,
-where `kind` specifies the direction of the copy, and must be one of
-:py:obj:`~.cudaMemcpyHostToHost`, :py:obj:`~.cudaMemcpyHostToDevice`,
-:py:obj:`~.cudaMemcpyDeviceToHost`,
-:py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-type of transfer is inferred from the pointer values. However,
-:py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-unified virtual addressing. Launching a memcpy node with dst and src
-pointers that do not match the direction of the copy results in an
-undefined behavior.
-
-Memcpy nodes have some additional restrictions with regards to managed
-memory, if the system contains at least one device which has a zero
-value for the device attribute
-:py:obj:`~.cudaDevAttrConcurrentManagedAccess`.
-
-Returns a memcpy node&#39;s parameters
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns a memcpy node&#39;s parameters.
 
 Returns the parameters of memcpy node `node` in `pNodeParams`.
 
-:param pGraphNode: Returns newly created node
-:type pGraphNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param node: Node to get the parameters for
+:type node: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
 
 :returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-          * **graph** (:py:obj:`~.cudaMemcpy3DParms`) -- Graph to which to add the node
+          * **pNodeParams** (:py:obj:`~.cudaMemcpy3DParms`) -- Pointer to return the parameters
 
-.. seealso:: :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNodeFromSymbol`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNodeToSymbol`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`
+.. seealso:: :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`
 </pre></div>
 </div>
 </dd></dl>
@@ -21247,57 +21077,7 @@ Sets the parameters of memcpy node `node` to `pNodeParams`.
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddMemsetNode">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemsetNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemsetParams</span> <span class="pre">pMemsetParams:</span> <span class="pre">Optional[cudaMemsetParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemsetNode" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets a memcpy node&#39;s parameters to copy to a symbol on the device.
-
-Sets the parameters of memcpy node `node` to the copy described by the
-provided parameters.
-
-When the graph is launched, the node will copy `count` bytes from the
-memory area pointed to by `src` to the memory area pointed to by
-`offset` bytes from the start of symbol `symbol`. The memory areas may
-not overlap. `symbol` is a variable that resides in global or constant
-memory space. `kind` can be either :py:obj:`~.cudaMemcpyHostToDevice`,
-:py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-type of transfer is inferred from the pointer values. However,
-:py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-unified virtual addressing.
-
-Sets a memcpy node&#39;s parameters to copy from a symbol on the device
-
-Sets the parameters of memcpy node `node` to the copy described by the
-provided parameters.
-
-When the graph is launched, the node will copy `count` bytes from the
-memory area pointed to by `offset` bytes from the start of symbol
-`symbol` to the memory area pointed to by `dst`. The memory areas may
-not overlap. `symbol` is a variable that resides in global or constant
-memory space. `kind` can be either :py:obj:`~.cudaMemcpyDeviceToHost`,
-:py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-type of transfer is inferred from the pointer values. However,
-:py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-unified virtual addressing.
-
-Sets a memcpy node&#39;s parameters to perform a 1-dimensional copy
-
-Sets the parameters of memcpy node `node` to the copy described by the
-provided parameters.
-
-When the graph is launched, the node will copy `count` bytes from the
-memory area pointed to by `src` to the memory area pointed to by `dst`,
-where `kind` specifies the direction of the copy, and must be one of
-:py:obj:`~.cudaMemcpyHostToHost`, :py:obj:`~.cudaMemcpyHostToDevice`,
-:py:obj:`~.cudaMemcpyDeviceToHost`,
-:py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
-Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
-type of transfer is inferred from the pointer values. However,
-:py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
-unified virtual addressing. Launching a memcpy node with dst and src
-pointers that do not match the direction of the copy results in an
-undefined behavior.
-
-Creates a memset node and adds it to a graph
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates a memset node and adds it to a graph.
 
 Creates a new memset node and adds it to `graph` with `numDependencies`
 dependencies specified via `pDependencies`. It is possible for
@@ -21308,22 +21088,19 @@ A handle to the new node will be returned in `pGraphNode`.
 The element size must be 1, 2, or 4 bytes. When the graph is launched,
 the node will perform the memset described by `pMemsetParams`.
 
-:param symbol: Device symbol address
-:type symbol: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
-:param src: Source memory address
-:type src: list[:py:obj:`~.cudaGraphNode_t`]
-:param count: Size in bytes to copy
-:type count: size_t
-:param offset: Offset from start of symbol in bytes
-:type offset: :py:obj:`~.cudaMemsetParams`
+:param graph: Graph to which to add the node
+:type graph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param pDependencies: Dependencies of the node
+:type pDependencies: list[:py:obj:`~.cudaGraphNode_t`]
+:param numDependencies: Number of dependencies
+:type numDependencies: size_t
+:param pMemsetParams: Parameters for the memory set
+:type pMemsetParams: :py:obj:`~.cudaMemsetParams`
 
-:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDevice`
-          * **node** (:py:obj:`~.cudaGraphNode_t`) -- Node to set the parameters for
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDevice`
+          * **pGraphNode** (:py:obj:`~.cudaGraphNode_t`) -- Returns newly created node
 
-.. seealso:: :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaGraphMemsetNodeGetParams`, :py:obj:`~.cudaGraphMemsetNodeSetParams`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`
+.. seealso:: :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaGraphMemsetNodeGetParams`, :py:obj:`~.cudaGraphMemsetNodeSetParams`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`
 </pre></div>
 </div>
 </dd></dl>
@@ -21530,241 +21307,7 @@ n^2 dependency edges.
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphClone">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphClone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">originalGraph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphClone" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates an event record node and adds it to a graph.
-
-Creates a new event record node and adds it to `hGraph` with
-`numDependencies` dependencies specified via `dependencies` and event
-specified in `event`. It is possible for `numDependencies` to be 0, in
-which case the node will be placed at the root of the graph.
-`dependencies` may not have any duplicate entries. A handle to the new
-node will be returned in `phGraphNode`.
-
-Each launch of the graph will record `event` to capture execution of
-the node&#39;s dependencies.
-
-These nodes may not be used in loops or conditionals.
-
-Returns the event associated with an event record node
-
-Returns the event of event record node `hNode` in `event_out`.
-
-Sets an event record node&#39;s event
-
-Sets the event of event record node `hNode` to `event`.
-
-Creates an event wait node and adds it to a graph
-
-Creates a new event wait node and adds it to `hGraph` with
-`numDependencies` dependencies specified via `dependencies` and event
-specified in `event`. It is possible for `numDependencies` to be 0, in
-which case the node will be placed at the root of the graph.
-`dependencies` may not have any duplicate entries. A handle to the new
-node will be returned in `phGraphNode`.
-
-The graph node will wait for all work captured in `event`. See
-:py:obj:`~.cuEventRecord()` for details on what is captured by an
-event. The synchronization will be performed efficiently on the device
-when applicable. `event` may be from a different context or device than
-the launch stream.
-
-These nodes may not be used in loops or conditionals.
-
-Returns the event associated with an event wait node
-
-Returns the event of event wait node `hNode` in `event_out`.
-
-Sets an event wait node&#39;s event
-
-Sets the event of event wait node `hNode` to `event`.
-
-Creates an external semaphore signal node and adds it to a graph
-
-Creates a new external semaphore signal node and adds it to `graph`
-with `numDependencies` dependencies specified via `dependencies` and
-arguments specified in `nodeParams`. It is possible for
-`numDependencies` to be 0, in which case the node will be placed at the
-root of the graph. `dependencies` may not have any duplicate entries. A
-handle to the new node will be returned in `pGraphNode`.
-
-Performs a signal operation on a set of externally allocated semaphore
-objects when the node is launched. The operation(s) will occur after
-all of the node&#39;s dependencies have completed.
-
-Returns an external semaphore signal node&#39;s parameters
-
-Returns the parameters of an external semaphore signal node `hNode` in
-`params_out`. The `extSemArray` and `paramsArray` returned in
-`params_out`, are owned by the node. This memory remains valid until
-the node is destroyed or its parameters are modified, and should not be
-modified directly. Use
-:py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams` to update
-the parameters of this node.
-
-Sets an external semaphore signal node&#39;s parameters
-
-Sets the parameters of an external semaphore signal node `hNode` to
-`nodeParams`.
-
-Creates an external semaphore wait node and adds it to a graph
-
-Creates a new external semaphore wait node and adds it to `graph` with
-`numDependencies` dependencies specified via `dependencies` and
-arguments specified in `nodeParams`. It is possible for
-`numDependencies` to be 0, in which case the node will be placed at the
-root of the graph. `dependencies` may not have any duplicate entries. A
-handle to the new node will be returned in `pGraphNode`.
-
-Performs a wait operation on a set of externally allocated semaphore
-objects when the node is launched. The node&#39;s dependencies will not be
-launched until the wait operation has completed.
-
-Returns an external semaphore wait node&#39;s parameters
-
-Returns the parameters of an external semaphore wait node `hNode` in
-`params_out`. The `extSemArray` and `paramsArray` returned in
-`params_out`, are owned by the node. This memory remains valid until
-the node is destroyed or its parameters are modified, and should not be
-modified directly. Use
-:py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams` to update
-the parameters of this node.
-
-Sets an external semaphore wait node&#39;s parameters
-
-Sets the parameters of an external semaphore wait node `hNode` to
-`nodeParams`.
-
-Creates an allocation node and adds it to a graph
-
-Creates a new allocation node and adds it to `graph` with
-`numDependencies` dependencies specified via `pDependencies` and
-arguments specified in `nodeParams`. It is possible for
-`numDependencies` to be 0, in which case the node will be placed at the
-root of the graph. `pDependencies` may not have any duplicate entries.
-A handle to the new node will be returned in `pGraphNode`.
-
-When :py:obj:`~.cudaGraphAddMemAllocNode` creates an allocation node,
-it returns the address of the allocation in `nodeParams.dptr`. The
-allocation&#39;s address remains fixed across instantiations and launches.
-
-If the allocation is freed in the same graph, by creating a free node
-using :py:obj:`~.cudaGraphAddMemFreeNode`, the allocation can be
-accessed by nodes ordered after the allocation node but before the free
-node. These allocations cannot be freed outside the owning graph, and
-they can only be freed once in the owning graph.
-
-If the allocation is not freed in the same graph, then it can be
-accessed not only by nodes in the graph which are ordered after the
-allocation node, but also by stream operations ordered after the
-graph&#39;s execution but before the allocation is freed.
-
-Allocations which are not freed in the same graph can be freed by:
-
-- passing the allocation to :py:obj:`~.cudaMemFreeAsync` or
-  :py:obj:`~.cudaMemFree`;
-
-- launching a graph with a free node for that allocation; or
-
-- specifying :py:obj:`~.cudaGraphInstantiateFlagAutoFreeOnLaunch`
-  during instantiation, which makes each launch behave as though it
-  called :py:obj:`~.cudaMemFreeAsync` for every unfreed allocation.
-
-It is not possible to free an allocation in both the owning graph and
-another graph. If the allocation is freed in the same graph, a free
-node cannot be added to another graph. If the allocation is freed in
-another graph, a free node can no longer be added to the owning graph.
-
-The following restrictions apply to graphs which contain allocation
-and/or memory free nodes:
-
-- Nodes and edges of the graph cannot be deleted.
-
-- The graph can only be used in a child node if the ownership is moved
-  to the parent.
-
-- Only one instantiation of the graph may exist at any point in time.
-
-- The graph cannot be cloned.
-
-Returns a memory alloc node&#39;s parameters
-
-Returns the parameters of a memory alloc node `hNode` in `params_out`.
-The `poolProps` and `accessDescs` returned in `params_out`, are owned
-by the node. This memory remains valid until the node is destroyed. The
-returned parameters must not be modified.
-
-Creates a memory free node and adds it to a graph
-
-Creates a new memory free node and adds it to `graph` with
-`numDependencies` dependencies specified via `pDependencies` and
-address specified in `dptr`. It is possible for `numDependencies` to be
-0, in which case the node will be placed at the root of the graph.
-`pDependencies` may not have any duplicate entries. A handle to the new
-node will be returned in `pGraphNode`.
-
-:py:obj:`~.cudaGraphAddMemFreeNode` will return
-:py:obj:`~.cudaErrorInvalidValue` if the user attempts to free:
-
-- an allocation twice in the same graph.
-
-- an address that was not returned by an allocation node.
-
-- an invalid address.
-
-The following restrictions apply to graphs which contain allocation
-and/or memory free nodes:
-
-- Nodes and edges of the graph cannot be deleted.
-
-- The graph can only be used in a child node if the ownership is moved
-  to the parent.
-
-- Only one instantiation of the graph may exist at any point in time.
-
-- The graph cannot be cloned.
-
-Returns a memory free node&#39;s parameters
-
-Returns the address of a memory free node `hNode` in `dptr_out`.
-
-Free unused memory that was cached on the specified device for use with
-graphs back to the OS.
-
-Blocks which are not in use by a graph that is either currently
-executing or scheduled to execute are freed back to the operating
-system.
-
-Query asynchronous allocation attributes related to graphs
-
-Valid attributes are:
-
-- :py:obj:`~.cudaGraphMemAttrUsedMemCurrent`: Amount of memory, in
-  bytes, currently associated with graphs
-
-- :py:obj:`~.cudaGraphMemAttrUsedMemHigh`: High watermark of memory, in
-  bytes, associated with graphs since the last time it was reset. High
-  watermark can only be reset to zero.
-
-- :py:obj:`~.cudaGraphMemAttrReservedMemCurrent`: Amount of memory, in
-  bytes, currently allocated for use by the CUDA graphs asynchronous
-  allocator.
-
-- :py:obj:`~.cudaGraphMemAttrReservedMemHigh`: High watermark of
-  memory, in bytes, currently allocated for use by the CUDA graphs
-  asynchronous allocator.
-
-Set asynchronous allocation attributes related to graphs
-
-Valid attributes are:
-
-- :py:obj:`~.cudaGraphMemAttrUsedMemHigh`: High watermark of memory, in
-  bytes, associated with graphs since the last time it was reset. High
-  watermark can only be reset to zero.
-
-- :py:obj:`~.cudaGraphMemAttrReservedMemHigh`: High watermark of
-  memory, in bytes, currently allocated for use by the CUDA graphs
-  asynchronous allocator.
-
-Clones a graph
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Clones a graph.
 
 This function creates a copy of `originalGraph` and returns it in
 `pGraphClone`. All parameters are copied into the cloned graph. The
@@ -21774,32 +21317,13 @@ clone.
 Child graph nodes in the original graph are recursively copied into the
 clone.
 
-:param hGraph: Graph to which to add the node
-:type hGraph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param originalGraph: Graph to clone
+:type originalGraph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
 
-:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorOutOfMemory`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorOutOfMemory`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorMemoryAllocation`
-          * **phGraphNode** (:py:obj:`~.cudaGraph_t`) -- Returns newly created node
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorMemoryAllocation`
+          * **pGraphClone** (:py:obj:`~.cudaGraph_t`) -- Returns newly created cloned graph
 
-.. seealso:: :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemAllocNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`, :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphNodeFindInClone`
+.. seealso:: :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphNodeFindInClone`
 
 .. rubric:: Notes
 
@@ -22275,73 +21799,6 @@ multiple devices, this will result in an error.
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphInstantiateWithParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">cudaGraphInstantiateParams</span> <span class="pre">instantiateParams:</span> <span class="pre">Optional[cudaGraphInstantiateParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphInstantiateWithParams" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates an executable graph from a graph.
 
-Instantiates `graph` as an executable graph. The graph is validated for
-any structural constraints or intra-node constraints which were not
-previously validated. If instantiation is successful, a handle to the
-instantiated graph is returned in `pGraphExec`.
-
-The `flags` parameter controls the behavior of instantiation and
-subsequent graph launches. Valid flags are:
-
-- :py:obj:`~.cudaGraphInstantiateFlagAutoFreeOnLaunch`, which
-  configures a graph containing memory allocation nodes to
-  automatically free any unfreed memory allocations before the graph is
-  relaunched.
-
-- :py:obj:`~.cudaGraphInstantiateFlagDeviceLaunch`, which configures
-  the graph for launch from the device. If this flag is passed, the
-  executable graph handle returned can be used to launch the graph from
-  both the host and device. This flag can only be used on platforms
-  which support unified addressing. This flag cannot be used in
-  conjunction with
-  :py:obj:`~.cudaGraphInstantiateFlagAutoFreeOnLaunch`.
-
-- :py:obj:`~.cudaGraphInstantiateFlagUseNodePriority`, which causes the
-  graph to use the priorities from the per-node attributes rather than
-  the priority of the launch stream during execution. Note that
-  priorities are only available on kernel nodes, and are copied from
-  stream priority during stream capture.
-
-If `graph` contains any allocation or free nodes, there can be at most
-one executable graph in existence for that graph at a time. An attempt
-to instantiate a second executable graph before destroying the first
-with :py:obj:`~.cudaGraphExecDestroy` will result in an error. The same
-also applies if `graph` contains any device-updatable kernel nodes.
-
-If `graph` contains kernels which call device-side
-:py:obj:`~.cudaGraphLaunch()` from multiple devices, this will result
-in an error.
-
-Graphs instantiated for launch on the device have additional
-restrictions which do not apply to host graphs:
-
-- The graph&#39;s nodes must reside on a single device.
-
-- The graph can only contain kernel nodes, memcpy nodes, memset nodes,
-  and child graph nodes.
-
-- The graph cannot be empty and must contain at least one kernel,
-  memcpy, or memset node. Operation-specific restrictions are outlined
-  below.
-
-- Kernel nodes:
-
-  - Use of CUDA Dynamic Parallelism is not permitted.
-
-  - Cooperative launches are permitted as long as MPS is not in use.
-
-- Memcpy nodes:
-
-  - Only copies involving device memory and/or pinned device-mapped
-    host memory are permitted.
-
-  - Copies involving CUDA arrays are not permitted.
-
-  - Both operands must be accessible from the current device, and the
-    current device must match the device of other nodes in the graph.
-
-Creates an executable graph from a graph
-
 Instantiates `graph` as an executable graph according to the
 `instantiateParams` structure. The graph is validated for any
 structural constraints or intra-node constraints which were not
@@ -22450,15 +21907,13 @@ to NULL.
 
 :param graph: Graph to instantiate
 :type graph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
-:param flags: Flags to control instantiation. See
-              :py:obj:`~.CUgraphInstantiate_flags`.
-:type flags: :py:obj:`~.cudaGraphInstantiateParams`
+:param instantiateParams: Instantiation parameters
+:type instantiateParams: :py:obj:`~.cudaGraphInstantiateParams`
 
 :returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
           * **pGraphExec** (:py:obj:`~.cudaGraphExec_t`) -- Returns instantiated graph
 
-.. seealso:: :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphUpload`, :py:obj:`~.cudaGraphLaunch`, :py:obj:`~.cudaGraphExecDestroy`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphInstantiateWithFlags`, :py:obj:`~.cudaGraphExecDestroy`
+.. seealso:: :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphInstantiateWithFlags`, :py:obj:`~.cudaGraphExecDestroy`
 </pre></div>
 </div>
 </dd></dl>
@@ -22582,66 +22037,7 @@ multidimensional.
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExecMemsetNodeSetParams">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExecMemsetNodeSetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">hGraphExec,</span> <span class="pre">node,</span> <span class="pre">cudaMemsetParams</span> <span class="pre">pNodeParams:</span> <span class="pre">Optional[cudaMemsetParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExecMemsetNodeSetParams" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets the parameters for a memcpy node in the given graphExec to copy to a symbol on the device.
-
-Updates the work represented by `node` in `hGraphExec` as though `node`
-had contained the given params at instantiation. `node` must remain in
-the graph which was used to instantiate `hGraphExec`. Changed edges to
-and from `node` are ignored.
-
-`src` and `symbol` must be allocated from the same contexts as the
-original source and destination memory. The instantiation-time memory
-operands must be 1-dimensional. Zero-length operations are not
-supported.
-
-The modifications only affect future launches of `hGraphExec`. Already
-enqueued or running launches of `hGraphExec` are not affected by this
-call. `node` is also not modified by this call.
-
-Returns :py:obj:`~.cudaErrorInvalidValue` if the memory operands&#39;
-mappings changed or the original memory operands are multidimensional.
-
-Sets the parameters for a memcpy node in the given graphExec to copy
-from a symbol on the device
-
-Updates the work represented by `node` in `hGraphExec` as though `node`
-had contained the given params at instantiation. `node` must remain in
-the graph which was used to instantiate `hGraphExec`. Changed edges to
-and from `node` are ignored.
-
-`symbol` and `dst` must be allocated from the same contexts as the
-original source and destination memory. The instantiation-time memory
-operands must be 1-dimensional. Zero-length operations are not
-supported.
-
-The modifications only affect future launches of `hGraphExec`. Already
-enqueued or running launches of `hGraphExec` are not affected by this
-call. `node` is also not modified by this call.
-
-Returns :py:obj:`~.cudaErrorInvalidValue` if the memory operands&#39;
-mappings changed or the original memory operands are multidimensional.
-
-Sets the parameters for a memcpy node in the given graphExec to perform
-a 1-dimensional copy
-
-Updates the work represented by `node` in `hGraphExec` as though `node`
-had contained the given params at instantiation. `node` must remain in
-the graph which was used to instantiate `hGraphExec`. Changed edges to
-and from `node` are ignored.
-
-`src` and `dst` must be allocated from the same contexts as the
-original source and destination memory. The instantiation-time memory
-operands must be 1-dimensional. Zero-length operations are not
-supported.
-
-The modifications only affect future launches of `hGraphExec`. Already
-enqueued or running launches of `hGraphExec` are not affected by this
-call. `node` is also not modified by this call.
-
-Returns :py:obj:`~.cudaErrorInvalidValue` if the memory operands&#39;
-mappings changed or the original memory operands are multidimensional.
-
-Sets the parameters for a memset node in the given graphExec.
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets the parameters for a memset node in the given graphExec.
 
 Updates the work represented by `node` in `hGraphExec` as though `node`
 had contained `pNodeParams` at instantiation. `node` must remain in the
@@ -22669,18 +22065,15 @@ call. `node` is also not modified by this call.
 
 :param hGraphExec: The executable graph in which to set the specified node
 :type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
-:param node: Memcpy node from the graph which was used to instantiate graphExec
+:param node: Memset node from the graph which was used to instantiate graphExec
 :type node: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
-:param symbol: Device symbol address
-:type symbol: :py:obj:`~.cudaMemsetParams`
+:param pNodeParams: Updated Parameters to set
+:type pNodeParams: :py:obj:`~.cudaMemsetParams`
 
-:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-          :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-          :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-          :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
 :rtype: cudaError_t
 
-.. seealso:: :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNodeToSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNodeFromSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNode1D`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+.. seealso:: :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
 </pre></div>
 </div>
 </dd></dl>
@@ -22717,106 +22110,7 @@ call. `node` is also not modified by this call.
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExecUpdate">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExecUpdate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hGraphExec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hGraph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExecUpdate" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Updates node parameters in the child graph node in the given graphExec.
-
-Updates the work represented by `node` in `hGraphExec` as though the
-nodes contained in `node&#39;s` graph had the parameters contained in
-`childGraph&#39;s` nodes at instantiation. `node` must remain in the graph
-which was used to instantiate `hGraphExec`. Changed edges to and from
-`node` are ignored.
-
-The modifications only affect future launches of `hGraphExec`. Already
-enqueued or running launches of `hGraphExec` are not affected by this
-call. `node` is also not modified by this call.
-
-The topology of `childGraph`, as well as the node insertion order, must
-match that of the graph contained in `node`. See
-:py:obj:`~.cudaGraphExecUpdate()` for a list of restrictions on what
-can be updated in an instantiated graph. The update is recursive, so
-child graph nodes contained within the top level child graph will also
-be updated.
-
-Sets the event for an event record node in the given graphExec
-
-Sets the event of an event record node in an executable graph
-`hGraphExec`. The node is identified by the corresponding node `hNode`
-in the non-executable graph, from which the executable graph was
-instantiated.
-
-The modifications only affect future launches of `hGraphExec`. Already
-enqueued or running launches of `hGraphExec` are not affected by this
-call. `hNode` is also not modified by this call.
-
-Sets the event for an event wait node in the given graphExec
-
-Sets the event of an event wait node in an executable graph
-`hGraphExec`. The node is identified by the corresponding node `hNode`
-in the non-executable graph, from which the executable graph was
-instantiated.
-
-The modifications only affect future launches of `hGraphExec`. Already
-enqueued or running launches of `hGraphExec` are not affected by this
-call. `hNode` is also not modified by this call.
-
-Sets the parameters for an external semaphore signal node in the given
-graphExec
-
-Sets the parameters of an external semaphore signal node in an
-executable graph `hGraphExec`. The node is identified by the
-corresponding node `hNode` in the non-executable graph, from which the
-executable graph was instantiated.
-
-`hNode` must not have been removed from the original graph.
-
-The modifications only affect future launches of `hGraphExec`. Already
-enqueued or running launches of `hGraphExec` are not affected by this
-call. `hNode` is also not modified by this call.
-
-Changing `nodeParams-&gt;numExtSems` is not supported.
-
-Sets the parameters for an external semaphore wait node in the given
-graphExec
-
-Sets the parameters of an external semaphore wait node in an executable
-graph `hGraphExec`. The node is identified by the corresponding node
-`hNode` in the non-executable graph, from which the executable graph
-was instantiated.
-
-`hNode` must not have been removed from the original graph.
-
-The modifications only affect future launches of `hGraphExec`. Already
-enqueued or running launches of `hGraphExec` are not affected by this
-call. `hNode` is also not modified by this call.
-
-Changing `nodeParams-&gt;numExtSems` is not supported.
-
-Enables or disables the specified node in the given graphExec
-
-Sets `hNode` to be either enabled or disabled. Disabled nodes are
-functionally equivalent to empty nodes until they are reenabled.
-Existing node parameters are not affected by disabling/enabling the
-node.
-
-The node is identified by the corresponding node `hNode` in the non-
-executable graph, from which the executable graph was instantiated.
-
-`hNode` must not have been removed from the original graph.
-
-The modifications only affect future launches of `hGraphExec`. Already
-enqueued or running launches of `hGraphExec` are not affected by this
-call. `hNode` is also not modified by this call.
-
-Query whether a node in the given graphExec is enabled
-
-Sets isEnabled to 1 if `hNode` is enabled, or 0 if `hNode` is disabled.
-
-The node is identified by the corresponding node `hNode` in the non-
-executable graph, from which the executable graph was instantiated.
-
-`hNode` must not have been removed from the original graph.
-
-Check whether an executable graph can be updated with a graph and
-perform the update if possible
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Check whether an executable graph can be updated with a graph and perform the update if possible.
 
 Updates the node parameters in the instantiated graph specified by
 `hGraphExec` with the node parameters in a topologically identical
@@ -22946,28 +22240,15 @@ successfully. It returns cudaErrorGraphExecUpdateFailure if the graph
 update was not performed because it included changes which violated
 constraints specific to instantiated graph update.
 
-:param hGraphExec: The executable graph in which to set the specified node
+:param hGraphExec: The instantiated graph to be updated
 :type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
-:param node: Host node from the graph which was used to instantiate graphExec
-:type node: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param hGraph: The graph containing the updated parameters
+:type hGraph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
 
-:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-            :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorGraphExecUpdateFailure`,
-          * **childGraph** (:py:obj:`~.cudaGraphExecUpdateResultInfo`) -- The graph supplying the updated parameters
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorGraphExecUpdateFailure`,
+          * **resultInfo** (:py:obj:`~.cudaGraphExecUpdateResultInfo`) -- the error info structure
 
-.. seealso:: :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphChildGraphNodeGetGraph`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphNodeGetEnabled`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphNodeSetEnabled`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphInstantiate`
-
-.. rubric:: Notes
-
-Currently only kernel, memset and memcpy nodes are supported.
-
-Currently only kernel, memset and memcpy nodes are supported.
+.. seealso:: :py:obj:`~.cudaGraphInstantiate`
 </pre></div>
 </div>
 </dd></dl>
@@ -22975,15 +22256,7 @@ Currently only kernel, memset and memcpy nodes are supported.
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphLaunch">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphLaunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphExec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphLaunch" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Uploads an executable graph in a stream.
-
-Uploads `hGraphExec` to the device in `hStream` without executing it.
-Uploads of the same `hGraphExec` will be serialized. Each upload is
-ordered behind both any previous work in `hStream` and any previous
-launches of `hGraphExec`. Uses memory cached by `stream` to back the
-allocations owned by `graphExec`.
-
-Launches an executable graph in a stream
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Launches an executable graph in a stream.
 
 Executes `graphExec` in `stream`. Only one instance of `graphExec` may
 be executing at a time. Each launch is ordered behind both any previous
@@ -22996,16 +22269,15 @@ previous launch) and `graphExec` was not instantiated with
 :py:obj:`~.cudaGraphInstantiateFlagAutoFreeOnLaunch`, the launch will
 fail with :py:obj:`~.cudaErrorInvalidValue`.
 
-:param hGraphExec: Executable graph to upload
-:type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
-:param hStream: Stream in which to upload the graph
-:type hStream: :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+:param graphExec: Executable graph to launch
+:type graphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+:param stream: Stream in which to launch the graph
+:type stream: :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
 
-:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
-          :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
 :rtype: cudaError_t
 
-.. seealso:: :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphLaunch`, :py:obj:`~.cudaGraphExecDestroy`, :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphUpload`, :py:obj:`~.cudaGraphExecDestroy`
+.. seealso:: :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphUpload`, :py:obj:`~.cudaGraphExecDestroy`
 </pre></div>
 </div>
 </dd></dl>
@@ -26583,8 +25855,8 @@ profiling to be done only on selective pieces of code.
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
 
 
   <footer class="bd-footer">
