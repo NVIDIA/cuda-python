@@ -23,9 +23,10 @@ across the repository, in addition to any package-specific `AGENTS.md`.
   the API surface is sketched in an issue or design discussion before coding.
   Reviewers repeatedly block large feature PRs that arrive without design
   context, especially before 1.0 API stabilization.
-- Keep public APIs minimal and intentional. Avoid exposing private helpers just
-  to make tests or examples easier; prefer improving the public path or keeping
-  helpers private.
+- Keep public APIs minimal and intentional. Prefer public testing paths when
+  practical, but limited private or test-only access is acceptable when Python
+  tests need to exercise Cython internals that cannot be reached through a
+  stable public API.
 - When adding public behavior, update docs, examples, release notes, and API
   index pages in the same PR unless the PR explicitly documents why those
   updates are deferred.
