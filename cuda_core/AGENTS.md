@@ -84,3 +84,82 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   Avoid large module-stubbing tests for simple implementation choices; prefer
   focused regressions around the public API or the smallest stable internal
   boundary.
+
+## API design guidelines
+
+These are some API design guidelines we try to follow when adding new APIs to
+`cuda.core`.  These rules only apply to public APIs.  Private implementation
+details can violate these rules at any time.
+
+Public APIs are defined as symbols defined in `__all__` within modules or
+subpackages that are not prefixed with `_`.
+
+In code reviews, any violations of this section should be considered
+suggestions, not hard rules.  Consistency with existing API design in this code
+base is also important.
+
+### Unintentional exposure of symbols
+
+The following things should not be exposed as part of the public API:
+
+- Private symbols (prefixed with `_`)
+- Symbols from a third-party module or the standard library
+- Helper classes that can not be instantiated from Python
+
+### Naming
+
+As a blanket rule, we follow the naming guidelines for capitalization in PEP 8.
+
+Naming should be consistent.  We should use the same English words for the same
+concepts throughout the public API.  When abbreviations are used, they should be
+commonly understood, and they should also be used consistently across the public
+API.
+
+For all attributes of a class:
+
+- Properties and member variables should be nouns
+- Methods should be verbs
+- Methods that take no arguments, are idempotent and cheap (O(1) or trivial),
+  and do not mutate observable state should be properties
+
+Make sure conceptual pairs match, e.g. add/remove, get/set, create/delete,
+alloc/free.
+
+Free functions should be verbs.
+
+### Enumerations
+
+Enumerations from the underlying `cuda_bindings` should not be re-exposed.
+Instead, a new `StrEnum` subclass should be used to define the values.  Anywhere
+a `StrEnum` is accepted as an argument, a `str` should also be acceptable.  An
+invalid value should raise an exception.  When a function returns a `str` drawn
+from a small number of values, return a `StrEnum` subclass instead.
+
+### Exception handling
+
+Raising exceptions is preferred over a C-style return code that must be checked
+by the user.
+
+### Type annotations
+
+Python or Cython type annotations should be included for all public APIs.  Avoid
+the use of `Any` unless absolutely necessary.  The argument and return types as
+defined in the docstrings should match the type annotations.
+
+### Semantics
+
+Designs involving manual resource management should be avoided.  Where
+appropriate, provide context managers (implemented with `__enter__` and
+`__exit__`, not `contextlib.contextmanager`) or RAII using a `__del__` or
+`__dealloc__` method.
+
+### Documentation
+
+The entirety of the public API should be documented in `api.rst` or one of the
+subpages linked from it.  Classes that are not directly instantiable but which
+may be returned through the public API should be documented in `api_private.rst`
+so that they are documented but don't appear in the main index.
+
+### API stability
+
+Reviews should point out where existing public APIs are broken.
