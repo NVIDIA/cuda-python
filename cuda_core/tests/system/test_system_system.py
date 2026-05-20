@@ -12,8 +12,6 @@ try:
 except ImportError:
     from cuda import cuda as driver
 
-import helpers
-
 from cuda.core import system
 from cuda.core._utils.cuda_utils import handle_return
 
@@ -62,7 +60,6 @@ def test_nvml_version():
         assert 0 <= ver_patch[0] <= 99
 
 
-@pytest.mark.skipif(helpers.IS_WSL, reason="Process names may not be available on WSL")
 @skip_if_nvml_unsupported
 def test_get_process_name():
     try:
