@@ -21638,6 +21638,25 @@ cpdef str system_get_process_name(unsigned int pid):
     return cpython.PyUnicode_FromString(name)
 
 
+cpdef bytes system_get_process_name_bytes(unsigned int pid):
+    """Gets name of the process with provided process id.
+
+    Args:
+        pid (unsigned int): The identifier of the process.
+
+    Returns:
+        char: Reference in which to return the process name.
+
+    .. seealso:: `nvmlSystemGetProcessName`
+    """
+    cdef unsigned int length = 1024
+    cdef char[1024] name
+    with nogil:
+        __status__ = nvmlSystemGetProcessName(pid, name, length)
+    check_status(__status__)
+    return bytes(name)
+
+
 cpdef object system_get_hic_version():
     """Retrieves the IDs and firmware versions for any Host Interface Cards (HICs) in the system.
 
