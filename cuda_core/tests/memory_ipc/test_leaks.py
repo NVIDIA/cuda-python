@@ -13,8 +13,9 @@ except ImportError:
 else:
     HAVE_PSUTIL = True
 import pytest
+from helpers.child_processes import child_timeout_sec
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 USING_FDS = platform.system() == "Linux"

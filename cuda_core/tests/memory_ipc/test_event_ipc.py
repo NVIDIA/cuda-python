@@ -5,13 +5,14 @@ import multiprocessing as mp
 
 import pytest
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer
+from helpers.child_processes import child_timeout_sec
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
 from cuda.core import Device, EventOptions
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 

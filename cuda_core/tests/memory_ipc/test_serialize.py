@@ -7,10 +7,11 @@ import os
 
 import pytest
 from helpers.buffers import PatternGen
+from helpers.child_processes import child_timeout_sec
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, PinnedMemoryResource
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 POOL_SIZE = 2097152
 
