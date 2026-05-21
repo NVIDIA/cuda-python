@@ -1378,6 +1378,7 @@ with other CUDA libraries.
 <h2>Known issues<a class="headerlink" href="#known-issues" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Updating from older versions (v12.6.2.post1 and below) via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">cuda-python</span></code> might not work. Please do a clean re-installation by uninstalling <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">uninstall</span> <span class="pre">-y</span> <span class="pre">cuda-python</span></code> followed by installing <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-python</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.system_get_process_name</span></code> on WSL can return incorrect values.  To work around this, set the locale to “C” before calling <code class="docutils literal notranslate"><span class="pre">nvml.device_get_compute_running_processes_v3</span></code> (which sets the process names) and before calling <code class="docutils literal notranslate"><span class="pre">nvml.system_get_process_name</span></code>. <code class="docutils literal notranslate"><span class="pre">cuda_core</span></code> does this automatically, but users of the raw NVML API will need to do this manually.</p></li>
 </ul>
 </section>
 </section>

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c6df1164"></script>
+    <script src="../_static/documentation_options.js?v=62a7957d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev28';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev29';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -745,6 +745,16 @@ and as property setters (<a class="reference internal" href="../generated/cuda.c
 <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code></a>.</p></li>
 </ul>
 </section>
+<section id="bug-fixes">
+<h2>Bug fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>On WSL, <code class="docutils literal notranslate"><span class="pre">cuda.core.system.get_process_name</span></code> would raise a
+<code class="docutils literal notranslate"><span class="pre">UnicodeDecodeError</span></code>.  It should now return the correct result.</p></li>
+<li><p>Calling <code class="docutils literal notranslate"><span class="pre">cuda.core.system.get_process_name</span></code> before querying any device’s
+<code class="docutils literal notranslate"><span class="pre">compute_running_processes</span></code> would raise a <code class="docutils literal notranslate"><span class="pre">NvmlNotFoundError</span></code>.  Now it will
+correctly return the process name, if it is a GPU-using process.</p></li>
+</ul>
+</section>
 </section>
 
 
@@ -788,6 +798,7 @@ and as property setters (<a class="reference internal" href="../generated/cuda.c
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug fixes</a></li>
 </ul>
   </nav></div>
 
