@@ -5,7 +5,7 @@ import multiprocessing as mp
 
 import pytest
 from helpers.buffers import PatternGen
-from helpers.child_processes import child_timeout_sec
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Buffer, DeviceMemoryResource
 
@@ -40,6 +40,8 @@ class TestIpcMempool:
 
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         # Verify that the buffer was modified.
@@ -83,6 +85,8 @@ class TestIPCMempoolMultiple:
         # Wait for the child processes.
         p1.join(timeout=CHILD_TIMEOUT_SEC)
         p2.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(p1, p2)
+        assert not survivors, f"timed out waiting on: {[p.name for p in survivors]}"
         assert p1.exitcode == 0
         assert p2.exitcode == 0
 
@@ -136,6 +140,8 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         # Wait for children.
         p1.join(timeout=CHILD_TIMEOUT_SEC)
         p2.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(p1, p2)
+        assert not survivors, f"timed out waiting on: {[p.name for p in survivors]}"
         assert p1.exitcode == 0
         assert p2.exitcode == 0
 
@@ -186,6 +192,8 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         # Wait for children.
         p1.join(timeout=CHILD_TIMEOUT_SEC)
         p2.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(p1, p2)
+        assert not survivors, f"timed out waiting on: {[p.name for p in survivors]}"
         assert p1.exitcode == 0
         assert p2.exitcode == 0
 

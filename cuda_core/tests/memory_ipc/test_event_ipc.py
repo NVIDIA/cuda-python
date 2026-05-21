@@ -5,7 +5,7 @@ import multiprocessing as mp
 
 import pytest
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer
-from helpers.child_processes import child_timeout_sec
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
@@ -68,6 +68,8 @@ class TestEventIpc:
         log("releasing stream1")
         latch.release()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
         log("done")
 
@@ -163,6 +165,8 @@ class TestIpcEventProperties:
         assert props[5] is None
 
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
     def child_main(self, q_in, q_out):

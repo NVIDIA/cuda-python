@@ -29,6 +29,41 @@ def child_timeout_sec() -> int:
     return CHILD_TIMEOUT_SEC_SANITIZER if under_compute_sanitizer() else CHILD_TIMEOUT_SEC_DEFAULT
 
 
+def kill_subprocesses(*processes):
+    """Kill any of the given Process objects that are still alive.
+
+    Returns the list of processes that were killed (i.e. that were still alive
+    when the call was made). Callers should ``assert not survivors`` to convert
+    a non-empty return value into a clean test failure, e.g.::
+
+        proc_a.join(timeout=CHILD_TIMEOUT_SEC)
+        proc_b.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(proc_a, proc_b)
+        assert not survivors, f"timed out waiting on: {[p.name for p in survivors]}"
+        assert proc_a.exitcode == 0
+        assert proc_b.exitcode == 0
+
+    Killing survivors before the subsequent asserts prevents a zombie child
+    from holding IPC handles past the test body and blocking fixture
+    teardown.
+    """
+    killed = []
+    for proc in processes:
+        try:
+            alive = proc.is_alive()
+        except (ValueError, AssertionError):
+            # is_alive() raises if the Process was never started or has
+            # already been closed; nothing to clean up.
+            continue
+        if not alive:
+            continue
+        with contextlib.suppress(ValueError, AssertionError):
+            proc.kill()
+            proc.join()
+        killed.append(proc)
+    return killed
+
+
 @contextlib.contextmanager
 def track_child_processes():
     """Context manager that kills any ``multiprocessing.Process`` children still
