@@ -14,11 +14,12 @@ if [[ "${SETUP_SANITIZER}" == 1 ]]; then
   COMPUTE_SANITIZER_VERSION=$(${COMPUTE_SANITIZER} --version | grep -Eo "[0-9]{4}\.[0-9]\.[0-9]" | sed -e 's/\.//g')
   # --target-processes=application-only: attach the sanitizer to the parent
   # pytest process only. Spawned multiprocessing.Process children run without
-  # the sanitizer. This avoids a class of CI hangs where compute-sanitizer's
-  # IPC teardown analysis wedges a child on certain CUDA driver / toolkit
-  # combinations (see issue #2004). The parent process is still fully
-  # sanitized, which is where most of the interesting host-side IPC plumbing
-  # runs anyway.
+  # the sanitizer. This aims to mitigate a class of CI hangs where child
+  # processes take an extreme amount of time to spawn (>30 seconds). Test bugs
+  # triggered by that specific condition are typically uncovered only in CI,
+  # where they become emergencies and are difficult to debug. The parent
+  # process is still fully sanitized, which is where most of the interesting
+  # host-side IPC plumbing runs anyway.
   SANITIZER_CMD="${COMPUTE_SANITIZER} --target-processes=application-only --launch-timeout=0 --tool=memcheck --error-exitcode=1 --report-api-errors=no"
   if [[ "$COMPUTE_SANITIZER_VERSION" -ge 202111 ]]; then
     SANITIZER_CMD="${SANITIZER_CMD} --padding=32"

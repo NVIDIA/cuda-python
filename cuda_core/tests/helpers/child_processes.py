@@ -4,11 +4,10 @@
 """Helpers for tests that spawn ``multiprocessing.Process`` children.
 
 These exist primarily to defend IPC tests against a class of CI hang where a
-child process gets stuck during teardown (e.g., compute-sanitizer's IPC
-teardown analysis on certain CUDA driver / toolkit combinations -- see issue
-#2004). Without intervention, a zombie child holds an IPC memory handle and
-blocks the parent's ``mr.close()`` in fixture teardown, wedging the GHA runner
-for hours.
+child process spawns too slowly and the parent does not implement proper guards
+for that (see issue #2004). Without intervention, a zombie child holds an IPC
+memory handle and blocks the parent's ``mr.close()`` in fixture teardown,
+leading to deadlock and wedging the test runner for hours.
 """
 
 import contextlib

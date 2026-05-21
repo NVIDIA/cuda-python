@@ -6,8 +6,8 @@
 Applies an outer-guard ``pytest.mark.timeout`` to every test in this directory.
 Individual tests still drive their own per-process waits using
 ``child_timeout_sec()`` from ``helpers.child_processes``; this marker is the
-final fallback so that no IPC test can wedge the CI runner for hours if some
-new driver / sanitizer / IPC interaction defeats every other layer.
+final fallback so that no IPC test can wedge the CI runner for hours if
+deadlock occurs.
 """
 
 import pathlib
