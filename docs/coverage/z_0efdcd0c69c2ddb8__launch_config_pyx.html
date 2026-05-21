@@ -64,258 +64,259 @@
   "2": "tests/test_event.py::test_timing_success|run",
   "3": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_launch_and_verify|run",
   "4": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_two_green_contexts_independent|run",
-  "5": "tests/test_helpers.py::test_latchkernel|run",
-  "6": "tests/test_launcher.py::test_launch_invalid_values|run",
-  "7": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
-  "8": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
-  "9": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
-  "!": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
-  "#": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
-  "$": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
-  "%": "tests/test_launcher.py::test_launch_scalar_argument[c_int-signed int--123456]|run",
-  "'": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed long long--123456789]|run",
-  "(": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
-  ")": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
-  "*": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
-  "+": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
-  ",": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
-  "-": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
-  ".": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
-  "/": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
-  ":": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
-  ";": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
-  "=": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
-  "?": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
-  "@": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
-  "[": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
-  "]": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
-  "^": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
-  "_": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
-  "`": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
-  "{": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
-  "|": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
-  "}": "tests/test_launcher.py::test_launch_scalar_argument_ctypes_subclass_fallback|run",
-  "~": "tests/test_launcher.py::test_launch_scalar_argument_numpy_subclass_fallback|run",
-  "ab": "tests/test_module.py::test_kernel_keeps_library_alive|run",
-  "bb": "tests/test_object_protocols.py::test_equality_basic[sample_launch_config]|run",
-  "cb": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_launch_config]|run",
-  "db": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_launch_config]|run",
-  "eb": "tests/graph/test_graph_definition.py::test_node_attrs[kernel]|run",
-  "fb": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[kernel]|run",
-  "gb": "tests/test_object_protocols.py::test_same_type_inequality[sample_launch_config-sample_launch_config_alt]|run",
-  "hb": "tests/test_object_protocols.py::test_hash_consistency[sample_launch_config]|run",
-  "ib": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_launch_config]|run",
-  "jb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_launch_config]|run",
-  "kb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_launch_config]|run",
-  "lb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_launch_config]|run",
-  "mb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_alloc_node]|run",
-  "nb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_child_graph_node]|run",
-  "ob": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_condition]|run",
-  "pb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_empty_node]|run",
-  "qb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_event_record_node]|run",
-  "rb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_event_wait_node]|run",
-  "sb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_free_node]|run",
-  "tb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_graphdef]|run",
-  "ub": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_host_callback_node]|run",
-  "vb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_if_else_node]|run",
-  "wb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_if_node]|run",
-  "xb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel]|run",
-  "yb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel_node]|run",
-  "zb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_memcpy_node]|run",
-  "Ab": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_memset_node]|run",
-  "Bb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_object_code_cubin]|run",
-  "Cb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_root_node]|run",
-  "Db": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_switch_node]|run",
-  "Eb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_while_node]|run",
-  "Fb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_launch_config]|run",
-  "Gb": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_launch_config-sample_launch_config_alt]|run",
-  "Hb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_launch_config]|run",
-  "Ib": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_launch_config]|run",
-  "Jb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_launch_config]|run",
-  "Kb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_launch_config]|run",
-  "Lb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_alloc_node]|run",
-  "Mb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_child_graph_node]|run",
-  "Nb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_condition]|run",
-  "Ob": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_empty_node]|run",
-  "Pb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_event_record_node]|run",
-  "Qb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_event_wait_node]|run",
-  "Rb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_free_node]|run",
-  "Sb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_graphdef]|run",
-  "Tb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_host_callback_node]|run",
-  "Ub": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_if_else_node]|run",
-  "Vb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_if_node]|run",
-  "Wb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel]|run",
-  "Xb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel_node]|run",
-  "Yb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_memcpy_node]|run",
-  "Zb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_memset_node]|run",
-  "0b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_object_code_cubin]|run",
-  "1b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_root_node]|run",
-  "2b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_switch_node]|run",
-  "3b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_while_node]|run",
-  "4b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_launch_config]|run",
-  "5b": "tests/test_object_protocols.py::test_repr_format[sample_launch_config-LaunchConfig\\\\(grid=\\\\(\\\\d+, \\\\d+, \\\\d+\\\\), cluster=.+, block=\\\\(\\\\d+, \\\\d+, \\\\d+\\\\), shmem_size=\\\\d+, is_cooperative=(?:True|False)\\\\)]|run",
-  "6b": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_launch_config]|run",
-  "7b": "tests/test_object_protocols.py::test_usable_in_set[sample_launch_config]|run",
-  "8b": "tests/test_launcher.py::test_launch_config_shmem_size|run",
-  "9b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_child_graph|run",
-  "!b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[auto-free]|run",
-  "#b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[no-options]|run",
-  "$b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[node-priority]|run",
-  "%b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[upload-stream]|run",
-  "'b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel_device_launch|run",
-  "(b": "tests/graph/test_graph_definition.py::test_launch_chain_dependencies|run",
-  ")b": "tests/graph/test_graph_definition.py::test_launch_creates_node|run",
-  "*b": "tests/graph/test_graph_definition.py::test_node_attrs[child_graph]|setup",
-  "+b": "tests/graph/test_graph_definition.py::test_node_attrs[kernel]|setup",
-  ",b": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[child_graph]|setup",
-  "-b": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[kernel]|setup",
-  ".b": "tests/graph/test_graph_definition.py::test_node_isinstance[child_graph]|setup",
-  "/b": "tests/graph/test_graph_definition.py::test_node_isinstance[kernel]|setup",
-  ":b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[child_graph]|setup",
-  ";b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[kernel]|setup",
-  "=b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[child_graph]|setup",
-  "?b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[kernel]|setup",
-  "@b": "tests/graph/test_graph_definition.py::test_node_type_property[child_graph]|setup",
-  "[b": "tests/graph/test_graph_definition.py::test_node_type_property[kernel]|setup",
-  "]b": "tests/graph/test_graph_definition_errors.py::test_multiple_instantiation|run",
-  "^b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[if]|run",
-  "_b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[if_else]|run",
-  "`b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[switch]|run",
-  "{b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[while]|run",
-  "|b": "tests/graph/test_graph_definition_lifetime.py::test_child_graph_survives_parent_deletion|run",
-  "}b": "tests/graph/test_graph_definition_lifetime.py::test_kernel_args_buffer_lifetime|run",
-  "~b": "tests/graph/test_graph_definition_lifetime.py::test_kernel_args_survive_graph_clone|run",
-  "ac": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_keeps_kernel_alive|run",
-  "bc": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
-  "cc": "tests/graph/test_graph_definition_lifetime.py::test_kernel_survives_graph_clone_and_execution|run",
-  "dc": "tests/graph/test_graph_definition_lifetime.py::test_kernel_survives_graph_instantiation_and_execution|run",
-  "ec": "tests/graph/test_graph_definition_lifetime.py::test_nested_child_graph_lifetime|run",
-  "fc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_baseline|run",
-  "gc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a1|run",
-  "hc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a2|run",
-  "ic": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_joint|run",
-  "jc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_insert_b|run",
-  "kc": "tests/graph/test_graph_definition_mutation.py::test_convert_linear_to_fan_in|run",
-  "lc": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDefinition]|run",
-  "mc": "tests/test_launcher.py::test_launch_config_init|run",
-  "nc": "tests/test_object_protocols.py::test_equality_basic[sample_child_graph_node]|run",
-  "oc": "tests/test_object_protocols.py::test_equality_basic[sample_kernel_node]|run",
-  "pc": "tests/test_object_protocols.py::test_hash_consistency[sample_child_graph_node]|run",
-  "qc": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel_node]|run",
-  "rc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_child_graph_node]|run",
-  "sc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_kernel_node]|run",
-  "tc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_child_graph_node]|run",
-  "uc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel_node]|run",
-  "vc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_event_record_node]|run",
-  "wc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_event_wait_node]|run",
-  "xc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_host_callback_node]|run",
-  "yc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_if_else_node]|run",
-  "zc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_if_node]|run",
-  "Ac": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_switch_node]|run",
-  "Bc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_while_node]|run",
-  "Cc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_condition-sample_child_graph_node]|run",
-  "Dc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_condition-sample_kernel_node]|run",
-  "Ec": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_child_graph_node]|run",
-  "Fc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_kernel_node]|run",
-  "Gc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_child_graph_node]|run",
-  "Hc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_kernel_node]|run",
-  "Ic": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_empty_node-sample_child_graph_node]|run",
-  "Jc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_empty_node-sample_kernel_node]|run",
-  "Kc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_child_graph_node]|run",
-  "Lc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_kernel_node]|run",
-  "Mc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_free_node-sample_child_graph_node]|run",
-  "Nc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_graphdef-sample_child_graph_node]|run",
-  "Oc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_graphdef-sample_kernel_node]|run",
-  "Pc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_child_graph_node]|run",
-  "Qc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_kernel_node]|run",
-  "Rc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_child_graph_node]|run",
-  "Sc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_event_record_node]|run",
-  "Tc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_event_wait_node]|run",
-  "Uc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_free_node]|run",
-  "Vc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_host_callback_node]|run",
-  "Wc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_if_else_node]|run",
-  "Xc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_if_node]|run",
-  "Yc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_memcpy_node]|run",
-  "Zc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_memset_node]|run",
-  "0c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_switch_node]|run",
-  "1c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_while_node]|run",
-  "2c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memcpy_node-sample_child_graph_node]|run",
-  "3c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memset_node-sample_child_graph_node]|run",
-  "4c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_child_graph_node]|run",
-  "5c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_kernel_node]|run",
-  "6c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_root_node-sample_child_graph_node]|run",
-  "7c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_root_node-sample_kernel_node]|run",
-  "8c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_child_graph_node]|run",
-  "9c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_kernel_node]|run",
-  "!c": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_child_graph_node-sample_child_graph_node_alt]|run",
-  "#c": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_kernel_node-sample_kernel_node_alt]|run",
-  "$c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_alloc_node-sample_child_graph_node]|run",
-  "%c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_alloc_node-sample_kernel_node]|run",
-  "'c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_child_graph_node]|run",
-  "(c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel_node]|run",
-  ")c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_event_record_node]|run",
-  "*c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_event_wait_node]|run",
-  "+c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_host_callback_node]|run",
-  ",c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_if_else_node]|run",
-  "-c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_if_node]|run",
-  ".c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_switch_node]|run",
-  "/c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_while_node]|run",
-  ":c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_condition-sample_child_graph_node]|run",
-  ";c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_condition-sample_kernel_node]|run",
-  "=c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_child_graph_node]|run",
-  "?c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_kernel_node]|run",
-  "@c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_child_graph_node]|run",
-  "[c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_kernel_node]|run",
-  "]c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_empty_node-sample_child_graph_node]|run",
-  "^c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_empty_node-sample_kernel_node]|run",
-  "_c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_child_graph_node]|run",
-  "`c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_kernel_node]|run",
-  "{c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_free_node-sample_child_graph_node]|run",
-  "|c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_graphdef-sample_child_graph_node]|run",
-  "}c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_graphdef-sample_kernel_node]|run",
-  "~c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_child_graph_node]|run",
-  "ad": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_kernel_node]|run",
-  "bd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_child_graph_node]|run",
-  "cd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_event_record_node]|run",
-  "dd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_event_wait_node]|run",
-  "ed": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_free_node]|run",
-  "fd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_host_callback_node]|run",
-  "gd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_if_else_node]|run",
-  "hd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_if_node]|run",
-  "id": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_memcpy_node]|run",
-  "jd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_memset_node]|run",
-  "kd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_switch_node]|run",
-  "ld": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_while_node]|run",
-  "md": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memcpy_node-sample_child_graph_node]|run",
-  "nd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memset_node-sample_child_graph_node]|run",
-  "od": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_child_graph_node]|run",
-  "pd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_kernel_node]|run",
-  "qd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_child_graph_node]|run",
-  "rd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_kernel_node]|run",
-  "sd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_child_graph_node]|run",
-  "td": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_kernel_node]|run",
-  "ud": "tests/test_object_protocols.py::test_repr_format[sample_child_graph_node-<ChildGraphNode handle=0x[0-9a-f]+ child=0x[0-9a-f]+>]|run",
-  "vd": "tests/test_object_protocols.py::test_repr_format[sample_kernel_node-<KernelNode handle=0x[0-9a-f]+ kernel=0x[0-9a-f]+>]|run",
-  "wd": "tests/test_object_protocols.py::test_same_type_inequality[sample_child_graph_node-sample_child_graph_node_alt]|run",
-  "xd": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel_node-sample_kernel_node_alt]|run",
-  "yd": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_child_graph_node]|run",
-  "zd": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_kernel_node]|run",
-  "Ad": "tests/test_object_protocols.py::test_usable_in_set[sample_child_graph_node]|run",
-  "Bd": "tests/test_object_protocols.py::test_usable_in_set[sample_kernel_node]|run",
-  "Cd": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_child_graph_node]|run",
-  "Dd": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_kernel_node]|run",
-  "Ed": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_child_graph_node]|run",
-  "Fd": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_kernel_node]|run",
-  "Gd": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_child_graph_node]|run",
-  "Hd": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_kernel_node]|run",
-  "Id": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_launch_config]|run",
-  "Jd": "tests/test_object_protocols.py::test_weakref_supported[sample_child_graph_node]|run",
-  "Kd": "tests/test_object_protocols.py::test_weakref_supported[sample_kernel_node]|run",
-  "Ld": "tests/test_object_protocols.py::test_weakref_supported[sample_launch_config]|run",
-  "Md": "(empty)",
-  "Nd": "tests/test_launcher.py::test_launch_config_cluster_grid_conversion|run",
-  "Od": "tests/test_launcher.py::test_launch_config_native_conversion|run",
-  "Pd": "tests/test_launcher.py::test_launch_config_invalid_values|run"
+  "5": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_with_workqueue_resource|run",
+  "6": "tests/test_helpers.py::test_latchkernel|run",
+  "7": "tests/test_launcher.py::test_launch_invalid_values|run",
+  "8": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
+  "9": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
+  "!": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
+  "#": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
+  "$": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
+  "%": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
+  "'": "tests/test_launcher.py::test_launch_scalar_argument[c_int-signed int--123456]|run",
+  "(": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed long long--123456789]|run",
+  ")": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
+  "*": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
+  "+": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
+  ",": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
+  "-": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
+  ".": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
+  "/": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
+  ":": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
+  ";": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
+  "=": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
+  "?": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
+  "@": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
+  "[": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
+  "]": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
+  "^": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
+  "_": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
+  "`": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
+  "{": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
+  "|": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
+  "}": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
+  "~": "tests/test_launcher.py::test_launch_scalar_argument_ctypes_subclass_fallback|run",
+  "ab": "tests/test_launcher.py::test_launch_scalar_argument_numpy_subclass_fallback|run",
+  "bb": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  "cb": "tests/test_object_protocols.py::test_equality_basic[sample_launch_config]|run",
+  "db": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_launch_config]|run",
+  "eb": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_launch_config]|run",
+  "fb": "tests/graph/test_graph_definition.py::test_node_attrs[kernel]|run",
+  "gb": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[kernel]|run",
+  "hb": "tests/test_object_protocols.py::test_same_type_inequality[sample_launch_config-sample_launch_config_alt]|run",
+  "ib": "tests/test_object_protocols.py::test_hash_consistency[sample_launch_config]|run",
+  "jb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_launch_config]|run",
+  "kb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_launch_config]|run",
+  "lb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_launch_config]|run",
+  "mb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_launch_config]|run",
+  "nb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_alloc_node]|run",
+  "ob": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_child_graph_node]|run",
+  "pb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_condition]|run",
+  "qb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_empty_node]|run",
+  "rb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_event_record_node]|run",
+  "sb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_event_wait_node]|run",
+  "tb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_free_node]|run",
+  "ub": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_graphdef]|run",
+  "vb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_host_callback_node]|run",
+  "wb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_if_else_node]|run",
+  "xb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_if_node]|run",
+  "yb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel]|run",
+  "zb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel_node]|run",
+  "Ab": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_memcpy_node]|run",
+  "Bb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_memset_node]|run",
+  "Cb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_object_code_cubin]|run",
+  "Db": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_root_node]|run",
+  "Eb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_switch_node]|run",
+  "Fb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_while_node]|run",
+  "Gb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_launch_config]|run",
+  "Hb": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_launch_config-sample_launch_config_alt]|run",
+  "Ib": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_launch_config]|run",
+  "Jb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_launch_config]|run",
+  "Kb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_launch_config]|run",
+  "Lb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_launch_config]|run",
+  "Mb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_alloc_node]|run",
+  "Nb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_child_graph_node]|run",
+  "Ob": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_condition]|run",
+  "Pb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_empty_node]|run",
+  "Qb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_event_record_node]|run",
+  "Rb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_event_wait_node]|run",
+  "Sb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_free_node]|run",
+  "Tb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_graphdef]|run",
+  "Ub": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_host_callback_node]|run",
+  "Vb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_if_else_node]|run",
+  "Wb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_if_node]|run",
+  "Xb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel]|run",
+  "Yb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel_node]|run",
+  "Zb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_memcpy_node]|run",
+  "0b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_memset_node]|run",
+  "1b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_object_code_cubin]|run",
+  "2b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_root_node]|run",
+  "3b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_switch_node]|run",
+  "4b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_while_node]|run",
+  "5b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_launch_config]|run",
+  "6b": "tests/test_object_protocols.py::test_repr_format[sample_launch_config-LaunchConfig\\\\(grid=\\\\(\\\\d+, \\\\d+, \\\\d+\\\\), cluster=.+, block=\\\\(\\\\d+, \\\\d+, \\\\d+\\\\), shmem_size=\\\\d+, is_cooperative=(?:True|False)\\\\)]|run",
+  "7b": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_launch_config]|run",
+  "8b": "tests/test_object_protocols.py::test_usable_in_set[sample_launch_config]|run",
+  "9b": "tests/test_launcher.py::test_launch_config_shmem_size|run",
+  "!b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_child_graph|run",
+  "#b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[auto-free]|run",
+  "$b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[no-options]|run",
+  "%b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[node-priority]|run",
+  "'b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel[upload-stream]|run",
+  "(b": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_kernel_device_launch|run",
+  ")b": "tests/graph/test_graph_definition.py::test_launch_chain_dependencies|run",
+  "*b": "tests/graph/test_graph_definition.py::test_launch_creates_node|run",
+  "+b": "tests/graph/test_graph_definition.py::test_node_attrs[child_graph]|setup",
+  ",b": "tests/graph/test_graph_definition.py::test_node_attrs[kernel]|setup",
+  "-b": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[child_graph]|setup",
+  ".b": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[kernel]|setup",
+  "/b": "tests/graph/test_graph_definition.py::test_node_isinstance[child_graph]|setup",
+  ":b": "tests/graph/test_graph_definition.py::test_node_isinstance[kernel]|setup",
+  ";b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[child_graph]|setup",
+  "=b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[kernel]|setup",
+  "?b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[child_graph]|setup",
+  "@b": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[kernel]|setup",
+  "[b": "tests/graph/test_graph_definition.py::test_node_type_property[child_graph]|setup",
+  "]b": "tests/graph/test_graph_definition.py::test_node_type_property[kernel]|setup",
+  "^b": "tests/graph/test_graph_definition_errors.py::test_multiple_instantiation|run",
+  "_b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[if]|run",
+  "`b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[if_else]|run",
+  "{b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[switch]|run",
+  "|b": "tests/graph/test_graph_definition_lifetime.py::test_branches_usable_after_parent_deletion[while]|run",
+  "}b": "tests/graph/test_graph_definition_lifetime.py::test_child_graph_survives_parent_deletion|run",
+  "~b": "tests/graph/test_graph_definition_lifetime.py::test_kernel_args_buffer_lifetime|run",
+  "ac": "tests/graph/test_graph_definition_lifetime.py::test_kernel_args_survive_graph_clone|run",
+  "bc": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_keeps_kernel_alive|run",
+  "cc": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
+  "dc": "tests/graph/test_graph_definition_lifetime.py::test_kernel_survives_graph_clone_and_execution|run",
+  "ec": "tests/graph/test_graph_definition_lifetime.py::test_kernel_survives_graph_instantiation_and_execution|run",
+  "fc": "tests/graph/test_graph_definition_lifetime.py::test_nested_child_graph_lifetime|run",
+  "gc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_baseline|run",
+  "hc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a1|run",
+  "ic": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a2|run",
+  "jc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_joint|run",
+  "kc": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_insert_b|run",
+  "lc": "tests/graph/test_graph_definition_mutation.py::test_convert_linear_to_fan_in|run",
+  "mc": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDefinition]|run",
+  "nc": "tests/test_launcher.py::test_launch_config_init|run",
+  "oc": "tests/test_object_protocols.py::test_equality_basic[sample_child_graph_node]|run",
+  "pc": "tests/test_object_protocols.py::test_equality_basic[sample_kernel_node]|run",
+  "qc": "tests/test_object_protocols.py::test_hash_consistency[sample_child_graph_node]|run",
+  "rc": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel_node]|run",
+  "sc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_child_graph_node]|run",
+  "tc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_kernel_node]|run",
+  "uc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_child_graph_node]|run",
+  "vc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel_node]|run",
+  "wc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_event_record_node]|run",
+  "xc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_event_wait_node]|run",
+  "yc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_host_callback_node]|run",
+  "zc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_if_else_node]|run",
+  "Ac": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_if_node]|run",
+  "Bc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_switch_node]|run",
+  "Cc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_while_node]|run",
+  "Dc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_condition-sample_child_graph_node]|run",
+  "Ec": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_condition-sample_kernel_node]|run",
+  "Fc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_child_graph_node]|run",
+  "Gc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_kernel_node]|run",
+  "Hc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_child_graph_node]|run",
+  "Ic": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_kernel_node]|run",
+  "Jc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_empty_node-sample_child_graph_node]|run",
+  "Kc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_empty_node-sample_kernel_node]|run",
+  "Lc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_child_graph_node]|run",
+  "Mc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_kernel_node]|run",
+  "Nc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_free_node-sample_child_graph_node]|run",
+  "Oc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_graphdef-sample_child_graph_node]|run",
+  "Pc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_graphdef-sample_kernel_node]|run",
+  "Qc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_child_graph_node]|run",
+  "Rc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_kernel_node]|run",
+  "Sc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_child_graph_node]|run",
+  "Tc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_event_record_node]|run",
+  "Uc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_event_wait_node]|run",
+  "Vc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_free_node]|run",
+  "Wc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_host_callback_node]|run",
+  "Xc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_if_else_node]|run",
+  "Yc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_if_node]|run",
+  "Zc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_memcpy_node]|run",
+  "0c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_memset_node]|run",
+  "1c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_switch_node]|run",
+  "2c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_while_node]|run",
+  "3c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memcpy_node-sample_child_graph_node]|run",
+  "4c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memset_node-sample_child_graph_node]|run",
+  "5c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_child_graph_node]|run",
+  "6c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_kernel_node]|run",
+  "7c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_root_node-sample_child_graph_node]|run",
+  "8c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_root_node-sample_kernel_node]|run",
+  "9c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_child_graph_node]|run",
+  "!c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_kernel_node]|run",
+  "#c": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_child_graph_node-sample_child_graph_node_alt]|run",
+  "$c": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_kernel_node-sample_kernel_node_alt]|run",
+  "%c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_alloc_node-sample_child_graph_node]|run",
+  "'c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_alloc_node-sample_kernel_node]|run",
+  "(c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_child_graph_node]|run",
+  ")c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel_node]|run",
+  "*c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_event_record_node]|run",
+  "+c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_event_wait_node]|run",
+  ",c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_host_callback_node]|run",
+  "-c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_if_else_node]|run",
+  ".c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_if_node]|run",
+  "/c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_switch_node]|run",
+  ":c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_while_node]|run",
+  ";c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_condition-sample_child_graph_node]|run",
+  "=c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_condition-sample_kernel_node]|run",
+  "?c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_child_graph_node]|run",
+  "@c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_kernel_node]|run",
+  "[c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_child_graph_node]|run",
+  "]c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_kernel_node]|run",
+  "^c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_empty_node-sample_child_graph_node]|run",
+  "_c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_empty_node-sample_kernel_node]|run",
+  "`c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_child_graph_node]|run",
+  "{c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_kernel_node]|run",
+  "|c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_free_node-sample_child_graph_node]|run",
+  "}c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_graphdef-sample_child_graph_node]|run",
+  "~c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_graphdef-sample_kernel_node]|run",
+  "ad": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_child_graph_node]|run",
+  "bd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_kernel_node]|run",
+  "cd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_child_graph_node]|run",
+  "dd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_event_record_node]|run",
+  "ed": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_event_wait_node]|run",
+  "fd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_free_node]|run",
+  "gd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_host_callback_node]|run",
+  "hd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_if_else_node]|run",
+  "id": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_if_node]|run",
+  "jd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_memcpy_node]|run",
+  "kd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_memset_node]|run",
+  "ld": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_switch_node]|run",
+  "md": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_while_node]|run",
+  "nd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memcpy_node-sample_child_graph_node]|run",
+  "od": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memset_node-sample_child_graph_node]|run",
+  "pd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_child_graph_node]|run",
+  "qd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_kernel_node]|run",
+  "rd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_child_graph_node]|run",
+  "sd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_kernel_node]|run",
+  "td": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_child_graph_node]|run",
+  "ud": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_kernel_node]|run",
+  "vd": "tests/test_object_protocols.py::test_repr_format[sample_child_graph_node-<ChildGraphNode handle=0x[0-9a-f]+ child=0x[0-9a-f]+>]|run",
+  "wd": "tests/test_object_protocols.py::test_repr_format[sample_kernel_node-<KernelNode handle=0x[0-9a-f]+ kernel=0x[0-9a-f]+>]|run",
+  "xd": "tests/test_object_protocols.py::test_same_type_inequality[sample_child_graph_node-sample_child_graph_node_alt]|run",
+  "yd": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel_node-sample_kernel_node_alt]|run",
+  "zd": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_child_graph_node]|run",
+  "Ad": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_kernel_node]|run",
+  "Bd": "tests/test_object_protocols.py::test_usable_in_set[sample_child_graph_node]|run",
+  "Cd": "tests/test_object_protocols.py::test_usable_in_set[sample_kernel_node]|run",
+  "Dd": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_child_graph_node]|run",
+  "Ed": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_kernel_node]|run",
+  "Fd": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_child_graph_node]|run",
+  "Gd": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_kernel_node]|run",
+  "Hd": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_child_graph_node]|run",
+  "Id": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_kernel_node]|run",
+  "Jd": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_launch_config]|run",
+  "Kd": "tests/test_object_protocols.py::test_weakref_supported[sample_child_graph_node]|run",
+  "Ld": "tests/test_object_protocols.py::test_weakref_supported[sample_kernel_node]|run",
+  "Md": "tests/test_object_protocols.py::test_weakref_supported[sample_launch_config]|run",
+  "Nd": "(empty)",
+  "Od": "tests/test_launcher.py::test_launch_config_cluster_grid_conversion|run",
+  "Pd": "tests/test_launcher.py::test_launch_config_native_conversion|run",
+  "Qd": "tests/test_launcher.py::test_launch_config_invalid_values|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -378,7 +379,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__launcher_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-20 01:33 +0000
+            created at 2026-05-21 01:36 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -462,58 +463,58 @@
     <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">            Whether to launch as cooperative kernel (default: False)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">        # Convert and validate grid and block dimensions</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">        self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">308 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 9b!b#b$b%b'b(b)b*beb+b,bfb-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcF G H I J K L M N O P Q R lcS T U V W X Y Z 0 1 2 3 4 5 a NdmcPdOd8b6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abncocbbpcqchbrcsctcucibvcwcxcyczcAcBcCcDcEcFcjbGcHckbIcJcKcLclbMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1cmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEb2c3c4c5c6c7c8c9cFb!c#cGb$c%c'c(cHb)c*c+c,c-c.c/c:c;c=c?cIb@c[cJb]c^c_c`cKb{c|c}c~cadbdcdddedfdgdhdidjdkdldLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3bmdndodpdqdrdsdtd4budvd5bwdxdgbydzd6bAdBd7bCdDdcbEdFddbGdHdIdJdKdLd</span></p>
-    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">        self.block = cast_to_3_tuple("LaunchConfig.block", block)</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">308 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 9b!b#b$b%b'b(b)b*beb+b,bfb-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcF G H I J K L M N O P Q R lcS T U V W X Y Z 0 1 2 3 4 5 a NdmcPdOd8b6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abncocbbpcqchbrcsctcucibvcwcxcyczcAcBcCcDcEcFcjbGcHckbIcJcKcLclbMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1cmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEb2c3c4c5c6c7c8c9cFb!c#cGb$c%c'c(cHb)c*c+c,c-c.c/c:c;c=c?cIb@c[cJb]c^c_c`cKb{c|c}c~cadbdcdddedfdgdhdidjdkdldLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3bmdndodpdqdrdsdtd4budvd5bwdxdgbydzd6bAdBd7bCdDdcbEdFddbGdHdIdJdKdLd</span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">        self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">309 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E !b#b$b%b'b(b)b*b+bfb,b-bgb.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcF G H I J K L M N O P Q R mcS T U V W X Y Z 0 1 2 3 4 5 6 a OdncQdPd9b7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbocpccbqcrcibsctcucvcjbwcxcyczcAcBcCcDcEcFcGckbHcIclbJcKcLcMcmbNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2cnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb3c4c5c6c7c8c9c!cGb#c$cHb%c'c(c)cIb*c+c,c-c.c/c:c;c=c?c@cJb[c]cKb^c_c`c{cLb|c}c~cadbdcdddedfdgdhdidjdkdldmdMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4bndodpdqdrdsdtdud5bvdwd6bxdydhbzdAd7bBdCd8bDdEddbFdGdebHdIdJdKdLdMd</span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">        self.block = cast_to_3_tuple("LaunchConfig.block", block)</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">309 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E !b#b$b%b'b(b)b*b+bfb,b-bgb.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcF G H I J K L M N O P Q R mcS T U V W X Y Z 0 1 2 3 4 5 6 a OdncQdPd9b7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbocpccbqcrcibsctcucvcjbwcxcyczcAcBcCcDcEcFcGckbHcIclbJcKcLcMcmbNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2cnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb3c4c5c6c7c8c9c!cGb#c$cHb%c'c(c)cIb*c+c,c-c.c/c:c;c=c?c@cJb[c]cKb^c_c`c{cLb|c}c~cadbdcdddedfdgdhdidjdkdldmdMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4bndodpdqdrdsdtdud5bvdwd6bxdydhbzdAd7bBdCd8bDdEddbFdGdebHdIdJdKdLdMd</span></p>
     <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        # FIXME: Calling Device() strictly speaking is not quite right; we should instead</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        # look up the device from stream. We probably need to defer the checks related to</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">        # device compute capability or attributes.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">        # thread block clusters are supported starting H100</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        if cluster is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">307 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 9b!b#b$b%b'b(b)b*beb+b,bfb-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcF G H I J K L M N O P Q R lcS T U V W X Y Z 0 1 2 3 4 5 a NdmcOd8b6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abncocbbpcqchbrcsctcucibvcwcxcyczcAcBcCcDcEcFcjbGcHckbIcJcKcLclbMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1cmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEb2c3c4c5c6c7c8c9cFb!c#cGb$c%c'c(cHb)c*c+c,c-c.c/c:c;c=c?cIb@c[cJb]c^c_c`cKb{c|c}c~cadbdcdddedfdgdhdidjdkdldLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3bmdndodpdqdrdsdtd4budvd5bwdxdgbydzd6bAdBd7bCdDdcbEdFddbGdHdIdJdKdLd</span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">            cc = Device().compute_capability</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">2 ctx</label></span><span class="ctxs">2NdOd</span></p>
-    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">            if cc &lt; (9, 0):</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">2 ctx</label></span><span class="ctxs">2NdOd</span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">                raise CUDAError(</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">2 ctx</label></span><span class="ctxs">2NdOd</span></p>
-    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">                    f"thread block clusters are not supported on devices with compute capability &lt; 9.0 (got {cc})"</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">2 ctx</label></span><span class="ctxs">2NdOd</span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        if cluster is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">308 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E !b#b$b%b'b(b)b*b+bfb,b-bgb.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcF G H I J K L M N O P Q R mcS T U V W X Y Z 0 1 2 3 4 5 6 a OdncPd9b7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbocpccbqcrcibsctcucvcjbwcxcyczcAcBcCcDcEcFcGckbHcIclbJcKcLcMcmbNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2cnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb3c4c5c6c7c8c9c!cGb#c$cHb%c'c(c)cIb*c+c,c-c.c/c:c;c=c?c@cJb[c]cKb^c_c`c{cLb|c}c~cadbdcdddedfdgdhdidjdkdldmdMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4bndodpdqdrdsdtdud5bvdwd6bxdydhbzdAd7bBdCd8bDdEddbFdGdebHdIdJdKdLdMd</span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">            cc = Device().compute_capability</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">2 ctx</label></span><span class="ctxs">2OdPd</span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">            if cc &lt; (9, 0):</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">2 ctx</label></span><span class="ctxs">2OdPd</span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">                raise CUDAError(</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">2 ctx</label></span><span class="ctxs">2OdPd</span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">                    f"thread block clusters are not supported on devices with compute capability &lt; 9.0 (got {cc})"</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">2 ctx</label></span><span class="ctxs">2OdPd</span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">                )</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">            self.cluster = cast_to_3_tuple("LaunchConfig.cluster", cluster)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">            self.cluster = None</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">305 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 9b!b#b$b%b'b(b)b*beb+b,bfb-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcF G H I J K L M N O P Q R lcS T U V W X Y Z 0 1 2 3 4 5 a mc8b6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abncocbbpcqchbrcsctcucibvcwcxcyczcAcBcCcDcEcFcjbGcHckbIcJcKcLclbMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1cmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEb2c3c4c5c6c7c8c9cFb!c#cGb$c%c'c(cHb)c*c+c,c-c.c/c:c;c=c?cIb@c[cJb]c^c_c`cKb{c|c}c~cadbdcdddedfdgdhdidjdkdldLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3bmdndodpdqdrdsdtd4budvd5bwdxdgbydzd6bAdBd7bCdDdcbEdFddbGdHdIdJdKdLd</span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">            self.cluster = None</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">306 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E !b#b$b%b'b(b)b*b+bfb,b-bgb.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcF G H I J K L M N O P Q R mcS T U V W X Y Z 0 1 2 3 4 5 6 a nc9b7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbocpccbqcrcibsctcucvcjbwcxcyczcAcBcCcDcEcFcGckbHcIclbJcKcLcMcmbNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2cnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb3c4c5c6c7c8c9c!cGb#c$cHb%c'c(c)cIb*c+c,c-c.c/c:c;c=c?c@cJb[c]cKb^c_c`c{cLb|c}c~cadbdcdddedfdgdhdidjdkdldmdMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4bndodpdqdrdsdtdud5bvdwd6bxdydhbzdAd7bBdCd8bDdEddbFdGdebHdIdJdKdLdMd</span></p>
     <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">        # Handle shmem_size default</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        if shmem_size is None:</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">305 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 9b!b#b$b%b'b(b)b*beb+b,bfb-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcF G H I J K L M N O P Q R lcS T U V W X Y Z 0 1 2 3 4 5 a mc8b6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abncocbbpcqchbrcsctcucibvcwcxcyczcAcBcCcDcEcFcjbGcHckbIcJcKcLclbMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1cmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEb2c3c4c5c6c7c8c9cFb!c#cGb$c%c'c(cHb)c*c+c,c-c.c/c:c;c=c?cIb@c[cJb]c^c_c`cKb{c|c}c~cadbdcdddedfdgdhdidjdkdldLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3bmdndodpdqdrdsdtd4budvd5bwdxdgbydzd6bAdBd7bCdDdcbEdFddbGdHdIdJdKdLd</span></p>
-    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">            self.shmem_size = 0</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">295 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 9b!b#b$b%b'b(b)b*b,b.b:b=b@b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcF G H I J K L M N O P Q R lcS T U V W X Y Z 0 1 2 3 4 5 a 8b7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abncocbbpcqchbrcsctcucibvcwcxcyczcAcBcCcDcEcFcjbGcHckbIcJcKcLclbMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1cmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEb2c3c4c5c6c7c8c9cFb!c#cGb$c%c'c(cHb)c*c+c,c-c.c/c:c;c=c?cIb@c[cJb]c^c_c`cKb{c|c}c~cadbdcdddedfdgdhdidjdkdldLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3bmdndodpdqdrdsdtd4budvd5bwdxdgbydzd6bAdBd7bCdDdcbEdFddbGdHdIdJdKdLd</span></p>
+    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        if shmem_size is None:</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">306 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E !b#b$b%b'b(b)b*b+bfb,b-bgb.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcF G H I J K L M N O P Q R mcS T U V W X Y Z 0 1 2 3 4 5 6 a nc9b7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbocpccbqcrcibsctcucvcjbwcxcyczcAcBcCcDcEcFcGckbHcIclbJcKcLcMcmbNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2cnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb3c4c5c6c7c8c9c!cGb#c$cHb%c'c(c)cIb*c+c,c-c.c/c:c;c=c?c@cJb[c]cKb^c_c`c{cLb|c}c~cadbdcdddedfdgdhdidjdkdldmdMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4bndodpdqdrdsdtdud5bvdwd6bxdydhbzdAd7bBdCd8bDdEddbFdGdebHdIdJdKdLdMd</span></p>
+    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">            self.shmem_size = 0</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">296 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E !b#b$b%b'b(b)b*b+b-b/b;b?b[b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcF G H I J K L M N O P Q R mcS T U V W X Y Z 0 1 2 3 4 5 6 a 9b8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbocpccbqcrcibsctcucvcjbwcxcyczcAcBcCcDcEcFcGckbHcIclbJcKcLcMcmbNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2cnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb3c4c5c6c7c8c9c!cGb#c$cHb%c'c(c)cIb*c+c,c-c.c/c:c;c=c?c@cJb[c]cKb^c_c`c{cLb|c}c~cadbdcdddedfdgdhdidjdkdldmdMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4bndodpdqdrdsdtdud5bvdwd6bxdydhbzdAd7bBdCd8bDdEddbFdGdebHdIdJdKdLdMd</span></p>
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">            self.shmem_size = shmem_size</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">11 ctx</label></span><span class="ctxs">2eb+bfb-b/b;b?b[bmc8b6 </span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">            self.shmem_size = shmem_size</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">11 ctx</label></span><span class="ctxs">2fb,bgb.b:b=b@b]bnc9b7 </span></p>
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        self.is_cooperative = is_cooperative</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">305 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 9b!b#b$b%b'b(b)b*beb+b,bfb-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcF G H I J K L M N O P Q R lcS T U V W X Y Z 0 1 2 3 4 5 a mc8b6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abncocbbpcqchbrcsctcucibvcwcxcyczcAcBcCcDcEcFcjbGcHckbIcJcKcLclbMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1cmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEb2c3c4c5c6c7c8c9cFb!c#cGb$c%c'c(cHb)c*c+c,c-c.c/c:c;c=c?cIb@c[cJb]c^c_c`cKb{c|c}c~cadbdcdddedfdgdhdidjdkdldLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3bmdndodpdqdrdsdtd4budvd5bwdxdgbydzd6bAdBd7bCdDdcbEdFddbGdHdIdJdKdLd</span></p>
+    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        self.is_cooperative = is_cooperative</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">306 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E !b#b$b%b'b(b)b*b+bfb,b-bgb.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcF G H I J K L M N O P Q R mcS T U V W X Y Z 0 1 2 3 4 5 6 a nc9b7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbocpccbqcrcibsctcucvcjbwcxcyczcAcBcCcDcEcFcGckbHcIclbJcKcLcMcmbNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2cnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb3c4c5c6c7c8c9c!cGb#c$cHb%c'c(c)cIb*c+c,c-c.c/c:c;c=c?c@cJb[c]cKb^c_c`c{cLb|c}c~cadbdcdddedfdgdhdidjdkdldmdMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4bndodpdqdrdsdtdud5bvdwd6bxdydhbzdAd7bBdCd8bDdEddbFdGdebHdIdJdKdLdMd</span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        if self.is_cooperative and not Device().properties.cooperative_launch:</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">305 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E 9b!b#b$b%b'b(b)b*beb+b,bfb-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcF G H I J K L M N O P Q R lcS T U V W X Y Z 0 1 2 3 4 5 a mc8b6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abncocbbpcqchbrcsctcucibvcwcxcyczcAcBcCcDcEcFcjbGcHckbIcJcKcLclbMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1cmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEb2c3c4c5c6c7c8c9cFb!c#cGb$c%c'c(cHb)c*c+c,c-c.c/c:c;c=c?cIb@c[cJb]c^c_c`cKb{c|c}c~cadbdcdddedfdgdhdidjdkdldLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3bmdndodpdqdrdsdtd4budvd5bwdxdgbydzd6bAdBd7bCdDdcbEdFddbGdHdIdJdKdLd</span></p>
+    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        if self.is_cooperative and not Device().properties.cooperative_launch:</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">306 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E !b#b$b%b'b(b)b*b+bfb,b-bgb.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcF G H I J K L M N O P Q R mcS T U V W X Y Z 0 1 2 3 4 5 6 a nc9b7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbocpccbqcrcibsctcucvcjbwcxcyczcAcBcCcDcEcFcGckbHcIclbJcKcLcMcmbNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2cnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb3c4c5c6c7c8c9c!cGb#c$cHb%c'c(c)cIb*c+c,c-c.c/c:c;c=c?c@cJb[c]cKb^c_c`c{cLb|c}c~cadbdcdddedfdgdhdidjdkdldmdMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4bndodpdqdrdsdtdud5bvdwd6bxdydhbzdAd7bBdCd8bDdEddbFdGdebHdIdJdKdLdMd</span></p>
     <p class="mis show_mis"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">            raise CUDAError("cooperative kernels are not supported on this device")</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">    def _identity(self):</span>&nbsp;</span><span class="r"><label for="ctxs98" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">        return tuple(getattr(self, attr) for attr in _LAUNCH_CONFIG_ATTRS)</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">34 ctx</label></span><span class="ctxs">2ebfbbbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbgb6b7bcbdb</span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">        return tuple(getattr(self, attr) for attr in _LAUNCH_CONFIG_ATTRS)</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">34 ctx</label></span><span class="ctxs">2fbgbcbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbhb7b8bdbeb</span></p>
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">        """Return string representation of LaunchConfig."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">        parts = ', '.join(f'{attr}={getattr(self, attr)!r}' for attr in _LAUNCH_CONFIG_ATTRS)</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">1 ctx</label></span><span class="ctxs">25b</span></p>
-    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">        return f"LaunchConfig({parts})"</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">1 ctx</label></span><span class="ctxs">25b</span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">        parts = ', '.join(f'{attr}={getattr(self, attr)!r}' for attr in _LAUNCH_CONFIG_ATTRS)</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">1 ctx</label></span><span class="ctxs">26b</span></p>
+    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">        return f"LaunchConfig({parts})"</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">1 ctx</label></span><span class="ctxs">26b</span></p>
     <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    def __eq__(self, other) -> bool:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">        if not isinstance(other, LaunchConfig):</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">30 ctx</label></span><span class="ctxs">2ebfbbbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4bgbcbdb</span></p>
-    <p class="run"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">            return NotImplemented</span>&nbsp;</span><input type="checkbox" id="ctxs108"><span class="r"><label for="ctxs108" class="ctx">25 ctx</label></span><span class="ctxs">2bbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b</span></p>
-    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        return self._identity() == (&lt;LaunchConfig>other)._identity()</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">6 ctx</label></span><span class="ctxs">2ebfbbbgbcbdb</span></p>
+    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">        if not isinstance(other, LaunchConfig):</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">30 ctx</label></span><span class="ctxs">2fbgbcbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5bhbdbeb</span></p>
+    <p class="run"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">            return NotImplemented</span>&nbsp;</span><input type="checkbox" id="ctxs108"><span class="r"><label for="ctxs108" class="ctx">25 ctx</label></span><span class="ctxs">2cbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b</span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        return self._identity() == (&lt;LaunchConfig>other)._identity()</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">6 ctx</label></span><span class="ctxs">2fbgbcbhbdbeb</span></p>
     <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">    def __hash__(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">        return hash(self._identity())</span>&nbsp;</span><input type="checkbox" id="ctxs112"><span class="r"><label for="ctxs112" class="ctx">30 ctx</label></span><span class="ctxs">2hbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGb6b7bcbdb</span></p>
+    <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">        return hash(self._identity())</span>&nbsp;</span><input type="checkbox" id="ctxs112"><span class="r"><label for="ctxs112" class="ctx">30 ctx</label></span><span class="ctxs">2ibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb7b8bdbeb</span></p>
     <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    cdef cydriver.CUlaunchConfig _to_native_launch_config(self):</span>&nbsp;</span><span class="r"><label for="ctxs114" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        cdef cydriver.CUlaunchConfig drv_cfg</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">        cdef cydriver.CUlaunchAttribute attr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        memset(&amp;drv_cfg, 0, sizeof(drv_cfg))</span>&nbsp;</span><input type="checkbox" id="ctxs117"><span class="r"><label for="ctxs117" class="ctx">90 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 a 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ ab</span></p>
-    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        self._attrs.resize(0)</span>&nbsp;</span><input type="checkbox" id="ctxs118"><span class="r"><label for="ctxs118" class="ctx">90 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 a 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ ab</span></p>
+    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        memset(&amp;drv_cfg, 0, sizeof(drv_cfg))</span>&nbsp;</span><input type="checkbox" id="ctxs117"><span class="r"><label for="ctxs117" class="ctx">91 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 a 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        self._attrs.resize(0)</span>&nbsp;</span><input type="checkbox" id="ctxs118"><span class="r"><label for="ctxs118" class="ctx">91 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 a 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbb</span></p>
     <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">        # Handle grid dimensions and cluster configuration</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        if self.cluster is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">90 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 a 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ ab</span></p>
+    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        if self.cluster is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">91 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 a 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbb</span></p>
     <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">            # Convert grid from cluster units to block units</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">            drv_cfg.gridDimX = self.grid[0] * self.cluster[0]</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">            drv_cfg.gridDimY = self.grid[1] * self.cluster[1]</span>&nbsp;</span><span class="r"></span></p>
@@ -524,20 +525,20 @@
     <p class="mis show_mis"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">            attr.value.clusterDim.x, attr.value.clusterDim.y, attr.value.clusterDim.z = self.cluster</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">            self._attrs.push_back(attr)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">            drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = self.grid</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">90 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 a 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ ab</span></p>
+    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">            drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = self.grid</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">91 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 a 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbb</span></p>
     <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">        drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = self.block</span>&nbsp;</span><input type="checkbox" id="ctxs134"><span class="r"><label for="ctxs134" class="ctx">90 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 a 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ ab</span></p>
-    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">        drv_cfg.sharedMemBytes = self.shmem_size</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">90 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 a 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ ab</span></p>
+    <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">        drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = self.block</span>&nbsp;</span><input type="checkbox" id="ctxs134"><span class="r"><label for="ctxs134" class="ctx">91 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 a 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">        drv_cfg.sharedMemBytes = self.shmem_size</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">91 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 a 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbb</span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        if self.is_cooperative:</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">90 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 a 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ ab</span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        if self.is_cooperative:</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">91 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 a 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbb</span></p>
     <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">            attr.value.cooperative = 1</span>&nbsp;</span><input type="checkbox" id="ctxs139"><span class="r"><label for="ctxs139" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">            self._attrs.push_back(attr)</span>&nbsp;</span><input type="checkbox" id="ctxs140"><span class="r"><label for="ctxs140" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="pln"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">        drv_cfg.numAttrs = self._attrs.size()</span>&nbsp;</span><input type="checkbox" id="ctxs142"><span class="r"><label for="ctxs142" class="ctx">90 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 a 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ ab</span></p>
-    <p class="run"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">        drv_cfg.attrs = self._attrs.data()</span>&nbsp;</span><input type="checkbox" id="ctxs143"><span class="r"><label for="ctxs143" class="ctx">90 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 a 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ ab</span></p>
+    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">        drv_cfg.numAttrs = self._attrs.size()</span>&nbsp;</span><input type="checkbox" id="ctxs142"><span class="r"><label for="ctxs142" class="ctx">91 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 a 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">        drv_cfg.attrs = self._attrs.data()</span>&nbsp;</span><input type="checkbox" id="ctxs143"><span class="r"><label for="ctxs143" class="ctx">91 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 a 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbb</span></p>
     <p class="pln"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        return drv_cfg</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">90 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 a 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ ab</span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        return drv_cfg</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">91 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 a 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbb</span></p>
     <p class="pln"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt"># TODO: once all modules are cythonized, this function can be dropped in favor of the cdef method above</span>&nbsp;</span><span class="r"></span></p>
@@ -602,7 +603,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__launcher_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-20 01:33 +0000
+            created at 2026-05-21 01:36 +0000
         </p>
     </div>
 </footer>
