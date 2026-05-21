@@ -213,14 +213,24 @@ def deinit_all_contexts_function():
 
 @pytest.fixture
 def ipc_device():
-    """Obtains a device suitable for IPC-enabled mempool tests, or skips."""
+    """Obtains a device suitable for IPC-enabled mempool tests, or skips.
+
+    The fixture also tracks every ``multiprocessing.Process`` spawned during
+    the test and kills any survivors at teardown. This prevents a stuck child
+    (e.g., compute-sanitizer wedged during IPC teardown -- see issue #2004)
+    from blocking ``ipc_memory_resource``'s ``mr.close()`` for hours.
+    """
+    from helpers.child_processes import track_child_processes
+
     device = Device(0)
     device.set_current()
 
     if not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
 
-    return _require_ipc_mempool_devices((device,))[0]
+    device = _require_ipc_mempool_devices((device,))[0]
+    with track_child_processes():
+        yield device
 
 
 @pytest.fixture(
@@ -291,8 +301,16 @@ def mempool_device_x3():
 
 @pytest.fixture
 def ipc_mempool_device_x2(mempool_device_x2):
-    """Fixture that provides two IPC-capable mempool devices, or skips."""
-    return _require_ipc_mempool_devices(mempool_device_x2)
+    """Fixture that provides two IPC-capable mempool devices, or skips.
+
+    Also tracks/kills any leftover ``multiprocessing.Process`` children at
+    teardown for the same reasons documented on :func:`ipc_device`.
+    """
+    from helpers.child_processes import track_child_processes
+
+    devices = _require_ipc_mempool_devices(mempool_device_x2)
+    with track_child_processes():
+        yield devices
 
 
 @pytest.fixture(

@@ -5,11 +5,12 @@ import multiprocessing as mp
 
 import pytest
 from helpers.buffers import PatternGen
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._utils.cuda_utils import CUDAError
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 POOL_SIZE = 2097152
 
@@ -35,6 +36,8 @@ class TestPeerAccessNotPreservedOnImport:
         process = mp.Process(target=self.child_main, args=(mr,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         # Verify parent's MR still has peer access set (independent state)
@@ -81,6 +84,8 @@ class TestBufferPeerAccessAfterImport:
         process = mp.Process(target=self.child_main, args=(mr, buffer))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         buffer.close()
