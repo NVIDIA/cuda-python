@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
+import sys
 
 import pytest
 from helpers.buffers import PatternGen

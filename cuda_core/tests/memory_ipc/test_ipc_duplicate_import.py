@@ -11,6 +11,7 @@ pointers are not correctly reference counted by the driver.
 
 import contextlib
 import multiprocessing as mp
+import sys
 
 import pytest
 from helpers.logging import TimestampedLogger
