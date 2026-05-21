@@ -21,8 +21,8 @@ class TestPeerAccessNotPreservedOnImport:
     """
 
     @pytest.mark.flaky(reruns=2)
-    def test_main(self, mempool_device_x2):
-        dev0, dev1 = mempool_device_x2
+    def test_main(self, ipc_mempool_device_x2):
+        dev0, dev1 = ipc_mempool_device_x2
 
         # Parent Process - Create and Configure MR
         dev1.set_current()
@@ -61,8 +61,8 @@ class TestBufferPeerAccessAfterImport:
 
     @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("grant_access_in_parent", [True, False])
-    def test_main(self, mempool_device_x2, grant_access_in_parent):
-        dev0, dev1 = mempool_device_x2
+    def test_main(self, ipc_mempool_device_x2, grant_access_in_parent):
+        dev0, dev1 = ipc_mempool_device_x2
 
         # Parent Process - Create MR and Buffer
         dev1.set_current()
