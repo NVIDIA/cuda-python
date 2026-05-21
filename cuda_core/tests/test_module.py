@@ -52,6 +52,11 @@ def cuda12_4_prerequisite_check():
     return binding_version() >= (12, 0, 0) and driver_version() >= (12, 4, 0)
 
 
+@pytest.fixture(name="convert_path", params=[str, lambda p: p], ids=["str", "path"])
+def convert_path_to_arg(request):
+    return request.param
+
+
 def test_kernel_attributes_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelAttributes cannot be instantiated directly\."):
         cuda.core._module.KernelAttributes()  # Ensure back door is locked.
@@ -231,14 +236,15 @@ def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     mod_obj.get_kernel("saxpy<double>")  # force loading
 
 
-def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
+def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path, convert_path):
     ptx, mod = get_saxpy_kernel_ptx
     sym_map = mod.symbol_mapping
     assert isinstance(ptx, bytes)
     ptx_file = tmp_path / "test.ptx"
     ptx_file.write_bytes(ptx)
-    mod_obj = ObjectCode.from_ptx(str(ptx_file), symbol_mapping=sym_map)
-    assert mod_obj.code == str(ptx_file)
+    arg = convert_path(ptx_file)
+    mod_obj = ObjectCode.from_ptx(arg, symbol_mapping=sym_map)
+    assert mod_obj.code == arg
     assert mod_obj.code_type == "ptx"
     if not _can_load_generated_ptx():
         pytest.skip("PTX version too new for current driver")
@@ -255,15 +261,16 @@ def test_object_code_load_cubin(get_saxpy_kernel_cubin):
     mod.get_kernel("saxpy<double>")  # force loading
 
 
-def test_object_code_load_cubin_from_file(get_saxpy_kernel_cubin, tmp_path):
+def test_object_code_load_cubin_from_file(get_saxpy_kernel_cubin, tmp_path, convert_path):
     _, mod = get_saxpy_kernel_cubin
     cubin = mod.code
     sym_map = mod.symbol_mapping
     assert isinstance(cubin, bytes)
     cubin_file = tmp_path / "test.cubin"
     cubin_file.write_bytes(cubin)
-    mod = ObjectCode.from_cubin(str(cubin_file), symbol_mapping=sym_map)
-    assert mod.code == str(cubin_file)
+    arg = convert_path(cubin_file)
+    mod = ObjectCode.from_cubin(arg, symbol_mapping=sym_map)
+    assert mod.code == arg
     mod.get_kernel("saxpy<double>")  # force loading
 
 
@@ -286,15 +293,16 @@ def test_object_code_load_ltoir(get_saxpy_kernel_ltoir):
         mod_obj.get_kernel("saxpy<float>")
 
 
-def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path):
+def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path, convert_path):
     mod = get_saxpy_kernel_ltoir
     ltoir = mod.code
     sym_map = mod.symbol_mapping
     assert isinstance(ltoir, bytes)
     ltoir_file = tmp_path / "test.ltoir"
     ltoir_file.write_bytes(ltoir)
-    mod_obj = ObjectCode.from_ltoir(str(ltoir_file), symbol_mapping=sym_map)
-    assert mod_obj.code == str(ltoir_file)
+    arg = convert_path(ltoir_file)
+    mod_obj = ObjectCode.from_ltoir(arg, symbol_mapping=sym_map)
+    assert mod_obj.code == arg
     assert mod_obj.code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
 
@@ -310,13 +318,14 @@ def test_object_code_load_fatbin(get_saxpy_fatbin):
 
 
 @nvfatbin_available
-def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path):
+def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path, convert_path):
     fatbin, sym_map = get_saxpy_fatbin
     assert isinstance(fatbin, bytes)
     fatbin_file = tmp_path / "test.fatbin"
     fatbin_file.write_bytes(fatbin)
-    mod_obj = ObjectCode.from_fatbin(str(fatbin_file), symbol_mapping=sym_map)
-    assert mod_obj.code == str(fatbin_file)
+    arg = convert_path(fatbin_file)
+    mod_obj = ObjectCode.from_fatbin(arg, symbol_mapping=sym_map)
+    assert mod_obj.code == arg
     assert mod_obj.code_type == "fatbin"
     mod_obj.get_kernel("saxpy<double>")  # force loading
 

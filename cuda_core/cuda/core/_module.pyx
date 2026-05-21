@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+import os
+
 from libc.stddef cimport size_t
 
 from collections import namedtuple
@@ -28,6 +30,7 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core._stream import Stream
 from cuda.core._utils.clear_error_support import (
+    assert_type,
     assert_type_str_or_bytes_like,
     raise_code_path_meant_to_be_unreachable,
 )
@@ -620,7 +623,7 @@ cdef class ObjectCode:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_cubin(module: bytes | str | os.PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
@@ -638,7 +641,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.CUBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ptx(module: bytes | str | os.PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
@@ -656,7 +659,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.PTX, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ltoir(module: bytes | str | os.PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
@@ -674,7 +677,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.LTOIR, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_fatbin(module: bytes | str | os.PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
@@ -733,8 +736,18 @@ cdef class ObjectCode:
         if self._h_library:
             return 0
         module = self._module
-        assert_type_str_or_bytes_like(module)
+        try:
+            assert_type(module, os.PathLike)
+        except TypeError:
+            assert_type_str_or_bytes_like(module)
         cdef bytes path_bytes
+        # TODO: should code below move to try block?
+        if isinstance(module, os.PathLike):
+            path_bytes = os.fsencode(module)
+            self._h_library = create_library_handle_from_file(<const char*>path_bytes)
+            if not self._h_library:
+                HANDLE_RETURN(get_last_error())
+            return 0
         if isinstance(module, str):
             path_bytes = module.encode()
             self._h_library = create_library_handle_from_file(<const char*>path_bytes)
