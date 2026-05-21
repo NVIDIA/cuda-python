@@ -25,9 +25,10 @@ def test_outer_timeout_marker_is_applied(request):
     the in-test cleanup -- which we want to keep as defense in depth, not as
     the sole guard.
     """
+    expected = 3 * child_timeout_sec()
     marker = request.node.get_closest_marker("timeout")
     assert marker is not None, "memory_ipc/conftest.py did not apply a timeout marker"
-    assert marker.args == (300,), f"unexpected timeout value: {marker.args!r}"
+    assert marker.args == (expected,), f"unexpected timeout value: {marker.args!r}"
 
 
 class ChildErrorHarness:
