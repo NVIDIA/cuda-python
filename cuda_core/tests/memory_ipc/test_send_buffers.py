@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
+import sys
 from itertools import cycle
 
 import pytest
@@ -40,10 +41,19 @@ class TestIpcSendBuffers:
             # Wait for the child process.
             process.join(timeout=CHILD_TIMEOUT_SEC)
             if process.is_alive():
-                # Child is stuck (CUDA context teardown can hang under certain
-                # driver/Python combos — see issue #2004). Kill it so the
-                # IPC handle is released and the fixture teardown doesn't
-                # block the runner for hours.
+                # Child did not exit within the timeout. Under compute-sanitizer
+                # with --target-processes=all (active for Python 3.12 + local
+                # CTK on Linux), IPC memory teardown inside the sanitizer can
+                # deadlock on CUDA 12.9.1, leaving the child alive indefinitely.
+                # SIGKILL forces the kernel to reclaim all IPC handles so that
+                # fixture teardown (mr.close()) does not block the runner for
+                # hours. See issue #2004.
+                print(
+                    f"[WARN] child process {process.pid} still alive after "
+                    f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                    f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                    file=sys.stderr,
+                )
                 process.kill()
                 process.join()
             assert process.exitcode == 0
@@ -108,11 +118,19 @@ class TestIpcReexport:
         proc_b.join(timeout=CHILD_TIMEOUT_SEC)
         proc_c.join(timeout=CHILD_TIMEOUT_SEC)
 
-        # Kill any processes that are still alive. Without this, a child stuck
-        # in CUDA context teardown (issue #2004: Python 3.12 + CUDA 12.9.1)
-        # holds IPC handles and blocks fixture teardown indefinitely.
+        # Kill any processes that are still alive. Under compute-sanitizer with
+        # --target-processes=all, IPC teardown deadlocks on CUDA 12.9.1 so
+        # children never exit. SIGKILL forces kernel IPC handle release so
+        # fixture teardown (mr.close()) does not block the runner for hours.
+        # See issue #2004.
         for p in (proc_b, proc_c):
             if p.is_alive():
+                print(
+                    f"[WARN] child process {p.pid} still alive after "
+                    f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                    f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                    file=sys.stderr,
+                )
                 p.kill()
                 p.join()
 
