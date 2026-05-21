@@ -19,13 +19,15 @@ _HERE = pathlib.Path(__file__).parent.resolve()
 
 
 def _outer_timeout_sec() -> int:
-    # The worst-case IPC test has three sequential CHILD_TIMEOUT_SEC waits in
-    # the failure path (e.g. TestIpcReexport: event_c.wait, proc_b.join,
-    # proc_c.join). Scaling by 3 lets such a test reach its own asserts before
-    # the outer guard fires, while still cutting the budget by half on
-    # non-sanitizer runs (90 s vs the previous 300 s) and scaling up under
-    # compute-sanitizer (360 s).
-    return 3 * child_timeout_sec()
+    # IPC tests spawn children that run concurrently, so expected wall-clock
+    # is ~CHILD_TIMEOUT_SEC regardless of how many subsequent join/wait
+    # timeouts the test chains together (each subsequent join returns
+    # immediately once its child is already done). Exceeding that already
+    # means something is genuinely stuck, at which point the outer guard
+    # firing is the right outcome -- the per-test asserts wouldn't add
+    # useful diagnostic value over "test exceeded its budget", and the
+    # autouse track_child_processes() context manager still cleans up.
+    return child_timeout_sec() + 30
 
 
 def pytest_collection_modifyitems(config, items):
