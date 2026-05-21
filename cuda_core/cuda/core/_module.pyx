@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import os
-
+from cpython.object cimport PyObject_HasAttrString
 from libc.stddef cimport size_t
 
 from collections import namedtuple
@@ -30,7 +30,6 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core._stream import Stream
 from cuda.core._utils.clear_error_support import (
-    assert_type,
     assert_type_str_or_bytes_like,
     raise_code_path_meant_to_be_unreachable,
 )
@@ -736,31 +735,23 @@ cdef class ObjectCode:
         if self._h_library:
             return 0
         module = self._module
-        try:
-            assert_type(module, os.PathLike)
-        except TypeError:
-            assert_type_str_or_bytes_like(module)
         cdef bytes path_bytes
-        # TODO: should code below move to try block?
-        if isinstance(module, os.PathLike):
-            path_bytes = os.fsencode(module)
-            self._h_library = create_library_handle_from_file(<const char*>path_bytes)
-            if not self._h_library:
-                HANDLE_RETURN(get_last_error())
-            return 0
         if isinstance(module, str):
             path_bytes = module.encode()
             self._h_library = create_library_handle_from_file(<const char*>path_bytes)
-            if not self._h_library:
-                HANDLE_RETURN(get_last_error())
-            return 0
-        if isinstance(module, (bytes, bytearray)):
+        elif isinstance(module, (bytes, bytearray)):
             self._h_library = create_library_handle_from_data(<const void*><char*>module)
-            if not self._h_library:
-                HANDLE_RETURN(get_last_error())
-            return 0
-        raise_code_path_meant_to_be_unreachable()
-        return -1
+        elif PyObject_HasAttrString(module, "__fspath__"):
+            path_str = module.__fspath__()
+            path_bytes = path_str.encode('utf-8') if isinstance(path_str, str) else path_str
+            self._h_library = create_library_handle_from_file(<const char*>path_bytes)
+        else:
+            assert_type_str_or_bytes_like(module)
+            raise_code_path_meant_to_be_unreachable()
+            return -1
+        if not self._h_library:
+            HANDLE_RETURN(get_last_error())
+        return 0
 
     def get_kernel(self, name) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.
