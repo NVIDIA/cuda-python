@@ -39,6 +39,13 @@ class TestIpcSendBuffers:
 
             # Wait for the child process.
             process.join(timeout=CHILD_TIMEOUT_SEC)
+            if process.is_alive():
+                # Child is stuck (CUDA context teardown can hang under certain
+                # driver/Python combos — see issue #2004). Kill it so the
+                # IPC handle is released and the fixture teardown doesn't
+                # block the runner for hours.
+                process.kill()
+                process.join()
             assert process.exitcode == 0
 
             # Verify that the buffers were modified.
@@ -96,10 +103,20 @@ class TestIpcReexport:
         proc_c.start()
 
         # Wait for C to signal completion then clean up.
-        event_c.wait(timeout=CHILD_TIMEOUT_SEC)
+        completed = event_c.wait(timeout=CHILD_TIMEOUT_SEC)
         event_b.set()  # b can finish now
         proc_b.join(timeout=CHILD_TIMEOUT_SEC)
         proc_c.join(timeout=CHILD_TIMEOUT_SEC)
+
+        # Kill any processes that are still alive. Without this, a child stuck
+        # in CUDA context teardown (issue #2004: Python 3.12 + CUDA 12.9.1)
+        # holds IPC handles and blocks fixture teardown indefinitely.
+        for p in (proc_b, proc_c):
+            if p.is_alive():
+                p.kill()
+                p.join()
+
+        assert completed, "process C did not complete within timeout"
         assert proc_b.exitcode == 0
         assert proc_c.exitcode == 0
 
