@@ -84,6 +84,15 @@ class TestIpcDuplicateImport:
 
         log("waiting for child")
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        if process.is_alive():
+            print(
+                f"[WARN] child process {process.pid} still alive after "
+                f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                file=sys.stderr,
+            )
+            process.kill()
+            process.join()
         log(f"child exit code: {process.exitcode}")
         assert process.exitcode == 0, f"Child process failed with exit code {process.exitcode}"
         log("done")

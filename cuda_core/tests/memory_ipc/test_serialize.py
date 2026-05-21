@@ -4,6 +4,7 @@
 import multiprocessing as mp
 import multiprocessing.reduction
 import os
+import sys
 
 import pytest
 from helpers.buffers import PatternGen
@@ -46,6 +47,15 @@ class TestObjectSerializationDirect:
 
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        if process.is_alive():
+            print(
+                f"[WARN] child process {process.pid} still alive after "
+                f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                file=sys.stderr,
+            )
+            process.kill()
+            process.join()
         assert process.exitcode == 0
 
         # Confirm buffers were modified.
@@ -103,6 +113,15 @@ class TestObjectSerializationWithMR:
 
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        if process.is_alive():
+            print(
+                f"[WARN] child process {process.pid} still alive after "
+                f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                file=sys.stderr,
+            )
+            process.kill()
+            process.join()
         assert process.exitcode == 0
 
         # Confirm buffer was modified.

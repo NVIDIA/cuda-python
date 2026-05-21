@@ -67,6 +67,15 @@ class TestEventIpc:
         log("releasing stream1")
         latch.release()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        if process.is_alive():
+            print(
+                f"[WARN] child process {process.pid} still alive after "
+                f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                file=sys.stderr,
+            )
+            process.kill()
+            process.join()
         assert process.exitcode == 0
         log("done")
 
@@ -162,6 +171,15 @@ class TestIpcEventProperties:
         assert props[5] is None
 
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        if process.is_alive():
+            print(
+                f"[WARN] child process {process.pid} still alive after "
+                f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                file=sys.stderr,
+            )
+            process.kill()
+            process.join()
         assert process.exitcode == 0
 
     def child_main(self, q_in, q_out):

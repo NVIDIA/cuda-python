@@ -5,6 +5,7 @@ import contextlib
 import gc
 import multiprocessing as mp
 import platform
+import sys
 
 try:
     import psutil
@@ -38,6 +39,15 @@ def exec_success(obj, number=1):
         process = mp.Process(target=child_main, args=(obj,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        if process.is_alive():
+            print(
+                f"[WARN] child process {process.pid} still alive after "
+                f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                file=sys.stderr,
+            )
+            process.kill()
+            process.join()
         assert process.exitcode == 0
 
 
@@ -54,6 +64,15 @@ def exec_launch_failure(obj, number=1):
         process = mp.Process(target=child_main_bad, args=(obj,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        if process.is_alive():
+            print(
+                f"[WARN] child process {process.pid} still alive after "
+                f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                file=sys.stderr,
+            )
+            process.kill()
+            process.join()
         assert process.exitcode != 0
 
 
@@ -137,5 +156,14 @@ def prime():
         process = mp.Process()
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        if process.is_alive():
+            print(
+                f"[WARN] child process {process.pid} still alive after "
+                f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                file=sys.stderr,
+            )
+            process.kill()
+            process.join()
         assert process.exitcode == 0
         prime_was_run = True

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
+import sys
 
 import pytest
 from helpers.buffers import PatternGen
@@ -39,6 +40,15 @@ class TestIpcMempool:
 
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        if process.is_alive():
+            print(
+                f"[WARN] child process {process.pid} still alive after "
+                f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                file=sys.stderr,
+            )
+            process.kill()
+            process.join()
         assert process.exitcode == 0
 
         # Verify that the buffer was modified.
@@ -82,6 +92,16 @@ class TestIPCMempoolMultiple:
         # Wait for the child processes.
         p1.join(timeout=CHILD_TIMEOUT_SEC)
         p2.join(timeout=CHILD_TIMEOUT_SEC)
+        for p in (p1, p2):
+            if p.is_alive():
+                print(
+                    f"[WARN] child process {p.pid} still alive after "
+                    f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                    f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                    file=sys.stderr,
+                )
+                p.kill()
+                p.join()
         assert p1.exitcode == 0
         assert p2.exitcode == 0
 
@@ -135,6 +155,16 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         # Wait for children.
         p1.join(timeout=CHILD_TIMEOUT_SEC)
         p2.join(timeout=CHILD_TIMEOUT_SEC)
+        for p in (p1, p2):
+            if p.is_alive():
+                print(
+                    f"[WARN] child process {p.pid} still alive after "
+                    f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                    f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                    file=sys.stderr,
+                )
+                p.kill()
+                p.join()
         assert p1.exitcode == 0
         assert p2.exitcode == 0
 
@@ -185,6 +215,16 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         # Wait for children.
         p1.join(timeout=CHILD_TIMEOUT_SEC)
         p2.join(timeout=CHILD_TIMEOUT_SEC)
+        for p in (p1, p2):
+            if p.is_alive():
+                print(
+                    f"[WARN] child process {p.pid} still alive after "
+                    f"{CHILD_TIMEOUT_SEC}s — sending SIGKILL "
+                    f"(likely compute-sanitizer IPC deadlock, see issue #2004)",
+                    file=sys.stderr,
+                )
+                p.kill()
+                p.join()
         assert p1.exitcode == 0
         assert p2.exitcode == 0
 
