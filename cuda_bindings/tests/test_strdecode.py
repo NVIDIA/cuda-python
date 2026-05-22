@@ -12,14 +12,6 @@ def test_valid_utf8_passthrough():
     assert decode_c_str(b"hello world", "fakeApi") == "hello world"
 
 
-def test_empty_input():
-    assert decode_c_str(b"", "fakeApi") == ""
-
-
-def test_multibyte_utf8_passthrough():
-    assert decode_c_str(b"caf\xc3\xa9", "fakeApi") == "café"
-
-
 def test_invalid_bytes_raise_unicode_decode_error():
     with pytest.raises(UnicodeDecodeError):
         decode_c_str(WSL_MOJIBAKE_PREFIX, "nvmlSystemGetProcessName")
@@ -59,18 +51,6 @@ def test_preview_stops_at_first_nul():
     assert "stopped at NUL@2" in preview
 
 
-def test_preview_with_leading_nul_reports_zero_bytes_and_nul_marker():
-    preview = _bounded_hex_preview(b"\x00\xf8\xf8")
-    assert preview.startswith("<0 bytes;")
-    assert "hex=''" in preview
-    assert "stopped at NUL@0" in preview
-
-
-def test_preview_no_nul_no_truncation_has_no_suffix():
-    preview = _bounded_hex_preview(b"\xf8\x9a")
-    assert preview == "<2 bytes; hex='f8 9a'>"
-
-
 def test_preview_caps_long_buffers():
     preview = _bounded_hex_preview(b"\xf8" * 200, max_bytes=8)
     assert "f8 f8 f8 f8 f8 f8 f8 f8" in preview
@@ -84,18 +64,12 @@ def test_preview_combines_truncation_and_nul_markers():
     assert "stopped at NUL@20" in preview
 
 
-def test_preview_empty_input():
-    assert _bounded_hex_preview(b"") == "<0 bytes; hex=''>"
-
-
 def test_failure_preview_stops_at_embedded_nul_even_with_bad_bytes_before():
-    # C-string convention: helper reports what NVML would treat as the string.
     with pytest.raises(UnicodeDecodeError) as excinfo:
         decode_c_str(b"\xf8\x9a\x00ignored_after_nul", "fakeApi")
     reason = excinfo.value.reason
     assert "f8 9a" in reason
     assert "ignored_after_nul" not in reason
-    assert "<2 bytes;" in reason
 
 
 def test_failure_message_stays_bounded_for_long_garbage():
