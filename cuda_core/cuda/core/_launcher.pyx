@@ -143,8 +143,12 @@ def host_launch(stream: Stream | IsStreamType, fn, *, user_data=None):
     .. warning::
 
         Host callbacks must not call CUDA APIs directly or indirectly. CUDA
-        driver callbacks run on an internal host thread, so re-entering CUDA
-        from the callback can deadlock.
+        driver callbacks run on an internal host thread. If that thread blocks
+        waiting for the GIL while another Python thread holds the GIL and is
+        blocked in a CUDA call, the process can deadlock through CUDA-driver /
+        GIL lock-order inversion. CUDA-using Python libraries should release
+        the GIL around CUDA calls, and host callbacks must avoid re-entering
+        CUDA from Python.
 
     Parameters
     ----------
