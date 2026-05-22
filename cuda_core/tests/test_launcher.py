@@ -160,8 +160,14 @@ def test_host_launch_python(init_cuda):
     stream = Device().create_stream()
     results = []
 
-    host_launch(stream, lambda: results.append(1))
-    host_launch(stream, lambda: results.append(2))
+    def capture_one():
+        results.append(1)
+
+    def capture_two():
+        results.append(2)
+
+    host_launch(stream, capture_one)
+    host_launch(stream, capture_two)
     stream.sync()
 
     assert results == [1, 2]
@@ -185,8 +191,11 @@ def test_host_launch_ctypes_with_user_data(init_cuda):
 def test_host_launch_rejects_user_data_for_python_callable(init_cuda):
     stream = Device().create_stream()
 
+    def noop():
+        pass
+
     with pytest.raises(ValueError, match="user_data is only supported"):
-        host_launch(stream, lambda: None, user_data=b"hello")
+        host_launch(stream, noop, user_data=b"hello")
 
 
 # Parametrize: (python_type, cpp_type, init_value)

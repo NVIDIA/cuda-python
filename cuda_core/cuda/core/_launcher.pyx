@@ -93,6 +93,7 @@ cdef void _prepare_host_launch(
         state.owns_user_data = False
         state.fn_pyobj = NULL
 
+        # Keep the ctypes wrapper alive until the driver invokes the callback.
         Py_INCREF(fn)
         fn_pyobj = <void*>fn
         state.fn_pyobj = fn_pyobj
@@ -118,6 +119,8 @@ cdef void _prepare_host_launch(
             raise ValueError("user_data is only supported with ctypes function pointers")
         if not callable(fn):
             raise TypeError("fn must be callable")
+        # The driver only sees a void* payload, so we transfer the Python
+        # callable itself as callback state and release it in the trampoline.
         Py_INCREF(fn)
         fn_pyobj = <void*>fn
         out_fn[0] = <cydriver.CUhostFn>_py_host_launch_trampoline
