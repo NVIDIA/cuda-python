@@ -22,6 +22,7 @@ permissions:
 jobs:
   test-sdist:
     name: Test sdist builds
+    timeout-minutes: 60
     runs-on: linux-amd64-cpu8
     steps:
       - name: Checkout ${{ github.event.repository.name }}

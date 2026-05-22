@@ -11464,6 +11464,7 @@ cdef class cudaMemAllocNodeParams:
         {{if 'cudaMemAllocNodeParams.accessDescs' in found_struct}}
         if self._accessDescs is not NULL:
             free(self._accessDescs)
+            self._pvt_ptr[0].accessDescs = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -11520,6 +11521,7 @@ cdef class cudaMemAllocNodeParams:
     def accessDescs(self, val):
         if len(val) == 0:
             free(self._accessDescs)
+            self._accessDescs = NULL
             self._accessDescs_length = 0
             self._pvt_ptr[0].accessDescs = NULL
         else:
@@ -11613,6 +11615,7 @@ cdef class cudaMemAllocNodeParamsV2:
         {{if 'cudaMemAllocNodeParamsV2.accessDescs' in found_struct}}
         if self._accessDescs is not NULL:
             free(self._accessDescs)
+            self._pvt_ptr[0].accessDescs = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -11669,6 +11672,7 @@ cdef class cudaMemAllocNodeParamsV2:
     def accessDescs(self, val):
         if len(val) == 0:
             free(self._accessDescs)
+            self._accessDescs = NULL
             self._accessDescs_length = 0
             self._pvt_ptr[0].accessDescs = NULL
         else:
@@ -16375,6 +16379,7 @@ cdef class cudaDevResource_st:
         {{if 'cudaDevResource_st.nextResource' in found_struct}}
         if self._nextResource is not NULL:
             free(self._nextResource)
+            self._pvt_ptr[0].nextResource = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -16489,6 +16494,7 @@ cdef class cudaDevResource_st:
     def nextResource(self, val):
         if len(val) == 0:
             free(self._nextResource)
+            self._nextResource = NULL
             self._nextResource_length = 0
             self._pvt_ptr[0].nextResource = NULL
         else:
@@ -17054,10 +17060,12 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
         {{if 'cudaExternalSemaphoreSignalNodeParams.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'cudaExternalSemaphoreSignalNodeParams.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -17094,6 +17102,7 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -17117,6 +17126,7 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
@@ -17179,10 +17189,12 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
         {{if 'cudaExternalSemaphoreSignalNodeParamsV2.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'cudaExternalSemaphoreSignalNodeParamsV2.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -17219,6 +17231,7 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -17242,6 +17255,7 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
@@ -17304,10 +17318,12 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
         {{if 'cudaExternalSemaphoreWaitNodeParams.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'cudaExternalSemaphoreWaitNodeParams.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -17344,6 +17360,7 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -17367,6 +17384,7 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
@@ -17429,10 +17447,12 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
         {{if 'cudaExternalSemaphoreWaitNodeParamsV2.extSemArray' in found_struct}}
         if self._extSemArray is not NULL:
             free(self._extSemArray)
+            self._pvt_ptr[0].extSemArray = NULL
         {{endif}}
         {{if 'cudaExternalSemaphoreWaitNodeParamsV2.paramsArray' in found_struct}}
         if self._paramsArray is not NULL:
             free(self._paramsArray)
+            self._pvt_ptr[0].paramsArray = NULL
         {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
@@ -17469,6 +17489,7 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
     def extSemArray(self, val):
         if len(val) == 0:
             free(self._extSemArray)
+            self._extSemArray = NULL
             self._extSemArray_length = 0
             self._pvt_ptr[0].extSemArray = NULL
         else:
@@ -17492,6 +17513,7 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
     def paramsArray(self, val):
         if len(val) == 0:
             free(self._paramsArray)
+            self._paramsArray = NULL
             self._paramsArray_length = 0
             self._pvt_ptr[0].paramsArray = NULL
         else:
@@ -24290,9 +24312,13 @@ def cudaStreamGetCaptureInfo(stream):
     with nogil:
         err = cyruntime.cudaStreamGetCaptureInfo(cystream, &captureStatus_out, &id_out, <cyruntime.cudaGraph_t*>graph_out._pvt_ptr, &cydependencies_out, &cyedgeData_out, &numDependencies_out)
     if cudaError_t(err) == cudaError_t(0):
-        pydependencies_out = [cudaGraphNode_t(init_value=<void_ptr>cydependencies_out[idx]) for idx in range(numDependencies_out)]
+        pydependencies_out = [cudaGraphNode_t() for _ in range(numDependencies_out)]
+        for idx in range(numDependencies_out):
+            (<cudaGraphNode_t>pydependencies_out[idx])._pvt_ptr[0] = cydependencies_out[idx]
     if cudaError_t(err) == cudaError_t(0):
-        pyedgeData_out = [cudaGraphEdgeData(_ptr=<void_ptr>&cyedgeData_out[idx]) for idx in range(numDependencies_out)]
+        pyedgeData_out = [cudaGraphEdgeData() for _ in range(numDependencies_out)]
+        for idx in range(numDependencies_out):
+            (<cudaGraphEdgeData>pyedgeData_out[idx])._pvt_ptr[0] = cyedgeData_out[idx]
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None, None, None, None, None)
     return (_cudaError_t_SUCCESS, cudaStreamCaptureStatus(captureStatus_out), id_out, graph_out, pydependencies_out, pyedgeData_out, numDependencies_out)
@@ -35805,7 +35831,9 @@ def cudaGraphGetNodes(graph, size_t numNodes = 0):
     with nogil:
         err = cyruntime.cudaGraphGetNodes(cygraph, cynodes, &numNodes)
     if cudaError_t(err) == cudaError_t(0):
-        pynodes = [cudaGraphNode_t(init_value=<void_ptr>cynodes[idx]) for idx in range(_graph_length)]
+        pynodes = [cudaGraphNode_t() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<cudaGraphNode_t>pynodes[idx])._pvt_ptr[0] = cynodes[idx]
     if cynodes is not NULL:
         free(cynodes)
     if err != cyruntime.cudaSuccess:
@@ -35864,7 +35892,9 @@ def cudaGraphGetRootNodes(graph, size_t pNumRootNodes = 0):
     with nogil:
         err = cyruntime.cudaGraphGetRootNodes(cygraph, cypRootNodes, &pNumRootNodes)
     if cudaError_t(err) == cudaError_t(0):
-        pypRootNodes = [cudaGraphNode_t(init_value=<void_ptr>cypRootNodes[idx]) for idx in range(_graph_length)]
+        pypRootNodes = [cudaGraphNode_t() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<cudaGraphNode_t>pypRootNodes[idx])._pvt_ptr[0] = cypRootNodes[idx]
     if cypRootNodes is not NULL:
         free(cypRootNodes)
     if err != cyruntime.cudaSuccess:
@@ -35946,15 +35976,21 @@ def cudaGraphGetEdges(graph, size_t numEdges = 0):
     with nogil:
         err = cyruntime.cudaGraphGetEdges(cygraph, cyfrom_, cyto, cyedgeData, &numEdges)
     if cudaError_t(err) == cudaError_t(0):
-        pyfrom_ = [cudaGraphNode_t(init_value=<void_ptr>cyfrom_[idx]) for idx in range(_graph_length)]
+        pyfrom_ = [cudaGraphNode_t() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<cudaGraphNode_t>pyfrom_[idx])._pvt_ptr[0] = cyfrom_[idx]
     if cyfrom_ is not NULL:
         free(cyfrom_)
     if cudaError_t(err) == cudaError_t(0):
-        pyto = [cudaGraphNode_t(init_value=<void_ptr>cyto[idx]) for idx in range(_graph_length)]
+        pyto = [cudaGraphNode_t() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<cudaGraphNode_t>pyto[idx])._pvt_ptr[0] = cyto[idx]
     if cyto is not NULL:
         free(cyto)
     if cudaError_t(err) == cudaError_t(0):
-        pyedgeData = [cudaGraphEdgeData(_ptr=<void_ptr>&cyedgeData[idx]) for idx in range(_graph_length)]
+        pyedgeData = [cudaGraphEdgeData() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<cudaGraphEdgeData>pyedgeData[idx])._pvt_ptr[0] = cyedgeData[idx]
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cyruntime.cudaSuccess:
@@ -36027,11 +36063,15 @@ def cudaGraphNodeGetDependencies(node, size_t pNumDependencies = 0):
     with nogil:
         err = cyruntime.cudaGraphNodeGetDependencies(cynode, cypDependencies, cyedgeData, &pNumDependencies)
     if cudaError_t(err) == cudaError_t(0):
-        pypDependencies = [cudaGraphNode_t(init_value=<void_ptr>cypDependencies[idx]) for idx in range(_graph_length)]
+        pypDependencies = [cudaGraphNode_t() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<cudaGraphNode_t>pypDependencies[idx])._pvt_ptr[0] = cypDependencies[idx]
     if cypDependencies is not NULL:
         free(cypDependencies)
     if cudaError_t(err) == cudaError_t(0):
-        pyedgeData = [cudaGraphEdgeData(_ptr=<void_ptr>&cyedgeData[idx]) for idx in range(_graph_length)]
+        pyedgeData = [cudaGraphEdgeData() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<cudaGraphEdgeData>pyedgeData[idx])._pvt_ptr[0] = cyedgeData[idx]
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cyruntime.cudaSuccess:
@@ -36104,11 +36144,15 @@ def cudaGraphNodeGetDependentNodes(node, size_t pNumDependentNodes = 0):
     with nogil:
         err = cyruntime.cudaGraphNodeGetDependentNodes(cynode, cypDependentNodes, cyedgeData, &pNumDependentNodes)
     if cudaError_t(err) == cudaError_t(0):
-        pypDependentNodes = [cudaGraphNode_t(init_value=<void_ptr>cypDependentNodes[idx]) for idx in range(_graph_length)]
+        pypDependentNodes = [cudaGraphNode_t() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<cudaGraphNode_t>pypDependentNodes[idx])._pvt_ptr[0] = cypDependentNodes[idx]
     if cypDependentNodes is not NULL:
         free(cypDependentNodes)
     if cudaError_t(err) == cudaError_t(0):
-        pyedgeData = [cudaGraphEdgeData(_ptr=<void_ptr>&cyedgeData[idx]) for idx in range(_graph_length)]
+        pyedgeData = [cudaGraphEdgeData() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<cudaGraphEdgeData>pyedgeData[idx])._pvt_ptr[0] = cyedgeData[idx]
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cyruntime.cudaSuccess:

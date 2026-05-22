@@ -10,6 +10,32 @@
 
 CUDA_BINDINGS_NVML_IS_COMPATIBLE: bool
 
+
+# Please keep in sync with the equivalent implementation in
+# cuda_python_test_helpers/cuda_python_test_helpers/__init__.py.
+cdef bint _detect_wsl():
+    try:
+        with open("/proc/sys/kernel/osrelease") as f:
+            data = f.read().lower()
+    except OSError:
+        return False
+    return "microsoft" in data or "wsl" in data
+
+
+cdef bint _IS_WSL = _detect_wsl()
+
+
+# The WSL locale guard lives in a separate module that is only compiled on
+# Linux (build_hooks.py excludes it on Windows), because it relies on POSIX
+# per-thread locale APIs that MSVC does not provide. On non-Linux platforms
+# the import fails and we fall back to a no-op guard; _IS_WSL is then False
+# so the guard is never entered anyway.
+if _IS_WSL:
+    from cuda.core._utils._wsl_locale import c_locale_guard
+else:
+    c_locale_guard = None
+
+
 try:
     from cuda.bindings._version import __version_tuple__ as _BINDINGS_VERSION
 except ImportError:
@@ -127,8 +153,37 @@ def get_process_name(pid: int) -> str:
     name: str
         The process name.
     """
+    def _get_process_name(pid) -> str:
+        # NVML caches process names on a per-PID basis when queried via
+        # nvmlSystemGetProcessName, and the cache is populated when enumerating
+        # running processes on devices. To ensure the name is cached for the
+        # requested PID, we walk all devices and query their running processes.
+        for i in range(nvml.device_get_count_v2()):
+            try:
+                dev_h = nvml.device_get_handle_by_index_v2(i)
+                nvml.device_get_compute_running_processes_v3(dev_h)
+            except nvml.NvmlError:
+                continue
+        return nvml.system_get_process_name(pid)
+
     initialize()
-    return nvml.system_get_process_name(pid)
+    if not _IS_WSL:
+        return _get_process_name(pid)
+
+    # WSL workaround: nvmlSystemGetProcessName on WSL takes a wide-char
+    # conversion path when the calling thread's locale is non-"C". That path
+    # walks a UTF-16LE source buffer with a 4-byte stride (as if it were
+    # UTF-32LE) and emits 5-byte UTF-8 sequences that look like garbage
+    # preceding the trailing basename of /proc/<pid>/exe. CPython's startup
+    # unconditionally calls setlocale(LC_ALL, ""), so essentially every
+    # cuda.core caller hits this. The cached entry for the PID is set the
+    # first time NVML resolves it (typically inside
+    # nvmlDeviceGetComputeRunningProcesses_v3), so to recover a correct value
+    # we re-prime the cache under the "C" locale before reading the name.
+    # c_locale_guard uses POSIX per-thread locale APIs (see _wsl_locale.pyx)
+    # so other threads' view of the locale is unaffected.
+    with c_locale_guard():  # no-cython-lint
+        return _get_process_name(pid)
 
 
 __all__ = [

@@ -309,7 +309,7 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
                            "a capturing stream (consider using GraphMemoryResource).")
 
 
-cdef inline Buffer _MP_allocate(_MemPool self, size_t size, Stream stream):
+cdef Buffer _MP_allocate(_MemPool self, size_t size, Stream stream, type cls = Buffer):
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef DevicePtrHandle h_ptr
     with nogil:
@@ -323,7 +323,7 @@ cdef inline Buffer _MP_allocate(_MemPool self, size_t size, Stream stream):
             "This is an internal cuda-core error; please report it with your CUDA driver, "
             "CUDA Toolkit, and cuda-python versions."
         )
-    return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
+    return Buffer_from_deviceptr_handle(h_ptr, size, self, None, cls)
 
 
 cdef inline void _MP_deallocate(
