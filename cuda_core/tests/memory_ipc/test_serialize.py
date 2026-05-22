@@ -7,10 +7,11 @@ import os
 
 import pytest
 from helpers.buffers import PatternGen
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, PinnedMemoryResource
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 POOL_SIZE = 2097152
 
@@ -46,6 +47,8 @@ class TestObjectSerializationDirect:
 
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         # Confirm buffers were modified.
@@ -103,6 +106,8 @@ class TestObjectSerializationWithMR:
 
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         # Confirm buffer was modified.
@@ -151,6 +156,8 @@ class TestObjectPassing:
         process = mp.Process(target=self.child_main, args=(alloc_handle, mr, buffer_desc, buffer))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         pgen.verify_buffer(buffer, seed=True)
