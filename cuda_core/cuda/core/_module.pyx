@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import os
-from cpython.object cimport PyObject_HasAttrString
+
 from libc.stddef cimport size_t
 
 from collections import namedtuple
@@ -745,10 +745,8 @@ cdef class ObjectCode:
             self._h_library = create_library_handle_from_file(<const char*>path_bytes)
         elif isinstance(module, (bytes, bytearray)):
             self._h_library = create_library_handle_from_data(<const void*><char*>module)
-        elif PyObject_HasAttrString(module, "__fspath__"):
-            path_str = module.__fspath__()
-            assert_type_str_or_bytes_like(path_str)
-            path_bytes = path_str.encode() if isinstance(path_str, str) else path_str
+        elif isinstance(module, os.PathLike):
+            path_bytes = os.fsencode(module)
             self._h_library = create_library_handle_from_file(<const char*>path_bytes)
         else:
             assert_type_str_or_bytes_like(module)
