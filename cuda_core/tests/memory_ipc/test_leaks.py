@@ -34,7 +34,7 @@ def test_alloc_handle(ipc_memory_resource):
 
 
 def exec_success(obj, number=1):
-    """Succesfully run a child process."""
+    """Successfully run a child process."""
     for _ in range(number):
         process = mp.Process(target=child_main, args=(obj,))
         process.start()
@@ -50,8 +50,8 @@ def child_main(obj, *args):
 
 def exec_launch_failure(obj, number=1):
     """
-    Unsuccesfully try to launch a child process. This fails when
-    after the child starts.
+    Unsuccessfully try to launch a child process. This fails after
+    the child starts.
     """
     for _ in range(number):
         process = mp.Process(target=child_main_bad, args=(obj,))
@@ -68,7 +68,7 @@ def child_main_bad():
 
 def exec_reduce_failure(obj, number=1):
     """
-    Unsuccesfully try to launch a child process. This fails before
+    Unsuccessfully try to launch a child process. This fails before
     the child starts but after the resource-owning object is serialized.
     """
     for _ in range(number):

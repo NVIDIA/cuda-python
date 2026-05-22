@@ -43,3 +43,12 @@ New features
   :attr:`~ManagedBuffer.preferred_location`,
   :attr:`~ManagedBuffer.accessed_by`). Locations are expressed via
   :class:`Device` or :class:`Host`.
+
+Bug fixes
+---------
+
+- On WSL, ``cuda.core.system.get_process_name`` would raise a
+  ``UnicodeDecodeError``.  It should now return the correct result.
+- Calling ``cuda.core.system.get_process_name`` before querying any device's
+  ``compute_running_processes`` would raise a ``NvmlNotFoundError``.  Now it will
+  correctly return the process name, if it is a GPU-using process.
