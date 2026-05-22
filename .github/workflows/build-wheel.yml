@@ -29,7 +29,6 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-          - "3.13t"
           - "3.14"
           - "3.14t"
           - "3.15"
@@ -250,6 +249,13 @@ jobs:
       - name: Install cuda.pathfinder (required for next step)
         run: |
           pip install cuda_pathfinder/*.whl
+
+      - name: Hide GNU link.exe so Meson finds MSVC link.exe
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        run: |
+          if [ -f "/c/Program Files/Git/usr/bin/link.exe" ]; then
+            mv "/c/Program Files/Git/usr/bin/link.exe" "/c/Program Files/Git/usr/bin/link.exe.bak"
+          fi
 
       - name: Build cuda.bindings Cython tests
         run: |
