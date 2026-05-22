@@ -11,6 +11,8 @@
 CUDA_BINDINGS_NVML_IS_COMPATIBLE: bool
 
 
+# Please keep in sync with the equivalent implementation in
+# cuda_python_test_helpers/cuda_python_test_helpers/__init__.py.
 cdef bint _detect_wsl():
     try:
         with open("/proc/sys/kernel/osrelease") as f:
