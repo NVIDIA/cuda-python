@@ -7,7 +7,7 @@ from __future__ import annotations
 from libc.stddef cimport size_t
 
 from collections import namedtuple
-from os import PathLike
+from os import fsencode, fspath, PathLike
 
 from cuda.core._device import Device
 from cuda.core._launch_config cimport LaunchConfig
@@ -608,10 +608,10 @@ cdef class ObjectCode:
 
         self._code_type = str(code_type)
 
-        if isinstance(module, CodeTypeT):
+        if isinstance(module, (str, bytes, bytearray)):
             self._module = module
         elif isinstance(module, PathLike):
-            self._module = os.fspath(module)
+            self._module = fspath(module)
         else:
             self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
@@ -751,7 +751,7 @@ cdef class ObjectCode:
         elif isinstance(module, (bytes, bytearray)):
             self._h_library = create_library_handle_from_data(<const void*><char*>module)
         elif isinstance(module, PathLike):
-            path_bytes = os.fsencode(module)
+            path_bytes = fsencode(module)
             self._h_library = create_library_handle_from_file(<const char*>path_bytes)
         else:
             assert_type_str_or_bytes_like(module)
