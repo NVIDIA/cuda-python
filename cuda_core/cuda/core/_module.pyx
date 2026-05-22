@@ -4,11 +4,10 @@
 
 from __future__ import annotations
 
-import os
-
 from libc.stddef cimport size_t
 
 from collections import namedtuple
+from os import PathLike
 
 from cuda.core._device import Device
 from cuda.core._launch_config cimport LaunchConfig
@@ -608,7 +607,13 @@ cdef class ObjectCode:
         self._h_library = LibraryHandle()  # Empty handle
 
         self._code_type = str(code_type)
-        self._module = module
+
+        if isinstance(module, CodeTypeT):
+            self._module = module
+        elif isinstance(module, PathLike):
+            self._module = os.fspath(module)
+        else:
+            self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
         self._name = name if name else ""
 
@@ -622,7 +627,7 @@ cdef class ObjectCode:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: bytes | str | os.PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_cubin(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
@@ -641,7 +646,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.CUBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: bytes | str | os.PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ptx(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
@@ -660,7 +665,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.PTX, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: bytes | str | os.PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ltoir(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
@@ -679,7 +684,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.LTOIR, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: bytes | str | os.PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_fatbin(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
@@ -745,7 +750,7 @@ cdef class ObjectCode:
             self._h_library = create_library_handle_from_file(<const char*>path_bytes)
         elif isinstance(module, (bytes, bytearray)):
             self._h_library = create_library_handle_from_data(<const void*><char*>module)
-        elif isinstance(module, os.PathLike):
+        elif isinstance(module, PathLike):
             path_bytes = os.fsencode(module)
             self._h_library = create_library_handle_from_file(<const char*>path_bytes)
         else:

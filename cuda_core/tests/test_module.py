@@ -244,7 +244,7 @@ def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path, convert_
     ptx_file.write_bytes(ptx)
     arg = convert_path(ptx_file)
     mod_obj = ObjectCode.from_ptx(arg, symbol_mapping=sym_map)
-    assert mod_obj.code == arg
+    assert mod_obj.code == str(arg)
     assert mod_obj.code_type == "ptx"
     if not _can_load_generated_ptx():
         pytest.skip("PTX version too new for current driver")
@@ -270,7 +270,7 @@ def test_object_code_load_cubin_from_file(get_saxpy_kernel_cubin, tmp_path, conv
     cubin_file.write_bytes(cubin)
     arg = convert_path(cubin_file)
     mod = ObjectCode.from_cubin(arg, symbol_mapping=sym_map)
-    assert mod.code == arg
+    assert mod.code == str(arg)
     mod.get_kernel("saxpy<double>")  # force loading
 
 
@@ -302,7 +302,7 @@ def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path, conv
     ltoir_file.write_bytes(ltoir)
     arg = convert_path(ltoir_file)
     mod_obj = ObjectCode.from_ltoir(arg, symbol_mapping=sym_map)
-    assert mod_obj.code == arg
+    assert mod_obj.code == str(arg)
     assert mod_obj.code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
 
@@ -325,7 +325,7 @@ def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path, convert_p
     fatbin_file.write_bytes(fatbin)
     arg = convert_path(fatbin_file)
     mod_obj = ObjectCode.from_fatbin(arg, symbol_mapping=sym_map)
-    assert mod_obj.code == arg
+    assert mod_obj.code == str(arg)
     assert mod_obj.code_type == "fatbin"
     mod_obj.get_kernel("saxpy<double>")  # force loading
 
