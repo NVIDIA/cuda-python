@@ -257,6 +257,23 @@ jobs:
             mv "/c/Program Files/Git/usr/bin/link.exe" "/c/Program Files/Git/usr/bin/link.exe.bak"
           fi
 
+      - name: Build numpy wheel (pre-release Python)
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        run: |
+          pip wheel "numpy>=1.21.1" --no-binary numpy -w numpy-wheel/
+
+      - name: Upload numpy wheel
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: numpy-python${{ env.PYTHON_VERSION_FORMATTED }}-${{ inputs.host-platform }}
+          path: numpy-wheel/*.whl
+          if-no-files-found: error
+
+      - name: Install numpy wheel
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        run: pip install numpy-wheel/*.whl
+
       - name: Build cuda.bindings Cython tests
         run: |
           pip install $(ls ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl)[test]
