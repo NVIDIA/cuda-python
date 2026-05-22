@@ -80,11 +80,13 @@
   "windows": {
     "pull-request": [
       { "ARCH": "amd64", "PY_VER": "3.10",  "CUDA_VER": "12.9.1", "LOCAL_CTK": "0", "GPU": "l4", "DRIVER": "latest" },
-      { "ARCH": "amd64", "PY_VER": "3.11",  "CUDA_VER": "12.9.1", "LOCAL_CTK": "1", "GPU": "t4", "DRIVER": "latest" },
+      { "ARCH": "amd64", "PY_VER": "3.10",  "CUDA_VER": "12.9.1", "LOCAL_CTK": "1", "GPU": "t4", "DRIVER": "latest" },
+      { "ARCH": "amd64", "PY_VER": "3.11",  "CUDA_VER": "12.9.1", "LOCAL_CTK": "0", "GPU": "t4", "DRIVER": "latest" },
+      { "ARCH": "amd64", "PY_VER": "3.11",  "CUDA_VER": "12.9.1", "LOCAL_CTK": "1", "GPU": "l4", "DRIVER": "latest" },
       { "ARCH": "amd64", "PY_VER": "3.12",  "CUDA_VER": "12.9.1", "LOCAL_CTK": "0", "GPU": "l4", "DRIVER": "latest" },
       { "ARCH": "amd64", "PY_VER": "3.12",  "CUDA_VER": "12.9.1", "LOCAL_CTK": "1", "GPU": "t4", "DRIVER": "latest" },
-      { "ARCH": "amd64", "PY_VER": "3.13",  "CUDA_VER": "13.0.1", "LOCAL_CTK": "0", "GPU": "t4", "DRIVER": "latest" },
-      { "ARCH": "amd64", "PY_VER": "3.13",  "CUDA_VER": "13.0.1", "LOCAL_CTK": "1", "GPU": "l4", "DRIVER": "latest" },
+      { "ARCH": "amd64", "PY_VER": "3.13",  "CUDA_VER": "12.9.1", "LOCAL_CTK": "0", "GPU": "t4", "DRIVER": "latest" },
+      { "ARCH": "amd64", "PY_VER": "3.13",  "CUDA_VER": "12.9.1", "LOCAL_CTK": "1", "GPU": "l4", "DRIVER": "latest" },
       { "ARCH": "amd64", "PY_VER": "3.14",  "CUDA_VER": "12.9.1", "LOCAL_CTK": "0", "GPU": "t4", "DRIVER": "latest" },
       { "ARCH": "amd64", "PY_VER": "3.14t", "CUDA_VER": "12.9.1", "LOCAL_CTK": "1", "GPU": "l4", "DRIVER": "latest" },
       { "ARCH": "amd64", "PY_VER": "3.15",  "CUDA_VER": "12.9.1", "LOCAL_CTK": "0", "GPU": "l4", "DRIVER": "latest" },
