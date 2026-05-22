@@ -13,8 +13,9 @@ except ImportError:
 else:
     HAVE_PSUTIL = True
 import pytest
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 USING_FDS = platform.system() == "Linux"
@@ -38,6 +39,8 @@ def exec_success(obj, number=1):
         process = mp.Process(target=child_main, args=(obj,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
 
@@ -54,6 +57,8 @@ def exec_launch_failure(obj, number=1):
         process = mp.Process(target=child_main_bad, args=(obj,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode != 0
 
 
@@ -137,5 +142,7 @@ def prime():
         process = mp.Process()
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
         prime_was_run = True
