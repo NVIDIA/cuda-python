@@ -20,6 +20,7 @@ Devices and execution
 
    Device
    Host
+   host_launch
    launch
 
    :template: autosummary/cyclass.rst

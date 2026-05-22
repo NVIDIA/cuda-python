@@ -44,6 +44,11 @@ New features
   :attr:`~ManagedBuffer.accessed_by`). Locations are expressed via
   :class:`Device` or :class:`Host`.
 
+- Added :func:`host_launch` for enqueueing host callbacks directly onto a
+  :class:`Stream`, including ``ctypes`` callbacks with optional ``user_data``.
+  This complements the existing graph-side
+  :class:`graph.HostCallbackNode` support for host work ordering.
+
 Bug fixes
 ---------
 

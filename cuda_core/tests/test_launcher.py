@@ -22,6 +22,7 @@ from cuda.core import (
     LegacyPinnedMemoryResource,
     Program,
     ProgramOptions,
+    host_launch,
     launch,
 )
 from cuda.core._memory._legacy import _SynchronousMemoryResource
@@ -153,6 +154,39 @@ def test_launch_invalid_values(init_cuda):
 
     launch(stream, config, ker)
     stream.sync()  # TODO(#1539)
+
+
+def test_host_launch_python(init_cuda):
+    stream = Device().create_stream()
+    results = []
+
+    host_launch(stream, lambda: results.append(1))
+    host_launch(stream, lambda: results.append(2))
+    stream.sync()
+
+    assert results == [1, 2]
+
+
+def test_host_launch_ctypes_with_user_data(init_cuda):
+    CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    result = [0]
+
+    @CALLBACK
+    def read_byte(data):
+        result[0] = ctypes.cast(data, ctypes.POINTER(ctypes.c_uint8))[0]
+
+    stream = Device().create_stream()
+    host_launch(stream, read_byte, user_data=bytes([0xAB]))
+    stream.sync()
+
+    assert result[0] == 0xAB
+
+
+def test_host_launch_rejects_user_data_for_python_callable(init_cuda):
+    stream = Device().create_stream()
+
+    with pytest.raises(ValueError, match="user_data is only supported"):
+        host_launch(stream, lambda: None, user_data=b"hello")
 
 
 # Parametrize: (python_type, cpp_type, init_value)
