@@ -62,10 +62,12 @@ class Host:
 
     @property
     def numa_id(self) -> int | None:
+        """NUMA node ID, or ``None`` if not pinned to a specific NUMA node."""
         return self._numa_id
 
     @property
     def is_numa_current(self) -> bool:
+        """Whether this ``Host`` represents the calling thread's NUMA node (constructed via :meth:`numa_current`)."""
         return self._is_numa_current
 
     @classmethod
