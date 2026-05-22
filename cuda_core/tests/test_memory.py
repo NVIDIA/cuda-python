@@ -33,6 +33,7 @@ from cuda.core import (
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
+    LegacyPinnedMemoryResource,
     ManagedMemoryResource,
     ManagedMemoryResourceOptions,
     MemoryResource,
@@ -1760,3 +1761,136 @@ def test_top_level_namespace_excludes_known_leaks():
     public = {n for n in dir(cuda.core) if not n.startswith("_")}
     leaked = {"StridedMemoryView", "args_viewable_as_strided_memory"}
     assert not (public & leaked)
+
+
+def test_legacy_pinned_allocate_zero_size(init_cuda):
+    """LegacyPinnedMemoryResource.allocate(0) skips the driver call and uses ptr=0."""
+    mr = LegacyPinnedMemoryResource()
+    buf = mr.allocate(0)
+    assert buf.size == 0
+    # No driver call was made; handle is the sentinel 0.
+    assert int(buf.handle) == 0
+
+
+def test_legacy_pinned_device_id_raises():
+    """LegacyPinnedMemoryResource.device_id raises; pinned memory is not bound to a GPU."""
+    mr = LegacyPinnedMemoryResource()
+    with pytest.raises(RuntimeError, match="not bound to any GPU"):
+        _ = mr.device_id
+
+
+def test_synchronous_memory_resource_basic(init_cuda):
+    """_SynchronousMemoryResource exercises properties and allocate paths (zero, non-zero, with-stream)."""
+    from cuda.core._memory._legacy import _SynchronousMemoryResource
+
+    dev = Device()
+    mr = _SynchronousMemoryResource(dev.device_id)
+    assert mr.is_device_accessible is True
+    assert mr.is_host_accessible is False
+    assert mr.device_id == dev.device_id
+
+    # Zero-size allocation takes the ptr=0 fast path.
+    zero_buf = mr.allocate(0)
+    assert zero_buf.size == 0
+    assert int(zero_buf.handle) == 0
+    zero_buf.close(stream=None)
+
+    # Non-zero allocation goes through cuMemAlloc; close with stream=None for
+    # the simple path. The explicit-stream close path is covered separately.
+    buf = mr.allocate(64)
+    assert buf.size == 64
+    assert int(buf.handle) != 0
+    buf.close(stream=None)
+
+    # allocate(size, stream=stream) exercises Stream_accept validation on the
+    # allocate side (cuMemAlloc is synchronous so the stream is accepted but unused).
+    stream = dev.create_stream()
+    buf2 = mr.allocate(32, stream=stream)
+    assert buf2.size == 32
+    assert int(buf2.handle) != 0
+    buf2.close(stream=None)
+    stream.close()
+
+
+def test_synchronous_memory_resource_deallocate_accepts_stream(init_cuda):
+    """_SynchronousMemoryResource.deallocate accepts an explicit stream."""
+    from cuda.core._memory._legacy import _SynchronousMemoryResource
+
+    dev = Device()
+    mr = _SynchronousMemoryResource(dev.device_id)
+    buf = mr.allocate(64)
+    stream = dev.create_stream()
+    buf.close(stream=stream)
+    stream.close()
+
+
+@pytest.mark.parametrize(
+    ("method", "spec", "match"),
+    [
+        ("_access_to_flags", "bogus", "Unknown access spec"),
+        ("_allocation_type_to_driver", "bogus", "Unsupported allocation_type"),
+        ("_location_type_to_driver", "bogus", "Unsupported location_type"),
+        ("_handle_type_to_driver", "bogus", "Unsupported handle_type"),
+        ("_granularity_to_driver", "bogus", "Unsupported granularity"),
+    ],
+)
+def test_vmm_options_spec_validators_raise(method, spec, match):
+    """Every VMM spec validator static method rejects unknown strings with ValueError."""
+    fn = getattr(VirtualMemoryResourceOptions, method)
+    with pytest.raises(ValueError, match=match):
+        fn(spec)
+
+
+def test_vmm_options_handle_type_win32_raises():
+    """_handle_type_to_driver raises NotImplementedError for 'win32'."""
+    with pytest.raises(NotImplementedError, match="win32 is currently not supported"):
+        VirtualMemoryResourceOptions._handle_type_to_driver("win32")
+
+
+def test_device_memory_resource_peer_accessible_by_non_owned(mempool_device):
+    """peer_accessible_by on a non-owned (default) DMR queries the driver live."""
+    dev = mempool_device
+    # The default DeviceMemoryResource(device) wraps the current device's
+    # default pool, i.e. _mempool_owned is False, so accessing
+    # peer_accessible_by exercises the live _DMR_query_peer_access path.
+    mr = DeviceMemoryResource(dev)
+    peers = mr.peer_accessible_by
+    assert all(isinstance(p, Device) for p in peers)
+    # __contains__ accepts int dev_ids; the owning device is never a peer.
+    assert dev.device_id not in peers
+
+
+def test_dmr_mempool_get_access_self(mempool_device):
+    """DMR_mempool_get_access returns 'rw' when querying the owning device itself."""
+    from cuda.core._memory._device_memory_resource import DMR_mempool_get_access
+
+    mr = DeviceMemoryResource(mempool_device)
+    # The owning device always has read-write access to its own pool.
+    assert DMR_mempool_get_access(mr, mempool_device.device_id) == "rw"
+
+
+def test_dmr_mempool_get_access_peer(mempool_device_x2):
+    """DMR_mempool_get_access reflects peer access state for a different device."""
+    from cuda.core._memory._device_memory_resource import DMR_mempool_get_access
+
+    dev, peer = mempool_device_x2
+    # Use an owned pool so peer-access state isn't contaminated by other tests
+    # that may have set access on the device's default pool.
+    mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions())
+
+    # Fresh owned pool: peer has no access.
+    assert DMR_mempool_get_access(mr, peer.device_id) == ""
+    # After granting access, peer has read-write.
+    mr.peer_accessible_by = [peer]
+    assert DMR_mempool_get_access(mr, peer.device_id) == "rw"
+    # After revoking, peer is back to no access.
+    mr.peer_accessible_by = []
+    assert DMR_mempool_get_access(mr, peer.device_id) == ""
+
+
+def test_dmr_peer_accessible_by_setter_empty(mempool_device):
+    """Assigning an empty peer-access set to a fresh owned pool is a no-op."""
+    mr = DeviceMemoryResource(mempool_device, options=DeviceMemoryResourceOptions())
+    assert set(mr.peer_accessible_by) == set()
+    mr.peer_accessible_by = []
+    assert set(mr.peer_accessible_by) == set()

@@ -280,3 +280,93 @@ class TestWhichBackendClassmethod:
         """
         attr = inspect.getattr_static(Linker, "which_backend")
         assert not isinstance(attr, property)
+
+
+@pytest.fixture
+def driver_binding(monkeypatch):
+    """Pin _linker._driver to the real driver module so driver-backend tests run under any backend."""
+    from cuda.bindings import driver
+
+    monkeypatch.setattr(_linker, "_driver", driver)
+    return driver
+
+
+def test_prepare_driver_options_all_supported(driver_binding):
+    """Exercise every supported branch of _prepare_driver_options."""
+    driver = driver_binding
+    opts = LinkerOptions(
+        arch="sm_80",
+        max_register_count=32,
+        verbose=True,
+        link_time_optimization=True,
+        optimization_level=2,
+        debug=True,
+        lineinfo=True,
+        no_cache=True,
+    )
+    formatted, keys = opts._prepare_driver_options()
+    assert len(formatted) == len(keys)
+    assert len(keys) == 4 + 8  # 4 fixed log-buffer entries + 8 options set above
+
+    # Skip log-buffer entries; verify key-to-value mapping (catches swap/dup/wrong-value).
+    payload_keys = keys[4:]
+    assert len(set(payload_keys)) == len(payload_keys), f"duplicate option keys: {payload_keys}"
+    option_to_value = dict(zip(payload_keys, formatted[4:]))
+    assert option_to_value[driver.CUjit_option.CU_JIT_TARGET] == driver.CUjit_target.CU_TARGET_COMPUTE_80
+    assert option_to_value[driver.CUjit_option.CU_JIT_MAX_REGISTERS] == 32
+    assert option_to_value[driver.CUjit_option.CU_JIT_LOG_VERBOSE] == 1
+    assert option_to_value[driver.CUjit_option.CU_JIT_LTO] == 1
+    assert option_to_value[driver.CUjit_option.CU_JIT_OPTIMIZATION_LEVEL] == 2
+    assert option_to_value[driver.CUjit_option.CU_JIT_GENERATE_DEBUG_INFO] == 1
+    assert option_to_value[driver.CUjit_option.CU_JIT_GENERATE_LINE_INFO] == 1
+    assert option_to_value[driver.CUjit_option.CU_JIT_CACHE_MODE] == driver.CUjit_cacheMode.CU_JIT_CACHE_OPTION_NONE
+
+
+@pytest.mark.parametrize(
+    "kwargs,match",
+    [
+        ({"ftz": True}, "ftz option is deprecated"),
+        ({"prec_div": True}, "prec_div option is deprecated"),
+        ({"prec_sqrt": True}, "prec_sqrt option is deprecated"),
+        ({"fma": True}, "fma options is deprecated"),
+        ({"kernels_used": "my_kernel"}, "kernels_used is deprecated"),
+        ({"variables_used": "my_var"}, "variables_used is deprecated"),
+        ({"optimize_unused_variables": True}, "optimize_unused_variables is deprecated"),
+    ],
+)
+def test_prepare_driver_options_deprecated_warnings(driver_binding, kwargs, match):
+    """Each driver-deprecated option emits a DeprecationWarning."""
+    opts = LinkerOptions(**kwargs)
+    with pytest.warns(DeprecationWarning, match=match):
+        opts._prepare_driver_options()
+
+
+@pytest.mark.parametrize(
+    "kwargs,match",
+    [
+        ({"time": True}, "time option is not supported by the driver API"),
+        ({"ptx": True}, "ptx option is not supported by the driver API"),
+        ({"ptxas_options": ["-v"]}, "ptxas_options option is not supported by the driver API"),
+        ({"split_compile": 0}, "split_compile option is not supported by the driver API"),
+        ({"split_compile_extended": 1}, "split_compile_extended option is not supported by the driver API"),
+    ],
+)
+def test_prepare_driver_options_unsupported_raises(driver_binding, kwargs, match):
+    """Each nvjitlink-only option raises ValueError on the driver backend."""
+    opts = LinkerOptions(**kwargs)
+    with pytest.raises(ValueError, match=match):
+        opts._prepare_driver_options()
+
+
+def test_linker_empty_object_codes_raises():
+    """Linker with no ObjectCode raises ValueError."""
+    with pytest.raises(ValueError, match="At least one ObjectCode object must be provided"):
+        Linker()
+
+
+def test_as_bytes_nvjitlink_unavailable(monkeypatch):
+    """as_bytes('nvjitlink') raises RuntimeError when the backend is unavailable."""
+    monkeypatch.setattr(_linker, "_use_nvjitlink_backend", False)
+    opts = LinkerOptions(arch="sm_80")
+    with pytest.raises(RuntimeError, match="nvJitLink backend is not available"):
+        opts.as_bytes("nvjitlink")
