@@ -743,7 +743,7 @@ cdef class ObjectCode:
             self._h_library = create_library_handle_from_data(<const void*><char*>module)
         elif PyObject_HasAttrString(module, "__fspath__"):
             path_str = module.__fspath__()
-            path_bytes = path_str.encode('utf-8') if isinstance(path_str, str) else path_str
+            path_bytes = path_str.encode() if isinstance(path_str, str) else path_str
             self._h_library = create_library_handle_from_file(<const char*>path_bytes)
         else:
             assert_type_str_or_bytes_like(module)
