@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import ctypes
-import itertools
-import threading
+from cpython.ref cimport Py_INCREF
 
 from libc.stdint cimport uintptr_t
+from libc.stdlib cimport malloc, free
+from libc.string cimport memcpy as c_memcpy
 
 from cuda.bindings cimport cydriver
 
@@ -24,68 +24,104 @@ from cuda.core._stream import Stream
 from math import prod
 
 
-class _PendingHostLaunch:
-    __slots__ = ("_fn", "_payload", "_stream")
-
-    def __init__(self, stream, fn, payload):
-        self._fn = fn
-        self._payload = payload
-        self._stream = stream
-
-    def invoke(self):
-        if isinstance(self._fn, ctypes._CFuncPtr):
-            if self._payload is None:
-                self._fn(None)
-            elif isinstance(self._payload, int):
-                self._fn(ctypes.c_void_p(self._payload))
-            else:
-                self._fn(ctypes.c_void_p(ctypes.addressof(self._payload)))
-            return
-
-        self._fn()
+cdef extern from "Python.h":
+    void _py_decref "Py_DECREF" (void*)
 
 
-_pending_host_launches = {}
-_pending_host_launches_lock = threading.Lock()
-_pending_host_launch_tokens = itertools.count(1)
+cdef struct _HostLaunchCFuncState:
+    cydriver.CUhostFn fn
+    void* user_data
+    bint owns_user_data
+    void* fn_pyobj
 
 
-cdef void _host_launch_trampoline(void* data) noexcept with gil:
-    cdef object pending
+cdef void _py_host_launch_trampoline(void* data) noexcept with gil:
+    try:
+        (<object>data)()
+    finally:
+        _py_decref(data)
 
-    with _pending_host_launches_lock:
-        pending = _pending_host_launches.pop(<uintptr_t>data, None)
-    if pending is None:
+
+cdef void _ctypes_host_launch_trampoline(void* data) noexcept with gil:
+    cdef _HostLaunchCFuncState* state = <_HostLaunchCFuncState*>data
+
+    try:
+        state.fn(state.user_data)
+    finally:
+        if state.fn_pyobj != NULL:
+            _py_decref(state.fn_pyobj)
+        if state.owns_user_data and state.user_data != NULL:
+            free(state.user_data)
+        free(state)
+
+
+cdef void _cleanup_host_launch(
+        cydriver.CUhostFn fn, void* user_data) except *:
+    cdef _HostLaunchCFuncState* state
+
+    if fn == <cydriver.CUhostFn>_py_host_launch_trampoline:
+        if user_data != NULL:
+            _py_decref(user_data)
         return
 
-    pending.invoke()
+    if fn == <cydriver.CUhostFn>_ctypes_host_launch_trampoline:
+        state = <_HostLaunchCFuncState*>user_data
+        if state != NULL:
+            if state.fn_pyobj != NULL:
+                _py_decref(state.fn_pyobj)
+            if state.owns_user_data and state.user_data != NULL:
+                free(state.user_data)
+            free(state)
 
 
-def _register_host_launch(stream, fn, user_data):
-    if isinstance(fn, ctypes._CFuncPtr):
+cdef void _prepare_host_launch(
+        object fn, object user_data,
+        cydriver.CUhostFn* out_fn, void** out_user_data) except *:
+    import ctypes as ct
+
+    cdef void* fn_pyobj = NULL
+    cdef _HostLaunchCFuncState* state = NULL
+    cdef bytes buf
+
+    if isinstance(fn, ct._CFuncPtr):
+        state = <_HostLaunchCFuncState*>malloc(sizeof(_HostLaunchCFuncState))
+        if state == NULL:
+            raise MemoryError("failed to allocate host callback state")
+
+        state.fn = <cydriver.CUhostFn><uintptr_t>ct.cast(fn, ct.c_void_p).value
+        state.user_data = NULL
+        state.owns_user_data = False
+        state.fn_pyobj = NULL
+
+        Py_INCREF(fn)
+        fn_pyobj = <void*>fn
+        state.fn_pyobj = fn_pyobj
+
+        out_fn[0] = <cydriver.CUhostFn>_ctypes_host_launch_trampoline
+
         if user_data is None:
-            payload = None
+            pass
         elif isinstance(user_data, int):
-            payload = user_data
+            state.user_data = <void*><uintptr_t>user_data
         else:
-            payload = ctypes.create_string_buffer(bytes(user_data))
+            buf = bytes(user_data)
+            state.user_data = malloc(len(buf))
+            if state.user_data == NULL:
+                _py_decref(fn_pyobj)
+                free(state)
+                raise MemoryError("failed to allocate user_data buffer")
+            c_memcpy(state.user_data, <const char*>buf, len(buf))
+            state.owns_user_data = True
+        out_user_data[0] = <void*>state
     else:
         if user_data is not None:
             raise ValueError("user_data is only supported with ctypes function pointers")
         if not callable(fn):
             raise TypeError("fn must be callable")
-        payload = None
-
-    pending = _PendingHostLaunch(stream, fn, payload)
-    token = next(_pending_host_launch_tokens)
-    with _pending_host_launches_lock:
-        _pending_host_launches[token] = pending
-    return token
-
-
-def _discard_host_launch(token):
-    with _pending_host_launches_lock:
-        _pending_host_launches.pop(token, None)
+        Py_INCREF(fn)
+        fn_pyobj = <void*>fn
+        out_fn[0] = <cydriver.CUhostFn>_py_host_launch_trampoline
+        out_user_data[0] = fn_pyobj
 
 
 def launch(stream: Stream | GraphBuilder | IsStreamType, config: LaunchConfig, kernel: Kernel, *kernel_args):
@@ -162,17 +198,16 @@ def host_launch(stream: Stream | IsStreamType, fn, *, user_data=None):
         pointer to the copied buffer.
     """
     cdef Stream s = Stream_accept(stream, allow_stream_protocol=True)
-    cdef uintptr_t token = _register_host_launch(s, fn, user_data)
+    cdef cydriver.CUhostFn c_fn
+    cdef void* c_user_data = NULL
 
+    _prepare_host_launch(fn, user_data, &c_fn, &c_user_data)
     try:
         with nogil:
             HANDLE_RETURN(cydriver.cuLaunchHostFunc(
-                as_cu(s._h_stream),
-                <cydriver.CUhostFn>_host_launch_trampoline,
-                <void*>token,
-            ))
+                as_cu(s._h_stream), c_fn, c_user_data))
     except Exception:
-        _discard_host_launch(token)
+        _cleanup_host_launch(c_fn, c_user_data)
         raise
 
 
