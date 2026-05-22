@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 """Decode C strings returned by CUDA libraries with actionable failure context."""
 
-from __future__ import annotations
-
 # Cap sized for the #2118 mojibake without flooding exception text.
 _PREVIEW_MAX_BYTES = 64
 
