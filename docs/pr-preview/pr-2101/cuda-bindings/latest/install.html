@@ -1306,7 +1306,7 @@
 <li><p>Linux (x86-64, arm64) and Windows (x86-64)</p></li>
 <li><p>Python 3.10 - 3.14</p></li>
 <li><p>Driver: Linux (580.65.06 or later) Windows (580.88 or later)</p></li>
-<li><p>Optionally, NVRTC, nvJitLink, nvFatBin, NVVM, and cuFile from CUDA Toolkit 13.x</p></li>
+<li><p>Optionally, NVRTC, nvJitLink, nvFatBin, NVVM, cuFile, and cuDLA from CUDA Toolkit 13.x</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1340,12 +1340,9 @@ library are thread-safe. This is subject to change.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-nvfatbin</span></code> (nvFatBin library)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-nvvm</span></code> (NVVM library)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cufile</span></code> (cuFile library, Linux only)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cudla</span></code> (cuDLA library, Linux aarch64 only)</p></li>
 </ul>
-<p>These are now installed through the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage for improved dependency resolution.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Tegra users can install the cuDLA wheel from PyPI through <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-toolkit[cudla]==13.*</span></code>, if it does not already exist on the system.</p>
-</div>
+<p>These are now installed through the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage, where available, for improved dependency resolution.</p>
 </section>
 <section id="installing-from-conda">
 <h2>Installing from Conda<a class="headerlink" href="#installing-from-conda" title="Link to this heading">#</a></h2>
