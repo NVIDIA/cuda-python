@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
+
 try:
     from cuda.bindings import driver, runtime
 except ImportError:
@@ -45,7 +47,9 @@ def test_to_system_device(deinit_cuda):
 
     # CUDA only returns a 2-byte PCI bus ID domain, whereas NVML returns a
     # 4-byte domain
-    assert device.pci_bus_id == system_device.pci_info.bus_id[4:]
+    # MIG devices don't have pci_info, so skip the bus ID check if it's missing
+    with contextlib.suppress(RuntimeError):
+        assert device.pci_bus_id == system_device.pci_info.bus_id[4:]
 
 
 def test_device_set_current(deinit_cuda):

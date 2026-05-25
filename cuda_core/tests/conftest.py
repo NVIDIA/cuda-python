@@ -1,10 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing
 import os
 import pathlib
 import sys
+from contextlib import contextmanager
 from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
@@ -87,6 +88,8 @@ def create_managed_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
         return ManagedMemoryResource(*args, **kwargs)
     except CUDAError as e:
         xfail_if_mempool_oom(e, _device_id_from_resource_options(xfail_device, args, kwargs))
+        if "CUDA_ERROR_NOT_SUPPORTED" in str(e):
+            pytest.skip("ManagedMemoryResource is not supported on this platform/device")
         raise
     except RuntimeError as e:
         if "requires CUDA 13.0" in str(e):
@@ -99,6 +102,15 @@ def create_pinned_memory_resource_or_xfail(*args, xfail_device=None, **kwargs):
         return PinnedMemoryResource(*args, **kwargs)
     except CUDAError as e:
         xfail_if_mempool_oom(e, xfail_device)
+        raise
+
+
+@contextmanager
+def xfail_on_graph_mempool_oom(device=0):
+    try:
+        yield
+    except CUDAError as e:
+        xfail_if_mempool_oom(e, "cuGraphAddMemAllocNode", device)
         raise
 
 
@@ -119,6 +131,21 @@ def _device_id_from_resource_options(device, args, kwargs):
     if preferred_location_type in (None, "device") and isinstance(preferred_location, int) and preferred_location >= 0:
         return preferred_location
     return 0
+
+
+def _require_ipc_mempool_devices(devices):
+    """Return devices if they all support IPC-enabled mempools, otherwise skip."""
+    from helpers import IS_WSL, supports_ipc_mempool
+
+    checked_devices = tuple(devices)
+
+    if not all(device.properties.handle_type_posix_file_descriptor_supported for device in checked_devices):
+        pytest.skip("Device does not support IPC")
+
+    if IS_WSL or not all(supports_ipc_mempool(device) for device in checked_devices):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
+    return devices
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -186,26 +213,24 @@ def deinit_all_contexts_function():
 
 @pytest.fixture
 def ipc_device():
-    """Obtains a device suitable for IPC-enabled mempool tests, or skips."""
-    # Check if IPC is supported on this platform/device
+    """Obtains a device suitable for IPC-enabled mempool tests, or skips.
+
+    The fixture also tracks every ``multiprocessing.Process`` spawned during
+    the test and kills any survivors at teardown. This prevents a stuck child
+    (e.g., compute-sanitizer wedged during IPC teardown -- see issue #2004)
+    from blocking ``ipc_memory_resource``'s ``mr.close()`` for hours.
+    """
+    from helpers.child_processes import track_child_processes
+
     device = Device(0)
     device.set_current()
 
     if not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
 
-    # Note: Linux specific. Once Windows support for IPC is implemented, this
-    # test should be updated.
-    if not device.properties.handle_type_posix_file_descriptor_supported:
-        pytest.skip("Device does not support IPC")
-
-    # Skip on WSL or if driver rejects IPC-enabled mempool creation on this platform/device
-    from helpers import IS_WSL, supports_ipc_mempool
-
-    if IS_WSL or not supports_ipc_mempool(device):
-        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
-
-    return device
+    device = _require_ipc_mempool_devices((device,))[0]
+    with track_child_processes():
+        yield device
 
 
 @pytest.fixture(
@@ -272,6 +297,20 @@ def mempool_device_x2():
 def mempool_device_x3():
     """Fixture that provides three devices if available, otherwise skips test."""
     return _mempool_device_impl(3)
+
+
+@pytest.fixture
+def ipc_mempool_device_x2(mempool_device_x2):
+    """Fixture that provides two IPC-capable mempool devices, or skips.
+
+    Also tracks/kills any leftover ``multiprocessing.Process`` children at
+    teardown for the same reasons documented on :func:`ipc_device`.
+    """
+    from helpers.child_processes import track_child_processes
+
+    devices = _require_ipc_mempool_devices(mempool_device_x2)
+    with track_child_processes():
+        yield devices
 
 
 @pytest.fixture(

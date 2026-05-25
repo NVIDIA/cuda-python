@@ -28,6 +28,7 @@ permissions:
 jobs:
   test-sdist:
     name: Test sdist builds
+    timeout-minutes: 60
     runs-on: windows-2022
     steps:
       - name: Checkout ${{ github.event.repository.name }}
