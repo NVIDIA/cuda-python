@@ -1874,9 +1874,9 @@ def test_dmr_mempool_get_access_peer(mempool_device_x2):
     from cuda.core._memory._device_memory_resource import DMR_mempool_get_access
 
     dev, peer = mempool_device_x2
-    # Use an owned pool so peer-access state isn't contaminated by other tests
-    # that may have set access on the device's default pool.
-    mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions())
+    # Owned pool avoids peer-access contamination from other tests; max_size
+    # caps VA to dodge Windows MCDM OOM
+    mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
 
     # Fresh owned pool: peer has no access.
     assert DMR_mempool_get_access(mr, peer.device_id) == ""
@@ -1890,7 +1890,8 @@ def test_dmr_mempool_get_access_peer(mempool_device_x2):
 
 def test_dmr_peer_accessible_by_setter_empty(mempool_device):
     """Assigning an empty peer-access set to a fresh owned pool is a no-op."""
-    mr = DeviceMemoryResource(mempool_device, options=DeviceMemoryResourceOptions())
+    # max_size caps VA to dodge Windows MCDM OOM
+    mr = DeviceMemoryResource(mempool_device, options=DeviceMemoryResourceOptions(max_size=POOL_SIZE))
     assert set(mr.peer_accessible_by) == set()
     mr.peer_accessible_by = []
     assert set(mr.peer_accessible_by) == set()
