@@ -422,11 +422,17 @@ class FileStreamProgramCache(ProgramCacheResource):
         k = _as_key_bytes(key)
         # Hash the key to a fixed-length identifier so arbitrary-length user
         # keys never exceed per-component filename limits (typically 255 on
-        # ext4 / NTFS). With a 256-bit blake2b digest, the cache relies on
-        # cryptographic collision resistance for key uniqueness -- two
-        # distinct keys hashing to the same path is astronomically unlikely
-        # (~2^-128 with the 32-byte digest in use here).
-        digest = hashlib.blake2b(k, digest_size=32).hexdigest()
+        # ext4 / NTFS).
+        #
+        # FIPS: must use a FIPS-approved hash algorithm. FIPS-enforcing
+        # systems can disable non-approved hashlib algorithms (for example
+        # blake2b) at the OpenSSL level. See #2043.
+        #
+        # With a 256-bit SHA-256 digest, the cache relies on collision
+        # resistance for key uniqueness -- two distinct keys hashing to the
+        # same path is astronomically unlikely (~2^128 practical collision
+        # work).
+        digest = hashlib.sha256(k, usedforsecurity=False).hexdigest()
         return self._entries / digest[:2] / digest[2:]
 
     # -- mapping API ---------------------------------------------------------

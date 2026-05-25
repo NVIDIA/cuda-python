@@ -13,11 +13,12 @@ import contextlib
 import multiprocessing as mp
 
 import pytest
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.logging import TimestampedLogger
 
 from cuda.core import Buffer, Device
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 POOL_SIZE = 2097152
 
@@ -84,6 +85,8 @@ class TestIpcDuplicateImport:
 
         log("waiting for child")
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
         log(f"child exit code: {process.exitcode}")
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0, f"Child process failed with exit code {process.exitcode}"
         log("done")
