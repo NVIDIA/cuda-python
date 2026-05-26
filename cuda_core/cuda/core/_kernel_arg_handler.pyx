@@ -18,6 +18,7 @@ import numpy
 from cuda.core._memory import Buffer
 from cuda.core._tensor_map import TensorMapDescriptor as _TensorMapDescriptor_py
 from cuda.core._tensor_map cimport TensorMapDescriptor
+from cuda.core.graph._graph_definition cimport GraphCondition
 from cuda.core._utils.cuda_utils import driver
 from cuda.bindings cimport cydriver
 
@@ -318,6 +319,11 @@ cdef class ParamHolder:
                 if arg_type is driver.CUgraphConditionalHandle:
                     prepare_arg[cydriver.CUgraphConditionalHandle](self.data, self.data_addresses, <intptr_t>int(arg), i)
                     continue
+                elif arg_type is GraphCondition:
+                    prepare_arg[cydriver.CUgraphConditionalHandle](
+                        self.data, self.data_addresses,
+                        <intptr_t><unsigned long long>(<GraphCondition>arg)._c_handle, i)
+                    continue
                 # If no exact types are found, fallback to slower `isinstance` check
                 elif isinstance(arg, Buffer):
                     if isinstance(arg.handle, int):
@@ -340,6 +346,11 @@ cdef class ParamHolder:
                     continue
                 elif isinstance(arg, driver.CUgraphConditionalHandle):
                     prepare_arg[cydriver.CUgraphConditionalHandle](self.data, self.data_addresses, arg, i)
+                    continue
+                elif isinstance(arg, GraphCondition):
+                    prepare_arg[cydriver.CUgraphConditionalHandle](
+                        self.data, self.data_addresses,
+                        <intptr_t><unsigned long long>(<GraphCondition>arg)._c_handle, i)
                     continue
                 # TODO: support ctypes/numpy struct
                 raise TypeError("the argument is of unsupported type: " + str(type(arg)))

@@ -7,20 +7,47 @@ from libc.math cimport ceil
 
 from multiprocessing import cpu_count
 from typing import Iterable
+import warnings
 
 from cuda.bindings import nvml
 
 from ._nvml_context cimport initialize
+from cuda.core.system.typing import (
+    AddressingMode,
+    AffinityScope,
+    DeviceArch,
+    ClockId,
+    ClocksEventReasons,
+    ClockType,
+    CoolerControl,
+    CoolerTarget,
+    DeviceArch,
+    EventType,
+    FanControlPolicy,
+    FieldId,
+    GpuP2PCapsIndex,
+    GpuP2PStatus,
+    GpuTopologyLevel,
+    InforomObject,
+    TemperatureThresholds,
+    ThermalController,
+    ThermalTarget,
+)
 
 
-AddressingMode = nvml.DeviceAddressingModeType
-AffinityScope = nvml.AffinityScope
-BrandType = nvml.BrandType
-DeviceArch = nvml.DeviceArch
-GpuP2PCapsIndex = nvml.GpuP2PCapsIndex
-GpuP2PStatus = nvml.GpuP2PStatus
-GpuTopologyLevel = nvml.GpuTopologyLevel
-Pstates = nvml.Pstates
+cdef object _pstate_to_int(object pstate):
+    if pstate == nvml.Pstates.PSTATE_UNKNOWN:
+        return None
+    assert (
+        int(pstate) >= 0 and int(pstate) <= 15
+    ), f"Invalid P-state: {pstate}. Must be between 0 and 15 inclusive, or PSTATE_UNKNOWN."
+    return int(pstate) - int(nvml.Pstates.PSTATE_0)
+
+
+cdef int _pstate_to_enum(int pstate):
+    if pstate < 0 or pstate > 15:
+        raise ValueError(f"Invalid P-state: {pstate}. Must be between 0 and 15 inclusive.")
+    return int(pstate) + int(nvml.Pstates.PSTATE_0)
 
 
 include "_clock.pxi"
@@ -32,10 +59,84 @@ include "_fan.pxi"
 include "_field_values.pxi"
 include "_inforom.pxi"
 include "_memory.pxi"
+include "_mig.pxi"
+include "_nvlink.pxi"
 include "_pci_info.pxi"
 include "_performance.pxi"
+include "_process.pxi"
 include "_repair_status.pxi"
 include "_temperature.pxi"
+include "_utilization.pxi"
+
+
+_ADDRESSING_MODE_MAPPING = {
+    nvml.DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_HMM: AddressingMode.HMM,
+    nvml.DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_ATS: AddressingMode.ATS,
+}
+
+
+_AFFINITY_SCOPE_MAPPING = {
+    AffinityScope.NODE: nvml.AffinityScope.NODE,
+    AffinityScope.SOCKET: nvml.AffinityScope.SOCKET,
+}
+
+
+_BRAND_TYPE_MAPPING = {
+    nvml.BrandType.BRAND_UNKNOWN: "Unknown",
+    nvml.BrandType.BRAND_QUADRO: "Quadro",
+    nvml.BrandType.BRAND_TESLA: "Tesla",
+    nvml.BrandType.BRAND_NVS: "NVS",
+    nvml.BrandType.BRAND_GRID: "GRID",
+    nvml.BrandType.BRAND_GEFORCE: "GeForce",
+    nvml.BrandType.BRAND_TITAN: "Titan",
+    nvml.BrandType.BRAND_NVIDIA_VAPPS: "NVIDIA vApps",
+    nvml.BrandType.BRAND_NVIDIA_VPC: "NVIDIA VPC",
+    nvml.BrandType.BRAND_NVIDIA_VCS: "NVIDIA VCS",
+    nvml.BrandType.BRAND_NVIDIA_VWS: "NVIDIA VWS",
+    nvml.BrandType.BRAND_NVIDIA_CLOUD_GAMING: "NVIDIA Cloud Gaming",
+    nvml.BrandType.BRAND_NVIDIA_VGAMING: "NVIDIA vGaming",
+    nvml.BrandType.BRAND_QUADRO_RTX: "Quadro RTX",
+    nvml.BrandType.BRAND_NVIDIA_RTX: "NVIDIA RTX",
+    nvml.BrandType.BRAND_NVIDIA: "NVIDIA",
+    nvml.BrandType.BRAND_GEFORCE_RTX: "GeForce RTX",
+    nvml.BrandType.BRAND_TITAN_RTX: "Titan RTX",
+}
+
+
+_GPU_P2P_CAPS_INDEX_MAPPING = {
+    GpuP2PCapsIndex.READ: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_READ,
+    GpuP2PCapsIndex.WRITE: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_WRITE,
+    GpuP2PCapsIndex.NVLINK: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_NVLINK,
+    GpuP2PCapsIndex.ATOMICS: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_ATOMICS,
+    GpuP2PCapsIndex.PCI: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_PCI,
+    GpuP2PCapsIndex.PROP: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_PROP,
+    GpuP2PCapsIndex.UNKNOWN: nvml.GpuP2PCapsIndex.P2P_CAPS_INDEX_UNKNOWN,
+}
+
+
+_GPU_P2P_STATUS_MAPPING = {
+    nvml.GpuP2PStatus.P2P_STATUS_OK: GpuP2PStatus.OK,
+    nvml.GpuP2PStatus.P2P_STATUS_CHIPSET_NOT_SUPPORTED: GpuP2PStatus.CHIPSET_NOT_SUPPORTED,
+    nvml.GpuP2PStatus.P2P_STATUS_GPU_NOT_SUPPORTED: GpuP2PStatus.GPU_NOT_SUPPORTED,
+    nvml.GpuP2PStatus.P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED: GpuP2PStatus.IOH_TOPOLOGY_NOT_SUPPORTED,
+    nvml.GpuP2PStatus.P2P_STATUS_DISABLED_BY_REGKEY: GpuP2PStatus.DISABLED_BY_REGKEY,
+    nvml.GpuP2PStatus.P2P_STATUS_NOT_SUPPORTED: GpuP2PStatus.NOT_SUPPORTED,
+    nvml.GpuP2PStatus.P2P_STATUS_UNKNOWN: GpuP2PStatus.UNKNOWN,
+}
+
+
+_GPU_TOPOLOGY_LEVEL_MAPPING = {
+    GpuTopologyLevel.INTERNAL: nvml.GpuTopologyLevel.TOPOLOGY_INTERNAL,
+    GpuTopologyLevel.SINGLE: nvml.GpuTopologyLevel.TOPOLOGY_SINGLE,
+    GpuTopologyLevel.MULTIPLE: nvml.GpuTopologyLevel.TOPOLOGY_MULTIPLE,
+    GpuTopologyLevel.HOSTBRIDGE: nvml.GpuTopologyLevel.TOPOLOGY_HOSTBRIDGE,
+    GpuTopologyLevel.NODE: nvml.GpuTopologyLevel.TOPOLOGY_NODE,
+    GpuTopologyLevel.SYSTEM: nvml.GpuTopologyLevel.TOPOLOGY_SYSTEM,
+}
+
+
+_GPU_TOPOLOGY_LEVEL_INV_MAPPING = {v: k for k, v in _GPU_TOPOLOGY_LEVEL_MAPPING.items()}
+
 
 
 cdef class Device:
@@ -132,12 +233,23 @@ cdef class Device:
         board serial identifier.
 
         In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
-        prefix.  That is not included in ``cuda.core.system``.
+        prefix.  If you need a `uuid` without that prefix (for example, to
+        interact with CUDA), use the `uuid_without_prefix` property.
         """
-        # NVML UUIDs have a `GPU-` or `MIG-` prefix.  We remove that here.
+        return nvml.device_get_uuid(self._handle)
 
-        # TODO: If the user cares about the prefix, we will expose that in the
-        # future using the MIG-related APIs in NVML.
+    @property
+    def uuid_without_prefix(self) -> str:
+        """
+        Retrieves the globally unique immutable UUID associated with this
+        device, as a 5 part hexadecimal string, that augments the immutable,
+        board serial identifier.
+
+        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
+        prefix.  This property returns it without the prefix, to match the UUIDs
+        used in CUDA.  If you need the prefix, use the `uuid` property.
+        """
+        # NVML UUIDs have a `gpu-` or `mig-` prefix.  We remove that here.
         return nvml.device_get_uuid(self._handle)[4:]
 
     @property
@@ -159,13 +271,17 @@ cdef class Device:
     @property
     def arch(self) -> DeviceArch:
         """
-        Device architecture.
+        :obj:`~DeviceArch` device architecture.
 
         For example, a Tesla V100 will report ``DeviceArchitecture.name ==
         "VOLTA"``, and RTX A6000 will report ``DeviceArchitecture.name ==
         "AMPERE"``.
         """
-        return DeviceArch(nvml.device_get_architecture(self._handle))
+        arch = nvml.device_get_architecture(self._handle)
+        try:
+            return DeviceArch(arch)
+        except ValueError:
+            return DeviceArch.UNKNOWN
 
     @property
     def name(self) -> str:
@@ -175,11 +291,13 @@ cdef class Device:
         return nvml.device_get_name(self._handle)
 
     @property
-    def brand(self) -> BrandType:
+    def brand(self) -> str:
         """
-        Brand of the device
+        The brand of the device.
+
+        Returns "Unknown" if the brand is unknown.
         """
-        return BrandType(nvml.device_get_brand(self._handle))
+        return _BRAND_TYPE_MAPPING.get(nvml.device_get_brand(self._handle), "Unknown")
 
     @property
     def serial(self) -> str:
@@ -215,14 +333,14 @@ cdef class Device:
         return nvml.device_get_minor_number(self._handle)
 
     @property
-    def is_c2c_mode_enabled(self) -> bool:
+    def is_c2c_enabled(self) -> bool:
         """
         Whether the C2C (Chip-to-Chip) mode is enabled for this device.
         """
         return bool(nvml.device_get_c2c_mode_info_v(self._handle).is_c2c_enabled)
 
     @property
-    def persistence_mode_enabled(self) -> bool:
+    def is_persistence_mode_enabled(self) -> bool:
         """
         Whether persistence mode is enabled for this device.
 
@@ -230,8 +348,8 @@ cdef class Device:
         """
         return nvml.device_get_persistence_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
-    @persistence_mode_enabled.setter
-    def persistence_mode_enabled(self, enabled: bool) -> None:
+    @is_persistence_mode_enabled.setter
+    def is_persistence_mode_enabled(self, enabled: bool) -> None:
         nvml.device_set_persistence_mode(
             self._handle,
             nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED
@@ -258,6 +376,15 @@ cdef class Device:
         -------
         cuda.core.Device
             The corresponding CUDA device.
+
+        Raises
+        ------
+        RuntimeError
+            No corresponding CUDA device is found for this NVML device.
+
+            For example, on a MIG system, the physical GPU will not have an
+            available CUDA device, since it can not be used directly, even
+            though it can be enumerated from NVML.
         """
         from cuda.core import Device as CudaDevice
 
@@ -265,7 +392,7 @@ cdef class Device:
         # search all the devices for one with a matching UUID.
 
         for cuda_device in CudaDevice.get_all_devices():
-            if cuda_device.uuid == self.uuid:
+            if cuda_device.uuid == self.uuid_without_prefix:
                 return cuda_device
 
         raise RuntimeError("No corresponding CUDA device found for this NVML device.")
@@ -280,6 +407,8 @@ cdef class Device:
         int
             The number of available devices.
         """
+        initialize()
+
         return nvml.device_get_count_v2()
 
     @classmethod
@@ -289,9 +418,11 @@ cdef class Device:
 
         Returns
         -------
-        Iterator of Device
+        Iterator over :obj:`~Device`
             An iterator over available devices.
         """
+        initialize()
+
         for device_id in range(nvml.device_get_count_v2()):
             yield cls(index=device_id)
 
@@ -299,23 +430,23 @@ cdef class Device:
     # ADDRESSING MODE
 
     @property
-    def addressing_mode(self) -> AddressingMode:
+    def addressing_mode(self) -> AddressingMode | None:
         """
-        Get the addressing mode of the device.
-
-        Addressing modes can be one of:
-
-        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_HMM`: System allocated
-          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
-          software-based mirroring of the CPU's page tables, on the GPU.
-        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_ATS`: System allocated
-          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
-          Address Translation Services. This means that there is (effectively) a
-          single set of page tables, and the CPU and GPU both use them.
-        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_NONE`: Neither HMM nor ATS
-          is active.
+        Get the :obj:`~AddressingMode` of the device.
         """
-        return AddressingMode(nvml.device_get_addressing_mode(self._handle).value)
+        return _ADDRESSING_MODE_MAPPING.get(nvml.device_get_addressing_mode(self._handle).value, None)
+
+    #########################################################################
+    # MIG (MULTI-INSTANCE GPU) DEVICES
+
+    @property
+    def mig(self) -> MigInfo:
+        """
+        Get :obj:`~MigInfo` accessor for MIG (Multi-Instance GPU) information.
+
+        For Ampere™ or newer fully supported devices.
+        """
+        return MigInfo(self)
 
     #########################################################################
     # AFFINITY
@@ -334,7 +465,7 @@ cdef class Device:
 
         Returns
         -------
-        Iterator of Device
+        Iterator of :obj:`~Device`
             An iterator over available devices.
         """
         cdef Device device
@@ -343,7 +474,7 @@ cdef class Device:
             device._handle = handle
             yield device
 
-    def get_memory_affinity(self, scope: AffinityScope=AffinityScope.NODE) -> list[int]:
+    def get_memory_affinity(self, scope: AffinityScope | str=AffinityScope.NODE) -> list[int]:
         """
         Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
         memory affinity for the device.
@@ -355,16 +486,35 @@ cdef class Device:
         If requested scope is not applicable to the target topology, the API
         will fall back to reporting the memory affinity for the immediate non-I/O
         ancestor of the device.
+
+        Parameters
+        ----------
+        scope: AffinityScope | str, optional
+            The scope of the affinity query.  Must be one of the values of
+            :class:`AffinityScope`.  Default is :attr:`AffinityScope.NODE`.
+
+        Returns
+        -------
+        list[int]
+            A list of indices of NUMA nodes or CPU sockets with the ideal memory
+            affinity for the device.
         """
+        try:
+            scope = _AFFINITY_SCOPE_MAPPING[scope]
+        except KeyError:
+            raise ValueError(
+                f"Invalid affinity scope: {scope}. "
+                f"Must be one of {list(AffinityScope.__members__.values())}"
+            ) from None
         return _unpack_bitmask(
             nvml.device_get_memory_affinity(
                 self._handle,
                 <unsigned int>ceil(cpu_count() / 64),
-                scope
+                scope,
             )
         )
 
-    def get_cpu_affinity(self, scope: AffinityScope=AffinityScope.NODE) -> list[int]:
+    def get_cpu_affinity(self, scope: AffinityScope | str=AffinityScope.NODE) -> list[int]:
         """
         Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
         CPU affinity for the device.
@@ -376,7 +526,26 @@ cdef class Device:
         If requested scope is not applicable to the target topology, the API
         will fall back to reporting the memory affinity for the immediate non-I/O
         ancestor of the device.
+
+        Parameters
+        ----------
+        scope: AffinityScope | str, optional
+            The scope of the affinity query.  Must be one of the values of
+            :class:`AffinityScope`.  Default is :attr:`AffinityScope.NODE`.
+
+        Returns
+        -------
+        list[int]
+            A list of indices of NUMA nodes or CPU sockets with the ideal memory
+            affinity for the device.
         """
+        try:
+            scope = _AFFINITY_SCOPE_MAPPING[scope]
+        except KeyError:
+            raise ValueError(
+                f"Invalid affinity scope: {scope}. "
+                f"Must be one of {list(AffinityScope.__members__.values())}"
+            ) from None
         return _unpack_bitmask(
             nvml.device_get_cpu_affinity_within_scope(
                 self._handle,
@@ -409,13 +578,14 @@ cdef class Device:
     # CLOCK
     # See external class definitions in _clock.pxi
 
-    def clock(self, clock_type: ClockType) -> ClockInfo:
+    def get_clock(self, clock_type: ClockType | str) -> ClockInfo:
         """
-        Get information about and manage a specific clock on a device.
+        :obj:`~_device.ClockInfo` object to get information about and manage a specific clock on a device.
         """
         return ClockInfo(self._handle, clock_type)
 
-    def get_auto_boosted_clocks_enabled(self) -> tuple[bool, bool]:
+    @property
+    def is_auto_boosted_clocks_enabled(self) -> tuple[bool, bool]:
         """
         Retrieve the current state of auto boosted clocks on a device.
 
@@ -440,19 +610,28 @@ cdef class Device:
         current, default = nvml.device_get_auto_boosted_clocks_enabled(self._handle)
         return current == nvml.EnableState.FEATURE_ENABLED, default == nvml.EnableState.FEATURE_ENABLED
 
-    def get_current_clock_event_reasons(self) -> list[ClocksEventReasons]:
+    @property
+    def current_clock_event_reasons(self) -> list[ClocksEventReasons]:
         """
-        Retrieves the current clocks event reasons.
+        Retrieves the current :obj:`~ClocksEventReasons`.
 
         For all fully supported products.
         """
         cdef uint64_t[1] reasons
         reasons[0] = nvml.device_get_current_clocks_event_reasons(self._handle)
-        return [ClocksEventReasons(1 << reason) for reason in _unpack_bitmask(reasons)]
+        output_reasons = []
+        for reason in _unpack_bitmask(reasons):
+            try:
+                output_reason = _CLOCKS_EVENT_REASONS_MAPPING[1 << reason]
+            except KeyError:
+                raise ValueError(f"Unknown clock event reason bit: {1 << reason}")
+            output_reasons.append(output_reason)
+        return output_reasons
 
-    def get_supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
+    @property
+    def supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
         """
-        Retrieves supported clocks event reasons that can be returned by
+        Retrieves supported :obj:`~ClocksEventReasons` that can be returned by
         :meth:`get_current_clock_event_reasons`.
 
         For all fully supported products.
@@ -461,7 +640,14 @@ cdef class Device:
         """
         cdef uint64_t[1] reasons
         reasons[0] = nvml.device_get_supported_clocks_event_reasons(self._handle)
-        return [ClocksEventReasons(1 << reason) for reason in _unpack_bitmask(reasons)]
+        output_reasons = []
+        for reason in _unpack_bitmask(reasons):
+            try:
+                output_reason = _CLOCKS_EVENT_REASONS_MAPPING[1 << reason]
+            except KeyError:
+                raise ValueError(f"Unknown clock event reason bit: {1 << reason}")
+            output_reasons.append(output_reason)
+        return output_reasons
 
     ##########################################################################
     # COOLER
@@ -470,7 +656,7 @@ cdef class Device:
     @property
     def cooler(self) -> CoolerInfo:
         """
-        Get information about cooler on a device.
+        :obj:`~_device.CoolerInfo` object with cooler information for the device.
         """
         return CoolerInfo(nvml.device_get_cooler_info(self._handle))
 
@@ -481,7 +667,7 @@ cdef class Device:
     @property
     def attributes(self) -> DeviceAttributes:
         """
-        Get various device attributes.
+        :obj:`~_device.DeviceAttributes` object with various device attributes.
 
         For Ampere™ or newer fully supported devices.  Only available on Linux
         systems.
@@ -492,17 +678,17 @@ cdef class Device:
     # DISPLAY
 
     @property
-    def display_mode(self) -> bool:
+    def is_display_connected(self) -> bool:
         """
         The display mode for this device.
 
         Indicates whether a physical display (e.g. monitor) is currently connected to
         any of the device's connectors.
         """
-        return True if nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
+        return nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
     @property
-    def display_active(self) -> bool:
+    def is_display_active(self) -> bool:
         """
         The display active status for this device.
 
@@ -512,13 +698,13 @@ cdef class Device:
 
         Display can be active even when no monitor is physically attached.
         """
-        return True if nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
+        return nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
     ##########################################################################
     # EVENTS
     # See external class definitions in _event.pxi
 
-    def register_events(self, events: EventType | int | list[EventType | int]) -> DeviceEvents:
+    def register_events(self, events: EventType | str | list[EventType | str]) -> DeviceEvents:
         """
         Starts recording events on this device.
 
@@ -537,21 +723,21 @@ cdef class Device:
         --------
         >>> device = Device(index=0)
         >>> events = device.register_events([
-        ...     EventType.EVENT_TYPE_XID_CRITICAL_ERROR,
+        ...     EventType.XID_CRITICAL_ERROR,
         ... ])
         >>> while event := events.wait(timeout_ms=10000):
         ...     print(f"Event {event.event_type} occurred on device {event.device.uuid}")
 
         Parameters
         ----------
-        events: EventType, int, or list of EventType or int
+        events: EventType, str, or list of EventType or str
             The event type or list of event types to register for this device.
 
         Returns
         -------
-        :class:`DeviceEvents`
+        :obj:`~_device.DeviceEvents`
             An object representing the registered events.  Call
-            :meth:`DeviceEvents.wait` on this object to wait for events.
+            :meth:`~_device.DeviceEvents.wait` on this object to wait for events.
 
         Raises
         ------
@@ -574,15 +760,22 @@ cdef class Device:
         """
         cdef uint64_t[1] bitmask
         bitmask[0] = nvml.device_get_supported_event_types(self._handle)
-        return [EventType(1 << ev) for ev in _unpack_bitmask(bitmask)]
+        events = []
+        for ev in _unpack_bitmask(bitmask):
+            try:
+                ev_enum = _EVENT_TYPE_MAPPING[1 << ev]
+            except KeyError:
+                raise ValueError(f"Unknown event type bit: {1 << ev}")
+            events.append(ev_enum)
+        return events
 
     ##########################################################################
     # FAN
     # See external class definitions in _fan.pxi
 
-    def fan(self, fan: int = 0) -> FanInfo:
+    def get_fan(self, fan: int = 0) -> FanInfo:
         """
-        Get information and manage a specific fan on a device.
+        :obj:`~_device.FanInfo` object to get information and manage a specific fan on a device.
         """
         if fan < 0 or fan >= self.num_fans:
             raise ValueError(f"Fan index {fan} is out of range [0, {self.num_fans})")
@@ -605,14 +798,14 @@ cdef class Device:
 
         Each value specified can raise its own exception.  That exception will
         be raised when attempting to access the corresponding ``value`` from the
-        returned :class:`FieldValues` container.
+        returned :obj:`~_device.FieldValues` container.
 
         To confirm that there are no exceptions in the entire container, call
-        :meth:`FieldValues.validate`.
+        :meth:`~_device.FieldValues.validate`.
 
         Parameters
         ----------
-        field_ids: list of int or tuple of (int, int)
+        field_ids: list[int | tuple[int, int]]
             List of field IDs to query.
 
             Each item may be either a single value from the :class:`FieldId`
@@ -620,9 +813,14 @@ cdef class Device:
 
         Returns
         -------
-        :class:`FieldValues`
+        :obj:`~_device.FieldValues`
             Container of field values corresponding to the requested field IDs.
         """
+        # Passing a field_ids array of length 0 raises an InvalidArgumentError,
+        # so avoid that.
+        if len(field_ids) == 0:
+            return FieldValues(nvml.FieldValue(0))
+
         return FieldValues(nvml.device_get_field_values(self._handle, field_ids))
 
     def clear_field_values(self, field_ids: list[int | tuple[int, int]]) -> None:
@@ -631,12 +829,17 @@ cdef class Device:
 
         Parameters
         ----------
-        field_ids: list of int or tuple of (int, int)
+        field_ids: list[int | tuple[int, int]]
             List of field IDs to clear.
 
             Each item may be either a single value from the :class:`FieldId`
             enum, or a pair of (:class:`FieldId`, scope ID).
         """
+        # Passing a field_ids array of length 0 raises an InvalidArgumentError,
+        # so avoid that.
+        if len(field_ids) == 0:
+            return
+
         nvml.device_clear_field_values(self._handle, field_ids)
 
     ##########################################################################
@@ -646,7 +849,7 @@ cdef class Device:
     @property
     def inforom(self) -> InforomInfo:
         """
-        Accessor for InfoROM information.
+        :obj:`~_device.InforomInfo` object with InfoROM information.
 
         For all products with an InfoROM.
         """
@@ -659,7 +862,7 @@ cdef class Device:
     @property
     def bar1_memory_info(self) -> BAR1MemoryInfo:
         """
-        Get information about BAR1 memory.
+        :obj:`~_device.BAR1MemoryInfo` object with BAR1 memory information.
 
         BAR1 is used to map the FB (device memory) so that it can be directly
         accessed by the CPU or by 3rd party devices (peer-to-peer on the PCIE
@@ -670,9 +873,23 @@ cdef class Device:
     @property
     def memory_info(self) -> MemoryInfo:
         """
-        Object with memory information.
+        :obj:`~_device.MemoryInfo` object with memory information.
         """
         return MemoryInfo(nvml.device_get_memory_info_v2(self._handle))
+
+    ##########################################################################
+    # NVLINK
+    # See external class definitions in _nvlink.pxi
+
+    def get_nvlink(self, link: int) -> NvlinkInfo:
+        """
+        Get :obj:`~NvlinkInfo` about this device.
+
+        For devices with NVLink support.
+        """
+        if link < 0 or link >= NvlinkInfo.max_links:
+            raise ValueError(f"Link index {link} is out of range [0, {NvlinkInfo.max_links})")
+        return NvlinkInfo(self, link)
 
     ##########################################################################
     # PCI INFO
@@ -681,40 +898,99 @@ cdef class Device:
     @property
     def pci_info(self) -> PciInfo:
         """
-        The PCI attributes of this device.
+        :obj:`~_device.PciInfo` object with the PCI attributes of this device.
+
+        Non-physical devices, such as MIG devices, may not have PCI attributes.
+        In that case, this property will raise a `RuntimeError`.
         """
-        return PciInfo(nvml.device_get_pci_info_ext(self._handle), self._handle)
+        try:
+            pci_info = nvml.device_get_pci_info_ext(self._handle)
+        except nvml.InvalidArgumentError:
+            raise RuntimeError("This device does not have PCI attributes") from None
+        else:
+            return PciInfo(pci_info, self._handle)
 
     ##########################################################################
     # PERFORMANCE
     # See external class definitions in _performance.pxi
 
     @property
-    def performance_state(self) -> Pstates:
+    def performance_state(self) -> int | None:
         """
         The current performance state of the device.
 
         For Fermi™ or newer fully supported devices.
 
-        See :class:`Pstates` for possible performance states.
+        Returns
+        -------
+        int | None
+            The current performance state of the device, as an integer between 0 and 15,
+            where 0 is maximum performance and higher numbers are lower performance.
+            Returns `None` if the performance state is unknown.
         """
-        return Pstates(nvml.device_get_performance_state(self._handle))
+        return _pstate_to_int(nvml.device_get_performance_state(self._handle))
 
     @property
     def dynamic_pstates_info(self) -> GpuDynamicPstatesInfo:
         """
-        Retrieve performance monitor samples from the associated subdevice.
+        :obj:`~_device.GpuDynamicPstatesInfo` object with performance monitor samples from the associated subdevice.
         """
         return GpuDynamicPstatesInfo(nvml.device_get_dynamic_pstates_info(self._handle))
 
-    def get_supported_pstates(self) -> list[Pstates]:
+    @property
+    def supported_pstates(self) -> list[int]:
         """
         Get all supported Performance States (P-States) for the device.
 
         The returned list contains a contiguous list of valid P-States supported by
         the device.
+
+        Return
+        ------
+        list[int]
+            A list of supported performance state of the device, as an integer
+            between 0 and 15, where 0 is maximum performance and higher numbers
+            are lower performance.
         """
-        return [Pstates(x) for x in nvml.device_get_supported_performance_states(self._handle)]
+        # From nvml.h:
+        # The returned array would contain a contiguous list of valid P-States
+        # supported by the device. If the number of supported P-States is fewer
+        # than the size of the array supplied missing elements would contain \a
+        # NVML_PSTATE_UNKNOWN.
+
+        pstates = []
+        for pstate in nvml.device_get_supported_performance_states(self._handle):
+            pstate_value = _pstate_to_int(pstate)
+            if pstate_value is not None:
+                pstates.append(pstate_value)
+        return pstates
+
+    ##########################################################################
+    # PROCESS
+    # See external class definitions in _process.pxi
+
+    @property
+    def compute_running_processes(self) -> list[ProcessInfo]:
+        """
+        Get information about processes with a compute context on a device
+
+        For Fermi™ or newer fully supported devices.
+
+        This function returns information only about compute running processes
+        (e.g. CUDA application which have active context). Any graphics
+        applications (e.g. using OpenGL, DirectX) won't be listed by this
+        function.
+
+        Keep in mind that information returned by this call is dynamic and the
+        number of elements might change in time.
+
+        In MIG mode, if device handle is provided, the API returns aggregate
+        information, only if the caller has appropriate privileges. Per-instance
+        information can be queried by using specific MIG device handles.
+        Querying per-instance information using MIG device handles is not
+        supported if the device is in vGPU Host virtualization mode.
+        """
+        return [ProcessInfo(self, proc) for proc in nvml.device_get_compute_running_processes_v3(self._handle)]
 
     ##########################################################################
     # REPAIR STATUS
@@ -723,7 +999,7 @@ cdef class Device:
     @property
     def repair_status(self) -> RepairStatus:
         """
-        Get the repair status for TPC/Channel repair.
+        :obj:`~_device.RepairStatus` object with TPC/Channel repair status.
 
         For Ampere™ or newer fully supported devices.
         """
@@ -736,14 +1012,14 @@ cdef class Device:
     @property
     def temperature(self) -> Temperature:
         """
-        Get information about temperatures on a device.
+        :obj:`~_device.Temperature` object with temperature information for the device.
         """
         return Temperature(self._handle)
 
     #######################################################################
     # TOPOLOGY
 
-    def get_topology_nearest_gpus(self, level: GpuTopologyLevel) -> Iterable[Device]:
+    def get_topology_nearest_gpus(self, level: GpuTopologyLevel | str) -> Iterable[Device]:
         """
         Retrieve the GPUs that are nearest to this device at a specific interconnectivity level.
 
@@ -760,10 +1036,42 @@ cdef class Device:
             The nearest devices at the given topology level.
         """
         cdef Device device
+        try:
+            level = _GPU_TOPOLOGY_LEVEL_MAPPING[level]
+        except KeyError:
+            raise ValueError(
+                f"Invalid topology level: {level}. "
+                f"Must be one of {list(GpuTopologyLevel.__members__.values())}"
+            ) from None
         for handle in nvml.device_get_topology_nearest_gpus(self._handle, level):
             device = Device.__new__(Device)
             device._handle = handle
             yield device
+
+    #######################################################################
+    # UTILIZATION
+
+    @property
+    def utilization(self) -> Utilization:
+        """
+        Retrieves the current :obj:`~Utilization` rates for the device's major
+        subsystems.
+
+        For Fermi™ or newer fully supported devices.
+
+        Note: During driver initialization when ECC is enabled one can see high
+        GPU and Memory Utilization readings.  This is caused by ECC Memory
+        Scrubbing mechanism that is performed during driver initialization.
+
+        Note: On MIG-enabled GPUs, querying device utilization rates is not
+        currently supported.
+
+        Returns
+        -------
+        Utilization
+            An object containing the current utilization rates for the device.
+        """
+        return Utilization(nvml.device_get_utilization_rates(self._handle))
 
 
 def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopologyLevel:
@@ -784,15 +1092,15 @@ def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopolog
     :class:`GpuTopologyLevel`
         The common ancestor level of the two devices.
     """
-    return GpuTopologyLevel(
+    return _GPU_TOPOLOGY_LEVEL_INV_MAPPING[
         nvml.device_get_topology_common_ancestor(
             device1._handle,
             device2._handle,
         )
-    )
+    ]
 
 
-def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex) -> GpuP2PStatus:
+def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex | str) -> GpuP2PStatus:
     """
     Retrieve the P2P status between two devices.
 
@@ -802,7 +1110,7 @@ def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex) -> 
         The first device.
     device2: :class:`Device`
         The second device.
-    index: :class:`GpuP2PCapsIndex`
+    index: :class:`GpuP2PCapsIndex` | str
         The P2P capability index being looked for between ``device1`` and ``device2``.
 
     Returns
@@ -810,58 +1118,26 @@ def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex) -> 
     :class:`GpuP2PStatus`
         The P2P status between the two devices.
     """
-    return GpuP2PStatus(
+    try:
+        index_enum = _GPU_P2P_CAPS_INDEX_MAPPING[index]
+    except KeyError:
+        raise ValueError(
+            f"Invalid P2P caps index: {index}. "
+            f"Must be one of {list(GpuP2PCapsIndex.__members__.values())}"
+        ) from None
+    return _GPU_P2P_STATUS_MAPPING.get(
         nvml.device_get_p2p_status(
             device1._handle,
             device2._handle,
-            index,
-        )
+            index_enum,
+        ),
+        GpuP2PStatus.UNKNOWN
     )
 
 
 __all__ = [
-    "AddressingMode",
-    "AffinityScope",
-    "BAR1MemoryInfo",
-    "BrandType",
-    "ClockId",
-    "ClockInfo",
-    "ClockOffsets",
-    "ClocksEventReasons",
-    "ClockType",
-    "CoolerControl",
-    "CoolerInfo",
-    "CoolerTarget",
     "Device",
-    "DeviceArch",
-    "DeviceAttributes",
-    "DeviceEvents",
-    "EventData",
-    "EventType",
-    "FanControlPolicy",
-    "FanInfo",
-    "FieldId",
-    "FieldValue",
-    "FieldValues",
     "get_p2p_status",
     "get_topology_common_ancestor",
-    "GpuDynamicPstatesInfo",
-    "GpuDynamicPstatesUtilization",
-    "GpuP2PCapsIndex",
-    "GpuP2PStatus",
-    "GpuTopologyLevel",
-    "InforomInfo",
-    "InforomObject",
-    "MemoryInfo",
-    "PcieUtilCounter",
-    "PciInfo",
-    "Pstates",
-    "RepairStatus",
-    "Temperature",
-    "TemperatureSensors",
-    "TemperatureThresholds",
-    "ThermalController",
-    "ThermalSensor",
-    "ThermalSettings",
-    "ThermalTarget",
+    "NvlinkInfo",
 ]

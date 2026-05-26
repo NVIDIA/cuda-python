@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import ctypes
@@ -11,6 +11,7 @@ import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda import pathfinder
 from cuda.bindings import runtime
+from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 
 
 def isSuccess(err):
@@ -256,6 +257,89 @@ def test_cudart_graphs():
     assertSuccess(err)
 
 
+def test_cudart_cudaGraphGetEdges_edgeData_outlives_call():
+    # Regression test for https://github.com/NVIDIA/cuda-python/issues/1804
+    # cudaGraphGetEdges previously returned cudaGraphEdgeData wrappers backed
+    # by a scratch buffer that was freed before the call returned, leaving
+    # the wrappers pointing at freed memory. Ensure the returned objects
+    # remain readable after the call and after subsequent allocations.
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+    try:
+        err, n0 = cudart.cudaGraphAddEmptyNode(graph, None, 0)
+        assertSuccess(err)
+        err, n1 = cudart.cudaGraphAddEmptyNode(graph, [n0], 1)
+        assertSuccess(err)
+        err, n2 = cudart.cudaGraphAddEmptyNode(graph, [n0, n1], 2)
+        assertSuccess(err)
+
+        err, _, _, _, num_edges = cudart.cudaGraphGetEdges(graph)
+        assertSuccess(err)
+        assert num_edges == 3
+        err, from_nodes, to_nodes, edge_data, num_edges = cudart.cudaGraphGetEdges(graph, num_edges)
+        assertSuccess(err)
+        assert len(edge_data) == num_edges == 3
+
+        # Stir the heap to make a use-after-free more likely to surface
+        # by reallocating the same-sized scratch buffer many times.
+        for _ in range(64):
+            err, _, _, _, _ = cudart.cudaGraphGetEdges(graph, num_edges)
+            assertSuccess(err)
+
+        # Each wrapper must still own its data. Default-edge values are zero;
+        # if the wrapper were holding a dangling pointer, attribute access
+        # would be undefined behavior. We at minimum require it to not crash
+        # and to report the documented defaults.
+        for ed in edge_data:
+            assert ed.from_port == 0
+            assert ed.to_port == 0
+            assert int(ed.type) == 0
+            assert ed.reserved == b"\x00" * 5
+    finally:
+        (err,) = cudart.cudaGraphDestroy(graph)
+        assertSuccess(err)
+
+
+def test_cudart_cudaGraphNodeGetDependencies_edgeData_outlives_call():
+    # Companion regression test for #1804 covering the dependency-query path.
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+    try:
+        err, n0 = cudart.cudaGraphAddEmptyNode(graph, None, 0)
+        assertSuccess(err)
+        err, n1 = cudart.cudaGraphAddEmptyNode(graph, [n0], 1)
+        assertSuccess(err)
+
+        err, _, _, num_deps = cudart.cudaGraphNodeGetDependencies(n1)
+        assertSuccess(err)
+        assert num_deps == 1
+        err, deps, edge_data, num_deps = cudart.cudaGraphNodeGetDependencies(n1, num_deps)
+        assertSuccess(err)
+        assert len(edge_data) == num_deps == 1
+
+        err, _, _, num_dependents = cudart.cudaGraphNodeGetDependentNodes(n0)
+        assertSuccess(err)
+        assert num_dependents == 1
+        err, dependents, dep_edge_data, num_dependents = cudart.cudaGraphNodeGetDependentNodes(n0, num_dependents)
+        assertSuccess(err)
+        assert len(dep_edge_data) == num_dependents == 1
+
+        for _ in range(64):
+            err, _, _, _ = cudart.cudaGraphNodeGetDependencies(n1, num_deps)
+            assertSuccess(err)
+            err, _, _, _ = cudart.cudaGraphNodeGetDependentNodes(n0, num_dependents)
+            assertSuccess(err)
+
+        for ed in edge_data + dep_edge_data:
+            assert ed.from_port == 0
+            assert ed.to_port == 0
+            assert int(ed.type) == 0
+            assert ed.reserved == b"\x00" * 5
+    finally:
+        (err,) = cudart.cudaGraphDestroy(graph)
+        assertSuccess(err)
+
+
 def test_cudart_list_access():
     err, prop = cudart.cudaGetDeviceProperties(0)
     prop.name = prop.name + b" " * (256 - len(prop.name))
@@ -432,6 +516,7 @@ def test_cudart_MemPool_attr():
 
     attr_list = [None] * 8
     err, pool = cudart.cudaMemPoolCreate(poolProps)
+    xfail_if_mempool_oom(err, "cudaMemPoolCreate", poolProps.location.id)
     assertSuccess(err)
 
     for idx, attr in enumerate(

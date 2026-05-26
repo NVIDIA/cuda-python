@@ -49,7 +49,7 @@ Fixes and enhancements
 - Improved :class:`DeviceMemoryResource` allocation performance when there are no active allocations by setting a higher release threshold (addresses issue #771).
 - Improved :class:`StridedMemoryView` creation time performance by optimizing shape and strides tuple creation using Python/C API (addresses issue #449).
 - Fix :class:`LaunchConfig` grid unit conversion when cluster is set (addresses issue #867).
-- Fixed a bug in :class:`GraphBuilder.add_child` where dependencies extracted from capturing stream were passed inconsistently with num_dependencies parameter (addresses issue #843).
+- Fixed a bug in ``GraphBuilder.add_child`` where dependencies extracted from capturing stream were passed inconsistently with num_dependencies parameter (addresses issue #843).
 - Make :class:`Buffer` creation more performant.
 - Enabled :class:`MemoryResource` subclasses to accept :class:`Device` objects, in addition to previously supported device ordinals.
 - Fixed a bug in :class:`Stream` and other classes where object cleanup would error during interpreter shutdown.

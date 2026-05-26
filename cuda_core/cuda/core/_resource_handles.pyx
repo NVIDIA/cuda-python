@@ -20,6 +20,7 @@ from cuda.bindings cimport cynvjitlink
 
 from ._resource_handles cimport (
     ContextHandle,
+    GreenCtxHandle,
     StreamHandle,
     EventHandle,
     MemoryPoolHandle,
@@ -55,6 +56,15 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Context handles
     ContextHandle create_context_handle_ref "cuda_core::create_context_handle_ref" (
         cydriver.CUcontext ctx) except+ nogil
+    ContextHandle create_context_handle_from_green_ctx "cuda_core::create_context_handle_from_green_ctx" (
+        const GreenCtxHandle& h_green_ctx) except+ nogil
+    GreenCtxHandle get_context_green_ctx "cuda_core::get_context_green_ctx" (
+        const ContextHandle& h) noexcept nogil
+    GreenCtxHandle create_green_ctx_handle "cuda_core::create_green_ctx_handle" (
+        cydriver.CUdevResource* resources, unsigned int nbResources,
+        cydriver.CUdevice dev, unsigned int flags) except+ nogil
+    GreenCtxHandle create_green_ctx_handle_ref "cuda_core::create_green_ctx_handle_ref" (
+        cydriver.CUgreenCtx ctx) except+ nogil
     ContextHandle get_primary_context "cuda_core::get_primary_context" (
         int device_id) except+ nogil
     ContextHandle get_current_context "cuda_core::get_current_context" () except+ nogil
@@ -66,25 +76,27 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUstream stream) except+ nogil
     StreamHandle create_stream_handle_with_owner "cuda_core::create_stream_handle_with_owner" (
         cydriver.CUstream stream, object owner) except+ nogil
+    ContextHandle get_stream_context "cuda_core::get_stream_context" (
+        const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::get_legacy_stream" () except+ nogil
     StreamHandle get_per_thread_stream "cuda_core::get_per_thread_stream" () except+ nogil
 
     # Event handles (note: _create_event_handle* are internal due to C++ overloading)
     EventHandle create_event_handle "cuda_core::create_event_handle" (
         const ContextHandle& h_ctx, unsigned int flags,
-        bint timing_disabled, bint busy_waited,
+        bint timing_enabled, bint is_blocking_sync,
         bint ipc_enabled, int device_id) except+ nogil
     EventHandle create_event_handle_noctx "cuda_core::create_event_handle_noctx" (
         unsigned int flags) except+ nogil
     EventHandle create_event_handle_ref "cuda_core::create_event_handle_ref" (
         cydriver.CUevent event) except+ nogil
     EventHandle create_event_handle_ipc "cuda_core::create_event_handle_ipc" (
-        const cydriver.CUipcEventHandle& ipc_handle, bint busy_waited) except+ nogil
+        const cydriver.CUipcEventHandle& ipc_handle, bint is_blocking_sync) except+ nogil
 
     # Event metadata getters
-    bint get_event_timing_disabled "cuda_core::get_event_timing_disabled" (
+    bint get_event_timing_enabled "cuda_core::get_event_timing_enabled" (
         const EventHandle& h) noexcept nogil
-    bint get_event_busy_waited "cuda_core::get_event_busy_waited" (
+    bint get_event_is_blocking_sync "cuda_core::get_event_is_blocking_sync" (
         const EventHandle& h) noexcept nogil
     bint get_event_ipc_enabled "cuda_core::get_event_ipc_enabled" (
         const EventHandle& h) noexcept nogil
@@ -196,6 +208,15 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     FileDescriptorHandle create_fd_handle_ref "cuda_core::create_fd_handle_ref" (
         int fd) except+ nogil
 
+    # SM resource split (13.1+ wrapper — avoids direct cydriver cimport)
+    # groupParams is void* to avoid referencing CU_DEV_SM_RESOURCE_GROUP_PARAMS
+    # (which doesn't exist in cuda-bindings 13.0 .pxd). The C++ side casts it.
+    cydriver.CUresult sm_resource_split "cuda_core::sm_resource_split" (
+        cydriver.CUdevResource* result, unsigned int nbGroups,
+        const cydriver.CUdevResource* input, cydriver.CUdevResource* remainder,
+        unsigned int flags, void* groupParams) nogil
+    bint has_sm_resource_split "cuda_core::has_sm_resource_split" () noexcept nogil
+
 
 # =============================================================================
 # CUDA Driver API capsule
@@ -223,6 +244,11 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuDevicePrimaryCtxRetain "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRetain)"
     void* p_cuDevicePrimaryCtxRelease "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRelease)"
     void* p_cuCtxGetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetCurrent)"
+    void* p_cuGreenCtxCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxCreate)"
+    void* p_cuGreenCtxDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxDestroy)"
+    void* p_cuCtxFromGreenCtx "reinterpret_cast<void*&>(cuda_core::p_cuCtxFromGreenCtx)"
+    void* p_cuDevResourceGenerateDesc "reinterpret_cast<void*&>(cuda_core::p_cuDevResourceGenerateDesc)"
+    void* p_cuGreenCtxStreamCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxStreamCreate)"
 
     # Stream
     void* p_cuStreamCreateWithPriority "reinterpret_cast<void*&>(cuda_core::p_cuStreamCreateWithPriority)"
@@ -273,6 +299,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuGraphicsUnmapResources "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnmapResources)"
     void* p_cuGraphicsUnregisterResource "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnregisterResource)"
 
+    # SM resource split (13.1+)
+    void* p_cuDevSmResourceSplit "reinterpret_cast<void*&>(cuda_core::p_cuDevSmResourceSplit)"
+
     # NVRTC
     void* p_nvrtcDestroyProgram "reinterpret_cast<void*&>(cuda_core::p_nvrtcDestroyProgram)"
 
@@ -288,10 +317,23 @@ cdef void* _get_driver_fn(str name):
     capsule = cydriver.__pyx_capi__[name]
     return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
 
+
+cdef void* _get_optional_driver_fn(str name):
+    try:
+        capsule = cydriver.__pyx_capi__[name]
+    except KeyError:
+        return NULL
+    return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
+
 # Context
 p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
 p_cuDevicePrimaryCtxRelease = _get_driver_fn("cuDevicePrimaryCtxRelease")
 p_cuCtxGetCurrent = _get_driver_fn("cuCtxGetCurrent")
+p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
+p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
+p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")
+p_cuDevResourceGenerateDesc = _get_optional_driver_fn("cuDevResourceGenerateDesc")
+p_cuGreenCtxStreamCreate = _get_optional_driver_fn("cuGreenCtxStreamCreate")
 
 # Stream
 p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")
@@ -341,6 +383,9 @@ p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
 # Graphics interop
 p_cuGraphicsUnmapResources = _get_driver_fn("cuGraphicsUnmapResources")
 p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")
+
+# SM resource split (13.1+ — may not exist in older cuda-bindings)
+p_cuDevSmResourceSplit = _get_optional_driver_fn("cuDevSmResourceSplit")
 
 # =============================================================================
 # NVRTC function pointer initialization

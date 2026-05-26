@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from cpython.ref cimport Py_INCREF
+
 from libc.stddef cimport size_t
 from libc.stdint cimport uintptr_t
 from libc.string cimport memset as c_memset
@@ -18,7 +20,7 @@ from cuda.core._event cimport Event
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._module cimport Kernel
-from cuda.core.graph._graph_def cimport Condition, GraphDef
+from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
 from cuda.core.graph._subclasses cimport (
     AllocNode,
     ChildGraphNode,
@@ -54,12 +56,16 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 from cuda.core.graph._utils cimport (
     _attach_host_callback_to_graph,
     _attach_user_object,
+    _py_host_destructor,
 )
 
 import weakref
 
 from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
 from cuda.core._utils.cuda_utils import driver
+from cuda.core.typing import GraphMemoryType
+
+__all__ = ['GraphNode']
 
 # See _cpp/REGISTRY_DESIGN.md (Level 2: Resource Handle -> Python Object)
 _node_registry = weakref.WeakValueDictionary()
@@ -73,7 +79,7 @@ cdef inline GraphNode _registered(GraphNode n):
 cdef class GraphNode:
     """A node in a graph definition.
 
-    Nodes are created by calling builder methods on GraphDef (for
+    Nodes are created by calling builder methods on GraphDefinition (for
     entry-point nodes with no dependencies) or on other Nodes (for
     nodes that depend on a predecessor).
     """
@@ -120,9 +126,9 @@ cdef class GraphNode:
         return driver.CUgraphNodeType(<int>node_type)
 
     @property
-    def graph(self) -> "GraphDef":
-        """Return the GraphDef this node belongs to."""
-        return GraphDef._from_handle(graph_node_get_graph(self._h_node))
+    def graph(self) -> "GraphDefinition":
+        """Return the GraphDefinition this node belongs to."""
+        return GraphDefinition._from_handle(graph_node_get_graph(self._h_node))
 
     @property
     def handle(self) -> driver.CUgraphNode:
@@ -213,25 +219,50 @@ cdef class GraphNode:
         """
         return GN_join(self, nodes)
 
-    def alloc(self, size_t size, options=None) -> AllocNode:
+    def allocate(self, size_t size, *, device: "Device" | int | None = None,
+                 memory_type: GraphMemoryType = GraphMemoryType.DEVICE,
+                 peer_access: list["Device" | int] | None = None) -> AllocNode:
         """Add a memory allocation node depending on this node.
 
         Parameters
         ----------
         size : int
             Number of bytes to allocate.
-        options : GraphAllocOptions, optional
-            Allocation options. If None, allocates on the current device.
+        device : int or Device, optional
+            The device on which to allocate memory. If None (default),
+            uses the current CUDA context's device.
+        memory_type : GraphMemoryType or str, optional
+            Type of memory to allocate. One of:
+
+            - ``GraphMemoryType.DEVICE`` (default): Pinned device memory,
+              optimal for GPU kernels.
+            - ``GraphMemoryType.HOST``: Pinned host memory, accessible from
+              both host and device. Useful for graphs containing host
+              callback nodes. Note: may not be supported on all
+              systems/drivers.
+            - ``GraphMemoryType.MANAGED``: Managed/unified memory that
+              automatically migrates between host and device. Useful for
+              mixed host/device access patterns.
+
+        peer_access : list of int or Device, optional
+            List of devices that should have read-write access to the
+            allocated memory. If None (default), only the allocating
+            device has access.
 
         Returns
         -------
         AllocNode
             A new AllocNode representing the allocation. Access the allocated
             device pointer via the dptr property.
-        """
-        return GN_alloc(self, size, options)
 
-    def free(self, dptr: int) -> FreeNode:
+        Notes
+        -----
+        IPC (inter-process communication) is not supported for graph
+        memory allocation nodes per CUDA documentation.
+        """
+        return GN_alloc(self, size, device, memory_type, peer_access)
+
+    def deallocate(self, dptr: int) -> FreeNode:
         """Add a memory free node depending on this node.
 
         Parameters
@@ -296,7 +327,7 @@ cdef class GraphNode:
         """
         return GN_memcpy(self, <cydriver.CUdeviceptr>dst, <cydriver.CUdeviceptr>src, size)
 
-    def embed(self, child: GraphDef) -> ChildGraphNode:
+    def embed(self, child: GraphDefinition) -> ChildGraphNode:
         """Add a child graph node depending on this node.
 
         Embeds a clone of the given graph definition as a sub-graph node.
@@ -305,7 +336,7 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        child : GraphDef
+        child : GraphDefinition
             The graph definition to embed (will be cloned).
 
         Returns
@@ -313,9 +344,9 @@ cdef class GraphNode:
         ChildGraphNode
             A new ChildGraphNode representing the embedded sub-graph.
         """
-        return GN_embed(self, <GraphDef>child)
+        return GN_embed(self, <GraphDefinition>child)
 
-    def record_event(self, event: Event) -> EventRecordNode:
+    def record(self, event: Event) -> EventRecordNode:
         """Add an event record node depending on this node.
 
         Parameters
@@ -330,7 +361,7 @@ cdef class GraphNode:
         """
         return GN_record_event(self, <Event>event)
 
-    def wait_event(self, event: Event) -> EventWaitNode:
+    def wait(self, event: Event) -> EventWaitNode:
         """Add an event wait node depending on this node.
 
         Parameters
@@ -380,7 +411,7 @@ cdef class GraphNode:
         """
         return GN_callback(self, fn, user_data)
 
-    def if_cond(self, condition: Condition) -> IfNode:
+    def if_then(self, condition: GraphCondition) -> IfNode:
         """Add an if-conditional node depending on this node.
 
         The body graph executes only when the condition evaluates to
@@ -388,8 +419,8 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        condition : Condition
-            Condition from :meth:`GraphDef.create_condition`.
+        condition : GraphCondition
+            GraphCondition from :meth:`GraphDefinition.create_condition`.
 
         Returns
         -------
@@ -400,7 +431,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_IF, 1, IfNode)
 
-    def if_else(self, condition: Condition) -> IfElseNode:
+    def if_else(self, condition: GraphCondition) -> IfElseNode:
         """Add an if-else conditional node depending on this node.
 
         Two body graphs: the first executes when the condition is
@@ -408,8 +439,8 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        condition : Condition
-            Condition from :meth:`GraphDef.create_condition`.
+        condition : GraphCondition
+            GraphCondition from :meth:`GraphDefinition.create_condition`.
 
         Returns
         -------
@@ -421,7 +452,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_IF, 2, IfElseNode)
 
-    def while_loop(self, condition: Condition) -> WhileNode:
+    def while_loop(self, condition: GraphCondition) -> WhileNode:
         """Add a while-loop conditional node depending on this node.
 
         The body graph executes repeatedly while the condition
@@ -429,8 +460,8 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        condition : Condition
-            Condition from :meth:`GraphDef.create_condition`.
+        condition : GraphCondition
+            GraphCondition from :meth:`GraphDefinition.create_condition`.
 
         Returns
         -------
@@ -441,7 +472,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_WHILE, 1, WhileNode)
 
-    def switch(self, condition: Condition, unsigned int count) -> SwitchNode:
+    def switch(self, condition: GraphCondition, unsigned int count) -> SwitchNode:
         """Add a switch conditional node depending on this node.
 
         The condition value selects which branch to execute. If the
@@ -449,8 +480,8 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        condition : Condition
-            Condition from :meth:`GraphDef.create_condition`.
+        condition : GraphCondition
+            GraphCondition from :meth:`GraphDefinition.create_condition`.
         count : int
             Number of switch cases (branches).
 
@@ -476,14 +507,14 @@ cdef void _destroy_kernel_handle_copy(void* ptr) noexcept nogil:
 
 cdef inline ConditionalNode _make_conditional_node(
         GraphNode pred,
-        Condition condition,
+        GraphCondition condition,
         cydriver.CUgraphConditionalNodeType cond_type,
         unsigned int size,
         type node_cls):
-    if not isinstance(condition, Condition):
+    if not isinstance(condition, GraphCondition):
         raise TypeError(
-            f"condition must be a Condition object (from "
-            f"GraphDef.create_condition()), got {type(condition).__name__}")
+            f"condition must be a GraphCondition object (from "
+            f"GraphDefinition.create_condition()), got {type(condition).__name__}")
     cdef cydriver.CUgraphNodeParams params
     cdef cydriver.CUgraphNode new_node = NULL
 
@@ -522,7 +553,7 @@ cdef inline ConditionalNode _make_conditional_node(
     for i in range(size):
         bg = params.conditional.phGraph_out[i]
         h_branch = create_graph_handle_ref(bg, h_graph)
-        branch_list.append(GraphDef._from_handle(h_branch))
+        branch_list.append(GraphDefinition._from_handle(h_branch))
     cdef tuple branches = tuple(branch_list)
 
     cdef ConditionalNode n = node_cls.__new__(node_cls)
@@ -615,6 +646,12 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     _attach_user_object(as_cu(h_graph), <void*>new KernelHandle(ker._h_kernel),
                         <cydriver.CUhostFn>_destroy_kernel_handle_copy)
 
+    cdef object kernel_args = ker_args.kernel_args
+    if kernel_args is not None:
+        Py_INCREF(kernel_args)
+        _attach_user_object(as_cu(h_graph), <void*>kernel_args,
+                            <cydriver.CUhostFn>_py_host_destructor)
+
     return _registered(KernelNode._create_with_params(
         create_graph_node_handle(new_node, h_graph),
         conf.grid, conf.block, conf.shmem_size,
@@ -647,16 +684,17 @@ cdef inline EmptyNode GN_join(GraphNode self, tuple nodes):
     return _registered(EmptyNode._create_impl(create_graph_node_handle(new_node, h_graph)))
 
 
-cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object options):
+cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object device,
+                               object memory_type, object peer_access):
     cdef int device_id
     cdef cydriver.CUdevice dev
 
-    if options is None or options.device is None:
+    if device is None:
         with nogil:
             HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
         device_id = <int>dev
     else:
-        device_id = getattr(options.device, 'device_id', options.device)
+        device_id = getattr(device, 'device_id', device)
 
     cdef cydriver.CUDA_MEM_ALLOC_NODE_PARAMS alloc_params
     cdef cydriver.CUgraphNode new_node = NULL
@@ -673,8 +711,8 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object options):
     cdef int peer_id
     cdef list peer_ids = []
 
-    if options is not None and options.peer_access is not None:
-        for peer_dev in options.peer_access:
+    if peer_access is not None:
+        for peer_dev in peer_access:
             peer_id = getattr(peer_dev, 'device_id', peer_dev)
             peer_ids.append(peer_id)
             access_descs.push_back(cydriver.CUmemAccessDesc_st(
@@ -685,23 +723,21 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object options):
                 cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
             ))
 
-    cdef str memory_type = "device"
-    if options is not None and options.memory_type is not None:
-        memory_type = options.memory_type
+    cdef str memory_type_str = "device" if memory_type is None else str(memory_type)
 
     c_memset(&alloc_params, 0, sizeof(alloc_params))
     alloc_params.poolProps.handleTypes = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
     alloc_params.bytesize = size
 
-    if memory_type == "device":
+    if memory_type_str == "device":
         alloc_params.poolProps.allocType = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
         alloc_params.poolProps.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         alloc_params.poolProps.location.id = device_id
-    elif memory_type == "host":
+    elif memory_type_str == "host":
         alloc_params.poolProps.allocType = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
         alloc_params.poolProps.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
         alloc_params.poolProps.location.id = 0
-    elif memory_type == "managed":
+    elif memory_type_str == "managed":
         IF CUDA_CORE_BUILD_MAJOR >= 13:
             alloc_params.poolProps.allocType = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
             alloc_params.poolProps.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
@@ -709,7 +745,7 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object options):
         ELSE:
             raise ValueError("memory_type='managed' requires CUDA 13.0 or later")
     else:
-        raise ValueError(f"Invalid memory_type: {memory_type!r}. "
+        raise ValueError(f"Invalid memory_type: {memory_type_str!r}. "
                        "Must be 'device', 'host', or 'managed'.")
 
     if access_descs.size() > 0:
@@ -722,7 +758,7 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object options):
 
     return _registered(AllocNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), alloc_params.dptr, size,
-        device_id, memory_type, tuple(peer_ids)))
+        device_id, memory_type_str, tuple(peer_ids)))
 
 
 cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
@@ -841,7 +877,7 @@ cdef inline MemcpyNode GN_memcpy(
         c_dst_type, c_src_type))
 
 
-cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDef child_def):
+cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)

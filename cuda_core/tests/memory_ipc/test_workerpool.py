@@ -10,7 +10,6 @@ from helpers.buffers import PatternGen
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 
-CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 NWORKERS = 2
 NMRS = 3
@@ -35,7 +34,7 @@ class TestIpcWorkerPool:
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
 
         try:
-            buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
 
             with mp.Pool(NWORKERS) as pool:
                 pool.map(self.process_buffer, buffers)
@@ -77,12 +76,12 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
 
         try:
-            buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
 
             with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
                 pool.starmap(
                     self.process_buffer,
-                    [(mrs.index(buffer.memory_resource), buffer.get_ipc_descriptor()) for buffer in buffers],
+                    [(mrs.index(buffer.memory_resource), buffer.ipc_descriptor) for buffer in buffers],
                 )
 
             pgen = PatternGen(device, NBYTES)
@@ -97,7 +96,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         mr = self.mrs[mr_idx]
         device = Device(mr.device_id)
         device.set_current()
-        buffer = Buffer.from_ipc_descriptor(mr, buffer_desc)
+        buffer = Buffer.from_ipc_descriptor(mr, buffer_desc, stream=device.default_stream)
         pgen = PatternGen(device, NBYTES)
         pgen.fill_buffer(buffer, seed=True)
         buffer.close()
@@ -127,7 +126,7 @@ class TestIpcWorkerPoolUsingRegistry:
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
 
         try:
-            buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
 
             with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
                 pool.starmap(self.process_buffer, [(device, pickle.dumps(buffer)) for buffer in buffers])

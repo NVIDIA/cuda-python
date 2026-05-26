@@ -6,11 +6,10 @@
 ``cuda.core`` API Reference
 ===========================
 
-This is the main API reference for ``cuda.core``. The package has not yet
-reached version 1.0.0, and APIs may change between minor versions, possibly
-without deprecation warnings. Once version 1.0.0 is released, APIs will
-be considered stable and will follow semantic versioning with appropriate
-deprecation periods for breaking changes.
+This is the main API reference for ``cuda.core``. As of version 1.0.0, all
+APIs are considered stable and follow `Semantic Versioning <https://semver.org/>`_
+with appropriate deprecation periods for breaking changes. See the
+:doc:`support policy <support>` for details.
 
 
 Devices and execution
@@ -20,18 +19,25 @@ Devices and execution
    :toctree: generated/
 
    Device
+   Host
    launch
 
    :template: autosummary/cyclass.rst
 
    Stream
    Event
+   Context
+   SMResource
+   WorkqueueResource
 
    :template: dataclass.rst
 
    StreamOptions
    EventOptions
    LaunchConfig
+   ContextOptions
+   SMResourceOptions
+   WorkqueueResourceOptions
 
 .. data:: LEGACY_DEFAULT_STREAM
 
@@ -55,6 +61,7 @@ Memory management
    :template: autosummary/cyclass.rst
 
    Buffer
+   ManagedBuffer
    MemoryResource
    DeviceMemoryResource
    GraphMemoryResource
@@ -78,7 +85,7 @@ A CUDA graph captures a set of GPU operations and their dependencies,
 allowing them to be defined once and launched repeatedly with minimal
 CPU overhead. Graphs can be constructed in two ways:
 :class:`~graph.GraphBuilder` captures operations from a stream, while
-:class:`~graph.GraphDef` builds a graph explicitly by adding nodes and
+:class:`~graph.GraphDefinition` builds a graph explicitly by adding nodes and
 edges. Both produce an executable :class:`~graph.Graph` that can be
 launched on a :class:`Stream`.
 
@@ -87,16 +94,15 @@ launched on a :class:`Stream`.
 
    graph.Graph
    graph.GraphBuilder
-   graph.GraphDef
+   graph.GraphDefinition
 
    :template: autosummary/cyclass.rst
 
    graph.GraphNode
-   graph.Condition
+   graph.GraphCondition
 
    :template: dataclass.rst
 
-   graph.GraphAllocOptions
    graph.GraphCompleteOptions
    graph.GraphDebugPrintOptions
 
@@ -173,96 +179,88 @@ CUDA compilation toolchain
    ProgramOptions
    LinkerOptions
 
+Program caches
+``````````````
 
-CUDA system information and NVIDIA Management Library (NVML)
-------------------------------------------------------------
+``Program.compile`` accepts a ``cache=`` keyword argument that integrates
+with any :class:`~cuda.core.utils.ProgramCacheResource`, so callers can
+avoid recompiling identical source + options + target without writing the
+:func:`~cuda.core.utils.make_program_cache_key` lookup by hand.
 
-Basic functions
-```````````````
-
-.. autosummary::
-   :toctree: generated/
-
-   system.get_driver_version
-   system.get_driver_version_full
-   system.get_driver_branch
-   system.get_num_devices
-   system.get_nvml_version
-   system.get_process_name
-   system.get_topology_common_ancestor
-   system.get_p2p_status
-
-Events
-``````
+.. currentmodule:: cuda.core.utils
 
 .. autosummary::
    :toctree: generated/
 
-   system.register_events
-   system.RegisteredSystemEvents
-   system.SystemEvent
-   system.SystemEvents
-   system.SystemEventType
+   ProgramCacheResource
+   InMemoryProgramCache
+   FileStreamProgramCache
+   make_program_cache_key
 
-Enums
-`````
+.. currentmodule:: cuda.core
+
+
+CUDA process checkpointing
+--------------------------
+
+The :mod:`cuda.core.checkpoint` module wraps the CUDA driver process
+checkpoint APIs. These APIs are intended for Linux process checkpoint and
+restore workflows, and require a CUDA driver with checkpoint API support and
+a ``cuda-bindings`` version that exposes those driver entry points.
+
+Checkpointing is typically driven by a coordinator process acting on a target
+CUDA process, similar to attaching a debugger or sending a signal. The target
+process is identified by process ID. Linux and the CUDA driver enforce process
+permissions; checkpointing another user's process may require elevated
+permissions such as ``CAP_SYS_PTRACE`` or administrator privileges.
+
+The CUDA checkpoint APIs prepare CUDA-managed GPU state for process-level
+checkpoint and restore. They do not capture the CPU process image by
+themselves; full process checkpoint workflows still need a CPU-side process
+checkpointing tool such as CRIU. A minimal coordinator-side sequence looks like
+this:
+
+.. code-block:: python
+
+   import os
+
+   from cuda.core import checkpoint
+
+   target_pid = os.getpid()  # or the PID of another CUDA process
+   process = checkpoint.Process(target_pid)
+   process.lock(timeout_ms=5000)
+   process.checkpoint()
+
+   # Capture or restore the CPU process image outside cuda.core.
+
+   process.restore()
+   process.unlock()
+
+``Process.state`` returns one of ``"running"``, ``"locked"``,
+``"checkpointed"``, or ``"failed"``. Restore may optionally remap GPUs by
+passing ``gpu_mapping`` from each checkpointed GPU UUID to the GPU UUID that
+should be used during restore. For migration workflows, provide mappings for
+every GPU visible to the NVIDIA kernel-mode driver at checkpoint time.
+User-space masking such as ``CUDA_VISIBLE_DEVICES`` does not reduce this
+mapping requirement, so applications that rely on user-space GPU masking may
+not be valid migration targets. The mapping may use ``CUuuid`` objects or the
+UUID strings returned by :attr:`Device.uuid`. A successful restore returns the
+process to the locked state; call ``Process.unlock`` after restore to allow
+CUDA API calls to resume.
+
+The CUDA driver requires restore to run from the process restore thread.
+Use ``Process.restore_thread_id`` to discover that thread before calling
+``Process.restore`` from a checkpoint coordinator. Restore also requires
+persistence mode to be enabled or ``cuInit`` to have been called before
+execution.
 
 .. autosummary::
    :toctree: generated/
 
-   system.AddressingMode
-   system.AffinityScope
-   system.BrandType
-   system.ClockId
-   system.ClocksEventReasons
-   system.CoolerControl
-   system.CoolerTarget
-   system.DeviceArch
-   system.EventType
-   system.FanControlPolicy
-   system.FieldId
-   system.InforomObject
-   system.PcieUtilCounter
-   system.Pstates
-   system.TemperatureSensors
-   system.TemperatureThresholds
-   system.ThermalController
-   system.ThermalTarget
+   :template: class.rst
 
-Types
-`````
+   checkpoint.Process
 
-.. autosummary::
-   :toctree: generated/
-
-   :template: autosummary/cyclass.rst
-
-   system.Device
-   system.BAR1MemoryInfo
-   system.ClockInfo
-   system.ClockOffsets
-   system.ClockType
-   system.CoolerInfo
-   system.DeviceAttributes
-   system.DeviceEvents
-   system.EventData
-   system.FanInfo
-   system.FieldValue
-   system.FieldValues
-   system.GpuDynamicPstatesInfo
-   system.GpuDynamicPstatesUtilization
-   system.GpuP2PCapsIndex
-   system.GpuP2PStatus
-   system.GpuTopologyLevel
-   system.InforomInfo
-   system.MemoryInfo
-   system.PciInfo
-   system.RepairStatus
-   system.Temperature
-   system.ThermalSensor
-   system.ThermalSettings
-
-.. module:: cuda.core.utils
 
 Utility functions
 -----------------
@@ -270,8 +268,11 @@ Utility functions
 .. autosummary::
    :toctree: generated/
 
-   args_viewable_as_strided_memory
+   utils.args_viewable_as_strided_memory
+   utils.prefetch_batch
+   utils.discard_batch
+   utils.discard_prefetch_batch
 
    :template: autosummary/cyclass.rst
 
-   StridedMemoryView
+   utils.StridedMemoryView

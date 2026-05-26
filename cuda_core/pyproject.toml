@@ -26,7 +26,7 @@ authors = [
 ]
 license = "Apache-2.0"
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: End Users/Desktop",
@@ -50,14 +50,15 @@ classifiers = [
 dependencies = [
     "cuda-pathfinder >=1.4.2",
     "numpy",
+    "backports.strenum; python_version < '3.11'",
 ]
 
 [project.optional-dependencies]
-cu12 = ["cuda-bindings[all]==12.*"]
-cu13 = ["cuda-bindings[all]==13.*"]
+cu12 = ["cuda-bindings[all]==12.*", "cuda-toolkit==12.*"]
+cu13 = ["cuda-bindings[all]==13.*", "cuda-toolkit==13.*"]
 
 [dependency-groups]
-test = ["cython>=3.2,<3.3", "setuptools", "pytest>=6.2.4", "pytest-benchmark", "pytest-randomly", "pytest-repeat", "pytest-rerunfailures", "cloudpickle", "psutil", "cffi"]
+test = ["cython>=3.2,<3.3", "setuptools", "pytest>=6.2.4", "pytest-benchmark", "pytest-randomly", "pytest-repeat", "pytest-rerunfailures", "pytest-timeout", "cloudpickle", "psutil", "cffi"]
 ml-dtypes = ["ml-dtypes>=0.5.4,<0.6.0"]
 test-cu12 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda12x; python_version < '3.14'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
 test-cu13 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda13x; python_version < '3.14'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
@@ -109,7 +110,6 @@ git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--mat
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"
-enable = "cpython-freethreading"
 build-verbosity = 1
 
 [tool.cibuildwheel.linux]
@@ -118,4 +118,4 @@ archs = "native"
 [tool.cibuildwheel.windows]
 archs = "AMD64"
 before-build = "pip install delvewheel"
-repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
+repair-wheel-command = "delvewheel repair --namespace-pkg cuda --exclude \"torch_cpu.dll;torch_python.dll\" -w {dest_dir} {wheel}"

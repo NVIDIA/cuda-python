@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-FanControlPolicy = nvml.FanControlPolicy
+_FAN_CONTROL_POLICY_MAPPING = {
+    nvml.FanControlPolicy.TEMPERATURE_CONTINUOUS_SW: FanControlPolicy.TEMPERATURE_CONTROLLED,
+    nvml.FanControlPolicy.MANUAL: FanControlPolicy.MANUAL,
+}
 
 
 cdef class FanInfo:
@@ -94,9 +97,9 @@ cdef class FanInfo:
 
         For all CUDA-capable discrete products with fans.
         """
-        return FanControlPolicy(nvml.device_get_fan_control_policy_v2(self._handle, self._fan))
+        return _FAN_CONTROL_POLICY_MAPPING[nvml.device_get_fan_control_policy_v2(self._handle, self._fan)]
 
-    def set_default_fan_speed(self):
+    def set_default_speed(self):
         """
         Set the speed of the fan control policy to default.
 

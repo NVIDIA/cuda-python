@@ -27030,6 +27030,11 @@ cpdef object device_get_field_values(intptr_t device, values):
     cdef FieldValue values_ = _cast_field_values(values)
     cdef nvmlFieldValue_t *ptr = <nvmlFieldValue_t *>values_._get_ptr()
     cdef unsigned int valuesCount = len(values)
+
+    # Passing a valuesCount of 0 to nvmlDeviceGetFieldValues returns NVML_INVALID_ARGUMENT
+    if valuesCount == 0:
+        return values_
+
     with nogil:
         __status__ = nvmlDeviceGetFieldValues(<Device>device, valuesCount, ptr)
     check_status(__status__)
@@ -27049,6 +27054,10 @@ cpdef  device_clear_field_values(intptr_t device, values):
     cdef FieldValue values_ = _cast_field_values(values)
     cdef nvmlFieldValue_t *ptr = <nvmlFieldValue_t *>values_._get_ptr()
     cdef unsigned int valuesCount = len(values)
+
+    # Passing a valuesCount of 0 to nvmlDeviceClearFieldValues returns NVML_INVALID_ARGUMENT
+    if valuesCount == 0:
+        return values_
 
     with nogil:
         __status__ = nvmlDeviceClearFieldValues(<Device>device, valuesCount, ptr)

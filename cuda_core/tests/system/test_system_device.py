@@ -17,10 +17,12 @@ import helpers
 import pytest
 
 from cuda.core import system
+from cuda.core.system import typing
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.bindings import nvml
-    from cuda.core.system import DeviceArch, _device
+    from cuda.bindings.nvml import DeviceArch
+    from cuda.core.system import _device
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -54,10 +56,15 @@ def test_to_cuda_device():
     from cuda.core import Device as CudaDevice
 
     for device in system.Device.get_all_devices():
-        cuda_device = device.to_cuda_device()
+        try:
+            cuda_device = device.to_cuda_device()
+        except RuntimeError:
+            # Not all physical NVML devices may have a matching CUDA device
+            # when MIG is involved.
+            continue
 
         assert isinstance(cuda_device, CudaDevice)
-        assert cuda_device.uuid == device.uuid
+        assert cuda_device.uuid == device.uuid_without_prefix
 
         # Technically, this test will only work with PCI devices, but are there
         # non-PCI devices we need to support?
@@ -70,7 +77,7 @@ def test_to_cuda_device():
 def test_device_architecture():
     for device in system.Device.get_all_devices():
         device_arch = device.arch
-        assert isinstance(device_arch, system.DeviceArch)
+        assert isinstance(device_arch, typing.DeviceArch)
 
 
 def test_device_bar1_memory():
@@ -83,7 +90,7 @@ def test_device_bar1_memory():
             bar1_memory_info.used,
         )
 
-        assert isinstance(bar1_memory_info, system.BAR1MemoryInfo)
+        assert isinstance(bar1_memory_info, _device.BAR1MemoryInfo)
         assert isinstance(free, int)
         assert isinstance(total, int)
         assert isinstance(used, int)
@@ -97,8 +104,8 @@ def test_device_bar1_memory():
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_device_cpu_affinity():
     for device in system.Device.get_all_devices():
-        with unsupported_before(device, DeviceArch.KEPLER):
-            affinity = device.get_cpu_affinity(system.AffinityScope.NODE)
+        with unsupported_before(device, typing.DeviceArch.KEPLER):
+            affinity = device.get_cpu_affinity(typing.AffinityScope.NODE)
         assert isinstance(affinity, list)
         os.sched_setaffinity(0, affinity)
         assert os.sched_getaffinity(0) == set(affinity)
@@ -107,8 +114,8 @@ def test_device_cpu_affinity():
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_affinity():
     for device in system.Device.get_all_devices():
-        for scope in (system.AffinityScope.NODE, system.AffinityScope.SOCKET):
-            with unsupported_before(device, DeviceArch.KEPLER):
+        for scope in typing.AffinityScope.__members__.values():
+            with unsupported_before(device, typing.DeviceArch.KEPLER):
                 affinity = device.get_cpu_affinity(scope)
             assert isinstance(affinity, list)
 
@@ -140,7 +147,7 @@ def test_device_memory():
             memory_info = device.memory_info
         free, total, used, reserved = memory_info.free, memory_info.total, memory_info.used, memory_info.reserved
 
-        assert isinstance(memory_info, system.MemoryInfo)
+        assert isinstance(memory_info, _device.MemoryInfo)
         assert isinstance(free, int)
         assert isinstance(total, int)
         assert isinstance(used, int)
@@ -163,7 +170,7 @@ def test_device_name():
 def test_device_pci_info():
     for device in system.Device.get_all_devices():
         pci_info = device.pci_info
-        assert isinstance(pci_info, system.PciInfo)
+        assert isinstance(pci_info, _device.PciInfo)
 
         assert isinstance(pci_info.bus_id, str)
         assert re.match("[a-f0-9]{8}:[a-f0-9]{2}:[a-f0-9]{2}.[a-f0-9]", pci_info.bus_id.lower())
@@ -198,25 +205,26 @@ def test_device_pci_info():
         assert isinstance(pci_info.sub_class, int)
         assert 0x00 <= pci_info.sub_class <= 0xFF
 
-        assert isinstance(pci_info.get_max_pcie_link_generation(), int)
-        assert 0 <= pci_info.get_max_pcie_link_generation() <= 0xFF
+        assert isinstance(pci_info.link_generation, int)
+        assert 0 <= pci_info.link_generation <= 0xFF
 
-        assert isinstance(pci_info.get_gpu_max_pcie_link_generation(), int)
-        assert 0 <= pci_info.get_gpu_max_pcie_link_generation() <= 0xFF
+        assert isinstance(pci_info.max_link_generation, int)
+        assert 0 <= pci_info.max_link_generation <= 0xFF
 
-        assert isinstance(pci_info.get_max_pcie_link_width(), int)
-        assert 0 <= pci_info.get_max_pcie_link_width() <= 0xFF
+        assert isinstance(pci_info.max_link_width, int)
+        assert 0 <= pci_info.max_link_width <= 0xFF
 
-        assert isinstance(pci_info.get_current_pcie_link_generation(), int)
-        assert 0 <= pci_info.get_current_pcie_link_generation() <= 0xFF
+        assert isinstance(pci_info.current_link_generation, int)
+        assert 0 <= pci_info.current_link_generation <= 0xFF
 
-        assert isinstance(pci_info.get_current_pcie_link_width(), int)
-        assert 0 <= pci_info.get_current_pcie_link_width() <= 0xFF
+        assert isinstance(pci_info.current_link_width, int)
+        assert 0 <= pci_info.current_link_width <= 0xFF
 
         with unsupported_before(device, None):
-            assert isinstance(pci_info.get_pcie_throughput(system.PcieUtilCounter.PCIE_UTIL_TX_BYTES), int)
+            assert isinstance(pci_info.tx_throughput, int)
+            assert isinstance(pci_info.rx_throughput, int)
 
-        assert isinstance(pci_info.get_pcie_replay_counter(), int)
+        assert isinstance(pci_info.replay_counter, int)
 
 
 def test_device_serial():
@@ -227,9 +235,9 @@ def test_device_serial():
         assert len(serial) > 0
 
 
-def test_device_uuid():
+def test_device_uuid_without_prefix():
     for device in system.Device.get_all_devices():
-        uuid = device.uuid
+        uuid = device.uuid_without_prefix
         assert isinstance(uuid, str)
 
         # Expands to GPU-8hex-4hex-4hex-4hex-12hex, where 8hex means 8 consecutive
@@ -272,7 +280,17 @@ def test_register_events():
     for device in system.Device.get_all_devices():
         supported_events = device.get_supported_event_types()
         assert isinstance(supported_events, list)
-        assert all(isinstance(ev, system.EventType) for ev in supported_events)
+        assert all(isinstance(ev, typing.EventType) for ev in supported_events)
+
+    for device in system.Device.get_all_devices():
+        events = device.register_events(["xid_critical_error"])
+        with pytest.raises(system.TimeoutError):
+            events.wait(timeout_ms=500)
+
+    for device in system.Device.get_all_devices():
+        events = device.register_events([typing.EventType.XID_CRITICAL_ERROR])
+        with pytest.raises(system.TimeoutError):
+            events.wait(timeout_ms=500)
 
     for device in system.Device.get_all_devices():
         events = device.register_events([])
@@ -280,25 +298,14 @@ def test_register_events():
             events.wait(timeout_ms=500)
 
     for device in system.Device.get_all_devices():
-        events = device.register_events(0)
-        with pytest.raises(system.TimeoutError):
-            events.wait(timeout_ms=500)
-
-
-def test_event_type_parsing():
-    events = [system.EventType(1 << ev) for ev in _device._unpack_bitmask(array.array("Q", [3]))]
-    assert events == [
-        system.EventType.SINGLE_BIT_ECC_ERROR,
-        system.EventType.DOUBLE_BIT_ECC_ERROR,
-    ]
+        with pytest.raises(TypeError):
+            events = device.register_events(0)
 
 
 def test_device_brand():
     for device in system.Device.get_all_devices():
         brand = device.brand
-        assert isinstance(brand, system.BrandType)
-        assert isinstance(brand.name, str)
-        assert isinstance(brand.value, int)
+        assert isinstance(brand, str)
 
 
 def test_device_pci_bus_id():
@@ -317,7 +324,7 @@ def test_device_attributes():
         # that's not the case.
         with unsupported_before(device, None):
             attributes = device.attributes
-        assert isinstance(attributes, system.DeviceAttributes)
+        assert isinstance(attributes, _device.DeviceAttributes)
 
         assert isinstance(attributes.multiprocessor_count, int)
         assert attributes.multiprocessor_count > 0
@@ -336,23 +343,23 @@ def test_device_attributes():
 def test_c2c_mode_enabled():
     for device in system.Device.get_all_devices():
         with unsupported_before(device, None):
-            is_enabled = device.is_c2c_mode_enabled
+            is_enabled = device.is_c2c_enabled
         assert isinstance(is_enabled, bool)
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
 def test_persistence_mode_enabled():
     for device in system.Device.get_all_devices():
-        is_enabled = device.persistence_mode_enabled
+        is_enabled = device.is_persistence_mode_enabled
         assert isinstance(is_enabled, bool)
         try:
-            device.persistence_mode_enabled = False
+            device.is_persistence_mode_enabled = False
         except nvml.NoPermissionError as e:
             pytest.xfail(f"nvml.NoPermissionError: {e}")
         try:
-            assert device.persistence_mode_enabled is False
+            assert device.is_persistence_mode_enabled is False
         finally:
-            device.persistence_mode_enabled = is_enabled
+            device.is_persistence_mode_enabled = is_enabled
 
 
 def test_field_values():
@@ -360,9 +367,11 @@ def test_field_values():
         # TODO: Are there any fields that return double's?  It would be good to
         # test those.
 
+        assert len(device.get_field_values([])) == 0
+
         field_ids = [
-            system.FieldId.DEV_TOTAL_ENERGY_CONSUMPTION,
-            system.FieldId.DEV_PCIE_COUNT_TX_BYTES,
+            typing.FieldId.DEV_TOTAL_ENERGY_CONSUMPTION,
+            typing.FieldId.DEV_PCIE_COUNT_TX_BYTES,
         ]
         field_values = device.get_field_values(field_ids)
         with unsupported_before(device, None):
@@ -371,7 +380,7 @@ def test_field_values():
         with pytest.raises(TypeError):
             field_values["invalid_index"]
 
-        assert isinstance(field_values, system.FieldValues)
+        assert isinstance(field_values, _device.FieldValues)
         assert len(field_values) == len(field_ids)
 
         raw_values = field_values.get_all_values()
@@ -389,7 +398,7 @@ def test_field_values():
 
         # Test only one element, because that's weirdly a special case
         field_ids = [
-            system.FieldId.DEV_PCIE_REPLAY_COUNTER,
+            typing.FieldId.DEV_PCIE_REPLAY_COUNTER,
         ]
         field_values = device.get_field_values(field_ids)
         assert len(field_values) == 1
@@ -435,16 +444,16 @@ def test_addressing_mode():
         # is also unsupported on other hardware.
         with unsupported_before(device, None):
             addressing_mode = device.addressing_mode
-        assert isinstance(addressing_mode, system.AddressingMode)
+        assert addressing_mode is None or addressing_mode in typing.AddressingMode.__members__.values()
 
 
 def test_display_mode():
     for device in system.Device.get_all_devices():
-        display_mode = device.display_mode
-        assert isinstance(display_mode, bool)
+        is_display_connected = device.is_display_connected
+        assert isinstance(is_display_connected, bool)
 
-        display_active = device.display_active
-        assert isinstance(display_active, bool)
+        is_display_active = device.is_display_active
+        assert isinstance(is_display_active, bool)
 
 
 def test_repair_status():
@@ -453,7 +462,7 @@ def test_repair_status():
         # this seems to also work on some TURING systems.
         with unsupported_before(device, None):
             repair_status = device.repair_status
-        assert isinstance(repair_status, system.RepairStatus)
+        assert isinstance(repair_status, _device.RepairStatus)
 
         assert isinstance(repair_status.channel_repair_pending, bool)
         assert isinstance(repair_status.tpc_repair_pending, bool)
@@ -471,7 +480,7 @@ def test_get_topology_common_ancestor():
     devices = list(system.Device.get_all_devices())
 
     ancestor = system.get_topology_common_ancestor(devices[0], devices[1])
-    assert isinstance(ancestor, system.GpuTopologyLevel)
+    assert isinstance(ancestor, typing.GpuTopologyLevel)
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
@@ -485,8 +494,8 @@ def test_get_p2p_status():
 
     devices = list(system.Device.get_all_devices())
 
-    status = system.get_p2p_status(devices[0], devices[1], system.GpuP2PCapsIndex.P2P_CAPS_INDEX_READ)
-    assert isinstance(status, system.GpuP2PStatus)
+    status = system.get_p2p_status(devices[0], devices[1], typing.GpuP2PCapsIndex.READ)
+    assert isinstance(status, typing.GpuP2PStatus)
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
@@ -495,7 +504,7 @@ def test_get_nearest_gpus():
     # in practice on our CI.
 
     for device in system.Device.get_all_devices():
-        for near_device in device.get_topology_nearest_gpus(system.GpuTopologyLevel.TOPOLOGY_SINGLE):
+        for near_device in device.get_topology_nearest_gpus(typing.GpuTopologyLevel.SINGLE):
             assert isinstance(near_device, system.Device)
 
 
@@ -517,7 +526,7 @@ def test_get_inforom_version():
         assert isinstance(inforom_image_version, str)
         assert len(inforom_image_version) > 0
 
-        inforom_version = inforom.get_version(system.InforomObject.INFOROM_OEM)
+        inforom_version = inforom.get_version(typing.InforomObject.OEM)
         assert isinstance(inforom_version, str)
         assert len(inforom_version) > 0
 
@@ -548,16 +557,16 @@ def test_auto_boosted_clocks_enabled():
         # This API is supported on KEPLER and newer, but it also seems
         # unsupported elsewhere.
         with unsupported_before(device, None):
-            current, default = device.get_auto_boosted_clocks_enabled()
+            current, default = device.is_auto_boosted_clocks_enabled
         assert isinstance(current, bool)
         assert isinstance(default, bool)
 
 
 def test_clock():
     for device in system.Device.get_all_devices():
-        for clock_type in system.ClockType:
-            clock = device.clock(clock_type)
-            assert isinstance(clock, system.ClockInfo)
+        for clock_type in typing.ClockType:
+            clock = device.get_clock(clock_type)
+            assert isinstance(clock, _device.ClockInfo)
 
             # These are ordered from oldest API to newest API so we test as much
             # as we can on each hardware architecture.
@@ -589,7 +598,7 @@ def test_clock():
                 except (system.InvalidArgumentError, system.NotFoundError):
                     pass
                 else:
-                    assert isinstance(offsets, system.ClockOffsets)
+                    assert isinstance(offsets, _device.ClockOffsets)
                     assert isinstance(offsets.clock_offset_mhz, int)
                     assert isinstance(offsets.max_offset_mhz, int)
                     assert isinstance(offsets.min_offset_mhz, int)
@@ -605,12 +614,12 @@ def test_clock():
 def test_clock_event_reasons():
     for device in system.Device.get_all_devices():
         with unsupported_before(device, None):
-            reasons = device.get_current_clock_event_reasons()
-        assert all(isinstance(reason, system.ClocksEventReasons) for reason in reasons)
+            reasons = device.current_clock_event_reasons
+        assert all(isinstance(reason, typing.ClocksEventReasons) for reason in reasons)
 
         with unsupported_before(device, None):
-            reasons = device.get_supported_clock_event_reasons()
-        assert all(isinstance(reason, system.ClocksEventReasons) for reason in reasons)
+            reasons = device.supported_clock_event_reasons
+        assert all(isinstance(reason, typing.ClocksEventReasons) for reason in reasons)
 
 
 def test_fan():
@@ -621,8 +630,8 @@ def test_fan():
             pytest.skip("Device has no fans to test")
 
         for fan_idx in range(device.num_fans):
-            fan_info = device.fan(fan_idx)
-            assert isinstance(fan_info, system.FanInfo)
+            fan_info = device.get_fan(fan_idx)
+            assert isinstance(fan_info, _device.FanInfo)
 
             speed = fan_info.speed
             assert isinstance(speed, int)
@@ -648,9 +657,9 @@ def test_fan():
                 assert min_ <= max_
 
                 control_policy = fan_info.control_policy
-                assert isinstance(control_policy, system.FanControlPolicy)
+                assert isinstance(control_policy, typing.FanControlPolicy)
             finally:
-                fan_info.set_default_fan_speed()
+                fan_info.set_default_speed()
 
 
 def test_cooler():
@@ -663,29 +672,29 @@ def test_cooler():
         with unsupported_before(device, DeviceArch.MAXWELL):
             cooler_info = device.cooler
 
-        assert isinstance(cooler_info, system.CoolerInfo)
+        assert isinstance(cooler_info, _device.CoolerInfo)
 
         signal_type = cooler_info.signal_type
-        assert isinstance(signal_type, system.CoolerControl)
+        assert isinstance(signal_type, (typing.CoolerControl, type(None)))
 
         target = cooler_info.target
-        assert all(isinstance(t, system.CoolerTarget) for t in target)
+        assert all(isinstance(t, typing.CoolerTarget) for t in target)
 
 
 def test_temperature():
     for device in system.Device.get_all_devices():
         temperature = device.temperature
-        assert isinstance(temperature, system.Temperature)
+        assert isinstance(temperature, _device.Temperature)
 
-        sensor = temperature.sensor()
+        sensor = temperature.get_sensor()
         assert isinstance(sensor, int)
         assert sensor >= 0
 
         # By docs, should be supported on KEPLER or newer, but experimentally,
         # is also unsupported on other hardware.
         with unsupported_before(device, None):
-            for threshold in list(system.TemperatureThresholds)[:-1]:
-                t = temperature.threshold(threshold)
+            for threshold in list(typing.TemperatureThresholds):
+                t = temperature.get_threshold(threshold)
                 assert isinstance(t, int)
                 assert t >= 0
 
@@ -695,13 +704,13 @@ def test_temperature():
         assert margin >= 0
 
         with unsupported_before(device, None):
-            thermals = temperature.thermal_settings(system.ThermalTarget.ALL)
-        assert isinstance(thermals, system.ThermalSettings)
+            thermals = temperature.get_thermal_settings(typing.ThermalTarget.ALL)
+        assert isinstance(thermals, _device.ThermalSettings)
 
         for i, sensor in enumerate(thermals):
-            assert isinstance(sensor, system.ThermalSensor)
-            assert isinstance(sensor.target, system.ThermalTarget)
-            assert isinstance(sensor.controller, system.ThermalController)
+            assert isinstance(sensor, _device.ThermalSensor)
+            assert isinstance(sensor.target, typing.ThermalTarget)
+            assert isinstance(sensor.controller, typing.ThermalController)
             assert isinstance(sensor.default_min_temp, int)
             assert sensor.default_min_temp >= 0
             assert isinstance(sensor.default_max_temp, int)
@@ -714,13 +723,13 @@ def test_pstates():
     for device in system.Device.get_all_devices():
         with unsupported_before(device, None):
             pstate = device.performance_state
-        assert isinstance(pstate, system.Pstates)
+        assert isinstance(pstate, int)
 
-        pstates = device.get_supported_pstates()
-        assert all(isinstance(p, system.Pstates) for p in pstates)
+        pstates = device.supported_pstates
+        assert all(isinstance(p, int) for p in pstates)
 
         dynamic_pstates_info = device.dynamic_pstates_info
-        assert isinstance(dynamic_pstates_info, system.GpuDynamicPstatesInfo)
+        assert isinstance(dynamic_pstates_info, _device.GpuDynamicPstatesInfo)
 
         assert len(dynamic_pstates_info) == nvml.MAX_GPU_UTILIZATIONS
 
@@ -729,3 +738,85 @@ def test_pstates():
             assert isinstance(utilization.percentage, int)
             assert isinstance(utilization.inc_threshold, int)
             assert isinstance(utilization.dec_threshold, int)
+
+
+def test_compute_running_processes():
+    for device in system.Device.get_all_devices():
+        with unsupported_before(device, "FERMI"):
+            processes = device.compute_running_processes
+        assert isinstance(processes, list)
+        for proc in processes:
+            assert isinstance(proc, _device.ProcessInfo)
+            assert isinstance(proc.pid, int)
+            assert isinstance(proc.used_gpu_memory, int)
+            if device.mig.is_mig_device:
+                assert isinstance(proc.gpu_instance_id, int)
+                assert isinstance(proc.compute_instance_id, int)
+            else:
+                with pytest.raises(nvml.NotSupportedError):
+                    proc.gpu_instance_id  # noqa: B018
+                with pytest.raises(nvml.NotSupportedError):
+                    proc.compute_instance_id  # noqa: B018
+
+
+def test_nvlink():
+    for device in system.Device.get_all_devices():
+        max_links = _device.NvlinkInfo.max_links
+        assert isinstance(max_links, int)
+        assert max_links > 0
+
+        for link in range(max_links):
+            with unsupported_before(device, None):
+                nvlink_info = device.get_nvlink(link)
+            assert isinstance(nvlink_info, _device.NvlinkInfo)
+
+            with unsupported_before(device, None):
+                version = nvlink_info.version
+            assert isinstance(version, tuple)
+            assert len(version) == 2
+            assert all(isinstance(i, int) for i in version)
+
+            with unsupported_before(device, None):
+                state = nvlink_info.state
+            assert isinstance(state, bool)
+
+
+def test_utilization():
+    for device in system.Device.get_all_devices():
+        with unsupported_before(device, None):
+            utilization = device.utilization
+        assert isinstance(utilization, _device.Utilization)
+
+        gpu = utilization.gpu
+        assert isinstance(gpu, int)
+        assert 0 <= gpu <= 100
+
+        memory = utilization.memory
+        assert isinstance(memory, int)
+        assert 0 <= memory <= 100
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="MIG not supported on WSL or Windows")
+def test_mig():
+    for device in system.Device.get_all_devices():
+        with unsupported_before(device, None):
+            mig = device.mig
+
+            assert isinstance(mig.is_mig_device, bool)
+            assert isinstance(mig.mode, bool)
+            assert isinstance(mig.pending_mode, bool)
+
+            device_count = mig.device_count
+            assert isinstance(device_count, int)
+            assert device_count >= 0
+
+            for mig_device in mig.get_all_devices():
+                assert isinstance(mig_device, system.Device)
+
+
+def test_uuid():
+    for device in system.Device.get_all_devices():
+        uuid = device.uuid
+        assert isinstance(uuid, str)
+        assert uuid.startswith(("GPU-", "MIG-"))
+        assert uuid == device.uuid

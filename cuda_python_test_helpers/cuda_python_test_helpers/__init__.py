@@ -15,13 +15,13 @@ __all__ = [
 ]
 
 
+# Please keep in sync with the equivalent implementation in
+# cuda_core/cuda/core/system/_system.pyx.
 def _detect_wsl() -> bool:
     data = ""
     with suppress(Exception), open("/proc/sys/kernel/osrelease") as f:
         data = f.read().lower()
-    if "microsoft" in data or "wsl" in data:
-        return True
-    return any(os.environ.get(k) for k in ("WSL_DISTRO_NAME", "WSL_INTEROP"))
+    return "microsoft" in data or "wsl" in data
 
 
 IS_WSL: bool = _detect_wsl()

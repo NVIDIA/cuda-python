@@ -143,12 +143,21 @@ def _build_cuda_core(debug=False):
         # cuda-bindings not available in editable mode, will use installed version
         pass
 
+    _posix_only_modules = frozenset(
+        {
+            "_utils/_wsl_locale",
+        }
+    )
+
     # It seems setuptools' wildcard support has problems for namespace packages,
     # so we explicitly spell out all Extension instances.
     def module_names():
         root_path = os.path.sep.join(["cuda", "core", ""])
         for filename in glob.glob(f"{root_path}/**/*.pyx", recursive=True):
-            yield filename[len(root_path) : -4]
+            mod = filename[len(root_path) : -4]
+            if sys.platform == "win32" and mod.replace(os.path.sep, "/") in _posix_only_modules:
+                continue
+            yield mod
 
     def get_sources(mod_name):
         """Get source files for a module, including any .cpp files."""
@@ -167,15 +176,17 @@ def _build_cuda_core(debug=False):
     extra_link_args = []
     extra_cythonize_kwargs = {}
     if sys.platform == "win32":
+        extra_compile_args += ["/std:c++17"]
         if debug:
             raise RuntimeError("Debuggable builds are not supported on Windows.")
     else:
+        extra_compile_args += ["-std=c++17"]
         if debug:
             extra_cythonize_kwargs["gdb_debug"] = True
             extra_compile_args += ["-g", "-O0"]
             extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
         else:
-            extra_compile_args += ["-O3"]
+            extra_compile_args += ["-O2"]
             extra_link_args += ["-Wl,--strip-all"]
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not

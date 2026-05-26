@@ -6,10 +6,11 @@ from itertools import cycle
 
 import pytest
 from helpers.buffers import PatternGen
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 NMRS = 3
 NTASKS = 7
@@ -28,7 +29,7 @@ class TestIpcSendBuffers:
 
         try:
             # Allocate and fill memory.
-            buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
             pgen = PatternGen(device, NBYTES)
             for buffer in buffers:
                 pgen.fill_buffer(buffer, seed=False)
@@ -37,8 +38,11 @@ class TestIpcSendBuffers:
             process = mp.Process(target=self.child_main, args=(device, buffers))
             process.start()
 
-            # Wait for the child process.
+            # Wait for the child process, then kill any survivor so subsequent
+            # asserts cannot block on a held IPC handle.
             process.join(timeout=CHILD_TIMEOUT_SEC)
+            survivors = kill_subprocesses(process)
+            assert not survivors, "child did not exit within timeout"
             assert process.exitcode == 0
 
             # Verify that the buffers were modified.
@@ -82,7 +86,7 @@ class TestIpcReexport:
         # Allocate, fill a buffer.
         mr = ipc_memory_resource
         pgen = PatternGen(device, NBYTES)
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=device.default_stream)
         pgen.fill_buffer(buffer, seed=0)
 
         # Set up communication.
@@ -95,11 +99,16 @@ class TestIpcReexport:
         proc_b.start()
         proc_c.start()
 
-        # Wait for C to signal completion then clean up.
-        event_c.wait(timeout=CHILD_TIMEOUT_SEC)
+        # Wait for C to signal completion, then let B finish and join both.
+        # Gather all state (event result + joins + survivor kills) before
+        # asserting so cleanup happens regardless of which check fires.
+        completed = event_c.wait(timeout=CHILD_TIMEOUT_SEC)
         event_b.set()  # b can finish now
         proc_b.join(timeout=CHILD_TIMEOUT_SEC)
         proc_c.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(proc_b, proc_c)
+        assert completed, "process C did not signal completion within timeout"
+        assert not survivors, f"timed out waiting on: {[p.name for p in survivors]}"
         assert proc_b.exitcode == 0
         assert proc_c.exitcode == 0
 

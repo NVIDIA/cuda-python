@@ -14,7 +14,7 @@ cdef class LaunchConfig:
         public tuple cluster
         public tuple block
         public int shmem_size
-        public bint cooperative_launch
+        public bint is_cooperative
 
         vector[cydriver.CUlaunchAttribute] _attrs
         object __weakref__

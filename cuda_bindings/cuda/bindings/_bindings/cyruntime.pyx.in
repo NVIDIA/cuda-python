@@ -15,7 +15,7 @@ cdef int _cudaPythonInit() except -1 nogil:
         global __usePTDS
 
         with gil:
-            __usePTDS = os.getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=False)
+            __usePTDS = bool(int(os.getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=0)))
         __cudaPythonInit = True
         return __usePTDS
 

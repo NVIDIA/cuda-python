@@ -38,6 +38,8 @@ dependencies = ["cuda-pathfinder >=1.4.2"]
 all = [
     "cuda-toolkit[nvrtc,nvjitlink,nvvm,nvfatbin]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform == 'linux'",
+    "cuda-toolkit==13.*",
+    "nvidia-cudla==13.*; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 
 [dependency-groups]
@@ -73,7 +75,6 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"
-enable = "cpython-freethreading"
 build-verbosity = 1
 
 [tool.cibuildwheel.linux]

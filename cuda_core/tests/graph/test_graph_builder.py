@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """GraphBuilder stream capture tests."""
@@ -8,7 +8,8 @@ import pytest
 from helpers.graph_kernels import compile_common_kernels
 from helpers.marks import requires_module
 
-from cuda.core import Device, GraphBuilder, LaunchConfig, LegacyPinnedMemoryResource, launch
+from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
+from cuda.core.graph import GraphBuilder
 
 
 def test_graph_is_building(init_cuda):
@@ -234,7 +235,7 @@ def test_graph_child_graph(init_cuda):
 
     ## Add child
     try:
-        gb_parent.add_child(gb_child)
+        gb_parent.embed(gb_child)
     except NotImplementedError as e:
         with pytest.raises(
             NotImplementedError,

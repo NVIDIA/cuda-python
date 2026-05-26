@@ -48,10 +48,16 @@ cdef class KernelOccupancy:
 cdef class KernelAttributes:
     cdef:
         KernelHandle _h_kernel
+        # _device_id == -1 means "current device" (resolved per access).
+        # _device_id >= 0 means this view is bound to that specific device.
+        int _device_id
+        # Cache is shared across views for the same Kernel: the per-device
+        # view returned by __getitem__ inherits the parent's dict.
         dict _cache
 
     @staticmethod
     cdef KernelAttributes _init(KernelHandle h_kernel)
 
+    cdef KernelAttributes _view_for_device(self, int device_id)
+    cdef inline int _effective_device_id(self) except? -1
     cdef int _get_cached_attribute(self, int device_id, cydriver.CUfunction_attribute attribute) except? -1
-    cdef int _resolve_device_id(self, device_id) except? -1

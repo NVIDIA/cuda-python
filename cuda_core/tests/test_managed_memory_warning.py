@@ -13,8 +13,10 @@ import warnings
 import pytest
 
 import cuda.bindings
+from conftest import create_managed_memory_resource_or_skip, xfail_if_mempool_oom
 from cuda.core import Device, ManagedMemoryResource, ManagedMemoryResourceOptions
 from cuda.core._memory._managed_memory_resource import reset_concurrent_access_warning
+from cuda.core._utils.cuda_utils import CUDAError
 
 _cuda_major = int(cuda.bindings.__version__.split(".")[0])
 
@@ -26,7 +28,10 @@ requires_cuda_13 = pytest.mark.skipif(
 
 def _make_managed_mr(device_id):
     """Create a ManagedMemoryResource with an explicit device preference."""
-    return ManagedMemoryResource(options=ManagedMemoryResourceOptions(preferred_location=device_id))
+    return create_managed_memory_resource_or_skip(
+        options=ManagedMemoryResourceOptions(preferred_location=device_id),
+        xfail_device=device_id,
+    )
 
 
 @pytest.fixture
@@ -47,8 +52,12 @@ def device_without_concurrent_managed_access(init_cuda):
 @requires_cuda_13
 def test_default_pool_error_without_concurrent_access(device_without_concurrent_managed_access):
     """ManagedMemoryResource() raises RuntimeError when the default pool doesn't support managed."""
-    with pytest.raises(RuntimeError, match="does not support managed allocations"):
-        ManagedMemoryResource()
+    try:
+        with pytest.raises(RuntimeError, match="does not support managed allocations"):
+            ManagedMemoryResource()
+    except CUDAError as exc:
+        xfail_if_mempool_oom(exc, device_without_concurrent_managed_access)
+        raise
 
 
 @requires_cuda_13
