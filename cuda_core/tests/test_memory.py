@@ -60,6 +60,19 @@ from cuda.core.utils import StridedMemoryView
 POOL_SIZE = 2097152  # 2MB size
 
 
+def _allocate_pinned_buffer_or_xfail(mr, size, *, device):
+    try:
+        return mr.allocate(size, stream=device.default_stream)
+    except CUDAError as exc:
+        if "CUDA_ERROR_OUT_OF_MEMORY" in str(exc):
+            pytest.xfail("TODO(#9999): Resolve CUDA_ERROR_OUT_OF_MEMORY")
+        raise
+    except RuntimeError as exc:
+        if "Failed to allocate memory from pool" in str(exc):
+            pytest.xfail("TODO(#9999): Resolve Failed to allocate memory from pool")
+        raise
+
+
 class DummyHostMemoryResource(MemoryResource):
     # Pure-host ctypes allocation; stream is accepted for interface
     # conformance but ignored.
@@ -682,7 +695,11 @@ def test_non_managed_resources_report_not_managed(mr_kind):
         skip_if_pinned_memory_unsupported(device)
         mr = create_pinned_memory_resource_or_xfail(xfail_device=device)
     assert mr.is_managed is False
-    buf = mr.allocate(1024, stream=device.default_stream)
+    buf = (
+        _allocate_pinned_buffer_or_xfail(mr, 1024, device=device)
+        if mr_kind == "pinned"
+        else mr.allocate(1024, stream=device.default_stream)
+    )
     assert buf.is_managed is False
     buf.close()
 
@@ -730,16 +747,7 @@ def test_pinned_memory_resource_initialization(init_cuda):
     assert mr.is_host_accessible
 
     # Test allocation/deallocation works
-    try:
-        buffer = mr.allocate(1024, stream=device.default_stream)
-    except CUDAError as exc:
-        msg = str(exc)
-        if "CUDA_ERROR_OUT_OF_MEMORY" in msg:
-            pytest.xfail("TODO(#9999): Resolve CUDA_ERROR_OUT_OF_MEMORY")
-    except RuntimeError as exc:
-        msg = str(exc)
-        if "Failed to allocate memory from pool" in msg:
-            pytest.xfail("TODO(#9999): Resolve Failed to allocate memory from pool")
+    buffer = _allocate_pinned_buffer_or_xfail(mr, 1024, device=device)
     assert buffer.size == 1024
     assert buffer.device_id == -1  # Not bound to any GPU
     assert buffer.is_host_accessible
