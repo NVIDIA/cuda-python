@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - "pull-request/[0-9]+"
+      - "ctk-next"
       - "main"
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
@@ -17,6 +18,8 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     permissions:
+      actions: read
+      contents: read
       security-events: write
     steps:
       - name: Checkout
