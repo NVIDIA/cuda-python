@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
 {{if 'Windows' == platform.system()}}
 import os
 cimport cuda.bindings._lib.windll as windll
@@ -220,6 +220,18 @@ cdef bint __cuPythonInit = False
 {{if 'cuMulticastBindAddr_v2' in found_functions}}cdef void *__cuMulticastBindAddr_v2 = NULL{{endif}}
 {{if 'cuMulticastUnbind' in found_functions}}cdef void *__cuMulticastUnbind = NULL{{endif}}
 {{if 'cuMulticastGetGranularity' in found_functions}}cdef void *__cuMulticastGetGranularity = NULL{{endif}}
+{{if 'cuLogicalEndpointIdReserve' in found_functions}}cdef void *__cuLogicalEndpointIdReserve = NULL{{endif}}
+{{if 'cuLogicalEndpointIdRelease' in found_functions}}cdef void *__cuLogicalEndpointIdRelease = NULL{{endif}}
+{{if 'cuLogicalEndpointCreate' in found_functions}}cdef void *__cuLogicalEndpointCreate = NULL{{endif}}
+{{if 'cuLogicalEndpointAddDevice' in found_functions}}cdef void *__cuLogicalEndpointAddDevice = NULL{{endif}}
+{{if 'cuLogicalEndpointDestroy' in found_functions}}cdef void *__cuLogicalEndpointDestroy = NULL{{endif}}
+{{if 'cuLogicalEndpointBindAddr' in found_functions}}cdef void *__cuLogicalEndpointBindAddr = NULL{{endif}}
+{{if 'cuLogicalEndpointBindMem' in found_functions}}cdef void *__cuLogicalEndpointBindMem = NULL{{endif}}
+{{if 'cuLogicalEndpointUnbind' in found_functions}}cdef void *__cuLogicalEndpointUnbind = NULL{{endif}}
+{{if 'cuLogicalEndpointExport' in found_functions}}cdef void *__cuLogicalEndpointExport = NULL{{endif}}
+{{if 'cuLogicalEndpointImport' in found_functions}}cdef void *__cuLogicalEndpointImport = NULL{{endif}}
+{{if 'cuLogicalEndpointGetLimits' in found_functions}}cdef void *__cuLogicalEndpointGetLimits = NULL{{endif}}
+{{if 'cuLogicalEndpointQuery' in found_functions}}cdef void *__cuLogicalEndpointQuery = NULL{{endif}}
 {{if 'cuPointerGetAttribute' in found_functions}}cdef void *__cuPointerGetAttribute = NULL{{endif}}
 {{if 'cuMemPrefetchAsync_v2' in found_functions}}cdef void *__cuMemPrefetchAsync_v2 = NULL{{endif}}
 {{if 'cuMemAdvise_v2' in found_functions}}cdef void *__cuMemAdvise_v2 = NULL{{endif}}
@@ -243,6 +255,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuStreamWaitEvent' in found_functions}}cdef void *__cuStreamWaitEvent = NULL{{endif}}
 {{if 'cuStreamAddCallback' in found_functions}}cdef void *__cuStreamAddCallback = NULL{{endif}}
 {{if 'cuStreamBeginCapture_v2' in found_functions}}cdef void *__cuStreamBeginCapture_v2 = NULL{{endif}}
+{{if 'cuStreamBeginRecaptureToGraph' in found_functions}}cdef void *__cuStreamBeginRecaptureToGraph = NULL{{endif}}
 {{if 'cuStreamBeginCaptureToGraph' in found_functions}}cdef void *__cuStreamBeginCaptureToGraph = NULL{{endif}}
 {{if 'cuThreadExchangeStreamCaptureMode' in found_functions}}cdef void *__cuThreadExchangeStreamCaptureMode = NULL{{endif}}
 {{if 'cuStreamEndCapture' in found_functions}}cdef void *__cuStreamEndCapture = NULL{{endif}}
@@ -288,7 +301,6 @@ cdef bint __cuPythonInit = False
 {{if 'cuLaunchKernel' in found_functions}}cdef void *__cuLaunchKernel = NULL{{endif}}
 {{if 'cuLaunchKernelEx' in found_functions}}cdef void *__cuLaunchKernelEx = NULL{{endif}}
 {{if 'cuLaunchCooperativeKernel' in found_functions}}cdef void *__cuLaunchCooperativeKernel = NULL{{endif}}
-{{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}cdef void *__cuLaunchCooperativeKernelMultiDevice = NULL{{endif}}
 {{if 'cuLaunchHostFunc' in found_functions}}cdef void *__cuLaunchHostFunc = NULL{{endif}}
 {{if 'cuLaunchHostFunc_v2' in found_functions}}cdef void *__cuLaunchHostFunc_v2 = NULL{{endif}}
 {{if 'cuFuncSetBlockShape' in found_functions}}cdef void *__cuFuncSetBlockShape = NULL{{endif}}
@@ -300,6 +312,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuLaunch' in found_functions}}cdef void *__cuLaunch = NULL{{endif}}
 {{if 'cuLaunchGrid' in found_functions}}cdef void *__cuLaunchGrid = NULL{{endif}}
 {{if 'cuLaunchGridAsync' in found_functions}}cdef void *__cuLaunchGridAsync = NULL{{endif}}
+{{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}cdef void *__cuLaunchCooperativeKernelMultiDevice = NULL{{endif}}
 {{if 'cuParamSetTexRef' in found_functions}}cdef void *__cuParamSetTexRef = NULL{{endif}}
 {{if 'cuFuncSetSharedMemConfig' in found_functions}}cdef void *__cuFuncSetSharedMemConfig = NULL{{endif}}
 {{if 'cuGraphCreate' in found_functions}}cdef void *__cuGraphCreate = NULL{{endif}}
@@ -797,6 +810,10 @@ cdef int _cuPythonInit() except -1 nogil:
                 global __cuStreamBeginCapture_v2
                 _F_cuGetProcAddress_v2('cuStreamBeginCapture', &__cuStreamBeginCapture_v2, 10010, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
                 {{endif}}
+                {{if 'cuStreamBeginRecaptureToGraph' in found_functions}}
+                global __cuStreamBeginRecaptureToGraph
+                _F_cuGetProcAddress_v2('cuStreamBeginRecaptureToGraph', &__cuStreamBeginRecaptureToGraph, 13030, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
+                {{endif}}
                 {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
                 global __cuStreamBeginCaptureToGraph
                 _F_cuGetProcAddress_v2('cuStreamBeginCaptureToGraph', &__cuStreamBeginCaptureToGraph, 12030, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
@@ -1163,6 +1180,10 @@ cdef int _cuPythonInit() except -1 nogil:
                 {{if 'cuStreamBeginCapture_v2' in found_functions}}
                 global __cuStreamBeginCapture_v2
                 _F_cuGetProcAddress_v2('cuStreamBeginCapture', &__cuStreamBeginCapture_v2, 10010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+                {{endif}}
+                {{if 'cuStreamBeginRecaptureToGraph' in found_functions}}
+                global __cuStreamBeginRecaptureToGraph
+                _F_cuGetProcAddress_v2('cuStreamBeginRecaptureToGraph', &__cuStreamBeginRecaptureToGraph, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
                 {{endif}}
                 {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
                 global __cuStreamBeginCaptureToGraph
@@ -1925,6 +1946,54 @@ cdef int _cuPythonInit() except -1 nogil:
             global __cuMulticastGetGranularity
             _F_cuGetProcAddress_v2('cuMulticastGetGranularity', &__cuMulticastGetGranularity, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
+            {{if 'cuLogicalEndpointIdReserve' in found_functions}}
+            global __cuLogicalEndpointIdReserve
+            _F_cuGetProcAddress_v2('cuLogicalEndpointIdReserve', &__cuLogicalEndpointIdReserve, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLogicalEndpointIdRelease' in found_functions}}
+            global __cuLogicalEndpointIdRelease
+            _F_cuGetProcAddress_v2('cuLogicalEndpointIdRelease', &__cuLogicalEndpointIdRelease, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLogicalEndpointCreate' in found_functions}}
+            global __cuLogicalEndpointCreate
+            _F_cuGetProcAddress_v2('cuLogicalEndpointCreate', &__cuLogicalEndpointCreate, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLogicalEndpointAddDevice' in found_functions}}
+            global __cuLogicalEndpointAddDevice
+            _F_cuGetProcAddress_v2('cuLogicalEndpointAddDevice', &__cuLogicalEndpointAddDevice, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLogicalEndpointDestroy' in found_functions}}
+            global __cuLogicalEndpointDestroy
+            _F_cuGetProcAddress_v2('cuLogicalEndpointDestroy', &__cuLogicalEndpointDestroy, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLogicalEndpointBindAddr' in found_functions}}
+            global __cuLogicalEndpointBindAddr
+            _F_cuGetProcAddress_v2('cuLogicalEndpointBindAddr', &__cuLogicalEndpointBindAddr, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLogicalEndpointBindMem' in found_functions}}
+            global __cuLogicalEndpointBindMem
+            _F_cuGetProcAddress_v2('cuLogicalEndpointBindMem', &__cuLogicalEndpointBindMem, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLogicalEndpointUnbind' in found_functions}}
+            global __cuLogicalEndpointUnbind
+            _F_cuGetProcAddress_v2('cuLogicalEndpointUnbind', &__cuLogicalEndpointUnbind, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLogicalEndpointExport' in found_functions}}
+            global __cuLogicalEndpointExport
+            _F_cuGetProcAddress_v2('cuLogicalEndpointExport', &__cuLogicalEndpointExport, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLogicalEndpointImport' in found_functions}}
+            global __cuLogicalEndpointImport
+            _F_cuGetProcAddress_v2('cuLogicalEndpointImport', &__cuLogicalEndpointImport, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLogicalEndpointGetLimits' in found_functions}}
+            global __cuLogicalEndpointGetLimits
+            _F_cuGetProcAddress_v2('cuLogicalEndpointGetLimits', &__cuLogicalEndpointGetLimits, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLogicalEndpointQuery' in found_functions}}
+            global __cuLogicalEndpointQuery
+            _F_cuGetProcAddress_v2('cuLogicalEndpointQuery', &__cuLogicalEndpointQuery, 13030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
             {{if 'cuPointerGetAttribute' in found_functions}}
             global __cuPointerGetAttribute
             _F_cuGetProcAddress_v2('cuPointerGetAttribute', &__cuPointerGetAttribute, 4000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -2045,10 +2114,6 @@ cdef int _cuPythonInit() except -1 nogil:
             global __cuFuncLoad
             _F_cuGetProcAddress_v2('cuFuncLoad', &__cuFuncLoad, 12040, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
-            {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
-            global __cuLaunchCooperativeKernelMultiDevice
-            _F_cuGetProcAddress_v2('cuLaunchCooperativeKernelMultiDevice', &__cuLaunchCooperativeKernelMultiDevice, 9000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
-            {{endif}}
             {{if 'cuFuncSetBlockShape' in found_functions}}
             global __cuFuncSetBlockShape
             _F_cuGetProcAddress_v2('cuFuncSetBlockShape', &__cuFuncSetBlockShape, 2000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -2084,6 +2149,10 @@ cdef int _cuPythonInit() except -1 nogil:
             {{if 'cuLaunchGridAsync' in found_functions}}
             global __cuLaunchGridAsync
             _F_cuGetProcAddress_v2('cuLaunchGridAsync', &__cuLaunchGridAsync, 2000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
+            global __cuLaunchCooperativeKernelMultiDevice
+            _F_cuGetProcAddress_v2('cuLaunchCooperativeKernelMultiDevice', &__cuLaunchCooperativeKernelMultiDevice, 9000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
             {{if 'cuParamSetTexRef' in found_functions}}
             global __cuParamSetTexRef
@@ -3137,6 +3206,10 @@ cdef int _cuPythonInit() except -1 nogil:
             global __cuStreamBeginCapture_v2
             __cuStreamBeginCapture_v2 = windll.GetProcAddress(handle, 'cuStreamBeginCapture_v2_ptsz')
             {{endif}}
+            {{if 'cuStreamBeginRecaptureToGraph' in found_functions}}
+            global __cuStreamBeginRecaptureToGraph
+            __cuStreamBeginRecaptureToGraph = windll.GetProcAddress(handle, 'cuStreamBeginRecaptureToGraph_ptsz')
+            {{endif}}
             {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
             global __cuStreamBeginCaptureToGraph
             __cuStreamBeginCaptureToGraph = windll.GetProcAddress(handle, 'cuStreamBeginCaptureToGraph_ptsz')
@@ -3503,6 +3576,10 @@ cdef int _cuPythonInit() except -1 nogil:
             {{if 'cuStreamBeginCapture_v2' in found_functions}}
             global __cuStreamBeginCapture_v2
             __cuStreamBeginCapture_v2 = windll.GetProcAddress(handle, 'cuStreamBeginCapture_v2')
+            {{endif}}
+            {{if 'cuStreamBeginRecaptureToGraph' in found_functions}}
+            global __cuStreamBeginRecaptureToGraph
+            __cuStreamBeginRecaptureToGraph = windll.GetProcAddress(handle, 'cuStreamBeginRecaptureToGraph')
             {{endif}}
             {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
             global __cuStreamBeginCaptureToGraph
@@ -4265,6 +4342,54 @@ cdef int _cuPythonInit() except -1 nogil:
         global __cuMulticastGetGranularity
         __cuMulticastGetGranularity = windll.GetProcAddress(handle, 'cuMulticastGetGranularity')
         {{endif}}
+        {{if 'cuLogicalEndpointIdReserve' in found_functions}}
+        global __cuLogicalEndpointIdReserve
+        __cuLogicalEndpointIdReserve = windll.GetProcAddress(handle, 'cuLogicalEndpointIdReserve')
+        {{endif}}
+        {{if 'cuLogicalEndpointIdRelease' in found_functions}}
+        global __cuLogicalEndpointIdRelease
+        __cuLogicalEndpointIdRelease = windll.GetProcAddress(handle, 'cuLogicalEndpointIdRelease')
+        {{endif}}
+        {{if 'cuLogicalEndpointCreate' in found_functions}}
+        global __cuLogicalEndpointCreate
+        __cuLogicalEndpointCreate = windll.GetProcAddress(handle, 'cuLogicalEndpointCreate')
+        {{endif}}
+        {{if 'cuLogicalEndpointAddDevice' in found_functions}}
+        global __cuLogicalEndpointAddDevice
+        __cuLogicalEndpointAddDevice = windll.GetProcAddress(handle, 'cuLogicalEndpointAddDevice')
+        {{endif}}
+        {{if 'cuLogicalEndpointDestroy' in found_functions}}
+        global __cuLogicalEndpointDestroy
+        __cuLogicalEndpointDestroy = windll.GetProcAddress(handle, 'cuLogicalEndpointDestroy')
+        {{endif}}
+        {{if 'cuLogicalEndpointBindAddr' in found_functions}}
+        global __cuLogicalEndpointBindAddr
+        __cuLogicalEndpointBindAddr = windll.GetProcAddress(handle, 'cuLogicalEndpointBindAddr')
+        {{endif}}
+        {{if 'cuLogicalEndpointBindMem' in found_functions}}
+        global __cuLogicalEndpointBindMem
+        __cuLogicalEndpointBindMem = windll.GetProcAddress(handle, 'cuLogicalEndpointBindMem')
+        {{endif}}
+        {{if 'cuLogicalEndpointUnbind' in found_functions}}
+        global __cuLogicalEndpointUnbind
+        __cuLogicalEndpointUnbind = windll.GetProcAddress(handle, 'cuLogicalEndpointUnbind')
+        {{endif}}
+        {{if 'cuLogicalEndpointExport' in found_functions}}
+        global __cuLogicalEndpointExport
+        __cuLogicalEndpointExport = windll.GetProcAddress(handle, 'cuLogicalEndpointExport')
+        {{endif}}
+        {{if 'cuLogicalEndpointImport' in found_functions}}
+        global __cuLogicalEndpointImport
+        __cuLogicalEndpointImport = windll.GetProcAddress(handle, 'cuLogicalEndpointImport')
+        {{endif}}
+        {{if 'cuLogicalEndpointGetLimits' in found_functions}}
+        global __cuLogicalEndpointGetLimits
+        __cuLogicalEndpointGetLimits = windll.GetProcAddress(handle, 'cuLogicalEndpointGetLimits')
+        {{endif}}
+        {{if 'cuLogicalEndpointQuery' in found_functions}}
+        global __cuLogicalEndpointQuery
+        __cuLogicalEndpointQuery = windll.GetProcAddress(handle, 'cuLogicalEndpointQuery')
+        {{endif}}
         {{if 'cuPointerGetAttribute' in found_functions}}
         global __cuPointerGetAttribute
         __cuPointerGetAttribute = windll.GetProcAddress(handle, 'cuPointerGetAttribute')
@@ -4385,10 +4510,6 @@ cdef int _cuPythonInit() except -1 nogil:
         global __cuFuncLoad
         __cuFuncLoad = windll.GetProcAddress(handle, 'cuFuncLoad')
         {{endif}}
-        {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
-        global __cuLaunchCooperativeKernelMultiDevice
-        __cuLaunchCooperativeKernelMultiDevice = windll.GetProcAddress(handle, 'cuLaunchCooperativeKernelMultiDevice')
-        {{endif}}
         {{if 'cuFuncSetBlockShape' in found_functions}}
         global __cuFuncSetBlockShape
         __cuFuncSetBlockShape = windll.GetProcAddress(handle, 'cuFuncSetBlockShape')
@@ -4424,6 +4545,10 @@ cdef int _cuPythonInit() except -1 nogil:
         {{if 'cuLaunchGridAsync' in found_functions}}
         global __cuLaunchGridAsync
         __cuLaunchGridAsync = windll.GetProcAddress(handle, 'cuLaunchGridAsync')
+        {{endif}}
+        {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
+        global __cuLaunchCooperativeKernelMultiDevice
+        __cuLaunchCooperativeKernelMultiDevice = windll.GetProcAddress(handle, 'cuLaunchCooperativeKernelMultiDevice')
         {{endif}}
         {{if 'cuParamSetTexRef' in found_functions}}
         global __cuParamSetTexRef
@@ -5474,6 +5599,10 @@ cdef int _cuPythonInit() except -1 nogil:
             global __cuStreamBeginCapture_v2
             __cuStreamBeginCapture_v2 = dlfcn.dlsym(handle, 'cuStreamBeginCapture_v2_ptsz')
             {{endif}}
+            {{if 'cuStreamBeginRecaptureToGraph' in found_functions}}
+            global __cuStreamBeginRecaptureToGraph
+            __cuStreamBeginRecaptureToGraph = dlfcn.dlsym(handle, 'cuStreamBeginRecaptureToGraph_ptsz')
+            {{endif}}
             {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
             global __cuStreamBeginCaptureToGraph
             __cuStreamBeginCaptureToGraph = dlfcn.dlsym(handle, 'cuStreamBeginCaptureToGraph_ptsz')
@@ -5840,6 +5969,10 @@ cdef int _cuPythonInit() except -1 nogil:
             {{if 'cuStreamBeginCapture_v2' in found_functions}}
             global __cuStreamBeginCapture_v2
             __cuStreamBeginCapture_v2 = dlfcn.dlsym(handle, 'cuStreamBeginCapture_v2')
+            {{endif}}
+            {{if 'cuStreamBeginRecaptureToGraph' in found_functions}}
+            global __cuStreamBeginRecaptureToGraph
+            __cuStreamBeginRecaptureToGraph = dlfcn.dlsym(handle, 'cuStreamBeginRecaptureToGraph')
             {{endif}}
             {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
             global __cuStreamBeginCaptureToGraph
@@ -6602,6 +6735,54 @@ cdef int _cuPythonInit() except -1 nogil:
         global __cuMulticastGetGranularity
         __cuMulticastGetGranularity = dlfcn.dlsym(handle, 'cuMulticastGetGranularity')
         {{endif}}
+        {{if 'cuLogicalEndpointIdReserve' in found_functions}}
+        global __cuLogicalEndpointIdReserve
+        __cuLogicalEndpointIdReserve = dlfcn.dlsym(handle, 'cuLogicalEndpointIdReserve')
+        {{endif}}
+        {{if 'cuLogicalEndpointIdRelease' in found_functions}}
+        global __cuLogicalEndpointIdRelease
+        __cuLogicalEndpointIdRelease = dlfcn.dlsym(handle, 'cuLogicalEndpointIdRelease')
+        {{endif}}
+        {{if 'cuLogicalEndpointCreate' in found_functions}}
+        global __cuLogicalEndpointCreate
+        __cuLogicalEndpointCreate = dlfcn.dlsym(handle, 'cuLogicalEndpointCreate')
+        {{endif}}
+        {{if 'cuLogicalEndpointAddDevice' in found_functions}}
+        global __cuLogicalEndpointAddDevice
+        __cuLogicalEndpointAddDevice = dlfcn.dlsym(handle, 'cuLogicalEndpointAddDevice')
+        {{endif}}
+        {{if 'cuLogicalEndpointDestroy' in found_functions}}
+        global __cuLogicalEndpointDestroy
+        __cuLogicalEndpointDestroy = dlfcn.dlsym(handle, 'cuLogicalEndpointDestroy')
+        {{endif}}
+        {{if 'cuLogicalEndpointBindAddr' in found_functions}}
+        global __cuLogicalEndpointBindAddr
+        __cuLogicalEndpointBindAddr = dlfcn.dlsym(handle, 'cuLogicalEndpointBindAddr')
+        {{endif}}
+        {{if 'cuLogicalEndpointBindMem' in found_functions}}
+        global __cuLogicalEndpointBindMem
+        __cuLogicalEndpointBindMem = dlfcn.dlsym(handle, 'cuLogicalEndpointBindMem')
+        {{endif}}
+        {{if 'cuLogicalEndpointUnbind' in found_functions}}
+        global __cuLogicalEndpointUnbind
+        __cuLogicalEndpointUnbind = dlfcn.dlsym(handle, 'cuLogicalEndpointUnbind')
+        {{endif}}
+        {{if 'cuLogicalEndpointExport' in found_functions}}
+        global __cuLogicalEndpointExport
+        __cuLogicalEndpointExport = dlfcn.dlsym(handle, 'cuLogicalEndpointExport')
+        {{endif}}
+        {{if 'cuLogicalEndpointImport' in found_functions}}
+        global __cuLogicalEndpointImport
+        __cuLogicalEndpointImport = dlfcn.dlsym(handle, 'cuLogicalEndpointImport')
+        {{endif}}
+        {{if 'cuLogicalEndpointGetLimits' in found_functions}}
+        global __cuLogicalEndpointGetLimits
+        __cuLogicalEndpointGetLimits = dlfcn.dlsym(handle, 'cuLogicalEndpointGetLimits')
+        {{endif}}
+        {{if 'cuLogicalEndpointQuery' in found_functions}}
+        global __cuLogicalEndpointQuery
+        __cuLogicalEndpointQuery = dlfcn.dlsym(handle, 'cuLogicalEndpointQuery')
+        {{endif}}
         {{if 'cuPointerGetAttribute' in found_functions}}
         global __cuPointerGetAttribute
         __cuPointerGetAttribute = dlfcn.dlsym(handle, 'cuPointerGetAttribute')
@@ -6722,10 +6903,6 @@ cdef int _cuPythonInit() except -1 nogil:
         global __cuFuncLoad
         __cuFuncLoad = dlfcn.dlsym(handle, 'cuFuncLoad')
         {{endif}}
-        {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
-        global __cuLaunchCooperativeKernelMultiDevice
-        __cuLaunchCooperativeKernelMultiDevice = dlfcn.dlsym(handle, 'cuLaunchCooperativeKernelMultiDevice')
-        {{endif}}
         {{if 'cuFuncSetBlockShape' in found_functions}}
         global __cuFuncSetBlockShape
         __cuFuncSetBlockShape = dlfcn.dlsym(handle, 'cuFuncSetBlockShape')
@@ -6761,6 +6938,10 @@ cdef int _cuPythonInit() except -1 nogil:
         {{if 'cuLaunchGridAsync' in found_functions}}
         global __cuLaunchGridAsync
         __cuLaunchGridAsync = dlfcn.dlsym(handle, 'cuLaunchGridAsync')
+        {{endif}}
+        {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
+        global __cuLaunchCooperativeKernelMultiDevice
+        __cuLaunchCooperativeKernelMultiDevice = dlfcn.dlsym(handle, 'cuLaunchCooperativeKernelMultiDevice')
         {{endif}}
         {{if 'cuParamSetTexRef' in found_functions}}
         global __cuParamSetTexRef
@@ -10025,6 +10206,150 @@ cdef CUresult _cuMulticastGetGranularity(size_t* granularity, const CUmulticastO
     return err
 {{endif}}
 
+{{if 'cuLogicalEndpointIdReserve' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointIdReserve(CUlogicalEndpointId* baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointIdReserve
+    cuPythonInit()
+    if __cuLogicalEndpointIdReserve == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointIdReserve" not found')
+    err = (<CUresult (*)(CUlogicalEndpointId*, cuuint32_t) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointIdReserve)(baseLeId, count)
+    return err
+{{endif}}
+
+{{if 'cuLogicalEndpointIdRelease' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointIdRelease(CUlogicalEndpointId baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointIdRelease
+    cuPythonInit()
+    if __cuLogicalEndpointIdRelease == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointIdRelease" not found')
+    err = (<CUresult (*)(CUlogicalEndpointId, cuuint32_t) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointIdRelease)(baseLeId, count)
+    return err
+{{endif}}
+
+{{if 'cuLogicalEndpointCreate' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointCreate(CUlogicalEndpointId leId, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointCreate
+    cuPythonInit()
+    if __cuLogicalEndpointCreate == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointCreate" not found')
+    err = (<CUresult (*)(CUlogicalEndpointId, const CUlogicalEndpointProp*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointCreate)(leId, prop)
+    return err
+{{endif}}
+
+{{if 'cuLogicalEndpointAddDevice' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointAddDevice(CUlogicalEndpointId leId, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointAddDevice
+    cuPythonInit()
+    if __cuLogicalEndpointAddDevice == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointAddDevice" not found')
+    err = (<CUresult (*)(CUlogicalEndpointId, CUdevice) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointAddDevice)(leId, dev)
+    return err
+{{endif}}
+
+{{if 'cuLogicalEndpointDestroy' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointDestroy(CUlogicalEndpointId leId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointDestroy
+    cuPythonInit()
+    if __cuLogicalEndpointDestroy == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointDestroy" not found')
+    err = (<CUresult (*)(CUlogicalEndpointId) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointDestroy)(leId)
+    return err
+{{endif}}
+
+{{if 'cuLogicalEndpointBindAddr' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointBindAddr(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, void* ptr, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointBindAddr
+    cuPythonInit()
+    if __cuLogicalEndpointBindAddr == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointBindAddr" not found')
+    err = (<CUresult (*)(CUlogicalEndpointId, CUdevice, cuuint64_t, void*, cuuint64_t, unsigned long long) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointBindAddr)(leId, dev, offset, ptr, size, flags)
+    return err
+{{endif}}
+
+{{if 'cuLogicalEndpointBindMem' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointBindMem(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, CUmemGenericAllocationHandle memHandle, cuuint64_t memOffset, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointBindMem
+    cuPythonInit()
+    if __cuLogicalEndpointBindMem == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointBindMem" not found')
+    err = (<CUresult (*)(CUlogicalEndpointId, CUdevice, cuuint64_t, CUmemGenericAllocationHandle, cuuint64_t, cuuint64_t, unsigned long long) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointBindMem)(leId, dev, offset, memHandle, memOffset, size, flags)
+    return err
+{{endif}}
+
+{{if 'cuLogicalEndpointUnbind' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointUnbind(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, cuuint64_t size) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointUnbind
+    cuPythonInit()
+    if __cuLogicalEndpointUnbind == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointUnbind" not found')
+    err = (<CUresult (*)(CUlogicalEndpointId, CUdevice, cuuint64_t, cuuint64_t) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointUnbind)(leId, dev, offset, size)
+    return err
+{{endif}}
+
+{{if 'cuLogicalEndpointExport' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointExport(void* handle, CUlogicalEndpointId leId, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointExport
+    cuPythonInit()
+    if __cuLogicalEndpointExport == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointExport" not found')
+    err = (<CUresult (*)(void*, CUlogicalEndpointId, CUlogicalEndpointIpcHandleType) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointExport)(handle, leId, handleType)
+    return err
+{{endif}}
+
+{{if 'cuLogicalEndpointImport' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointImport(CUlogicalEndpointId leId, const void* handle, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointImport
+    cuPythonInit()
+    if __cuLogicalEndpointImport == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointImport" not found')
+    err = (<CUresult (*)(CUlogicalEndpointId, const void*, CUlogicalEndpointIpcHandleType) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointImport)(leId, handle, handleType)
+    return err
+{{endif}}
+
+{{if 'cuLogicalEndpointGetLimits' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointGetLimits(cuuint64_t* bindAlignment, cuuint64_t* maxSize, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointGetLimits
+    cuPythonInit()
+    if __cuLogicalEndpointGetLimits == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointGetLimits" not found')
+    err = (<CUresult (*)(cuuint64_t*, cuuint64_t*, const CUlogicalEndpointProp*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointGetLimits)(bindAlignment, maxSize, prop)
+    return err
+{{endif}}
+
+{{if 'cuLogicalEndpointQuery' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointQuery(CUlogicalEndpointId leId, cuuint32_t count, int* queryStatus) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointQuery
+    cuPythonInit()
+    if __cuLogicalEndpointQuery == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogicalEndpointQuery" not found')
+    err = (<CUresult (*)(CUlogicalEndpointId, cuuint32_t, int*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogicalEndpointQuery)(leId, count, queryStatus)
+    return err
+{{endif}}
+
 {{if 'cuPointerGetAttribute' in found_functions}}
 
 cdef CUresult _cuPointerGetAttribute(void* data, CUpointer_attribute attribute, CUdeviceptr ptr) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -10298,6 +10623,18 @@ cdef CUresult _cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMode mod
         with gil:
             raise RuntimeError('Function "cuStreamBeginCapture_v2" not found')
     err = (<CUresult (*)(CUstream, CUstreamCaptureMode) except ?CUDA_ERROR_NOT_FOUND nogil> __cuStreamBeginCapture_v2)(hStream, mode)
+    return err
+{{endif}}
+
+{{if 'cuStreamBeginRecaptureToGraph' in found_functions}}
+
+cdef CUresult _cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMode mode, CUgraph hGraph, CUgraphRecaptureCallback callbackFunc, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuStreamBeginRecaptureToGraph
+    cuPythonInit()
+    if __cuStreamBeginRecaptureToGraph == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamBeginRecaptureToGraph" not found')
+    err = (<CUresult (*)(CUstream, CUstreamCaptureMode, CUgraph, CUgraphRecaptureCallback, void*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuStreamBeginRecaptureToGraph)(hStream, mode, hGraph, callbackFunc, userData)
     return err
 {{endif}}
 
@@ -10841,18 +11178,6 @@ cdef CUresult _cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDimX, un
     return err
 {{endif}}
 
-{{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
-
-cdef CUresult _cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLaunchCooperativeKernelMultiDevice
-    cuPythonInit()
-    if __cuLaunchCooperativeKernelMultiDevice == NULL:
-        with gil:
-            raise RuntimeError('Function "cuLaunchCooperativeKernelMultiDevice" not found')
-    err = (<CUresult (*)(CUDA_LAUNCH_PARAMS*, unsigned int, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLaunchCooperativeKernelMultiDevice)(launchParamsList, numDevices, flags)
-    return err
-{{endif}}
-
 {{if 'cuLaunchHostFunc' in found_functions}}
 
 cdef CUresult _cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -10982,6 +11307,18 @@ cdef CUresult _cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, 
         with gil:
             raise RuntimeError('Function "cuLaunchGridAsync" not found')
     err = (<CUresult (*)(CUfunction, int, int, CUstream) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLaunchGridAsync)(f, grid_width, grid_height, hStream)
+    return err
+{{endif}}
+
+{{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
+
+cdef CUresult _cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLaunchCooperativeKernelMultiDevice
+    cuPythonInit()
+    if __cuLaunchCooperativeKernelMultiDevice == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLaunchCooperativeKernelMultiDevice" not found')
+    err = (<CUresult (*)(CUDA_LAUNCH_PARAMS*, unsigned int, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLaunchCooperativeKernelMultiDevice)(launchParamsList, numDevices, flags)
     return err
 {{endif}}
 
@@ -14907,6 +15244,90 @@ cpdef dict _inspect_function_pointers():
     data["__cuMulticastGetGranularity"] = <intptr_t>0
     {{endif}}
 
+    {{if 'cuLogicalEndpointIdReserve' in found_functions}}
+    global __cuLogicalEndpointIdReserve
+    data["__cuLogicalEndpointIdReserve"] = <intptr_t>__cuLogicalEndpointIdReserve
+    {{else}}
+    data["__cuLogicalEndpointIdReserve"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogicalEndpointIdRelease' in found_functions}}
+    global __cuLogicalEndpointIdRelease
+    data["__cuLogicalEndpointIdRelease"] = <intptr_t>__cuLogicalEndpointIdRelease
+    {{else}}
+    data["__cuLogicalEndpointIdRelease"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogicalEndpointCreate' in found_functions}}
+    global __cuLogicalEndpointCreate
+    data["__cuLogicalEndpointCreate"] = <intptr_t>__cuLogicalEndpointCreate
+    {{else}}
+    data["__cuLogicalEndpointCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogicalEndpointAddDevice' in found_functions}}
+    global __cuLogicalEndpointAddDevice
+    data["__cuLogicalEndpointAddDevice"] = <intptr_t>__cuLogicalEndpointAddDevice
+    {{else}}
+    data["__cuLogicalEndpointAddDevice"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogicalEndpointDestroy' in found_functions}}
+    global __cuLogicalEndpointDestroy
+    data["__cuLogicalEndpointDestroy"] = <intptr_t>__cuLogicalEndpointDestroy
+    {{else}}
+    data["__cuLogicalEndpointDestroy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogicalEndpointBindAddr' in found_functions}}
+    global __cuLogicalEndpointBindAddr
+    data["__cuLogicalEndpointBindAddr"] = <intptr_t>__cuLogicalEndpointBindAddr
+    {{else}}
+    data["__cuLogicalEndpointBindAddr"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogicalEndpointBindMem' in found_functions}}
+    global __cuLogicalEndpointBindMem
+    data["__cuLogicalEndpointBindMem"] = <intptr_t>__cuLogicalEndpointBindMem
+    {{else}}
+    data["__cuLogicalEndpointBindMem"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogicalEndpointUnbind' in found_functions}}
+    global __cuLogicalEndpointUnbind
+    data["__cuLogicalEndpointUnbind"] = <intptr_t>__cuLogicalEndpointUnbind
+    {{else}}
+    data["__cuLogicalEndpointUnbind"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogicalEndpointExport' in found_functions}}
+    global __cuLogicalEndpointExport
+    data["__cuLogicalEndpointExport"] = <intptr_t>__cuLogicalEndpointExport
+    {{else}}
+    data["__cuLogicalEndpointExport"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogicalEndpointImport' in found_functions}}
+    global __cuLogicalEndpointImport
+    data["__cuLogicalEndpointImport"] = <intptr_t>__cuLogicalEndpointImport
+    {{else}}
+    data["__cuLogicalEndpointImport"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogicalEndpointGetLimits' in found_functions}}
+    global __cuLogicalEndpointGetLimits
+    data["__cuLogicalEndpointGetLimits"] = <intptr_t>__cuLogicalEndpointGetLimits
+    {{else}}
+    data["__cuLogicalEndpointGetLimits"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogicalEndpointQuery' in found_functions}}
+    global __cuLogicalEndpointQuery
+    data["__cuLogicalEndpointQuery"] = <intptr_t>__cuLogicalEndpointQuery
+    {{else}}
+    data["__cuLogicalEndpointQuery"] = <intptr_t>0
+    {{endif}}
+
     {{if 'cuPointerGetAttribute' in found_functions}}
     global __cuPointerGetAttribute
     data["__cuPointerGetAttribute"] = <intptr_t>__cuPointerGetAttribute
@@ -15066,6 +15487,13 @@ cpdef dict _inspect_function_pointers():
     data["__cuStreamBeginCapture_v2"] = <intptr_t>__cuStreamBeginCapture_v2
     {{else}}
     data["__cuStreamBeginCapture_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamBeginRecaptureToGraph' in found_functions}}
+    global __cuStreamBeginRecaptureToGraph
+    data["__cuStreamBeginRecaptureToGraph"] = <intptr_t>__cuStreamBeginRecaptureToGraph
+    {{else}}
+    data["__cuStreamBeginRecaptureToGraph"] = <intptr_t>0
     {{endif}}
 
     {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
@@ -15383,13 +15811,6 @@ cpdef dict _inspect_function_pointers():
     data["__cuLaunchCooperativeKernel"] = <intptr_t>0
     {{endif}}
 
-    {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
-    global __cuLaunchCooperativeKernelMultiDevice
-    data["__cuLaunchCooperativeKernelMultiDevice"] = <intptr_t>__cuLaunchCooperativeKernelMultiDevice
-    {{else}}
-    data["__cuLaunchCooperativeKernelMultiDevice"] = <intptr_t>0
-    {{endif}}
-
     {{if 'cuLaunchHostFunc' in found_functions}}
     global __cuLaunchHostFunc
     data["__cuLaunchHostFunc"] = <intptr_t>__cuLaunchHostFunc
@@ -15465,6 +15886,13 @@ cpdef dict _inspect_function_pointers():
     data["__cuLaunchGridAsync"] = <intptr_t>__cuLaunchGridAsync
     {{else}}
     data["__cuLaunchGridAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
+    global __cuLaunchCooperativeKernelMultiDevice
+    data["__cuLaunchCooperativeKernelMultiDevice"] = <intptr_t>__cuLaunchCooperativeKernelMultiDevice
+    {{else}}
+    data["__cuLaunchCooperativeKernelMultiDevice"] = <intptr_t>0
     {{endif}}
 
     {{if 'cuParamSetTexRef' in found_functions}}
