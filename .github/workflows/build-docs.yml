@@ -59,12 +59,16 @@ jobs:
           sparse-checkout: |
             cuda_bindings/docs/source/release.rst
             cuda_bindings/docs/source/release
+            cuda_bindings/docs/nv-versions.json
             cuda_core/docs/source/release.rst
             cuda_core/docs/source/release
+            cuda_core/docs/nv-versions.json
             cuda_pathfinder/docs/source/release.rst
             cuda_pathfinder/docs/source/release
+            cuda_pathfinder/docs/nv-versions.json
             cuda_python/docs/source/release.rst
             cuda_python/docs/source/release
+            cuda_python/docs/nv-versions.json
 
       - name: Overlay release notes from workflow source
         if: ${{ inputs.is-release }}
@@ -75,11 +79,19 @@ jobs:
             local src_index="release-notes-src/${package}/docs/source/release.rst"
             local dst="${package}/docs/source/release"
             local dst_index_md="${package}/docs/source/release.md"
+            local src_nv_versions="release-notes-src/${package}/docs/nv-versions.json"
+            local dst_nv_versions="${package}/docs/nv-versions.json"
+            local dst_versions="${package}/docs/versions.json"
 
             if [[ -f "${src_index}" ]]; then
               # Older tags can have release.md; remove it so the overlaid release.rst wins.
               rm -f "${dst_index_md}"
               cp "${src_index}" "${package}/docs/source/release.rst"
+            fi
+
+            if [[ -f "${src_nv_versions}" ]]; then
+              cp "${src_nv_versions}" "${dst_nv_versions}"
+              jq 'map({(.version): .version}) | add' "${src_nv_versions}" > "${dst_versions}"
             fi
 
             mkdir -p "${dst}"
