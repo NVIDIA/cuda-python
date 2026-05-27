@@ -382,8 +382,10 @@ def test_make_program_cache_key_ptx_linker_equivalent_options_hash_same(a, b, mo
     presence-only (``time``), ``is True`` (``no_cache``). Semantically
     equivalent inputs under those gates must hash to the same key."""
     # Pin the linker probe so the only variable is the options gate.
+    from cuda.core import _linker
     from cuda.core.utils import _program_cache
 
+    monkeypatch.setattr(_linker, "_choose_backend", lambda *_args, **_kwargs: "nvjitlink")
     monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda _use_driver: ("nvJitLink", "12030"))
     k_a = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**a))
     k_b = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**b))
@@ -999,9 +1001,12 @@ def test_make_program_cache_key_rejects_side_effect_options_nvrtc(option_kw, ext
         pytest.param({"time": "whatever.csv"}, id="time_path"),
     ],
 )
-def test_make_program_cache_key_accepts_side_effect_options_for_ptx(option_kw):
+def test_make_program_cache_key_accepts_side_effect_options_for_ptx(option_kw, monkeypatch):
     """The side-effect guard is NVRTC-specific: PTX (linker) and NVVM must
     not be blocked by options whose side effects only apply under NVRTC."""
+    from cuda.core import _linker
+
+    monkeypatch.setattr(_linker, "_choose_backend", lambda *_args, **_kwargs: "nvjitlink")
     _make_key(code=".version 7.0", code_type="ptx", options=_opts(**option_kw))  # no raise
 
 
