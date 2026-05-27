@@ -3274,7 +3274,7 @@ Data types used by CUDA driver
 
         Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error. 
 
-         :py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::devNode which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
+         :py:obj:`~.CUlaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable` can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.CUlaunchAttributeValue.deviceUpdatableKernelNode.devNode` which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
 
          Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via :py:obj:`~.cuGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via :py:obj:`~.cuGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to :py:obj:`~.cuGraphExecUpdate`. 
 
@@ -7206,6 +7206,14 @@ Checkpoint and restore capabilities are currently restricted to Linux.
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessRestore
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessUnlock
 
+Profiler Control
+----------------
+
+This section describes the profiler control functions of the low-level CUDA driver application programming interface.
+
+.. autofunction:: cuda.bindings.driver.cuProfilerStart
+.. autofunction:: cuda.bindings.driver.cuProfilerStop
+
 EGL Interoperability
 --------------------
 
@@ -7251,14 +7259,6 @@ This section describes the OpenGL interoperability functions of the low-level CU
 .. autofunction:: cuda.bindings.driver.cuGraphicsGLRegisterBuffer
 .. autofunction:: cuda.bindings.driver.cuGraphicsGLRegisterImage
 .. autofunction:: cuda.bindings.driver.cuGLGetDevices
-
-Profiler Control
-----------------
-
-This section describes the profiler control functions of the low-level CUDA driver application programming interface.
-
-.. autofunction:: cuda.bindings.driver.cuProfilerStart
-.. autofunction:: cuda.bindings.driver.cuProfilerStop
 
 VDPAU Interoperability
 ----------------------

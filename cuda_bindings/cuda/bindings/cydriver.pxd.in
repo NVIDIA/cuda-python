@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0, generator version 49a8141. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1711+g875fec45. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -2311,7 +2311,12 @@ cdef extern from "cuda.h":
     ctypedef CUcheckpointCheckpointArgs_st CUcheckpointCheckpointArgs
 
     cdef struct CUcheckpointRestoreArgs_st:
-        cuuint64_t reserved[8]
+        {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'char'}}
+        char reserved[{{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}]
+        {{endif}}
+        {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'cuuint64_t'}}
+        cuuint64_t reserved[{{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}]
+        {{endif}}
 
     ctypedef CUcheckpointRestoreArgs_st CUcheckpointRestoreArgs
 
