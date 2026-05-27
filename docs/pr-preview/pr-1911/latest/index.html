@@ -28,18 +28,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
 
 
@@ -48,7 +48,7 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/nv-versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -89,7 +89,9 @@
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -213,7 +215,7 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/coop">
+  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/unstable/python/coop.html">
     cuda.coop
   </a>
 </li>
@@ -227,8 +229,15 @@
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
 <li class=" ">
-  <a class="nav-link dropdown-item nav-external" href="https://nvidia.github.io/cccl/python/compute">
+  <a class="nav-link dropdown-item nav-external" href="https://nvidia.github.io/cccl/unstable/python/compute/index.html">
     cuda.compute
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://nvidia.github.io/numba-cuda-mlir/">
+    numba-cuda-mlir
   </a>
 </li>
 
@@ -305,11 +314,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
     </div>
     
@@ -433,15 +449,22 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/coop">
+  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/unstable/python/coop.html">
     cuda.coop
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/compute">
+  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/unstable/python/compute/index.html">
     cuda.compute
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://nvidia.github.io/numba-cuda-mlir/">
+    numba-cuda-mlir
   </a>
 </li>
 
@@ -506,11 +529,18 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
       </div>
     
@@ -551,8 +581,9 @@
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-core/latest">cuda.core</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-pathfinder/latest">cuda.pathfinder</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/coop">cuda.coop</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/compute">cuda.compute</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/unstable/python/coop.html">cuda.coop</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/unstable/python/compute/index.html">cuda.compute</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/numba-cuda-mlir/">numba-cuda-mlir</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cuda/cutile-python/">cuda.tile</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/">nvmath-python</a></li>
@@ -595,8 +626,9 @@ multiple components:</p>
 <li><p><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-core/latest">cuda.core</a>: Pythonic access to CUDA Runtime and other core functionality</p></li>
 <li><p><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a>: Low-level Python bindings to CUDA C APIs</p></li>
 <li><p><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-pathfinder/latest">cuda.pathfinder</a>: Utilities for locating CUDA components installed in the user’s Python environment</p></li>
-<li><p><a class="reference external" href="https://nvidia.github.io/cccl/python/coop">cuda.coop</a>: A Python module providing CCCL’s reusable block-wide and warp-wide <em>device</em> primitives for use within Numba CUDA kernels</p></li>
-<li><p><a class="reference external" href="https://nvidia.github.io/cccl/python/compute">cuda.compute</a>: A Python module for easy access to CCCL’s highly efficient and customizable parallel algorithms, like <code class="docutils literal notranslate"><span class="pre">sort</span></code>, <code class="docutils literal notranslate"><span class="pre">scan</span></code>, <code class="docutils literal notranslate"><span class="pre">reduce</span></code>, <code class="docutils literal notranslate"><span class="pre">transform</span></code>, etc. that are callable on the <em>host</em></p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/cccl/unstable/python/coop.html">cuda.coop</a>: A Python module providing CCCL’s reusable block-wide and warp-wide <em>device</em> primitives for use within Numba CUDA kernels</p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/cccl/unstable/python/compute/index.html">cuda.compute</a>: A Python module for easy access to CCCL’s highly efficient and customizable parallel algorithms, like <code class="docutils literal notranslate"><span class="pre">sort</span></code>, <code class="docutils literal notranslate"><span class="pre">scan</span></code>, <code class="docutils literal notranslate"><span class="pre">reduce</span></code>, <code class="docutils literal notranslate"><span class="pre">transform</span></code>, etc. that are callable on the <em>host</em></p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/numba-cuda-mlir/">numba-cuda-mlir</a>: An evolution of Numba CUDA that improves upon its technical foundation and performance to provide the future of CUDA Python JIT compilation. It currently supports developing CUDA <strong>SIMT</strong> kernels in Python, providing Python bindings for accelerated device libraries, and serving as a compiler for user-defined functions in accelerated libraries.</p></li>
 <li><p><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a>: A Python DSL that exposes CUDA <strong>SIMT</strong> programming model and compiles a restricted subset of Python code into CUDA kernels and device functions</p></li>
 <li><p><a class="reference external" href="https://docs.nvidia.com/cuda/cutile-python/">cuda.tile</a>: A new Python DSL that exposes CUDA <strong>Tile</strong> programming model and allows users to write NumPy-like code in CUDA kernels</p></li>
 <li><p><a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest">nvmath-python</a>: Pythonic access to NVIDIA CPU &amp; GPU Math Libraries, with <a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#host-apis">host</a>, <a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#device-apis">device</a>, and <a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest/distributed-apis/index.html">distributed</a> APIs. It also provides low-level Python bindings to host C APIs (<a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest/bindings/index.html">nvmath.bindings</a>).</p></li>
@@ -636,8 +668,9 @@ be available, please refer to the <a class="reference external" href="https://nv
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-core/latest">cuda.core</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-pathfinder/latest">cuda.pathfinder</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/coop">cuda.coop</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/compute">cuda.compute</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/unstable/python/coop.html">cuda.coop</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/unstable/python/compute/index.html">cuda.compute</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/numba-cuda-mlir/">numba-cuda-mlir</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cuda/cutile-python/">cuda.tile</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/">nvmath-python</a></li>
@@ -692,8 +725,8 @@ be available, please refer to the <a class="reference external" href="https://nv
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
 
 
   <footer class="bd-footer">

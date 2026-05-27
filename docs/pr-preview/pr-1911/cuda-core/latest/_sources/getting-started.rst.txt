@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 .. currentmodule:: cuda.core
@@ -25,7 +25,7 @@ Rather than providing 1:1 equivalents of the CUDA driver and runtime APIs
 - :class:`Device` class for GPU device operations and context management.
 - :class:`Buffer` and :class:`MemoryResource` classes for memory allocation and management.
 - :class:`Program` for JIT compilation of CUDA kernels.
-- :class:`GraphBuilder` for building and executing CUDA graphs.
+- :class:`graph.GraphBuilder` for building and executing CUDA graphs.
 - :class:`Stream` and :class:`Event` for asynchronous execution and timing.
 
 Example: Compiling and Launching a CUDA kernel
@@ -68,7 +68,7 @@ Don't forget to use :meth:`Device.set_current`!
    s = dev.create_stream()
 
 Next, we compile the CUDA C++ kernel from earlier using the :class:`Program` class.
-The result of the compilation  is saved as a CUBIN.
+The result of the compilation is saved as a CUBIN.
 Note the use of the ``name_expressions`` parameter to the :meth:`Program.compile` method to specify which kernel template instantiations to compile:
 
 .. code-block:: python

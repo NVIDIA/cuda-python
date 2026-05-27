@@ -19,7 +19,6 @@ cuda.core.DeviceMemoryResource
    .. automethod:: deallocate
    .. automethod:: from_allocation_handle
    .. automethod:: from_registry
-   .. automethod:: get_allocation_handle
    .. automethod:: register
 
    
@@ -30,6 +29,7 @@ cuda.core.DeviceMemoryResource
    .. rubric:: Attributes
 
    
+   .. autoattribute:: allocation_handle
    .. autoattribute:: attributes
    .. autoattribute:: device_id
    .. autoattribute:: handle
