@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.GpuThermalSettings
+=====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuThermalSettings
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuThermalSettings.__init__
+      ~GpuThermalSettings.from_buffer
+      ~GpuThermalSettings.from_data
+      ~GpuThermalSettings.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuThermalSettings.count
+      ~GpuThermalSettings.ptr
+      ~GpuThermalSettings.sensor
+   
+   
