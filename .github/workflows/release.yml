@@ -24,6 +24,11 @@ on:
         description: "The release git tag"
         required: true
         type: string
+      backport-git-tag:
+        description: "Backport release tag for release-note planning, or 'not planned'"
+        required: false
+        type: string
+        default: ""
       run-id:
         description: "The GHA run ID that generated validated artifacts (optional - auto-detects successful tag-triggered CI run for git-tag)"
         required: false
@@ -93,8 +98,6 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-        with:
-          ref: ${{ inputs.git-tag }}
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
@@ -110,7 +113,8 @@ jobs:
         run: |
           python ci/tools/check_release_notes.py \
             --git-tag "${{ inputs.git-tag }}" \
-            --component "${{ inputs.component }}"
+            --component "${{ inputs.component }}" \
+            --backport-git-tag "${{ inputs.backport-git-tag }}"
 
   doc:
     name: Build release docs
