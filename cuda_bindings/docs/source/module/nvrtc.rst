@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 -----
@@ -65,6 +65,9 @@ NVRTC defines the following enumeration type and function for API call error han
 
     .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED
 
+
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUSY
+
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetErrorString
 
 General Information Query
@@ -98,6 +101,8 @@ NVRTC defines the following type and functions for actual compilation.
 .. autofunction:: cuda.bindings.nvrtc.nvrtcAddNameExpression
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetLoweredName
 .. autofunction:: cuda.bindings.nvrtc.nvrtcSetFlowCallback
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetTileIRSize
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetTileIR
 
 Precompiled header (PCH) (CUDA 12.8+)
 -------------------------------------
@@ -108,6 +113,28 @@ NVRTC defines the following function related to PCH. Also see PCH related flags 
 .. autofunction:: cuda.bindings.nvrtc.nvrtcSetPCHHeapSize
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired
+
+Bundled Headers Installation
+----------------------------
+
+NVRTC defines the following types and functions for bundled headers installation and management.
+
+.. autoclass:: cuda.bindings.nvrtc.nvrtcBundledHeadersInfo
+.. autofunction:: cuda.bindings.nvrtc.nvrtcInstallBundledHeaders
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetBundledHeadersInfo
+.. autofunction:: cuda.bindings.nvrtc.nvrtcRemoveBundledHeaders
+.. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS
+
+    Flags for nvrtcInstallBundledHeaders.Skip installation if version marker exists and version matches. This is the default behavior when flags=0.
+
+.. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE
+
+    Clear existing directory contents before installation. Guarantees consistency by removing any existing files first.
+
+.. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_NO_WAIT
+
+    Return NVRTC_ERROR_BUSY immediately if installation is in progress by another process, instead of waiting for the lock. Can be combined with FORCE_OVERWRITE using bitwise OR.
+
 
 Supported Compile Options
 -------------------------
@@ -181,6 +208,66 @@ Enable (disable) the generation of relocatable device code.
   - ``--extensible-whole-program``\  (``-ewp``\ )
 
 Do extensible whole program compilation of device code.
+
+
+
+
+
+
+
+
+
+- Tile compilation
+
+
+
+
+
+  - ``--enable-tile``\  (``-enable-tile``\ )
+
+Enable support for Tile constructs (e.g. ``__tile__``\  ) and define the macro ``__CUDACC_TILE__``\  .
+
+
+
+
+
+
+
+  - ``--tile-only``\  (``-tile-only``\ )
+
+Enable support for parsing Tile constructs and define the macro ``__CUDACC_TILE__``\ , but omit code generation for non-Tile code (e.g. ``__global__``\  function).
+
+
+
+
+
+
+
+  - ``--simt-only``\  (``-simt-only``\ )
+
+Enable support for parsing Tile constructs and define the macro ``__CUDACC_TILE__``\ , but omit code generation for Tile code (e.g. ``__tile_global__``\  function).
+
+
+
+
+
+
+
+  - ``--default-tile``\  (``--default-tile``\ )
+
+Consider an unannotated function or static storage duration variable as having an implicit ``__tile__``\  annotation. If the static storage duration variable violates Tile restrictions (e.g. cannot be of pointer type), then the implicit annotation is silently omitted by default; use ``-diagnose-implicit-tile-var``\  to enable compiler diagnostics for such cases.
+
+``-default-tile``\  can be used in conjunction with ``-default-device``\ . If both flags are specified, the unannotated function and/or static storage duration variable will be considered to have both ``__tile__``\  and ``__device__``\  implict annotations. There will be a separate copy of the function/variable in the generated SIMT and cuda_tile programs, at present.
+
+
+
+
+
+
+
+  - ``--diagnose-implicit-tile-var``\  (``-diagnose-implicit-tile-var``\ )
+
+When combined with ``-default-tile``\ , diagnose static storage duration variables that could not be implicitly annotated with the ``__tile__``\  memory space specifier (e.g., due to pointer type restrictions).
 
 
 
@@ -461,6 +548,16 @@ Cancel any previous definition of ``<def>``\ .
   - ``--include-path=<dir>``\  (``-I``\ )
 
 Add the directory ``<dir>``\  to the list of directories to be searched for headers. These paths are searched after the list of headers given to nvrtcCreateProgram.
+
+
+
+
+
+
+
+  - ``--use-bundled-headers=<dir>``\  
+
+Install bundled CUDA headers to ``<dir>``\  and add include paths. This is a convenience flag that combines calling nvrtcInstallBundledHeaders and adding ``-I<dir>``\  and ``-I<dir>/cccl``\  to the include search path. Headers are installed only if they don't already exist at the specified location.
 
 
 
