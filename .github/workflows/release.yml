@@ -25,7 +25,7 @@ on:
         required: true
         type: string
       backport-git-tag:
-        description: "Backport release tag for release-note planning, or 'not planned'"
+        description: "Mainline cuda-bindings/cuda-python only: planned backport tag, or 'not planned'. Leave blank for backport releases."
         required: false
         type: string
         default: ""
