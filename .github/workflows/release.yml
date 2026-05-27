@@ -4,9 +4,9 @@
 
 name: "CI: Release"
 
-# Manually-triggered release workflow. Creates a release draft if one doesn't exist
-# for the given tag, or uses an existing draft, then publishes the selected wheels
-# to TestPyPI followed by PyPI.
+# Manually-triggered release workflow. The default full-release mode creates a
+# release draft if one doesn't exist for the given tag, or uses an existing draft,
+# then publishes the selected wheels to TestPyPI followed by PyPI.
 
 on:
   workflow_dispatch:
@@ -20,6 +20,15 @@ on:
           - cuda-bindings
           - cuda-pathfinder
           - cuda-python
+      # docs-only repairs published release docs without touching PyPI or GitHub release assets.
+      release-action:
+        description: "What to run"
+        required: true
+        type: choice
+        options:
+          - full-release
+          - docs-only
+        default: full-release
       git-tag:
         description: "The release git tag"
         required: true
@@ -56,12 +65,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
-          RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
-          echo "Auto-detected run ID: $RUN_ID"
+          if [[ -n "${{ inputs.run-id }}" ]]; then
+            echo "Using provided run ID: ${{ inputs.run-id }}"
+            RUN_ID="${{ inputs.run-id }}"
+          else
+            echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
+            RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
+            echo "Auto-detected run ID: $RUN_ID"
+          fi
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
   check-tag:
+    if: ${{ inputs.release-action == 'full-release' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
@@ -125,7 +140,6 @@ jobs:
       contents: write
       pull-requests: write
     needs:
-      - check-tag
       - check-release-notes
       - determine-run-id
     secrets: inherit
@@ -138,6 +152,7 @@ jobs:
 
   upload-archive:
     name: Upload source archive
+    if: ${{ inputs.release-action == 'full-release' }}
     permissions:
       contents: write
     needs:
@@ -154,6 +169,7 @@ jobs:
 
   publish-testpypi:
     name: Publish wheels to TestPyPI
+    if: ${{ inputs.release-action == 'full-release' }}
     runs-on: ubuntu-latest
     needs:
       - check-tag
@@ -186,6 +202,7 @@ jobs:
 
   publish-pypi:
     name: Publish wheels to PyPI
+    if: ${{ inputs.release-action == 'full-release' }}
     runs-on: ubuntu-latest
     needs:
       - determine-run-id
