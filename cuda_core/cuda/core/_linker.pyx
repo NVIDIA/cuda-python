@@ -145,31 +145,37 @@ cdef class Linker:
 
     def close(self):
         """Destroy this linker."""
+        # link() caches decoded logs into _info_log/_error_log on the success
+        # path only. A failed link leaves them as None with _drv_log_bufs as the
+        # only source, so cache them here before the raw buffers are released.
+        if not self._use_nvjitlink and self._drv_log_bufs is not None:
+            if self._info_log is None:
+                self._info_log = self.get_info_log()
+            if self._error_log is None:
+                self._error_log = self.get_error_log()
+        self._close_noexcept()
+
+    cdef void _close_noexcept(self) noexcept:
         cdef vector[cydriver.CUjit_option] empty_keys
         cdef vector[void*] empty_values
+
         if self._use_nvjitlink:
             self._nvjitlink_handle.reset()
-        else:
-            # link() caches decoded logs into _info_log/_error_log on the
-            # success path only. A failed link leaves them as None with
-            # _drv_log_bufs as the only source, so cache them here before
-            # the raw buffers are released.
-            if self._drv_log_bufs is not None:
-                if self._info_log is None:
-                    self._info_log = self.get_info_log()
-                if self._error_log is None:
-                    self._error_log = self.get_error_log()
-            # .reset() drops the last shared_ptr to the CUlinkState and runs
-            # cuLinkDestroy synchronously via the custom deleter. The driver
-            # is no longer looking at our option arrays or log buffers, so
-            # release the host-side retainers now rather than waiting for
-            # tp_dealloc. Swap with empty vectors to actually free the
-            # backing allocation; vector.clear() only sets size to 0 and
-            # retains capacity.
-            self._culink_handle.reset()
-            self._drv_jit_keys.swap(empty_keys)
-            self._drv_jit_values.swap(empty_values)
-            self._drv_log_bufs = None
+            return
+
+        # .reset() drops the last shared_ptr to the CUlinkState and runs
+        # cuLinkDestroy synchronously via the custom deleter. The driver may
+        # still look at our option arrays or log buffers during cuLinkDestroy,
+        # so release the host-side retainers only after the handle is reset.
+        self._culink_handle.reset()
+        # Swap with empty vectors to actually free the backing allocation;
+        # vector.clear() only sets size to 0 and retains capacity.
+        self._drv_jit_keys.swap(empty_keys)
+        self._drv_jit_values.swap(empty_values)
+        self._drv_log_bufs = None
+
+    def __dealloc__(self):
+        self._close_noexcept()
 
     @property
     def handle(self) -> LinkerHandleT:

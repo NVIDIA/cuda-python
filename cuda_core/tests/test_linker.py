@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import gc
 import inspect
 
 import pytest
@@ -261,10 +262,9 @@ def test_driver_linker_lifetime_no_heap_corruption(monkeypatch, compile_ptx_func
     Two prior bugs corrupted the heap during driver-linker teardown: the log
     buffer bytearrays were cleared before cuLinkDestroy ran, and the
     optionValues array was a stack-local vector destroyed when Linker_init
-    returned. Both manifested in the NEXT CUDA operation after the Linker
-    was destroyed, not at destruction itself. This test forces the driver
-    backend, links, closes + drops the Linker, and then performs a full
-    compile + link cycle that would previously segfault.
+    returned. Both manifested in the NEXT CUDA operation after the Linker was
+    destroyed, not at destruction itself. This test forces the driver backend,
+    destroys one Linker via __dealloc__, and explicitly closes another.
     """
     if not _can_load_generated_ptx():
         pytest.skip("PTX version too new for current driver")
@@ -273,8 +273,8 @@ def test_driver_linker_lifetime_no_heap_corruption(monkeypatch, compile_ptx_func
     linker = Linker(*compile_ptx_functions, options=LinkerOptions(arch=ARCH))
     assert linker.backend == "driver"
     linker.link("cubin")
-    linker.close()
     del linker
+    gc.collect()
 
     obj_a = Program(kernel_a, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
     obj_b = Program(device_function_b, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
