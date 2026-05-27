@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/nvfatbin.pyx: 91.60%</title>
+    <title>Coverage for cuda/bindings/nvfatbin.pyx: 86.43%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
-    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
         contexts = {
   "a": "(empty)",
@@ -72,8 +72,8 @@
 <header>
     <div class="content">
         <h1>
-            <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;bindings&#8201;/&#8201;nvfatbin.pyx</b>:
-            <span class="pc_cov">91.60%</span>
+            <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>bindings<span class="sep">/</span>nvfatbin.pyx</b>:
+            <span class="pc_cov">86.43%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -115,9 +115,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">131 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">120<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">11<span class="text"> missing</span></button>
+            <span class="text">140 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">121<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">19<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -125,8 +125,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_nvjitlink_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-26 01:33 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
+            created at 2026-05-27 01:40 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -145,7 +145,7 @@
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 12.4.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 12.4.1 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">cimport cython  # NOQA</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -415,46 +415,57 @@
     <p class="run"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">    return (major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs272"><span class="r"><label for="ctxs272" class="ctx">2 ctx</label></span><span class="ctxs">1aM</span></p>
     <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">cpdef add_reloc(intptr_t handle, code, size_t size):</span>&nbsp;</span><span class="r"><label for="ctxs275" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">    """nvFatbinAddReloc adds relocatable PTX entries from a host object to the fatbinary.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">    Args:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">        handle (intptr_t): nvFatbin handle.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">        code (bytes): The host object image.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">        size (size_t): The size of the host object image code.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">    .. seealso:: `nvFatbinAddReloc`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)</span>&nbsp;</span><input type="checkbox" id="ctxs285"><span class="r"><label for="ctxs285" class="ctx">4 ctx</label></span><span class="ctxs">1FGHI</span></p>
-    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs286"><span class="r"><label for="ctxs286" class="ctx">4 ctx</label></span><span class="ctxs">1FGHI</span></p>
-    <p class="run"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">        __status__ = nvFatbinAddReloc(&lt;Handle>handle, &lt;const void*>_code_, size)</span>&nbsp;</span><input type="checkbox" id="ctxs287"><span class="r"><label for="ctxs287" class="ctx">4 ctx</label></span><span class="ctxs">1FGHI</span></p>
-    <p class="run"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs288"><span class="r"><label for="ctxs288" class="ctx">4 ctx</label></span><span class="ctxs">1FGHI</span></p>
-    <p class="pln"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_line):</span>&nbsp;</span><span class="r"><label for="ctxs291" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">    """nvFatbinAddTileIR adds Tile IR to the fatbinary.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">cpdef add_index(intptr_t handle, code, size_t size, identifier):</span>&nbsp;</span><span class="r"><label for="ctxs275" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">    if not isinstance(identifier, str):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">        raise TypeError("identifier must be a Python str")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">    cdef bytes _temp_identifier_ = (&lt;str>identifier).encode()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">    cdef char* _identifier_ = _temp_identifier_</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">        __status__ = nvFatbinAddIndex(&lt;Handle>handle, &lt;const void*>_code_, size, &lt;const char*>_identifier_)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">cpdef add_reloc(intptr_t handle, code, size_t size):</span>&nbsp;</span><span class="r"><label for="ctxs286" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">    """nvFatbinAddReloc adds relocatable PTX entries from a host object to the fatbinary.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">    Args:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">        handle (intptr_t): nvFatbin handle.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">        code (bytes): The host object image.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">        size (size_t): The size of the host object image code.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">    Args:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">        handle (intptr_t): nvFatbin handle.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">        code (bytes): The Tile IR.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">        size (size_t): The size of the Tile IR.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">        identifier (str): Name of the Tile IR, useful when extracting the fatbin with tools like cuobjdump.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">        options_cmd_line (str): Options used during JIT compilation.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">    .. seealso:: `nvFatbinAddReloc`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)</span>&nbsp;</span><input type="checkbox" id="ctxs296"><span class="r"><label for="ctxs296" class="ctx">4 ctx</label></span><span class="ctxs">1FGHI</span></p>
+    <p class="run"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs297"><span class="r"><label for="ctxs297" class="ctx">4 ctx</label></span><span class="ctxs">1FGHI</span></p>
+    <p class="run"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">        __status__ = nvFatbinAddReloc(&lt;Handle>handle, &lt;const void*>_code_, size)</span>&nbsp;</span><input type="checkbox" id="ctxs298"><span class="r"><label for="ctxs298" class="ctx">4 ctx</label></span><span class="ctxs">1FGHI</span></p>
+    <p class="run"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs299"><span class="r"><label for="ctxs299" class="ctx">4 ctx</label></span><span class="ctxs">1FGHI</span></p>
     <p class="pln"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">    .. seealso:: `nvFatbinAddTileIR`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)</span>&nbsp;</span><input type="checkbox" id="ctxs303"><span class="r"><label for="ctxs303" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">    if not isinstance(identifier, str):</span>&nbsp;</span><input type="checkbox" id="ctxs304"><span class="r"><label for="ctxs304" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">        raise TypeError("identifier must be a Python str")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">    cdef bytes _temp_identifier_ = (&lt;str>identifier).encode()</span>&nbsp;</span><input type="checkbox" id="ctxs306"><span class="r"><label for="ctxs306" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">    cdef char* _identifier_ = _temp_identifier_</span>&nbsp;</span><input type="checkbox" id="ctxs307"><span class="r"><label for="ctxs307" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">    if not isinstance(options_cmd_line, str):</span>&nbsp;</span><input type="checkbox" id="ctxs308"><span class="r"><label for="ctxs308" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">        raise TypeError("options_cmd_line must be a Python str")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">    cdef bytes _temp_options_cmd_line_ = (&lt;str>options_cmd_line).encode()</span>&nbsp;</span><input type="checkbox" id="ctxs310"><span class="r"><label for="ctxs310" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">    cdef char* _options_cmd_line_ = _temp_options_cmd_line_</span>&nbsp;</span><input type="checkbox" id="ctxs311"><span class="r"><label for="ctxs311" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs312"><span class="r"><label for="ctxs312" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">        __status__ = nvFatbinAddTileIR(&lt;Handle>handle, &lt;const void*>_code_, size, &lt;const char*>_identifier_, &lt;const char*>_options_cmd_line_)</span>&nbsp;</span><input type="checkbox" id="ctxs313"><span class="r"><label for="ctxs313" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs314"><span class="r"><label for="ctxs314" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="pln"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_line):</span>&nbsp;</span><span class="r"><label for="ctxs302" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">    """nvFatbinAddTileIR adds Tile IR to the fatbinary.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">    Args:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">        handle (intptr_t): nvFatbin handle.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">        code (bytes): The Tile IR.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">        size (size_t): The size of the Tile IR.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">        identifier (str): Name of the Tile IR, useful when extracting the fatbin with tools like cuobjdump.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">        options_cmd_line (str): Options used during JIT compilation.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">    .. seealso:: `nvFatbinAddTileIR`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)</span>&nbsp;</span><input type="checkbox" id="ctxs314"><span class="r"><label for="ctxs314" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt">    if not isinstance(identifier, str):</span>&nbsp;</span><input type="checkbox" id="ctxs315"><span class="r"><label for="ctxs315" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">        raise TypeError("identifier must be a Python str")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t"><span class="txt">    cdef bytes _temp_identifier_ = (&lt;str>identifier).encode()</span>&nbsp;</span><input type="checkbox" id="ctxs317"><span class="r"><label for="ctxs317" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t"><span class="txt">    cdef char* _identifier_ = _temp_identifier_</span>&nbsp;</span><input type="checkbox" id="ctxs318"><span class="r"><label for="ctxs318" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">    if not isinstance(options_cmd_line, str):</span>&nbsp;</span><input type="checkbox" id="ctxs319"><span class="r"><label for="ctxs319" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">        raise TypeError("options_cmd_line must be a Python str")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">    cdef bytes _temp_options_cmd_line_ = (&lt;str>options_cmd_line).encode()</span>&nbsp;</span><input type="checkbox" id="ctxs321"><span class="r"><label for="ctxs321" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">    cdef char* _options_cmd_line_ = _temp_options_cmd_line_</span>&nbsp;</span><input type="checkbox" id="ctxs322"><span class="r"><label for="ctxs322" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs323"><span class="r"><label for="ctxs323" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">        __status__ = nvFatbinAddTileIR(&lt;Handle>handle, &lt;const void*>_code_, size, &lt;const char*>_identifier_, &lt;const char*>_options_cmd_line_)</span>&nbsp;</span><input type="checkbox" id="ctxs324"><span class="r"><label for="ctxs324" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs325"><span class="r"><label for="ctxs325" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
 </main>
 <footer>
     <div class="content">
@@ -463,8 +474,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_bb8e88d71740c463_nvjitlink_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-26 01:33 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
+            created at 2026-05-27 01:40 +0000
         </p>
     </div>
 </footer>

@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for cuda/core/_device_resources.pyx: 74.91%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
-    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
         contexts = {
   "a": "tests/test_green_context.py::TestContextResources::test_green_ctx_resources_reflect_partition|run",
@@ -28,29 +28,29 @@
   "s": "tests/test_green_context.py::TestSMResourceSplitValidation::test_dry_run_cannot_create_context|run",
   "t": "tests/test_green_context.py::TestSMResourceSplitValidation::test_negative_count_raises|run",
   "u": "tests/test_green_context.py::TestContextResources::test_stream_resources_match_context|run",
-  "v": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_with_workqueue_resource|setup",
-  "w": "(empty)",
-  "x": "tests/test_green_context.py::TestSMResourceQuery::test_no_memory_node_id_in_v1|setup",
+  "v": "(empty)",
+  "w": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_with_workqueue_resource|setup",
+  "x": "tests/test_green_context.py::TestWorkqueueResource::test_query|setup",
   "y": "tests/test_green_context.py::TestContextResources::test_green_ctx_sm_resources|run",
   "z": "tests/test_green_context.py::TestContextResources::test_green_ctx_resources_reflect_partition|setup",
   "A": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_two_green_contexts_independent|setup",
   "B": "tests/test_green_context.py::TestSMResourceQuery::test_arch_constraints_hopper_plus|setup",
   "C": "tests/test_green_context.py::TestSMResourceQuery::test_arch_constraints_pre_hopper|setup",
-  "D": "tests/test_green_context.py::TestSMResourceQuery::test_properties|setup",
-  "E": "tests/test_green_context.py::TestSMResourceSplit::test_discovery_mode|setup",
-  "F": "tests/test_green_context.py::TestSMResourceSplit::test_discovery_respects_alignment|setup",
-  "G": "tests/test_green_context.py::TestSMResourceSplit::test_dry_run_matches_real|setup",
-  "H": "tests/test_green_context.py::TestSMResourceSplit::test_single_group_counts|setup",
-  "I": "tests/test_green_context.py::TestSMResourceSplit::test_two_groups_backfill|setup",
-  "J": "tests/test_green_context.py::TestSMResourceSplit::test_two_groups|setup",
-  "K": "tests/test_green_context.py::TestSMResourceSplitValidation::test_dry_run_cannot_create_context|setup",
-  "L": "tests/test_green_context.py::TestSMResourceSplitValidation::test_negative_count_raises|setup",
-  "M": "tests/test_green_context.py::TestSMResourceSplitValidation::test_scalar_count_with_sequence_field_raises|setup",
-  "N": "tests/test_green_context.py::TestSMResourceSplitValidation::test_sequence_length_mismatch_raises|setup",
-  "O": "tests/test_green_context.py::TestWorkqueueResource::test_configure_invalid_scope_raises|setup",
-  "P": "tests/test_green_context.py::TestWorkqueueResource::test_configure_none_is_noop|setup",
-  "Q": "tests/test_green_context.py::TestWorkqueueResource::test_configure_valid_scope|setup",
-  "R": "tests/test_green_context.py::TestWorkqueueResource::test_query|setup",
+  "D": "tests/test_green_context.py::TestSMResourceQuery::test_no_memory_node_id_in_v1|setup",
+  "E": "tests/test_green_context.py::TestSMResourceQuery::test_properties|setup",
+  "F": "tests/test_green_context.py::TestSMResourceSplit::test_discovery_mode|setup",
+  "G": "tests/test_green_context.py::TestSMResourceSplit::test_discovery_respects_alignment|setup",
+  "H": "tests/test_green_context.py::TestSMResourceSplit::test_dry_run_matches_real|setup",
+  "I": "tests/test_green_context.py::TestSMResourceSplit::test_single_group_counts|setup",
+  "J": "tests/test_green_context.py::TestSMResourceSplit::test_two_groups_backfill|setup",
+  "K": "tests/test_green_context.py::TestSMResourceSplit::test_two_groups|setup",
+  "L": "tests/test_green_context.py::TestSMResourceSplitValidation::test_dry_run_cannot_create_context|setup",
+  "M": "tests/test_green_context.py::TestSMResourceSplitValidation::test_negative_count_raises|setup",
+  "N": "tests/test_green_context.py::TestSMResourceSplitValidation::test_scalar_count_with_sequence_field_raises|setup",
+  "O": "tests/test_green_context.py::TestSMResourceSplitValidation::test_sequence_length_mismatch_raises|setup",
+  "P": "tests/test_green_context.py::TestWorkqueueResource::test_configure_invalid_scope_raises|setup",
+  "Q": "tests/test_green_context.py::TestWorkqueueResource::test_configure_none_is_noop|setup",
+  "R": "tests/test_green_context.py::TestWorkqueueResource::test_configure_valid_scope|setup",
   "S": "tests/test_green_context.py::TestSMResourceSplitValidation::test_sequence_length_mismatch_raises|run",
   "T": "tests/test_green_context.py::TestSMResourceSplitValidation::test_scalar_count_with_sequence_field_raises|run",
   "U": "tests/test_green_context.py::TestWorkqueueResource::test_configure_invalid_scope_raises|run",
@@ -68,7 +68,7 @@
 <header>
     <div class="content">
         <h1>
-            <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;_device_resources.pyx</b>:
+            <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>_device_resources.pyx</b>:
             <span class="pc_cov">74.91%</span>
         </h1>
         <aside id="help_panel_wrapper">
@@ -121,8 +121,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__dlpack_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-26 01:33 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
+            created at 2026-05-27 01:40 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -175,8 +175,8 @@
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">cdef inline int _check_green_ctx_support() except?-1:</span>&nbsp;</span><span class="r"><label for="ctxs37" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    global _green_ctx_checked, _green_ctx_err_msg</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    if _green_ctx_checked == 1:</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">46 ctx</label></span><span class="ctxs">1azybucdmAovefghijBCxDpEqFkGrHlInJsKtLMNUOWPVQR</span></p>
-    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">45 ctx</label></span><span class="ctxs">1azybucdmAovefghijBCDpEqFkGrHlInJsKtLMNUOWPVQR</span></p>
+    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    if _green_ctx_checked == 1:</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">46 ctx</label></span><span class="ctxs">1azybucdmAowefghijBCDEpFqGkHrIlJnKsLtMNOUPWQVRx</span></p>
+    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">45 ctx</label></span><span class="ctxs">1azybucdmAowefghijBCDEpFqGkHrIlJnKsLtMNOUPWQVR</span></p>
     <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    if _green_ctx_checked == -1:</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
     <p class="mis show_mis"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">        raise RuntimeError(_green_ctx_err_msg)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    cdef tuple drv = cy_driver_version()</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
@@ -201,28 +201,28 @@
     <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">cdef inline int _check_workqueue_support() except?-1:</span>&nbsp;</span><span class="r"><label for="ctxs63" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">    global _workqueue_checked, _workqueue_err_msg</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">    if _workqueue_checked == 1:</span>&nbsp;</span><input type="checkbox" id="ctxs65"><span class="r"><label for="ctxs65" class="ctx">9 ctx</label></span><span class="ctxs">1uvUOWPVQR</span></p>
-    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs66"><span class="r"><label for="ctxs66" class="ctx">8 ctx</label></span><span class="ctxs">1uUOWPVQR</span></p>
-    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">    if _workqueue_checked == -1:</span>&nbsp;</span><input type="checkbox" id="ctxs67"><span class="r"><label for="ctxs67" class="ctx">1 ctx</label></span><span class="ctxs">1v</span></p>
+    <p class="run"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">    if _workqueue_checked == 1:</span>&nbsp;</span><input type="checkbox" id="ctxs65"><span class="r"><label for="ctxs65" class="ctx">9 ctx</label></span><span class="ctxs">1uwUPWQVRx</span></p>
+    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs66"><span class="r"><label for="ctxs66" class="ctx">8 ctx</label></span><span class="ctxs">1uwUPWQVR</span></p>
+    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">    if _workqueue_checked == -1:</span>&nbsp;</span><input type="checkbox" id="ctxs67"><span class="r"><label for="ctxs67" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
     <p class="mis show_mis"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">        raise RuntimeError(_workqueue_err_msg)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">    cdef tuple drv = cy_driver_version()</span>&nbsp;</span><input type="checkbox" id="ctxs69"><span class="r"><label for="ctxs69" class="ctx">1 ctx</label></span><span class="ctxs">1v</span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">    cdef tuple bind = cy_binding_version()</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">1 ctx</label></span><span class="ctxs">1v</span></p>
-    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    if drv &lt; (13, 1, 0):</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">1 ctx</label></span><span class="ctxs">1v</span></p>
+    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">    cdef tuple drv = cy_driver_version()</span>&nbsp;</span><input type="checkbox" id="ctxs69"><span class="r"><label for="ctxs69" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">    cdef tuple bind = cy_binding_version()</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    if drv &lt; (13, 1, 0):</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
     <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">        _workqueue_err_msg = (</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">            "WorkqueueResource requires CUDA driver 13.1 or newer "</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">            f"(current driver: {'.'.join(map(str, drv))})"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">        _workqueue_checked = -1</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        raise RuntimeError(_workqueue_err_msg)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">    if bind &lt; (13, 1, 0):</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">1 ctx</label></span><span class="ctxs">1v</span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">    if bind &lt; (13, 1, 0):</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">        _workqueue_err_msg = (</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">            "WorkqueueResource requires cuda.bindings 13.1 or newer "</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">            f"(current bindings: {'.'.join(map(str, bind))})"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">        _workqueue_checked = -1</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        raise RuntimeError(_workqueue_err_msg)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    _workqueue_checked = 1</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">1 ctx</label></span><span class="ctxs">1v</span></p>
-    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">1 ctx</label></span><span class="ctxs">1v</span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    _workqueue_checked = 1</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
+    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">@dataclass</span>&nbsp;</span><span class="r"><label for="ctxs89" class="ctx">(empty)</label></span></p>
@@ -549,19 +549,19 @@
     <p class="pln"><span class="n"><a id="t410" href="#t410">410</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t411" href="#t411">411</a></span><span class="t"><span class="txt">    @staticmethod</span>&nbsp;</span><span class="r"><label for="ctxs411" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t412" href="#t412">412</a></span><span class="t"><span class="txt">    cdef SMResource _from_dev_resource(cydriver.CUdevResource res, int device_id):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t413" href="#t413">413</a></span><span class="t"><span class="txt">        cdef SMResource self = SMResource.__new__(SMResource)</span>&nbsp;</span><input type="checkbox" id="ctxs413"><span class="r"><label for="ctxs413" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
-    <p class="run"><span class="n"><a id="t414" href="#t414">414</a></span><span class="t"><span class="txt">        self._resource = res</span>&nbsp;</span><input type="checkbox" id="ctxs414"><span class="r"><label for="ctxs414" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
-    <p class="run"><span class="n"><a id="t415" href="#t415">415</a></span><span class="t"><span class="txt">        self._sm_count = res.sm.smCount</span>&nbsp;</span><input type="checkbox" id="ctxs415"><span class="r"><label for="ctxs415" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
+    <p class="run"><span class="n"><a id="t413" href="#t413">413</a></span><span class="t"><span class="txt">        cdef SMResource self = SMResource.__new__(SMResource)</span>&nbsp;</span><input type="checkbox" id="ctxs413"><span class="r"><label for="ctxs413" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
+    <p class="run"><span class="n"><a id="t414" href="#t414">414</a></span><span class="t"><span class="txt">        self._resource = res</span>&nbsp;</span><input type="checkbox" id="ctxs414"><span class="r"><label for="ctxs414" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
+    <p class="run"><span class="n"><a id="t415" href="#t415">415</a></span><span class="t"><span class="txt">        self._sm_count = res.sm.smCount</span>&nbsp;</span><input type="checkbox" id="ctxs415"><span class="r"><label for="ctxs415" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
     <p class="pln"><span class="n"><a id="t416" href="#t416">416</a></span><span class="t"><span class="txt">        IF CUDA_CORE_BUILD_MAJOR >= 13:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t417" href="#t417">417</a></span><span class="t"><span class="txt">            self._min_partition_size = res.sm.minSmPartitionSize</span>&nbsp;</span><input type="checkbox" id="ctxs417"><span class="r"><label for="ctxs417" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
-    <p class="run"><span class="n"><a id="t418" href="#t418">418</a></span><span class="t"><span class="txt">            self._coscheduled_alignment = res.sm.smCoscheduledAlignment</span>&nbsp;</span><input type="checkbox" id="ctxs418"><span class="r"><label for="ctxs418" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
-    <p class="run"><span class="n"><a id="t419" href="#t419">419</a></span><span class="t"><span class="txt">            self._flags = res.sm.flags</span>&nbsp;</span><input type="checkbox" id="ctxs419"><span class="r"><label for="ctxs419" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
+    <p class="run"><span class="n"><a id="t417" href="#t417">417</a></span><span class="t"><span class="txt">            self._min_partition_size = res.sm.minSmPartitionSize</span>&nbsp;</span><input type="checkbox" id="ctxs417"><span class="r"><label for="ctxs417" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
+    <p class="run"><span class="n"><a id="t418" href="#t418">418</a></span><span class="t"><span class="txt">            self._coscheduled_alignment = res.sm.smCoscheduledAlignment</span>&nbsp;</span><input type="checkbox" id="ctxs418"><span class="r"><label for="ctxs418" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
+    <p class="run"><span class="n"><a id="t419" href="#t419">419</a></span><span class="t"><span class="txt">            self._flags = res.sm.flags</span>&nbsp;</span><input type="checkbox" id="ctxs419"><span class="r"><label for="ctxs419" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
     <p class="pln"><span class="n"><a id="t420" href="#t420">420</a></span><span class="t"><span class="txt">        ELSE:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t421" href="#t421">421</a></span><span class="t"><span class="txt">            self._min_partition_size = _sm_resource_granularity(device_id)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t422" href="#t422">422</a></span><span class="t"><span class="txt">            self._coscheduled_alignment = self._min_partition_size</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t423" href="#t423">423</a></span><span class="t"><span class="txt">            self._flags = 0</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t424" href="#t424">424</a></span><span class="t"><span class="txt">        self._is_usable = True</span>&nbsp;</span><input type="checkbox" id="ctxs424"><span class="r"><label for="ctxs424" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
-    <p class="run"><span class="n"><a id="t425" href="#t425">425</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs425"><span class="r"><label for="ctxs425" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
+    <p class="run"><span class="n"><a id="t424" href="#t424">424</a></span><span class="t"><span class="txt">        self._is_usable = True</span>&nbsp;</span><input type="checkbox" id="ctxs424"><span class="r"><label for="ctxs424" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
+    <p class="run"><span class="n"><a id="t425" href="#t425">425</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs425"><span class="r"><label for="ctxs425" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
     <p class="pln"><span class="n"><a id="t426" href="#t426">426</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t427" href="#t427">427</a></span><span class="t"><span class="txt">    @staticmethod</span>&nbsp;</span><span class="r"><label for="ctxs427" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t428" href="#t428">428</a></span><span class="t"><span class="txt">    cdef SMResource _from_split_resource(cydriver.CUdevResource res, SMResource parent, bint is_usable):</span>&nbsp;</span><span class="r"></span></p>
@@ -658,10 +658,10 @@
     <p class="pln"><span class="n"><a id="t519" href="#t519">519</a></span><span class="t"><span class="txt">        cydriver.CUdevResource wq_config,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t520" href="#t520">520</a></span><span class="t"><span class="txt">        cydriver.CUdevResource wq,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t521" href="#t521">521</a></span><span class="t"><span class="txt">    ):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t522" href="#t522">522</a></span><span class="t"><span class="txt">        cdef WorkqueueResource self = WorkqueueResource.__new__(WorkqueueResource)</span>&nbsp;</span><input type="checkbox" id="ctxs522"><span class="r"><label for="ctxs522" class="ctx">6 ctx</label></span><span class="ctxs">1uvOPQR</span></p>
-    <p class="run"><span class="n"><a id="t523" href="#t523">523</a></span><span class="t"><span class="txt">        self._wq_config_resource = wq_config</span>&nbsp;</span><input type="checkbox" id="ctxs523"><span class="r"><label for="ctxs523" class="ctx">6 ctx</label></span><span class="ctxs">1uvOPQR</span></p>
-    <p class="run"><span class="n"><a id="t524" href="#t524">524</a></span><span class="t"><span class="txt">        self._wq_resource = wq</span>&nbsp;</span><input type="checkbox" id="ctxs524"><span class="r"><label for="ctxs524" class="ctx">6 ctx</label></span><span class="ctxs">1uvOPQR</span></p>
-    <p class="run"><span class="n"><a id="t525" href="#t525">525</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs525"><span class="r"><label for="ctxs525" class="ctx">6 ctx</label></span><span class="ctxs">1uvOPQR</span></p>
+    <p class="run"><span class="n"><a id="t522" href="#t522">522</a></span><span class="t"><span class="txt">        cdef WorkqueueResource self = WorkqueueResource.__new__(WorkqueueResource)</span>&nbsp;</span><input type="checkbox" id="ctxs522"><span class="r"><label for="ctxs522" class="ctx">6 ctx</label></span><span class="ctxs">1uwPQRx</span></p>
+    <p class="run"><span class="n"><a id="t523" href="#t523">523</a></span><span class="t"><span class="txt">        self._wq_config_resource = wq_config</span>&nbsp;</span><input type="checkbox" id="ctxs523"><span class="r"><label for="ctxs523" class="ctx">6 ctx</label></span><span class="ctxs">1uwPQRx</span></p>
+    <p class="run"><span class="n"><a id="t524" href="#t524">524</a></span><span class="t"><span class="txt">        self._wq_resource = wq</span>&nbsp;</span><input type="checkbox" id="ctxs524"><span class="r"><label for="ctxs524" class="ctx">6 ctx</label></span><span class="ctxs">1uwPQRx</span></p>
+    <p class="run"><span class="n"><a id="t525" href="#t525">525</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs525"><span class="r"><label for="ctxs525" class="ctx">6 ctx</label></span><span class="ctxs">1uwPQRx</span></p>
     <p class="pln"><span class="n"><a id="t526" href="#t526">526</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t527" href="#t527">527</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t528" href="#t528">528</a></span><span class="t"><span class="txt">    def handle(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
@@ -723,10 +723,10 @@
     <p class="pln"><span class="n"><a id="t584" href="#t584">584</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t585" href="#t585">585</a></span><span class="t"><span class="txt">    @staticmethod</span>&nbsp;</span><span class="r"><label for="ctxs585" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t586" href="#t586">586</a></span><span class="t"><span class="txt">    cdef DeviceResources _init(int device_id):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t587" href="#t587">587</a></span><span class="t"><span class="txt">        cdef DeviceResources self = DeviceResources.__new__(DeviceResources)</span>&nbsp;</span><input type="checkbox" id="ctxs587"><span class="r"><label for="ctxs587" class="ctx">30 ctx</label></span><span class="ctxs">1zbcdAvefghijBCxDEFGHIJKLMNOPQR</span></p>
-    <p class="run"><span class="n"><a id="t588" href="#t588">588</a></span><span class="t"><span class="txt">        self._device_id = device_id</span>&nbsp;</span><input type="checkbox" id="ctxs588"><span class="r"><label for="ctxs588" class="ctx">30 ctx</label></span><span class="ctxs">1zbcdAvefghijBCxDEFGHIJKLMNOPQR</span></p>
+    <p class="run"><span class="n"><a id="t587" href="#t587">587</a></span><span class="t"><span class="txt">        cdef DeviceResources self = DeviceResources.__new__(DeviceResources)</span>&nbsp;</span><input type="checkbox" id="ctxs587"><span class="r"><label for="ctxs587" class="ctx">30 ctx</label></span><span class="ctxs">1zbcdAwefghijBCDEFGHIJKLMNOPQRx</span></p>
+    <p class="run"><span class="n"><a id="t588" href="#t588">588</a></span><span class="t"><span class="txt">        self._device_id = device_id</span>&nbsp;</span><input type="checkbox" id="ctxs588"><span class="r"><label for="ctxs588" class="ctx">30 ctx</label></span><span class="ctxs">1zbcdAwefghijBCDEFGHIJKLMNOPQRx</span></p>
     <p class="pln"><span class="n"><a id="t589" href="#t589">589</a></span><span class="t"><span class="txt">        # _h_context is default empty &#8212; queries use cuDeviceGetDevResource</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t590" href="#t590">590</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs590"><span class="r"><label for="ctxs590" class="ctx">30 ctx</label></span><span class="ctxs">1zbcdAvefghijBCxDEFGHIJKLMNOPQR</span></p>
+    <p class="run"><span class="n"><a id="t590" href="#t590">590</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs590"><span class="r"><label for="ctxs590" class="ctx">30 ctx</label></span><span class="ctxs">1zbcdAwefghijBCDEFGHIJKLMNOPQRx</span></p>
     <p class="pln"><span class="n"><a id="t591" href="#t591">591</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t592" href="#t592">592</a></span><span class="t"><span class="txt">    @staticmethod</span>&nbsp;</span><span class="r"><label for="ctxs592" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t593" href="#t593">593</a></span><span class="t"><span class="txt">    cdef DeviceResources _init_from_ctx(ContextHandle h_context, int device_id):</span>&nbsp;</span><span class="r"></span></p>
@@ -738,7 +738,7 @@
     <p class="run"><span class="n"><a id="t599" href="#t599">599</a></span><span class="t"><span class="txt">    cdef inline int _query_sm(self, cydriver.CUdevResource* res) except?-1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs599" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t600" href="#t600">600</a></span><span class="t"><span class="txt">        """Query SM resource from either device or context."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t601" href="#t601">601</a></span><span class="t"><span class="txt">        cdef GreenCtxHandle h_green</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t602" href="#t602">602</a></span><span class="t"><span class="txt">        if self._h_context:</span>&nbsp;</span><input type="checkbox" id="ctxs602"><span class="r"><label for="ctxs602" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
+    <p class="run"><span class="n"><a id="t602" href="#t602">602</a></span><span class="t"><span class="txt">        if self._h_context:</span>&nbsp;</span><input type="checkbox" id="ctxs602"><span class="r"><label for="ctxs602" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
     <p class="run"><span class="n"><a id="t603" href="#t603">603</a></span><span class="t"><span class="txt">            h_green = get_context_green_ctx(self._h_context)</span>&nbsp;</span><input type="checkbox" id="ctxs603"><span class="r"><label for="ctxs603" class="ctx">3 ctx</label></span><span class="ctxs">1ayu</span></p>
     <p class="run"><span class="n"><a id="t604" href="#t604">604</a></span><span class="t"><span class="txt">            if h_green:</span>&nbsp;</span><input type="checkbox" id="ctxs604"><span class="r"><label for="ctxs604" class="ctx">3 ctx</label></span><span class="ctxs">1ayu</span></p>
     <p class="run"><span class="n"><a id="t605" href="#t605">605</a></span><span class="t"><span class="txt">                HANDLE_RETURN(cydriver.cuGreenCtxGetDevResource(</span>&nbsp;</span><input type="checkbox" id="ctxs605"><span class="r"><label for="ctxs605" class="ctx">3 ctx</label></span><span class="ctxs">1ayu</span></p>
@@ -751,32 +751,32 @@
     <p class="mis show_mis"><span class="n"><a id="t612" href="#t612">612</a></span><span class="t"><span class="txt">                    cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t613" href="#t613">613</a></span><span class="t"><span class="txt">                ))</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuDeviceGetDevResource(</span>&nbsp;</span><input type="checkbox" id="ctxs615"><span class="r"><label for="ctxs615" class="ctx">26 ctx</label></span><span class="ctxs">1zbcdAvefghijBCxDEFGHIJKLMN</span></p>
+    <p class="run"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuDeviceGetDevResource(</span>&nbsp;</span><input type="checkbox" id="ctxs615"><span class="r"><label for="ctxs615" class="ctx">26 ctx</label></span><span class="ctxs">1zbcdAwefghijBCDEFGHIJKLMNO</span></p>
     <p class="pln"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t"><span class="txt">                &lt;cydriver.CUdevice>(self._device_id), res,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t"><span class="txt">                cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM,</span>&nbsp;</span><input type="checkbox" id="ctxs617"><span class="r"><label for="ctxs617" class="ctx">26 ctx</label></span><span class="ctxs">1zbcdAvefghijBCxDEFGHIJKLMN</span></p>
+    <p class="run"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t"><span class="txt">                cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM,</span>&nbsp;</span><input type="checkbox" id="ctxs617"><span class="r"><label for="ctxs617" class="ctx">26 ctx</label></span><span class="ctxs">1zbcdAwefghijBCDEFGHIJKLMNO</span></p>
     <p class="pln"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t"><span class="txt">            ))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs619"><span class="r"><label for="ctxs619" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
+    <p class="run"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs619"><span class="r"><label for="ctxs619" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
     <p class="pln"><span class="n"><a id="t620" href="#t620">620</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t621" href="#t621">621</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t622" href="#t622">622</a></span><span class="t"><span class="txt">    def sm(self) -> SMResource:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t623" href="#t623">623</a></span><span class="t"><span class="txt">        """Return the :obj:`SMResource` for this device or context."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t624" href="#t624">624</a></span><span class="t"><span class="txt">        _check_green_ctx_support()</span>&nbsp;</span><input type="checkbox" id="ctxs624"><span class="r"><label for="ctxs624" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
+    <p class="run"><span class="n"><a id="t624" href="#t624">624</a></span><span class="t"><span class="txt">        _check_green_ctx_support()</span>&nbsp;</span><input type="checkbox" id="ctxs624"><span class="r"><label for="ctxs624" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
     <p class="pln"><span class="n"><a id="t625" href="#t625">625</a></span><span class="t"><span class="txt">        cdef cydriver.CUdevResource res</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t626" href="#t626">626</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs626"><span class="r"><label for="ctxs626" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
-    <p class="run"><span class="n"><a id="t627" href="#t627">627</a></span><span class="t"><span class="txt">            self._query_sm(&amp;res)</span>&nbsp;</span><input type="checkbox" id="ctxs627"><span class="r"><label for="ctxs627" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
-    <p class="run"><span class="n"><a id="t628" href="#t628">628</a></span><span class="t"><span class="txt">        return SMResource._from_dev_resource(res, self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs628"><span class="r"><label for="ctxs628" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAvefghijBCxDEFGHIJKLMN</span></p>
+    <p class="run"><span class="n"><a id="t626" href="#t626">626</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs626"><span class="r"><label for="ctxs626" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
+    <p class="run"><span class="n"><a id="t627" href="#t627">627</a></span><span class="t"><span class="txt">            self._query_sm(&amp;res)</span>&nbsp;</span><input type="checkbox" id="ctxs627"><span class="r"><label for="ctxs627" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
+    <p class="run"><span class="n"><a id="t628" href="#t628">628</a></span><span class="t"><span class="txt">        return SMResource._from_dev_resource(res, self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs628"><span class="r"><label for="ctxs628" class="ctx">29 ctx</label></span><span class="ctxs">1azybucdAwefghijBCDEFGHIJKLMNO</span></p>
     <p class="pln"><span class="n"><a id="t629" href="#t629">629</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t630" href="#t630">630</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t631" href="#t631">631</a></span><span class="t"><span class="txt">    def workqueue(self) -> WorkqueueResource:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t632" href="#t632">632</a></span><span class="t"><span class="txt">        """Return the :obj:`WorkqueueResource` for this device or context."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t633" href="#t633">633</a></span><span class="t"><span class="txt">        _check_green_ctx_support()</span>&nbsp;</span><input type="checkbox" id="ctxs633"><span class="r"><label for="ctxs633" class="ctx">6 ctx</label></span><span class="ctxs">1uvOPQR</span></p>
-    <p class="run"><span class="n"><a id="t634" href="#t634">634</a></span><span class="t"><span class="txt">        _check_workqueue_support()</span>&nbsp;</span><input type="checkbox" id="ctxs634"><span class="r"><label for="ctxs634" class="ctx">6 ctx</label></span><span class="ctxs">1uvOPQR</span></p>
+    <p class="run"><span class="n"><a id="t633" href="#t633">633</a></span><span class="t"><span class="txt">        _check_green_ctx_support()</span>&nbsp;</span><input type="checkbox" id="ctxs633"><span class="r"><label for="ctxs633" class="ctx">6 ctx</label></span><span class="ctxs">1uwPQRx</span></p>
+    <p class="run"><span class="n"><a id="t634" href="#t634">634</a></span><span class="t"><span class="txt">        _check_workqueue_support()</span>&nbsp;</span><input type="checkbox" id="ctxs634"><span class="r"><label for="ctxs634" class="ctx">6 ctx</label></span><span class="ctxs">1uwPQRx</span></p>
     <p class="pln"><span class="n"><a id="t635" href="#t635">635</a></span><span class="t"><span class="txt">        cdef cydriver.CUdevResource _wq_config</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t636" href="#t636">636</a></span><span class="t"><span class="txt">        cdef cydriver.CUdevResource _wq</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t637" href="#t637">637</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t638" href="#t638">638</a></span><span class="t"><span class="txt">        IF CUDA_CORE_BUILD_MAJOR >= 13:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t639" href="#t639">639</a></span><span class="t"><span class="txt">            cdef GreenCtxHandle h_green</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t640" href="#t640">640</a></span><span class="t"><span class="txt">            if self._h_context:</span>&nbsp;</span><input type="checkbox" id="ctxs640"><span class="r"><label for="ctxs640" class="ctx">6 ctx</label></span><span class="ctxs">1uvOPQR</span></p>
+    <p class="run"><span class="n"><a id="t640" href="#t640">640</a></span><span class="t"><span class="txt">            if self._h_context:</span>&nbsp;</span><input type="checkbox" id="ctxs640"><span class="r"><label for="ctxs640" class="ctx">6 ctx</label></span><span class="ctxs">1uwPQRx</span></p>
     <p class="run"><span class="n"><a id="t641" href="#t641">641</a></span><span class="t"><span class="txt">                h_green = get_context_green_ctx(self._h_context)</span>&nbsp;</span><input type="checkbox" id="ctxs641"><span class="r"><label for="ctxs641" class="ctx">1 ctx</label></span><span class="ctxs">1u</span></p>
     <p class="run"><span class="n"><a id="t642" href="#t642">642</a></span><span class="t"><span class="txt">                if h_green:</span>&nbsp;</span><input type="checkbox" id="ctxs642"><span class="r"><label for="ctxs642" class="ctx">1 ctx</label></span><span class="ctxs">1u</span></p>
     <p class="pln"><span class="n"><a id="t643" href="#t643">643</a></span><span class="t"><span class="txt">                    # Green context query</span>&nbsp;</span><span class="r"></span></p>
@@ -806,18 +806,18 @@
     <p class="pln"><span class="n"><a id="t667" href="#t667">667</a></span><span class="t"><span class="txt">                        ))</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t668" href="#t668">668</a></span><span class="t"><span class="txt">            else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t669" href="#t669">669</a></span><span class="t"><span class="txt">                # Device-level query</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t670" href="#t670">670</a></span><span class="t"><span class="txt">                with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs670"><span class="r"><label for="ctxs670" class="ctx">5 ctx</label></span><span class="ctxs">1vOPQR</span></p>
-    <p class="run"><span class="n"><a id="t671" href="#t671">671</a></span><span class="t"><span class="txt">                    HANDLE_RETURN(cydriver.cuDeviceGetDevResource(</span>&nbsp;</span><input type="checkbox" id="ctxs671"><span class="r"><label for="ctxs671" class="ctx">5 ctx</label></span><span class="ctxs">1vOPQR</span></p>
+    <p class="run"><span class="n"><a id="t670" href="#t670">670</a></span><span class="t"><span class="txt">                with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs670"><span class="r"><label for="ctxs670" class="ctx">5 ctx</label></span><span class="ctxs">1wPQRx</span></p>
+    <p class="run"><span class="n"><a id="t671" href="#t671">671</a></span><span class="t"><span class="txt">                    HANDLE_RETURN(cydriver.cuDeviceGetDevResource(</span>&nbsp;</span><input type="checkbox" id="ctxs671"><span class="r"><label for="ctxs671" class="ctx">5 ctx</label></span><span class="ctxs">1wPQRx</span></p>
     <p class="pln"><span class="n"><a id="t672" href="#t672">672</a></span><span class="t"><span class="txt">                        &lt;cydriver.CUdevice>(self._device_id),</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t673" href="#t673">673</a></span><span class="t"><span class="txt">                        &amp;_wq_config,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t674" href="#t674">674</a></span><span class="t"><span class="txt">                        cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t675" href="#t675">675</a></span><span class="t"><span class="txt">                    ))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t676" href="#t676">676</a></span><span class="t"><span class="txt">                    HANDLE_RETURN(cydriver.cuDeviceGetDevResource(</span>&nbsp;</span><input type="checkbox" id="ctxs676"><span class="r"><label for="ctxs676" class="ctx">5 ctx</label></span><span class="ctxs">1vOPQR</span></p>
+    <p class="run"><span class="n"><a id="t676" href="#t676">676</a></span><span class="t"><span class="txt">                    HANDLE_RETURN(cydriver.cuDeviceGetDevResource(</span>&nbsp;</span><input type="checkbox" id="ctxs676"><span class="r"><label for="ctxs676" class="ctx">5 ctx</label></span><span class="ctxs">1wPQRx</span></p>
     <p class="pln"><span class="n"><a id="t677" href="#t677">677</a></span><span class="t"><span class="txt">                        &lt;cydriver.CUdevice>(self._device_id),</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t678" href="#t678">678</a></span><span class="t"><span class="txt">                        &amp;_wq,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t679" href="#t679">679</a></span><span class="t"><span class="txt">                        cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t680" href="#t680">680</a></span><span class="t"><span class="txt">                    ))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t681" href="#t681">681</a></span><span class="t"><span class="txt">            return WorkqueueResource._from_dev_resources(_wq_config, _wq)</span>&nbsp;</span><input type="checkbox" id="ctxs681"><span class="r"><label for="ctxs681" class="ctx">6 ctx</label></span><span class="ctxs">1uvOPQR</span></p>
+    <p class="run"><span class="n"><a id="t681" href="#t681">681</a></span><span class="t"><span class="txt">            return WorkqueueResource._from_dev_resources(_wq_config, _wq)</span>&nbsp;</span><input type="checkbox" id="ctxs681"><span class="r"><label for="ctxs681" class="ctx">6 ctx</label></span><span class="ctxs">1uwPQRx</span></p>
     <p class="pln"><span class="n"><a id="t682" href="#t682">682</a></span><span class="t"><span class="txt">        ELSE:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t683" href="#t683">683</a></span><span class="t"><span class="txt">            raise RuntimeError(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t684" href="#t684">684</a></span><span class="t"><span class="txt">                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"</span>&nbsp;</span><span class="r"></span></p>
@@ -830,8 +830,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_0efdcd0c69c2ddb8__dlpack_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.0">coverage.py v7.14.0</a>,
-            created at 2026-05-26 01:33 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
+            created at 2026-05-27 01:40 +0000
         </p>
     </div>
 </footer>
