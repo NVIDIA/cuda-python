@@ -74,8 +74,11 @@ jobs:
             local src="release-notes-src/${package}/docs/source/release"
             local src_index="release-notes-src/${package}/docs/source/release.rst"
             local dst="${package}/docs/source/release"
+            local dst_index_md="${package}/docs/source/release.md"
 
             if [[ -f "${src_index}" ]]; then
+              # Older tags can have release.md; remove it so the overlaid release.rst wins.
+              rm -f "${dst_index_md}"
               cp "${src_index}" "${package}/docs/source/release.rst"
             fi
 
