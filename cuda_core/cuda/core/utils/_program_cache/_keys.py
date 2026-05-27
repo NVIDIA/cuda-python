@@ -173,12 +173,11 @@ def _nvrtc_version() -> tuple[int, int]:
 def _linker_backend_and_version(use_driver: bool) -> tuple[str, str]:
     """Return ``(backend, version)`` for the linker used on PTX inputs.
 
-    ``use_driver`` is the result of ``_decide_nvjitlink_or_driver()`` and
-    must be passed in so a single ``make_program_cache_key`` call shares
-    one probe across :meth:`_LinkerBackend.validate`,
-    :meth:`option_fingerprint`, and :meth:`hash_version_probe` (otherwise
-    a transient probe flap could write inconsistent fields into the same
-    key).
+    ``use_driver`` is the cached result of the Linker's ``_choose_backend()``
+    decision and must be passed in so a single ``make_program_cache_key`` call
+    shares one probe across :meth:`_LinkerBackend.validate`,
+    :meth:`option_fingerprint`, and :meth:`hash_version_probe` (otherwise a
+    transient probe flap could write inconsistent fields into the same key).
 
     Raises any underlying probe exception. ``make_program_cache_key`` catches
     and mixes the exception's class name into the digest, so the same probe
@@ -187,9 +186,9 @@ def _linker_backend_and_version(use_driver: bool) -> tuple[str, str]:
     working probe (``_probe_failed`` label vs. ``driver``/``nvrtc``/...).
 
     nvJitLink version lookup goes through ``sys.modules`` first so we hit the
-    same module ``_decide_nvjitlink_or_driver()`` already loaded. That keeps
-    fingerprinting aligned with whichever ``cuda.bindings.nvjitlink`` import
-    path the linker actually uses.
+    same module the Linker probe already loaded. That keeps fingerprinting
+    aligned with whichever ``cuda.bindings.nvjitlink`` import path the linker
+    actually uses.
     """
     import sys
 
@@ -483,9 +482,21 @@ class _LinkerBackend(_KeyBackend):
         """
         if self._cached_decision is _DECISION_UNSET:
             try:
-                from cuda.core._linker import _decide_nvjitlink_or_driver
+                from cuda.core import _linker
 
-                self._cached_decision = _decide_nvjitlink_or_driver()
+                try:
+                    driver_major = _linker.driver_version()[0]
+                except _linker.CUDAError:
+                    driver_major = None
+                self._cached_decision = (
+                    _linker._choose_backend(
+                        driver_major,
+                        _linker._probe_nvjitlink(),
+                        inputs_have_ltoir=False,
+                        lto_requested=False,
+                    )
+                    == "driver"
+                )
             except Exception as exc:
                 self._cached_decision = None
                 self._cached_decision_exc = exc
