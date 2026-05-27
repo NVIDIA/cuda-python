@@ -193,6 +193,9 @@ cdef class Linker:
     def which_backend(cls) -> CompilerBackendType:
         """Return the backend used for default non-LTO PTX linking.
 
+        Deprecated. Backend selection is per-:class:`Linker` instance; construct
+        a linker and query its ``backend`` property instead.
+
         Returns :attr:`~CompilerBackendType.NVJITLINK` when the nvJitLink
         library is available and compatible with the driver for default
         non-LTO PTX linking, otherwise :attr:`~CompilerBackendType.DRIVER`.
@@ -203,6 +206,13 @@ cdef class Linker:
             ``linker.backend`` on a constructed linker when input code type or
             LTO options may affect dispatch.
         """
+        warn(
+            "Linker.which_backend() is deprecated because backend selection is "
+            "per Linker instance; construct a Linker and query linker.backend "
+            "instead.",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
         try:
             driver_major = driver_version()[0]
         except CUDAError:

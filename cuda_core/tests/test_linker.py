@@ -111,7 +111,7 @@ def test_linker_init(compile_ptx_functions, options):
     linker = Linker(*compile_ptx_functions, options=options)
     object_code = linker.link("cubin")
     assert isinstance(object_code, ObjectCode)
-    assert Linker.which_backend() == ("driver" if is_culink_backend else "nvJitLink")
+    assert linker.backend == ("driver" if is_culink_backend else "nvJitLink")
 
 
 def test_linker_init_invalid_arch(compile_ptx_functions):
@@ -397,12 +397,14 @@ class TestWhichBackendClassmethod:
     def test_which_backend_returns_nvjitlink(self, monkeypatch):
         monkeypatch.setattr(_linker, "driver_version", lambda: (12, 9, 0))
         monkeypatch.setattr(_linker, "_probe_nvjitlink", lambda: (12, 9))
-        assert Linker.which_backend() == "nvJitLink"
+        with pytest.warns(DeprecationWarning, match="linker.backend"):
+            assert Linker.which_backend() == "nvJitLink"
 
     def test_which_backend_returns_driver(self, monkeypatch):
         monkeypatch.setattr(_linker, "driver_version", lambda: (13, 0, 0))
         monkeypatch.setattr(_linker, "_probe_nvjitlink", lambda: (12, 9))
-        assert Linker.which_backend() == "driver"
+        with pytest.warns(DeprecationWarning, match="linker.backend"):
+            assert Linker.which_backend() == "driver"
 
     def test_which_backend_invokes_probe(self, monkeypatch):
         called = []
@@ -413,7 +415,8 @@ class TestWhichBackendClassmethod:
 
         monkeypatch.setattr(_linker, "driver_version", lambda: (12, 9, 0))
         monkeypatch.setattr(_linker, "_probe_nvjitlink", fake_probe)
-        result = Linker.which_backend()
+        with pytest.warns(DeprecationWarning, match="linker.backend"):
+            result = Linker.which_backend()
         assert result == "nvJitLink"
         assert called, "_probe_nvjitlink was not called"
 
@@ -422,10 +425,9 @@ class TestWhichBackendClassmethod:
         assert isinstance(attr, classmethod)
 
     def test_which_backend_is_not_property(self):
-        """which_backend is a classmethod, not a property.
+        """which_backend remains a compatibility classmethod, not a property.
 
-        This is an intentional breaking change from the prior ``backend`` property API.
-        All call sites must use parens: ``Linker.which_backend()``.
+        It is deprecated in favor of the per-instance ``linker.backend`` property.
         """
         attr = inspect.getattr_static(Linker, "which_backend")
         assert not isinstance(attr, property)
