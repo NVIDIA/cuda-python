@@ -50,6 +50,69 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.git-tag }}
 
+      - name: Checkout release notes source
+        if: ${{ inputs.is-release }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          ref: ${{ github.sha }}
+          path: release-notes-src
+          sparse-checkout: |
+            cuda_bindings/docs/source/release.rst
+            cuda_bindings/docs/source/release
+            cuda_core/docs/source/release.rst
+            cuda_core/docs/source/release
+            cuda_pathfinder/docs/source/release.rst
+            cuda_pathfinder/docs/source/release
+            cuda_python/docs/source/release.rst
+            cuda_python/docs/source/release
+
+      - name: Overlay release notes from workflow source
+        if: ${{ inputs.is-release }}
+        run: |
+          overlay_release_notes() {
+            local package="${1}"
+            local src="release-notes-src/${package}/docs/source/release"
+            local src_index="release-notes-src/${package}/docs/source/release.rst"
+            local dst="${package}/docs/source/release"
+
+            if [[ -f "${src_index}" ]]; then
+              cp "${src_index}" "${package}/docs/source/release.rst"
+            fi
+
+            mkdir -p "${dst}"
+            shopt -s nullglob
+            local files=("${src}"/*-notes.rst)
+            shopt -u nullglob
+            if (( ${#files[@]} )); then
+              cp "${files[@]}" "${dst}/"
+            fi
+          }
+
+          case "${{ inputs.component }}" in
+            all)
+              overlay_release_notes cuda_python
+              overlay_release_notes cuda_bindings
+              overlay_release_notes cuda_core
+              overlay_release_notes cuda_pathfinder
+              ;;
+            cuda-bindings)
+              overlay_release_notes cuda_bindings
+              ;;
+            cuda-core)
+              overlay_release_notes cuda_core
+              ;;
+            cuda-pathfinder)
+              overlay_release_notes cuda_pathfinder
+              ;;
+            cuda-python)
+              overlay_release_notes cuda_python
+              ;;
+            *)
+              echo "error: unknown docs component ${{ inputs.component }}" >&2
+              exit 1
+              ;;
+          esac
+
       - name: Read build CTK version
         run: |
           if [[ -f ci/versions.yml ]]; then
