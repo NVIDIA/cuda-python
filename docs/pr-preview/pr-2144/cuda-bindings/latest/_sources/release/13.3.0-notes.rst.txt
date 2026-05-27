@@ -1,0 +1,92 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 13.3.0 Release notes
+======================================
+
+Highlights
+----------
+
+* Support for new APIs introduced in CUDA 13.3, including driver logical
+  endpoint APIs, graph recapture APIs, NVRTC Tile IR and bundled-header APIs,
+  and related runtime graph/event APIs.
+  (`PR #2139 <https://github.com/NVIDIA/cuda-python/pull/2139>`_)
+
+* Add ``cuda.bindings.cudla`` bindings.
+  (`PR #2034 <https://github.com/NVIDIA/cuda-python/pull/2034>`_)
+
+* Add the ``nvvmLLVMVersion`` binding.
+  (`PR #1774 <https://github.com/NVIDIA/cuda-python/pull/1774>`_)
+
+* Add additional NVML APIs introduced in CUDA 13.2.
+  (`PR #1830 <https://github.com/NVIDIA/cuda-python/pull/1830>`_)
+
+Bugfixes
+--------
+
+* Fixed the ``cuDevSmResourceSplit`` and ``cudaDevSmResourceSplit`` binding
+  signatures so ``groupParams`` is accepted as a sequence matching the CUDA API.
+  (`PR #1766 <https://github.com/NVIDIA/cuda-python/pull/1766>`_)
+
+* Fixed nested resource pointer handling to accept both ``str`` and ``bytes``
+  inputs.
+  (`PR #1698 <https://github.com/NVIDIA/cuda-python/pull/1698>`_)
+
+* Fixed ``nvmlDeviceGetFieldValues`` and ``nvmlDeviceClearFieldValues`` handling
+  of empty field lists so they return empty results instead of raising
+  ``NVML_ERROR_INVALID_ARGUMENT``.
+  (`PR #1982 <https://github.com/NVIDIA/cuda-python/pull/1982>`_)
+
+* Fixed ``CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM=0`` incorrectly enabling
+  per-thread default stream mode.
+  (`PR #2076 <https://github.com/NVIDIA/cuda-python/pull/2076>`_)
+
+* Fixed a use-after-free in ``cudaGraphGetEdges``, ``cudaGraphNodeGetDependencies``,
+  ``cudaGraphNodeGetDependentNodes``, ``cudaStreamGetCaptureInfo``, and their
+  driver-API counterparts (``cuGraphGetEdges``, ``cuGraphNodeGetDependencies``,
+  ``cuGraphNodeGetDependentNodes``, ``cuStreamGetCaptureInfo``). The returned
+  ``cudaGraphEdgeData``/``CUgraphEdgeData`` wrappers were backed by a scratch
+  buffer that was freed before the call returned, leaving every wrapper holding
+  a dangling pointer. The returned wrappers now own deep copies of the edge
+  data.
+  (`Issue #1804 <https://github.com/NVIDIA/cuda-python/issues/1804>`_,
+  `PR #2083 <https://github.com/NVIDIA/cuda-python/pull/2083>`_)
+
+* Fixed a double-free in the generated setters for list-valued struct members
+  (e.g. ``CUlaunchConfig.attrs``, ``CUDA_MEM_ALLOC_NODE_PARAMS.accessDescs``,
+  external-semaphore and batch-mem-op node parameter arrays, and their runtime
+  counterparts). Assigning an empty list freed the internal buffer but left
+  the cached pointer non-NULL, so a subsequent assignment or ``__dealloc__``
+  would call ``free()`` again on the dangling pointer.
+  (`PR #2112 <https://github.com/NVIDIA/cuda-python/pull/2112>`_)
+
+Miscellaneous
+-------------
+
+* Add ``cuda.bindings.utils.check_nvvm_compiler_options()`` to check whether a
+  set of NVVM compiler options is supported by the installed NVVM library.
+  (`PR #1837 <https://github.com/NVIDIA/cuda-python/pull/1837>`_)
+
+* NVRTC bindings now use pre-generated Cython files and no longer require
+  pyclibrary header parsing at build time.
+  (`PR #1900 <https://github.com/NVIDIA/cuda-python/pull/1900>`_)
+
+* Improved generated documentation and argument names, including the ``ind_ex``
+  argument naming bug.
+  (`PR #1927 <https://github.com/NVIDIA/cuda-python/pull/1927>`_,
+  `PR #2082 <https://github.com/NVIDIA/cuda-python/pull/2082>`_)
+
+* Fixed ``cuda-bindings`` debug builds.
+  (`PR #1890 <https://github.com/NVIDIA/cuda-python/pull/1890>`_)
+
+* Declare ``cuda-pathfinder`` as a host dependency for pixi path-dependency
+  builds of ``cuda-bindings``.
+  (`PR #1926 <https://github.com/NVIDIA/cuda-python/pull/1926>`_)
+
+Known issues
+------------
+
+* Updating from older versions (v12.6.2.post1 and below) via ``pip install -U cuda-python`` might not work. Please do a clean re-installation by uninstalling ``pip uninstall -y cuda-python`` followed by installing ``pip install cuda-python``.
+* ``nvml.system_get_process_name`` on WSL can return incorrect values.  To work around this, set the locale to "C" before calling ``nvml.device_get_compute_running_processes_v3`` (which sets the process names) and before calling ``nvml.system_get_process_name``. ``cuda_core`` does this automatically, but users of the raw NVML API will need to do this manually.
