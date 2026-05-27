@@ -1,0 +1,47 @@
+﻿cuda.bindings.cufile.Status
+===========================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autoclass:: Status
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Status.__init__
+      ~Status.as_integer_ratio
+      ~Status.bit_count
+      ~Status.bit_length
+      ~Status.conjugate
+      ~Status.from_bytes
+      ~Status.is_integer
+      ~Status.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Status.CANCELED
+      ~Status.COMPLETE
+      ~Status.FAILED
+      ~Status.INVALID
+      ~Status.PENDING
+      ~Status.TIMEOUT
+      ~Status.WAITING
+      ~Status.denominator
+      ~Status.imag
+      ~Status.name
+      ~Status.numerator
+      ~Status.real
+      ~Status.value
+   
+   

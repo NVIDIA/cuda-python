@@ -1,0 +1,43 @@
+﻿cuda.bindings.cufile.StringConfigParameter
+==========================================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autoclass:: StringConfigParameter
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StringConfigParameter.__init__
+      ~StringConfigParameter.as_integer_ratio
+      ~StringConfigParameter.bit_count
+      ~StringConfigParameter.bit_length
+      ~StringConfigParameter.conjugate
+      ~StringConfigParameter.from_bytes
+      ~StringConfigParameter.is_integer
+      ~StringConfigParameter.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~StringConfigParameter.ENV_LOGFILE_PATH
+      ~StringConfigParameter.LOGGING_LEVEL
+      ~StringConfigParameter.LOG_DIR
+      ~StringConfigParameter.denominator
+      ~StringConfigParameter.imag
+      ~StringConfigParameter.name
+      ~StringConfigParameter.numerator
+      ~StringConfigParameter.real
+      ~StringConfigParameter.value
+   
+   
