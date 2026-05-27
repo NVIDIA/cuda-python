@@ -119,9 +119,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
-</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -538,7 +535,6 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.3.0-notes.html">13.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/13.2.1-notes.html">13.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.0-notes.html">13.1.0</a></li>
@@ -546,6 +542,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.4-notes.html">12.9.4</a></li>
@@ -2175,7 +2172,15 @@ apply the missProp access policy.
 
    :type: int
 
-.. attribute:: reserved0
+.. attribute:: deviceNodeUpdateStatus
+
+   Whether the function can be updated on device. 1 means device node
+   update is supported, 0 is unsupported or driver is too old to check
+   the value.
+
+   :type: int
+
+.. attribute:: reserved1
 
 
 
@@ -2210,7 +2215,9 @@ set id = host NUMA node id.
 
 .. attribute:: id
 
-   identifier for a given this location&#39;s ::CUmemLocationType.
+   Identifier for cudaMemLocationType::cudaMemLocationTypeDevice,
+   cudaMemLocationType::cudaMemLocationTypeHost, or
+   cudaMemLocationType::cudaMemLocationTypeHostNuma.
 
    :type: int
 
@@ -2519,7 +2526,7 @@ usage see cudaMemcpyBatchAsync.
 
 
 
-   :type: anon_union1
+   :type: anon_union2
 
 .. method:: getPtr()
 
@@ -3245,7 +3252,7 @@ usage see cudaMemcpyBatchAsync.
 
 
 
-   :type: anon_union2
+   :type: anon_union3
 
 .. attribute:: size
 
@@ -3373,7 +3380,7 @@ usage see cudaMemcpyBatchAsync.
 
 
 
-   :type: anon_union3
+   :type: anon_union4
 
 .. attribute:: flags
 
@@ -3592,7 +3599,7 @@ OUTPUT only. Do not write to any of the fields in this structure.
 
 .. attribute:: reserved
 
-   Reserved for future use - ensure this is is zero initialized.
+   Reserved for future use - ensure this is zero initialized.
 
    :type: list[unsigned int]
 
@@ -4330,7 +4337,7 @@ array to ::cudaGraphKernelNodeUpdatesApply
 
    Update data to apply. Which field is used depends on field&#39;s value
 
-   :type: anon_union9
+   :type: anon_union10
 
 .. method:: getPtr()
 
@@ -4572,7 +4579,7 @@ through cudaDevAttrMemSyncDomainCount.
    Information about the notification. `typename` must be checked in
    order to interpret this field.
 
-   :type: anon_union10
+   :type: anon_union11
 
 .. method:: getPtr()
 
@@ -4742,7 +4749,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;
 
 
 
-   :type: anon_union11
+   :type: anon_union12
 
 .. attribute:: planeDesc
 
@@ -5586,6 +5593,12 @@ unsignedintreserved[4]; cudaEglPlaneDesc;
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaError_t.cudaErrorGraphRecaptureFailure">
+<span class="sig-name descname"><span class="pre">cudaErrorGraphRecaptureFailure</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaError_t.cudaErrorGraphRecaptureFailure:</span> <span class="pre">918&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaError_t.cudaErrorGraphRecaptureFailure" title="Link to this definition">#</a></dt>
+<dd><p>This error indicates that a graph recapture failed and had to be terminated.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaError_t.cudaErrorUnknown">
 <span class="sig-name descname"><span class="pre">cudaErrorUnknown</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaError_t.cudaErrorUnknown:</span> <span class="pre">999&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaError_t.cudaErrorUnknown" title="Link to this definition">#</a></dt>
 <dd><p>This indicates that an unknown internal error has occurred.</p>
@@ -5796,6 +5809,90 @@ unsignedintreserved[4]; cudaEglPlaneDesc;
 <dd><p>4 channel unsigned normalized (10-bit, 10-bit, 10-bit, 2-bit) format</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned8Packed422</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422:</span> <span class="pre">32&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422" title="Link to this definition">#</a></dt>
+<dd><p>4 channel unsigned 8-bit packed format, with 4:2:2 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned8Packed444</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444:</span> <span class="pre">33&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444" title="Link to this definition">#</a></dt>
+<dd><p>4 channel unsigned 8-bit packed format, with 4:4:4 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned8SemiPlanar420</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420:</span> <span class="pre">34&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 8-bit semi-planar format, with 4:2:0 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned16SemiPlanar420</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420:</span> <span class="pre">35&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 16-bit semi-planar format, with 4:2:0 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned8SemiPlanar422</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422:</span> <span class="pre">36&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 8-bit semi-planar format, with 4:2:2 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned16SemiPlanar422</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422:</span> <span class="pre">37&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 16-bit semi-planar format, with 4:2:2 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned8SemiPlanar444</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444:</span> <span class="pre">38&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 8-bit semi-planar format, with 4:4:4 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned16SemiPlanar444</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444:</span> <span class="pre">39&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 16-bit semi-planar format, with 4:4:4 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned8Planar420</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420:</span> <span class="pre">40&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 8-bit planar format, with 4:2:0 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned16Planar420</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420:</span> <span class="pre">41&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 16-bit planar format, with 4:2:0 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned8Planar422</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422:</span> <span class="pre">42&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 8-bit planar format, with 4:2:2 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned16Planar422</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422:</span> <span class="pre">43&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 16-bit planar format, with 4:2:2 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned8Planar444</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444:</span> <span class="pre">44&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 8-bit planar format, with 4:4:4 sampling</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444">
+<span class="sig-name descname"><span class="pre">cudaChannelFormatKindUnsigned16Planar444</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444:</span> <span class="pre">45&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444" title="Link to this definition">#</a></dt>
+<dd><p>3 channel unsigned 16-bit planar format, with 4:4:4 sampling</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -5918,6 +6015,33 @@ for hitProp and missProp members.
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamCaptureStatus.cudaStreamCaptureStatusInvalidated">
 <span class="sig-name descname"><span class="pre">cudaStreamCaptureStatusInvalidated</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaStreamCaptureStatus.cudaStreamCaptureStatusInvalidated:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamCaptureStatus.cudaStreamCaptureStatusInvalidated" title="Link to this definition">#</a></dt>
 <dd><p>Stream is part of a capture sequence that has been invalidated, but not terminated</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphRecaptureStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphRecaptureStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphRecaptureStatus" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Possible recapture statuses that can be returned to the user
+callback
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureEligibleForUpdate">
+<span class="sig-name descname"><span class="pre">cudaGraphRecaptureEligibleForUpdate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphRecaptureStatus.cudaGraphRecaptureEligibleForUpdate:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureEligibleForUpdate" title="Link to this definition">#</a></dt>
+<dd><p>Node is eligible for update in an instantiated graph.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureIneligibleForUpdate">
+<span class="sig-name descname"><span class="pre">cudaGraphRecaptureIneligibleForUpdate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphRecaptureStatus.cudaGraphRecaptureIneligibleForUpdate:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureIneligibleForUpdate" title="Link to this definition">#</a></dt>
+<dd><p>Parameter changes in the node cannot be applied to an instantiated graph.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureError">
+<span class="sig-name descname"><span class="pre">cudaGraphRecaptureError</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphRecaptureStatus.cudaGraphRecaptureError:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureError" title="Link to this definition">#</a></dt>
+<dd><p>Error while attempting to recapture the node. The recapture will be ended regardless of the return value from the callback.</p>
 </dd></dl>
 
 </dd></dl>
@@ -6424,6 +6548,33 @@ details see :py:obj:`~.cudaStreamBeginCapture` and
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSharedMemoryMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSharedMemoryMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaSharedMemoryMode" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Shared memory related attributes for use with
+:py:obj:`~.cuLaunchKernelEx`
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault">
+<span class="sig-name descname"><span class="pre">cudaSharedMemoryModeDefault</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSharedMemoryMode.cudaSharedMemoryModeDefault:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault" title="Link to this definition">#</a></dt>
+<dd><p>The default to use for allowing non-portable shared memory size on launch - uses current function attributes for <a class="reference internal" href="#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeMaxDynamicSharedMemorySize" title="cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeMaxDynamicSharedMemorySize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncAttributeMaxDynamicSharedMemorySize</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable">
+<span class="sig-name descname"><span class="pre">cudaSharedMemoryModeRequirePortable</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable" title="Link to this definition">#</a></dt>
+<dd><p>Specifies that the shared memory size requested must be a portable size within <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlock" title="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrMaxSharedMemoryPerBlock</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable">
+<span class="sig-name descname"><span class="pre">cudaSharedMemoryModeAllowNonPortable</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable" title="Link to this definition">#</a></dt>
+<dd><p>Specifies that the shared memory size requested may be a non-portable size up to <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlockOptin" title="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlockOptin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrMaxSharedMemoryPerBlockOptin</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFuncAttribute">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaFuncAttribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaFuncAttribute" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>CUDA function attributes that can be set using
@@ -6758,7 +6909,7 @@ cudaFuncSetAttribute
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFlushGPUDirectRDMAWritesOptions.cudaFlushGPUDirectRDMAWritesOptionHost">
 <span class="sig-name descname"><span class="pre">cudaFlushGPUDirectRDMAWritesOptionHost</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaFlushGPUDirectRDMAWritesOptions.cudaFlushGPUDirectRDMAWritesOptionHost:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaFlushGPUDirectRDMAWritesOptions.cudaFlushGPUDirectRDMAWritesOptionHost" title="Link to this definition">#</a></dt>
-<dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceFlushGPUDirectRDMAWrites()</span></code> and its CUDA Driver API counterpart are supported on the device.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceFlushGPUDirectRDMAWrites" title="cuda.bindings.runtime.cudaDeviceFlushGPUDirectRDMAWrites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceFlushGPUDirectRDMAWrites()</span></code></a> and its CUDA Driver API counterpart are supported on the device.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -6824,7 +6975,7 @@ cudaFuncSetAttribute
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFlushGPUDirectRDMAWritesTarget.cudaFlushGPUDirectRDMAWritesTargetCurrentDevice">
 <span class="sig-name descname"><span class="pre">cudaFlushGPUDirectRDMAWritesTargetCurrentDevice</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaFlushGPUDirectRDMAWritesTarget.cudaFlushGPUDirectRDMAWritesTargetCurrentDevice:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaFlushGPUDirectRDMAWritesTarget.cudaFlushGPUDirectRDMAWritesTargetCurrentDevice" title="Link to this definition">#</a></dt>
-<dd><p>Sets the target for <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceFlushGPUDirectRDMAWrites()</span></code> to the currently active CUDA device context.</p>
+<dd><p>Sets the target for <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceFlushGPUDirectRDMAWrites" title="cuda.bindings.runtime.cudaDeviceFlushGPUDirectRDMAWrites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceFlushGPUDirectRDMAWrites()</span></code></a> to the currently active CUDA device context.</p>
 </dd></dl>
 
 </dd></dl>
@@ -7645,8 +7796,20 @@ cudaFuncSetAttribute
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrAtomicReductionSupported">
+<span class="sig-name descname"><span class="pre">cudaDevAttrAtomicReductionSupported</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDeviceAttr.cudaDevAttrAtomicReductionSupported:</span> <span class="pre">148&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrAtomicReductionSupported" title="Link to this definition">#</a></dt>
+<dd><p>Device supports atomic reduction operations in stream batch memory operations</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrCigStreamsSupported">
+<span class="sig-name descname"><span class="pre">cudaDevAttrCigStreamsSupported</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDeviceAttr.cudaDevAttrCigStreamsSupported:</span> <span class="pre">151&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrCigStreamsSupported" title="Link to this definition">#</a></dt>
+<dd><p>Device supports CIG streams</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax">
-<span class="sig-name descname"><span class="pre">cudaDevAttrMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDeviceAttr.cudaDevAttrMax:</span> <span class="pre">148&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cudaDevAttrMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDeviceAttr.cudaDevAttrMax:</span> <span class="pre">152&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -8732,8 +8895,14 @@ individual copies specified in :py:obj:`~.cudaMemcpy3DBatchAsync`.
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeReserved16">
+<span class="sig-name descname"><span class="pre">cudaGraphNodeTypeReserved16</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphNodeType.cudaGraphNodeTypeReserved16:</span> <span class="pre">16&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeReserved16" title="Link to this definition">#</a></dt>
+<dd><p>Reserved.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeCount">
-<span class="sig-name descname"><span class="pre">cudaGraphNodeTypeCount</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphNodeType.cudaGraphNodeTypeCount:</span> <span class="pre">14&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeCount" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cudaGraphNodeTypeCount</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphNodeType.cudaGraphNodeTypeCount:</span> <span class="pre">17&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeCount" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -9159,33 +9328,6 @@ are on the same GPU.
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSharedMemoryMode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSharedMemoryMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaSharedMemoryMode" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Shared memory related attributes for use with
-:py:obj:`~.cuLaunchKernelEx`
-</pre></div>
-</div>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault">
-<span class="sig-name descname"><span class="pre">cudaSharedMemoryModeDefault</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSharedMemoryMode.cudaSharedMemoryModeDefault:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault" title="Link to this definition">#</a></dt>
-<dd><p>The default to use for allowing non-portable shared memory size on launch - uses current function attributes for <a class="reference internal" href="#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeMaxDynamicSharedMemorySize" title="cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeMaxDynamicSharedMemorySize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncAttributeMaxDynamicSharedMemorySize</span></code></a></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable">
-<span class="sig-name descname"><span class="pre">cudaSharedMemoryModeRequirePortable</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable" title="Link to this definition">#</a></dt>
-<dd><p>Specifies that the shared memory size requested must be a portable size within <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlock" title="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrMaxSharedMemoryPerBlock</span></code></a></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable">
-<span class="sig-name descname"><span class="pre">cudaSharedMemoryModeAllowNonPortable</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable" title="Link to this definition">#</a></dt>
-<dd><p>Specifies that the shared memory size requested may be a non-portable size up to <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlockOptin" title="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlockOptin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrMaxSharedMemoryPerBlockOptin</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaLaunchAttributeID">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaLaunchAttributeID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaLaunchAttributeID" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Launch attributes enum; used as id field of
@@ -9369,6 +9511,48 @@ are on the same GPU.
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaLogLevel.cudaLogLevelWarning">
 <span class="sig-name descname"><span class="pre">cudaLogLevelWarning</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaLogLevel.cudaLogLevelWarning:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaLogLevel.cudaLogLevelWarning" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFabricOpStatusSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaFabricOpStatusSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaFabricOpStatusSource" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Fabric operation status source
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFabricOpStatusSource.cudaFabricOpStatusSourceMbarrierV1">
+<span class="sig-name descname"><span class="pre">cudaFabricOpStatusSourceMbarrierV1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaFabricOpStatusSource.cudaFabricOpStatusSourceMbarrierV1:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaFabricOpStatusSource.cudaFabricOpStatusSourceMbarrierV1" title="Link to this definition">#</a></dt>
+<dd><p>1B-aligned 1B-wide status from an mbarrier.layout::v1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFabricOpStatusSource.cudaFabricOpStatusSourceMax">
+<span class="sig-name descname"><span class="pre">cudaFabricOpStatusSourceMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaFabricOpStatusSource.cudaFabricOpStatusSourceMax:</span> <span class="pre">2147483647&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaFabricOpStatusSource.cudaFabricOpStatusSourceMax" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFabricOpStatusInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaFabricOpStatusInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaFabricOpStatusInfo" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Fabric operation status info
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoSuccess">
+<span class="sig-name descname"><span class="pre">cudaFabricOpStatusInfoSuccess</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaFabricOpStatusInfo.cudaFabricOpStatusInfoSuccess:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoSuccess" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoLast">
+<span class="sig-name descname"><span class="pre">cudaFabricOpStatusInfoLast</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaFabricOpStatusInfo.cudaFabricOpStatusInfoLast:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoLast" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoMax">
+<span class="sig-name descname"><span class="pre">cudaFabricOpStatusInfoMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaFabricOpStatusInfo.cudaFabricOpStatusInfoMax:</span> <span class="pre">2147483647&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoMax" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -10422,7 +10606,7 @@ formats currently supported for CUDA_EGL interops.
 
 .. attribute:: reserved
 
-   Reserved for future use - ensure this is is zero initialized.
+   Reserved for future use - ensure this is zero initialized.
 
    :type: list[unsigned int]
 
@@ -11049,7 +11233,7 @@ through cudaDevAttrMemSyncDomainCount.
    Information about the notification. `typename` must be checked in
    order to interpret this field.
 
-   :type: anon_union10
+   :type: anon_union11
 
 .. method:: getPtr()
 
@@ -11177,7 +11361,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;
 
 
 
-   :type: anon_union11
+   :type: anon_union12
 
 .. attribute:: planeDesc
 
@@ -11961,6 +12145,29 @@ Returns in `*pValue` the current size of `limit`. The following
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceGetTexture1DLinearMaxWidth">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetTexture1DLinearMaxWidth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cudaChannelFormatDesc</span> <span class="pre">fmtDesc:</span> <span class="pre">Optional[cudaChannelFormatDesc],</span> <span class="pre">int</span> <span class="pre">device</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceGetTexture1DLinearMaxWidth" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns the maximum number of elements allocatable in a 1D linear texture for a given element size.
+
+Returns in `maxWidthInElements` the maximum number of elements
+allocatable in a 1D linear texture for given format descriptor
+`fmtDesc`.
+
+:param fmtDesc: Texture format description.
+:type fmtDesc: :py:obj:`~.cudaChannelFormatDesc`
+:param None: None
+:type None: int
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorUnsupportedLimit`, :py:obj:`~.cudaErrorInvalidValue`
+          * **maxWidthInElements** (*int*) -- Returns maximum number of texture elements allocatable for given
+            `fmtDesc`.
+
+.. seealso:: :py:obj:`~.cuDeviceGetTexture1DLinearMaxWidth`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceGetCacheConfig">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetCacheConfig</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceGetCacheConfig" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns the preferred cache configuration for the current device.
@@ -12332,6 +12539,45 @@ functionality by calling :py:obj:`~.cudaDeviceGetAttribute` with
 :rtype: cudaError_t
 
 .. seealso:: :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaIpcGetEventHandle`, :py:obj:`~.cudaIpcOpenEventHandle`, :py:obj:`~.cudaIpcGetMemHandle`, :py:obj:`~.cudaIpcOpenMemHandle`, :py:obj:`~.cuIpcCloseMemHandle`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceFlushGPUDirectRDMAWrites">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceFlushGPUDirectRDMAWrites</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.bindings.runtime.cudaFlushGPUDirectRDMAWritesTarget" title="cuda.bindings.runtime.cudaFlushGPUDirectRDMAWritesTarget"><span class="pre">cudaFlushGPUDirectRDMAWritesTarget</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.bindings.runtime.cudaFlushGPUDirectRDMAWritesScope" title="cuda.bindings.runtime.cudaFlushGPUDirectRDMAWritesScope"><span class="pre">cudaFlushGPUDirectRDMAWritesScope</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceFlushGPUDirectRDMAWrites" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Blocks until remote writes are visible to the specified scope.
+
+Blocks until remote writes to the target context via mappings created
+through GPUDirect RDMA APIs, like nvidia_p2p_get_pages (see
+https://docs.nvidia.com/cuda/gpudirect-rdma for more information), are
+visible to the specified scope.
+
+If the scope equals or lies within the scope indicated by
+:py:obj:`~.cudaDevAttrGPUDirectRDMAWritesOrdering`, the call will be a
+no-op and can be safely omitted for performance. This can be determined
+by comparing the numerical values between the two enums, with smaller
+scopes having smaller values.
+
+Users may query support for this API via
+:py:obj:`~.cudaDevAttrGPUDirectRDMAFlushWritesOptions`.
+
+:param target: The target of the operation, see cudaFlushGPUDirectRDMAWritesTarget
+:type target: :py:obj:`~.cudaFlushGPUDirectRDMAWritesTarget`
+:param scope: The scope of the operation, see cudaFlushGPUDirectRDMAWritesScope
+:type scope: :py:obj:`~.cudaFlushGPUDirectRDMAWritesScope`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorNotSupported`,
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cuFlushGPUDirectRDMAWrites`
 </pre></div>
 </div>
 </dd></dl>
@@ -13076,8 +13322,41 @@ not recognized, &quot;unrecognized error code&quot; is returned.
 <h2>Stream Management<a class="headerlink" href="#stream-management" title="Link to this heading">#</a></h2>
 <p>This section describes the stream management functions of the CUDA runtime application programming interface.</p>
 <dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphRecaptureCallbackData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphRecaptureCallbackData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphRecaptureCallbackData" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Struct of user callback data that is invoked when node parameter
+mismatches are detected while recapturing to an existing graph
+
+.. attribute:: callbackFunc
+
+   Callback function that will be invoked
+
+   :type: cudaGraphRecaptureCallback_t
+
+.. attribute:: userData
+
+   Generic pointer that is passed to the callback function
+
+   :type: Any
+
+.. method:: getPtr()
+
+   Get memory address of class instance
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamCallback_t">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamCallback_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamCallback_t" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get memory address of class instance
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphRecaptureCallback_t">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphRecaptureCallback_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphRecaptureCallback_t" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get memory address of class instance
 </pre></div>
 </div>
@@ -13664,6 +13943,55 @@ Kernels captured using this API must not use texture and surface references. Rea
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamBeginRecaptureToGraph">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamBeginRecaptureToGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">mode:</span> <span class="pre">cudaStreamCaptureMode,</span> <span class="pre">graph,</span> <span class="pre">cudaGraphRecaptureCallbackData</span> <span class="pre">callbackData:</span> <span class="pre">Optional[cudaGraphRecaptureCallbackData]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamBeginRecaptureToGraph" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Begin graph capture on a stream to an existing graph.
+
+Begin graph capture on `stream` to the existing `graph`. The node
+creation order while recapturing the graph must be identical to the
+original graph. The recapture will fail immediately for:
+
+- Topology mismatches between the existing graph and the recaptured
+  graph
+
+- Parameter mismatches for memory allocation or free nodes
+
+Any other node parameter mismatches during recapture can be configured
+to call the function provided in `callbackFunc`. The recapture will
+fail immediately if the callback returns anything other than
+cudaSuccess.
+
+If the recapture fails for any reason, the `graph` will be in an
+undefined state and should be destroyed.
+
+See cudaStreamBeginCapture for additional detail on beginning the
+capture.
+
+:param stream: Stream in which to initiate capture
+:type stream: :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+:param mode: Controls the interaction of this capture sequence with other API
+             calls that are potentially unsafe. For more details see
+             :py:obj:`~.cudaThreadExchangeStreamCaptureMode`.
+:type mode: :py:obj:`~.cudaStreamCaptureMode`
+:param graph: Existing CUDA graph to be captured into
+:type graph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param callbackData: Optional struct of callback data that will be invoked for all
+                     parameter mismatches from the original graph
+:type callbackData: :py:obj:`~.cudaGraphRecaptureCallbackData`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorDeinitialized`, :py:obj:`~.cudaErrorNotInitialized`, :py:obj:`~.cudaErrorInvalidValue`,
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaStreamBeginCapture`, :py:obj:`~.cudaStreamIsCapturing`, :py:obj:`~.cudaStreamEndCapture`, :py:obj:`~.cudaThreadExchangeStreamCaptureMode`
+
+.. rubric:: Notes
+
+Any user objects associated with `graph` will be released prior to the recapture.
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamBeginCaptureToGraph">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamBeginCaptureToGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">graph,</span> <span class="pre">dependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">mode:</span> <span class="pre">cudaStreamCaptureMode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamBeginCaptureToGraph" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Begins graph capture on a stream to an existing graph.
@@ -14029,6 +14357,49 @@ work, so for example :py:obj:`~.cudaEventQuery()` would return
 :rtype: cudaError_t
 
 .. seealso:: :py:obj:`~.cudaEventCreate (C API)`, :py:obj:`~.cudaEventCreateWithFlags`, :py:obj:`~.cudaEventQuery`, :py:obj:`~.cudaEventSynchronize`, :py:obj:`~.cudaEventDestroy`, :py:obj:`~.cudaEventElapsedTime`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cuEventRecord`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaEventRecordWithFlags">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaEventRecordWithFlags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaEventRecordWithFlags" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Records an event.
+
+Captures in `event` the contents of `stream` at the time of this call.
+`event` and `stream` must be on the same CUDA context. Calls such as
+:py:obj:`~.cudaEventQuery()` or :py:obj:`~.cudaStreamWaitEvent()` will
+then examine or wait for completion of the work that was captured. Uses
+of `stream` after this call do not modify `event`. See note on default
+stream behavior for what is captured in the default case.
+
+:py:obj:`~.cudaEventRecordWithFlags()` can be called multiple times on
+the same event and will overwrite the previously captured state. Other
+APIs such as :py:obj:`~.cudaStreamWaitEvent()` use the most recently
+captured state at the time of the API call, and are not affected by
+later calls to :py:obj:`~.cudaEventRecordWithFlags()`. Before the first
+call to :py:obj:`~.cudaEventRecordWithFlags()`, an event represents an
+empty set of work, so for example :py:obj:`~.cudaEventQuery()` would
+return :py:obj:`~.cudaSuccess`.
+
+flags include:
+
+- :py:obj:`~.cudaEventRecordDefault`: Default event creation flag.
+
+- :py:obj:`~.cudaEventRecordExternal`: Event is captured in the graph
+  as an external event node when performing stream capture.
+
+:param event: Event to record
+:type event: :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+:param stream: Stream in which to record event
+:type stream: :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+:param flags: Parameters for the operation(See above)
+:type flags: unsigned int
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorLaunchFailure`
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaEventCreate (C API)`, :py:obj:`~.cudaEventCreateWithFlags`, :py:obj:`~.cudaEventQuery`, :py:obj:`~.cudaEventSynchronize`, :py:obj:`~.cudaEventDestroy`, :py:obj:`~.cudaEventElapsedTime`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaEventRecord`, :py:obj:`~.cuEventRecord`,
 </pre></div>
 </div>
 </dd></dl>
@@ -16461,6 +16832,74 @@ the alignment necessary for mapping the CUDA mipmapped array.
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaArrayGetSparseProperties">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaArrayGetSparseProperties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaArrayGetSparseProperties" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns the layout properties of a sparse CUDA array.
+
+Returns the layout properties of a sparse CUDA array in
+`sparseProperties`. If the CUDA array is not allocated with flag
+:py:obj:`~.cudaArraySparse` :py:obj:`~.cudaErrorInvalidValue` will be
+returned.
+
+If the returned value in :py:obj:`~.cudaArraySparseProperties.flags`
+contains :py:obj:`~.cudaArraySparsePropertiesSingleMipTail`, then
+:py:obj:`~.cudaArraySparseProperties.miptailSize` represents the total
+size of the array. Otherwise, it will be zero. Also, the returned value
+in :py:obj:`~.cudaArraySparseProperties.miptailFirstLevel` is always
+zero. Note that the `array` must have been allocated using
+:py:obj:`~.cudaMallocArray` or :py:obj:`~.cudaMalloc3DArray`. For CUDA
+arrays obtained using :py:obj:`~.cudaMipmappedArrayGetLevel`,
+:py:obj:`~.cudaErrorInvalidValue` will be returned. Instead,
+:py:obj:`~.cudaMipmappedArrayGetSparseProperties` must be used to
+obtain the sparse properties of the entire CUDA mipmapped array to
+which `array` belongs to.
+
+:param array: The CUDA array to get the sparse properties of
+:type array: :py:obj:`~.cudaArray_t`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
+          * **sparseProperties** (:py:obj:`~.cudaArraySparseProperties`) -- Pointer to return the :py:obj:`~.cudaArraySparseProperties`
+
+.. seealso:: :py:obj:`~.cudaMipmappedArrayGetSparseProperties`, :py:obj:`~.cuMemMapArrayAsync`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMipmappedArrayGetSparseProperties">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMipmappedArrayGetSparseProperties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mipmap</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMipmappedArrayGetSparseProperties" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns the layout properties of a sparse CUDA mipmapped array.
+
+Returns the sparse array layout properties in `sparseProperties`. If
+the CUDA mipmapped array is not allocated with flag
+:py:obj:`~.cudaArraySparse` :py:obj:`~.cudaErrorInvalidValue` will be
+returned.
+
+For non-layered CUDA mipmapped arrays,
+:py:obj:`~.cudaArraySparseProperties.miptailSize` returns the size of
+the mip tail region. The mip tail region includes all mip levels whose
+width, height or depth is less than that of the tile. For layered CUDA
+mipmapped arrays, if :py:obj:`~.cudaArraySparseProperties.flags`
+contains :py:obj:`~.cudaArraySparsePropertiesSingleMipTail`, then
+:py:obj:`~.cudaArraySparseProperties.miptailSize` specifies the size of
+the mip tail of all layers combined. Otherwise,
+:py:obj:`~.cudaArraySparseProperties.miptailSize` specifies mip tail
+size per layer. The returned value of
+:py:obj:`~.cudaArraySparseProperties.miptailFirstLevel` is valid only
+if :py:obj:`~.cudaArraySparseProperties.miptailSize` is non-zero.
+
+:param mipmap: The CUDA mipmapped array to get the sparse properties of
+:type mipmap: :py:obj:`~.cudaMipmappedArray_t`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
+          * **sparseProperties** (:py:obj:`~.cudaArraySparseProperties`) -- Pointer to return :py:obj:`~.cudaArraySparseProperties`
+
+.. seealso:: :py:obj:`~.cudaArrayGetSparseProperties`, :py:obj:`~.cuMemMapArrayAsync`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemcpy">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemcpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind:</span> <span class="pre">cudaMemcpyKind</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemcpy" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Copies data between host and device.
@@ -18792,7 +19231,7 @@ A device&#39;s default memory pool cannot be destroyed.
 
 The memory location can be of one of
 :py:obj:`~.cudaMemLocationTypeDevice`,
-:py:obj:`~.cudaMemLocationTypeHost` or
+:py:obj:`~.cudaMemLocationTypeHost`, or
 :py:obj:`~.cudaMemLocationTypeHostNuma`. The allocation type can be one
 of :py:obj:`~.cudaMemAllocationTypePinned` or
 :py:obj:`~.cudaMemAllocationTypeManaged`. When the allocation type is
@@ -18821,7 +19260,7 @@ for the managed memory pool. In all other cases, the call return
 
 The memory location can be of one of
 :py:obj:`~.cudaMemLocationTypeDevice`,
-:py:obj:`~.cudaMemLocationTypeHost` or
+:py:obj:`~.cudaMemLocationTypeHost`, or
 :py:obj:`~.cudaMemLocationTypeHostNuma`. The allocation type can be one
 of :py:obj:`~.cudaMemAllocationTypePinned` or
 :py:obj:`~.cudaMemAllocationTypeManaged`. When the allocation type is
@@ -21037,6 +21476,59 @@ value for the device attribute
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddMemcpyNode1D">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemcpyNode1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">dst,</span> <span class="pre">src,</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">kind:</span> <span class="pre">cudaMemcpyKind</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemcpyNode1D" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates a 1D memcpy node and adds it to a graph.
+
+Creates a new 1D memcpy node and adds it to `graph` with
+`numDependencies` dependencies specified via `pDependencies`. It is
+possible for `numDependencies` to be 0, in which case the node will be
+placed at the root of the graph. `pDependencies` may not have any
+duplicate entries. A handle to the new node will be returned in
+`pGraphNode`.
+
+When the graph is launched, the node will copy `count` bytes from the
+memory area pointed to by `src` to the memory area pointed to by `dst`,
+where `kind` specifies the direction of the copy, and must be one of
+:py:obj:`~.cudaMemcpyHostToHost`, :py:obj:`~.cudaMemcpyHostToDevice`,
+:py:obj:`~.cudaMemcpyDeviceToHost`,
+:py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
+Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
+type of transfer is inferred from the pointer values. However,
+:py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
+unified virtual addressing. Launching a memcpy node with dst and src
+pointers that do not match the direction of the copy results in an
+undefined behavior.
+
+Memcpy nodes have some additional restrictions with regards to managed
+memory, if the system contains at least one device which has a zero
+value for the device attribute
+:py:obj:`~.cudaDevAttrConcurrentManagedAccess`.
+
+:param graph: Graph to which to add the node
+:type graph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param pDependencies: Dependencies of the node
+:type pDependencies: list[:py:obj:`~.cudaGraphNode_t`]
+:param numDependencies: Number of dependencies
+:type numDependencies: size_t
+:param dst: Destination memory address
+:type dst: Any
+:param src: Source memory address
+:type src: Any
+:param count: Size in bytes to copy
+:type count: size_t
+:param kind: Type of transfer
+:type kind: :py:obj:`~.cudaMemcpyKind`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **pGraphNode** (:py:obj:`~.cudaGraphNode_t`) -- Returns newly created node
+
+.. seealso:: :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphMemcpyNodeGetParams">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphMemcpyNodeGetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphMemcpyNodeGetParams" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns a memcpy node&#39;s parameters.
@@ -21070,6 +21562,56 @@ Sets the parameters of memcpy node `node` to `pNodeParams`.
 :rtype: cudaError_t
 
 .. seealso:: :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphMemcpyNodeSetParams1D">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphMemcpyNodeSetParams1D</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">count</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">kind:</span> <span class="pre">cudaMemcpyKind</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphMemcpyNodeSetParams1D" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets a memcpy node&#39;s parameters to perform a 1-dimensional copy.
+
+Sets the parameters of memcpy node `node` to the copy described by the
+provided parameters.
+
+When the graph is launched, the node will copy `count` bytes from the
+memory area pointed to by `src` to the memory area pointed to by `dst`,
+where `kind` specifies the direction of the copy, and must be one of
+:py:obj:`~.cudaMemcpyHostToHost`, :py:obj:`~.cudaMemcpyHostToDevice`,
+:py:obj:`~.cudaMemcpyDeviceToHost`,
+:py:obj:`~.cudaMemcpyDeviceToDevice`, or :py:obj:`~.cudaMemcpyDefault`.
+Passing :py:obj:`~.cudaMemcpyDefault` is recommended, in which case the
+type of transfer is inferred from the pointer values. However,
+:py:obj:`~.cudaMemcpyDefault` is only allowed on systems that support
+unified virtual addressing. Launching a memcpy node with dst and src
+pointers that do not match the direction of the copy results in an
+undefined behavior.
+
+:param node: Node to set the parameters for
+:type node: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param dst: Destination memory address
+:type dst: Any
+:param src: Source memory address
+:type src: Any
+:param count: Size in bytes to copy
+:type count: size_t
+:param kind: Type of transfer
+:type kind: :py:obj:`~.cudaMemcpyKind`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`
 </pre></div>
 </div>
 </dd></dl>
@@ -21300,6 +21842,570 @@ n^2 dependency edges.
           * **pGraphNode** (:py:obj:`~.cudaGraphNode_t`) -- Returns newly created node
 
 .. seealso:: :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddEventRecordNode">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEventRecordNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">event</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddEventRecordNode" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates an event record node and adds it to a graph.
+
+Creates a new event record node and adds it to `hGraph` with
+`numDependencies` dependencies specified via `dependencies` and event
+specified in `event`. It is possible for `numDependencies` to be 0, in
+which case the node will be placed at the root of the graph.
+`dependencies` may not have any duplicate entries. A handle to the new
+node will be returned in `phGraphNode`.
+
+Each launch of the graph will record `event` to capture execution of
+the node&#39;s dependencies.
+
+These nodes may not be used in loops or conditionals.
+
+:param hGraph: Graph to which to add the node
+:type hGraph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param dependencies: Dependencies of the node
+:type dependencies: list[:py:obj:`~.cudaGraphNode_t`]
+:param numDependencies: Number of dependencies
+:type numDependencies: size_t
+:param event: Event for the node
+:type event: :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **phGraphNode** (:py:obj:`~.cudaGraphNode_t`) -- Returns newly created node
+
+.. seealso:: :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphEventRecordNodeGetEvent">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphEventRecordNodeGetEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphEventRecordNodeGetEvent" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns the event associated with an event record node.
+
+Returns the event of event record node `hNode` in `event_out`.
+
+:param hNode: Node to get the event for
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **event_out** (:py:obj:`~.cudaEvent_t`) -- Pointer to return the event
+
+.. seealso:: :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphEventRecordNodeSetEvent">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphEventRecordNodeSetEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphEventRecordNodeSetEvent" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets an event record node&#39;s event.
+
+Sets the event of event record node `hNode` to `event`.
+
+:param hNode: Node to set the event for
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param event: Event to use
+:type event: :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddEventWaitNode">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEventWaitNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">event</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddEventWaitNode" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates an event wait node and adds it to a graph.
+
+Creates a new event wait node and adds it to `hGraph` with
+`numDependencies` dependencies specified via `dependencies` and event
+specified in `event`. It is possible for `numDependencies` to be 0, in
+which case the node will be placed at the root of the graph.
+`dependencies` may not have any duplicate entries. A handle to the new
+node will be returned in `phGraphNode`.
+
+The graph node will wait for all work captured in `event`. See
+:py:obj:`~.cuEventRecord()` for details on what is captured by an
+event. The synchronization will be performed efficiently on the device
+when applicable. `event` may be from a different context or device than
+the launch stream.
+
+These nodes may not be used in loops or conditionals.
+
+:param hGraph: Graph to which to add the node
+:type hGraph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param dependencies: Dependencies of the node
+:type dependencies: list[:py:obj:`~.cudaGraphNode_t`]
+:param numDependencies: Number of dependencies
+:type numDependencies: size_t
+:param event: Event for the node
+:type event: :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **phGraphNode** (:py:obj:`~.cudaGraphNode_t`) -- Returns newly created node
+
+.. seealso:: :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphEventWaitNodeGetEvent">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphEventWaitNodeGetEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphEventWaitNodeGetEvent" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns the event associated with an event wait node.
+
+Returns the event of event wait node `hNode` in `event_out`.
+
+:param hNode: Node to get the event for
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **event_out** (:py:obj:`~.cudaEvent_t`) -- Pointer to return the event
+
+.. seealso:: :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphEventWaitNodeSetEvent">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphEventWaitNodeSetEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphEventWaitNodeSetEvent" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets an event wait node&#39;s event.
+
+Sets the event of event wait node `hNode` to `event`.
+
+:param hNode: Node to set the event for
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param event: Event to use
+:type event: :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddExternalSemaphoresSignalNode">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddExternalSemaphoresSignalNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaExternalSemaphoreSignalNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreSignalNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddExternalSemaphoresSignalNode" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates an external semaphore signal node and adds it to a graph.
+
+Creates a new external semaphore signal node and adds it to `graph`
+with `numDependencies` dependencies specified via `dependencies` and
+arguments specified in `nodeParams`. It is possible for
+`numDependencies` to be 0, in which case the node will be placed at the
+root of the graph. `dependencies` may not have any duplicate entries. A
+handle to the new node will be returned in `pGraphNode`.
+
+Performs a signal operation on a set of externally allocated semaphore
+objects when the node is launched. The operation(s) will occur after
+all of the node&#39;s dependencies have completed.
+
+:param graph: Graph to which to add the node
+:type graph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param pDependencies: Dependencies of the node
+:type pDependencies: list[:py:obj:`~.cudaGraphNode_t`]
+:param numDependencies: Number of dependencies
+:type numDependencies: size_t
+:param nodeParams: Parameters for the node
+:type nodeParams: :py:obj:`~.cudaExternalSemaphoreSignalNodeParams`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **pGraphNode** (:py:obj:`~.cudaGraphNode_t`) -- Returns newly created node
+
+.. seealso:: :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExternalSemaphoresSignalNodeGetParams">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExternalSemaphoresSignalNodeGetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hNode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExternalSemaphoresSignalNodeGetParams" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns an external semaphore signal node&#39;s parameters.
+
+Returns the parameters of an external semaphore signal node `hNode` in
+`params_out`. The `extSemArray` and `paramsArray` returned in
+`params_out`, are owned by the node. This memory remains valid until
+the node is destroyed or its parameters are modified, and should not be
+modified directly. Use
+:py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams` to update
+the parameters of this node.
+
+:param hNode: Node to get the parameters for
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **params_out** (:py:obj:`~.cudaExternalSemaphoreSignalNodeParams`) -- Pointer to return the parameters
+
+.. seealso:: :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExternalSemaphoresSignalNodeSetParams">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExternalSemaphoresSignalNodeSetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">hNode,</span> <span class="pre">cudaExternalSemaphoreSignalNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreSignalNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExternalSemaphoresSignalNodeSetParams" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets an external semaphore signal node&#39;s parameters.
+
+Sets the parameters of an external semaphore signal node `hNode` to
+`nodeParams`.
+
+:param hNode: Node to set the parameters for
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param nodeParams: Parameters to copy
+:type nodeParams: :py:obj:`~.cudaExternalSemaphoreSignalNodeParams`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddExternalSemaphoresWaitNode">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddExternalSemaphoresWaitNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaExternalSemaphoreWaitNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreWaitNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddExternalSemaphoresWaitNode" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates an external semaphore wait node and adds it to a graph.
+
+Creates a new external semaphore wait node and adds it to `graph` with
+`numDependencies` dependencies specified via `dependencies` and
+arguments specified in `nodeParams`. It is possible for
+`numDependencies` to be 0, in which case the node will be placed at the
+root of the graph. `dependencies` may not have any duplicate entries. A
+handle to the new node will be returned in `pGraphNode`.
+
+Performs a wait operation on a set of externally allocated semaphore
+objects when the node is launched. The node&#39;s dependencies will not be
+launched until the wait operation has completed.
+
+:param graph: Graph to which to add the node
+:type graph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param pDependencies: Dependencies of the node
+:type pDependencies: list[:py:obj:`~.cudaGraphNode_t`]
+:param numDependencies: Number of dependencies
+:type numDependencies: size_t
+:param nodeParams: Parameters for the node
+:type nodeParams: :py:obj:`~.cudaExternalSemaphoreWaitNodeParams`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **pGraphNode** (:py:obj:`~.cudaGraphNode_t`) -- Returns newly created node
+
+.. seealso:: :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeGetParams">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExternalSemaphoresWaitNodeGetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hNode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeGetParams" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns an external semaphore wait node&#39;s parameters.
+
+Returns the parameters of an external semaphore wait node `hNode` in
+`params_out`. The `extSemArray` and `paramsArray` returned in
+`params_out`, are owned by the node. This memory remains valid until
+the node is destroyed or its parameters are modified, and should not be
+modified directly. Use
+:py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams` to update
+the parameters of this node.
+
+:param hNode: Node to get the parameters for
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **params_out** (:py:obj:`~.cudaExternalSemaphoreWaitNodeParams`) -- Pointer to return the parameters
+
+.. seealso:: :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeSetParams">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExternalSemaphoresWaitNodeSetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">hNode,</span> <span class="pre">cudaExternalSemaphoreWaitNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreWaitNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeSetParams" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets an external semaphore wait node&#39;s parameters.
+
+Sets the parameters of an external semaphore wait node `hNode` to
+`nodeParams`.
+
+:param hNode: Node to set the parameters for
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param nodeParams: Parameters to copy
+:type nodeParams: :py:obj:`~.cudaExternalSemaphoreWaitNodeParams`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddMemAllocNode">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemAllocNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemAllocNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaMemAllocNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemAllocNode" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates an allocation node and adds it to a graph.
+
+Creates a new allocation node and adds it to `graph` with
+`numDependencies` dependencies specified via `pDependencies` and
+arguments specified in `nodeParams`. It is possible for
+`numDependencies` to be 0, in which case the node will be placed at the
+root of the graph. `pDependencies` may not have any duplicate entries.
+A handle to the new node will be returned in `pGraphNode`.
+
+When :py:obj:`~.cudaGraphAddMemAllocNode` creates an allocation node,
+it returns the address of the allocation in `nodeParams.dptr`. The
+allocation&#39;s address remains fixed across instantiations and launches.
+
+If the allocation is freed in the same graph, by creating a free node
+using :py:obj:`~.cudaGraphAddMemFreeNode`, the allocation can be
+accessed by nodes ordered after the allocation node but before the free
+node. These allocations cannot be freed outside the owning graph, and
+they can only be freed once in the owning graph.
+
+If the allocation is not freed in the same graph, then it can be
+accessed not only by nodes in the graph which are ordered after the
+allocation node, but also by stream operations ordered after the
+graph&#39;s execution but before the allocation is freed.
+
+Allocations which are not freed in the same graph can be freed by:
+
+- passing the allocation to :py:obj:`~.cudaMemFreeAsync` or
+  :py:obj:`~.cudaMemFree`;
+
+- launching a graph with a free node for that allocation; or
+
+- specifying :py:obj:`~.cudaGraphInstantiateFlagAutoFreeOnLaunch`
+  during instantiation, which makes each launch behave as though it
+  called :py:obj:`~.cudaMemFreeAsync` for every unfreed allocation.
+
+It is not possible to free an allocation in both the owning graph and
+another graph. If the allocation is freed in the same graph, a free
+node cannot be added to another graph. If the allocation is freed in
+another graph, a free node can no longer be added to the owning graph.
+
+The following restrictions apply to graphs which contain allocation
+and/or memory free nodes:
+
+- Nodes and edges of the graph cannot be deleted.
+
+- The graph can only be used in a child node if the ownership is moved
+  to the parent.
+
+- Only one instantiation of the graph may exist at any point in time.
+
+- The graph cannot be cloned.
+
+:param graph: Graph to which to add the node
+:type graph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param pDependencies: Dependencies of the node
+:type pDependencies: list[:py:obj:`~.cudaGraphNode_t`]
+:param numDependencies: Number of dependencies
+:type numDependencies: size_t
+:param nodeParams: Parameters for the node
+:type nodeParams: :py:obj:`~.cudaMemAllocNodeParams`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorOutOfMemory`
+          * **pGraphNode** (:py:obj:`~.cudaGraphNode_t`) -- Returns newly created node
+
+.. seealso:: :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemAllocNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphMemAllocNodeGetParams">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphMemAllocNodeGetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphMemAllocNodeGetParams" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns a memory alloc node&#39;s parameters.
+
+Returns the parameters of a memory alloc node `hNode` in `params_out`.
+The `poolProps` and `accessDescs` returned in `params_out`, are owned
+by the node. This memory remains valid until the node is destroyed. The
+returned parameters must not be modified.
+
+:param node: Node to get the parameters for
+:type node: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **params_out** (:py:obj:`~.cudaMemAllocNodeParams`) -- Pointer to return the parameters
+
+.. seealso:: :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddMemFreeNode">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemFreeNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">dptr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemFreeNode" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates a memory free node and adds it to a graph.
+
+Creates a new memory free node and adds it to `graph` with
+`numDependencies` dependencies specified via `pDependencies` and
+address specified in `dptr`. It is possible for `numDependencies` to be
+0, in which case the node will be placed at the root of the graph.
+`pDependencies` may not have any duplicate entries. A handle to the new
+node will be returned in `pGraphNode`.
+
+:py:obj:`~.cudaGraphAddMemFreeNode` will return
+:py:obj:`~.cudaErrorInvalidValue` if the user attempts to free:
+
+- an allocation twice in the same graph.
+
+- an address that was not returned by an allocation node.
+
+- an invalid address.
+
+The following restrictions apply to graphs which contain allocation
+and/or memory free nodes:
+
+- Nodes and edges of the graph cannot be deleted.
+
+- The graph can only be used in a child node if the ownership is moved
+  to the parent.
+
+- Only one instantiation of the graph may exist at any point in time.
+
+- The graph cannot be cloned.
+
+:param graph: Graph to which to add the node
+:type graph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param pDependencies: Dependencies of the node
+:type pDependencies: list[:py:obj:`~.cudaGraphNode_t`]
+:param numDependencies: Number of dependencies
+:type numDependencies: size_t
+:param dptr: Address of memory to free
+:type dptr: Any
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorOutOfMemory`
+          * **pGraphNode** (:py:obj:`~.cudaGraphNode_t`) -- Returns newly created node
+
+.. seealso:: :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphMemFreeNodeGetParams">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphMemFreeNodeGetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphMemFreeNodeGetParams" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns a memory free node&#39;s parameters.
+
+Returns the address of a memory free node `hNode` in `dptr_out`.
+
+:param node: Node to get the parameters for
+:type node: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **dptr_out** (*Any*) -- Pointer to return the device address
+
+.. seealso:: :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceGraphMemTrim">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGraphMemTrim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceGraphMemTrim" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Free unused memory that was cached on the specified device for use with graphs back to the OS.
+
+Blocks which are not in use by a graph that is either currently
+executing or scheduled to execute are freed back to the operating
+system.
+
+:param device: The device for which cached memory should be freed.
+:type device: int
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceGetGraphMemAttribute">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetGraphMemAttribute</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">device</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">attr:</span> <span class="pre">cudaGraphMemAttributeType</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceGetGraphMemAttribute" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Query asynchronous allocation attributes related to graphs.
+
+Valid attributes are:
+
+- :py:obj:`~.cudaGraphMemAttrUsedMemCurrent`: Amount of memory, in
+  bytes, currently associated with graphs
+
+- :py:obj:`~.cudaGraphMemAttrUsedMemHigh`: High watermark of memory, in
+  bytes, associated with graphs since the last time it was reset. High
+  watermark can only be reset to zero.
+
+- :py:obj:`~.cudaGraphMemAttrReservedMemCurrent`: Amount of memory, in
+  bytes, currently allocated for use by the CUDA graphs asynchronous
+  allocator.
+
+- :py:obj:`~.cudaGraphMemAttrReservedMemHigh`: High watermark of
+  memory, in bytes, currently allocated for use by the CUDA graphs
+  asynchronous allocator.
+
+:param device: Specifies the scope of the query
+:type device: int
+:param attr: attribute to get
+:type attr: :py:obj:`~.cudaGraphMemAttributeType`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`
+          * **value** (*Any*) -- retrieved value
+
+.. seealso:: :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceSetGraphMemAttribute">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceSetGraphMemAttribute</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">device</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">attr:</span> <span class="pre">cudaGraphMemAttributeType</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceSetGraphMemAttribute" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Set asynchronous allocation attributes related to graphs.
+
+Valid attributes are:
+
+- :py:obj:`~.cudaGraphMemAttrUsedMemHigh`: High watermark of memory, in
+  bytes, associated with graphs since the last time it was reset. High
+  watermark can only be reset to zero.
+
+- :py:obj:`~.cudaGraphMemAttrReservedMemHigh`: High watermark of
+  memory, in bytes, currently allocated for use by the CUDA graphs
+  asynchronous allocator.
+
+:param device: Specifies the scope of the query
+:type device: int
+:param attr: attribute to get
+:type attr: :py:obj:`~.cudaGraphMemAttributeType`
+:param value: pointer to value to set
+:type value: Any
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`
 </pre></div>
 </div>
 </dd></dl>
@@ -21795,6 +22901,90 @@ multiple devices, this will result in an error.
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphInstantiateWithFlags">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphInstantiateWithFlags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphInstantiateWithFlags" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates an executable graph from a graph.
+
+Instantiates `graph` as an executable graph. The graph is validated for
+any structural constraints or intra-node constraints which were not
+previously validated. If instantiation is successful, a handle to the
+instantiated graph is returned in `pGraphExec`.
+
+The `flags` parameter controls the behavior of instantiation and
+subsequent graph launches. Valid flags are:
+
+- :py:obj:`~.cudaGraphInstantiateFlagAutoFreeOnLaunch`, which
+  configures a graph containing memory allocation nodes to
+  automatically free any unfreed memory allocations before the graph is
+  relaunched.
+
+- :py:obj:`~.cudaGraphInstantiateFlagDeviceLaunch`, which configures
+  the graph for launch from the device. If this flag is passed, the
+  executable graph handle returned can be used to launch the graph from
+  both the host and device. This flag can only be used on platforms
+  which support unified addressing. This flag cannot be used in
+  conjunction with
+  :py:obj:`~.cudaGraphInstantiateFlagAutoFreeOnLaunch`.
+
+- :py:obj:`~.cudaGraphInstantiateFlagUseNodePriority`, which causes the
+  graph to use the priorities from the per-node attributes rather than
+  the priority of the launch stream during execution. Note that
+  priorities are only available on kernel nodes, and are copied from
+  stream priority during stream capture.
+
+If `graph` contains any allocation or free nodes, there can be at most
+one executable graph in existence for that graph at a time. An attempt
+to instantiate a second executable graph before destroying the first
+with :py:obj:`~.cudaGraphExecDestroy` will result in an error. The same
+also applies if `graph` contains any device-updatable kernel nodes.
+
+If `graph` contains kernels which call device-side
+:py:obj:`~.cudaGraphLaunch()` from multiple devices, this will result
+in an error.
+
+Graphs instantiated for launch on the device have additional
+restrictions which do not apply to host graphs:
+
+- The graph&#39;s nodes must reside on a single device.
+
+- The graph can only contain kernel nodes, memcpy nodes, memset nodes,
+  and child graph nodes.
+
+- The graph cannot be empty and must contain at least one kernel,
+  memcpy, or memset node. Operation-specific restrictions are outlined
+  below.
+
+- Kernel nodes:
+
+  - Use of CUDA Dynamic Parallelism is not permitted.
+
+  - Cooperative launches are permitted as long as MPS is not in use.
+
+- Memcpy nodes:
+
+  - Only copies involving device memory and/or pinned device-mapped
+    host memory are permitted.
+
+  - Copies involving CUDA arrays are not permitted.
+
+  - Both operands must be accessible from the current device, and the
+    current device must match the device of other nodes in the graph.
+
+:param graph: Graph to instantiate
+:type graph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param flags: Flags to control instantiation. See
+              :py:obj:`~.CUgraphInstantiate_flags`.
+:type flags: unsigned long long
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+          * **pGraphExec** (:py:obj:`~.cudaGraphExec_t`) -- Returns instantiated graph
+
+.. seealso:: :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphUpload`, :py:obj:`~.cudaGraphLaunch`, :py:obj:`~.cudaGraphExecDestroy`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphInstantiateWithParams">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphInstantiateWithParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">cudaGraphInstantiateParams</span> <span class="pre">instantiateParams:</span> <span class="pre">Optional[cudaGraphInstantiateParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphInstantiateWithParams" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates an executable graph from a graph.
@@ -22035,6 +23225,60 @@ multidimensional.
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExecMemcpyNodeSetParams1D">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExecMemcpyNodeSetParams1D</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">hGraphExec</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">count</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">kind:</span> <span class="pre">cudaMemcpyKind</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExecMemcpyNodeSetParams1D" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets the parameters for a memcpy node in the given graphExec to perform a 1-dimensional copy.
+
+Updates the work represented by `node` in `hGraphExec` as though `node`
+had contained the given params at instantiation. `node` must remain in
+the graph which was used to instantiate `hGraphExec`. Changed edges to
+and from `node` are ignored.
+
+`src` and `dst` must be allocated from the same contexts as the
+original source and destination memory. The instantiation-time memory
+operands must be 1-dimensional. Zero-length operations are not
+supported.
+
+The modifications only affect future launches of `hGraphExec`. Already
+enqueued or running launches of `hGraphExec` are not affected by this
+call. `node` is also not modified by this call.
+
+Returns :py:obj:`~.cudaErrorInvalidValue` if the memory operands&#39;
+mappings changed or the original memory operands are multidimensional.
+
+:param hGraphExec: The executable graph in which to set the specified node
+:type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+:param node: Memcpy node from the graph which was used to instantiate graphExec
+:type node: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param dst: Destination memory address
+:type dst: Any
+:param src: Source memory address
+:type src: Any
+:param count: Size in bytes to copy
+:type count: size_t
+:param kind: Type of transfer
+:type kind: :py:obj:`~.cudaMemcpyKind`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemcpyNode1D`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExecMemsetNodeSetParams">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExecMemsetNodeSetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">hGraphExec,</span> <span class="pre">node,</span> <span class="pre">cudaMemsetParams</span> <span class="pre">pNodeParams:</span> <span class="pre">Optional[cudaMemsetParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExecMemsetNodeSetParams" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets the parameters for a memset node in the given graphExec.
@@ -22103,6 +23347,238 @@ call. `node` is also not modified by this call.
 :rtype: cudaError_t
 
 .. seealso:: :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphHostNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExecChildGraphNodeSetParams">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExecChildGraphNodeSetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hGraphExec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">childGraph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExecChildGraphNodeSetParams" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Updates node parameters in the child graph node in the given graphExec.
+
+Updates the work represented by `node` in `hGraphExec` as though the
+nodes contained in `node&#39;s` graph had the parameters contained in
+`childGraph&#39;s` nodes at instantiation. `node` must remain in the graph
+which was used to instantiate `hGraphExec`. Changed edges to and from
+`node` are ignored.
+
+The modifications only affect future launches of `hGraphExec`. Already
+enqueued or running launches of `hGraphExec` are not affected by this
+call. `node` is also not modified by this call.
+
+The topology of `childGraph`, as well as the node insertion order, must
+match that of the graph contained in `node`. See
+:py:obj:`~.cudaGraphExecUpdate()` for a list of restrictions on what
+can be updated in an instantiated graph. The update is recursive, so
+child graph nodes contained within the top level child graph will also
+be updated.
+
+:param hGraphExec: The executable graph in which to set the specified node
+:type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+:param node: Host node from the graph which was used to instantiate graphExec
+:type node: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param childGraph: The graph supplying the updated parameters
+:type childGraph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphChildGraphNodeGetGraph`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExecEventRecordNodeSetEvent">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExecEventRecordNodeSetEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hGraphExec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExecEventRecordNodeSetEvent" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets the event for an event record node in the given graphExec.
+
+Sets the event of an event record node in an executable graph
+`hGraphExec`. The node is identified by the corresponding node `hNode`
+in the non-executable graph, from which the executable graph was
+instantiated.
+
+The modifications only affect future launches of `hGraphExec`. Already
+enqueued or running launches of `hGraphExec` are not affected by this
+call. `hNode` is also not modified by this call.
+
+:param hGraphExec: The executable graph in which to set the specified node
+:type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+:param hNode: Event record node from the graph from which graphExec was
+              instantiated
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param event: Updated event to use
+:type event: :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExecEventWaitNodeSetEvent">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExecEventWaitNodeSetEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hGraphExec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExecEventWaitNodeSetEvent" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets the event for an event wait node in the given graphExec.
+
+Sets the event of an event wait node in an executable graph
+`hGraphExec`. The node is identified by the corresponding node `hNode`
+in the non-executable graph, from which the executable graph was
+instantiated.
+
+The modifications only affect future launches of `hGraphExec`. Already
+enqueued or running launches of `hGraphExec` are not affected by this
+call. `hNode` is also not modified by this call.
+
+:param hGraphExec: The executable graph in which to set the specified node
+:type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+:param hNode: Event wait node from the graph from which graphExec was
+              instantiated
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param event: Updated event to use
+:type event: :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExecExternalSemaphoresSignalNodeSetParams">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExecExternalSemaphoresSignalNodeSetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">hGraphExec,</span> <span class="pre">hNode,</span> <span class="pre">cudaExternalSemaphoreSignalNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreSignalNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExecExternalSemaphoresSignalNodeSetParams" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets the parameters for an external semaphore signal node in the given graphExec.
+
+Sets the parameters of an external semaphore signal node in an
+executable graph `hGraphExec`. The node is identified by the
+corresponding node `hNode` in the non-executable graph, from which the
+executable graph was instantiated.
+
+`hNode` must not have been removed from the original graph.
+
+The modifications only affect future launches of `hGraphExec`. Already
+enqueued or running launches of `hGraphExec` are not affected by this
+call. `hNode` is also not modified by this call.
+
+Changing `nodeParams-&gt;numExtSems` is not supported.
+
+:param hGraphExec: The executable graph in which to set the specified node
+:type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+:param hNode: semaphore signal node from the graph from which graphExec was
+              instantiated
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param nodeParams: Updated Parameters to set
+:type nodeParams: :py:obj:`~.cudaExternalSemaphoreSignalNodeParams`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphExecExternalSemaphoresWaitNodeSetParams">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphExecExternalSemaphoresWaitNodeSetParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">hGraphExec,</span> <span class="pre">hNode,</span> <span class="pre">cudaExternalSemaphoreWaitNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreWaitNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphExecExternalSemaphoresWaitNodeSetParams" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets the parameters for an external semaphore wait node in the given graphExec.
+
+Sets the parameters of an external semaphore wait node in an executable
+graph `hGraphExec`. The node is identified by the corresponding node
+`hNode` in the non-executable graph, from which the executable graph
+was instantiated.
+
+`hNode` must not have been removed from the original graph.
+
+The modifications only affect future launches of `hGraphExec`. Already
+enqueued or running launches of `hGraphExec` are not affected by this
+call. `hNode` is also not modified by this call.
+
+Changing `nodeParams-&gt;numExtSems` is not supported.
+
+:param hGraphExec: The executable graph in which to set the specified node
+:type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+:param hNode: semaphore wait node from the graph from which graphExec was
+              instantiated
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param nodeParams: Updated Parameters to set
+:type nodeParams: :py:obj:`~.cudaExternalSemaphoreWaitNodeParams`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphNodeSetEnabled">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphNodeSetEnabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hGraphExec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">isEnabled</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphNodeSetEnabled" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Enables or disables the specified node in the given graphExec.
+
+Sets `hNode` to be either enabled or disabled. Disabled nodes are
+functionally equivalent to empty nodes until they are reenabled.
+Existing node parameters are not affected by disabling/enabling the
+node.
+
+The node is identified by the corresponding node `hNode` in the non-
+executable graph, from which the executable graph was instantiated.
+
+`hNode` must not have been removed from the original graph.
+
+The modifications only affect future launches of `hGraphExec`. Already
+enqueued or running launches of `hGraphExec` are not affected by this
+call. `hNode` is also not modified by this call.
+
+:param hGraphExec: The executable graph in which to set the specified node
+:type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+:param hNode: Node from the graph from which graphExec was instantiated
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+:param isEnabled: Node is enabled if != 0, otherwise the node is disabled
+:type isEnabled: unsigned int
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphNodeGetEnabled`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+
+.. rubric:: Notes
+
+Currently only kernel, memset and memcpy nodes are supported.
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphNodeGetEnabled">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphNodeGetEnabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hGraphExec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hNode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphNodeGetEnabled" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Query whether a node in the given graphExec is enabled.
+
+Sets isEnabled to 1 if `hNode` is enabled, or 0 if `hNode` is disabled.
+
+The node is identified by the corresponding node `hNode` in the non-
+executable graph, from which the executable graph was instantiated.
+
+`hNode` must not have been removed from the original graph.
+
+:param hGraphExec: The executable graph in which to set the specified node
+:type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+:param hNode: Node from the graph from which graphExec was instantiated
+:type hNode: :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+
+:returns: * *cudaError_t* -- :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+          * **isEnabled** (*unsigned int*) -- Location to return the enabled status of the node
+
+.. seealso:: :py:obj:`~.cudaGraphNodeSetEnabled`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+
+.. rubric:: Notes
+
+Currently only kernel, memset and memcpy nodes are supported.
 </pre></div>
 </div>
 </dd></dl>
@@ -22249,6 +23725,30 @@ constraints specific to instantiated graph update.
           * **resultInfo** (:py:obj:`~.cudaGraphExecUpdateResultInfo`) -- the error info structure
 
 .. seealso:: :py:obj:`~.cudaGraphInstantiate`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphUpload">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphUpload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphExec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphUpload" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Uploads an executable graph in a stream.
+
+Uploads `hGraphExec` to the device in `hStream` without executing it.
+Uploads of the same `hGraphExec` will be serialized. Each upload is
+ordered behind both any previous work in `hStream` and any previous
+launches of `hGraphExec`. Uses memory cached by `stream` to back the
+allocations owned by `graphExec`.
+
+:param hGraphExec: Executable graph to upload
+:type hGraphExec: :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+:param hStream: Stream in which to upload the graph
+:type hStream: :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+
+:returns: :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`,
+:rtype: cudaError_t
+
+.. seealso:: :py:obj:`~.cudaGraphInstantiate`, :py:obj:`~.cudaGraphLaunch`, :py:obj:`~.cudaGraphExecDestroy`
 </pre></div>
 </div>
 </dd></dl>
@@ -24415,6 +25915,7 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidResourceType"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorInvalidResourceType</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidResourceConfiguration"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorInvalidResourceConfiguration</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorStreamDetached"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorStreamDetached</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorGraphRecaptureFailure"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorGraphRecaptureFailure</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorUnknown"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorUnknown</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorApiFailureBase"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorApiFailureBase</span></code></a></li>
 </ul>
@@ -24452,6 +25953,20 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7SRGB"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7SRGB</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemoryType"><code class="docutils literal notranslate"><span class="pre">cudaMemoryType</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -24479,6 +25994,12 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamCaptureStatus.cudaStreamCaptureStatusNone"><code class="docutils literal notranslate"><span class="pre">cudaStreamCaptureStatus.cudaStreamCaptureStatusNone</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamCaptureStatus.cudaStreamCaptureStatusActive"><code class="docutils literal notranslate"><span class="pre">cudaStreamCaptureStatus.cudaStreamCaptureStatusActive</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamCaptureStatus.cudaStreamCaptureStatusInvalidated"><code class="docutils literal notranslate"><span class="pre">cudaStreamCaptureStatus.cudaStreamCaptureStatusInvalidated</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphRecaptureStatus"><code class="docutils literal notranslate"><span class="pre">cudaGraphRecaptureStatus</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureEligibleForUpdate"><code class="docutils literal notranslate"><span class="pre">cudaGraphRecaptureStatus.cudaGraphRecaptureEligibleForUpdate</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureIneligibleForUpdate"><code class="docutils literal notranslate"><span class="pre">cudaGraphRecaptureStatus.cudaGraphRecaptureIneligibleForUpdate</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureError"><code class="docutils literal notranslate"><span class="pre">cudaGraphRecaptureStatus.cudaGraphRecaptureError</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamCaptureMode"><code class="docutils literal notranslate"><span class="pre">cudaStreamCaptureMode</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -24584,6 +26105,12 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed6H"><code class="docutils literal notranslate"><span class="pre">cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed6H</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaResourceViewFormat.cudaResViewFormatSignedBlockCompressed6H"><code class="docutils literal notranslate"><span class="pre">cudaResourceViewFormat.cudaResViewFormatSignedBlockCompressed6H</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed7"><code class="docutils literal notranslate"><span class="pre">cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed7</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode.cudaSharedMemoryModeDefault</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFuncAttribute"><code class="docutils literal notranslate"><span class="pre">cudaFuncAttribute</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -24812,6 +26339,8 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostMemoryPoolsSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrHostMemoryPoolsSupported</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved145"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrReserved145</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrOnlyPartialHostNativeAtomicSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrOnlyPartialHostNativeAtomicSupported</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrAtomicReductionSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrAtomicReductionSupported</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrCigStreamsSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrCigStreamsSupported</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrMax</span></code></a></li>
 </ul>
 </li>
@@ -25033,6 +26562,7 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeMemAlloc"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeType.cudaGraphNodeTypeMemAlloc</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeMemFree"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeType.cudaGraphNodeTypeMemFree</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeConditional"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeType.cudaGraphNodeTypeConditional</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeReserved16"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeType.cudaGraphNodeTypeReserved16</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeCount"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeType.cudaGraphNodeTypeCount</span></code></a></li>
 </ul>
 </li>
@@ -25119,12 +26649,6 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLaunchAttributePortableClusterMode.cudaLaunchPortableClusterModeAllowNonPortable"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePortableClusterMode.cudaLaunchPortableClusterModeAllowNonPortable</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode.cudaSharedMemoryModeDefault</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable</span></code></a></li>
-</ul>
-</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLaunchAttributeID"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeID</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeIgnore"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeID.cudaLaunchAttributeIgnore</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow</span></code></a></li>
@@ -25158,6 +26682,17 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLogLevel"><code class="docutils literal notranslate"><span class="pre">cudaLogLevel</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLogLevel.cudaLogLevelError"><code class="docutils literal notranslate"><span class="pre">cudaLogLevel.cudaLogLevelError</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLogLevel.cudaLogLevelWarning"><code class="docutils literal notranslate"><span class="pre">cudaLogLevel.cudaLogLevelWarning</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFabricOpStatusSource"><code class="docutils literal notranslate"><span class="pre">cudaFabricOpStatusSource</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFabricOpStatusSource.cudaFabricOpStatusSourceMbarrierV1"><code class="docutils literal notranslate"><span class="pre">cudaFabricOpStatusSource.cudaFabricOpStatusSourceMbarrierV1</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFabricOpStatusSource.cudaFabricOpStatusSourceMax"><code class="docutils literal notranslate"><span class="pre">cudaFabricOpStatusSource.cudaFabricOpStatusSourceMax</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFabricOpStatusInfo"><code class="docutils literal notranslate"><span class="pre">cudaFabricOpStatusInfo</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoSuccess"><code class="docutils literal notranslate"><span class="pre">cudaFabricOpStatusInfo.cudaFabricOpStatusInfoSuccess</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoLast"><code class="docutils literal notranslate"><span class="pre">cudaFabricOpStatusInfo.cudaFabricOpStatusInfoLast</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoMax"><code class="docutils literal notranslate"><span class="pre">cudaFabricOpStatusInfo.cudaFabricOpStatusInfoMax</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceBoundaryMode</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -25460,6 +26995,7 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceSynchronize"><code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceSetLimit"><code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceGetLimit"><code class="docutils literal notranslate"><span class="pre">cudaDeviceGetLimit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceGetTexture1DLinearMaxWidth"><code class="docutils literal notranslate"><span class="pre">cudaDeviceGetTexture1DLinearMaxWidth()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceGetCacheConfig"><code class="docutils literal notranslate"><span class="pre">cudaDeviceGetCacheConfig()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceGetStreamPriorityRange"><code class="docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceSetCacheConfig"><code class="docutils literal notranslate"><span class="pre">cudaDeviceSetCacheConfig()</span></code></a></li>
@@ -25470,6 +27006,7 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcGetMemHandle"><code class="docutils literal notranslate"><span class="pre">cudaIpcGetMemHandle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcOpenMemHandle"><code class="docutils literal notranslate"><span class="pre">cudaIpcOpenMemHandle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcCloseMemHandle"><code class="docutils literal notranslate"><span class="pre">cudaIpcCloseMemHandle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceFlushGPUDirectRDMAWrites"><code class="docutils literal notranslate"><span class="pre">cudaDeviceFlushGPUDirectRDMAWrites()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceRegisterAsyncNotification"><code class="docutils literal notranslate"><span class="pre">cudaDeviceRegisterAsyncNotification()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceUnregisterAsyncNotification"><code class="docutils literal notranslate"><span class="pre">cudaDeviceUnregisterAsyncNotification()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGetDeviceCount"><code class="docutils literal notranslate"><span class="pre">cudaGetDeviceCount()</span></code></a></li>
@@ -25498,7 +27035,9 @@ profiling to be done only on selective pieces of code.
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stream-management">Stream Management</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphRecaptureCallbackData"><code class="docutils literal notranslate"><span class="pre">cudaGraphRecaptureCallbackData</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamCallback_t"><code class="docutils literal notranslate"><span class="pre">cudaStreamCallback_t</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphRecaptureCallback_t"><code class="docutils literal notranslate"><span class="pre">cudaGraphRecaptureCallback_t</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamCreate"><code class="docutils literal notranslate"><span class="pre">cudaStreamCreate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamCreateWithFlags"><code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamCreateWithPriority"><code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code></a></li>
@@ -25517,6 +27056,7 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamQuery"><code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttachMemAsync"><code class="docutils literal notranslate"><span class="pre">cudaStreamAttachMemAsync()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamBeginCapture"><code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamBeginRecaptureToGraph"><code class="docutils literal notranslate"><span class="pre">cudaStreamBeginRecaptureToGraph()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamBeginCaptureToGraph"><code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaThreadExchangeStreamCaptureMode"><code class="docutils literal notranslate"><span class="pre">cudaThreadExchangeStreamCaptureMode()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamEndCapture"><code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code></a></li>
@@ -25529,6 +27069,7 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEventCreate"><code class="docutils literal notranslate"><span class="pre">cudaEventCreate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEventCreateWithFlags"><code class="docutils literal notranslate"><span class="pre">cudaEventCreateWithFlags()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEventRecord"><code class="docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEventRecordWithFlags"><code class="docutils literal notranslate"><span class="pre">cudaEventRecordWithFlags()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEventQuery"><code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEventSynchronize"><code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEventDestroy"><code class="docutils literal notranslate"><span class="pre">cudaEventDestroy()</span></code></a></li>
@@ -25589,6 +27130,8 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaArrayGetPlane"><code class="docutils literal notranslate"><span class="pre">cudaArrayGetPlane()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaArrayGetMemoryRequirements"><code class="docutils literal notranslate"><span class="pre">cudaArrayGetMemoryRequirements()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMipmappedArrayGetMemoryRequirements"><code class="docutils literal notranslate"><span class="pre">cudaMipmappedArrayGetMemoryRequirements()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaArrayGetSparseProperties"><code class="docutils literal notranslate"><span class="pre">cudaArrayGetSparseProperties()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMipmappedArrayGetSparseProperties"><code class="docutils literal notranslate"><span class="pre">cudaMipmappedArrayGetSparseProperties()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemcpy"><code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemcpyPeer"><code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeer()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemcpy2D"><code class="docutils literal notranslate"><span class="pre">cudaMemcpy2D()</span></code></a></li>
@@ -25739,8 +27282,10 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphKernelNodeGetAttribute"><code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodeGetAttribute()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphKernelNodeSetAttribute"><code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodeSetAttribute()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphAddMemcpyNode"><code class="docutils literal notranslate"><span class="pre">cudaGraphAddMemcpyNode()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphAddMemcpyNode1D"><code class="docutils literal notranslate"><span class="pre">cudaGraphAddMemcpyNode1D()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphMemcpyNodeGetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphMemcpyNodeGetParams()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphMemcpyNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphMemcpyNodeSetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphMemcpyNodeSetParams1D"><code class="docutils literal notranslate"><span class="pre">cudaGraphMemcpyNodeSetParams1D()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphAddMemsetNode"><code class="docutils literal notranslate"><span class="pre">cudaGraphAddMemsetNode()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphMemsetNodeGetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphMemsetNodeGetParams()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphMemsetNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphMemsetNodeSetParams()</span></code></a></li>
@@ -25750,6 +27295,25 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphAddChildGraphNode"><code class="docutils literal notranslate"><span class="pre">cudaGraphAddChildGraphNode()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphChildGraphNodeGetGraph"><code class="docutils literal notranslate"><span class="pre">cudaGraphChildGraphNodeGetGraph()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphAddEmptyNode"><code class="docutils literal notranslate"><span class="pre">cudaGraphAddEmptyNode()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphAddEventRecordNode"><code class="docutils literal notranslate"><span class="pre">cudaGraphAddEventRecordNode()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphEventRecordNodeGetEvent"><code class="docutils literal notranslate"><span class="pre">cudaGraphEventRecordNodeGetEvent()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphEventRecordNodeSetEvent"><code class="docutils literal notranslate"><span class="pre">cudaGraphEventRecordNodeSetEvent()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphAddEventWaitNode"><code class="docutils literal notranslate"><span class="pre">cudaGraphAddEventWaitNode()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphEventWaitNodeGetEvent"><code class="docutils literal notranslate"><span class="pre">cudaGraphEventWaitNodeGetEvent()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphEventWaitNodeSetEvent"><code class="docutils literal notranslate"><span class="pre">cudaGraphEventWaitNodeSetEvent()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphAddExternalSemaphoresSignalNode"><code class="docutils literal notranslate"><span class="pre">cudaGraphAddExternalSemaphoresSignalNode()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExternalSemaphoresSignalNodeGetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExternalSemaphoresSignalNodeGetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExternalSemaphoresSignalNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExternalSemaphoresSignalNodeSetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphAddExternalSemaphoresWaitNode"><code class="docutils literal notranslate"><span class="pre">cudaGraphAddExternalSemaphoresWaitNode()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeGetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExternalSemaphoresWaitNodeGetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExternalSemaphoresWaitNodeSetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphAddMemAllocNode"><code class="docutils literal notranslate"><span class="pre">cudaGraphAddMemAllocNode()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphMemAllocNodeGetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphMemAllocNodeGetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphAddMemFreeNode"><code class="docutils literal notranslate"><span class="pre">cudaGraphAddMemFreeNode()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphMemFreeNodeGetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphMemFreeNodeGetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceGraphMemTrim"><code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceGetGraphMemAttribute"><code class="docutils literal notranslate"><span class="pre">cudaDeviceGetGraphMemAttribute()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceSetGraphMemAttribute"><code class="docutils literal notranslate"><span class="pre">cudaDeviceSetGraphMemAttribute()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphClone"><code class="docutils literal notranslate"><span class="pre">cudaGraphClone()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphNodeFindInClone"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeFindInClone()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphNodeGetType"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetType()</span></code></a></li>
@@ -25767,13 +27331,23 @@ profiling to be done only on selective pieces of code.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphRemoveDependencies"><code class="docutils literal notranslate"><span class="pre">cudaGraphRemoveDependencies()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphDestroyNode"><code class="docutils literal notranslate"><span class="pre">cudaGraphDestroyNode()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphInstantiate"><code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphInstantiateWithFlags"><code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateWithFlags()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphInstantiateWithParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateWithParams()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecGetFlags"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecGetFlags()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecKernelNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecKernelNodeSetParams()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecMemcpyNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecMemcpyNodeSetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecMemcpyNodeSetParams1D"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecMemcpyNodeSetParams1D()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecMemsetNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecMemsetNodeSetParams()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecHostNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecHostNodeSetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecChildGraphNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecChildGraphNodeSetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecEventRecordNodeSetEvent"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecEventRecordNodeSetEvent()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecEventWaitNodeSetEvent"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecEventWaitNodeSetEvent()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecExternalSemaphoresSignalNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecExternalSemaphoresSignalNodeSetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecExternalSemaphoresWaitNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecExternalSemaphoresWaitNodeSetParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphNodeSetEnabled"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeSetEnabled()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphNodeGetEnabled"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetEnabled()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecUpdate"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphUpload"><code class="docutils literal notranslate"><span class="pre">cudaGraphUpload()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphLaunch"><code class="docutils literal notranslate"><span class="pre">cudaGraphLaunch()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphExecDestroy"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecDestroy()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphDestroy"><code class="docutils literal notranslate"><span class="pre">cudaGraphDestroy()</span></code></a></li>

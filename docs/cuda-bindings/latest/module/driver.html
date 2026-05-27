@@ -119,9 +119,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
-</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -538,7 +535,6 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.3.0-notes.html">13.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/13.2.1-notes.html">13.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.0-notes.html">13.1.0</a></li>
@@ -546,6 +542,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.4-notes.html">12.9.4</a></li>
@@ -4034,7 +4031,9 @@ information
 
 .. attribute:: id
 
-
+   Identifier for CUmemLocationType::CU_MEM_LOCATION_TYPE_DEVICE,
+   CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST,
+   CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST_NUMA.
 
    :type: int
 
@@ -4705,6 +4704,12 @@ usage see cuMemcpyBatchAsync.
 
    :type: CUDA_CONDITIONAL_NODE_PARAMS
 
+.. attribute:: asBytes
+
+   Padding as bytes
+
+   :type: bytes
+
 .. attribute:: reserved2
 
    Reserved bytes. Must be zero.
@@ -4796,31 +4801,6 @@ usage see cuMemcpyBatchAsync.
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUcheckpointRestoreArgs_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointRestoreArgs_st" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>CUDA checkpoint optional restore arguments
 
-.. attribute:: gpuPairs
-
-   Pointer to array of gpu pairs that indicate how to remap GPUs
-   during restore
-
-   :type: CUcheckpointGpuPair
-
-.. attribute:: gpuPairsCount
-
-   Number of gpu pairs to remap
-
-   :type: unsigned int
-
-.. attribute:: reserved
-
-   Reserved for future use, must be zeroed
-
-   :type: bytes
-
-.. attribute:: reserved1
-
-   Reserved for future use, must be zeroed
-
-   :type: cuuint64_t
-
 .. method:: getPtr()
 
    Get memory address of class instance
@@ -4857,7 +4837,7 @@ whether the surface * is Multiplanar or not.
 
 
 
-   :type: anon_union16
+   :type: anon_union17
 
 .. attribute:: width
 
@@ -6617,13 +6597,13 @@ whether the surface * is Multiplanar or not.
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COOPERATIVE_MULTI_DEVICE_LAUNCH">
 <span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_COOPERATIVE_MULTI_DEVICE_LAUNCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COOPERATIVE_MULTI_DEVICE_LAUNCH:</span> <span class="pre">96&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COOPERATIVE_MULTI_DEVICE_LAUNCH" title="Link to this definition">#</a></dt>
-<dd><p>Deprecated, <a class="reference internal" href="#cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice" title="cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernelMultiDevice</span></code></a> is deprecated.</p>
+<dd><p>Deprecated, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernelMultiDevice</span></code> is deprecated.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN">
 <span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN:</span> <span class="pre">97&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN" title="Link to this definition">#</a></dt>
-<dd><p>Maximum optin shared memory per block</p>
+<dd><p>Maximum optin shared memory per block. That is shared memory that is available for dynamic allocation or static allocation (including architecture specific static shared memory) on this device but is not guaranteed to be portable.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -6939,8 +6919,44 @@ whether the surface * is Multiplanar or not.
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED">
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED:</span> <span class="pre">151&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED" title="Link to this definition">#</a></dt>
+<dd><p>Device supports CIG streams with D3D12</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DMA_BUF_MMAP_SUPPORTED">
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_DMA_BUF_MMAP_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DMA_BUF_MMAP_SUPPORTED:</span> <span class="pre">152&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DMA_BUF_MMAP_SUPPORTED" title="Link to this definition">#</a></dt>
+<dd><p>Device supports mmap() of dmabuf file descriptors for CUDA device memory allocations</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_SUPPORTED">
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_SUPPORTED:</span> <span class="pre">153&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_SUPPORTED" title="Link to this definition">#</a></dt>
+<dd><p>Device supports unicast logical endpoints</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_MULTICAST_SUPPORTED">
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_MULTICAST_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_MULTICAST_SUPPORTED:</span> <span class="pre">154&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_MULTICAST_SUPPORTED" title="Link to this definition">#</a></dt>
+<dd><p>Device supports multicast logical endpoints</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_COUNTED_OPS_SUPPORTED">
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_COUNTED_OPS_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_COUNTED_OPS_SUPPORTED:</span> <span class="pre">155&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_COUNTED_OPS_SUPPORTED" title="Link to this definition">#</a></dt>
+<dd><p>Device supports counted operations via logical endpoints</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED">
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED:</span> <span class="pre">156&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED" title="Link to this definition">#</a></dt>
+<dd><p>Device supports unicast logical endpoint access on the owner device</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX:</span> <span class="pre">149&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX:</span> <span class="pre">157&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -7189,8 +7205,14 @@ whether the surface * is Multiplanar or not.
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED">
+<span class="sig-name descname"><span class="pre">CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUfunction_attribute.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED:</span> <span class="pre">16&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED" title="Link to this definition">#</a></dt>
+<dd><p>Whether the function can be updated on device. 1 means device node update is supported, 0 is unsupported. See <a class="reference internal" href="#cuda.bindings.driver.cuFuncGetAttribute" title="cuda.bindings.driver.cuFuncGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuFuncGetAttribute</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX">
-<span class="sig-name descname"><span class="pre">CU_FUNC_ATTRIBUTE_MAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX:</span> <span class="pre">16&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_FUNC_ATTRIBUTE_MAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX:</span> <span class="pre">17&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -8402,6 +8424,12 @@ for hitProp and missProp members.
 </div></blockquote>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_RESERVED_16">
+<span class="sig-name descname"><span class="pre">CU_GRAPH_NODE_TYPE_RESERVED_16</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUgraphNodeType.CU_GRAPH_NODE_TYPE_RESERVED_16:</span> <span class="pre">16&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_RESERVED_16" title="Link to this definition">#</a></dt>
+<dd><p>Reserved</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -9347,7 +9375,7 @@ details see :py:obj:`~.cuStreamBeginCapture` and
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUresult.CUDA_ERROR_COOPERATIVE_LAUNCH_TOO_LARGE">
 <span class="sig-name descname"><span class="pre">CUDA_ERROR_COOPERATIVE_LAUNCH_TOO_LARGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUresult.CUDA_ERROR_COOPERATIVE_LAUNCH_TOO_LARGE:</span> <span class="pre">720&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_COOPERATIVE_LAUNCH_TOO_LARGE" title="Link to this definition">#</a></dt>
-<dd><p>This error indicates that the number of blocks launched per grid for a kernel that was launched via either <a class="reference internal" href="#cuda.bindings.driver.cuLaunchCooperativeKernel" title="cuda.bindings.driver.cuLaunchCooperativeKernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernel</span></code></a> or <a class="reference internal" href="#cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice" title="cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernelMultiDevice</span></code></a> exceeds the maximum number of blocks as allowed by <a class="reference internal" href="#cuda.bindings.driver.cuOccupancyMaxActiveBlocksPerMultiprocessor" title="cuda.bindings.driver.cuOccupancyMaxActiveBlocksPerMultiprocessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuOccupancyMaxActiveBlocksPerMultiprocessor</span></code></a> or <a class="reference internal" href="#cuda.bindings.driver.cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags" title="cuda.bindings.driver.cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags</span></code></a> times the number of multiprocessors as specified by the device attribute <a class="reference internal" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT" title="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT</span></code></a>.</p>
+<dd><p>This error indicates that the number of blocks launched per grid for a kernel that was launched via either <a class="reference internal" href="#cuda.bindings.driver.cuLaunchCooperativeKernel" title="cuda.bindings.driver.cuLaunchCooperativeKernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernel</span></code></a> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernelMultiDevice</span></code> exceeds the maximum number of blocks as allowed by <a class="reference internal" href="#cuda.bindings.driver.cuOccupancyMaxActiveBlocksPerMultiprocessor" title="cuda.bindings.driver.cuOccupancyMaxActiveBlocksPerMultiprocessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuOccupancyMaxActiveBlocksPerMultiprocessor</span></code></a> or <a class="reference internal" href="#cuda.bindings.driver.cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags" title="cuda.bindings.driver.cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags</span></code></a> times the number of multiprocessors as specified by the device attribute <a class="reference internal" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT" title="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -9540,6 +9568,12 @@ details see :py:obj:`~.cuStreamBeginCapture` and
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUresult.CUDA_ERROR_STREAM_DETACHED">
 <span class="sig-name descname"><span class="pre">CUDA_ERROR_STREAM_DETACHED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUresult.CUDA_ERROR_STREAM_DETACHED:</span> <span class="pre">917&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_STREAM_DETACHED" title="Link to this definition">#</a></dt>
 <dd><p>This error indicates that the requested operation is not permitted because the stream is in a detached state. This can occur if the green context associated with the stream has been destroyed, limiting the stream’s operational capabilities.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUresult.CUDA_ERROR_GRAPH_RECAPTURE_FAILURE">
+<span class="sig-name descname"><span class="pre">CUDA_ERROR_GRAPH_RECAPTURE_FAILURE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUresult.CUDA_ERROR_GRAPH_RECAPTURE_FAILURE:</span> <span class="pre">918&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_GRAPH_RECAPTURE_FAILURE" title="Link to this definition">#</a></dt>
+<dd><p>This error indicates that a graph recapture failed and had to be terminated.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -17370,7 +17404,9 @@ information
 
 .. attribute:: id
 
-
+   Identifier for CUmemLocationType::CU_MEM_LOCATION_TYPE_DEVICE,
+   CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST,
+   CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST_NUMA.
 
    :type: int
 
@@ -17394,7 +17430,9 @@ information
 
 .. attribute:: id
 
-
+   Identifier for CUmemLocationType::CU_MEM_LOCATION_TYPE_DEVICE,
+   CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST,
+   CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST_NUMA.
 
    :type: int
 
@@ -18496,6 +18534,12 @@ usage see cuMemcpyBatchAsync.
 
    :type: CUDA_CONDITIONAL_NODE_PARAMS
 
+.. attribute:: asBytes
+
+   Padding as bytes
+
+   :type: bytes
+
 .. attribute:: reserved2
 
    Reserved bytes. Must be zero.
@@ -18583,43 +18627,6 @@ usage see cuMemcpyBatchAsync.
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointRestoreArgs">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUcheckpointRestoreArgs</span></span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointRestoreArgs" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>CUDA checkpoint optional restore arguments
-
-.. attribute:: gpuPairs
-
-   Pointer to array of gpu pairs that indicate how to remap GPUs
-   during restore
-
-   :type: CUcheckpointGpuPair
-
-.. attribute:: gpuPairsCount
-
-   Number of gpu pairs to remap
-
-   :type: unsigned int
-
-.. attribute:: reserved
-
-   Reserved for future use, must be zeroed
-
-   :type: bytes
-
-.. attribute:: reserved1
-
-   Reserved for future use, must be zeroed
-
-   :type: cuuint64_t
-
-.. method:: getPtr()
-
-   Get memory address of class instance
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointUnlockArgs">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUcheckpointUnlockArgs</span></span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointUnlockArgs" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>CUDA checkpoint optional unlock arguments
@@ -18648,7 +18655,7 @@ whether the surface * is Multiplanar or not.
 
 
 
-   :type: anon_union16
+   :type: anon_union17
 
 .. attribute:: width
 
@@ -18722,7 +18729,7 @@ whether the surface * is Multiplanar or not.
 
 
 
-   :type: anon_union16
+   :type: anon_union17
 
 .. attribute:: width
 
@@ -18799,7 +18806,7 @@ whether the surface * is Multiplanar or not.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_VERSION">
-<span class="sig-prename descclassname"><span class="pre">driver.</span></span><span class="sig-name descname"><span class="pre">CUDA_VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13020</span></em><a class="headerlink" href="#cuda.bindings.driver.CUDA_VERSION" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">driver.</span></span><span class="sig-name descname"><span class="pre">CUDA_VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13030</span></em><a class="headerlink" href="#cuda.bindings.driver.CUDA_VERSION" title="Link to this definition">#</a></dt>
 <dd><p>CUDA API version number</p>
 </dd></dl>
 
@@ -19039,13 +19046,13 @@ whether the surface * is Multiplanar or not.
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_PRE_LAUNCH_SYNC">
 <span class="sig-prename descclassname"><span class="pre">driver.</span></span><span class="sig-name descname"><span class="pre">CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_PRE_LAUNCH_SYNC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.driver.CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_PRE_LAUNCH_SYNC" title="Link to this definition">#</a></dt>
-<dd><p>If set, each kernel launched as part of <a class="reference internal" href="#cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice" title="cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernelMultiDevice</span></code></a> only waits for prior work in the stream corresponding to that GPU to complete before the kernel begins execution.</p>
+<dd><p>If set, each kernel launched as part of <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernelMultiDevice</span></code> only waits for prior work in the stream corresponding to that GPU to complete before the kernel begins execution.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_POST_LAUNCH_SYNC">
 <span class="sig-prename descclassname"><span class="pre">driver.</span></span><span class="sig-name descname"><span class="pre">CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_POST_LAUNCH_SYNC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.bindings.driver.CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_POST_LAUNCH_SYNC" title="Link to this definition">#</a></dt>
-<dd><p>If set, any subsequent work pushed in a stream that participated in a call to <a class="reference internal" href="#cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice" title="cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernelMultiDevice</span></code></a> will only wait for the kernel launched on the GPU corresponding to that stream to complete before it begins execution.</p>
+<dd><p>If set, any subsequent work pushed in a stream that participated in a call to <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernelMultiDevice</span></code> will only wait for the kernel launched on the GPU corresponding to that stream to complete before it begins execution.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -20530,13 +20537,11 @@ Returns in `*pvalue` the current size of `limit`. The supported
 - :py:obj:`~.CU_LIMIT_PERSISTING_L2_CACHE_SIZE`: Persisting L2 cache
   size in bytes
 
-:param limit: Limit to query
+:param limit: None
 :type limit: :py:obj:`~.CUlimit`
 
-:returns: * *CUresult* -- :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_UNSUPPORTED_LIMIT`
-          * **pvalue** (*int*) -- Returned size of limit
-
-.. seealso:: :py:obj:`~.cuCtxCreate`, :py:obj:`~.cuCtxDestroy`, :py:obj:`~.cuCtxGetApiVersion`, :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxGetDevice`, :py:obj:`~.cuCtxGetFlags`, :py:obj:`~.cuCtxPopCurrent`, :py:obj:`~.cuCtxPushCurrent`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuCtxSetLimit`, :py:obj:`~.cuCtxSynchronize`, :py:obj:`~.cudaDeviceGetLimit`
+:returns: * *CUresult*
+          * **pvalue** (*int*) -- None
 </pre></div>
 </div>
 </dd></dl>
@@ -25403,6 +25408,16 @@ may set flags to
 on a supported platform, will give a DMA_BUF handle mapped via PCIE
 BAR1 or will return an error otherwise.
 
+If the device attribute
+:py:obj:`~.CU_DEVICE_ATTRIBUTE_DMA_BUF_MMAP_SUPPORTED` is set and a
+CUmemRangeHandleType::CU_MEM_RANGE_HANDLE_TYPE_DMA_BUF_FD is requested
+for a device memory range then the returned dmabuf file descriptor may
+be passed as the file descriptor argument to the mmap() system call.
+
+For device memory on x86 systems the mapping will be a write combined
+mapping. On coherent ARM platforms these mappings will be regular
+cached memory. On all other platforms these mappings will be uncached.
+
 :param dptr: Pointer to a valid CUDA device allocation. Must be aligned to host
              page size.
 :type dptr: :py:obj:`~.CUdeviceptr`
@@ -26414,9 +26429,11 @@ targeting a specific host NUMA node, applications must set
 of the host memory node. Specifying
 :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT` as the
 :py:obj:`~.CUmemPoolProps`::CUmemLocation::type will result in
-:py:obj:`~.CUDA_ERROR_INVALID_VALUE`. By default, the pool&#39;s memory
-will be accessible from the device it is allocated on. In the case of
-pools created with :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA` or
+:py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+
+By default, the pool&#39;s memory will be accessible from the device it is
+allocated on. In the case of pools created with
+:py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA` or
 :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST`, their default accessibility will
 be from the host CPU. Applications can control the maximum size of the
 pool by specifying a non-zero value for
@@ -26509,14 +26526,13 @@ A device&#39;s default memory pool cannot be destroyed.
 
 The memory location can be of one of
 :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
-:py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` or
+:py:obj:`~.CU_MEM_LOCATION_TYPE_HOST`, or
 :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`. The allocation type can be
 one of :py:obj:`~.CU_MEM_ALLOCATION_TYPE_PINNED` or
 :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`. When the allocation type is
 :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`, the location type can also
 be :py:obj:`~.CU_MEM_LOCATION_TYPE_NONE` to indicate no preferred
-location for the managed memory pool. In all other cases, the call
-returns :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+location for the managed memory pool.
 
 :param location: None
 :type location: :py:obj:`~.CUmemLocation`
@@ -26539,6 +26555,7 @@ returns :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
 The memory location can be of one of
 :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
 :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` or
+:py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`, or
 :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`. The allocation type can be
 one of :py:obj:`~.CU_MEM_ALLOCATION_TYPE_PINNED` or
 :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`. When the allocation type is
@@ -26575,14 +26592,16 @@ been set with :py:obj:`~.cuDeviceSetMemPool`.
 
 The memory location can be of one of
 :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
-:py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` or
+:py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` or or
 :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`. The allocation type can be
 one of :py:obj:`~.CU_MEM_ALLOCATION_TYPE_PINNED` or
 :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`. When the allocation type is
 :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`, the location type can also
 be :py:obj:`~.CU_MEM_LOCATION_TYPE_NONE` to indicate no preferred
-location for the managed memory pool. In all other cases, the call
-returns :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+location for the managed memory pool.
+:py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED` can not be used with
+:py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_MEMORY_NODE`. In all other
+cases, the call returns :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
 
 When a memory pool is set as the current memory pool, the location
 parameter should be the same as the location of the pool. The location
@@ -27201,6 +27220,691 @@ address mappings of the multicast object.
           * **granularity** (*int*) -- Returned granularity.
 
 .. seealso:: :py:obj:`~.cuMulticastCreate`, :py:obj:`~.cuMulticastBindMem`, :py:obj:`~.cuMulticastBindAddr`, :py:obj:`~.cuMulticastUnbind`, :py:obj:`~.cuMulticastBindMem_v2`, :py:obj:`~.cuMulticastBindAddr_v2`
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="logical-endpoint">
+<h2>Logical Endpoint<a class="headerlink" href="#logical-endpoint" title="Link to this heading">#</a></h2>
+<p>This section describes the logical endpoint functions of the low-level CUDA driver application programming interface.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointFabricHandle_st">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUlogicalEndpointFabricHandle_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointFabricHandle_st" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Fabric handle for a logical endpoint
+
+.. attribute:: data
+
+
+
+   :type: bytes
+
+.. method:: getPtr()
+
+   Get memory address of class instance
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointProp_struct">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUlogicalEndpointProp_struct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointProp_struct" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Properties of a logical endpoint construction
+
+.. attribute:: type
+
+   Type of the logical endpoint defined in CUlogicalEndpointType
+
+   :type: CUlogicalEndpointType
+
+.. attribute:: unicast
+
+
+
+   :type: anon_struct25
+
+.. attribute:: multicast
+
+
+
+   :type: anon_struct26
+
+.. attribute:: size
+
+   Size of the logical endpoint
+
+   :type: unsigned long long
+
+.. attribute:: ipcHandleTypes
+
+   A bitmask of IPC handle types defined in
+   CUlogicalEndpointIpcHandleType
+
+   :type: unsigned int
+
+.. attribute:: flags
+
+   A bitmask of flags defined in CUlogicalEndpointFlag
+
+   :type: unsigned int
+
+.. method:: getPtr()
+
+   Get memory address of class instance
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointIpcHandleType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUlogicalEndpointIpcHandleType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointIpcHandleType" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>IPC handle types that can be requested/queried for a given logical
+endpoint
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE">
+<span class="sig-name descname"><span class="pre">CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC">
+<span class="sig-name descname"><span class="pre">CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUlogicalEndpointType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointType" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Logical endpoint type
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_INVALID">
+<span class="sig-name descname"><span class="pre">CU_LOGICAL_ENDPOINT_TYPE_INVALID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_INVALID:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_INVALID" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_UNICAST">
+<span class="sig-name descname"><span class="pre">CU_LOGICAL_ENDPOINT_TYPE_UNICAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_UNICAST:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_UNICAST" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_MULTICAST">
+<span class="sig-name descname"><span class="pre">CU_LOGICAL_ENDPOINT_TYPE_MULTICAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_MULTICAST:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_MULTICAST" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointFlag">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUlogicalEndpointFlag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointFlag" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Flags for :py:obj:`~.CUlogicalEndpointProp`
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_NONE">
+<span class="sig-name descname"><span class="pre">CU_LOGICAL_ENDPOINT_FLAG_NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_NONE:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_NONE" title="Link to this definition">#</a></dt>
+<dd><p>Default flag for logical endpoint construction</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_COUNTED_OPS">
+<span class="sig-name descname"><span class="pre">CU_LOGICAL_ENDPOINT_FLAG_COUNTED_OPS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_COUNTED_OPS:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_COUNTED_OPS" title="Link to this definition">#</a></dt>
+<dd><p>Indicate the programmer’s intention to use counted operations with the logical endpoint</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointId">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUlogicalEndpointId</span></span><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointId" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get memory address of class instance
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointFabricHandle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUlogicalEndpointFabricHandle</span></span><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointFabricHandle" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Fabric handle for a logical endpoint
+
+.. attribute:: data
+
+
+
+   :type: bytes
+
+.. method:: getPtr()
+
+   Get memory address of class instance
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUlogicalEndpointProp">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUlogicalEndpointProp</span></span><a class="headerlink" href="#cuda.bindings.driver.CUlogicalEndpointProp" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Properties of a logical endpoint construction
+
+.. attribute:: type
+
+   Type of the logical endpoint defined in CUlogicalEndpointType
+
+   :type: CUlogicalEndpointType
+
+.. attribute:: unicast
+
+
+
+   :type: anon_struct25
+
+.. attribute:: multicast
+
+
+
+   :type: anon_struct26
+
+.. attribute:: size
+
+   Size of the logical endpoint
+
+   :type: unsigned long long
+
+.. attribute:: ipcHandleTypes
+
+   A bitmask of IPC handle types defined in
+   CUlogicalEndpointIpcHandleType
+
+   :type: unsigned int
+
+.. attribute:: flags
+
+   A bitmask of flags defined in CUlogicalEndpointFlag
+
+   :type: unsigned int
+
+.. method:: getPtr()
+
+   Get memory address of class instance
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointIdReserve">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointIdReserve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointIdReserve" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Reserves a range of logical endpoint ids.
+
+Reserves a range of logical endpoint ids starting at `*baseLeId` and
+extending for `count`. The reserved ids can be used to create or import
+logical endpoints via :py:obj:`~.cuLogicalEndpointCreate` or
+:py:obj:`~.cuLogicalEndpointImport` respectively.
+
+:param count: The number of logical endpoint ids to reserve.
+:type count: Any
+
+:returns: * *CUresult* -- :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`,
+          * **baseLeId** (:py:obj:`~.CUlogicalEndpointId`) -- If :py:obj:`~.cuLogicalEndpointIdReserve` returns CUDA_SUCCESS,
+            *baseLeId contains the base logical endpoint id of the reserved
+            logical endpoint id range.
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointIdRelease">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointIdRelease</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baseLeId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointIdRelease" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Releases a range of logical endpoint ids.
+
+Releases up to `count` logical endpoint ids starting at `baseLeId`. The
+range of ids represented by [`baseLeId`, `baseLeId` + `count`) must all
+be previously reserved. All logical endpoints in the range must be
+destroyed before they can be released.
+
+:param baseLeId: First logical endpoint id to be released back to the system.
+:type baseLeId: :py:obj:`~.CUlogicalEndpointId`
+:param count: Number of logical endpoint ids to release back to the system.
+:type count: Any
+
+:returns: :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`,
+:rtype: CUresult
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointCreate">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">leId,</span> <span class="pre">CUlogicalEndpointProp</span> <span class="pre">prop:</span> <span class="pre">Optional[CUlogicalEndpointProp]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointCreate" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Creates a logical endpoint with the requested properties and associates it with the logical endpoint id.
+
+This creates a logical endpoint as described by `prop`. The number of
+participating devices is determined by the
+:py:obj:`~.CUlogicalEndpointProp.type`. If the type is
+:py:obj:`~.CU_LOGICAL_ENDPOINT_TYPE_UNICAST` then
+:py:obj:`~.CUlogicalEndpointProp.unicast.device` specifies the owner
+device of the unicast logical endpoint. If the type is
+:py:obj:`~.CU_LOGICAL_ENDPOINT_TYPE_MULTICAST` then
+:py:obj:`~.CUlogicalEndpointProp.multicast.numDevices` specifies the
+number of devices in the multicast logical endpoint team.
+
+Devices can be added to a multicast logical endpoint via
+:py:obj:`~.cuLogicalEndpointAddDevice`. After all the participating
+devices have been added, a call to :py:obj:`~.cuLogicalEndpointQuery`
+must be made to ensure that the logical endpoint is ready for memory
+binding and access.
+
+A unicast logical endpoint does not have a notion of adding devices via
+:py:obj:`~.cuLogicalEndpointAddDevice`. However, a call to
+:py:obj:`~.cuLogicalEndpointQuery` must still be made to ensure that
+the logical endpoint is ready for memory binding and access.
+
+Memory is bound to the logical endpoint via either
+:py:obj:`~.cuLogicalEndpointBindAddr` or
+:py:obj:`~.cuLogicalEndpointBindMem`, and can be unbound via
+:py:obj:`~.cuLogicalEndpointUnbind`. The total amount of memory that
+can be bound per device is specified by
+:py:obj:`~.CUlogicalEndpointProp.size`. This size must be a multiple of
+the value for `bindAlignment` as returned by
+:py:obj:`~.cuLogicalEndpointGetLimits`. The maximum size for the
+logical endpoint cannot exceed the value for `maxSize` as returned by
+:py:obj:`~.cuLogicalEndpointGetLimits`. The bind alignment and maximum
+size depend on the properties of the logical endpoint.
+
+:param leId: Logical endpoint id that will be associated with the newly created
+             logical endpoint.
+:type leId: :py:obj:`~.CUlogicalEndpointId`
+:param prop: Properties of the logical endpoint to create.
+:type prop: :py:obj:`~.CUlogicalEndpointProp`
+
+:returns: :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`,
+:rtype: CUresult
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointAddDevice">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointAddDevice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">leId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dev</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointAddDevice" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Associates a device to a multicast logical endpoint.
+
+Associates a device to a logical endpoint. The type of the logical
+endpoint must be :py:obj:`~.CU_LOGICAL_ENDPOINT_TYPE_MULTICAST`. The
+added device will be a part of the multicast team of size specified by
+:py:obj:`~.CUlogicalEndpointProp.multicast.numDevices` during
+:py:obj:`~.cuLogicalEndpointCreate`. The association of the device to
+the multicast logical endpoint is permanent during the life time of the
+multicast logical endpoint. All devices must be added to the multicast
+logical endpoint before any memory can be bound to any device in the
+team. A multicast logical endpoint will not be ready for use until all
+devices have been added. User can query whether the logical endpoint is
+ready for use via :py:obj:`~.cuLogicalEndpointQuery`.
+
+:param leId: Logical endpoint id representing a multicast logical endpoint.
+:type leId: :py:obj:`~.CUlogicalEndpointId`
+:param dev: Device that will be associated with the multicast logical endpoint.
+:type dev: :py:obj:`~.CUdevice`
+
+:returns: :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`,
+:rtype: CUresult
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointDestroy">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointDestroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">leId</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointDestroy" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Removes the association of the logical endpoint from the logical endpoint id.
+
+Removes the association between the logical endpoint id and the logical
+endpoint resources. Any memory bound by this process to any device
+associated with the logical endpoint will be unbound. If this was the
+last reference to the logical endpoint, all associated resources will
+be destroyed.
+
+:param leId: Logical endpoint id of the logical endpoint to be destroyed.
+:type leId: :py:obj:`~.CUlogicalEndpointId`
+
+:returns: :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`,
+:rtype: CUresult
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointBindAddr">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointBindAddr</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">leId</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dev</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">ptr</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointBindAddr" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Bind a memory allocation represented by a virtual address to a logical endpoint.
+
+Binds the memory allocation specified by its mapped address `ptr` to a
+logical endpoint represented by `leId` at the offset `offset`. The
+memory must have been allocated via :py:obj:`~.cuMemCreate` or
+:py:obj:`~.cudaMallocAsync`. The intended `size` of the bind, the
+`offset` in the logical endpoint range and `ptr` must be multiples of
+the value for `bindAlignment` as returned by
+:py:obj:`~.cuLogicalEndpointGetLimits`.
+
+The `size` cannot be larger than the size of the allocated memory.
+Similarly the `size` + `offset` cannot be larger than the total size of
+the logical endpoint.
+
+For device memory, i.e., type :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
+the memory allocation must have been created on the device specified by
+`dev`. For host NUMA memory, i.e., type
+:py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`, the memory allocation must
+have been created on the CPU NUMA node closest to `dev`. That is, the
+value returned when querying
+:py:obj:`~.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID` for `dev`, must be the CPU
+NUMA node where the memory was allocated.
+
+For multicast endpoints, the device named by `dev` must have been added
+to the multicast team via :py:obj:`~.cuLogicalEndpointAddDevice`.
+
+For unicast endpoints the device named by `dev` must be the owner
+device specified during :py:obj:`~.cuLogicalEndpointCreate` via
+:py:obj:`~.CUlogicalEndpointProp.unicast.device`.
+
+Externally shareable as well as imported multicast endpoints can be
+bound only to externally shareable memory. Imported unicast endpoints
+cannot be bound to any memory.
+
+This call will return :py:obj:`~.CUDA_ERROR_INVALID_VALUE` if
+:py:obj:`~.cuLogicalEndpointQuery` has not been called for the logical
+endpoint to ensure that the endpoint is ready for memory binding.
+
+Note that this call will return :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY` if
+there are insufficient resources required to perform the bind. This
+call may also return :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY` if the
+necessary system software is not initialized or running. This call may
+return :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` if the system configuration
+is in an illegal state. In such cases, to continue using logical
+endpoints, verify that the system configuration is in a valid state and
+all required driver daemons are running properly.
+
+:param leId: Logical endpoint to which memory will be associated.
+:type leId: :py:obj:`~.CUlogicalEndpointId`
+:param dev: Device on which the memory will be bound to the logical endpoint
+:type dev: :py:obj:`~.CUdevice`
+:param offset: Offset into the logical endpoint space.
+:type offset: Any
+:param ptr: Virtual address of the memory allocation.
+:type ptr: Any
+:param size: Size of memory that will be bound to the logical endpoint.
+:type size: Any
+:param flags: Flags for future use, must be zero for now.
+:type flags: unsigned long long
+
+:returns: :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+:rtype: CUresult
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointBindMem">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointBindMem</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">leId</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dev</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">memHandle</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">memOffset</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointBindMem" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Binds memory object represented by a handle to the logical endpoint.
+
+Binds the memory allocation specified by `memHandle` to a logical
+endpoint represented by `leId` at the offset `offset`. The memory must
+have been allocated via :py:obj:`~.cuMemCreate`. The intended `size` of
+the bind, the offset in the logical endpoint range `offset` and the
+offset in the memory handle `memOffset` must be multiples of the value
+for `bindAlignment` as returned by
+:py:obj:`~.cuLogicalEndpointGetLimits`.
+
+The `size` + `memOffset` cannot be larger than the size of the
+allocated memory. Similarly the `size` + `offset` cannot be larger than
+the total size of the logical endpoint.
+
+For device memory, i.e., type :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
+the memory allocation must have been created on the device specified by
+`dev`. For host NUMA memory, i.e., type
+:py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`, the memory allocation must
+have been created on the CPU NUMA node closest to `dev`. That is, the
+value returned when querying
+:py:obj:`~.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID` for `dev`, must be the CPU
+NUMA node where the memory was allocated.
+
+For multicast endpoints, the device named by `dev` must have been added
+to the multicast team via :py:obj:`~.cuLogicalEndpointAddDevice`.
+
+For unicast endpoints the device named by `dev` must be the owner
+device specified during :py:obj:`~.cuLogicalEndpointCreate` via
+:py:obj:`~.CUlogicalEndpointProp.unicast.device`.
+
+Externally shareable as well as imported multicast endpoints can be
+bound only to externally shareable memory. Imported unicast endpoints
+cannot be bound to any memory.
+
+This call will return :py:obj:`~.CUDA_ERROR_INVALID_VALUE` if
+:py:obj:`~.cuLogicalEndpointQuery` has not been called for the logical
+endpoint to ensure that the endpoint is ready for memory binding.
+
+Note that this call will return :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY` if
+there are insufficient resources required to perform the bind. This
+call may also return :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY` if the
+necessary system software is not initialized or running. This call may
+return :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` if the system configuration
+is in an illegal state. In such cases, to continue using logical
+endpoints, verify that the system configuration is in a valid state and
+all required driver daemons are running properly.
+
+:param leId: Logical endpoint to which memory will be associated.
+:type leId: :py:obj:`~.CUlogicalEndpointId`
+:param dev: Device on which the memory will be bound to the logical endpoint
+:type dev: :py:obj:`~.CUdevice`
+:param offset: Offset into the logical endpoint space.
+:type offset: Any
+:param memHandle: Handle representing a memory allocation.
+:type memHandle: :py:obj:`~.CUmemGenericAllocationHandle`
+:param memOffset: Offset into the memory for the attachment
+:type memOffset: Any
+:param size: Size of memory that will be bound to the logical endpoint.
+:type size: Any
+:param flags: Flags for future use, must be zero for now.
+:type flags: unsigned long long
+
+:returns: :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+:rtype: CUresult
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointUnbind">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointUnbind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">leId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointUnbind" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Unbinds any binding at offset from the logical endpoint.
+
+Unbinds any memory allocations bound to the logical endpoint on `dev`
+at `offset` and up to the given `size`. The intended `size` of the
+unbind and the offset in the logical endpoint range `offset` must be
+multiples of the value for `bindAlignment` as returned by
+:py:obj:`~.cuLogicalEndpointGetLimits`.
+
+:param leId: Logical endpoint id representing a logical endpoint.
+:type leId: :py:obj:`~.CUlogicalEndpointId`
+:param dev: Device on which the memory is bound to the logical endpoint
+:type dev: :py:obj:`~.CUdevice`
+:param offset: Offset into the logical endpoint.
+:type offset: Any
+:param size: Desired size to unbind.
+:type size: Any
+
+:returns: :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+:rtype: CUresult
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+
+.. rubric:: Notes
+
+The `offset` must correspond to a value specified during a bind call. The `size` must either match the bind call of the offset or be the combined `size` of multiple bind calls. The `size` + `offset` must fully enclose all bindings that are covered.
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointExport">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointExport</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">leId</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">handleType</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.bindings.driver.CUlogicalEndpointIpcHandleType" title="cuda.bindings.driver.CUlogicalEndpointIpcHandleType"><span class="pre">CUlogicalEndpointIpcHandleType</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointExport" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Exports a logical endpoint associated with leId to an IPC handle.
+
+Given a logical endpoint id `leId`, create a shareable handle `handle`
+that can be used to share the logical endpoint with other processes.
+The recipient process can convert the shareable handle back into a
+logical endpoint id using :py:obj:`~.cuLogicalEndpointImport`. The
+implementation of what this `handle` is and how it can be transfered is
+defined by the requested handle type in `handletype`.
+
+:param leId: Logical endpoint id of logical endpoint.
+:type leId: :py:obj:`~.CUlogicalEndpointId`
+:param handleType: Type of shareable handle requested. Defines type and size of the
+                   handle output parameter.
+:type handleType: :py:obj:`~.CUlogicalEndpointIpcHandleType`
+
+:returns: * *CUresult* -- :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`,
+          * **handle** (*Any*) -- Pointer to the location in which to store the requested handle
+            type.
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointImport">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointImport</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">leId</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">handle</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">handleType</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.bindings.driver.CUlogicalEndpointIpcHandleType" title="cuda.bindings.driver.CUlogicalEndpointIpcHandleType"><span class="pre">CUlogicalEndpointIpcHandleType</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointImport" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Imports a logical endpoint from the given IPC handle and associates it with a logical endpoint id.
+
+Imports a logical endpoint from the given IPC `handle` and associates
+it with the logical endpoint id specified by `leId`.
+
+If the current process cannot support the logical endpoint described by
+the shareable handle, this API will error as
+:py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`. If `handle` is of type
+:py:obj:`~.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC` and the importer
+process does not have access permissions, then
+:py:obj:`~.CUDA_ERROR_NOT_PERMITTED` will be returned
+
+:param leId: Logical endpoint id that will be used to access the exported
+             logical endpoint.
+:type leId: :py:obj:`~.CUlogicalEndpointId`
+:param handle: Shareable handle representing the logical endpoint that is to be
+               imported.
+:type handle: Any
+:param handleType: Handle type of the exported handle
+:type handleType: :py:obj:`~.CUlogicalEndpointIpcHandleType`
+
+:returns: :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`,
+:rtype: CUresult
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointGetLimits">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointGetLimits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">CUlogicalEndpointProp</span> <span class="pre">prop:</span> <span class="pre">Optional[CUlogicalEndpointProp]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointGetLimits" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Calculates the minimum alignment and the maximum size for the given logical endpoint properties.
+
+The `bindAlignment` can be used as a multiple for size and bind offset
+values. The `maxSize` is the maximum size of the logical endpoint. If
+`maxSize` is less than :py:obj:`~.CUlogicalEndpointProp`:size the user
+must adjust the request to the smaller value.
+
+:param prop: Properties of the logical endpoint.
+:type prop: :py:obj:`~.CUlogicalEndpointProp`
+
+:returns: * *CUresult* -- :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+          * **bindAlignment** (:py:obj:`~.cuuint64_t`) -- Minimum alignment granularity of the proposed logical endpoint.
+          * **maxSize** (:py:obj:`~.cuuint64_t`) -- Maximum size of the logical endpoint.
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointQuery`
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuLogicalEndpointQuery">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLogicalEndpointQuery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">leId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLogicalEndpointQuery" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Determines if all logical endpoints in the range have been successfully constructed.
+
+Queries the driver to determine if all logical endpoints in the given
+range starting at `leId` and extending for `count` have been
+successfully constructed.
+
+Provides a mechanism to ensure that it is safe to begin using a logical
+endpoint ID. Using a logical endpoint ID before verifying that it is
+fully constructed can result in undefined behavior.
+
+This is not a blocking API, it returns immediately with a `queryStatus`
+of 0 if any logical endpoint ID in the given range is not fully
+constructed, and a non-zero value otherwise.
+
+:param leId: First logical endpoint ID to be queried.
+:type leId: :py:obj:`~.CUlogicalEndpointId`
+:param count: Number of logical endpoints IDs to be queried.
+:type count: Any
+
+:returns: * *CUresult* -- :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+          * **queryStatus** (*int*) -- Status of the logical endpoints. Returns 0 if any logical endpoint
+            in the given range is not fully constructed, and non-zero if all
+            logical endpoints in the given range are fully constructed.
+
+.. seealso:: :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`
 </pre></div>
 </div>
 </dd></dl>
@@ -28208,6 +28912,37 @@ If `ptr` was not allocated by, mapped by, or registered with a
 <section id="stream-management">
 <h2>Stream Management<a class="headerlink" href="#stream-management" title="Link to this heading">#</a></h2>
 <p>This section describes the stream management functions of the low-level CUDA driver application programming interface.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUgraphRecaptureStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUgraphRecaptureStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUgraphRecaptureStatus" title="Link to this definition">#</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ELIGIBLE_FOR_UPDATE">
+<span class="sig-name descname"><span class="pre">CU_GRAPH_RECAPTURE_ELIGIBLE_FOR_UPDATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ELIGIBLE_FOR_UPDATE:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ELIGIBLE_FOR_UPDATE" title="Link to this definition">#</a></dt>
+<dd><p>Node is eligible for update in an instantiated graph.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_INELIGIBLE_FOR_UPDATE">
+<span class="sig-name descname"><span class="pre">CU_GRAPH_RECAPTURE_INELIGIBLE_FOR_UPDATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_INELIGIBLE_FOR_UPDATE:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_INELIGIBLE_FOR_UPDATE" title="Link to this definition">#</a></dt>
+<dd><p>Parameter changes in the node cannot be applied to an instantiated graph.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ERROR">
+<span class="sig-name descname"><span class="pre">CU_GRAPH_RECAPTURE_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ERROR:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ERROR" title="Link to this definition">#</a></dt>
+<dd><p>Error while attempting to recapture the node. The recapture will be ended regardless of the return value from the callback.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUgraphRecaptureCallback">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUgraphRecaptureCallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUgraphRecaptureCallback" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get memory address of class instance
+</pre></div>
+</div>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.driver.cuStreamCreate">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuStreamCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">Flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuStreamCreate" title="Link to this definition">#</a></dt>
@@ -28281,6 +29016,10 @@ In the current implementation, only compute kernels launched in priority streams
 <dt class="sig sig-object py" id="cuda.bindings.driver.cuStreamBeginCaptureToCig">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuStreamBeginCaptureToCig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">hStream,</span> <span class="pre">CUstreamCigCaptureParams</span> <span class="pre">streamCigCaptureParams:</span> <span class="pre">Optional[CUstreamCigCaptureParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuStreamBeginCaptureToCig" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Begins capture to CIG on a stream.
+
+Support for CIG streams with D3D12 can be determined using
+:py:obj:`~.cuDeviceGetAttribute()` with
+:py:obj:`~.CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED`.
 
 Begin CIG (CUDA in Graphics) capture on `hStream` for the graphics API
 as provided in `streamCigCaptureParams`. When a stream is in CIG
@@ -28709,6 +29448,68 @@ same thread.
 .. rubric:: Notes
 
 Kernels captured using this API must not use texture and surface references. Reading or writing through any texture or surface reference is undefined behavior. This restriction does not apply to texture and surface objects.
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.driver.cuStreamBeginRecaptureToGraph">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuStreamBeginRecaptureToGraph</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">hStream</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.bindings.driver.CUstreamCaptureMode" title="cuda.bindings.driver.CUstreamCaptureMode"><span class="pre">CUstreamCaptureMode</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">hGraph</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">callbackFunc</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">userData</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuStreamBeginRecaptureToGraph" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Begin graph capture on a stream to an existing graph.
+
+Begin graph capture on `hStream` to the existing `hGraph`. The node
+creation order while recapturing the graph must be identical to the
+original graph. The recapture will fail immediately for:
+
+- Topology mismatches between the existing graph and the recaptured
+  graph
+
+- Parameter mismatches for memory allocation or free nodes
+
+Any other node parameter mismatches during recapture can be configured
+to call the function provided in `callbackFunc`. The recapture will
+fail immediately if the callback returns anything other than
+CUDA_SUCCESS.
+
+If the recapture fails for any reason, the `graph` will be in an
+undefined state and should be destroyed.
+
+See cuStreamBeginCapture for additional detail on beginning the
+capture.
+
+:param hStream: Stream in which to initiate capture
+:type hStream: :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+:param mode: Controls the interaction of this capture sequence with other API
+             calls that are potentially unsafe. For more details see
+             :py:obj:`~.cuThreadExchangeStreamCaptureMode`.
+:type mode: :py:obj:`~.CUstreamCaptureMode`
+:param hGraph: Existing CUDA graph to be captured into
+:type hGraph: :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+:param callbackFunc: Function that will be called for all parameter mismatches from the
+                     original graph
+:type callbackFunc: :py:obj:`~.CUgraphRecaptureCallback`
+:param userData: A generic pointer to user data that is passed into the callback
+                 function
+:type userData: Any
+
+:returns: :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`,
+:rtype: CUresult
+
+.. seealso:: :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuStreamBeginCapture`, :py:obj:`~.cuStreamIsCapturing`, :py:obj:`~.cuStreamEndCapture`, :py:obj:`~.cuThreadExchangeStreamCaptureMode`
+
+.. rubric:: Notes
+
+Any user objects associated with `graph` will be released prior to the recapture.
 </pre></div>
 </div>
 </dd></dl>
@@ -31113,156 +31914,6 @@ the current context in case of NULL stream.
 :rtype: CUresult
 
 .. seealso:: :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuFuncSetCacheConfig`, :py:obj:`~.cuFuncGetAttribute`, :py:obj:`~.cuLaunchCooperativeKernelMultiDevice`, :py:obj:`~.cudaLaunchCooperativeKernel`, :py:obj:`~.cuLibraryGetKernel`, :py:obj:`~.cuKernelSetCacheConfig`, :py:obj:`~.cuKernelGetAttribute`, :py:obj:`~.cuKernelSetAttribute`
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuLaunchCooperativeKernelMultiDevice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">launchParamsList:</span> <span class="pre">Optional[tuple[CUDA_LAUNCH_PARAMS]</span> <span class="pre">|</span> <span class="pre">list[CUDA_LAUNCH_PARAMS]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numDevices,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Launches CUDA functions on multiple devices where thread blocks can cooperate and synchronize as they execute.
-
-[Deprecated]
-
-Invokes kernels as specified in the `launchParamsList` array where each
-element of the array specifies all the parameters required to perform a
-single kernel launch. These kernels can cooperate and synchronize as
-they execute. The size of the array is specified by `numDevices`.
-
-No two kernels can be launched on the same device. All the devices
-targeted by this multi-device launch must be identical. All devices
-must have a non-zero value for the device attribute
-:py:obj:`~.CU_DEVICE_ATTRIBUTE_COOPERATIVE_MULTI_DEVICE_LAUNCH`.
-
-All kernels launched must be identical with respect to the compiled
-code. Note that any device, constant or managed variables present in
-the module that owns the kernel launched on each device, are
-independently instantiated on every device. It is the application&#39;s
-responsibility to ensure these variables are initialized and used
-appropriately.
-
-The size of the grids as specified in blocks, the size of the blocks
-themselves and the amount of shared memory used by each thread block
-must also match across all launched kernels.
-
-The streams used to launch these kernels must have been created via
-either :py:obj:`~.cuStreamCreate` or
-:py:obj:`~.cuStreamCreateWithPriority`. The NULL stream or
-:py:obj:`~.CU_STREAM_LEGACY` or :py:obj:`~.CU_STREAM_PER_THREAD` cannot
-be used.
-
-The total number of blocks launched per kernel cannot exceed the
-maximum number of blocks per multiprocessor as returned by
-:py:obj:`~.cuOccupancyMaxActiveBlocksPerMultiprocessor` (or
-:py:obj:`~.cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags`) times
-the number of multiprocessors as specified by the device attribute
-:py:obj:`~.CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT`. Since the total
-number of blocks launched per device has to match across all devices,
-the maximum number of blocks that can be launched per device will be
-limited by the device with the least number of multiprocessors.
-
-The kernels cannot make use of CUDA dynamic parallelism.
-
-The :py:obj:`~.CUDA_LAUNCH_PARAMS` structure is defined as:
-
-**View CUDA Toolkit Documentation for a C++ code example**
-
-where:
-
-- :py:obj:`~.CUDA_LAUNCH_PARAMS.function` specifies the kernel to be
-  launched. All functions must be identical with respect to the
-  compiled code. Note that you can also specify context-less kernel
-  :py:obj:`~.CUkernel` by querying the handle using
-  :py:obj:`~.cuLibraryGetKernel()` and then casting to
-  :py:obj:`~.CUfunction`. In this case, the context to launch the
-  kernel on be taken from the specified stream
-  :py:obj:`~.CUDA_LAUNCH_PARAMS.hStream`.
-
-- :py:obj:`~.CUDA_LAUNCH_PARAMS.gridDimX` is the width of the grid in
-  blocks. This must match across all kernels launched.
-
-- :py:obj:`~.CUDA_LAUNCH_PARAMS.gridDimY` is the height of the grid in
-  blocks. This must match across all kernels launched.
-
-- :py:obj:`~.CUDA_LAUNCH_PARAMS.gridDimZ` is the depth of the grid in
-  blocks. This must match across all kernels launched.
-
-- :py:obj:`~.CUDA_LAUNCH_PARAMS.blockDimX` is the X dimension of each
-  thread block. This must match across all kernels launched.
-
-- :py:obj:`~.CUDA_LAUNCH_PARAMS.blockDimX` is the Y dimension of each
-  thread block. This must match across all kernels launched.
-
-- :py:obj:`~.CUDA_LAUNCH_PARAMS.blockDimZ` is the Z dimension of each
-  thread block. This must match across all kernels launched.
-
-- :py:obj:`~.CUDA_LAUNCH_PARAMS.sharedMemBytes` is the dynamic shared-
-  memory size per thread block in bytes. This must match across all
-  kernels launched.
-
-- :py:obj:`~.CUDA_LAUNCH_PARAMS.hStream` is the handle to the stream to
-  perform the launch in. This cannot be the NULL stream or
-  :py:obj:`~.CU_STREAM_LEGACY` or :py:obj:`~.CU_STREAM_PER_THREAD`. The
-  CUDA context associated with this stream must match that associated
-  with :py:obj:`~.CUDA_LAUNCH_PARAMS.function`.
-
-- :py:obj:`~.CUDA_LAUNCH_PARAMS.kernelParams` is an array of pointers
-  to kernel parameters. If :py:obj:`~.CUDA_LAUNCH_PARAMS.function` has
-  N parameters, then :py:obj:`~.CUDA_LAUNCH_PARAMS.kernelParams` needs
-  to be an array of N pointers. Each of
-  :py:obj:`~.CUDA_LAUNCH_PARAMS.kernelParams`[0] through
-  :py:obj:`~.CUDA_LAUNCH_PARAMS.kernelParams`[N-1] must point to a
-  region of memory from which the actual kernel parameter will be
-  copied. The number of kernel parameters and their offsets and sizes
-  do not need to be specified as that information is retrieved directly
-  from the kernel&#39;s image.
-
-By default, the kernel won&#39;t begin execution on any GPU until all prior
-work in all the specified streams has completed. This behavior can be
-overridden by specifying the flag
-:py:obj:`~.CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_PRE_LAUNCH_SYNC`.
-When this flag is specified, each kernel will only wait for prior work
-in the stream corresponding to that GPU to complete before it begins
-execution.
-
-Similarly, by default, any subsequent work pushed in any of the
-specified streams will not begin execution until the kernels on all
-GPUs have completed. This behavior can be overridden by specifying the
-flag
-:py:obj:`~.CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_POST_LAUNCH_SYNC`.
-When this flag is specified, any subsequent work pushed in any of the
-specified streams will only wait for the kernel launched on the GPU
-corresponding to that stream to complete before it begins execution.
-
-Calling :py:obj:`~.cuLaunchCooperativeKernelMultiDevice()` sets
-persistent function state that is the same as function state set
-through :py:obj:`~.cuLaunchKernel` API when called individually for
-each element in `launchParamsList`.
-
-When kernels are launched via
-:py:obj:`~.cuLaunchCooperativeKernelMultiDevice()`, the previous block
-shape, shared size and parameter info associated with each
-:py:obj:`~.CUDA_LAUNCH_PARAMS.function` in `launchParamsList` is
-overwritten.
-
-Note that to use :py:obj:`~.cuLaunchCooperativeKernelMultiDevice()`,
-the kernels must either have been compiled with toolchain version 3.2
-or later so that it will contain kernel parameter information, or have
-no kernel parameters. If either of these conditions is not met, then
-:py:obj:`~.cuLaunchCooperativeKernelMultiDevice()` will return
-:py:obj:`~.CUDA_ERROR_INVALID_IMAGE`.
-
-:param launchParamsList: List of launch parameters, one per device
-:type launchParamsList: list[:py:obj:`~.CUDA_LAUNCH_PARAMS`]
-:param numDevices: Size of the `launchParamsList` array
-:type numDevices: unsigned int
-:param flags: Flags to control launch behavior
-:type flags: unsigned int
-
-:returns: :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_INVALID_IMAGE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_LAUNCH_FAILED`, :py:obj:`~.CUDA_ERROR_LAUNCH_OUT_OF_RESOURCES`, :py:obj:`~.CUDA_ERROR_LAUNCH_TIMEOUT`, :py:obj:`~.CUDA_ERROR_LAUNCH_INCOMPATIBLE_TEXTURING`, :py:obj:`~.CUDA_ERROR_COOPERATIVE_LAUNCH_TOO_LARGE`, :py:obj:`~.CUDA_ERROR_SHARED_OBJECT_INIT_FAILED`
-:rtype: CUresult
-
-.. seealso:: :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuFuncSetCacheConfig`, :py:obj:`~.cuFuncGetAttribute`, :py:obj:`~.cuLaunchCooperativeKernel`, :py:obj:`~.cudaLaunchCooperativeKernelMultiDevice`
 </pre></div>
 </div>
 </dd></dl>
@@ -36358,6 +37009,21 @@ The requested flags can be:
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_FAULTED_CONTEXTS_ONLY">
+<span class="sig-name descname"><span class="pre">CU_COREDUMP_FAULTED_CONTEXTS_ONLY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUCoredumpGenerationFlags.CU_COREDUMP_FAULTED_CONTEXTS_ONLY:</span> <span class="pre">128&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_FAULTED_CONTEXTS_ONLY" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_NO_ERRBAR_AT_EXIT">
+<span class="sig-name descname"><span class="pre">CU_COREDUMP_NO_ERRBAR_AT_EXIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUCoredumpGenerationFlags.CU_COREDUMP_NO_ERRBAR_AT_EXIT:</span> <span class="pre">1073741824&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_NO_ERRBAR_AT_EXIT" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_LOG_ONLY">
+<span class="sig-name descname"><span class="pre">CU_COREDUMP_LOG_ONLY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUCoredumpGenerationFlags.CU_COREDUMP_LOG_ONLY:</span> <span class="pre">-2147483648&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_LOG_ONLY" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS">
 <span class="sig-name descname"><span class="pre">CU_COREDUMP_LIGHTWEIGHT_FLAGS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS:</span> <span class="pre">47&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
@@ -36474,6 +37140,28 @@ The supported attributes are:
     as :py:obj:`~.CU_COREDUMP_TRIGGER_HOST` but better reflects the
     default behavior.
 
+  - :py:obj:`~.CU_COREDUMP_SKIP_CONSTBANK_MEMORY` - Coredump will not
+    include constbank memory.
+
+  - :py:obj:`~.CU_COREDUMP_GZIP_COMPRESS` - The generated coredump will
+    be compressed with gzip, and .gz suffix will be appended to the
+    filename, if it&#39;s not a part of it already.
+
+  - :py:obj:`~.CU_COREDUMP_FAULTED_CONTEXTS_ONLY` - The coredump will
+    only include contexts that have encountered an exception or a trap.
+
+  - :py:obj:`~.CU_COREDUMP_NO_ERRBAR_AT_EXIT` - By default, when
+    coredumps are requested, the GPU will ensure memory faults and
+    other errors prevent warps from exiting, if possible. This can
+    potentially affect the performance of the application. Setting this
+    flag will disable this functionality, making it possible for
+    faulted warps to exit, but also avoiding the potential performance
+    hit.
+
+  - :py:obj:`~.CU_COREDUMP_LOG_ONLY` - Setting this flag will disable
+    actual generation of the coredump file, but exception details will
+    still be logged.
+
 :param attrib: The enum defining which value to fetch.
 :type attrib: :py:obj:`~.CUcoredumpSettings`
 :param size: The size of the memory region `value` points to.
@@ -36571,6 +37259,28 @@ The supported attributes are:
     not raise an abort() in the host CPU process. Same functional goal
     as :py:obj:`~.CU_COREDUMP_TRIGGER_HOST` but better reflects the
     default behavior.
+
+  - :py:obj:`~.CU_COREDUMP_SKIP_CONSTBANK_MEMORY` - Coredump will not
+    include constbank memory.
+
+  - :py:obj:`~.CU_COREDUMP_GZIP_COMPRESS` - The generated coredump will
+    be compressed with gzip, and .gz suffix will be appended to the
+    filename, if it&#39;s not a part of it already.
+
+  - :py:obj:`~.CU_COREDUMP_FAULTED_CONTEXTS_ONLY` - The coredump will
+    only include contexts that have encountered an exception or a trap.
+
+  - :py:obj:`~.CU_COREDUMP_NO_ERRBAR_AT_EXIT` - By default, when
+    coredumps are requested, the GPU will ensure memory faults and
+    other errors prevent warps from exiting, if possible. This can
+    potentially affect the performance of the application. Setting this
+    flag will disable this functionality, making it possible for
+    faulted warps to exit, but also avoiding the potential performance
+    hit.
+
+  - :py:obj:`~.CU_COREDUMP_LOG_ONLY` - Setting this flag will disable
+    actual generation of the coredump file, but exception details will
+    still be logged.
 
 :param attrib: The enum defining which value to fetch.
 :type attrib: :py:obj:`~.CUcoredumpSettings`
@@ -36677,6 +37387,28 @@ The supported attributes are:
     as :py:obj:`~.CU_COREDUMP_TRIGGER_HOST` but better reflects the
     default behavior.
 
+  - :py:obj:`~.CU_COREDUMP_SKIP_CONSTBANK_MEMORY` - Coredump will not
+    include constbank memory.
+
+  - :py:obj:`~.CU_COREDUMP_GZIP_COMPRESS` - The generated coredump will
+    be compressed with gzip, and .gz suffix will be appended to the
+    filename, if it&#39;s not a part of it already.
+
+  - :py:obj:`~.CU_COREDUMP_FAULTED_CONTEXTS_ONLY` - The coredump will
+    only include contexts that have encountered an exception or a trap.
+
+  - :py:obj:`~.CU_COREDUMP_NO_ERRBAR_AT_EXIT` - By default, when
+    coredumps are requested, the GPU will ensure memory faults and
+    other errors prevent warps from exiting, if possible. This can
+    potentially affect the performance of the application. Setting this
+    flag will disable this functionality, making it possible for
+    faulted warps to exit, but also avoiding the potential performance
+    hit.
+
+  - :py:obj:`~.CU_COREDUMP_LOG_ONLY` - Setting this flag will disable
+    actual generation of the coredump file, but exception details will
+    still be logged.
+
 :param attrib: The enum defining which value to set.
 :type attrib: :py:obj:`~.CUcoredumpSettings`
 :param value: void* containing the requested data.
@@ -36688,6 +37420,10 @@ The supported attributes are:
           * **size** (*int*) -- The size of the memory region `value` points to.
 
 .. seealso:: :py:obj:`~.cuCoredumpGetAttributeGlobal`, :py:obj:`~.cuCoredumpGetAttribute`, :py:obj:`~.cuCoredumpSetAttributeGlobal`
+
+.. rubric:: Notes
+
+:py:obj:`~.CU_COREDUMP_GENERATION_FLAGS` replaces all previously set coredump flags. Mixing :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS` with the deprecated boolean attributes (:py:obj:`~.CU_COREDUMP_TRIGGER_HOST`, :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT`) can result in undefined behavior. To avoid issues, either use only :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS` or combine all desired flag bits (including :py:obj:`~.CU_COREDUMP_SKIP_ABORT`) in a single call.
 </pre></div>
 </div>
 </dd></dl>
@@ -36788,6 +37524,28 @@ The supported attributes are:
     as :py:obj:`~.CU_COREDUMP_TRIGGER_HOST` but better reflects the
     default behavior.
 
+  - :py:obj:`~.CU_COREDUMP_SKIP_CONSTBANK_MEMORY` - Coredump will not
+    include constbank memory.
+
+  - :py:obj:`~.CU_COREDUMP_GZIP_COMPRESS` - The generated coredump will
+    be compressed with gzip, and .gz suffix will be appended to the
+    filename, if it&#39;s not a part of it already.
+
+  - :py:obj:`~.CU_COREDUMP_FAULTED_CONTEXTS_ONLY` - The coredump will
+    only include contexts that have encountered an exception or a trap.
+
+  - :py:obj:`~.CU_COREDUMP_NO_ERRBAR_AT_EXIT` - By default, when
+    coredumps are requested, the GPU will ensure memory faults and
+    other errors prevent warps from exiting, if possible. This can
+    potentially affect the performance of the application. Setting this
+    flag will disable this functionality, making it possible for
+    faulted warps to exit, but also avoiding the potential performance
+    hit.
+
+  - :py:obj:`~.CU_COREDUMP_LOG_ONLY` - Setting this flag will disable
+    actual generation of the coredump file, but exception details will
+    still be logged.
+
 :param attrib: The enum defining which value to set.
 :type attrib: :py:obj:`~.CUcoredumpSettings`
 :param value: void* containing the requested data.
@@ -36799,6 +37557,10 @@ The supported attributes are:
           * **size** (*int*) -- The size of the memory region `value` points to.
 
 .. seealso:: :py:obj:`~.cuCoredumpGetAttribute`, :py:obj:`~.cuCoredumpGetAttributeGlobal`, :py:obj:`~.cuCoredumpSetAttribute`
+
+.. rubric:: Notes
+
+:py:obj:`~.CU_COREDUMP_GENERATION_FLAGS` replaces all previously set coredump flags. Mixing :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS` with the deprecated boolean attributes (:py:obj:`~.CU_COREDUMP_TRIGGER_HOST`, :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT`) can result in undefined behavior. To avoid issues, either use only :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS` or combine all desired flag bits (including :py:obj:`~.CU_COREDUMP_SKIP_ABORT`) in a single call.
 </pre></div>
 </div>
 </dd></dl>
@@ -37328,10 +38090,18 @@ It is the caller&#39;s responsibility to deregister callbacks before they go out
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUgreenCtxCreate_flags">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUgreenCtxCreate_flags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUgreenCtxCreate_flags" title="Link to this definition">#</a></dt>
-<dd><dl class="py attribute">
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Flags for green context creation
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_NONE">
+<span class="sig-name descname"><span class="pre">CU_GREEN_CTX_NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUgreenCtxCreate_flags.CU_GREEN_CTX_NONE:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_NONE" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM">
 <span class="sig-name descname"><span class="pre">CU_GREEN_CTX_DEFAULT_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM" title="Link to this definition">#</a></dt>
-<dd><p>Required. Creates a default stream to use inside the green context</p>
+<dd><p>Creates a default stream to use inside the green context</p>
 </dd></dl>
 
 </dd></dl>
@@ -37584,8 +38354,10 @@ Note: The API is not supported on 32-bit platforms.
 
 The supported flags are:
 
+- `CU_GREEN_CTX_NONE` : Default behavior.
+
 - `CU_GREEN_CTX_DEFAULT_STREAM` : Creates a default stream to use
-  inside the green context. Required.
+  inside the green context.
 
 :param desc: Descriptor generated via :py:obj:`~.cuDevResourceGenerateDesc`
              which contains the set of resources to be used
@@ -37593,7 +38365,6 @@ The supported flags are:
 :param dev: Device on which to create the green context.
 :type dev: :py:obj:`~.CUdevice`
 :param flags: One of the supported green context creation flags.
-              `CU_GREEN_CTX_DEFAULT_STREAM` is required.
 :type flags: unsigned int
 
 :returns: * *CUresult* -- :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`
@@ -37640,24 +38411,43 @@ streams.
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.driver.cuCtxFromGreenCtx">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuCtxFromGreenCtx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hCtx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuCtxFromGreenCtx" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Converts a green context into the primary context.
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns a :py:obj:`~.CUcontext` handle for a green context.
 
-The API converts a green context into the primary context returned in
-`pContext`. It is important to note that the converted context
-`pContext` is a normal primary context but with the resources of the
-specified green context `hCtx`. Once converted, it can then be used to
-set the context current with :py:obj:`~.cuCtxSetCurrent` or with any of
-the CUDA APIs that accept a CUcontext parameter.
+This API returns in `pContext` a :py:obj:`~.CUcontext` handle that
+represents the specified green context `hCtx`. The returned handle can
+be passed to CUDA APIs that accept a :py:obj:`~.CUcontext` and will be
+treated as if it were a primary context, while still honoring the
+resources and configuration associated with `hCtx` as applicable.
 
-Users are expected to call this API before calling any CUDA APIs that
-accept a CUcontext. Failing to do so will result in the APIs returning
+Applications that wish to use a green context with CUDA APIs that
+require a :py:obj:`~.CUcontext` must use this API to obtain a handle to
+a :py:obj:`~.CUcontext` representing the green context. Otherwise,
+passing a green context to such APIs will fail with
 :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`.
+
+The :py:obj:`~.CUcontext` returned by :py:obj:`~.cuCtxFromGreenCtx` may
+be passed to CUDA Driver APIs that accept a :py:obj:`~.CUcontext`.
+
+- For APIs whose semantics are independent of green context resources,
+  the operation is performed identically to how it would perform with a
+  primary context.
+
+- For APIs whose behavior depends on green context resources (for
+  example, kernel launch), the operation is performed using the
+  resources and configuration of the specified green context `hCtx`.
+
+This call does not create a new independent context and does not change
+the underlying context lifetime. The validity of the returned
+`pContext` is tied to `hCtx`, and no additional destruction or release
+is required beyond correctly managing `hCtx` with the green context
+APIs. Destroying `pContext` via :py:obj:`~.cuCtxDestroy` is undefined
+behavior.
 
 :param hCtx: Green context to convert
 :type hCtx: :py:obj:`~.CUgreenCtx`
 
 :returns: * *CUresult* -- :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
-          * **pContext** (:py:obj:`~.CUcontext`) -- Returned primary context with green context resources
+          * **pContext** (:py:obj:`~.CUcontext`) -- Returned :py:obj:`~.CUcontext` with green context resources
 
 .. seealso:: :py:obj:`~.cuGreenCtxCreate`
 </pre></div>
@@ -38455,7 +39245,7 @@ Upon successful return the process will be in the CHECKPOINTED state.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.driver.cuCheckpointProcessRestore">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuCheckpointProcessRestore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">int</span> <span class="pre">pid,</span> <span class="pre">CUcheckpointRestoreArgs</span> <span class="pre">args:</span> <span class="pre">Optional[CUcheckpointRestoreArgs]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuCheckpointProcessRestore" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuCheckpointProcessRestore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">int</span> <span class="pre">pid,</span> <span class="pre">args:</span> <span class="pre">Optional[CUcheckpointRestoreArgs]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuCheckpointProcessRestore" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Restore a CUDA process&#39;s GPU memory contents from its last checkpoint.
 
 Restores a CUDA process specified by `pid` from its last checkpoint.
@@ -39773,6 +40563,12 @@ mapping is shown in the table below. `mipLevel` must be 0.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED"><code class="docutils literal notranslate"><span class="pre">CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED"><code class="docutils literal notranslate"><span class="pre">CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ATOMIC_REDUCTION_SUPPORTED"><code class="docutils literal notranslate"><span class="pre">CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ATOMIC_REDUCTION_SUPPORTED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED"><code class="docutils literal notranslate"><span class="pre">CUdevice_attribute.CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DMA_BUF_MMAP_SUPPORTED"><code class="docutils literal notranslate"><span class="pre">CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DMA_BUF_MMAP_SUPPORTED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_SUPPORTED"><code class="docutils literal notranslate"><span class="pre">CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_SUPPORTED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_MULTICAST_SUPPORTED"><code class="docutils literal notranslate"><span class="pre">CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_MULTICAST_SUPPORTED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_COUNTED_OPS_SUPPORTED"><code class="docutils literal notranslate"><span class="pre">CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_COUNTED_OPS_SUPPORTED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED"><code class="docutils literal notranslate"><span class="pre">CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX"><code class="docutils literal notranslate"><span class="pre">CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX</span></code></a></li>
 </ul>
 </li>
@@ -39817,6 +40613,7 @@ mapping is shown in the table below. `mipLevel` must be 0.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH"><code class="docutils literal notranslate"><span class="pre">CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED"><code class="docutils literal notranslate"><span class="pre">CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE"><code class="docutils literal notranslate"><span class="pre">CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED"><code class="docutils literal notranslate"><span class="pre">CUfunction_attribute.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX"><code class="docutils literal notranslate"><span class="pre">CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX</span></code></a></li>
 </ul>
 </li>
@@ -40041,6 +40838,7 @@ mapping is shown in the table below. `mipLevel` must be 0.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_MEM_FREE"><code class="docutils literal notranslate"><span class="pre">CUgraphNodeType.CU_GRAPH_NODE_TYPE_MEM_FREE</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_BATCH_MEM_OP"><code class="docutils literal notranslate"><span class="pre">CUgraphNodeType.CU_GRAPH_NODE_TYPE_BATCH_MEM_OP</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL"><code class="docutils literal notranslate"><span class="pre">CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_RESERVED_16"><code class="docutils literal notranslate"><span class="pre">CUgraphNodeType.CU_GRAPH_NODE_TYPE_RESERVED_16</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgraphDependencyType"><code class="docutils literal notranslate"><span class="pre">CUgraphDependencyType</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -40254,6 +41052,7 @@ mapping is shown in the table below. `mipLevel` must be 0.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION"><code class="docutils literal notranslate"><span class="pre">CUresult.CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_KEY_ROTATION"><code class="docutils literal notranslate"><span class="pre">CUresult.CUDA_ERROR_KEY_ROTATION</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_STREAM_DETACHED"><code class="docutils literal notranslate"><span class="pre">CUresult.CUDA_ERROR_STREAM_DETACHED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_GRAPH_RECAPTURE_FAILURE"><code class="docutils literal notranslate"><span class="pre">CUresult.CUDA_ERROR_GRAPH_RECAPTURE_FAILURE</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_UNKNOWN"><code class="docutils literal notranslate"><span class="pre">CUresult.CUDA_ERROR_UNKNOWN</span></code></a></li>
 </ul>
 </li>
@@ -40885,7 +41684,6 @@ mapping is shown in the table below. `mipLevel` must be 0.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointLockArgs"><code class="docutils literal notranslate"><span class="pre">CUcheckpointLockArgs</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs"><code class="docutils literal notranslate"><span class="pre">CUcheckpointCheckpointArgs</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointGpuPair"><code class="docutils literal notranslate"><span class="pre">CUcheckpointGpuPair</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointRestoreArgs"><code class="docutils literal notranslate"><span class="pre">CUcheckpointRestoreArgs</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointUnlockArgs"><code class="docutils literal notranslate"><span class="pre">CUcheckpointUnlockArgs</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUeglFrame_v1"><code class="docutils literal notranslate"><span class="pre">CUeglFrame_v1</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUeglFrame"><code class="docutils literal notranslate"><span class="pre">CUeglFrame</span></code></a></li>
@@ -41210,6 +42008,42 @@ mapping is shown in the table below. `mipLevel` must be 0.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuMulticastGetGranularity"><code class="docutils literal notranslate"><span class="pre">cuMulticastGetGranularity()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logical-endpoint">Logical Endpoint</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointFabricHandle_st"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointFabricHandle_st</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointProp_struct"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointProp_struct</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointIpcHandleType"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointIpcHandleType</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointType"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointType</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_INVALID"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_INVALID</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_UNICAST"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_UNICAST</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_MULTICAST"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_MULTICAST</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointFlag"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointFlag</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_NONE"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_NONE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_COUNTED_OPS"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_COUNTED_OPS</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointId"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointId</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointFabricHandle"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointFabricHandle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUlogicalEndpointProp"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointProp</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointIdReserve"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointIdReserve()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointIdRelease"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointIdRelease()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointCreate"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointCreate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointAddDevice"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointAddDevice()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointDestroy"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointDestroy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointBindAddr"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointBindAddr()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointBindMem"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointBindMem()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointUnbind"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointUnbind()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointExport"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointExport()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointImport"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointImport()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointGetLimits"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointGetLimits()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLogicalEndpointQuery"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointQuery()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unified-addressing">Unified Addressing</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuPointerGetAttribute"><code class="docutils literal notranslate"><span class="pre">cuPointerGetAttribute()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuMemPrefetchAsync"><code class="docutils literal notranslate"><span class="pre">cuMemPrefetchAsync()</span></code></a></li>
@@ -41224,6 +42058,13 @@ mapping is shown in the table below. `mipLevel` must be 0.
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stream-management">Stream Management</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgraphRecaptureStatus"><code class="docutils literal notranslate"><span class="pre">CUgraphRecaptureStatus</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ELIGIBLE_FOR_UPDATE"><code class="docutils literal notranslate"><span class="pre">CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ELIGIBLE_FOR_UPDATE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_INELIGIBLE_FOR_UPDATE"><code class="docutils literal notranslate"><span class="pre">CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_INELIGIBLE_FOR_UPDATE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ERROR"><code class="docutils literal notranslate"><span class="pre">CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ERROR</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgraphRecaptureCallback"><code class="docutils literal notranslate"><span class="pre">CUgraphRecaptureCallback</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuStreamCreate"><code class="docutils literal notranslate"><span class="pre">cuStreamCreate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuStreamCreateWithPriority"><code class="docutils literal notranslate"><span class="pre">cuStreamCreateWithPriority()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuStreamBeginCaptureToCig"><code class="docutils literal notranslate"><span class="pre">cuStreamBeginCaptureToCig()</span></code></a></li>
@@ -41237,6 +42078,7 @@ mapping is shown in the table below. `mipLevel` must be 0.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuStreamWaitEvent"><code class="docutils literal notranslate"><span class="pre">cuStreamWaitEvent()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuStreamAddCallback"><code class="docutils literal notranslate"><span class="pre">cuStreamAddCallback()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuStreamBeginCapture"><code class="docutils literal notranslate"><span class="pre">cuStreamBeginCapture()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuStreamBeginRecaptureToGraph"><code class="docutils literal notranslate"><span class="pre">cuStreamBeginRecaptureToGraph()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuStreamBeginCaptureToGraph"><code class="docutils literal notranslate"><span class="pre">cuStreamBeginCaptureToGraph()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuThreadExchangeStreamCaptureMode"><code class="docutils literal notranslate"><span class="pre">cuThreadExchangeStreamCaptureMode()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuStreamEndCapture"><code class="docutils literal notranslate"><span class="pre">cuStreamEndCapture()</span></code></a></li>
@@ -41300,7 +42142,6 @@ mapping is shown in the table below. `mipLevel` must be 0.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLaunchKernel"><code class="docutils literal notranslate"><span class="pre">cuLaunchKernel()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLaunchKernelEx"><code class="docutils literal notranslate"><span class="pre">cuLaunchKernelEx()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLaunchCooperativeKernel"><code class="docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernel()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice"><code class="docutils literal notranslate"><span class="pre">cuLaunchCooperativeKernelMultiDevice()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLaunchHostFunc"><code class="docutils literal notranslate"><span class="pre">cuLaunchHostFunc()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuLaunchHostFunc_v2"><code class="docutils literal notranslate"><span class="pre">cuLaunchHostFunc_v2()</span></code></a></li>
 </ul>
@@ -41470,6 +42311,9 @@ mapping is shown in the table below. `mipLevel` must be 0.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_ABORT"><code class="docutils literal notranslate"><span class="pre">CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_ABORT</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_CONSTBANK_MEMORY"><code class="docutils literal notranslate"><span class="pre">CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_CONSTBANK_MEMORY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_GZIP_COMPRESS"><code class="docutils literal notranslate"><span class="pre">CUCoredumpGenerationFlags.CU_COREDUMP_GZIP_COMPRESS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_FAULTED_CONTEXTS_ONLY"><code class="docutils literal notranslate"><span class="pre">CUCoredumpGenerationFlags.CU_COREDUMP_FAULTED_CONTEXTS_ONLY</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_NO_ERRBAR_AT_EXIT"><code class="docutils literal notranslate"><span class="pre">CUCoredumpGenerationFlags.CU_COREDUMP_NO_ERRBAR_AT_EXIT</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_LOG_ONLY"><code class="docutils literal notranslate"><span class="pre">CUCoredumpGenerationFlags.CU_COREDUMP_LOG_ONLY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS"><code class="docutils literal notranslate"><span class="pre">CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS</span></code></a></li>
 </ul>
 </li>
@@ -41497,6 +42341,7 @@ mapping is shown in the table below. `mipLevel` must be 0.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS"><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevResource"><code class="docutils literal notranslate"><span class="pre">CUdevResource</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgreenCtxCreate_flags"><code class="docutils literal notranslate"><span class="pre">CUgreenCtxCreate_flags</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_NONE"><code class="docutils literal notranslate"><span class="pre">CUgreenCtxCreate_flags.CU_GREEN_CTX_NONE</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM"><code class="docutils literal notranslate"><span class="pre">CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM</span></code></a></li>
 </ul>
 </li>
