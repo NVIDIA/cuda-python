@@ -1366,17 +1366,13 @@ cuDLA is not available on desktop GPUs.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.module_get_attributes">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">module_get_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">h_module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">attr_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.module_get_attributes" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Query module attributes, interpreting the cudlaModuleAttribute union
-based on the requested attribute type.
-
-For count attributes (NUM_INPUT_TENSORS, NUM_OUTPUT_TENSORS,
-NUM_OUTPUT_TASK_STATISTICS), returns an int.
-
-For descriptor attributes (INPUT_TENSOR_DESCRIPTORS,
+<dd><p>Query module attributes, interpreting the cudlaModuleAttribute union
+based on the requested attribute type.</p>
+<p>For count attributes (NUM_INPUT_TENSORS, NUM_OUTPUT_TENSORS,
+NUM_OUTPUT_TASK_STATISTICS), returns an int.</p>
+<p>For descriptor attributes (INPUT_TENSOR_DESCRIPTORS,
 OUTPUT_TENSOR_DESCRIPTORS, OUTPUT_TASK_STATISTICS_DESCRIPTORS),
-returns a list of ModuleTensorDescriptor objects.
-</pre></div>
-</div>
+returns a list of ModuleTensorDescriptor objects.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1420,99 +1416,90 @@ returns a list of ModuleTensorDescriptor objects.
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.ExternalMemoryHandleDesc">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">ExternalMemoryHandleDesc</span></span><a class="headerlink" href="#cuda.bindings.cudla.ExternalMemoryHandleDesc" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaExternalMemoryHandleDesc_t`.
-
-
-.. seealso:: `cudlaExternalMemoryHandleDesc_t`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaExternalMemoryHandleDesc_t</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaExternalMemoryHandleDesc_t</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.ExternalSemaphoreHandleDesc">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">ExternalSemaphoreHandleDesc</span></span><a class="headerlink" href="#cuda.bindings.cudla.ExternalSemaphoreHandleDesc" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaExternalSemaphoreHandleDesc_t`.
-
-
-.. seealso:: `cudlaExternalSemaphoreHandleDesc_t`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaExternalSemaphoreHandleDesc_t</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaExternalSemaphoreHandleDesc_t</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.ModuleTensorDescriptor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">ModuleTensorDescriptor</span></span><a class="headerlink" href="#cuda.bindings.cudla.ModuleTensorDescriptor" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaModuleTensorDescriptor`.
-
-
-.. seealso:: `cudlaModuleTensorDescriptor`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleTensorDescriptor</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleTensorDescriptor</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.Fence">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">Fence</span></span><a class="headerlink" href="#cuda.bindings.cudla.Fence" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `CudlaFence`.
-
-
-.. seealso:: `CudlaFence`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CudlaFence</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CudlaFence</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.DevAttribute">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">DevAttribute</span></span><a class="headerlink" href="#cuda.bindings.cudla.DevAttribute" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaDevAttribute`.
-
-
-.. seealso:: `cudlaDevAttribute`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaDevAttribute</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaDevAttribute</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.ModuleAttribute">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">ModuleAttribute</span></span><a class="headerlink" href="#cuda.bindings.cudla.ModuleAttribute" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaModuleAttribute`.
-
-
-.. seealso:: `cudlaModuleAttribute`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleAttribute</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleAttribute</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.WaitEvents">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">WaitEvents</span></span><a class="headerlink" href="#cuda.bindings.cudla.WaitEvents" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaWaitEvents`.
-
-
-.. seealso:: `cudlaWaitEvents`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaWaitEvents</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaWaitEvents</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.SignalEvents">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">SignalEvents</span></span><a class="headerlink" href="#cuda.bindings.cudla.SignalEvents" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaSignalEvents`.
-
-
-.. seealso:: `cudlaSignalEvents`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaSignalEvents</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaSignalEvents</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.Task">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">Task</span></span><a class="headerlink" href="#cuda.bindings.cudla.Task" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaTask`.
-
-
-.. seealso:: `cudlaTask`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaTask</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaTask</span></code></p>
 </div>
 </dd></dl>
 
@@ -1535,9 +1522,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.Status" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaStatus`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaStatus</span></code>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.Status.Success">
 <span class="sig-name descname"><span class="pre">Success</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.bindings.cudla.Status.Success" title="Link to this definition">#</a></dt>
@@ -1561,9 +1546,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.Mode" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaMode`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaMode</span></code>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.Mode.CUDA_DLA">
 <span class="sig-name descname"><span class="pre">CUDA_DLA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.bindings.cudla.Mode.CUDA_DLA" title="Link to this definition">#</a></dt>
@@ -1592,9 +1575,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.ModuleAttributeType" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaModuleAttributeType`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleAttributeType</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1613,9 +1594,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.FenceType" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaFenceType`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaFenceType</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1634,9 +1613,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.ModuleLoadFlags" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaModuleLoadFlags`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleLoadFlags</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1655,9 +1632,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.SubmissionFlags" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaSubmissionFlags`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaSubmissionFlags</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1676,9 +1651,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.AccessPermissionFlags" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaAccessPermissionFlags`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaAccessPermissionFlags</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1697,9 +1670,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.DevAttributeType" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaDevAttributeType`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaDevAttributeType</span></code>.</p>
 </dd></dl>
 
 </section>
