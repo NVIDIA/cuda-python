@@ -33,8 +33,19 @@ def _checkpoint_available():
     try:
         checkpoint._get_driver()
         return True
-    except RuntimeError:
-        return False
+    except RuntimeError as exc:
+        if _checkpoint_unavailable_can_skip(str(exc)):
+            return False
+        raise
+
+
+def _checkpoint_unavailable_can_skip(message):
+    return message.startswith(
+        (
+            "CUDA checkpointing is not supported by the installed NVIDIA driver.",
+            "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. Found cuda.bindings ",
+        )
+    )
 
 
 needs_checkpoint = pytest.mark.skipif(
@@ -383,6 +394,37 @@ class TestInputValidation:
     def test_public_symbols(self):
         assert checkpoint.__all__ == ["Process"]
         assert not hasattr(checkpoint, "ProcessStateType")
+
+    def test_checkpoint_available_skips_unsupported_driver(self, monkeypatch):
+        def raise_unsupported_driver():
+            raise RuntimeError("CUDA checkpointing is not supported by the installed NVIDIA driver.")
+
+        monkeypatch.setattr(checkpoint, "_get_driver", raise_unsupported_driver)
+
+        assert not _checkpoint_available()
+
+    def test_checkpoint_available_skips_old_bindings(self, monkeypatch):
+        def raise_old_bindings():
+            raise RuntimeError(
+                "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. "
+                "Found cuda.bindings 12.7.0."
+            )
+
+        monkeypatch.setattr(checkpoint, "_get_driver", raise_old_bindings)
+
+        assert not _checkpoint_available()
+
+    def test_checkpoint_available_fails_missing_required_bindings(self, monkeypatch):
+        def raise_missing_binding():
+            raise RuntimeError(
+                "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. "
+                "Missing: CUcheckpointRestoreArgs"
+            )
+
+        monkeypatch.setattr(checkpoint, "_get_driver", raise_missing_binding)
+
+        with pytest.raises(RuntimeError, match="Missing: CUcheckpointRestoreArgs"):
+            _checkpoint_available()
 
     def test_pid_is_read_only(self):
         proc = checkpoint.Process(1)
