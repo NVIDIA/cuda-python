@@ -31,11 +31,11 @@ _REQUIRED_BINDING_ATTRS = (
     "cuCheckpointProcessLock",
     "cuCheckpointProcessRestore",
     "cuCheckpointProcessUnlock",
-    "CUcheckpointGpuPair",
     "CUcheckpointLockArgs",
     "CUprocessState",
     "CUcheckpointRestoreArgs",
 )
+_GPU_MAPPING_BINDING_ATTRS = ("CUcheckpointGpuPair",)
 _REQUIRED_DRIVER_VERSION = (12, 8, 0)
 _driver_capability_checked = False
 
@@ -215,7 +215,11 @@ def _make_restore_args(driver, gpu_mapping: _Mapping[_Any, _Any] | None):
     if not isinstance(gpu_mapping, _Mapping):
         raise TypeError("gpu_mapping must be a mapping from checkpointed GPU UUID to restore GPU UUID")
 
+    if not gpu_mapping:
+        return None
+
     pairs = []
+    _require_gpu_mapping_bindings(driver)
     for old_uuid, new_uuid in gpu_mapping.items():
         pair = driver.CUcheckpointGpuPair()
         buffers = []
@@ -223,13 +227,19 @@ def _make_restore_args(driver, gpu_mapping: _Mapping[_Any, _Any] | None):
         pair.newUuid = _as_cuuuid(driver, new_uuid, buffers)
         pairs.append(pair)
 
-    if not pairs:
-        return None
-
     args = driver.CUcheckpointRestoreArgs()
     args.gpuPairs = pairs
     args.gpuPairsCount = len(pairs)
     return args
+
+
+def _require_gpu_mapping_bindings(driver) -> None:
+    missing = [name for name in _GPU_MAPPING_BINDING_ATTRS if not hasattr(driver, name)]
+    if missing:
+        raise RuntimeError(
+            "CUDA checkpoint GPU remapping requires cuda.bindings with GPU remapping support. "
+            f"Missing: {', '.join(missing)}"
+        )
 
 
 def _as_cuuuid(driver, value, buffers):

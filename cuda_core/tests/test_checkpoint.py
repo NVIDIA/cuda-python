@@ -39,6 +39,19 @@ def _checkpoint_available():
         raise
 
 
+def _checkpoint_gpu_mapping_available():
+    """Return True if checkpoint restore GPU remapping is usable on this system."""
+    if not _checkpoint_available():
+        return False
+    try:
+        checkpoint._require_gpu_mapping_bindings(checkpoint._get_driver())
+        return True
+    except RuntimeError as exc:
+        if _checkpoint_gpu_mapping_unavailable_can_skip(str(exc)):
+            return False
+        raise
+
+
 def _checkpoint_unavailable_can_skip(message):
     return message.startswith(
         (
@@ -48,9 +61,19 @@ def _checkpoint_unavailable_can_skip(message):
     )
 
 
+def _checkpoint_gpu_mapping_unavailable_can_skip(message):
+    return message.startswith(
+        "CUDA checkpoint GPU remapping requires cuda.bindings with GPU remapping support. Missing: CUcheckpointGpuPair"
+    )
+
+
 needs_checkpoint = pytest.mark.skipif(
     sys.platform != "linux" or not _checkpoint_available(),
     reason="CUDA checkpoint API requires Linux and a supported driver/bindings",
+)
+needs_checkpoint_gpu_mapping = pytest.mark.skipif(
+    sys.platform != "linux" or not _checkpoint_gpu_mapping_available(),
+    reason="CUDA checkpoint GPU remapping requires Linux and supported driver/bindings",
 )
 
 
@@ -426,6 +449,14 @@ class TestInputValidation:
         with pytest.raises(RuntimeError, match="Missing: CUcheckpointRestoreArgs"):
             _checkpoint_available()
 
+    def test_checkpoint_gpu_mapping_available_skips_missing_gpu_pair(self, monkeypatch):
+        class Driver:
+            pass
+
+        monkeypatch.setattr(checkpoint, "_get_driver", lambda: Driver)
+
+        assert not _checkpoint_gpu_mapping_available()
+
     def test_pid_is_read_only(self):
         proc = checkpoint.Process(1)
         assert proc.pid == 1
@@ -462,7 +493,7 @@ class TestCheckpointLifecycle:
 # -- GPU migration (>= 2 same-chip GPUs, real driver) ---------------------
 
 
-@needs_checkpoint
+@needs_checkpoint_gpu_mapping
 class TestCheckpointGpuMigration:
     """GPU UUID remapping tests following the r580-migration-api.c pattern.
 

@@ -870,11 +870,12 @@ def test_cuCheckpoint_required_bindings_present():
         "cuCheckpointProcessLock",
         "cuCheckpointProcessRestore",
         "cuCheckpointProcessUnlock",
-        "CUcheckpointGpuPair",
         "CUcheckpointLockArgs",
         "CUprocessState",
         "CUcheckpointRestoreArgs",
     )
+    if cuda.CUDA_VERSION >= 13000:
+        required_bindings += ("CUcheckpointGpuPair",)
 
     missing = [name for name in required_bindings if not hasattr(cuda, name)]
 
