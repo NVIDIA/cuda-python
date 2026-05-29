@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
 from cuda.bindings.cydriver cimport *
 
 {{if 'cuGetErrorString' in found_functions}}
@@ -1024,6 +1024,66 @@ cdef CUresult _cuMulticastUnbind(CUmemGenericAllocationHandle mcHandle, CUdevice
 cdef CUresult _cuMulticastGetGranularity(size_t* granularity, const CUmulticastObjectProp* prop, CUmulticastGranularity_flags option) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuLogicalEndpointIdReserve' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointIdReserve(CUlogicalEndpointId* baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointIdRelease' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointIdRelease(CUlogicalEndpointId baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointCreate' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointCreate(CUlogicalEndpointId leId, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointAddDevice' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointAddDevice(CUlogicalEndpointId leId, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointDestroy' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointDestroy(CUlogicalEndpointId leId) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointBindAddr' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointBindAddr(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, void* ptr, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointBindMem' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointBindMem(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, CUmemGenericAllocationHandle memHandle, cuuint64_t memOffset, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointUnbind' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointUnbind(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, cuuint64_t size) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointExport' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointExport(void* handle, CUlogicalEndpointId leId, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointImport' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointImport(CUlogicalEndpointId leId, const void* handle, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointGetLimits' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointGetLimits(cuuint64_t* bindAlignment, cuuint64_t* maxSize, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointQuery' in found_functions}}
+
+cdef CUresult _cuLogicalEndpointQuery(CUlogicalEndpointId leId, cuuint32_t count, int* queryStatus) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuPointerGetAttribute' in found_functions}}
 
 cdef CUresult _cuPointerGetAttribute(void* data, CUpointer_attribute attribute, CUdeviceptr ptr) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -1137,6 +1197,11 @@ cdef CUresult _cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, 
 {{if 'cuStreamBeginCapture_v2' in found_functions}}
 
 cdef CUresult _cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMode mode) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuStreamBeginRecaptureToGraph' in found_functions}}
+
+cdef CUresult _cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMode mode, CUgraph hGraph, CUgraphRecaptureCallback callbackFunc, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
@@ -1364,11 +1429,6 @@ cdef CUresult _cuLaunchKernelEx(const CUlaunchConfig* config, CUfunction f, void
 cdef CUresult _cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void** kernelParams) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
-{{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
-
-cdef CUresult _cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
-{{endif}}
-
 {{if 'cuLaunchHostFunc' in found_functions}}
 
 cdef CUresult _cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -1422,6 +1482,11 @@ cdef CUresult _cuLaunchGrid(CUfunction f, int grid_width, int grid_height) excep
 {{if 'cuLaunchGridAsync' in found_functions}}
 
 cdef CUresult _cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
+
+cdef CUresult _cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuParamSetTexRef' in found_functions}}
