@@ -9,8 +9,6 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import TYPE_CHECKING
 
-from cpython.ref cimport Py_INCREF
-
 from libc.stddef cimport size_t
 from libc.stdint cimport uintptr_t
 from libc.string cimport memset as c_memset
@@ -46,21 +44,19 @@ from cuda.core._resource_handles cimport (
     GraphHandle,
     GraphNodeHandle,
     KernelHandle,
+    OpaqueHandle,
     as_cu,
     as_intptr,
     as_py,
     create_graph_handle_ref,
     create_graph_node_handle,
     graph_node_get_graph,
+    graph_set_slot,
     invalidate_graph_node,
-    py_object_user_object_destroy,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
-from cuda.core.graph._utils cimport (
-    _attach_host_callback_to_graph,
-    _attach_user_object,
-)
+from cuda.core.graph._utils cimport _resolve_host_callback
 
 import weakref
 
@@ -500,16 +496,6 @@ cdef class GraphNode:
             cydriver.CU_GRAPH_COND_TYPE_SWITCH, count, SwitchNode)
 
 
-cdef void _destroy_event_handle_copy(void* ptr) noexcept nogil:
-    cdef EventHandle* p = <EventHandle*>ptr
-    del p
-
-
-cdef void _destroy_kernel_handle_copy(void* ptr) noexcept nogil:
-    cdef KernelHandle* p = <KernelHandle*>ptr
-    del p
-
-
 cdef inline ConditionalNode _make_conditional_node(
         GraphNode pred,
         GraphCondition condition,
@@ -626,6 +612,7 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
+    cdef OpaqueHandle owner
 
     if pred_node != NULL:
         deps = &pred_node
@@ -648,14 +635,8 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
         HANDLE_RETURN(cydriver.cuGraphAddKernelNode(
             &new_node, as_cu(h_graph), deps, num_deps, &node_params))
 
-    _attach_user_object(as_cu(h_graph), <void*>new KernelHandle(ker._h_kernel),
-                        <cydriver.CUhostFn>_destroy_kernel_handle_copy)
-
-    cdef object kernel_args = ker_args.kernel_args
-    if kernel_args is not None:
-        Py_INCREF(kernel_args)
-        _attach_user_object(as_cu(h_graph), <void*>kernel_args,
-                            <cydriver.CUhostFn>py_object_user_object_destroy)
+    owner = ker._h_kernel
+    HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, owner))
 
     return _registered(KernelNode._create_with_params(
         create_graph_node_handle(new_node, h_graph),
@@ -914,6 +895,7 @@ cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
+    cdef OpaqueHandle owner
 
     if pred_node != NULL:
         deps = &pred_node
@@ -923,8 +905,8 @@ cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
         HANDLE_RETURN(cydriver.cuGraphAddEventRecordNode(
             &new_node, as_cu(h_graph), deps, num_deps, as_cu(ev._h_event)))
 
-    _attach_user_object(as_cu(h_graph), <void*>new EventHandle(ev._h_event),
-                        <cydriver.CUhostFn>_destroy_event_handle_copy)
+    owner = ev._h_event
+    HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, owner))
 
     return _registered(EventRecordNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), ev._h_event))
@@ -936,6 +918,7 @@ cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
+    cdef OpaqueHandle owner
 
     if pred_node != NULL:
         deps = &pred_node
@@ -945,8 +928,8 @@ cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
         HANDLE_RETURN(cydriver.cuGraphAddEventWaitNode(
             &new_node, as_cu(h_graph), deps, num_deps, as_cu(ev._h_event)))
 
-    _attach_user_object(as_cu(h_graph), <void*>new EventHandle(ev._h_event),
-                        <cydriver.CUhostFn>_destroy_event_handle_copy)
+    owner = ev._h_event
+    HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, owner))
 
     return _registered(EventWaitNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), ev._h_event))
@@ -961,18 +944,23 @@ cdef inline HostCallbackNode GN_callback(GraphNode self, object fn, object user_
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
+    cdef OpaqueHandle fn_owner, data_owner
 
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
 
-    _attach_host_callback_to_graph(
-        as_cu(h_graph), fn, user_data,
-        &node_params.fn, &node_params.userData)
+    _resolve_host_callback(
+        fn, user_data, &node_params.fn, &node_params.userData,
+        &fn_owner, &data_owner)
 
     with nogil:
         HANDLE_RETURN(cydriver.cuGraphAddHostNode(
             &new_node, as_cu(h_graph), deps, num_deps, &node_params))
+
+    HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, fn_owner))
+    if data_owner:
+        HANDLE_RETURN(graph_set_slot(h_graph, new_node, 1, data_owner))
 
     cdef object callable_obj = fn if not isinstance(fn, ct._CFuncPtr) else None
     return _registered(HostCallbackNode._create_with_params(

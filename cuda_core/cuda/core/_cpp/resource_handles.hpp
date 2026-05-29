@@ -472,12 +472,12 @@ GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
 // ============================================================================
 // Graph slot attachments
 //
-// An owning graph carries a side table that keeps resources used by its nodes
-// (kernel arguments, host callbacks, events, ...) alive for as long as the
-// graph can execute. The table is retained on the CUgraph as a user object, so
-// the driver releases it -- and everything attached through it -- when the
-// graph is destroyed. The table layout is an internal detail; callers use the
-// abstract API below.
+// A graph carries a side table that keeps resources used by its nodes (kernel
+// arguments, host callbacks, events, ...) alive for as long as the graph can
+// execute. The table is created on first use and retained on the CUgraph as a
+// user object, so the driver releases it -- and everything attached through it
+// -- when the graph is destroyed. The table layout is an internal detail;
+// callers use the abstract API below.
 // ============================================================================
 
 // Type-erased shared owner of an attached resource. Typed handles such as
@@ -494,9 +494,11 @@ OpaqueHandle make_opaque_py(PyObject* obj);
 OpaqueHandle make_opaque_malloc(void* buf);
 
 // Attach owner to one of node's fixed slots on h_graph, replacing whatever was
-// there. The owner lives until it is replaced or the graph is destroyed.
-void graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
-                    unsigned int slot, OpaqueHandle owner);
+// there. The graph's slot table is created on first use. Returns CUDA_SUCCESS,
+// or an error if slot is out of range or the graph cannot hold a table (e.g.
+// the driver lacks user-object support).
+CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
+                        unsigned int slot, OpaqueHandle owner);
 
 // ============================================================================
 // Graph exec handle functions

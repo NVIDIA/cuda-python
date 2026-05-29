@@ -10,11 +10,13 @@ from libc.stdint cimport intptr_t
 from cuda.bindings cimport cydriver
 
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
-from cuda.core.graph._utils cimport _attach_host_callback_to_graph
+from cuda.core.graph._utils cimport _resolve_host_callback
 from cuda.core._resource_handles cimport (
     GraphHandle,
+    OpaqueHandle,
     as_cu, as_py,
     create_graph_exec_handle, create_graph_handle, create_graph_handle_ref,
+    graph_set_slot,
 )
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -813,20 +815,28 @@ cdef class GraphBuilder:
         cdef Stream stream = self._stream
         cdef cydriver.CUstream c_stream = as_cu(stream._h_stream)
         cdef cydriver.CUstreamCaptureStatus capture_status
-        cdef cydriver.CUgraph c_graph = NULL
 
         with nogil:
-            _get_capture_info(c_stream, &capture_status, &c_graph)
+            _get_capture_info(c_stream, &capture_status, NULL)
 
         if capture_status != cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:
             raise RuntimeError("Cannot add callback when graph is not being built")
 
         cdef cydriver.CUhostFn c_fn
         cdef void* c_user_data = NULL
-        _attach_host_callback_to_graph(c_graph, fn, user_data, &c_fn, &c_user_data)
+        cdef OpaqueHandle fn_owner, data_owner
+        _resolve_host_callback(fn, user_data, &c_fn, &c_user_data, &fn_owner, &data_owner)
 
         with nogil:
             HANDLE_RETURN(cydriver.cuLaunchHostFunc(c_stream, c_fn, c_user_data))
+
+        # Capturing the host function added a node to the graph; it is now the
+        # stream's sole capture dependency. Key the callback's owners to it so
+        # they live in the graph's slot table like any explicitly-added node.
+        cdef cydriver.CUgraphNode host_node = _capture_tail_node(c_stream)
+        HANDLE_RETURN(graph_set_slot(self._h_graph, host_node, 0, fn_owner))
+        if data_owner:
+            HANDLE_RETURN(graph_set_slot(self._h_graph, host_node, 1, data_owner))
 
 
 cdef inline int GB_check_open(GraphBuilder gb) except -1:
@@ -905,6 +915,28 @@ cdef inline int _get_capture_info(
     ELSE:
         return HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
             stream, status, NULL, graph, NULL, NULL))
+
+
+cdef inline cydriver.CUgraphNode _capture_tail_node(cydriver.CUstream stream) except *:
+    """Return the node a freshly-captured single-node operation left as the
+    stream's sole capture dependency (e.g. the host node added by
+    ``cuLaunchHostFunc``). The driver advances the stream's dependency set to
+    the new node, so the next captured op would depend on it.
+    """
+    cdef cydriver.CUstreamCaptureStatus status
+    cdef const cydriver.CUgraphNode* deps = NULL
+    cdef size_t num_deps = 0
+    with nogil:
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
+                stream, &status, NULL, NULL, &deps, NULL, &num_deps))
+        ELSE:
+            HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
+                stream, &status, NULL, NULL, &deps, &num_deps))
+    if num_deps != 1:
+        raise RuntimeError(
+            f"expected exactly one capture dependency after a host callback, got {num_deps}")
+    return <cydriver.CUgraphNode>deps[0]
 
 
 cdef inline tuple GB_cond_with_params(GraphBuilder gb, node_params):

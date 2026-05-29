@@ -151,6 +151,13 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     GraphHandle create_graph_handle_ref "cuda_core::create_graph_handle_ref" (
         cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
 
+    # Graph slot attachments
+    OpaqueHandle make_opaque_py "cuda_core::make_opaque_py" (object obj) except+
+    OpaqueHandle make_opaque_malloc "cuda_core::make_opaque_malloc" (void* buf) except+
+    cydriver.CUresult graph_set_slot "cuda_core::graph_set_slot" (
+        const GraphHandle& h_graph, cydriver.CUgraphNode node,
+        unsigned int slot, OpaqueHandle owner) except+
+
     # Graph exec handles
     GraphExecHandle create_graph_exec_handle "cuda_core::create_graph_exec_handle" (
         cydriver.CUgraphExec graph_exec) except+ nogil

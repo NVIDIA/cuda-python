@@ -1121,12 +1121,12 @@ LibraryHandle get_kernel_library(const KernelHandle& h) noexcept {
 
 namespace {
 
-// Slot table layout (internal). Each owning graph maps CUgraphNode -> a
-// fixed-size array of type-erased owners. The width is the most any single
-// node needs: a kernel node holds its kernel and its packed arguments; a host
-// node holds its callback and the userData. The table is heap-allocated and
-// retained on the graph as a user object, so the driver frees it -- and every
-// owner in it -- when the graph is destroyed.
+// Slot table layout (internal). Each graph maps CUgraphNode -> a fixed-size
+// array of type-erased owners. The width is the most any single node needs: a
+// kernel node holds its kernel and its packed arguments; a host node holds its
+// callback and the userData. The table is heap-allocated and retained on the
+// graph as a user object, so the driver frees it -- and every owner in it --
+// when the graph is destroyed.
 constexpr std::size_t SLOTS_PER_NODE = 2;
 using NodeSlots = std::array<OpaqueHandle, SLOTS_PER_NODE>;
 using GraphSlotTable = std::map<CUgraphNode, NodeSlots>;
@@ -1150,37 +1150,10 @@ void destroy_graph_slot_table(void* table) noexcept {
     delete static_cast<GraphSlotTable*>(table);
 }
 
-// Allocate a slot table and hand it to graph via a user object. On success the
-// user object owns the table and MOVE transfers our reference into the graph,
-// so the table lives exactly as long as the graph. This is best-effort: if the
-// driver calls fail it returns nullptr without disturbing the error channel, so
-// graph creation keeps its existing behavior. A missing table surfaces later as
-// CUDA_ERROR_NOT_SUPPORTED from graph_set_slot, where callers check for it.
-GraphSlotTable* register_graph_slot_table(CUgraph graph) {
-    if (!p_cuUserObjectCreate || !p_cuGraphRetainUserObject || !p_cuUserObjectRelease) {
-        return nullptr;
-    }
-    auto* table = new GraphSlotTable();
-    CUuserObject user_obj = nullptr;
-    GILReleaseGuard gil;
-    if (p_cuUserObjectCreate(&user_obj, table,
-                             reinterpret_cast<CUhostFn>(destroy_graph_slot_table),
-                             1, CU_USER_OBJECT_NO_DESTRUCTOR_SYNC) != CUDA_SUCCESS) {
-        delete table;  // no user object created; nothing else owns the table
-        return nullptr;
-    }
-    // The user object now owns the table; releasing its last reference frees it.
-    if (p_cuGraphRetainUserObject(graph, user_obj, 1, CU_GRAPH_USER_OBJECT_MOVE) != CUDA_SUCCESS) {
-        p_cuUserObjectRelease(user_obj, 1);  // drops refcount to 0 -> frees table
-        return nullptr;
-    }
-    return table;
-}
-
 struct GraphBox {
     CUgraph resource;
-    GraphHandle h_parent;        // Keeps parent alive for child/branch graphs
-    GraphSlotTable* slot_table;  // Non-owning; owned by the graph's user object
+    GraphHandle h_parent;                  // Keeps parent alive for child/branch graphs
+    mutable GraphSlotTable* slot_table = nullptr;  // Lazily created; owned by the graph's user object
 };
 
 const GraphBox* get_box(const GraphHandle& h) {
@@ -1188,6 +1161,38 @@ const GraphBox* get_box(const GraphHandle& h) {
     return reinterpret_cast<const GraphBox*>(
         reinterpret_cast<const char*>(p) - offsetof(GraphBox, resource)
     );
+}
+
+// Return box's slot table, creating it on first use. The table is retained on
+// the graph as a user object (MOVE transfers our only reference into the
+// graph), so it -- and every owner in it -- is freed when the graph is
+// destroyed. Returns nullptr if the driver lacks user-object support or a
+// driver call fails; the cached pointer is non-owning.
+GraphSlotTable* ensure_slot_table(const GraphBox* box) {
+    if (box->slot_table) {
+        return box->slot_table;
+    }
+    if (!p_cuUserObjectCreate || !p_cuGraphRetainUserObject || !p_cuUserObjectRelease) {
+        return nullptr;
+    }
+    auto* table = new GraphSlotTable();
+    CUuserObject user_obj = nullptr;
+    {
+        GILReleaseGuard gil;
+        if (p_cuUserObjectCreate(&user_obj, table,
+                                 reinterpret_cast<CUhostFn>(destroy_graph_slot_table),
+                                 1, CU_USER_OBJECT_NO_DESTRUCTOR_SYNC) != CUDA_SUCCESS) {
+            delete table;  // no user object created; nothing else owns the table
+            return nullptr;
+        }
+        if (p_cuGraphRetainUserObject(box->resource, user_obj, 1,
+                                      CU_GRAPH_USER_OBJECT_MOVE) != CUDA_SUCCESS) {
+            p_cuUserObjectRelease(user_obj, 1);  // drops refcount to 0 -> frees table
+            return nullptr;
+        }
+    }
+    box->slot_table = table;  // non-owning cache; the user object owns it
+    return table;
 }
 
 }  // namespace
@@ -1202,9 +1207,8 @@ OpaqueHandle make_opaque_malloc(void* buf) {
 }
 
 GraphHandle create_graph_handle(CUgraph graph) {
-    GraphSlotTable* slot_table = register_graph_slot_table(graph);
     auto box = std::shared_ptr<const GraphBox>(
-        new GraphBox{graph, {}, slot_table},
+        new GraphBox{graph, {}},
         [](const GraphBox* b) {
             GILReleaseGuard gil;
             p_cuGraphDestroy(b->resource);
@@ -1215,22 +1219,21 @@ GraphHandle create_graph_handle(CUgraph graph) {
 }
 
 GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) {
-    auto box = std::make_shared<const GraphBox>(GraphBox{graph, h_parent, nullptr});
+    auto box = std::make_shared<const GraphBox>(GraphBox{graph, h_parent});
     return GraphHandle(box, &box->resource);
 }
 
-void graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
-                    unsigned int slot, OpaqueHandle owner) {
-    if (slot >= SLOTS_PER_NODE) {
-        err = CUDA_ERROR_INVALID_VALUE;
-        return;
+CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
+                        unsigned int slot, OpaqueHandle owner) {
+    if (!h_graph || slot >= SLOTS_PER_NODE) {
+        return CUDA_ERROR_INVALID_VALUE;
     }
-    GraphSlotTable* table = h_graph ? get_box(h_graph)->slot_table : nullptr;
+    GraphSlotTable* table = ensure_slot_table(get_box(h_graph));
     if (!table) {
-        err = CUDA_ERROR_NOT_SUPPORTED;
-        return;
+        return CUDA_ERROR_NOT_SUPPORTED;
     }
     (*table)[node][slot] = std::move(owner);
+    return CUDA_SUCCESS;
 }
 
 // ============================================================================
