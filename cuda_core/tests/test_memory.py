@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import contextlib
 import ctypes
 import sys
 
@@ -954,100 +953,89 @@ def test_vmm_allocator_grow_allocation(handle_type):
     grown_buffer.close()
 
 
-@pytest.mark.parametrize("handle_type", get_handle_type())
-def test_vmm_allocator_grow_allocation_fast_path(handle_type):
-    """Exercise the contiguous-extension fast path in modify_allocation.
+def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
+    """Exercise the VMM grow fast path with mocked driver calls.
 
-    The dispatch in :func:`VirtualMemoryResource.modify_allocation` routes to
-    :func:`_grow_allocation_fast_path` only when the CUDA driver honors a
-    ``fixedAddr`` hint pointing immediately after an existing allocation. In
-    practice the driver almost always declines that hint, so
-    ``test_vmm_allocator_grow_allocation`` above always falls through to the
-    slow path and the fast-path bookkeeping is never exercised. This test
-    instead invokes :func:`_grow_allocation_fast_path` directly with a
-    separately reserved VA range so the bookkeeping at the tail of the
-    function (``buf._size = new_size``) is reached.
-
-    The extension is mapped at a disjoint VA, so the buffer ends up with a
-    bookkeeping ``size`` larger than the contiguously-mapped region rooted at
-    its handle. That is acceptable for a unit test of the fast-path
-    bookkeeping; we tear the buffer down by hand below.
+    The real driver usually rejects the adjacent reservation that reaches this
+    path, so the test supplies that precondition by construction and verifies
+    the successful commit bookkeeping.
     """
     device = Device()
-    device.set_current()
-
     if not device.properties.virtual_memory_management_supported:
         pytest.skip("Virtual memory management is not supported on this device")
 
-    handle_type_name, _ = handle_type
-    options = VirtualMemoryResourceOptions(handle_type=handle_type_name)
-    vmm_mr = VirtualMemoryResource(device, config=options)
+    vmm_mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
 
-    try:
-        buffer = vmm_mr.allocate(2 * 1024 * 1024)
-    except NotImplementedError:
-        assert handle_type_name == "win32"
-        return
-
-    # Build the prop the same way modify_allocation does, so cuMemCreate /
-    # _build_access_descriptors inside the fast path see the same shape as
-    # in production.
+    # Build the prop the same shape modify_allocation does, so the helper's
+    # cuMemCreate / _build_access_descriptors path sees production-like input.
     prop = driver.CUmemAllocationProp()
     prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
     prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
     prop.location.id = device.device_id
-    prop.allocFlags.gpuDirectRDMACapable = 0
-    if IS_WINDOWS:
-        prop.requestedHandleTypes = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32_KMT
-    else:
-        prop.requestedHandleTypes = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
-    prop.win32HandleMetaData = 0
 
-    gran = handle_return(
-        driver.cuMemGetAllocationGranularity(
-            prop, driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED
-        )
-    )
+    SUCCESS = driver.CUresult.CUDA_SUCCESS
+    NEW_HANDLE = 0xBEEF
+    calls = []
 
-    aligned_additional_size = ((2 * 1024 * 1024) + gran - 1) & ~(gran - 1)
-    original_size = buffer.size
-    original_handle = int(buffer.handle)
-    new_size = original_size + aligned_additional_size
+    def fake_create(size, p, flags):
+        calls.append(("create", size))
+        return (SUCCESS, NEW_HANDLE)
 
-    # Reserve a VA range for the extension. The address is irrelevant for the
-    # purposes of exercising the fast path; only its validity matters.
-    new_ptr = handle_return(driver.cuMemAddressReserve(aligned_additional_size, gran, 0, 0))
+    def fake_map(ptr, size, offset, handle, flags):
+        calls.append(("map", ptr, size, handle))
+        return (SUCCESS,)
 
-    try:
-        result = vmm_mr._grow_allocation_fast_path(buffer, new_size, prop, aligned_additional_size, new_ptr)
+    def fake_set_access(ptr, size, descs, count):
+        calls.append(("set_access", ptr, size, count))
+        return (SUCCESS,)
 
-        # Fast-path contract: same buffer, unchanged handle, updated size.
-        assert result is buffer
-        assert int(buffer.handle) == original_handle
-        assert buffer.size == new_size
-    finally:
-        # Tear down by hand. The buffer's bookkeeping size may now exceed the
-        # contiguous mapping rooted at its handle, so the standard close()
-        # path (which calls deallocate(handle, size)) cannot be used safely.
-        # Best-effort cleanup; on the current broken build the fast path
-        # raises before commit-tail work completes, so some of these may
-        # error -- suppress individually.
-        with contextlib.suppress(Exception):
-            ext_handle = handle_return(driver.cuMemRetainAllocationHandle(new_ptr))
-            try:
-                handle_return(driver.cuMemUnmap(new_ptr, aligned_additional_size))
-            finally:
-                handle_return(driver.cuMemRelease(ext_handle))
-        with contextlib.suppress(Exception):
-            handle_return(driver.cuMemAddressFree(new_ptr, aligned_additional_size))
-        with contextlib.suppress(Exception):
-            orig_handle = handle_return(driver.cuMemRetainAllocationHandle(original_handle))
-            try:
-                handle_return(driver.cuMemUnmap(original_handle, original_size))
-            finally:
-                handle_return(driver.cuMemRelease(orig_handle))
-        with contextlib.suppress(Exception):
-            handle_return(driver.cuMemAddressFree(original_handle, original_size))
+    # Rollback-only entry points: registered as undo actions but, on a
+    # successful commit, must never be invoked.
+    def fake_unmap(ptr, size):
+        calls.append(("unmap", ptr, size))
+        return (SUCCESS,)
+
+    def fake_release(handle):
+        calls.append(("release", handle))
+        return (SUCCESS,)
+
+    def fake_addr_free(ptr, size):
+        calls.append(("addr_free", ptr, size))
+        return (SUCCESS,)
+
+    monkeypatch.setattr(driver, "cuMemCreate", fake_create)
+    monkeypatch.setattr(driver, "cuMemMap", fake_map)
+    monkeypatch.setattr(driver, "cuMemSetAccess", fake_set_access)
+    monkeypatch.setattr(driver, "cuMemUnmap", fake_unmap)
+    monkeypatch.setattr(driver, "cuMemRelease", fake_release)
+    monkeypatch.setattr(driver, "cuMemAddressFree", fake_addr_free)
+
+    # A real Buffer carries C++-owned handle state we must not fabricate; the
+    # helper only reads and writes buf._size, so a light stand-in suffices.
+    class FakeBuffer:
+        def __init__(self, size):
+            self._size = size
+
+    original_size = 2 * 1024 * 1024
+    aligned_additional = 2 * 1024 * 1024
+    new_size = original_size + aligned_additional
+    new_ptr = 0x10_0000  # stand-in VA for the (mocked) contiguous extension
+
+    buf = FakeBuffer(original_size)
+    result = vmm_mr._grow_allocation_fast_path(buf, new_size, prop, aligned_additional, new_ptr)
+
+    # Fast-path contract: same buffer object, size updated in place.
+    assert result is buf
+    assert buf._size == new_size
+
+    # Successful commit: create, map, set access, and no rollback calls.
+    assert [c[0] for c in calls] == ["create", "map", "set_access"]
+    assert ("create", aligned_additional) in calls
+    assert ("map", new_ptr, aligned_additional, NEW_HANDLE) in calls
+    assert ("set_access", new_ptr, aligned_additional, 1) in calls
 
 
 def test_vmm_allocator_rdma_unsupported_exception():

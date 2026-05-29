@@ -467,21 +467,35 @@ def test_kernel_arg_ctypes_subclass_isinstance_fallback():
 
 
 @requires_module(np, "2.1")
-def test_launch_scalar_argument_ctypes_subclass_fallback():
-    """Subclassed ctypes scalars survive the launch path and reach the kernel correctly."""
+@pytest.mark.parametrize(
+    ("scalar_kind", "np_dtype", "cpp_type", "raw_value"),
+    [
+        ("ctypes", np.int32, "signed int", -123456),
+        ("numpy", np.float32, "float", 3.14),
+    ],
+    ids=["ctypes_subclass", "numpy_subclass"],
+)
+def test_launch_scalar_argument_subclass_fallback(scalar_kind, np_dtype, cpp_type, raw_value):
+    """Subclassed scalar arguments survive fallback handling and reach the kernel."""
+    if scalar_kind == "ctypes":
 
-    class MyInt32(ctypes.c_int32):
-        pass
+        class Subclassed(ctypes.c_int32):
+            pass
+    else:
+
+        class Subclassed(np.float32):
+            pass
+
+    scalar = Subclassed(raw_value)
+    expected = np_dtype(raw_value)
 
     dev = Device()
     dev.set_current()
 
     mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(np.dtype(np.int32).itemsize)
-    arr = np.from_dlpack(b).view(np.int32)
+    b = mr.allocate(np.dtype(np_dtype).itemsize)
+    arr = np.from_dlpack(b).view(np_dtype)
     arr[:] = 0
-
-    scalar = MyInt32(-123456)
 
     code = r"""
     template <typename T>
@@ -493,17 +507,16 @@ def test_launch_scalar_argument_ctypes_subclass_fallback():
     arch = "".join(f"{i}" for i in dev.compute_capability)
     pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}")
     prog = Program(code, code_type="c++", options=pro_opts)
-    ker_name = "write_scalar<signed int>"
+    ker_name = f"write_scalar<{cpp_type}>"
     mod = prog.compile("cubin", name_expressions=(ker_name,))
     ker = mod.get_kernel(ker_name)
 
-    # This exercises the prepare_ctypes_arg isinstance fallback through a real launch.
     stream = dev.default_stream
     config = LaunchConfig(grid=1, block=1)
     launch(stream, config, ker, arr.ctypes.data, scalar)
     stream.sync()
 
-    assert arr[0] == scalar.value
+    assert arr[0] == expected
 
 
 def test_kernel_arg_numpy_subclass_isinstance_fallback():
@@ -518,46 +531,6 @@ def test_kernel_arg_numpy_subclass_isinstance_fallback():
 
     holder = ParamHolder([MyInt32(7), MyFloat32(2.5)])
     assert holder.ptr != 0
-
-
-@requires_module(np, "2.1")
-def test_launch_scalar_argument_numpy_subclass_fallback():
-    """Subclassed numpy scalars survive the launch path and reach the kernel correctly."""
-
-    class MyFloat32(np.float32):
-        pass
-
-    dev = Device()
-    dev.set_current()
-
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(np.dtype(np.float32).itemsize)
-    arr = np.from_dlpack(b).view(np.float32)
-    arr[:] = 0.0
-
-    scalar = MyFloat32(3.14)
-
-    code = r"""
-    template <typename T>
-    __global__ void write_scalar(T* arr, T val) {
-        arr[0] = val;
-    }
-    """
-
-    arch = "".join(f"{i}" for i in dev.compute_capability)
-    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}")
-    prog = Program(code, code_type="c++", options=pro_opts)
-    ker_name = "write_scalar<float>"
-    mod = prog.compile("cubin", name_expressions=(ker_name,))
-    ker = mod.get_kernel(ker_name)
-
-    # This exercises the prepare_numpy_arg isinstance fallback through a real launch.
-    stream = dev.default_stream
-    config = LaunchConfig(grid=1, block=1)
-    launch(stream, config, ker, arr.ctypes.data, scalar)
-    stream.sync()
-
-    assert arr[0] == scalar
 
 
 def test_kernel_arg_python_isinstance_fallbacks():
