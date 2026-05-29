@@ -53,11 +53,16 @@ from cuda.core._resource_handles cimport (
     graph_node_get_graph,
     graph_set_slot,
     invalidate_graph_node,
+    make_opaque_py,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
-from cuda.core.graph._utils cimport _resolve_host_callback
+from cuda.core.graph._host_callback cimport (
+    _attach_host_callback_owners,
+    _resolve_host_callback,
+)
 
+import ctypes as ct
 import weakref
 
 from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
@@ -635,8 +640,16 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
         HANDLE_RETURN(cydriver.cuGraphAddKernelNode(
             &new_node, as_cu(h_graph), deps, num_deps, &node_params))
 
+    # Slot 0 keeps the kernel loaded; slot 1 keeps the Python kernel-argument
+    # objects (notably device Buffers) alive for the graph's lifetime. The
+    # driver copies argument values into the node at add time but does not own
+    # the device memory they reference.
     owner = ker._h_kernel
     HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, owner))
+    kernel_args = ker_args.kernel_args
+    if kernel_args is not None:
+        owner = make_opaque_py(kernel_args)
+        HANDLE_RETURN(graph_set_slot(h_graph, new_node, 1, owner))
 
     return _registered(KernelNode._create_with_params(
         create_graph_node_handle(new_node, h_graph),
@@ -936,8 +949,6 @@ cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
 
 
 cdef inline HostCallbackNode GN_callback(GraphNode self, object fn, object user_data):
-    import ctypes as ct
-
     cdef cydriver.CUDA_HOST_NODE_PARAMS node_params
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
@@ -958,9 +969,7 @@ cdef inline HostCallbackNode GN_callback(GraphNode self, object fn, object user_
         HANDLE_RETURN(cydriver.cuGraphAddHostNode(
             &new_node, as_cu(h_graph), deps, num_deps, &node_params))
 
-    HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, fn_owner))
-    if data_owner:
-        HANDLE_RETURN(graph_set_slot(h_graph, new_node, 1, data_owner))
+    _attach_host_callback_owners(h_graph, new_node, fn_owner, data_owner)
 
     cdef object callable_obj = fn if not isinstance(fn, ct._CFuncPtr) else None
     return _registered(HostCallbackNode._create_with_params(

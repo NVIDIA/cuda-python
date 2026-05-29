@@ -10,13 +10,12 @@ from libc.stdint cimport intptr_t
 from cuda.bindings cimport cydriver
 
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
-from cuda.core.graph._utils cimport _resolve_host_callback
+from cuda.core.graph._host_callback cimport _attach_host_callback_owners, _resolve_host_callback
 from cuda.core._resource_handles cimport (
     GraphHandle,
     OpaqueHandle,
     as_cu, as_py,
     create_graph_exec_handle, create_graph_handle, create_graph_handle_ref,
-    graph_set_slot,
 )
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -834,9 +833,7 @@ cdef class GraphBuilder:
         # stream's sole capture dependency. Key the callback's owners to it so
         # they live in the graph's slot table like any explicitly-added node.
         cdef cydriver.CUgraphNode host_node = _capture_tail_node(c_stream)
-        HANDLE_RETURN(graph_set_slot(self._h_graph, host_node, 0, fn_owner))
-        if data_owner:
-            HANDLE_RETURN(graph_set_slot(self._h_graph, host_node, 1, data_owner))
+        _attach_host_callback_owners(self._h_graph, host_node, fn_owner, data_owner)
 
 
 cdef inline int GB_check_open(GraphBuilder gb) except -1:

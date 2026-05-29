@@ -9,10 +9,15 @@ from libc.string cimport memcpy as c_memcpy
 from cuda.bindings cimport cydriver
 
 from cuda.core._resource_handles cimport (
+    GraphHandle,
     OpaqueHandle,
+    graph_set_slot,
     make_opaque_malloc,
     make_opaque_py,
 )
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+
+import ctypes as ct
 
 
 cdef void _py_host_trampoline(void* data) noexcept with gil:
@@ -36,8 +41,6 @@ cdef void _resolve_host_callback(
     is left null otherwise. The caller attaches the owners to the node's graph
     slots.
     """
-    import ctypes as ct
-
     if isinstance(fn, ct._CFuncPtr):
         out_fn[0] = <cydriver.CUhostFn><uintptr_t>ct.cast(fn, ct.c_void_p).value
         if user_data is None:
@@ -46,11 +49,14 @@ cdef void _resolve_host_callback(
             out_user_data[0] = <void*><uintptr_t>user_data
         else:
             buf = bytes(user_data)
-            out_user_data[0] = malloc(len(buf))
-            if out_user_data[0] == NULL:
-                raise MemoryError("failed to allocate user_data buffer")
-            c_memcpy(out_user_data[0], <const char*>buf, len(buf))
-            out_data_owner[0] = make_opaque_malloc(out_user_data[0])
+            if len(buf):
+                out_user_data[0] = malloc(len(buf))
+                if out_user_data[0] == NULL:
+                    raise MemoryError("failed to allocate user_data buffer")
+                c_memcpy(out_user_data[0], <const char*>buf, len(buf))
+                out_data_owner[0] = make_opaque_malloc(out_user_data[0])
+            else:
+                out_user_data[0] = NULL
     else:
         if user_data is not None:
             raise ValueError(
@@ -59,3 +65,15 @@ cdef void _resolve_host_callback(
         out_user_data[0] = <void*>fn
 
     out_fn_owner[0] = make_opaque_py(fn)
+
+
+cdef int _attach_host_callback_owners(
+        const GraphHandle& h_graph, cydriver.CUgraphNode node,
+        OpaqueHandle fn_owner, OpaqueHandle data_owner) except -1:
+    """Attach a resolved host callback's owners to its node's graph slots: the
+    callback in slot 0 and any copied ``user_data`` buffer in slot 1.
+    """
+    HANDLE_RETURN(graph_set_slot(h_graph, node, 0, fn_owner))
+    if data_owner:
+        HANDLE_RETURN(graph_set_slot(h_graph, node, 1, data_owner))
+    return 0
