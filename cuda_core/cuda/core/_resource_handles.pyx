@@ -304,6 +304,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Graph
     void* p_cuGraphDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphDestroy)"
     void* p_cuGraphExecDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphExecDestroy)"
+    void* p_cuUserObjectCreate "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectCreate)"
+    void* p_cuUserObjectRelease "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectRelease)"
+    void* p_cuGraphRetainUserObject "reinterpret_cast<void*&>(cuda_core::p_cuGraphRetainUserObject)"
 
     # Linker
     void* p_cuLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_cuLinkDestroy)"
@@ -364,6 +367,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuMemPoolImportPointer
     global p_cuLibraryLoadFromFile, p_cuLibraryLoadData, p_cuLibraryUnload, p_cuLibraryGetKernel
     global p_cuGraphDestroy, p_cuGraphExecDestroy
+    global p_cuUserObjectCreate, p_cuUserObjectRelease, p_cuGraphRetainUserObject
     global p_cuLinkDestroy
     global p_cuGraphicsUnmapResources, p_cuGraphicsUnregisterResource
     global p_cuDevSmResourceSplit
@@ -424,6 +428,9 @@ cdef void _init_driver_fn_pointers() noexcept:
     # Graph
     p_cuGraphDestroy = _get_driver_fn("cuGraphDestroy")
     p_cuGraphExecDestroy = _get_driver_fn("cuGraphExecDestroy")
+    p_cuUserObjectCreate = _get_driver_fn("cuUserObjectCreate")
+    p_cuUserObjectRelease = _get_driver_fn("cuUserObjectRelease")
+    p_cuGraphRetainUserObject = _get_driver_fn("cuGraphRetainUserObject")
 
     # Linker
     p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
