@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=a86adfc4"></script>
+    <script src="_static/documentation_options.js?v=d9bf959d"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.3.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -538,7 +538,6 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="release/13.3.0-notes.html">13.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/13.2.1-notes.html">13.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.1.0-notes.html">13.1.0</a></li>
@@ -546,6 +545,7 @@
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.4-notes.html">12.9.4</a></li>
@@ -1306,7 +1306,7 @@
 <li><p>Linux (x86-64, arm64) and Windows (x86-64)</p></li>
 <li><p>Python 3.10 - 3.14</p></li>
 <li><p>Driver: Linux (580.65.06 or later) Windows (580.88 or later)</p></li>
-<li><p>Optionally, NVRTC, nvJitLink, NVVM, and cuFile from CUDA Toolkit 13.x</p></li>
+<li><p>Optionally, NVRTC, nvJitLink, nvFatBin, NVVM, cuFile, and cuDLA from CUDA Toolkit 13.x</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1337,10 +1337,12 @@ library are thread-safe. This is subject to change.</p></li>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cuda-nvrtc</span></code> (NVRTC runtime compilation library)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-nvjitlink</span></code> (nvJitLink library)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-nvfatbin</span></code> (nvFatBin library)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-nvvm</span></code> (NVVM library)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cufile</span></code> (cuFile library, Linux only)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cudla</span></code> (cuDLA library, Linux aarch64 only)</p></li>
 </ul>
-<p>These are now installed through the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage for improved dependency resolution.</p>
+<p>These are now installed through the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage, where available, for improved dependency resolution.</p>
 </section>
 <section id="installing-from-conda">
 <h2>Installing from Conda<a class="headerlink" href="#installing-from-conda" title="Link to this heading">#</a></h2>
@@ -1354,6 +1356,10 @@ library are thread-safe. This is subject to change.</p></li>
 <p>For example:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>cuda-python<span class="w"> </span>cuda-version<span class="o">=</span><span class="m">13</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Tegra users can install the cuDLA conda package from conda-forge through <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">conda-forge</span> <span class="pre">libcudla</span> <span class="pre">cuda-version=13</span></code>, if it does not already exist on the system.</p>
 </div>
 </section>
 <section id="installing-from-source">
