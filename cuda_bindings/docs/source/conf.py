@@ -44,6 +44,7 @@ GITHUB_EXAMPLES_REF = _github_examples_ref()
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.extlinks",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "myst_nb",
@@ -109,9 +110,16 @@ html_static_path = []  # ["_static"] does not exist in our environment
 # skip cmdline prompts
 copybutton_exclude = ".linenos, .gp"
 
-rst_epilog = f"""
-.. |cuda_bindings_github_ref| replace:: {GITHUB_EXAMPLES_REF}
-"""
+extlinks = {
+    "cuda-bindings-example": (
+        f"https://github.com/NVIDIA/cuda-python/blob/{GITHUB_EXAMPLES_REF}/cuda_bindings/examples/%s",
+        "%s",
+    ),
+    "cuda-bindings-examples": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/cuda_bindings/examples%s",
+        "%s",
+    ),
+}
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
