@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1711+g875fec45. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -2458,9 +2458,21 @@ cdef extern from "cuda.h":
     ctypedef CUcheckpointGpuPair_st CUcheckpointGpuPair
 
     cdef struct CUcheckpointRestoreArgs_st:
+        {{if 'CUcheckpointRestoreArgs_st.gpuPairs' in found_struct}}
         CUcheckpointGpuPair* gpuPairs
+        {{endif}}
+        {{if 'CUcheckpointRestoreArgs_st.gpuPairsCount' in found_struct}}
         unsigned int gpuPairsCount
-        char reserved[52]
+        {{endif}}
+        {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'char'}}
+        char reserved[{{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}]
+        {{endif}}
+        {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'cuuint64_t'}}
+        cuuint64_t reserved[{{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}]
+        {{endif}}
+        {{if 'CUcheckpointRestoreArgs_st.reserved1' in found_struct}}
+        cuuint64_t reserved1
+        {{endif}}
 
     ctypedef CUcheckpointRestoreArgs_st CUcheckpointRestoreArgs
 
