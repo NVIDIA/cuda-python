@@ -145,7 +145,7 @@ class VirtualMemoryHandleType(StrEnum):
     """OS handle type for exporting virtual memory allocations across processes.
 
     ``POSIX_FD`` — POSIX file descriptor (Linux).
-    ``WIN32_KMT`` — Win32 D3DKMT handle (Windows).
+    ``WIN32_KMT`` — Win32 kernel-mode handle (Windows).
     ``FABRIC`` — NVLink/NVSwitch fabric handle for multi-node topologies.
     """
 

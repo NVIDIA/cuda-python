@@ -67,7 +67,7 @@ class Host:
 
     @property
     def is_numa_current(self) -> bool:
-        """Whether this ``Host`` represents the calling thread's NUMA node (constructed via :meth:`numa_current`)."""
+        """``True`` if this ``Host`` represents the calling thread's NUMA node (constructed via :meth:`numa_current`)."""
         return self._is_numa_current
 
     @classmethod
