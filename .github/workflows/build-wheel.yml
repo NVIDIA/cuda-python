@@ -264,14 +264,23 @@ jobs:
           cd numpy-sdist && tar xf numpy-*.tar.gz && rm numpy-*.tar.gz
           # WAR: numpy 2.4.x ships [tool.cibuildwheel] config that is
           # incompatible with cibuildwheel v4.0 (cpython-freethreading enable
-          # group, OpenBLAS before-build scripts, etc.). Strip the entire
-          # section — we only need a basic numpy wheel for testing.
+          # group, OpenBLAS before-build scripts, etc.). Strip the cibuildwheel
+          # sections but preserve [tool.meson-python] (vendored meson path).
           python -c "
-          import glob, re
+          import glob
           for f in glob.glob('numpy-*/pyproject.toml'):
-              txt = open(f).read()
-              txt = re.sub(r'\n\[tool\.cibuildwheel\].*', '', txt, flags=re.DOTALL)
-              open(f, 'w').write(txt)
+              lines, skip = open(f).readlines(), False
+              out = []
+              for line in lines:
+                  hdr = line.strip()
+                  if hdr.startswith('[tool.cibuildwheel') or hdr.startswith('[[tool.cibuildwheel'):
+                      skip = True
+                      continue
+                  if skip and hdr.startswith('[') and 'cibuildwheel' not in hdr:
+                      skip = False
+                  if not skip:
+                      out.append(line)
+              open(f, 'w').writelines(out)
           "
           echo "NUMPY_SRC_DIR=$(pwd)/$(ls -d numpy-*/)" >> $GITHUB_ENV
 
