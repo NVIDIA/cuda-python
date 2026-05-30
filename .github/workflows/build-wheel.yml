@@ -262,10 +262,17 @@ jobs:
         run: |
           pip download --no-binary numpy --no-deps "numpy>=1.21.1" -d numpy-sdist/
           cd numpy-sdist && tar xf numpy-*.tar.gz && rm numpy-*.tar.gz
-          # WAR: numpy 2.4.x ships enable=["cpython-freethreading", ...] which
-          # is invalid in cibuildwheel v4.0 (freethreading is now on by default).
-          # Fixed on numpy main (a5df4859) but not yet released.
-          sed -i 's/"cpython-freethreading", //' numpy-*/pyproject.toml
+          # WAR: numpy 2.4.x ships [tool.cibuildwheel] config that is
+          # incompatible with cibuildwheel v4.0 (cpython-freethreading enable
+          # group, OpenBLAS before-build scripts, etc.). Strip the entire
+          # section — we only need a basic numpy wheel for testing.
+          python -c "
+          import glob, re
+          for f in glob.glob('numpy-*/pyproject.toml'):
+              txt = open(f).read()
+              txt = re.sub(r'\n\[tool\.cibuildwheel\].*', '', txt, flags=re.DOTALL)
+              open(f, 'w').write(txt)
+          "
           echo "NUMPY_SRC_DIR=$(pwd)/$(ls -d numpy-*/)" >> $GITHUB_ENV
 
       - name: Build numpy wheel (pre-release Python)
@@ -275,6 +282,8 @@ jobs:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
           CIBW_BUILD_VERBOSITY: 1
+          CIBW_CONFIG_SETTINGS: "setup-args=-Dallow-noblas=true"
+          CIBW_CONFIG_SETTINGS_WINDOWS: "setup-args=--vsenv setup-args=-Dallow-noblas=true"
           CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel}"
           CIBW_ENABLE: "cpython-prerelease"
