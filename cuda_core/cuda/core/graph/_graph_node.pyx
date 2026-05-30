@@ -20,6 +20,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._event cimport Event
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
+from cuda.core._memory._buffer cimport Buffer
 from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
 from cuda.core.graph._subclasses cimport (
@@ -283,13 +284,15 @@ cdef class GraphNode:
         """
         return GN_free(self, <cydriver.CUdeviceptr>dptr)
 
-    def memset(self, dst: int, value, size_t width, size_t height=1, size_t pitch=0) -> MemsetNode:
+    def memset(self, dst: Buffer | int, value, size_t width, size_t height=1, size_t pitch=0) -> MemsetNode:
         """Add a memset node depending on this node.
 
         Parameters
         ----------
-        dst : int
-            Destination device pointer.
+        dst : Buffer or int
+            Destination. If a :class:`Buffer` is given it is retained for the
+            graph's lifetime; if a raw device pointer (int) is given it is used
+            as-is and the caller must keep the underlying memory alive.
         value : int or buffer-protocol object
             Fill value. int for 1-byte fill (range [0, 256)),
             or buffer-protocol object of 1, 2, or 4 bytes.
@@ -305,12 +308,14 @@ cdef class GraphNode:
         MemsetNode
             A new MemsetNode representing the memset operation.
         """
+        cdef cydriver.CUdeviceptr c_dst
         cdef unsigned int val
         cdef unsigned int elem_size
+        dst_owner = _resolve_ptr(dst, &c_dst)
         val, elem_size = _parse_fill_value(value)
-        return GN_memset(self, <cydriver.CUdeviceptr>dst, val, elem_size, width, height, pitch)
+        return GN_memset(self, c_dst, dst_owner, val, elem_size, width, height, pitch)
 
-    def memcpy(self, dst: int, src: int, size_t size) -> MemcpyNode:
+    def memcpy(self, dst: Buffer | int, src: Buffer | int, size_t size) -> MemcpyNode:
         """Add a memcpy node depending on this node.
 
         Copies ``size`` bytes from ``src`` to ``dst``. Memory types are
@@ -319,10 +324,12 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        dst : int
-            Destination pointer (device or pinned host).
-        src : int
-            Source pointer (device or pinned host).
+        dst : Buffer or int
+            Destination (device or pinned host). If a :class:`Buffer` is given
+            it is retained for the graph's lifetime; a raw pointer (int) is used
+            as-is and the caller must keep the underlying memory alive.
+        src : Buffer or int
+            Source (device or pinned host). Retained like ``dst`` when a Buffer.
         size : int
             Number of bytes to copy.
 
@@ -331,7 +338,11 @@ cdef class GraphNode:
         MemcpyNode
             A new MemcpyNode representing the copy operation.
         """
-        return GN_memcpy(self, <cydriver.CUdeviceptr>dst, <cydriver.CUdeviceptr>src, size)
+        cdef cydriver.CUdeviceptr c_dst
+        cdef cydriver.CUdeviceptr c_src
+        dst_owner = _resolve_ptr(dst, &c_dst)
+        src_owner = _resolve_ptr(src, &c_src)
+        return GN_memcpy(self, c_dst, dst_owner, c_src, src_owner, size)
 
     def embed(self, child: GraphDefinition) -> ChildGraphNode:
         """Add a child graph node depending on this node.
@@ -778,8 +789,24 @@ cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
     return _registered(FreeNode._create_with_params(create_graph_node_handle(new_node, h_graph), c_dptr))
 
 
+cdef inline object _resolve_ptr(object value, cydriver.CUdeviceptr* out_ptr):
+    """Resolve a memcpy/memset operand into a device pointer.
+
+    ``value`` is a :class:`Buffer` or a raw integer address. For a Buffer the
+    device pointer is read from the buffer and the buffer is returned so the
+    caller can retain it on the node's slot table for the graph's lifetime. For
+    a raw integer no owner is returned and the caller is responsible for keeping
+    the underlying memory alive.
+    """
+    if isinstance(value, Buffer):
+        out_ptr[0] = as_cu((<Buffer>value)._h_ptr)
+        return value
+    out_ptr[0] = <cydriver.CUdeviceptr><uintptr_t>value
+    return None
+
+
 cdef inline MemsetNode GN_memset(
-        GraphNode self, cydriver.CUdeviceptr c_dst,
+        GraphNode self, cydriver.CUdeviceptr c_dst, object dst_owner,
         unsigned int val, unsigned int elem_size,
         size_t width, size_t height, size_t pitch):
     cdef cydriver.CUDA_MEMSET_NODE_PARAMS memset_params
@@ -810,14 +837,18 @@ cdef inline MemsetNode GN_memset(
             &new_node, as_cu(h_graph), deps, num_deps,
             &memset_params, ctx))
 
+    # Retain a Buffer destination for the graph's lifetime (slot 0).
+    if dst_owner is not None:
+        HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, make_opaque_py(dst_owner)))
+
     return _registered(MemsetNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), c_dst,
         val, elem_size, width, height, pitch))
 
 
 cdef inline MemcpyNode GN_memcpy(
-        GraphNode self, cydriver.CUdeviceptr c_dst,
-        cydriver.CUdeviceptr c_src, size_t size):
+        GraphNode self, cydriver.CUdeviceptr c_dst, object dst_owner,
+        cydriver.CUdeviceptr c_src, object src_owner, size_t size):
     cdef unsigned int dst_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
     cdef unsigned int src_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
     cdef cydriver.CUresult ret
@@ -870,6 +901,12 @@ cdef inline MemcpyNode GN_memcpy(
         HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
         HANDLE_RETURN(cydriver.cuGraphAddMemcpyNode(
             &new_node, as_cu(h_graph), deps, num_deps, &params, ctx))
+
+    # Retain Buffer operands for the graph's lifetime (dst -> slot 0, src -> slot 1).
+    if dst_owner is not None:
+        HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, make_opaque_py(dst_owner)))
+    if src_owner is not None:
+        HANDLE_RETURN(graph_set_slot(h_graph, new_node, 1, make_opaque_py(src_owner)))
 
     return _registered(MemcpyNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), c_dst, c_src, size,

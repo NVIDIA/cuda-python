@@ -244,6 +244,18 @@ cdef class GraphBuilder:
     to ambiguity. New graph builders should instead be created through a
     :obj:`~_device.Device`, or a :obj:`~_stream.stream` object.
 
+    .. note::
+
+        Operations recorded during capture reference your memory but do not
+        take ownership of it. As with ordinary stream work, you must keep the
+        operands alive for as long as the completed graph may execute -- for
+        example, the :obj:`~_memory.Buffer` objects passed to :func:`~launch`
+        or :meth:`~_memory.Buffer.copy_to`. Host callbacks added with
+        :meth:`callback` are the exception: the callable (and any copied
+        ``user_data``) are retained for the graph's lifetime. This differs from
+        building a graph explicitly with :class:`~graph.GraphDefinition`, which
+        retains the operands it is given.
+
     """
 
     def __init__(self):
