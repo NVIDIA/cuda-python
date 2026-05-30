@@ -224,6 +224,7 @@ jobs:
 
       - name: Install numpy wheel (pre-release Python)
         if: ${{ startsWith(matrix.PY_VER, '3.15') }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: pip install numpy-wheel/*.whl
 
       - name: Run cuda.bindings tests
