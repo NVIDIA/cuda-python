@@ -12,7 +12,7 @@ def test_graphics_api_smoketest():
         import pyglet
 
         tex = pyglet.image.Texture.create(512, 512)
-    except (ImportError, AttributeError):
+    except (ImportError, AttributeError, OSError):
         pytest.skip("pyglet not available or could not create GL context")
         # return to make linters happy
         return
