@@ -33,6 +33,7 @@ jobs:
 
           # Workflow policy inputs
           REVIEW_LABEL: Needs-Restricted-Paths-Review
+          DRY_RUN_REVIEW_LABEL_WRITES: false
 
           # API request context/auth
           GH_TOKEN: ${{ github.token }}
@@ -125,14 +126,25 @@ jobs:
             echo '```'
           }
 
-          post_review_label_comment() {
-            local comment_body
-            printf -v comment_body '%s\n\n%s\n\n%s\n\n%s\n\n%s\n' \
+          build_review_label_comment() {
+            printf '%s\n\n%s\n\n%s\n\n%s\n\n%s\n' \
               "\`$REVIEW_LABEL\` was assigned by \`CI: Restricted Paths Guard\`." \
               "For details, open [this workflow run]($RUN_URL) and click **Summary**." \
               "For external contributors: thank you for your interest in improving CUDA Python. The \`cuda_bindings/\` package is distributed under the [NVIDIA Software License](https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/LICENSE), which does not allow us to accept external contributions to files under \`cuda_bindings/\` in this repository." \
               "Please close this PR. If your changes also include updates outside \`cuda_bindings/\`, please open a new PR containing only those changes so we can review them separately under the applicable license." \
               "If you are an NVIDIA employee and believe this label was applied in error, no action is needed; a maintainer will review and remove the label if appropriate."
+          }
+
+          write_review_label_comment_dry_run() {
+            echo "- **Dry-run comment body**:"
+            echo '```markdown'
+            build_review_label_comment
+            echo '```'
+          }
+
+          post_review_label_comment() {
+            local comment_body
+            comment_body=$(build_review_label_comment)
 
             if gh api "repos/$REPO/issues/$PR_NUMBER/comments" \
               -f body="$comment_body" >/dev/null; then
@@ -245,6 +257,16 @@ jobs:
           if [ "$NEEDS_REVIEW_LABEL" = "true" ]; then
             if [ "$LABEL_ALREADY_PRESENT" = "true" ]; then
               LABEL_ACTION="already present"
+            elif [ "$DRY_RUN_REVIEW_LABEL_WRITES" = "true" ]; then
+              LABEL_ACTION="would add (dry run)"
+              COMMENT_ACTION="would post (dry run)"
+              {
+                echo "## Restricted Paths Guard Dry Run"
+                echo ""
+                echo "- **Would add label**: \`$REVIEW_LABEL\`"
+                echo ""
+                write_review_label_comment_dry_run
+              } >> "$GITHUB_STEP_SUMMARY"
             elif ! gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "$REVIEW_LABEL"; then
               echo "::error::Failed to add the $REVIEW_LABEL label."
               {
