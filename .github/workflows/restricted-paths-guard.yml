@@ -6,7 +6,7 @@ name: "CI: Restricted Paths Guard"
 on:
   # Run on drafts too so maintainers get early awareness on WIP PRs.
   # Label updates on fork PRs require pull_request_target permissions.
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - synchronize
@@ -44,7 +44,7 @@ jobs:
           #    MEMBER|OWNER and admin|maintain|write|triage.
           # 5. Commit these changes as a temporary dry-run test commit and revert
           #    that commit before merge.
-          DRY_RUN_REVIEW_LABEL_WRITES: true
+          DRY_RUN_REVIEW_LABEL_WRITES: false
 
           # API request context/auth
           GH_TOKEN: ${{ github.token }}
@@ -198,7 +198,7 @@ jobs:
             fi
 
             case "$AUTHOR_ASSOCIATION" in
-              DRY_RUN_NEVER_MATCH)
+              MEMBER|OWNER)
                 HAS_TRUSTED_SIGNAL=true
                 LABEL_ACTION="not needed (live author association is a trusted signal)"
                 TRUSTED_SIGNALS="author_association:$AUTHOR_ASSOCIATION"
@@ -242,7 +242,7 @@ jobs:
               fi
 
               case "$COLLABORATOR_PERMISSION" in
-                DRY_RUN_NEVER_MATCH)
+                admin|maintain|write|triage)
                   HAS_TRUSTED_SIGNAL=true
                   LABEL_ACTION="not needed (collaborator permission is a trusted signal)"
                   TRUSTED_SIGNALS="collaborator_permission:$COLLABORATOR_PERMISSION"

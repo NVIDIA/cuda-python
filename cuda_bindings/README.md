@@ -1,7 +1,5 @@
 # `cuda.bindings`: Low-level CUDA interfaces
 
-<!-- TEMPORARY: restricted-paths-guard dry-run trigger -->
-
 `cuda.bindings` is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview page](https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html) for the workflow and performance results.
 
 ## Installing
