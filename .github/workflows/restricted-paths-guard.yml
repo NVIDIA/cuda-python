@@ -33,6 +33,17 @@ jobs:
 
           # Workflow policy inputs
           REVIEW_LABEL: Needs-Restricted-Paths-Review
+          # Temporary testing recipe for agents:
+          # 1. Change pull_request_target to pull_request.
+          # 2. Set DRY_RUN_REVIEW_LABEL_WRITES to true.
+          # 3. Add a dummy comment or whitespace-only change in
+          #    cuda_bindings/README.md to trigger restricted-path detection
+          #    without affecting build/package behavior.
+          # 4. Replace both trusted case patterns below with DRY_RUN_NEVER_MATCH
+          #    so the test does not depend on the tester's GitHub identity:
+          #    MEMBER|OWNER and admin|maintain|write|triage.
+          # 5. Commit these changes as a temporary dry-run test commit and revert
+          #    that commit before merge.
           DRY_RUN_REVIEW_LABEL_WRITES: false
 
           # API request context/auth
