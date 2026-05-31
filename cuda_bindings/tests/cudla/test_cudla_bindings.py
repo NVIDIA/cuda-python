@@ -38,7 +38,7 @@ class TestEnums:
         assert cudla.Status.ErrorUnknown == 0x7FFFFFFF
 
     def test_status_member_count(self):
-        assert len(cudla.Status) == 23
+        assert len(cudla.Status) == 24
 
     def test_mode_values(self):
         assert cudla.Mode.CUDA_DLA == 0
