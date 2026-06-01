@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 .. currentmodule:: cuda.core.experimental
@@ -31,8 +31,8 @@ None.
 New examples
 ------------
 
-- Add a `CUDA graph <https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/cuda_graphs.py>`_ example.
-- Add a `memory resource <https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/memory_ops.py>`_ example.
+- Add a `CUDA graph <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/cuda_graphs.py>`_ example.
+- Add a `memory resource <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/memory_ops.py>`_ example.
 
 
 Fixes and enhancements

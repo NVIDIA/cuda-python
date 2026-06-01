@@ -133,6 +133,7 @@ intersphinx_mapping = {
 
 def rewrite_source(app, docname, source):
     text = source[0]
+    text = text.replace("|cuda_bindings_github_ref|", GITHUB_EXAMPLES_REF)
 
     if docname.startswith("release/"):
         text = text.replace(".. module:: cuda.bindings\n\n", "", 1)
