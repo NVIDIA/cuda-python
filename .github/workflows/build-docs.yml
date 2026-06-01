@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -91,14 +91,20 @@ jobs:
 
           if [[ ${{ inputs.is-release }} == "true" ]]; then
             FILE_HASH="*"
-            COMMIT_HASH="${{ inputs.git-tag }}"
+            DOCS_GITHUB_REF="${{ inputs.git-tag }}"
+            if [[ -z "${DOCS_GITHUB_REF}" ]]; then
+              DOCS_GITHUB_REF="${GITHUB_REF_NAME}"
+            fi
+            COMMIT_HASH="${DOCS_GITHUB_REF}"
           else
             FILE_HASH="${{ github.sha }}"
-            COMMIT_HASH="${{ github.sha }}"
+            DOCS_GITHUB_REF="${{ github.sha }}"
+            COMMIT_HASH="${DOCS_GITHUB_REF}"
           fi
 
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
+          echo "CUDA_PYTHON_DOCS_GITHUB_REF=${DOCS_GITHUB_REF}" >> $GITHUB_ENV
           echo "COMMIT_HASH=${COMMIT_HASH}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
@@ -210,9 +216,9 @@ jobs:
         run: |
           pushd cuda_python/docs/
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            ./build_all_docs.sh latest-only
+            DOCS_LINKCHECK=1 ./build_all_docs.sh latest-only
           else
-            ./build_all_docs.sh
+            DOCS_LINKCHECK=1 ./build_all_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
           fi
@@ -226,9 +232,9 @@ jobs:
           COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
           pushd ${COMPONENT}/docs/
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            ./build_docs.sh latest-only
+            DOCS_LINKCHECK=1 ./build_docs.sh latest-only
           else
-            ./build_docs.sh
+            DOCS_LINKCHECK=1 ./build_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
           fi

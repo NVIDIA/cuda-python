@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 set -ex
@@ -30,9 +30,19 @@ fi
 
 # build the docs. Allow callers to override SPHINXOPTS for serial/debug runs.
 if [[ -z "${SPHINXOPTS:-}" ]]; then
-    SPHINXOPTS="-W --keep-going -j 4 -d build/.doctrees"
+    HTML_SPHINXOPTS="-W --keep-going -j 4 -d build/.doctrees"
+else
+    HTML_SPHINXOPTS="${SPHINXOPTS}"
 fi
+SPHINXOPTS="${HTML_SPHINXOPTS}"
 make html
+
+if [[ "${DOCS_LINKCHECK:-0}" == "1" ]]; then
+    if [[ -z "${LINKCHECK_SPHINXOPTS:-}" ]]; then
+        LINKCHECK_SPHINXOPTS="-W --keep-going -j 4 -d build/.linkcheck-doctrees"
+    fi
+    SPHINXOPTS="${LINKCHECK_SPHINXOPTS}" make linkcheck BUILDDIR="build/linkcheck/${SPHINX_CUDA_CORE_VER}"
+fi
 
 # to support version dropdown menu
 cp ./versions.json build/html

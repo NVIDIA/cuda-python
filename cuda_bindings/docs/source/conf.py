@@ -27,6 +27,8 @@ release = os.environ["SPHINX_CUDA_BINDINGS_VER"]
 
 
 def _github_examples_ref():
+    if ref := os.environ.get("CUDA_PYTHON_DOCS_GITHUB_REF"):
+        return ref
     if int(os.environ.get("BUILD_PREVIEW", 0)) or int(os.environ.get("BUILD_LATEST", 0)):
         return "main"
     return f"v{release}"
