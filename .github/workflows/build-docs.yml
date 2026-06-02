@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -52,7 +52,14 @@ jobs:
 
       - name: Read build CTK version
         run: |
-          BUILD_CTK_VER=$(yq '.cuda.build.version' ci/versions.yml)
+          if [[ -f ci/versions.yml ]]; then
+            BUILD_CTK_VER=$(yq '.cuda.build.version' ci/versions.yml)
+          elif [[ -f ci/versions.json ]]; then
+            BUILD_CTK_VER=$(jq -r '.cuda.build.version' ci/versions.json)
+          else
+            echo "error: cannot find ci/versions.yml or ci/versions.json" >&2
+            exit 1
+          fi
           if [[ ! "${BUILD_CTK_VER}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "error: derived CTK build version ${BUILD_CTK_VER} does not match MAJOR.MINOR.MICRO" >&2
             exit 1

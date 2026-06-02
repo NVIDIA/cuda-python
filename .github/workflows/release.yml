@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -24,6 +24,11 @@ on:
         description: "The release git tag"
         required: true
         type: string
+      backport-git-tag:
+        description: "Mainline cuda-bindings/cuda-python only: planned backport tag, or 'not planned'. Leave blank for backport releases."
+        required: false
+        type: string
+        default: ""
       run-id:
         description: "The GHA run ID that generated validated artifacts (optional - auto-detects successful tag-triggered CI run for git-tag)"
         required: false
@@ -51,9 +56,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
-          RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
-          echo "Auto-detected run ID: $RUN_ID"
+          if [[ -n "${{ inputs.run-id }}" ]]; then
+            echo "Using provided run ID: ${{ inputs.run-id }}"
+            RUN_ID="${{ inputs.run-id }}"
+          else
+            echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
+            RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
+            echo "Auto-detected run ID: $RUN_ID"
+          fi
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
   check-tag:
@@ -93,8 +103,6 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-        with:
-          ref: ${{ inputs.git-tag }}
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
@@ -110,7 +118,8 @@ jobs:
         run: |
           python ci/tools/check_release_notes.py \
             --git-tag "${{ inputs.git-tag }}" \
-            --component "${{ inputs.component }}"
+            --component "${{ inputs.component }}" \
+            --backport-git-tag "${{ inputs.backport-git-tag }}"
 
   doc:
     name: Build release docs
