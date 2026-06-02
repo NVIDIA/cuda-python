@@ -96,7 +96,7 @@ cdef class Buffer:
         self._memory_resource = None
         self._ipc_data = None
         self._owner = None
-        self._mem_attrs_inited = False
+        self._mem_attrs_inited.store(False)
 
     def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Buffer objects cannot be instantiated directly. "
@@ -126,7 +126,7 @@ cdef class Buffer:
         self._memory_resource = mr
         self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
         self._owner = owner
-        self._mem_attrs_inited = False
+        self._mem_attrs_inited.store(False)
         return self
 
     @staticmethod
@@ -191,6 +191,7 @@ cdef class Buffer:
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
     @property
+    @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
         if self._ipc_data is None:
@@ -447,9 +448,9 @@ cdef class Buffer:
 # ------------------------------
 cdef inline void _init_mem_attrs(Buffer self):
     """Initialize memory attributes by querying the pointer."""
-    if not self._mem_attrs_inited:
+    if not self._mem_attrs_inited.load(memory_order_acquire):
         _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
-        self._mem_attrs_inited = True
+        self._mem_attrs_inited.store(True, memory_order_release)
 
 
 cdef inline int _query_memory_attrs(
@@ -597,7 +598,7 @@ cdef Buffer Buffer_from_deviceptr_handle(
     buf._memory_resource = mr
     buf._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
     buf._owner = None
-    buf._mem_attrs_inited = False
+    buf._mem_attrs_inited.store(False)
     return buf
 
 
