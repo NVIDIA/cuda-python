@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from libc.stdint cimport uintptr_t
+from libcpp cimport bool as cpp_bool
 from libcpp.atomic cimport atomic as std_atomic, memory_order_acquire, memory_order_release
 
 from cuda.bindings cimport cydriver
@@ -19,13 +20,13 @@ cdef struct _MemAttrs:
 
 cdef class Buffer:
     cdef:
-        DevicePtrHandle   _h_ptr
-        MemoryResource    _memory_resource
-        object            _ipc_data
-        object            _owner
-        _MemAttrs         _mem_attrs
-        std_atomic[bool]  _mem_attrs_inited
-        object            __weakref__
+        DevicePtrHandle       _h_ptr
+        MemoryResource        _memory_resource
+        object                _ipc_data
+        object                _owner
+        _MemAttrs             _mem_attrs
+        std_atomic[cpp_bool]  _mem_attrs_inited
+        object                __weakref__
     cdef public:
         # Python code in _memory/_virtual_memory_resource.py needs to update
         # this value, though it is technically private.
