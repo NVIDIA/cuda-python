@@ -38,6 +38,11 @@ on:
         required: false
         default: true
         type: boolean
+      docs-branch:
+        description: "Branch that receives deployed docs"
+        required: false
+        default: "gh-pages"
+        type: string
 
 jobs:
   build:
@@ -262,7 +267,7 @@ jobs:
           retention-days: 3
 
       - name: Upload dry-run docs artifact
-        if: ${{ !inputs.deploy-docs }}
+        if: ${{ !inputs.deploy-docs || (inputs.is-release && inputs.docs-branch != 'gh-pages') }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: release-docs-dry-run-${{ inputs.component }}-${{ inputs.git-tag }}
@@ -283,6 +288,7 @@ jobs:
         with:
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
+          branch: ${{ inputs.docs-branch }}
           folder: artifacts/docs/
           target-folder: docs/
           commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.COMMIT_HASH }}"

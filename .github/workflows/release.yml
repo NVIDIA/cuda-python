@@ -43,6 +43,11 @@ on:
         required: false
         type: string
         default: ""
+      dry-run-docs-branch:
+        description: "Dry-run only: optional branch to receive generated docs, for example gh-pages-dry-run"
+        required: false
+        type: string
+        default: ""
 
 defaults:
   run:
@@ -87,6 +92,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if [[ "${{ inputs.release-action }}" == "full-release" && -n "${{ inputs.dry-run-docs-branch }}" ]]; then
+            echo "error: dry-run-docs-branch is only valid with release-action=dry-run" >&2
+            exit 1
+          fi
+          if [[ "${{ inputs.release-action }}" == "dry-run" && "${{ inputs.dry-run-docs-branch }}" == "gh-pages" ]]; then
+            echo "error: dry-run-docs-branch must not be gh-pages" >&2
+            exit 1
+          fi
           if [[ "${{ inputs.release-action }}" == "dry-run" ]]; then
             git rev-parse --verify "${{ inputs.git-tag }}^{commit}"
             echo "Dry-run selected; not checking or creating a GitHub release draft."
@@ -155,7 +168,8 @@ jobs:
       git-tag: ${{ inputs.git-tag }}
       run-id: ${{ needs.determine-run-id.outputs.run-id }}
       is-release: true
-      deploy-docs: ${{ inputs.release-action == 'full-release' }}
+      deploy-docs: ${{ inputs.release-action == 'full-release' || inputs.dry-run-docs-branch != '' }}
+      docs-branch: ${{ (inputs.release-action == 'dry-run' && inputs.dry-run-docs-branch) || 'gh-pages' }}
 
   upload-archive:
     name: Validate release artifacts
