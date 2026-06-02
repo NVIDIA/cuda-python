@@ -303,7 +303,7 @@ jobs:
 
       - name: Check doc preview links
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
-        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411  # v2
+        uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0  # unreleased: supports v0.24.x archive layout
         with:
           args: >-
             --base-url https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}/
@@ -325,6 +325,7 @@ jobs:
           failIfEmpty: true
           format: markdown
           jobSummary: true
+          lycheeVersion: v0.24.2
           output: lychee-preview.md
           token: ${{ github.token }}
 
