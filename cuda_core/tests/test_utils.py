@@ -1044,7 +1044,7 @@ def test_check_has_dlpack_plain_object_raises():
     class _NoProto:
         pass
 
-    with pytest.raises(RuntimeError, match="does not support any data exchange protocol"):
+    with pytest.raises(BufferError, match="does not support any data exchange protocol"):
         StridedMemoryView.from_any_interface(_NoProto(), stream_ptr=-1)
 
 
