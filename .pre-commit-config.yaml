@@ -53,6 +53,18 @@ repos:
           - stubgen-pyx==0.2.6
           - Cython==3.2.4
 
+  # Link checking for authored documentation files
+  - repo: https://github.com/lycheeverse/lychee
+    rev: 2bba271688c1abb1503097a064e6c3bc1d1b6a9b  # frozen: lychee-v0.24.2
+    hooks:
+      - id: lychee
+        args:
+          - --cache
+          - --max-concurrency=4
+          - --max-retries=3
+          - --no-progress
+        files: '\.(md|rst)$'
+
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: "3e8a8703264a2f4a69428a0aa4dcb512790b2c8c"  # frozen: v6.0.0
