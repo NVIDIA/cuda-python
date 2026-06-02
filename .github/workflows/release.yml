@@ -26,9 +26,9 @@ on:
         required: true
         type: choice
         options:
-          - full-release
           - dry-run
-        default: full-release
+          - full-release
+        default: dry-run
       git-tag:
         description: "The release git tag"
         required: true
