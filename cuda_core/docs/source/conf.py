@@ -200,11 +200,6 @@ def skip_member(app, what, name, obj, skip, options):
     return None
 
 
-def rewrite_source(app, docname, source):
-    source[0] = source[0].replace("|cuda_core_github_ref|", GITHUB_EXAMPLES_REF)
-
-
 def setup(app):
     app.connect("autodoc-process-docstring", autodoc_process_docstring)
     app.connect("autodoc-skip-member", skip_member)
-    app.connect("source-read", rewrite_source)
