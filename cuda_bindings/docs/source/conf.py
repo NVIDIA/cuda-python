@@ -37,6 +37,15 @@ def _github_examples_ref():
 GITHUB_EXAMPLES_REF = _github_examples_ref()
 
 
+def _html_baseurl():
+    docs_domain = os.environ.get("CUDA_PYTHON_DOCS_DOMAIN", "https://nvidia.github.io/cuda-python")
+    if int(os.environ.get("BUILD_PREVIEW", 0)):
+        return f"{docs_domain}/pr-preview/pr-{os.environ['PR_NUMBER']}/cuda-bindings/latest/"
+    if int(os.environ.get("BUILD_LATEST", 0)):
+        return f"{docs_domain}/cuda-bindings/latest/"
+    return f"{docs_domain}/cuda-bindings/{release}/"
+
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -76,7 +85,7 @@ toc_object_entries_show_parents = "domain"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_baseurl = "docs"
+html_baseurl = _html_baseurl()
 html_theme = "nvidia_sphinx_theme"
 html_theme_options = {
     "switcher": {

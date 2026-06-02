@@ -306,7 +306,7 @@ jobs:
         env:
           PREVIEW_URL: https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}
         run: |
-          find "${GITHUB_WORKSPACE}/artifacts/docs" -type f -name '*.html' -printf '%P\n' \
+          find "${GITHUB_WORKSPACE}/artifacts/docs" -type f -name '*.html' ! -path '*/_static/*' -printf '%P\n' \
             | LC_ALL=C sort \
             | sed "s#^#${PREVIEW_URL}/#" > lychee-preview-urls.txt
           if [[ ! -s lychee-preview-urls.txt ]]; then

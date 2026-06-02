@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 -------
@@ -299,7 +299,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorIncompatibleDriverContext
 
 
-        This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see :py:obj:`~.Interactions`with the CUDA Driver API" for more information.
+        This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see `Interactions with the CUDA Driver API`_ for more information.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorMissingConfiguration
@@ -6403,11 +6403,11 @@ The types ::CUevent and cudaEvent_t are identical and may be used interchangeabl
 
 
 
-The types ::CUarray and struct ::cudaArray * represent the same data type and may be used interchangeably by casting the two types between each other.
+The types ``CUarray`` and ``struct cudaArray *`` represent the same data type and may be used interchangeably by casting the two types between each other.
 
-In order to use a ::CUarray in a CUDA Runtime API function which takes a struct ::cudaArray *, it is necessary to explicitly cast the ::CUarray to a struct ::cudaArray *.
+In order to use a ``CUarray`` in a CUDA Runtime API function which takes a ``struct cudaArray *``, it is necessary to explicitly cast the ``CUarray`` to a ``struct cudaArray *``.
 
-In order to use a struct ::cudaArray * in a CUDA Driver API function which takes a ::CUarray, it is necessary to explicitly cast the struct ::cudaArray * to a ::CUarray .
+In order to use a ``struct cudaArray *`` in a CUDA Driver API function which takes a ``CUarray``, it is necessary to explicitly cast the ``struct cudaArray *`` to a ``CUarray``.
 
 
 
