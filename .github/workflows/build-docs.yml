@@ -301,15 +301,26 @@ jobs:
           restore-keys: |
             docs-preview-lychee-${{ env.PR_NUMBER }}-
 
+      - name: Write lychee doc preview URL list
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        env:
+          PREVIEW_URL: https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}
+        run: |
+          find "${GITHUB_WORKSPACE}/artifacts/docs" -type f -name '*.html' -printf '%P\n' \
+            | LC_ALL=C sort \
+            | sed "s#^#${PREVIEW_URL}/#" > lychee-preview-urls.txt
+          if [[ ! -s lychee-preview-urls.txt ]]; then
+            echo "error: no rendered HTML pages found for lychee" >&2
+            exit 1
+          fi
+          wc -l lychee-preview-urls.txt
+
       - name: Check doc preview links
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
         uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0  # unreleased: supports v0.24.x archive layout
         with:
           args: >-
-            --base-url https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}/
-            --root-dir ${{ github.workspace }}/artifacts/docs
-            --index-files index.html
-            --fallback-extensions html,htm
+            --files-from ${{ github.workspace }}/lychee-preview-urls.txt
             --include-fragments=full
             --cache
             --max-cache-age 1d
@@ -320,11 +331,10 @@ jobs:
             --retry-wait-time 5
             --timeout 30
             --no-progress
-            '${{ github.workspace }}/artifacts/docs/**/*.html'
           fail: true
           failIfEmpty: true
           format: markdown
-          jobSummary: true
+          jobSummary: false
           lycheeVersion: v0.24.2
           output: lychee-preview.md
           token: ${{ github.token }}
