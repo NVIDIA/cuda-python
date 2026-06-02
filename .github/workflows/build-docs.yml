@@ -310,7 +310,7 @@ jobs:
             --root-dir ${{ github.workspace }}/artifacts/docs
             --index-files index.html
             --fallback-extensions html,htm
-            --include-fragments full
+            --include-fragments=full
             --cache
             --max-cache-age 1d
             --max-concurrency 16
