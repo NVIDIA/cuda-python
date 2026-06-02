@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 ------
@@ -406,25 +406,25 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_GEQ
 
 
-        Wait until (int32_t)(*addr - value) >= 0 (or int64_t for 64 bit values). Note this is a cyclic comparison which ignores wraparound. (Default behavior.)
+        Wait until (int32_t)(\*addr - value) >= 0 (or int64_t for 64 bit values). Note this is a cyclic comparison which ignores wraparound. (Default behavior.)
 
 
     .. autoattribute:: cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_EQ
 
 
-        Wait until *addr == value.
+        Wait until \*addr == value.
 
 
     .. autoattribute:: cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_AND
 
 
-        Wait until (*addr & value) != 0.
+        Wait until (\*addr & value) != 0.
 
 
     .. autoattribute:: cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_NOR
 
 
-        Wait until ~(*addr | value) != 0. Support for this operation can be queried with :py:obj:`~.cuDeviceGetAttribute()` and :py:obj:`~.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR`.
+        Wait until ~(\*addr | value) != 0. Support for this operation can be queried with :py:obj:`~.cuDeviceGetAttribute()` and :py:obj:`~.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR`.
 
 
     .. autoattribute:: cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_FLUSH
@@ -506,19 +506,19 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_OR
 
 
-        Performs an atomic OR: *(address) = *(address) | value
+        Performs an atomic OR: \*(address) = \*(address) | value
 
 
     .. autoattribute:: cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_AND
 
 
-        Performs an atomic AND: *(address) = *(address) & value
+        Performs an atomic AND: \*(address) = \*(address) & value
 
 
     .. autoattribute:: cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_ADD
 
 
-        Performs an atomic ADD: *(address) = *(address) + value
+        Performs an atomic ADD: \*(address) = \*(address) + value
 
 .. autoclass:: cuda.bindings.driver.CUstreamAtomicReductionDataType
 

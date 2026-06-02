@@ -59,7 +59,7 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/module/driver.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2159/cuda-bindings/latest/module/driver.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -5322,25 +5322,25 @@ whether the surface * is Multiplanar or not.
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_GEQ">
 <span class="sig-name descname"><span class="pre">CU_STREAM_WAIT_VALUE_GEQ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_GEQ:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_GEQ" title="Link to this definition">#</a></dt>
-<dd><p>Wait until (int32_t)(<a href="#id1"><span class="problematic" id="id2">*</span></a>addr - value) &gt;= 0 (or int64_t for 64 bit values). Note this is a cyclic comparison which ignores wraparound. (Default behavior.)</p>
+<dd><p>Wait until (int32_t)(*addr - value) &gt;= 0 (or int64_t for 64 bit values). Note this is a cyclic comparison which ignores wraparound. (Default behavior.)</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_EQ">
 <span class="sig-name descname"><span class="pre">CU_STREAM_WAIT_VALUE_EQ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_EQ:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_EQ" title="Link to this definition">#</a></dt>
-<dd><p>Wait until <a href="#id3"><span class="problematic" id="id4">*</span></a>addr == value.</p>
+<dd><p>Wait until *addr == value.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_AND">
 <span class="sig-name descname"><span class="pre">CU_STREAM_WAIT_VALUE_AND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_AND:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_AND" title="Link to this definition">#</a></dt>
-<dd><p>Wait until (<a href="#id5"><span class="problematic" id="id6">*</span></a>addr &amp; value) != 0.</p>
+<dd><p>Wait until (*addr &amp; value) != 0.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_NOR">
 <span class="sig-name descname"><span class="pre">CU_STREAM_WAIT_VALUE_NOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_NOR:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_NOR" title="Link to this definition">#</a></dt>
-<dd><p>Wait until ~(<a href="#id7"><span class="problematic" id="id8">*</span></a>addr | value) != 0. Support for this operation can be queried with <a class="reference internal" href="#cuda.bindings.driver.cuDeviceGetAttribute" title="cuda.bindings.driver.cuDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuDeviceGetAttribute()</span></code></a> and <a class="reference internal" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR" title="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR</span></code></a>.</p>
+<dd><p>Wait until ~(*addr | value) != 0. Support for this operation can be queried with <a class="reference internal" href="#cuda.bindings.driver.cuDeviceGetAttribute" title="cuda.bindings.driver.cuDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuDeviceGetAttribute()</span></code></a> and <a class="reference internal" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR" title="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -5451,19 +5451,19 @@ whether the surface * is Multiplanar or not.
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_OR">
 <span class="sig-name descname"><span class="pre">CU_STREAM_ATOMIC_REDUCTION_OP_OR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_OR:</span> <span class="pre">6&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_OR" title="Link to this definition">#</a></dt>
-<dd><p>Performs an atomic OR: <a href="#id9"><span class="problematic" id="id10">*</span></a>(address) = <a href="#id11"><span class="problematic" id="id12">*</span></a>(address) | value</p>
+<dd><p>Performs an atomic OR: *(address) = *(address) | value</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_AND">
 <span class="sig-name descname"><span class="pre">CU_STREAM_ATOMIC_REDUCTION_OP_AND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_AND:</span> <span class="pre">5&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_AND" title="Link to this definition">#</a></dt>
-<dd><p>Performs an atomic AND: <a href="#id13"><span class="problematic" id="id14">*</span></a>(address) = <a href="#id15"><span class="problematic" id="id16">*</span></a>(address) &amp; value</p>
+<dd><p>Performs an atomic AND: *(address) = *(address) &amp; value</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_ADD">
 <span class="sig-name descname"><span class="pre">CU_STREAM_ATOMIC_REDUCTION_OP_ADD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_ADD:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_ADD" title="Link to this definition">#</a></dt>
-<dd><p>Performs an atomic ADD: <a href="#id17"><span class="problematic" id="id18">*</span></a>(address) = <a href="#id19"><span class="problematic" id="id20">*</span></a>(address) + value</p>
+<dd><p>Performs an atomic ADD: *(address) = *(address) + value</p>
 </dd></dl>
 
 </dd></dl>
@@ -38206,8 +38206,8 @@ It is the caller&#39;s responsibility to deregister callbacks before they go out
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="id21">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUdevSmResource</span></span><a class="headerlink" href="#id21" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id1">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUdevSmResource</span></span><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>.. attribute:: smCount
 
    The amount of streaming multiprocessors available in this resource.
@@ -38245,8 +38245,8 @@ It is the caller&#39;s responsibility to deregister callbacks before they go out
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="id22">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUdevWorkqueueConfigResource</span></span><a class="headerlink" href="#id22" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id2">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUdevWorkqueueConfigResource</span></span><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>.. attribute:: device
 
    The device on which the workqueue resources are available
@@ -38273,8 +38273,8 @@ It is the caller&#39;s responsibility to deregister callbacks before they go out
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="id23">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUdevWorkqueueResource</span></span><a class="headerlink" href="#id23" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id3">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUdevWorkqueueResource</span></span><a class="headerlink" href="#id3" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>.. attribute:: reserved
 
    Reserved for future use
@@ -38289,8 +38289,8 @@ It is the caller&#39;s responsibility to deregister callbacks before they go out
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="id24">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></span><a class="headerlink" href="#id24" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id4">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></span><a class="headerlink" href="#id4" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>.. attribute:: smCount
 
    The amount of SMs available in this resource.
@@ -42371,10 +42371,10 @@ mapping is shown in the table below. `mipLevel` must be 0.
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevResourceDesc"><code class="docutils literal notranslate"><span class="pre">CUdevResourceDesc</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21"><code class="docutils literal notranslate"><span class="pre">CUdevSmResource</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueConfigResource</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24"><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1"><code class="docutils literal notranslate"><span class="pre">CUdevSmResource</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueConfigResource</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4"><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuGreenCtxCreate"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxCreate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuGreenCtxDestroy"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxDestroy()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuCtxFromGreenCtx"><code class="docutils literal notranslate"><span class="pre">cuCtxFromGreenCtx()</span></code></a></li>

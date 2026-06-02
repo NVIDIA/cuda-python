@@ -59,7 +59,7 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/module/runtime.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2159/cuda-bindings/latest/module/runtime.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -5010,7 +5010,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaError_t.cudaErrorIncompatibleDriverContext">
 <span class="sig-name descname"><span class="pre">cudaErrorIncompatibleDriverContext</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaError_t.cudaErrorIncompatibleDriverContext:</span> <span class="pre">49&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaError_t.cudaErrorIncompatibleDriverContext" title="Link to this definition">#</a></dt>
-<dd><p>This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see :py:obj:<a href="#id1"><span class="problematic" id="id2">`</span></a>~.Interactions`with the CUDA Driver API” for more information.</p>
+<dd><p>This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see <a class="reference internal" href="#interactions-with-the-cuda-driver-api">Interactions with the CUDA Driver API</a> for more information.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -25567,9 +25567,9 @@ impl_private</p>
 <p><strong>Interactions between CUevent and cudaEvent_t</strong></p>
 <p>The types ::CUevent and cudaEvent_t are identical and may be used interchangeably.</p>
 <p><strong>Interactions between CUarray and cudaArray_t</strong></p>
-<p>The types ::CUarray and struct ::cudaArray * represent the same data type and may be used interchangeably by casting the two types between each other.</p>
-<p>In order to use a ::CUarray in a CUDA Runtime API function which takes a struct ::cudaArray <a href="#id3"><span class="problematic" id="id4">*</span></a>, it is necessary to explicitly cast the ::CUarray to a struct ::cudaArray <a href="#id5"><span class="problematic" id="id6">*</span></a>.</p>
-<p>In order to use a struct ::cudaArray * in a CUDA Driver API function which takes a ::CUarray, it is necessary to explicitly cast the struct ::cudaArray * to a ::CUarray .</p>
+<p>The types <code class="docutils literal notranslate"><span class="pre">CUarray</span></code> and <code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">cudaArray</span> <span class="pre">*</span></code> represent the same data type and may be used interchangeably by casting the two types between each other.</p>
+<p>In order to use a <code class="docutils literal notranslate"><span class="pre">CUarray</span></code> in a CUDA Runtime API function which takes a <code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">cudaArray</span> <span class="pre">*</span></code>, it is necessary to explicitly cast the <code class="docutils literal notranslate"><span class="pre">CUarray</span></code> to a <code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">cudaArray</span> <span class="pre">*</span></code>.</p>
+<p>In order to use a <code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">cudaArray</span> <span class="pre">*</span></code> in a CUDA Driver API function which takes a <code class="docutils literal notranslate"><span class="pre">CUarray</span></code>, it is necessary to explicitly cast the <code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">cudaArray</span> <span class="pre">*</span></code> to a <code class="docutils literal notranslate"><span class="pre">CUarray</span></code>.</p>
 <p><strong>Interactions between CUgraphicsResource and cudaGraphicsResource_t</strong></p>
 <p>The types ::CUgraphicsResource and cudaGraphicsResource_t represent the same data type and may be used interchangeably by casting the two types between each other.</p>
 <p>In order to use a ::CUgraphicsResource in a CUDA Runtime API function which takes a cudaGraphicsResource_t, it is necessary to explicitly cast the ::CUgraphicsResource to a cudaGraphicsResource_t.</p>
