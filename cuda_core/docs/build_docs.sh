@@ -37,21 +37,6 @@ fi
 SPHINXOPTS="${HTML_SPHINXOPTS}"
 make html
 
-if [[ "${DOCS_LINKCHECK:-0}" == "1" ]]; then
-    if [[ -n "${CUDA_PYTHON_DOCS_GITHUB_REF:-}" ]]; then
-        DOCS_EXAMPLES_REF="${CUDA_PYTHON_DOCS_GITHUB_REF}"
-    elif [[ "${BUILD_PREVIEW:-0}" == "1" || "${BUILD_LATEST:-0}" == "1" ]]; then
-        DOCS_EXAMPLES_REF="main"
-    else
-        DOCS_EXAMPLES_REF="cuda-core-v${SPHINX_CUDA_CORE_VER}"
-    fi
-    python ../../cuda_python/docs/check_example_links.py \
-        --source-dir source \
-        --examples-root cuda_core/examples \
-        --expected-ref "${DOCS_EXAMPLES_REF}" \
-        --placeholder cuda_core_github_ref
-fi
-
 # to support version dropdown menu
 cp ./versions.json build/html
 cp ./nv-versions.json build/html

@@ -37,21 +37,6 @@ else
 fi
 SPHINXOPTS="${HTML_SPHINXOPTS}" make html
 
-if [[ "${DOCS_LINKCHECK:-0}" == "1" ]]; then
-    if [[ -n "${CUDA_PYTHON_DOCS_GITHUB_REF:-}" ]]; then
-        DOCS_EXAMPLES_REF="${CUDA_PYTHON_DOCS_GITHUB_REF}"
-    elif [[ "${BUILD_PREVIEW:-0}" == "1" || "${BUILD_LATEST:-0}" == "1" ]]; then
-        DOCS_EXAMPLES_REF="main"
-    else
-        DOCS_EXAMPLES_REF="v${SPHINX_CUDA_BINDINGS_VER}"
-    fi
-    python ../../cuda_python/docs/check_example_links.py \
-        --source-dir source \
-        --examples-root cuda_bindings/examples \
-        --expected-ref "${DOCS_EXAMPLES_REF}" \
-        --placeholder cuda_bindings_github_ref
-fi
-
 # for debugging/developing (conf.py), please comment out the above line and
 # use the line below instead, as we must build in serial to avoid getting
 # obsecure Sphinx errors

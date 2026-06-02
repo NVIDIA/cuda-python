@@ -216,9 +216,9 @@ jobs:
         run: |
           pushd cuda_python/docs/
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            DOCS_LINKCHECK=1 ./build_all_docs.sh latest-only
+            ./build_all_docs.sh latest-only
           else
-            DOCS_LINKCHECK=1 ./build_all_docs.sh
+            ./build_all_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
           fi
@@ -232,9 +232,9 @@ jobs:
           COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
           pushd ${COMPONENT}/docs/
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            DOCS_LINKCHECK=1 ./build_docs.sh latest-only
+            ./build_docs.sh latest-only
           else
-            DOCS_LINKCHECK=1 ./build_docs.sh
+            ./build_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
           fi
@@ -247,6 +247,11 @@ jobs:
             TARGET=""
           fi
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
+
+      - name: Write doc preview marker
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        run: |
+          echo "${{ github.sha }}" > artifacts/docs/.preview-commit
 
       # TODO: Consider removing this step?
       - name: Upload doc artifacts
@@ -262,6 +267,69 @@ jobs:
           source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
                               'artifacts/empty_docs' }}
           pr-number: ${{ env.PR_NUMBER }}
+
+      - name: Wait for doc preview deployment
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        env:
+          PREVIEW_URL: https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}
+        run: |
+          marker_url="${PREVIEW_URL}/.preview-commit"
+          for attempt in {1..60}; do
+            marker=$(curl -fsSL "${marker_url}" || true)
+            if [[ "${marker}" == "${{ github.sha }}" ]]; then
+              echo "Doc preview is available at ${PREVIEW_URL}"
+              exit 0
+            fi
+            echo "Waiting for doc preview marker ${marker_url} (${attempt}/60)"
+            sleep 10
+          done
+          echo "error: doc preview marker did not update to ${{ github.sha }}" >&2
+          exit 1
+
+      - name: Restore lychee cache
+        id: restore-lychee-cache
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        with:
+          path: .lycheecache
+          key: docs-preview-lychee-${{ env.PR_NUMBER }}-${{ github.sha }}
+          restore-keys: |
+            docs-preview-lychee-${{ env.PR_NUMBER }}-
+
+      - name: Check doc preview links
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411  # v2
+        with:
+          args: >-
+            --base-url https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}/
+            --root-dir ${{ github.workspace }}/artifacts/docs
+            --index-files index.html
+            --fallback-extensions html,htm
+            --include-fragments full
+            --cache
+            --max-cache-age 1d
+            --max-concurrency 16
+            --host-concurrency 2
+            --host-request-interval 250ms
+            --max-retries 3
+            --retry-wait-time 5
+            --timeout 30
+            --no-progress
+            '${{ github.workspace }}/artifacts/docs/**/*.html'
+          fail: true
+          failIfEmpty: true
+          format: markdown
+          jobSummary: true
+          lycheeVersion: v0.24.2
+          output: lychee-preview.md
+          token: ${{ github.token }}
+
+      - name: Save lychee cache
+        if: ${{ always() && !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') && steps.restore-lychee-cache.outputs.cache-hit != 'true' && steps.restore-lychee-cache.outputs.cache-primary-key != '' }}
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        with:
+          path: .lycheecache
+          key: ${{ steps.restore-lychee-cache.outputs.cache-primary-key }}
 
       - name: Deploy doc update
         if: ${{ github.ref_name == 'main' || inputs.is-release }}
