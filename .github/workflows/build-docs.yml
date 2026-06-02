@@ -325,7 +325,6 @@ jobs:
           failIfEmpty: true
           format: markdown
           jobSummary: true
-          lycheeVersion: v0.24.2
           output: lychee-preview.md
           token: ${{ github.token }}
 
