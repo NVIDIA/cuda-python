@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 Motivation
@@ -31,7 +31,7 @@ you get the best of both worlds: rapid iterative development with Python and the
 speed of a compiled language targeting both CPUs and NVIDIA GPUs.
 
 `CuPy <https://cupy.dev/>`_ is a
-`NumPy <https://numpy.org/>`_/`SciPy <https://www.scipy.org/>`_ compatible Array
+`NumPy <https://numpy.org/>`_/`SciPy <https://scipy.org/>`_ compatible Array
 library, from `Preferred Networks <https://www.preferred.jp/en/>`_, for
 GPU-accelerated computing with Python. CUDA Python simplifies the CuPy build
 and allows for a faster and smaller memory footprint when importing the CuPy

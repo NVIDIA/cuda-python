@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 Overview
@@ -38,8 +38,8 @@ The first thing to do is import the `Driver
 API <https://docs.nvidia.com/cuda/cuda-driver-api/index.html>`_ and
 `NVRTC <https://docs.nvidia.com/cuda/nvrtc/index.html>`_ modules from the ``cuda.bindings``
 package. Next, we consider how to store host data and pass it to the device. Different
-approaches can be used to accomplish this and are described in `Preparing kernel
-arguments <https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html#preparing-kernel-arguments>`_.
+approaches can be used to accomplish this and are described in
+:ref:`Preparing kernel arguments <preparing-kernel-arguments>`.
 In this example, we will use NumPy to store host data and pass it to the device, so let's
 import this dependency as well.
 
@@ -307,6 +307,8 @@ maximize performance ({numref}``Figure 1``).
    :name: Figure 1
 
    Screenshot of Nsight Compute CLI output of ``cuda.bindings`` example.
+
+.. _preparing-kernel-arguments:
 
 Preparing kernel arguments
 --------------------------
