@@ -272,19 +272,24 @@ jobs:
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
         env:
           PREVIEW_URL: https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}
+          EXPECTED_SHA: ${{ github.sha }}
         run: |
+          preview_ready=0
           marker_url="${PREVIEW_URL}/.preview-commit"
           for attempt in {1..60}; do
             marker=$(curl -fsSL "${marker_url}" || true)
-            if [[ "${marker}" == "${{ github.sha }}" ]]; then
-              echo "Doc preview is available at ${PREVIEW_URL}"
-              exit 0
+            if [[ "${marker}" == "${EXPECTED_SHA}" ]]; then
+              preview_ready=1
+              break
             fi
             echo "Waiting for doc preview marker ${marker_url} (${attempt}/60)"
             sleep 10
           done
-          echo "error: doc preview marker did not update to ${{ github.sha }}" >&2
-          exit 1
+          if [[ "${preview_ready}" != "1" ]]; then
+            echo "error: doc preview marker did not update to ${EXPECTED_SHA}" >&2
+            exit 1
+          fi
+          echo "Doc preview is available at ${PREVIEW_URL}"
 
       - name: Restore lychee cache
         id: restore-lychee-cache
