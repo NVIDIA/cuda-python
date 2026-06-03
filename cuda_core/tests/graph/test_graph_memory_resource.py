@@ -290,6 +290,36 @@ def test_gmr_check_capture_state(mempool_device, mode):
         gb.end_building().complete()
 
 
+def test_graph_memory_resource_attributes_direct_init_raises():
+    """GraphMemoryResourceAttributes cannot be constructed directly."""
+    from cuda.core._memory._graph_memory_resource import GraphMemoryResourceAttributes
+
+    with pytest.raises(RuntimeError, match="cannot be instantiated directly"):
+        GraphMemoryResourceAttributes()
+
+
+def test_graph_memory_resource_accessibility_flags(init_cuda):
+    """GraphMemoryResource exposes expected accessibility flags and device_id."""
+    device = Device()
+    gmr = GraphMemoryResource(device)
+    assert gmr.is_device_accessible is True
+    assert gmr.is_host_accessible is False
+    assert gmr.device_id == int(device)
+
+
+def test_graph_memory_resource_attributes_repr(mempool_device):
+    """GraphMemoryResourceAttributes.__repr__ includes the class name and the 4 documented attributes."""
+    device = mempool_device
+    gmr = GraphMemoryResource(device)
+    r = repr(gmr.attributes)
+    assert r.startswith("GraphMemoryResourceAttributes(")
+    assert r.endswith(")")
+    assert "reserved_mem_current=" in r
+    assert "reserved_mem_high=" in r
+    assert "used_mem_current=" in r
+    assert "used_mem_high=" in r
+
+
 @pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
 def test_dmr_check_capture_state(mempool_device, mode):
     """

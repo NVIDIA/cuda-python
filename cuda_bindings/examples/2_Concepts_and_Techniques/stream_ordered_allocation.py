@@ -137,7 +137,7 @@ def stream_ordered_allocation_post_sync(dev, nelem, a, b, c):
             threshold_val,
         )
     )
-    # Record teh start event
+    # Record the start event
     check_cuda_errors(cudart.cudaEventRecord(start, stream))
     for _i in range(MAX_ITER):
         d_a = check_cuda_errors(cudart.cudaMallocAsync(num_bytes, stream))

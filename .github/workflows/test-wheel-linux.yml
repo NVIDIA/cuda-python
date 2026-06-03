@@ -96,6 +96,7 @@ jobs:
 
   test:
     name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.TORCH_VER && format(', {0}', matrix.TORCH_VER) || '' }}${{ matrix.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
+    timeout-minutes: 60
     needs: compute-matrix
     strategy:
       fail-fast: false

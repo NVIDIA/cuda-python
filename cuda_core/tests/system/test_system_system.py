@@ -62,6 +62,9 @@ def test_nvml_version():
 
 @skip_if_nvml_unsupported
 def test_get_process_name():
+    for device in system.Device.get_all_devices():
+        x = device.compute_running_processes
+
     try:
         process_name = system.get_process_name(os.getpid())
     except system.NotFoundError:

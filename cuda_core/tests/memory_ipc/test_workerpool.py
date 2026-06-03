@@ -10,7 +10,6 @@ from helpers.buffers import PatternGen
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 
-CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 NWORKERS = 2
 NMRS = 3
