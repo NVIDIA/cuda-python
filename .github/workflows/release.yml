@@ -44,7 +44,7 @@ on:
         type: string
         default: ""
       dry-run-docs-branch:
-        description: "Dry-run only: optional branch to receive generated docs, for example gh-pages-dry-run"
+        description: "Dry-run only: optional gh-pages-* branch to receive generated docs, for example gh-pages-dry-run"
         required: false
         type: string
         default: ""
@@ -91,17 +91,20 @@ jobs:
       - name: Check release tag and draft state
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_ACTION: ${{ inputs.release-action }}
+          RELEASE_GIT_TAG: ${{ inputs.git-tag }}
+          DRY_RUN_DOCS_BRANCH: ${{ inputs.dry-run-docs-branch }}
         run: |
-          if [[ "${{ inputs.release-action }}" == "full-release" && -n "${{ inputs.dry-run-docs-branch }}" ]]; then
+          if [[ "$RELEASE_ACTION" == "full-release" && -n "$DRY_RUN_DOCS_BRANCH" ]]; then
             echo "error: dry-run-docs-branch is only valid with release-action=dry-run" >&2
             exit 1
           fi
-          if [[ "${{ inputs.release-action }}" == "dry-run" && "${{ inputs.dry-run-docs-branch }}" == "gh-pages" ]]; then
-            echo "error: dry-run-docs-branch must not be gh-pages" >&2
+          if [[ "$RELEASE_ACTION" == "dry-run" && -n "$DRY_RUN_DOCS_BRANCH" && ! "$DRY_RUN_DOCS_BRANCH" =~ ^gh-pages-[[:alnum:]._/-]+$ ]]; then
+            echo "error: dry-run-docs-branch must be a non-production gh-pages-* branch" >&2
             exit 1
           fi
-          if [[ "${{ inputs.release-action }}" == "dry-run" ]]; then
-            git rev-parse --verify "${{ inputs.git-tag }}^{commit}"
+          if [[ "$RELEASE_ACTION" == "dry-run" ]]; then
+            git rev-parse --verify "${RELEASE_GIT_TAG}^{commit}"
             echo "Dry-run selected; not checking or creating a GitHub release draft."
             exit 0
           fi
