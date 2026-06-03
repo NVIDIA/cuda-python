@@ -39550,7 +39550,7 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
 
     - Returns in ``*data`` the :py:obj:`~.CUcontext` in which ``ptr`` was
       allocated or registered. The type of ``data`` must be
-      :py:obj:`~.CUcontext` *.
+      :py:obj:`~.CUcontext` ``*``.
 
     - If ``ptr`` was not allocated by, mapped by, or registered with a
       :py:obj:`~.CUcontext` which uses unified virtual addressing then
@@ -39582,7 +39582,8 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
 
     - Returns in ``*data`` the device pointer value through which ``ptr``
       may be accessed by kernels running in the current
-      :py:obj:`~.CUcontext`. The type of ``data`` must be CUdeviceptr *.
+      :py:obj:`~.CUcontext`. The type of ``data`` must be ``CUdeviceptr
+      *``.
 
     - If there exists no device pointer value through which kernels running
       in the current :py:obj:`~.CUcontext` may access ``ptr`` then
