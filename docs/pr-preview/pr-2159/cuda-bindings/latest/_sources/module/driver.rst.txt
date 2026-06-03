@@ -2451,7 +2451,7 @@ Data types used by CUDA driver
 
         Pointer to a buffer in which to print any log messages that are informational in nature (the buffer size is specified via option :py:obj:`~.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES`)
 
-        Option type: char *
+        Option type: ``char *``
 
         Applies to: compiler and linker
 
@@ -2473,7 +2473,7 @@ Data types used by CUDA driver
 
         Pointer to a buffer in which to print any log messages that reflect errors (the buffer size is specified via option :py:obj:`~.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES`)
 
-        Option type: char *
+        Option type: ``char *``
 
         Applies to: compiler and linker
 
@@ -2597,7 +2597,7 @@ Data types used by CUDA driver
 
         It is illegal to register the same device symbol at multiple addresses.
 
-        Option type: const char **
+        Option type: ``const char **``
 
         Applies to: dynamic linker only
 
@@ -2609,7 +2609,7 @@ Data types used by CUDA driver
 
         Must contain :py:obj:`~.CU_JIT_GLOBAL_SYMBOL_COUNT` entries.
 
-        Option type: void **
+        Option type: ``void **``
 
         Applies to: dynamic linker only
 
