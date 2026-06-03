@@ -594,3 +594,104 @@ def test_kernel_args_survive_graph_clone(init_cuda):
     out = (ctypes.c_int * 1)(0)
     handle_return(driver.cuMemcpyDtoH(out, dptr, ctypes.sizeof(ctypes.c_int)))
     assert out[0] == 1
+
+
+# =============================================================================
+# Memcpy/memset Buffer lifetime — operands passed as Buffer objects
+# =============================================================================
+
+
+def test_memset_buffer_lifetime(init_cuda):
+    """Buffer passed as memset destination is kept alive after the Python ref drops."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+    buf_weak = weakref.ref(buf)
+    dptr = int(buf.handle)
+
+    g = GraphDefinition()
+    g.memset(buf, 0xAB, 4)
+
+    del buf
+    gc.collect()
+    assert buf_weak() is not None
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dptr, 4))
+    assert list(out) == [0xAB] * 4
+
+    del g
+    _wait_until(lambda: buf_weak() is None)
+
+
+def test_memcpy_buffer_lifetime(init_cuda):
+    """Source and destination Buffers are kept alive for a memcpy node."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    src = mr.allocate(4, stream=dev.default_stream)
+    dst = mr.allocate(4, stream=dev.default_stream)
+    src.fill(0xCD, stream=dev.default_stream)
+    dev.default_stream.sync()
+    src_weak = weakref.ref(src)
+    dst_weak = weakref.ref(dst)
+    dst_dptr = int(dst.handle)
+
+    g = GraphDefinition()
+    g.memcpy(dst, src, 4)
+
+    del src, dst
+    gc.collect()
+    assert src_weak() is not None
+    assert dst_weak() is not None
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dst_dptr, 4))
+    assert list(out) == [0xCD] * 4
+
+    del g
+    _wait_until(lambda: src_weak() is None and dst_weak() is None)
+
+
+def test_memcpy_buffers_survive_graph_clone(init_cuda):
+    """Cloned graph keeps memcpy operand Buffers alive via CUDA user objects."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    src = mr.allocate(4, stream=dev.default_stream)
+    dst = mr.allocate(4, stream=dev.default_stream)
+    src.fill(0xCD, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dst_dptr = int(dst.handle)
+
+    g = GraphDefinition()
+    g.memcpy(dst, src, 4)
+    cloned_cu_graph = handle_return(driver.cuGraphClone(driver.CUgraph(g.handle)))
+
+    del src, dst, g
+    gc.collect()
+
+    graph_exec = handle_return(driver.cuGraphInstantiate(cloned_cu_graph, 0))
+    stream = dev.create_stream()
+    handle_return(driver.cuGraphLaunch(graph_exec, driver.CUstream(int(stream.handle))))
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dst_dptr, 4))
+    assert list(out) == [0xCD] * 4

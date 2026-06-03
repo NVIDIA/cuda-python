@@ -3,6 +3,8 @@
 
 """GraphBuilder stream capture tests."""
 
+import gc
+
 import numpy as np
 import pytest
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
@@ -283,6 +285,53 @@ def test_graph_capture_callback_ctypes(init_cuda):
     gb = launch_stream.create_graph_builder().begin_building()
     gb.callback(read_byte, user_data=bytes([0xAB]))
     graph = gb.end_building().complete()
+
+    graph.launch(launch_stream)
+    launch_stream.sync()
+
+    assert result[0] == 0xAB
+
+
+def test_graph_capture_callback_python_survives_del(init_cuda):
+    """Captured host callback is retained in the graph slot table after del."""
+    called = [False]
+
+    def my_callback():
+        called[0] = True
+
+    launch_stream = Device().create_stream()
+    gb = launch_stream.create_graph_builder().begin_building()
+    gb.callback(my_callback)
+    graph = gb.end_building().complete()
+
+    del my_callback
+    gc.collect()
+
+    graph.launch(launch_stream)
+    launch_stream.sync()
+
+    assert called[0]
+
+
+def test_graph_capture_callback_ctypes_user_data_survives_del(init_cuda):
+    """Captured ctypes callback and copied user_data survive after del."""
+    import ctypes
+
+    CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    result = [0]
+
+    @CALLBACK
+    def read_byte(data):
+        result[0] = ctypes.cast(data, ctypes.POINTER(ctypes.c_uint8))[0]
+
+    payload = bytes([0xAB])
+    launch_stream = Device().create_stream()
+    gb = launch_stream.create_graph_builder().begin_building()
+    gb.callback(read_byte, user_data=payload)
+    graph = gb.end_building().complete()
+
+    del read_byte, payload
+    gc.collect()
 
     graph.launch(launch_stream)
     launch_stream.sync()
