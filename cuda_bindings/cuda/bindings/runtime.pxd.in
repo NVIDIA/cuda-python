@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1725+g07a86fe3d.d20260603. Do not modify it directly.
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -12,7 +12,7 @@ cimport cuda.bindings.driver as driver
 cdef class cudaDevResourceDesc_t:
     """
 
-    An opaque descriptor handle. The descriptor encapsulates multiple created and configured resources. Created via ::cudaDeviceResourceGenerateDesc
+    An opaque descriptor handle. The descriptor encapsulates multiple created and configured resources. Created via ``cudaDeviceResourceGenerateDesc``
 
     Methods
     -------
@@ -526,7 +526,7 @@ cdef class cudaArrayMemoryRequirements:
 
 cdef class cudaPitchedPtr:
     """
-    CUDA Pitched memory pointer  make_cudaPitchedPtr
+    CUDA Pitched memory pointer  ``make_cudaPitchedPtr``
 
     Attributes
     ----------
@@ -562,7 +562,7 @@ cdef class cudaPitchedPtr:
 
 cdef class cudaExtent:
     """
-    CUDA extent  make_cudaExtent
+    CUDA extent  ``make_cudaExtent``
 
     Attributes
     ----------
@@ -592,7 +592,7 @@ cdef class cudaExtent:
 
 cdef class cudaPos:
     """
-    CUDA 3D position  make_cudaPos
+    CUDA 3D position  ``make_cudaPos``
 
     Attributes
     ----------
@@ -929,11 +929,11 @@ cdef class cudaAccessPolicyWindow:
     {{endif}}
     {{if 'cudaAccessPolicyWindow.hitProp' in found_struct}}
     hitProp : cudaAccessProperty
-        ::CUaccessProperty set for hit.
+        ``CUaccessProperty`` set for hit.
     {{endif}}
     {{if 'cudaAccessPolicyWindow.missProp' in found_struct}}
     missProp : cudaAccessProperty
-        ::CUaccessProperty set for miss. Must be either NORMAL or
+        ``CUaccessProperty`` set for miss. Must be either NORMAL or
         STREAMING.
     {{endif}}
 
@@ -1510,7 +1510,7 @@ cdef class cudaMemAccessDesc:
     {{endif}}
     {{if 'cudaMemAccessDesc.flags' in found_struct}}
     flags : cudaMemAccessFlags
-        ::CUmemProt accessibility flags to set on the request
+        ``CUmemProt`` accessibility flags to set on the request
     {{endif}}
 
     Methods
@@ -1613,8 +1613,8 @@ cdef class cudaMemAllocNodeParams:
     {{if 'cudaMemAllocNodeParams.poolProps' in found_struct}}
     poolProps : cudaMemPoolProps
         in: location where the allocation should reside (specified in
-        ::location). ::handleTypes must be cudaMemHandleTypeNone. IPC is
-        not supported. in: array of memory access descriptors. Used to
+        ``location``). ``handleTypes`` must be cudaMemHandleTypeNone. IPC
+        is not supported. in: array of memory access descriptors. Used to
         describe peer GPU access
     {{endif}}
     {{if 'cudaMemAllocNodeParams.accessDescs' in found_struct}}
@@ -1624,7 +1624,7 @@ cdef class cudaMemAllocNodeParams:
     {{endif}}
     {{if 'cudaMemAllocNodeParams.accessDescCount' in found_struct}}
     accessDescCount : size_t
-        in: Number of `accessDescs`s
+        in: Number of ``accessDescs``
     {{endif}}
     {{if 'cudaMemAllocNodeParams.bytesize' in found_struct}}
     bytesize : size_t
@@ -1664,8 +1664,8 @@ cdef class cudaMemAllocNodeParamsV2:
     {{if 'cudaMemAllocNodeParamsV2.poolProps' in found_struct}}
     poolProps : cudaMemPoolProps
         in: location where the allocation should reside (specified in
-        ::location). ::handleTypes must be cudaMemHandleTypeNone. IPC is
-        not supported. in: array of memory access descriptors. Used to
+        ``location``). ``handleTypes`` must be cudaMemHandleTypeNone. IPC
+        is not supported. in: array of memory access descriptors. Used to
         describe peer GPU access
     {{endif}}
     {{if 'cudaMemAllocNodeParamsV2.accessDescs' in found_struct}}
@@ -1675,7 +1675,7 @@ cdef class cudaMemAllocNodeParamsV2:
     {{endif}}
     {{if 'cudaMemAllocNodeParamsV2.accessDescCount' in found_struct}}
     accessDescCount : size_t
-        in: Number of `accessDescs`s
+        in: Number of ``accessDescs``
     {{endif}}
     {{if 'cudaMemAllocNodeParamsV2.bytesize' in found_struct}}
     bytesize : size_t
@@ -3134,7 +3134,7 @@ cdef class cudaDevSmResourceGroupParams_st:
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
     flags : unsigned int
-        Combination of `cudaDevSmResourceGroup_flags` values to indicate
+        Combination of ``cudaDevSmResourceGroup_flags`` values to indicate
         this this group is created.
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
@@ -3159,16 +3159,16 @@ cdef class cudaDevResource_st:
     of the API that created it. struct enumcudaDevResourceTypetype;
     union structcudaDevSmResourcesm;
     structcudaDevWorkqueueConfigResourcewqConfig;
-    structcudaDevWorkqueueResourcewq; ; ;  - If `typename` is
-    `cudaDevResourceTypeInvalid`, this resoure is not valid and cannot
-    be further accessed.    - If `typename` is `cudaDevResourceTypeSm`,
-    the cudaDevSmResource structure `sm` is filled in. For example,
-    `sm.smCount` will reflect the amount of streaming multiprocessors
-    available in this resource.    - If `typename` is
-    `cudaDevResourceTypeWorkqueueConfig`, the
-    cudaDevWorkqueueConfigResource structure `wqConfig` is filled in.
-    - If `typename` is `cudaDevResourceTypeWorkqueue`, the
-    cudaDevWorkqueueResource structure `wq` is filled in.
+    structcudaDevWorkqueueResourcewq; ; ;  - If ``typename`` is
+    ``cudaDevResourceTypeInvalid``, this resoure is not valid and
+    cannot be further accessed.    - If ``typename`` is
+    ``cudaDevResourceTypeSm``, the cudaDevSmResource structure ``sm``
+    is filled in. For example, ``sm.smCount`` will reflect the amount
+    of streaming multiprocessors available in this resource.    - If
+    ``typename`` is ``cudaDevResourceTypeWorkqueueConfig``, the
+    cudaDevWorkqueueConfigResource structure ``wqConfig`` is filled in.
+    - If ``typename`` is ``cudaDevResourceTypeWorkqueue``, the
+    cudaDevWorkqueueResource structure ``wq`` is filled in.
 
     Attributes
     ----------
@@ -3182,16 +3182,17 @@ cdef class cudaDevResource_st:
     {{endif}}
     {{if 'cudaDevResource_st.sm' in found_struct}}
     sm : cudaDevSmResource
-        Resource corresponding to cudaDevResourceTypeSm `typename`.
+        Resource corresponding to cudaDevResourceTypeSm ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st.wqConfig' in found_struct}}
     wqConfig : cudaDevWorkqueueConfigResource
         Resource corresponding to cudaDevResourceTypeWorkqueueConfig
-        `typename`.
+        ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st.wq' in found_struct}}
     wq : cudaDevWorkqueueResource
-        Resource corresponding to cudaDevResourceTypeWorkqueue `typename`.
+        Resource corresponding to cudaDevResourceTypeWorkqueue
+        ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st._oversize' in found_struct}}
     _oversize : bytes
@@ -3579,12 +3580,12 @@ cdef class cudaConditionalNodeParams:
         graphs at any level, must belong to the same CUDA context.
         These graphs may be populated using graph node creation APIs or
         cudaStreamBeginCaptureToGraph. cudaGraphCondTypeIf: phGraph_out[0]
-        is executed when the condition is non-zero. If `size` == 2,
+        is executed when the condition is non-zero. If ``size`` == 2,
         phGraph_out[1] will be executed when the condition is zero.
         cudaGraphCondTypeWhile: phGraph_out[0] is executed as long as the
         condition is non-zero. cudaGraphCondTypeSwitch: phGraph_out[n] is
         executed when the condition is equal to n. If the condition >=
-        `size`, no body graph is executed.
+        ``size``, no body graph is executed.
     {{endif}}
     {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
     ctx : cudaExecutionContext_t
@@ -3823,7 +3824,7 @@ cdef class cudaGraphEdgeData_st:
         node on the edge. The meaning is specfic to the node type. A value
         of 0 in all cases means full completion of the upstream node, with
         memory visibility to the downstream node or portion thereof
-        (indicated by `to_port`).   Only kernel nodes define non-zero
+        (indicated by ``to_port``).   Only kernel nodes define non-zero
         ports. A kernel node can use the following output port types:
         cudaGraphKernelNodePortDefault,
         cudaGraphKernelNodePortProgrammatic, or
@@ -3832,7 +3833,7 @@ cdef class cudaGraphEdgeData_st:
     {{if 'cudaGraphEdgeData_st.to_port' in found_struct}}
     to_port : bytes
         This indicates what portion of the downstream node is dependent on
-        the upstream node or portion thereof (indicated by `from_port`).
+        the upstream node or portion thereof (indicated by ``from_port``).
         The meaning is specific to the node type. A value of 0 in all cases
         means the entirety of the downstream node is dependent on the
         upstream work.   Currently no node types define non-zero ports.
@@ -4001,7 +4002,7 @@ cdef class anon_union10:
 cdef class cudaGraphKernelNodeUpdate:
     """
     Struct to specify a single node update to pass as part of a larger
-    array to ::cudaGraphKernelNodeUpdatesApply
+    array to ``cudaGraphKernelNodeUpdatesApply``
 
     Attributes
     ----------
@@ -4225,11 +4226,11 @@ cdef class cudaLaunchAttributeValue:
     clusterDim : anon_struct17
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
-        type with the following fields: - `x` - The X dimension of the
+        type with the following fields: - ``x`` - The X dimension of the
         cluster, in blocks. Must be a divisor of the grid X dimension.    -
-        `y` - The Y dimension of the cluster, in blocks. Must be a divisor
-        of the grid Y dimension.    - `z` - The Z dimension of the cluster,
-        in blocks. Must be a divisor of the grid Z dimension.
+        ``y`` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - ``z`` - The Z dimension of
+        the cluster, in blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterSchedulingPolicyPreference' in found_struct}}
     clusterSchedulingPolicyPreference : cudaClusterSchedulingPolicy
@@ -4245,11 +4246,12 @@ cdef class cudaLaunchAttributeValue:
     {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct18
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
-        the following fields: - `cudaEvent_t` event - Event to fire when
-        all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        the following fields: - ``cudaEvent_t`` event - Event to fire when
+        all blocks trigger it.    - ``int`` flags; - Event record flags,
+        see cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.    - ``int`` triggerAtBlockStart - If this
+        is set to non-0, each block launch will automatically trigger the
+        event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -4271,21 +4273,21 @@ cdef class cudaLaunchAttributeValue:
         Value of launch attribute
         cudaLaunchAttributePreferredClusterDimension that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
+        with the following fields: - ``x`` - The X dimension of the
+        preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        cudaLaunchAttributeValue::clusterDim.    - ``y`` - The Y dimension
         of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        Y dimension, and must be a multiple of the ``y`` field of
+        cudaLaunchAttributeValue::clusterDim.    - ``z`` - The Z dimension
+        of the preferred cluster, in blocks. Must be equal to the ``z``
+        field of cudaLaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
-        with the following fields: - `cudaEvent_t` event - Event to fire
-        when the last block launches.    - `int` flags - Event record
+        with the following fields: - ``cudaEvent_t`` event - Event to fire
+        when the last block launches.    - ``int`` flags - Event record
         flags, see cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
@@ -4293,9 +4295,9 @@ cdef class cudaLaunchAttributeValue:
     deviceUpdatableKernelNode : anon_struct21
         Value of launch attribute
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
-        fields: - `int` deviceUpdatable - Whether or not the resulting
+        fields: - ``int`` deviceUpdatable - Whether or not the resulting
         kernel node should be device-updatable.    -
-        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
+        ``cudaGraphDeviceNode_t`` devNode - Returns a handle to pass to the
         various device-side update functions.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}
@@ -4429,7 +4431,7 @@ cdef class cudaAsyncNotificationInfo:
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
     info : anon_union11
-        Information about the notification. `typename` must be checked in
+        Information about the notification. ``typename`` must be checked in
         order to interpret this field.
     {{endif}}
 
@@ -4781,7 +4783,7 @@ cdef class cudaDevSmResourceGroupParams(cudaDevSmResourceGroupParams_st):
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
     flags : unsigned int
-        Combination of `cudaDevSmResourceGroup_flags` values to indicate
+        Combination of ``cudaDevSmResourceGroup_flags`` values to indicate
         this this group is created.
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
@@ -4805,16 +4807,16 @@ cdef class cudaDevResource(cudaDevResource_st):
     of the API that created it. struct enumcudaDevResourceTypetype;
     union structcudaDevSmResourcesm;
     structcudaDevWorkqueueConfigResourcewqConfig;
-    structcudaDevWorkqueueResourcewq; ; ;  - If `typename` is
-    `cudaDevResourceTypeInvalid`, this resoure is not valid and cannot
-    be further accessed.    - If `typename` is `cudaDevResourceTypeSm`,
-    the cudaDevSmResource structure `sm` is filled in. For example,
-    `sm.smCount` will reflect the amount of streaming multiprocessors
-    available in this resource.    - If `typename` is
-    `cudaDevResourceTypeWorkqueueConfig`, the
-    cudaDevWorkqueueConfigResource structure `wqConfig` is filled in.
-    - If `typename` is `cudaDevResourceTypeWorkqueue`, the
-    cudaDevWorkqueueResource structure `wq` is filled in.
+    structcudaDevWorkqueueResourcewq; ; ;  - If ``typename`` is
+    ``cudaDevResourceTypeInvalid``, this resoure is not valid and
+    cannot be further accessed.    - If ``typename`` is
+    ``cudaDevResourceTypeSm``, the cudaDevSmResource structure ``sm``
+    is filled in. For example, ``sm.smCount`` will reflect the amount
+    of streaming multiprocessors available in this resource.    - If
+    ``typename`` is ``cudaDevResourceTypeWorkqueueConfig``, the
+    cudaDevWorkqueueConfigResource structure ``wqConfig`` is filled in.
+    - If ``typename`` is ``cudaDevResourceTypeWorkqueue``, the
+    cudaDevWorkqueueResource structure ``wq`` is filled in.
 
     Attributes
     ----------
@@ -4828,16 +4830,17 @@ cdef class cudaDevResource(cudaDevResource_st):
     {{endif}}
     {{if 'cudaDevResource_st.sm' in found_struct}}
     sm : cudaDevSmResource
-        Resource corresponding to cudaDevResourceTypeSm `typename`.
+        Resource corresponding to cudaDevResourceTypeSm ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st.wqConfig' in found_struct}}
     wqConfig : cudaDevWorkqueueConfigResource
         Resource corresponding to cudaDevResourceTypeWorkqueueConfig
-        `typename`.
+        ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st.wq' in found_struct}}
     wq : cudaDevWorkqueueResource
-        Resource corresponding to cudaDevResourceTypeWorkqueue `typename`.
+        Resource corresponding to cudaDevResourceTypeWorkqueue
+        ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st._oversize' in found_struct}}
     _oversize : bytes
@@ -4872,7 +4875,7 @@ cdef class cudaGraphEdgeData(cudaGraphEdgeData_st):
         node on the edge. The meaning is specfic to the node type. A value
         of 0 in all cases means full completion of the upstream node, with
         memory visibility to the downstream node or portion thereof
-        (indicated by `to_port`).   Only kernel nodes define non-zero
+        (indicated by ``to_port``).   Only kernel nodes define non-zero
         ports. A kernel node can use the following output port types:
         cudaGraphKernelNodePortDefault,
         cudaGraphKernelNodePortProgrammatic, or
@@ -4881,7 +4884,7 @@ cdef class cudaGraphEdgeData(cudaGraphEdgeData_st):
     {{if 'cudaGraphEdgeData_st.to_port' in found_struct}}
     to_port : bytes
         This indicates what portion of the downstream node is dependent on
-        the upstream node or portion thereof (indicated by `from_port`).
+        the upstream node or portion thereof (indicated by ``from_port``).
         The meaning is specific to the node type. A value of 0 in all cases
         means the entirety of the downstream node is dependent on the
         upstream work.   Currently no node types define non-zero ports.
@@ -5037,7 +5040,7 @@ cdef class cudaAsyncNotificationInfo_t(cudaAsyncNotificationInfo):
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
     info : anon_union11
-        Information about the notification. `typename` must be checked in
+        Information about the notification. ``typename`` must be checked in
         order to interpret this field.
     {{endif}}
 
@@ -5078,11 +5081,11 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     clusterDim : anon_struct17
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
-        type with the following fields: - `x` - The X dimension of the
+        type with the following fields: - ``x`` - The X dimension of the
         cluster, in blocks. Must be a divisor of the grid X dimension.    -
-        `y` - The Y dimension of the cluster, in blocks. Must be a divisor
-        of the grid Y dimension.    - `z` - The Z dimension of the cluster,
-        in blocks. Must be a divisor of the grid Z dimension.
+        ``y`` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - ``z`` - The Z dimension of
+        the cluster, in blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterSchedulingPolicyPreference' in found_struct}}
     clusterSchedulingPolicyPreference : cudaClusterSchedulingPolicy
@@ -5098,11 +5101,12 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct18
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
-        the following fields: - `cudaEvent_t` event - Event to fire when
-        all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        the following fields: - ``cudaEvent_t`` event - Event to fire when
+        all blocks trigger it.    - ``int`` flags; - Event record flags,
+        see cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.    - ``int`` triggerAtBlockStart - If this
+        is set to non-0, each block launch will automatically trigger the
+        event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -5124,21 +5128,21 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute
         cudaLaunchAttributePreferredClusterDimension that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
+        with the following fields: - ``x`` - The X dimension of the
+        preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        cudaLaunchAttributeValue::clusterDim.    - ``y`` - The Y dimension
         of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        Y dimension, and must be a multiple of the ``y`` field of
+        cudaLaunchAttributeValue::clusterDim.    - ``z`` - The Z dimension
+        of the preferred cluster, in blocks. Must be equal to the ``z``
+        field of cudaLaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
-        with the following fields: - `cudaEvent_t` event - Event to fire
-        when the last block launches.    - `int` flags - Event record
+        with the following fields: - ``cudaEvent_t`` event - Event to fire
+        when the last block launches.    - ``int`` flags - Event record
         flags, see cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
@@ -5146,9 +5150,9 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     deviceUpdatableKernelNode : anon_struct21
         Value of launch attribute
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
-        fields: - `int` deviceUpdatable - Whether or not the resulting
+        fields: - ``int`` deviceUpdatable - Whether or not the resulting
         kernel node should be device-updatable.    -
-        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
+        ``cudaGraphDeviceNode_t`` devNode - Returns a handle to pass to the
         various device-side update functions.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}
@@ -5209,11 +5213,11 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     clusterDim : anon_struct17
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
-        type with the following fields: - `x` - The X dimension of the
+        type with the following fields: - ``x`` - The X dimension of the
         cluster, in blocks. Must be a divisor of the grid X dimension.    -
-        `y` - The Y dimension of the cluster, in blocks. Must be a divisor
-        of the grid Y dimension.    - `z` - The Z dimension of the cluster,
-        in blocks. Must be a divisor of the grid Z dimension.
+        ``y`` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - ``z`` - The Z dimension of
+        the cluster, in blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterSchedulingPolicyPreference' in found_struct}}
     clusterSchedulingPolicyPreference : cudaClusterSchedulingPolicy
@@ -5229,11 +5233,12 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct18
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
-        the following fields: - `cudaEvent_t` event - Event to fire when
-        all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        the following fields: - ``cudaEvent_t`` event - Event to fire when
+        all blocks trigger it.    - ``int`` flags; - Event record flags,
+        see cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.    - ``int`` triggerAtBlockStart - If this
+        is set to non-0, each block launch will automatically trigger the
+        event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -5255,21 +5260,21 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute
         cudaLaunchAttributePreferredClusterDimension that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
+        with the following fields: - ``x`` - The X dimension of the
+        preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        cudaLaunchAttributeValue::clusterDim.    - ``y`` - The Y dimension
         of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        Y dimension, and must be a multiple of the ``y`` field of
+        cudaLaunchAttributeValue::clusterDim.    - ``z`` - The Z dimension
+        of the preferred cluster, in blocks. Must be equal to the ``z``
+        field of cudaLaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
-        with the following fields: - `cudaEvent_t` event - Event to fire
-        when the last block launches.    - `int` flags - Event record
+        with the following fields: - ``cudaEvent_t`` event - Event to fire
+        when the last block launches.    - ``int`` flags - Event record
         flags, see cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
@@ -5277,9 +5282,9 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     deviceUpdatableKernelNode : anon_struct21
         Value of launch attribute
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
-        fields: - `int` deviceUpdatable - Whether or not the resulting
+        fields: - ``int`` deviceUpdatable - Whether or not the resulting
         kernel node should be device-updatable.    -
-        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
+        ``cudaGraphDeviceNode_t`` devNode - Returns a handle to pass to the
         various device-side update functions.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}

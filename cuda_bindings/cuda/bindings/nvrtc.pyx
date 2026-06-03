@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1725+g07a86fe3d.d20260603. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -316,7 +316,7 @@ cdef class nvrtcBundledHeadersInfo(anon_struct0):
 
 @cython.embedsignature(True)
 def nvrtcGetErrorString(result not None : nvrtcResult):
-    """ nvrtcGetErrorString is a helper function that returns a string describing the given nvrtcResult code, e.g., NVRTC_SUCCESS to `"NVRTC_SUCCESS"`. For unrecognized enumeration values, it returns `"NVRTC_ERROR unknown"`.
+    """ nvrtcGetErrorString is a helper function that returns a string describing the given nvrtcResult code, e.g., NVRTC_SUCCESS to ``"NVRTC_SUCCESS"``. For unrecognized enumeration values, it returns ``"NVRTC_ERROR unknown"``.
 
     Parameters
     ----------
@@ -337,7 +337,7 @@ def nvrtcGetErrorString(result not None : nvrtcResult):
 
 @cython.embedsignature(True)
 def nvrtcVersion():
-    """ nvrtcVersion sets the output parameters `major` and `minor` with the CUDA Runtime Compilation version number.
+    """ nvrtcVersion sets the output parameters ``major`` and ``minor`` with the CUDA Runtime Compilation version number.
 
     Returns
     -------
@@ -359,7 +359,7 @@ def nvrtcVersion():
 
 @cython.embedsignature(True)
 def nvrtcGetNumSupportedArchs():
-    """ nvrtcGetNumSupportedArchs sets the output parameter `numArchs` with the number of architectures supported by NVRTC. This can then be used to pass an array to :py:obj:`~.nvrtcGetSupportedArchs` to get the supported architectures.
+    """ nvrtcGetNumSupportedArchs sets the output parameter ``numArchs`` with the number of architectures supported by NVRTC. This can then be used to pass an array to :py:obj:`~.nvrtcGetSupportedArchs` to get the supported architectures.
 
     see :py:obj:`~.nvrtcGetSupportedArchs`
 
@@ -380,7 +380,7 @@ def nvrtcGetNumSupportedArchs():
 
 @cython.embedsignature(True)
 def nvrtcGetSupportedArchs():
-    """ nvrtcGetSupportedArchs populates the array passed via the output parameter `supportedArchs` with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using :py:obj:`~.nvrtcGetNumSupportedArchs`.
+    """ nvrtcGetSupportedArchs populates the array passed via the output parameter ``supportedArchs`` with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using :py:obj:`~.nvrtcGetNumSupportedArchs`.
 
     see :py:obj:`~.nvrtcGetNumSupportedArchs`
 
@@ -404,26 +404,26 @@ def nvrtcGetSupportedArchs():
 
 @cython.embedsignature(True)
 def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional[tuple[bytes] | list[bytes]], includeNames : Optional[tuple[bytes] | list[bytes]]):
-    """ nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter `prog` with it.
+    """ nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter ``prog`` with it.
 
     Parameters
     ----------
     src : bytes
         CUDA program source.
     name : bytes
-        CUDA program name.  `name` can be `NULL`; `"default_program"` is
-        used when `name` is `NULL` or "".
+        CUDA program name.  ``name`` can be ``NULL``; ``"default_program"``
+        is used when ``name`` is ``NULL`` or "".
     numHeaders : int
-        Number of headers used.  `numHeaders` must be greater than or equal
-        to 0.
+        Number of headers used.  ``numHeaders`` must be greater than or
+        equal to 0.
     headers : list[bytes]
-        Sources of the headers.  `headers` can be `NULL` when `numHeaders`
-        is 0.
+        Sources of the headers.  ``headers`` can be ``NULL`` when
+        ``numHeaders`` is 0.
     includeNames : list[bytes]
         Name of each header by which they can be included in the CUDA
-        program source.  `includeNames` can be `NULL` when `numHeaders` is
-        0. These headers must be included with the exact names specified
-        here.
+        program source.  ``includeNames`` can be ``NULL`` when
+        ``numHeaders`` is 0. These headers must be included with the exact
+        names specified here.
 
     Returns
     -------
@@ -494,8 +494,7 @@ def nvrtcDestroyProgram(prog):
 def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | list[bytes]]):
     """ nvrtcCompileProgram compiles the given program.
 
-    It supports compile options listed in :py:obj:`~.Supported Compile
-    Options`.
+    It supports compile options listed in Supported Compile Options.
 
     Parameters
     ----------
@@ -504,8 +503,8 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | 
     numOptions : int
         Number of compiler options passed.
     options : list[bytes]
-        Compiler options in the form of C string array.  `options` can be
-        `NULL` when `numOptions` is 0.
+        Compiler options in the form of C string array.  ``options`` can be
+        ``NULL`` when ``numOptions`` is 0.
 
     Returns
     -------
@@ -539,7 +538,7 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | 
 
 @cython.embedsignature(True)
 def nvrtcGetPTXSize(prog):
-    """ nvrtcGetPTXSize sets the value of `ptxSizeRet` with the size of the PTX generated by the previous compilation of `prog` (including the trailing `NULL`).
+    """ nvrtcGetPTXSize sets the value of ``ptxSizeRet`` with the size of the PTX generated by the previous compilation of ``prog`` (including the trailing ``NULL``).
 
     Parameters
     ----------
@@ -553,7 +552,7 @@ def nvrtcGetPTXSize(prog):
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
     ptxSizeRet : int
-        Size of the generated PTX (including the trailing `NULL`).
+        Size of the generated PTX (including the trailing ``NULL``).
 
     See Also
     --------
@@ -576,7 +575,7 @@ def nvrtcGetPTXSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetPTX(prog, char* ptx):
-    """ nvrtcGetPTX stores the PTX generated by the previous compilation of `prog` in the memory pointed by `ptx`.
+    """ nvrtcGetPTX stores the PTX generated by the previous compilation of ``prog`` in the memory pointed by ``ptx``.
 
     Parameters
     ----------
@@ -610,7 +609,7 @@ def nvrtcGetPTX(prog, char* ptx):
 
 @cython.embedsignature(True)
 def nvrtcGetCUBINSize(prog):
-    """ nvrtcGetCUBINSize sets the value of `cubinSizeRet` with the size of the cubin generated by the previous compilation of `prog`. The value of cubinSizeRet is set to 0 if the value specified to `-arch` is a virtual architecture instead of an actual architecture.
+    """ nvrtcGetCUBINSize sets the value of ``cubinSizeRet`` with the size of the cubin generated by the previous compilation of ``prog``. The value of cubinSizeRet is set to 0 if the value specified to ``-arch`` is a virtual architecture instead of an actual architecture.
 
     Parameters
     ----------
@@ -647,7 +646,7 @@ def nvrtcGetCUBINSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetCUBIN(prog, char* cubin):
-    """ nvrtcGetCUBIN stores the cubin generated by the previous compilation of `prog` in the memory pointed by `cubin`. No cubin is available if the value specified to `-arch` is a virtual architecture instead of an actual architecture. The cubin does not contain code for the Tile functions (`__tile__` / `__tile_global__`) or variables (`__tile__`); use `nvrtcGetTileIR()` to extract the cuda_tile IR generated for Tile code.
+    """ nvrtcGetCUBIN stores the cubin generated by the previous compilation of ``prog`` in the memory pointed by ``cubin``. No cubin is available if the value specified to ``-arch`` is a virtual architecture instead of an actual architecture. The cubin does not contain code for the Tile functions (``__tile__`` / ``__tile_global__``) or variables (``__tile__``); use ``nvrtcGetTileIR()`` to extract the cuda_tile IR generated for Tile code.
 
     Parameters
     ----------
@@ -681,7 +680,7 @@ def nvrtcGetCUBIN(prog, char* cubin):
 
 @cython.embedsignature(True)
 def nvrtcGetLTOIRSize(prog):
-    """ nvrtcGetLTOIRSize sets the value of `LTOIRSizeRet` with the size of the LTO IR generated by the previous compilation of `prog`. The value of LTOIRSizeRet is set to 0 if the program was not compiled with `-dlto`.
+    """ nvrtcGetLTOIRSize sets the value of ``LTOIRSizeRet`` with the size of the LTO IR generated by the previous compilation of ``prog``. The value of LTOIRSizeRet is set to 0 if the program was not compiled with ``-dlto``.
 
     Parameters
     ----------
@@ -718,7 +717,7 @@ def nvrtcGetLTOIRSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetLTOIR(prog, char* LTOIR):
-    """ nvrtcGetLTOIR stores the LTO IR generated by the previous compilation of `prog` in the memory pointed by `LTOIR`. No LTO IR is available if the program was compiled without `-dlto`.
+    """ nvrtcGetLTOIR stores the LTO IR generated by the previous compilation of ``prog`` in the memory pointed by ``LTOIR``. No LTO IR is available if the program was compiled without ``-dlto``.
 
     Parameters
     ----------
@@ -752,7 +751,7 @@ def nvrtcGetLTOIR(prog, char* LTOIR):
 
 @cython.embedsignature(True)
 def nvrtcGetOptiXIRSize(prog):
-    """ nvrtcGetOptiXIRSize sets the value of `optixirSizeRet` with the size of the OptiX IR generated by the previous compilation of `prog`. The value of nvrtcGetOptiXIRSize is set to 0 if the program was compiled with options incompatible with OptiX IR generation.
+    """ nvrtcGetOptiXIRSize sets the value of ``optixirSizeRet`` with the size of the OptiX IR generated by the previous compilation of ``prog``. The value of nvrtcGetOptiXIRSize is set to 0 if the program was compiled with options incompatible with OptiX IR generation.
 
     Parameters
     ----------
@@ -789,7 +788,7 @@ def nvrtcGetOptiXIRSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetOptiXIR(prog, char* optixir):
-    """ nvrtcGetOptiXIR stores the OptiX IR generated by the previous compilation of `prog` in the memory pointed by `optixir`. No OptiX IR is available if the program was compiled with options incompatible with OptiX IR generation.
+    """ nvrtcGetOptiXIR stores the OptiX IR generated by the previous compilation of ``prog`` in the memory pointed by ``optixir``. No OptiX IR is available if the program was compiled with options incompatible with OptiX IR generation.
 
     Parameters
     ----------
@@ -823,10 +822,10 @@ def nvrtcGetOptiXIR(prog, char* optixir):
 
 @cython.embedsignature(True)
 def nvrtcGetProgramLogSize(prog):
-    """ nvrtcGetProgramLogSize sets `logSizeRet` with the size of the log generated by the previous compilation of `prog` (including the trailing `NULL`).
+    """ nvrtcGetProgramLogSize sets ``logSizeRet`` with the size of the log generated by the previous compilation of ``prog`` (including the trailing ``NULL``).
 
     Note that compilation log may be generated with warnings and
-    informative messages, even when the compilation of `prog` succeeds.
+    informative messages, even when the compilation of ``prog`` succeeds.
 
     Parameters
     ----------
@@ -840,7 +839,7 @@ def nvrtcGetProgramLogSize(prog):
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
     logSizeRet : int
-        Size of the compilation log (including the trailing `NULL`).
+        Size of the compilation log (including the trailing ``NULL``).
 
     See Also
     --------
@@ -863,7 +862,7 @@ def nvrtcGetProgramLogSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetProgramLog(prog, char* log):
-    """ nvrtcGetProgramLog stores the log generated by the previous compilation of `prog` in the memory pointed by `log`.
+    """ nvrtcGetProgramLog stores the log generated by the previous compilation of ``prog`` in the memory pointed by ``log``.
 
     Parameters
     ----------
@@ -1106,9 +1105,9 @@ def nvrtcSetFlowCallback(prog, callback, payload):
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
-    When invoking the callback, the compiler will always pass `payload` to
-    param1 so that the callback may make decisions based on `payload` .
-    It'll always pass NULL to param2 for now which is reserved for future
+    When invoking the callback, the compiler will always pass ``payload``
+    to param1 so that the callback may make decisions based on ``payload``
+    . It'll always pass NULL to param2 for now which is reserved for future
     extensions.
 
     (2) It must return 1 to cancel compilation or 0 to continue. Other
@@ -1158,7 +1157,7 @@ def nvrtcSetFlowCallback(prog, callback, payload):
 
 @cython.embedsignature(True)
 def nvrtcGetTileIRSize(prog):
-    """ nvrtcGetTileIRSize sets the value of `TileIRSizeRet` with the size of the cuda_tile IR generated by the previous compilation of `prog`.
+    """ nvrtcGetTileIRSize sets the value of ``TileIRSizeRet`` with the size of the cuda_tile IR generated by the previous compilation of ``prog``.
 
     Parameters
     ----------
@@ -1195,7 +1194,7 @@ def nvrtcGetTileIRSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetTileIR(prog, char* TileIR):
-    """ nvrtcGetTileIR stores the cuda_tile IR generated by the previous compilation of `prog` in the memory pointed by `TileIR`.
+    """ nvrtcGetTileIR stores the cuda_tile IR generated by the previous compilation of ``prog`` in the memory pointed by ``TileIR``.
 
     Parameters
     ----------
@@ -1267,7 +1266,7 @@ def nvrtcInstallBundledHeaders(char* installPath, unsigned int flags):
         - :py:obj:`~.NVRTC_ERROR_BUSY` (lock held by another process and NVRTC_INSTALL_HEADERS_NO_WAIT was specified)
     errorLog : bytes
         Optional pointer to receive detailed error message on failure. If
-        non-NULL, `*errorLog` will be set to point to a string describing
+        non-NULL, ``*errorLog`` will be set to point to a string describing
         the error cause. Note: subsequent API calls from the same thread
         may overwrite this message. May be NULL if error details are not
         needed.
@@ -1305,7 +1304,7 @@ def nvrtcGetBundledHeadersInfo():
         Pointer to structure to receive header information.
     errorLog : bytes
         Optional pointer to receive detailed error message on failure. If
-        non-NULL, `*errorLog` will be set to point to a string describing
+        non-NULL, ``*errorLog`` will be set to point to a string describing
         the error cause. Note: subsequent API calls from the same thread
         may overwrite this message. May be NULL if error details are not
         needed.
@@ -1341,7 +1340,7 @@ def nvrtcRemoveBundledHeaders(char* installPath):
         - :py:obj:`~.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE` (removal failed)
     errorLog : bytes
         Optional pointer to receive detailed error message on failure. If
-        non-NULL, `*errorLog` will be set to point to a string describing
+        non-NULL, ``*errorLog`` will be set to point to a string describing
         the error cause. Note: subsequent API calls from the same thread
         may overwrite this message. May be NULL if error details are not
         needed.

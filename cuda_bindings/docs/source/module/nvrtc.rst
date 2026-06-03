@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 -----
@@ -319,7 +319,7 @@ Generate line-number information.
 
 
 
-  - ``--dopt=on``\  
+  - ``--dopt=on``\
 
 Enable device code optimization. When specified along with ``-G``\ , enables limited debug information generation for optimized device code (currently, only line number information). When ``-G``\  is not specified, ``-dopt=on``\  is implicit.
 
@@ -347,7 +347,7 @@ Specify the fast-compile level for device code, which controls the tradeoff betw
 
 
 
-  - ``--ptxas-options=<options>``\  
+  - ``--ptxas-options=<options>``\
 
 Specify options directly to ptxas, the PTX optimizing assembler.
 
@@ -395,7 +395,7 @@ For single-precision floating-point square root, use IEEE round-to-nearest mode 
 
 
 
-    - Default: ``true``\  
+    - Default: ``true``\
 
 
 
@@ -555,7 +555,7 @@ Add the directory ``<dir>``\  to the list of directories to be searched for head
 
 
 
-  - ``--use-bundled-headers=<dir>``\  
+  - ``--use-bundled-headers=<dir>``\
 
 Install bundled CUDA headers to ``<dir>``\  and add include paths. This is a convenience flag that combines calling nvrtcInstallBundledHeaders and adding ``-I<dir>``\  and ``-I<dir>/cccl``\  to the include search path. Headers are installed only if they don't already exist at the specified location.
 
@@ -900,4 +900,3 @@ Enable stack canaries in device code. Stack canaries make it more difficult to e
 
 
   - ``--fdevice-time-trace=<file-name>``\  (``-fdevice-time-trace=<file-name>``\ ) Enables the time profiler, outputting a JSON file based on given <file-name>. Results can be analyzed on chrome://tracing for a flamegraph visualization.
-

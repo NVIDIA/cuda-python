@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1711+g875fec45. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1725+g07a86fe3d.d20260603. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -1089,7 +1089,7 @@ cdef class CUasyncNotificationInfo_st:
     {{endif}}
     {{if 'CUasyncNotificationInfo_st.info' in found_struct}}
     info : anon_union2
-        Information about the notification. `typename` must be checked in
+        Information about the notification. ``typename`` must be checked in
         order to interpret this field.
     {{endif}}
 
@@ -1630,12 +1630,12 @@ cdef class CUDA_CONDITIONAL_NODE_PARAMS:
         graphs at any level, must belong to the same CUDA context.
         These graphs may be populated using graph node creation APIs or
         cuStreamBeginCaptureToGraph.  CU_GRAPH_COND_TYPE_IF: phGraph_out[0]
-        is executed when the condition is non-zero. If `size` == 2,
+        is executed when the condition is non-zero. If ``size`` == 2,
         phGraph_out[1] will be executed when the condition is zero.
         CU_GRAPH_COND_TYPE_WHILE: phGraph_out[0] is executed as long as the
         condition is non-zero. CU_GRAPH_COND_TYPE_SWITCH: phGraph_out[n] is
         executed when the condition is equal to n. If the condition >=
-        `size`, no body graph is executed.
+        ``size``, no body graph is executed.
     {{endif}}
     {{if 'CUDA_CONDITIONAL_NODE_PARAMS.ctx' in found_struct}}
     ctx : CUcontext
@@ -1678,7 +1678,7 @@ cdef class CUgraphEdgeData_st:
         node on the edge. The meaning is specfic to the node type. A value
         of 0 in all cases means full completion of the upstream node, with
         memory visibility to the downstream node or portion thereof
-        (indicated by `to_port`).   Only kernel nodes define non-zero
+        (indicated by ``to_port``).   Only kernel nodes define non-zero
         ports. A kernel node can use the following output port types:
         CU_GRAPH_KERNEL_NODE_PORT_DEFAULT,
         CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC, or
@@ -1687,7 +1687,7 @@ cdef class CUgraphEdgeData_st:
     {{if 'CUgraphEdgeData_st.to_port' in found_struct}}
     to_port : bytes
         This indicates what portion of the downstream node is dependent on
-        the upstream node or portion thereof (indicated by `from_port`).
+        the upstream node or portion thereof (indicated by ``from_port``).
         The meaning is specific to the node type. A value of 0 in all cases
         means the entirety of the downstream node is dependent on the
         upstream work.   Currently no node types define non-zero ports.
@@ -1759,7 +1759,7 @@ cdef class CUDA_GRAPH_INSTANTIATE_PARAMS_st:
 
 cdef class CUlaunchMemSyncDomainMap_st:
     """
-    Memory Synchronization Domain map  See ::cudaLaunchMemSyncDomain.
+    Memory Synchronization Domain map  See ``cudaLaunchMemSyncDomain``.
     By default, kernels are launched in domain 0. Kernel launched with
     CU_LAUNCH_MEM_SYNC_DOMAIN_REMOTE will have a different domain ID.
     User may also alter the domain ID with CUlaunchMemSyncDomainMap for
@@ -1948,11 +1948,11 @@ cdef class CUlaunchAttributeValue_union:
     clusterDim : anon_struct1
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
         that represents the desired cluster dimensions for the kernel.
-        Opaque type with the following fields: - `x` - The X dimension of
+        Opaque type with the following fields: - ``x`` - The X dimension of
         the cluster, in blocks. Must be a divisor of the grid X dimension.
-        - `y` - The Y dimension of the cluster, in blocks. Must be a
-        divisor of the grid Y dimension.    - `z` - The Z dimension of the
-        cluster, in blocks. Must be a divisor of the grid Z dimension.
+        - ``y`` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - ``z`` - The Z dimension of
+        the cluster, in blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterSchedulingPolicyPreference' in found_struct}}
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
@@ -1968,18 +1968,18 @@ cdef class CUlaunchAttributeValue_union:
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - ``CUevent`` event - Event to fire when
+        all blocks trigger it.    - ``Event`` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
-        - `triggerAtBlockStart` - If this is set to non-0, each block
+        - ``triggerAtBlockStart`` - If this is set to non-0, each block
         launch will automatically trigger the event.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - ``CUevent`` event - Event to fire when the last block
+        launches    - ``int`` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -2002,23 +2002,23 @@ cdef class CUlaunchAttributeValue_union:
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_CLUSTER_DIMENSION that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        CUlaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        with the following fields: - ``x`` - The X dimension of the
+        preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``y`` - The Y dimension of
         the preferred cluster, in blocks. Must be a divisor of the grid Y
-        dimension, and must be a multiple of the `y` field of
-        CUlaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
-        the preferred cluster, in blocks. Must be equal to the `z` field of
-        CUlaunchAttributeValue::clusterDim.
+        dimension, and must be a multiple of the ``y`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``z`` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the ``z`` field
+        of CUlaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.deviceUpdatableKernelNode' in found_struct}}
     deviceUpdatableKernelNode : anon_struct5
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
-        following fields: - `int` deviceUpdatable - Whether or not the
+        following fields: - ``int`` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        ``CUgraphDeviceNode`` devNode - Returns a handle to pass to the
         various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
@@ -4506,7 +4506,7 @@ cdef class CUmemAccessDesc_st:
     {{endif}}
     {{if 'CUmemAccessDesc_st.flags' in found_struct}}
     flags : CUmemAccess_flags
-        ::CUmemProt accessibility flags to set on the request
+        ``CUmemProt`` accessibility flags to set on the request
     {{endif}}
 
     Methods
@@ -4913,8 +4913,8 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
     {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v1_st.poolProps' in found_struct}}
     poolProps : CUmemPoolProps
         in: location where the allocation should reside (specified in
-        ::location). ::handleTypes must be CU_MEM_HANDLE_TYPE_NONE. IPC is
-        not supported.
+        ``location``). ``handleTypes`` must be CU_MEM_HANDLE_TYPE_NONE. IPC
+        is not supported.
     {{endif}}
     {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v1_st.accessDescs' in found_struct}}
     accessDescs : CUmemAccessDesc
@@ -4964,8 +4964,8 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
     {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v2_st.poolProps' in found_struct}}
     poolProps : CUmemPoolProps
         in: location where the allocation should reside (specified in
-        ::location). ::handleTypes must be CU_MEM_HANDLE_TYPE_NONE. IPC is
-        not supported.
+        ``location``). ``handleTypes`` must be CU_MEM_HANDLE_TYPE_NONE. IPC
+        is not supported.
     {{endif}}
     {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v2_st.accessDescs' in found_struct}}
     accessDescs : CUmemAccessDesc
@@ -5692,17 +5692,17 @@ cdef class CUdevResource_st:
     {{endif}}
     {{if 'CUdevResource_st.sm' in found_struct}}
     sm : CUdevSmResource
-        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM `typename`.
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM ``typename``.
     {{endif}}
     {{if 'CUdevResource_st.wqConfig' in found_struct}}
     wqConfig : CUdevWorkqueueConfigResource
         Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
-        `typename`.
+        ``typename``.
     {{endif}}
     {{if 'CUdevResource_st.wq' in found_struct}}
     wq : CUdevWorkqueueResource
         Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE
-        `typename`.
+        ``typename``.
     {{endif}}
     {{if 'CUdevResource_st._oversize' in found_struct}}
     _oversize : bytes
@@ -6246,7 +6246,7 @@ cdef class CUasyncNotificationInfo(CUasyncNotificationInfo_st):
     {{endif}}
     {{if 'CUasyncNotificationInfo_st.info' in found_struct}}
     info : anon_union2
-        Information about the notification. `typename` must be checked in
+        Information about the notification. ``typename`` must be checked in
         order to interpret this field.
     {{endif}}
 
@@ -6936,7 +6936,7 @@ cdef class CUgraphEdgeData(CUgraphEdgeData_st):
         node on the edge. The meaning is specfic to the node type. A value
         of 0 in all cases means full completion of the upstream node, with
         memory visibility to the downstream node or portion thereof
-        (indicated by `to_port`).   Only kernel nodes define non-zero
+        (indicated by ``to_port``).   Only kernel nodes define non-zero
         ports. A kernel node can use the following output port types:
         CU_GRAPH_KERNEL_NODE_PORT_DEFAULT,
         CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC, or
@@ -6945,7 +6945,7 @@ cdef class CUgraphEdgeData(CUgraphEdgeData_st):
     {{if 'CUgraphEdgeData_st.to_port' in found_struct}}
     to_port : bytes
         This indicates what portion of the downstream node is dependent on
-        the upstream node or portion thereof (indicated by `from_port`).
+        the upstream node or portion thereof (indicated by ``from_port``).
         The meaning is specific to the node type. A value of 0 in all cases
         means the entirety of the downstream node is dependent on the
         upstream work.   Currently no node types define non-zero ports.
@@ -7006,7 +7006,7 @@ cdef class CUDA_GRAPH_INSTANTIATE_PARAMS(CUDA_GRAPH_INSTANTIATE_PARAMS_st):
 
 cdef class CUlaunchMemSyncDomainMap(CUlaunchMemSyncDomainMap_st):
     """
-    Memory Synchronization Domain map  See ::cudaLaunchMemSyncDomain.
+    Memory Synchronization Domain map  See ``cudaLaunchMemSyncDomain``.
     By default, kernels are launched in domain 0. Kernel launched with
     CU_LAUNCH_MEM_SYNC_DOMAIN_REMOTE will have a different domain ID.
     User may also alter the domain ID with CUlaunchMemSyncDomainMap for
@@ -7063,11 +7063,11 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
     clusterDim : anon_struct1
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
         that represents the desired cluster dimensions for the kernel.
-        Opaque type with the following fields: - `x` - The X dimension of
+        Opaque type with the following fields: - ``x`` - The X dimension of
         the cluster, in blocks. Must be a divisor of the grid X dimension.
-        - `y` - The Y dimension of the cluster, in blocks. Must be a
-        divisor of the grid Y dimension.    - `z` - The Z dimension of the
-        cluster, in blocks. Must be a divisor of the grid Z dimension.
+        - ``y`` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - ``z`` - The Z dimension of
+        the cluster, in blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterSchedulingPolicyPreference' in found_struct}}
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
@@ -7083,18 +7083,18 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - ``CUevent`` event - Event to fire when
+        all blocks trigger it.    - ``Event`` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
-        - `triggerAtBlockStart` - If this is set to non-0, each block
+        - ``triggerAtBlockStart`` - If this is set to non-0, each block
         launch will automatically trigger the event.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - ``CUevent`` event - Event to fire when the last block
+        launches    - ``int`` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -7117,23 +7117,23 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_CLUSTER_DIMENSION that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        CUlaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        with the following fields: - ``x`` - The X dimension of the
+        preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``y`` - The Y dimension of
         the preferred cluster, in blocks. Must be a divisor of the grid Y
-        dimension, and must be a multiple of the `y` field of
-        CUlaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
-        the preferred cluster, in blocks. Must be equal to the `z` field of
-        CUlaunchAttributeValue::clusterDim.
+        dimension, and must be a multiple of the ``y`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``z`` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the ``z`` field
+        of CUlaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.deviceUpdatableKernelNode' in found_struct}}
     deviceUpdatableKernelNode : anon_struct5
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
-        following fields: - `int` deviceUpdatable - Whether or not the
+        following fields: - ``int`` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        ``CUgraphDeviceNode`` devNode - Returns a handle to pass to the
         various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
@@ -7274,11 +7274,11 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
     clusterDim : anon_struct1
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
         that represents the desired cluster dimensions for the kernel.
-        Opaque type with the following fields: - `x` - The X dimension of
+        Opaque type with the following fields: - ``x`` - The X dimension of
         the cluster, in blocks. Must be a divisor of the grid X dimension.
-        - `y` - The Y dimension of the cluster, in blocks. Must be a
-        divisor of the grid Y dimension.    - `z` - The Z dimension of the
-        cluster, in blocks. Must be a divisor of the grid Z dimension.
+        - ``y`` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - ``z`` - The Z dimension of
+        the cluster, in blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterSchedulingPolicyPreference' in found_struct}}
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
@@ -7294,18 +7294,18 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - ``CUevent`` event - Event to fire when
+        all blocks trigger it.    - ``Event`` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
-        - `triggerAtBlockStart` - If this is set to non-0, each block
+        - ``triggerAtBlockStart`` - If this is set to non-0, each block
         launch will automatically trigger the event.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - ``CUevent`` event - Event to fire when the last block
+        launches    - ``int`` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -7328,23 +7328,23 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_CLUSTER_DIMENSION that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        CUlaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        with the following fields: - ``x`` - The X dimension of the
+        preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``y`` - The Y dimension of
         the preferred cluster, in blocks. Must be a divisor of the grid Y
-        dimension, and must be a multiple of the `y` field of
-        CUlaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
-        the preferred cluster, in blocks. Must be equal to the `z` field of
-        CUlaunchAttributeValue::clusterDim.
+        dimension, and must be a multiple of the ``y`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``z`` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the ``z`` field
+        of CUlaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.deviceUpdatableKernelNode' in found_struct}}
     deviceUpdatableKernelNode : anon_struct5
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
-        following fields: - `int` deviceUpdatable - Whether or not the
+        following fields: - ``int`` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        ``CUgraphDeviceNode`` devNode - Returns a handle to pass to the
         various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
@@ -7405,11 +7405,11 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
     clusterDim : anon_struct1
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
         that represents the desired cluster dimensions for the kernel.
-        Opaque type with the following fields: - `x` - The X dimension of
+        Opaque type with the following fields: - ``x`` - The X dimension of
         the cluster, in blocks. Must be a divisor of the grid X dimension.
-        - `y` - The Y dimension of the cluster, in blocks. Must be a
-        divisor of the grid Y dimension.    - `z` - The Z dimension of the
-        cluster, in blocks. Must be a divisor of the grid Z dimension.
+        - ``y`` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - ``z`` - The Z dimension of
+        the cluster, in blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterSchedulingPolicyPreference' in found_struct}}
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
@@ -7425,18 +7425,18 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - ``CUevent`` event - Event to fire when
+        all blocks trigger it.    - ``Event`` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
-        - `triggerAtBlockStart` - If this is set to non-0, each block
+        - ``triggerAtBlockStart`` - If this is set to non-0, each block
         launch will automatically trigger the event.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - ``CUevent`` event - Event to fire when the last block
+        launches    - ``int`` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -7459,23 +7459,23 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_CLUSTER_DIMENSION that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        CUlaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        with the following fields: - ``x`` - The X dimension of the
+        preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``y`` - The Y dimension of
         the preferred cluster, in blocks. Must be a divisor of the grid Y
-        dimension, and must be a multiple of the `y` field of
-        CUlaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
-        the preferred cluster, in blocks. Must be equal to the `z` field of
-        CUlaunchAttributeValue::clusterDim.
+        dimension, and must be a multiple of the ``y`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``z`` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the ``z`` field
+        of CUlaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.deviceUpdatableKernelNode' in found_struct}}
     deviceUpdatableKernelNode : anon_struct5
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
-        following fields: - `int` deviceUpdatable - Whether or not the
+        following fields: - ``int`` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        ``CUgraphDeviceNode`` devNode - Returns a handle to pass to the
         various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
@@ -7536,11 +7536,11 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
     clusterDim : anon_struct1
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
         that represents the desired cluster dimensions for the kernel.
-        Opaque type with the following fields: - `x` - The X dimension of
+        Opaque type with the following fields: - ``x`` - The X dimension of
         the cluster, in blocks. Must be a divisor of the grid X dimension.
-        - `y` - The Y dimension of the cluster, in blocks. Must be a
-        divisor of the grid Y dimension.    - `z` - The Z dimension of the
-        cluster, in blocks. Must be a divisor of the grid Z dimension.
+        - ``y`` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - ``z`` - The Z dimension of
+        the cluster, in blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterSchedulingPolicyPreference' in found_struct}}
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
@@ -7556,18 +7556,18 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - ``CUevent`` event - Event to fire when
+        all blocks trigger it.    - ``Event`` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
-        - `triggerAtBlockStart` - If this is set to non-0, each block
+        - ``triggerAtBlockStart`` - If this is set to non-0, each block
         launch will automatically trigger the event.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - ``CUevent`` event - Event to fire when the last block
+        launches    - ``int`` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -7590,23 +7590,23 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_CLUSTER_DIMENSION that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        CUlaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        with the following fields: - ``x`` - The X dimension of the
+        preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``y`` - The Y dimension of
         the preferred cluster, in blocks. Must be a divisor of the grid Y
-        dimension, and must be a multiple of the `y` field of
-        CUlaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
-        the preferred cluster, in blocks. Must be equal to the `z` field of
-        CUlaunchAttributeValue::clusterDim.
+        dimension, and must be a multiple of the ``y`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``z`` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the ``z`` field
+        of CUlaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.deviceUpdatableKernelNode' in found_struct}}
     deviceUpdatableKernelNode : anon_struct5
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
-        following fields: - `int` deviceUpdatable - Whether or not the
+        following fields: - ``int`` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        ``CUgraphDeviceNode`` devNode - Returns a handle to pass to the
         various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
@@ -7667,11 +7667,11 @@ cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
     clusterDim : anon_struct1
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
         that represents the desired cluster dimensions for the kernel.
-        Opaque type with the following fields: - `x` - The X dimension of
+        Opaque type with the following fields: - ``x`` - The X dimension of
         the cluster, in blocks. Must be a divisor of the grid X dimension.
-        - `y` - The Y dimension of the cluster, in blocks. Must be a
-        divisor of the grid Y dimension.    - `z` - The Z dimension of the
-        cluster, in blocks. Must be a divisor of the grid Z dimension.
+        - ``y`` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - ``z`` - The Z dimension of
+        the cluster, in blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterSchedulingPolicyPreference' in found_struct}}
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
@@ -7687,18 +7687,18 @@ cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - ``CUevent`` event - Event to fire when
+        all blocks trigger it.    - ``Event`` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
-        - `triggerAtBlockStart` - If this is set to non-0, each block
+        - ``triggerAtBlockStart`` - If this is set to non-0, each block
         launch will automatically trigger the event.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - ``CUevent`` event - Event to fire when the last block
+        launches    - ``int`` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -7721,23 +7721,23 @@ cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_CLUSTER_DIMENSION that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        CUlaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        with the following fields: - ``x`` - The X dimension of the
+        preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``y`` - The Y dimension of
         the preferred cluster, in blocks. Must be a divisor of the grid Y
-        dimension, and must be a multiple of the `y` field of
-        CUlaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
-        the preferred cluster, in blocks. Must be equal to the `z` field of
-        CUlaunchAttributeValue::clusterDim.
+        dimension, and must be a multiple of the ``y`` field of
+        CUlaunchAttributeValue::clusterDim.    - ``z`` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the ``z`` field
+        of CUlaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.deviceUpdatableKernelNode' in found_struct}}
     deviceUpdatableKernelNode : anon_struct5
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
-        following fields: - `int` deviceUpdatable - Whether or not the
+        following fields: - ``int`` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        ``CUgraphDeviceNode`` devNode - Returns a handle to pass to the
         various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
@@ -10313,7 +10313,7 @@ cdef class CUmemAccessDesc_v1(CUmemAccessDesc_st):
     {{endif}}
     {{if 'CUmemAccessDesc_st.flags' in found_struct}}
     flags : CUmemAccess_flags
-        ::CUmemProt accessibility flags to set on the request
+        ``CUmemProt`` accessibility flags to set on the request
     {{endif}}
 
     Methods
@@ -10337,7 +10337,7 @@ cdef class CUmemAccessDesc(CUmemAccessDesc_v1):
     {{endif}}
     {{if 'CUmemAccessDesc_st.flags' in found_struct}}
     flags : CUmemAccess_flags
-        ::CUmemProt accessibility flags to set on the request
+        ``CUmemProt`` accessibility flags to set on the request
     {{endif}}
 
     Methods
@@ -10862,8 +10862,8 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1(CUDA_MEM_ALLOC_NODE_PARAMS_v1_st):
     {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v1_st.poolProps' in found_struct}}
     poolProps : CUmemPoolProps
         in: location where the allocation should reside (specified in
-        ::location). ::handleTypes must be CU_MEM_HANDLE_TYPE_NONE. IPC is
-        not supported.
+        ``location``). ``handleTypes`` must be CU_MEM_HANDLE_TYPE_NONE. IPC
+        is not supported.
     {{endif}}
     {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v1_st.accessDescs' in found_struct}}
     accessDescs : CUmemAccessDesc
@@ -10902,8 +10902,8 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS(CUDA_MEM_ALLOC_NODE_PARAMS_v1):
     {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v1_st.poolProps' in found_struct}}
     poolProps : CUmemPoolProps
         in: location where the allocation should reside (specified in
-        ::location). ::handleTypes must be CU_MEM_HANDLE_TYPE_NONE. IPC is
-        not supported.
+        ``location``). ``handleTypes`` must be CU_MEM_HANDLE_TYPE_NONE. IPC
+        is not supported.
     {{endif}}
     {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v1_st.accessDescs' in found_struct}}
     accessDescs : CUmemAccessDesc
@@ -10942,8 +10942,8 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2(CUDA_MEM_ALLOC_NODE_PARAMS_v2_st):
     {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v2_st.poolProps' in found_struct}}
     poolProps : CUmemPoolProps
         in: location where the allocation should reside (specified in
-        ::location). ::handleTypes must be CU_MEM_HANDLE_TYPE_NONE. IPC is
-        not supported.
+        ``location``). ``handleTypes`` must be CU_MEM_HANDLE_TYPE_NONE. IPC
+        is not supported.
     {{endif}}
     {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v2_st.accessDescs' in found_struct}}
     accessDescs : CUmemAccessDesc
@@ -11538,17 +11538,17 @@ cdef class CUdevResource_v1(CUdevResource_st):
     {{endif}}
     {{if 'CUdevResource_st.sm' in found_struct}}
     sm : CUdevSmResource
-        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM `typename`.
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM ``typename``.
     {{endif}}
     {{if 'CUdevResource_st.wqConfig' in found_struct}}
     wqConfig : CUdevWorkqueueConfigResource
         Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
-        `typename`.
+        ``typename``.
     {{endif}}
     {{if 'CUdevResource_st.wq' in found_struct}}
     wq : CUdevWorkqueueResource
         Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE
-        `typename`.
+        ``typename``.
     {{endif}}
     {{if 'CUdevResource_st._oversize' in found_struct}}
     _oversize : bytes
@@ -11582,17 +11582,17 @@ cdef class CUdevResource(CUdevResource_v1):
     {{endif}}
     {{if 'CUdevResource_st.sm' in found_struct}}
     sm : CUdevSmResource
-        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM `typename`.
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM ``typename``.
     {{endif}}
     {{if 'CUdevResource_st.wqConfig' in found_struct}}
     wqConfig : CUdevWorkqueueConfigResource
         Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
-        `typename`.
+        ``typename``.
     {{endif}}
     {{if 'CUdevResource_st.wq' in found_struct}}
     wq : CUdevWorkqueueResource
         Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE
-        `typename`.
+        ``typename``.
     {{endif}}
     {{if 'CUdevResource_st._oversize' in found_struct}}
     _oversize : bytes
