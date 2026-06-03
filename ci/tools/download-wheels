@@ -56,6 +56,12 @@ do
         continue
     fi
 
+    # exclude pre-release Python (3.15) wheels from releasing
+    if [[ "${p}" == *python315* ]]; then
+        echo "Skipping pre-release Python artifact: $p"
+        continue
+    fi
+
     # If we're not downloading "all", only process matching component
     if [[ "$COMPONENT" != "all" && "$p" != ${COMPONENT}* ]]; then
         continue

@@ -163,6 +163,10 @@ jobs:
             if [[ "${p}" == *-tests ]]; then
               continue
             fi
+            # exclude pre-release Python (3.15) wheels from publishing
+            if [[ "${p}" == *python315* ]]; then
+              continue
+            fi
             mv ${p}/*.whl dist/
           done
           rm -rf ${{ inputs.component }}*
