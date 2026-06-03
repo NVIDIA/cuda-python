@@ -365,6 +365,68 @@ jobs:
         run: |
           pip install cuda_pathfinder/*.whl
 
+      - name: Hide GNU link.exe so Meson finds MSVC link.exe
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        run: |
+          if [ -f "/c/Program Files/Git/usr/bin/link.exe" ]; then
+            mv "/c/Program Files/Git/usr/bin/link.exe" "/c/Program Files/Git/usr/bin/link.exe.bak"
+          fi
+
+      - name: Download and patch numpy sdist (pre-release Python)
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        run: |
+          pip download --no-binary numpy --no-deps "numpy>=1.21.1" -d numpy-sdist/
+          cd numpy-sdist && tar xf numpy-*.tar.gz && rm numpy-*.tar.gz
+          # WAR: numpy 2.4.x ships [tool.cibuildwheel] config that is
+          # incompatible with cibuildwheel v4.0 (cpython-freethreading enable
+          # group, OpenBLAS before-build scripts, etc.). Strip the cibuildwheel
+          # sections but preserve [tool.meson-python] (vendored meson path).
+          python -c "
+          import glob
+          for f in glob.glob('numpy-*/pyproject.toml'):
+              lines, skip = open(f).readlines(), False
+              out = []
+              for line in lines:
+                  hdr = line.strip()
+                  if hdr.startswith('[tool.cibuildwheel') or hdr.startswith('[[tool.cibuildwheel'):
+                      skip = True
+                      continue
+                  if skip and hdr.startswith('[') and 'cibuildwheel' not in hdr:
+                      skip = False
+                  if not skip:
+                      out.append(line)
+              open(f, 'w').writelines(out)
+          "
+          echo "NUMPY_SRC_DIR=$(pwd)/$(ls -d numpy-*/)" >> $GITHUB_ENV
+
+      - name: Build numpy wheel (pre-release Python)
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        uses: pypa/cibuildwheel@54327ab9d35de03b359ac25c97de9417d94639c0  # v4.0.0rc1
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          CIBW_ARCHS_LINUX: "native"
+          CIBW_BUILD_VERBOSITY: 1
+          CIBW_CONFIG_SETTINGS: "setup-args=-Dallow-noblas=true"
+          CIBW_CONFIG_SETTINGS_WINDOWS: "setup-args=--vsenv setup-args=-Dallow-noblas=true"
+          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel}"
+          CIBW_ENABLE: "cpython-prerelease"
+        with:
+          package-dir: ${{ env.NUMPY_SRC_DIR }}
+          output-dir: numpy-wheel/
+
+      - name: Upload numpy wheel
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: numpy-python${{ env.PYTHON_VERSION_FORMATTED }}-${{ inputs.host-platform }}
+          path: numpy-wheel/*.whl
+          if-no-files-found: error
+
+      - name: Install numpy wheel
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        run: pip install numpy-wheel/*.whl
+
       - name: Build cuda.bindings Cython tests
         run: |
           pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group ./cuda_bindings/pyproject.toml:test
