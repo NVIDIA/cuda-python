@@ -5720,7 +5720,7 @@ class cudaJitOption(_FastEnum):
         'Pointer to a buffer in which to print any log messages that are\n'
         'informational in nature (the buffer size is specified via option\n'
         ':py:obj:`~.cudaJitInfoLogBufferSizeBytes`)\n'
-        'Option type: char *\n'
+        'Option type: ``char *``\n'
         'Applies to: compiler and linker\n'
     ){{endif}}
     {{if 'cudaJitInfoLogBufferSizeBytes' in found_values}}
@@ -5740,7 +5740,7 @@ class cudaJitOption(_FastEnum):
         'Pointer to a buffer in which to print any log messages that reflect errors\n'
         '(the buffer size is specified via option\n'
         ':py:obj:`~.cudaJitErrorLogBufferSizeBytes`)\n'
-        'Option type: char *\n'
+        'Option type: ``char *``\n'
         'Applies to: compiler and linker\n'
     ){{endif}}
     {{if 'cudaJitErrorLogBufferSizeBytes' in found_values}}

@@ -3053,7 +3053,7 @@ class CUjit_option(_FastEnum):
         'Pointer to a buffer in which to print any log messages that are\n'
         'informational in nature (the buffer size is specified via option\n'
         ':py:obj:`~.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES`)\n'
-        'Option type: char *\n'
+        'Option type: ``char *``\n'
         'Applies to: compiler and linker\n'
     ){{endif}}
     {{if 'CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES' in found_values}}
@@ -3073,7 +3073,7 @@ class CUjit_option(_FastEnum):
         'Pointer to a buffer in which to print any log messages that reflect errors\n'
         '(the buffer size is specified via option\n'
         ':py:obj:`~.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES`)\n'
-        'Option type: char *\n'
+        'Option type: ``char *``\n'
         'Applies to: compiler and linker\n'
     ){{endif}}
     {{if 'CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES' in found_values}}
@@ -3182,7 +3182,7 @@ class CUjit_option(_FastEnum):
         'It is only allowed to register symbols that correspond to unresolved global\n'
         'variables.\n'
         'It is illegal to register the same device symbol at multiple addresses.\n'
-        'Option type: const char **\n'
+        'Option type: ``const char **``\n'
         'Applies to: dynamic linker only\n'
     ){{endif}}
     {{if 'CU_JIT_GLOBAL_SYMBOL_ADDRESSES' in found_values}}
@@ -3192,7 +3192,7 @@ class CUjit_option(_FastEnum):
         'Array of host addresses that will be used to relocate corresponding device\n'
         'symbols stored in :py:obj:`~.CU_JIT_GLOBAL_SYMBOL_NAMES`.\n'
         'Must contain :py:obj:`~.CU_JIT_GLOBAL_SYMBOL_COUNT` entries.\n'
-        'Option type: void **\n'
+        'Option type: ``void **``\n'
         'Applies to: dynamic linker only\n'
     ){{endif}}
     {{if 'CU_JIT_GLOBAL_SYMBOL_COUNT' in found_values}}
@@ -29805,7 +29805,7 @@ def cuLinkCreate(unsigned int numOptions, options : Optional[tuple[CUjit_option]
     options : list[:py:obj:`~.CUjit_option`]
         Array of linker and compiler options
     optionValues : list[Any]
-        Array of option values, each cast to void *
+        Array of option values, each cast to ``void *``
 
     Returns
     -------
@@ -29877,7 +29877,7 @@ def cuLinkAddData(state, typename not None : CUjitInputType, data, size_t size, 
         Options to be applied only for this input (overrides options from
         :py:obj:`~.cuLinkCreate`).
     optionValues : list[Any]
-        Array of option values, each cast to void *.
+        Array of option values, each cast to ``void *``.
 
     Returns
     -------
@@ -29950,7 +29950,7 @@ def cuLinkAddFile(state, typename not None : CUjitInputType, char* path, unsigne
         Options to be applied only for this input (overrides options from
         :py:obj:`~.cuLinkCreate`)
     optionValues : list[Any]
-        Array of option values, each cast to void *
+        Array of option values, each cast to ``void *``
 
     Returns
     -------
@@ -39597,9 +39597,9 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
     - :py:obj:`~.CU_POINTER_ATTRIBUTE_HOST_POINTER`:
 
     - Returns in ``*data`` the host pointer value through which ``ptr`` may
-      be accessed by by the host program. The type of ``data`` must be void
-      **. If there exists no host pointer value through which the host
-      program may directly access ``ptr`` then
+      be accessed by by the host program. The type of ``data`` must be
+      ``void **``. If there exists no host pointer value through which the
+      host program may directly access ``ptr`` then
       :py:obj:`~.CUDA_ERROR_INVALID_VALUE` is returned.
 
     - Except in the exceptional disjoint addressing cases discussed below,

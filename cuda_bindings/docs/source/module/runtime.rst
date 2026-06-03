@@ -3384,7 +3384,7 @@ Data types used by CUDA Runtime
 
         Pointer to a buffer in which to print any log messages that are informational in nature (the buffer size is specified via option :py:obj:`~.cudaJitInfoLogBufferSizeBytes`)
 
-        Option type: char *
+        Option type: ``char *``
 
         Applies to: compiler and linker
 
@@ -3406,7 +3406,7 @@ Data types used by CUDA Runtime
 
         Pointer to a buffer in which to print any log messages that reflect errors (the buffer size is specified via option :py:obj:`~.cudaJitErrorLogBufferSizeBytes`)
 
-        Option type: char *
+        Option type: ``char *``
 
         Applies to: compiler and linker
 
