@@ -695,3 +695,135 @@ def test_memcpy_buffers_survive_graph_clone(init_cuda):
     out = (ctypes.c_uint8 * 4)(0)
     handle_return(driver.cuMemcpyDtoH(out, dst_dptr, 4))
     assert list(out) == [0xCD] * 4
+
+
+# =============================================================================
+# Explicit dst_owner / src_owner for raw pointer operands
+# =============================================================================
+
+
+def test_memset_raw_ptr_with_dst_owner(init_cuda):
+    """Raw dst address plus dst_owner: the graph retains the owner until destroyed."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+    buf_weak = weakref.ref(buf)
+    dptr = int(buf.handle)
+
+    g = GraphDefinition()
+    g.memset(dptr, 0xAB, 4, dst_owner=buf)
+
+    del buf
+    gc.collect()
+    assert buf_weak() is not None  # graph retains the explicit owner
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dptr, 4))
+    assert list(out) == [0xAB] * 4
+
+    del g
+    _wait_until(lambda: buf_weak() is None)
+
+
+def test_memcpy_raw_ptrs_with_owners(init_cuda):
+    """Raw src/dst addresses: the graph retains both owners until destroyed."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    src = mr.allocate(4, stream=dev.default_stream)
+    dst = mr.allocate(4, stream=dev.default_stream)
+    src.fill(0xCD, stream=dev.default_stream)
+    dev.default_stream.sync()
+    src_weak = weakref.ref(src)
+    dst_weak = weakref.ref(dst)
+    src_dptr = int(src.handle)
+    dst_dptr = int(dst.handle)
+
+    g = GraphDefinition()
+    g.memcpy(dst_dptr, src_dptr, 4, dst_owner=dst, src_owner=src)
+
+    del src, dst
+    gc.collect()
+    assert src_weak() is not None and dst_weak() is not None  # both owners retained
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dst_dptr, 4))
+    assert list(out) == [0xCD] * 4
+
+    del g
+    _wait_until(lambda: src_weak() is None and dst_weak() is None)
+
+
+def test_memcpy_mixed_buffer_and_raw_owner(init_cuda):
+    """Buffer dst is auto-retained; raw src uses src_owner. Both survive until destroyed."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    src = mr.allocate(4, stream=dev.default_stream)
+    dst = mr.allocate(4, stream=dev.default_stream)
+    src.fill(0xCD, stream=dev.default_stream)
+    dev.default_stream.sync()
+    src_weak = weakref.ref(src)
+    dst_weak = weakref.ref(dst)
+    src_dptr = int(src.handle)
+    dst_dptr = int(dst.handle)
+
+    g = GraphDefinition()
+    g.memcpy(dst, src_dptr, 4, src_owner=src)
+
+    del src, dst
+    gc.collect()
+    assert src_weak() is not None and dst_weak() is not None  # explicit + auto owner
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dst_dptr, 4))
+    assert list(out) == [0xCD] * 4
+
+    del g
+    _wait_until(lambda: src_weak() is None and dst_weak() is None)
+
+
+def test_memcpy_buffer_and_dst_owner_rejected(init_cuda):
+    """dst_owner cannot be combined with a Buffer dst operand."""
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+
+    g = GraphDefinition()
+    with pytest.raises(ValueError, match="dst_owner cannot be used when dst is a Buffer"):
+        g.memcpy(buf, buf, 4, dst_owner=object())
+
+
+def test_memcpy_buffer_and_src_owner_rejected(init_cuda):
+    """src_owner cannot be combined with a Buffer src operand."""
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+
+    g = GraphDefinition()
+    with pytest.raises(ValueError, match="src_owner cannot be used when src is a Buffer"):
+        g.memcpy(buf, buf, 4, src_owner=object())
