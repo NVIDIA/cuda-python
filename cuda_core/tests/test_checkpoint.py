@@ -418,36 +418,33 @@ class TestInputValidation:
         assert checkpoint.__all__ == ["Process"]
         assert not hasattr(checkpoint, "ProcessStateType")
 
-    def test_checkpoint_available_skips_unsupported_driver(self, monkeypatch):
-        def raise_unsupported_driver():
-            raise RuntimeError("CUDA checkpointing is not supported by the installed NVIDIA driver.")
-
-        monkeypatch.setattr(checkpoint, "_get_driver", raise_unsupported_driver)
-
-        assert not _checkpoint_available()
-
-    def test_checkpoint_available_skips_old_bindings(self, monkeypatch):
-        def raise_old_bindings():
-            raise RuntimeError(
+    @pytest.mark.parametrize(
+        ("message", "expected_failure"),
+        [
+            ("CUDA checkpointing is not supported by the installed NVIDIA driver.", None),
+            (
                 "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. "
-                "Found cuda.bindings 12.7.0."
-            )
-
-        monkeypatch.setattr(checkpoint, "_get_driver", raise_old_bindings)
-
-        assert not _checkpoint_available()
-
-    def test_checkpoint_available_fails_missing_required_bindings(self, monkeypatch):
-        def raise_missing_binding():
-            raise RuntimeError(
+                "Found cuda.bindings 12.7.0.",
+                None,
+            ),
+            (
                 "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. "
-                "Missing: CUcheckpointRestoreArgs"
-            )
+                "Missing: CUcheckpointRestoreArgs",
+                "Missing: CUcheckpointRestoreArgs",
+            ),
+        ],
+    )
+    def test_checkpoint_available_policy(self, monkeypatch, message, expected_failure):
+        def raise_runtime_error():
+            raise RuntimeError(message)
 
-        monkeypatch.setattr(checkpoint, "_get_driver", raise_missing_binding)
+        monkeypatch.setattr(checkpoint, "_get_driver", raise_runtime_error)
 
-        with pytest.raises(RuntimeError, match="Missing: CUcheckpointRestoreArgs"):
-            _checkpoint_available()
+        if expected_failure is None:
+            assert not _checkpoint_available()
+        else:
+            with pytest.raises(RuntimeError, match=expected_failure):
+                _checkpoint_available()
 
     def test_checkpoint_gpu_mapping_available_skips_missing_gpu_pair(self, monkeypatch):
         class Driver:
