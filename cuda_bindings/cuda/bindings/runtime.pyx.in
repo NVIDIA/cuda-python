@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1725+g07a86fe3d.d20260603. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1731+g535901cce.d20260604. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -228,19 +228,21 @@ CUDA_IPC_HANDLE_SIZE = cyruntime.CUDA_IPC_HANDLE_SIZE
 #: Indicates that the external memory object is a dedicated resource
 cudaExternalMemoryDedicated = cyruntime.cudaExternalMemoryDedicated
 
-#: When the /p flags parameter of cudaExternalSemaphoreSignalParams
-#: contains this flag, it indicates that signaling an external semaphore
-#: object should skip performing appropriate memory synchronization
-#: operations over all the external memory objects that are imported as
+#: When the /p flags parameter of
+#: :py:obj:`~.cudaExternalSemaphoreSignalParams` contains this flag, it
+#: indicates that signaling an external semaphore object should skip
+#: performing appropriate memory synchronization operations over all the
+#: external memory objects that are imported as
 #: :py:obj:`~.cudaExternalMemoryHandleTypeNvSciBuf`, which otherwise are
 #: performed by default to ensure data coherency with other importers of
 #: the same NvSciBuf memory objects.
 cudaExternalSemaphoreSignalSkipNvSciBufMemSync = cyruntime.cudaExternalSemaphoreSignalSkipNvSciBufMemSync
 
-#: When the /p flags parameter of cudaExternalSemaphoreWaitParams contains
-#: this flag, it indicates that waiting an external semaphore object should
-#: skip performing appropriate memory synchronization operations over all
-#: the external memory objects that are imported as
+#: When the /p flags parameter of
+#: :py:obj:`~.cudaExternalSemaphoreWaitParams` contains this flag, it
+#: indicates that waiting an external semaphore object should skip
+#: performing appropriate memory synchronization operations over all the
+#: external memory objects that are imported as
 #: :py:obj:`~.cudaExternalMemoryHandleTypeNvSciBuf`, which otherwise are
 #: performed by default to ensure data coherency with other importers of
 #: the same NvSciBuf memory objects.
@@ -411,7 +413,8 @@ class cudaError_t(_FastEnum):
         'This indicates that a kernel launch is requesting resources that can never\n'
         'be satisfied by the current device. Requesting more shared memory per block\n'
         'than the device supports will trigger this error, as will requesting too\n'
-        'many threads or blocks. See cudaDeviceProp for more device limitations.\n'
+        'many threads or blocks. See :py:obj:`~.cudaDeviceProp` for more device\n'
+        'limitations.\n'
     ){{endif}}
     {{if 'cudaErrorVersionTranslation' in found_values}}
 
@@ -3217,8 +3220,8 @@ class cudaMemcpyKind(_FastEnum):
 
 class cudaAccessProperty(_FastEnum):
     """
-    Specifies performance hint with cudaAccessPolicyWindow for hitProp
-    and missProp members.
+    Specifies performance hint with :py:obj:`~.cudaAccessPolicyWindow`
+    for hitProp and missProp members.
     """
     {{if 'cudaAccessPropertyNormal' in found_values}}
 
@@ -6349,25 +6352,25 @@ class cudaGraphDebugDotFlags(_FastEnum):
 
     cudaGraphDebugDotFlagsKernelNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeParams,
-        'Adds cudaKernelNodeParams to output\n'
+        'Adds :py:obj:`~.cudaKernelNodeParams` to output\n'
     ){{endif}}
     {{if 'cudaGraphDebugDotFlagsMemcpyNodeParams' in found_values}}
 
     cudaGraphDebugDotFlagsMemcpyNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemcpyNodeParams,
-        'Adds cudaMemcpy3DParms to output\n'
+        'Adds :py:obj:`~.cudaMemcpy3DParms` to output\n'
     ){{endif}}
     {{if 'cudaGraphDebugDotFlagsMemsetNodeParams' in found_values}}
 
     cudaGraphDebugDotFlagsMemsetNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemsetNodeParams,
-        'Adds cudaMemsetParams to output\n'
+        'Adds :py:obj:`~.cudaMemsetParams` to output\n'
     ){{endif}}
     {{if 'cudaGraphDebugDotFlagsHostNodeParams' in found_values}}
 
     cudaGraphDebugDotFlagsHostNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsHostNodeParams,
-        'Adds cudaHostNodeParams to output\n'
+        'Adds :py:obj:`~.cudaHostNodeParams` to output\n'
     ){{endif}}
     {{if 'cudaGraphDebugDotFlagsEventNodeParams' in found_values}}
 
@@ -6379,13 +6382,13 @@ class cudaGraphDebugDotFlags(_FastEnum):
 
     cudaGraphDebugDotFlagsExtSemasSignalNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasSignalNodeParams,
-        'Adds cudaExternalSemaphoreSignalNodeParams values to output\n'
+        'Adds :py:obj:`~.cudaExternalSemaphoreSignalNodeParams` values to output\n'
     ){{endif}}
     {{if 'cudaGraphDebugDotFlagsExtSemasWaitNodeParams' in found_values}}
 
     cudaGraphDebugDotFlagsExtSemasWaitNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasWaitNodeParams,
-        'Adds cudaExternalSemaphoreWaitNodeParams to output\n'
+        'Adds :py:obj:`~.cudaExternalSemaphoreWaitNodeParams` to output\n'
     ){{endif}}
     {{if 'cudaGraphDebugDotFlagsKernelNodeAttributes' in found_values}}
 
@@ -6403,7 +6406,7 @@ class cudaGraphDebugDotFlags(_FastEnum):
 
     cudaGraphDebugDotFlagsConditionalNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsConditionalNodeParams,
-        'Adds cudaConditionalNodeParams to output\n'
+        'Adds :py:obj:`~.cudaConditionalNodeParams` to output\n'
     ){{endif}}
 
 {{endif}}
@@ -21337,7 +21340,7 @@ def cudaDeviceReset():
     in subsequent API calls and doing so will result in undefined behavior.
     These resources include CUDA types :py:obj:`~.cudaStream_t`,
     :py:obj:`~.cudaEvent_t`, :py:obj:`~.cudaArray_t`,
-    :py:obj:`~.cudaMipmappedArray_t`, cudaPitchedPtr,
+    :py:obj:`~.cudaMipmappedArray_t`, :py:obj:`~.cudaPitchedPtr`,
     :py:obj:`~.cudaTextureObject_t`, :py:obj:`~.cudaSurfaceObject_t`,
     :py:obj:`~.textureReference`, :py:obj:`~.surfaceReference`,
     :py:obj:`~.cudaExternalMemory_t`, :py:obj:`~.cudaExternalSemaphore_t`
@@ -23631,7 +23634,7 @@ def cudaCtxResetPersistingL2Cache():
 
     See Also
     --------
-    cudaAccessPolicyWindow
+    :py:obj:`~.cudaAccessPolicyWindow`
     """
     with nogil:
         err = cyruntime.cudaCtxResetPersistingL2Cache()
@@ -23661,7 +23664,7 @@ def cudaStreamCopyAttributes(dst, src):
 
     See Also
     --------
-    cudaAccessPolicyWindow
+    :py:obj:`~.cudaAccessPolicyWindow`
     """
     cdef cyruntime.cudaStream_t cysrc
     if src is None:
@@ -23709,7 +23712,7 @@ def cudaStreamGetAttribute(hStream, attr not None : cudaStreamAttrID):
 
     See Also
     --------
-    cudaAccessPolicyWindow
+    :py:obj:`~.cudaAccessPolicyWindow`
     """
     cdef cyruntime.cudaStream_t cyhStream
     if hStream is None:
@@ -23754,7 +23757,7 @@ def cudaStreamSetAttribute(hStream, attr not None : cudaStreamAttrID, value : Op
 
     See Also
     --------
-    cudaAccessPolicyWindow
+    :py:obj:`~.cudaAccessPolicyWindow`
     """
     cdef cyruntime.cudaStream_t cyhStream
     if hStream is None:
@@ -25214,8 +25217,8 @@ def cudaImportExternalMemory(memHandleDesc : Optional[cudaExternalMemoryHandleDe
     that in ``extMem_out``.
 
     The properties of the handle being imported must be described in
-    ``memHandleDesc``. The cudaExternalMemoryHandleDesc structure is
-    defined as follows:
+    ``memHandleDesc``. The :py:obj:`~.cudaExternalMemoryHandleDesc`
+    structure is defined as follows:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -25363,8 +25366,8 @@ def cudaExternalMemoryGetMappedBuffer(extMem, bufferDesc : Optional[cudaExternal
     pointer in ``devPtr``.
 
     The properties of the buffer being mapped must be described in
-    ``bufferDesc``. The cudaExternalMemoryBufferDesc structure is defined
-    as follows:
+    ``bufferDesc``. The :py:obj:`~.cudaExternalMemoryBufferDesc` structure
+    is defined as follows:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -25433,7 +25436,7 @@ def cudaExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : Optional[cuda
 
     The properties of the CUDA mipmapped array being mapped must be
     described in ``mipmapDesc``. The structure
-    cudaExternalMemoryMipmappedArrayDesc is defined as follows:
+    :py:obj:`~.cudaExternalMemoryMipmappedArrayDesc` is defined as follows:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -25542,8 +25545,8 @@ def cudaImportExternalSemaphore(semHandleDesc : Optional[cudaExternalSemaphoreHa
     handle to that in ``extSem_out``.
 
     The properties of the handle being imported must be described in
-    ``semHandleDesc``. The cudaExternalSemaphoreHandleDesc is defined as
-    follows:
+    ``semHandleDesc``. The :py:obj:`~.cudaExternalSemaphoreHandleDesc` is
+    defined as follows:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -26923,10 +26926,11 @@ def cudaMallocPitch(size_t width, size_t height):
 def cudaMallocArray(desc : Optional[cudaChannelFormatDesc], size_t width, size_t height, unsigned int flags):
     """ Allocate an array on the device.
 
-    Allocates a CUDA array according to the cudaChannelFormatDesc structure
-    ``desc`` and returns a handle to the new CUDA array in ``*array``.
+    Allocates a CUDA array according to the
+    :py:obj:`~.cudaChannelFormatDesc` structure ``desc`` and returns a
+    handle to the new CUDA array in ``*array``.
 
-    The cudaChannelFormatDesc is defined as:
+    The :py:obj:`~.cudaChannelFormatDesc` is defined as:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -27494,16 +27498,16 @@ def cudaMalloc3D(extent not None : cudaExtent):
     """ Allocates logical 1D, 2D, or 3D memory objects on the device.
 
     Allocates at least ``width`` * ``height`` * ``depth`` bytes of linear
-    memory on the device and returns a cudaPitchedPtr in which ``ptr`` is a
-    pointer to the allocated memory. The function may pad the allocation to
-    ensure hardware alignment requirements are met. The pitch returned in
-    the ``pitch`` field of ``pitchedDevPtr`` is the width in bytes of the
-    allocation.
+    memory on the device and returns a :py:obj:`~.cudaPitchedPtr` in which
+    ``ptr`` is a pointer to the allocated memory. The function may pad the
+    allocation to ensure hardware alignment requirements are met. The pitch
+    returned in the ``pitch`` field of ``pitchedDevPtr`` is the width in
+    bytes of the allocation.
 
-    The returned cudaPitchedPtr contains additional fields ``xsize`` and
-    ``ysize``, the logical width and height of the allocation, which are
-    equivalent to the ``width`` and ``height`` ``extent`` parameters
-    provided by the programmer during allocation.
+    The returned :py:obj:`~.cudaPitchedPtr` contains additional fields
+    ``xsize`` and ``ysize``, the logical width and height of the
+    allocation, which are equivalent to the ``width`` and ``height``
+    ``extent`` parameters provided by the programmer during allocation.
 
     For allocations of 2D and 3D objects, it is highly recommended that
     programmers perform allocations using :py:obj:`~.cudaMalloc3D()` or
@@ -27542,10 +27546,11 @@ def cudaMalloc3D(extent not None : cudaExtent):
 def cudaMalloc3DArray(desc : Optional[cudaChannelFormatDesc], extent not None : cudaExtent, unsigned int flags):
     """ Allocate an array on the device.
 
-    Allocates a CUDA array according to the cudaChannelFormatDesc structure
-    ``desc`` and returns a handle to the new CUDA array in ``*array``.
+    Allocates a CUDA array according to the
+    :py:obj:`~.cudaChannelFormatDesc` structure ``desc`` and returns a
+    handle to the new CUDA array in ``*array``.
 
-    The cudaChannelFormatDesc is defined as:
+    The :py:obj:`~.cudaChannelFormatDesc` is defined as:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -27664,13 +27669,14 @@ def cudaMalloc3DArray(desc : Optional[cudaChannelFormatDesc], extent not None : 
 def cudaMallocMipmappedArray(desc : Optional[cudaChannelFormatDesc], extent not None : cudaExtent, unsigned int numLevels, unsigned int flags):
     """ Allocate a mipmapped array on the device.
 
-    Allocates a CUDA mipmapped array according to the cudaChannelFormatDesc
-    structure ``desc`` and returns a handle to the new CUDA mipmapped array
-    in ``*mipmappedArray``. ``numLevels`` specifies the number of mipmap
-    levels to be allocated. This value is clamped to the range [1, 1 +
-    floor(log2(max(width, height, depth)))].
+    Allocates a CUDA mipmapped array according to the
+    :py:obj:`~.cudaChannelFormatDesc` structure ``desc`` and returns a
+    handle to the new CUDA mipmapped array in ``*mipmappedArray``.
+    ``numLevels`` specifies the number of mipmap levels to be allocated.
+    This value is clamped to the range [1, 1 + floor(log2(max(width,
+    height, depth)))].
 
-    The cudaChannelFormatDesc is defined as:
+    The :py:obj:`~.cudaChannelFormatDesc` is defined as:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -27844,8 +27850,8 @@ def cudaMemcpy3D(p : Optional[cudaMemcpy3DParms]):
     :py:obj:`~.cudaMemcpy3D()` copies data betwen two 3D objects. The
     source and destination objects may be in either host memory, device
     memory, or a CUDA array. The source, destination, extent, and kind of
-    copy performed is specified by the cudaMemcpy3DParms struct which
-    should be initialized to zero before use:
+    copy performed is specified by the :py:obj:`~.cudaMemcpy3DParms` struct
+    which should be initialized to zero before use:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -27894,8 +27900,8 @@ def cudaMemcpy3D(p : Optional[cudaMemcpy3DParms]):
 
     :py:obj:`~.cudaMemcpy3D()` returns an error if the pitch of ``srcPtr``
     or ``dstPtr`` exceeds the maximum allowed. The pitch of a
-    cudaPitchedPtr allocated with :py:obj:`~.cudaMalloc3D()` will always be
-    valid.
+    :py:obj:`~.cudaPitchedPtr` allocated with :py:obj:`~.cudaMalloc3D()`
+    will always be valid.
 
     Parameters
     ----------
@@ -27924,8 +27930,8 @@ def cudaMemcpy3DPeer(p : Optional[cudaMemcpy3DPeerParms]):
     """ Copies memory between devices.
 
     Perform a 3D memory copy according to the parameters specified in
-    ``p``. See the definition of the cudaMemcpy3DPeerParms structure for
-    documentation of its parameters.
+    ``p``. See the definition of the :py:obj:`~.cudaMemcpy3DPeerParms`
+    structure for documentation of its parameters.
 
     Note that this function is synchronous with respect to the host only if
     the source or destination of the transfer is host memory. Note also
@@ -27965,8 +27971,8 @@ def cudaMemcpy3DAsync(p : Optional[cudaMemcpy3DParms], stream):
     :py:obj:`~.cudaMemcpy3DAsync()` copies data betwen two 3D objects. The
     source and destination objects may be in either host memory, device
     memory, or a CUDA array. The source, destination, extent, and kind of
-    copy performed is specified by the cudaMemcpy3DParms struct which
-    should be initialized to zero before use:
+    copy performed is specified by the :py:obj:`~.cudaMemcpy3DParms` struct
+    which should be initialized to zero before use:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -28016,8 +28022,8 @@ def cudaMemcpy3DAsync(p : Optional[cudaMemcpy3DParms], stream):
 
     :py:obj:`~.cudaMemcpy3DAsync()` returns an error if the pitch of
     ``srcPtr`` or ``dstPtr`` exceeds the maximum allowed. The pitch of a
-    cudaPitchedPtr allocated with :py:obj:`~.cudaMalloc3D()` will always be
-    valid.
+    :py:obj:`~.cudaPitchedPtr` allocated with :py:obj:`~.cudaMalloc3D()`
+    will always be valid.
 
     :py:obj:`~.cudaMemcpy3DAsync()` is asynchronous with respect to the
     host, so the call may return before the copy is complete. The copy can
@@ -28066,8 +28072,8 @@ def cudaMemcpy3DPeerAsync(p : Optional[cudaMemcpy3DPeerParms], stream):
     """ Copies memory between devices asynchronously.
 
     Perform a 3D memory copy according to the parameters specified in
-    ``p``. See the definition of the cudaMemcpy3DPeerParms structure for
-    documentation of its parameters.
+    ``p``. See the definition of the :py:obj:`~.cudaMemcpy3DPeerParms`
+    structure for documentation of its parameters.
 
     Parameters
     ----------
@@ -28278,7 +28284,7 @@ def cudaArrayGetMemoryRequirements(array, int device):
     cudaError_t
         :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
     memoryRequirements : :py:obj:`~.cudaArrayMemoryRequirements`
-        Pointer to cudaArrayMemoryRequirements
+        Pointer to :py:obj:`~.cudaArrayMemoryRequirements`
 
     See Also
     --------
@@ -28328,7 +28334,7 @@ def cudaMipmappedArrayGetMemoryRequirements(mipmap, int device):
     cudaError_t
         :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
     memoryRequirements : :py:obj:`~.cudaArrayMemoryRequirements`
-        Pointer to cudaArrayMemoryRequirements
+        Pointer to :py:obj:`~.cudaArrayMemoryRequirements`
 
     See Also
     --------
@@ -28384,7 +28390,7 @@ def cudaArrayGetSparseProperties(array):
     cudaError_t
         :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
     sparseProperties : :py:obj:`~.cudaArraySparseProperties`
-        Pointer to return the cudaArraySparseProperties
+        Pointer to return the :py:obj:`~.cudaArraySparseProperties`
 
     See Also
     --------
@@ -28440,7 +28446,7 @@ def cudaMipmappedArrayGetSparseProperties(mipmap):
     cudaError_t
         :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
     sparseProperties : :py:obj:`~.cudaArraySparseProperties`
-        Pointer to return cudaArraySparseProperties
+        Pointer to return :py:obj:`~.cudaArraySparseProperties`
 
     See Also
     --------
@@ -29021,8 +29027,8 @@ def cudaMemcpyBatchAsync(dsts : Optional[tuple[Any] | list[Any]], srcs : Optiona
     no prior operations in the stream can be accessing the memory.
     Specifying this flag allows the driver to optimize the copy on certain
     platforms. Each memcpy operation in the batch must have a valid
-    cudaMemcpyAttributes corresponding to it including the appropriate
-    srcAccessOrder setting, otherwise the API will return
+    :py:obj:`~.cudaMemcpyAttributes` corresponding to it including the
+    appropriate srcAccessOrder setting, otherwise the API will return
     :py:obj:`~.cudaErrorInvalidValue`.
 
     The :py:obj:`~.cudaMemcpyAttributes.srcLocHint` and
@@ -29263,7 +29269,8 @@ def cudaMemcpyWithAttributesAsync(dst, src, size_t size, attr : Optional[cudaMem
     the operation in.
 
     For more information regarding the attributes, please refer to
-    cudaMemcpyAttributes and it's usage desciption in::cudaMemcpyBatchAsync
+    :py:obj:`~.cudaMemcpyAttributes` and it's usage desciption
+    in::cudaMemcpyBatchAsync
 
     Parameters
     ----------
@@ -29320,7 +29327,7 @@ def cudaMemcpy3DWithAttributesAsync(op : Optional[cudaMemcpy3DBatchOp], unsigned
     the operation in.
 
     For more information regarding the operation, please refer to
-    cudaMemcpy3DBatchOp and it's usage desciption
+    :py:obj:`~.cudaMemcpy3DBatchOp` and it's usage desciption
     in::cudaMemcpy3DBatchAsync
 
     Parameters
@@ -30128,7 +30135,6 @@ def cudaMemPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : 
     Returns
     -------
     cudaError_t
-
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
@@ -30221,7 +30227,6 @@ def cudaMemDiscardBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : t
     Returns
     -------
     cudaError_t
-
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
@@ -30319,7 +30324,6 @@ def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]]
     Returns
     -------
     cudaError_t
-
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
@@ -31639,7 +31643,7 @@ def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
     /dev/nvidia-caps-imex-channels/channel0 c <major number> 0``
 
     To create a managed memory pool, applications must set
-    cudaMemPoolProps:cudaMemAllocationType to
+    :py:obj:`~.cudaMemPoolProps`:cudaMemAllocationType to
     :py:obj:`~.cudaMemAllocationTypeManaged`.
     :py:obj:`~.cudaMemPoolProps.cudaMemAllocationHandleType` must also be
     set to :py:obj:`~.cudaMemHandleTypeNone` since IPC is not supported.
@@ -32158,7 +32162,7 @@ def cudaPointerGetAttributes(ptr):
     supporting unified addressing :py:obj:`~.cudaErrorInvalidValue` is
     returned.
 
-    The cudaPointerAttributes structure is defined as:
+    The :py:obj:`~.cudaPointerAttributes` structure is defined as:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -32759,7 +32763,7 @@ def cudaCreateChannelDesc(int x, int y, int z, int w, f not None : cudaChannelFo
 
     Returns a channel descriptor with format ``f`` and number of bits of
     each component ``x``, ``y``, ``z``, and ``w``. The
-    cudaChannelFormatDesc is defined as:
+    :py:obj:`~.cudaChannelFormatDesc` is defined as:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -32819,7 +32823,7 @@ def cudaCreateTextureObject(pResDesc : Optional[cudaResourceDesc], pTexDesc : Op
     or higher. Additionally, a texture object is an opaque value, and, as
     such, should only be accessed through CUDA API calls.
 
-    The cudaResourceDesc structure is defined as:
+    The :py:obj:`~.cudaResourceDesc` structure is defined as:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -32871,7 +32875,7 @@ def cudaCreateTextureObject(pResDesc : Optional[cudaResourceDesc], pTexDesc : Op
     :py:obj:`~.cudaDeviceProp.texturePitchAlignment`. Pitch cannot exceed
     :py:obj:`~.cudaDeviceProp.maxTexture2DLinear` ``[2]``.
 
-    The cudaTextureDesc struct is defined as
+    The :py:obj:`~.cudaTextureDesc` struct is defined as
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -32961,7 +32965,7 @@ def cudaCreateTextureObject(pResDesc : Optional[cudaResourceDesc], pTexDesc : Op
       :py:obj:`~.cudaFilterModeLinear` seamless cube map filtering will be
       performed when sampling along the cube face borders.
 
-    The cudaResourceViewDesc struct is defined as
+    The :py:obj:`~.cudaResourceViewDesc` struct is defined as
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -33632,7 +33636,7 @@ def cudaGraphAddKernelNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     the root of the graph. ``pDependencies`` may not have any duplicate
     entries. A handle to the new node will be returned in ``pGraphNode``.
 
-    The cudaKernelNodeParams structure is defined as:
+    The :py:obj:`~.cudaKernelNodeParams` structure is defined as:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -33853,7 +33857,7 @@ def cudaGraphKernelNodeCopyAttributes(hDst, hSrc):
 
     See Also
     --------
-    cudaAccessPolicyWindow
+    :py:obj:`~.cudaAccessPolicyWindow`
     """
     cdef cyruntime.cudaGraphNode_t cyhSrc
     if hSrc is None:
@@ -33901,7 +33905,7 @@ def cudaGraphKernelNodeGetAttribute(hNode, attr not None : cudaKernelNodeAttrID)
 
     See Also
     --------
-    cudaAccessPolicyWindow
+    :py:obj:`~.cudaAccessPolicyWindow`
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
@@ -33945,7 +33949,7 @@ def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID,
 
     See Also
     --------
-    cudaAccessPolicyWindow
+    :py:obj:`~.cudaAccessPolicyWindow`
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
@@ -40879,10 +40883,10 @@ def cudaGetKernel(entryFuncAddr):
 
 @cython.embedsignature(True)
 def make_cudaPitchedPtr(d, size_t p, size_t xsz, size_t ysz):
-    """ Returns a cudaPitchedPtr based on input parameters.
+    """ Returns a :py:obj:`~.cudaPitchedPtr` based on input parameters.
 
-    Returns a cudaPitchedPtr based on the specified input parameters ``d``,
-    ``p``, ``xsz``, and ``ysz``.
+    Returns a :py:obj:`~.cudaPitchedPtr` based on the specified input
+    parameters ``d``, ``p``, ``xsz``, and ``ysz``.
 
     Parameters
     ----------
@@ -40900,7 +40904,7 @@ def make_cudaPitchedPtr(d, size_t p, size_t xsz, size_t ysz):
     cudaError_t.cudaSuccess
         cudaError_t.cudaSuccess
     :py:obj:`~.cudaPitchedPtr`
-        cudaPitchedPtr specified by ``d``, ``p``, ``xsz``, and ``ysz``
+        :py:obj:`~.cudaPitchedPtr` specified by ``d``, ``p``, ``xsz``, and ``ysz``
 
     See Also
     --------
@@ -40920,10 +40924,10 @@ def make_cudaPitchedPtr(d, size_t p, size_t xsz, size_t ysz):
 
 @cython.embedsignature(True)
 def make_cudaPos(size_t x, size_t y, size_t z):
-    """ Returns a cudaPos based on input parameters.
+    """ Returns a :py:obj:`~.cudaPos` based on input parameters.
 
-    Returns a cudaPos based on the specified input parameters ``x``, ``y``,
-    and ``z``.
+    Returns a :py:obj:`~.cudaPos` based on the specified input parameters
+    ``x``, ``y``, and ``z``.
 
     Parameters
     ----------
@@ -40939,7 +40943,7 @@ def make_cudaPos(size_t x, size_t y, size_t z):
     cudaError_t.cudaSuccess
         cudaError_t.cudaSuccess
     :py:obj:`~.cudaPos`
-        cudaPos specified by ``x``, ``y``, and ``z``
+        :py:obj:`~.cudaPos` specified by ``x``, ``y``, and ``z``
 
     See Also
     --------
@@ -40956,10 +40960,10 @@ def make_cudaPos(size_t x, size_t y, size_t z):
 
 @cython.embedsignature(True)
 def make_cudaExtent(size_t w, size_t h, size_t d):
-    """ Returns a cudaExtent based on input parameters.
+    """ Returns a :py:obj:`~.cudaExtent` based on input parameters.
 
-    Returns a cudaExtent based on the specified input parameters ``w``,
-    ``h``, and ``d``.
+    Returns a :py:obj:`~.cudaExtent` based on the specified input
+    parameters ``w``, ``h``, and ``d``.
 
     Parameters
     ----------
@@ -40976,7 +40980,7 @@ def make_cudaExtent(size_t w, size_t h, size_t d):
     cudaError_t.cudaSuccess
         cudaError_t.cudaSuccess
     :py:obj:`~.cudaExtent`
-        cudaExtent specified by ``w``, ``h``, and ``d``
+        :py:obj:`~.cudaExtent` specified by ``w``, ``h``, and ``d``
 
     See Also
     --------

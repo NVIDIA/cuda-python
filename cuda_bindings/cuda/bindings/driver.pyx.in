@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1725+g07a86fe3d.d20260603. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1731+g535901cce.d20260604. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -7136,7 +7136,7 @@ class CUgreenCtxCreate_flags(_FastEnum):
 
 class CUdevSmResourceGroup_flags(_FastEnum):
     """
-    Flags for a CUdevSmResource group
+    Flags for a :py:obj:`~.CUdevSmResource` group
     """
     {{if 'CU_DEV_SM_RESOURCE_GROUP_DEFAULT' in found_values}}
     CU_DEV_SM_RESOURCE_GROUP_DEFAULT = cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_DEFAULT{{endif}}
@@ -40148,7 +40148,6 @@ def cuMemPrefetchBatchAsync(dptrs : Optional[tuple[CUdeviceptr] | list[CUdevicep
     Returns
     -------
     CUresult
-
     """
     cdef cydriver.CUstream cyhStream
     if hStream is None:
@@ -40252,7 +40251,6 @@ def cuMemDiscardBatchAsync(dptrs : Optional[tuple[CUdeviceptr] | list[CUdevicept
     Returns
     -------
     CUresult
-
     """
     cdef cydriver.CUstream cyhStream
     if hStream is None:
@@ -40361,7 +40359,6 @@ def cuMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[CUdeviceptr] | list
     Returns
     -------
     CUresult
-
     """
     cdef cydriver.CUstream cyhStream
     if hStream is None:
@@ -56622,7 +56619,7 @@ def cuDeviceGetDevResource(device, typename not None : CUdevResourceType):
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_RESOURCE_TYPE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`
     resource : :py:obj:`~.CUdevResource`
-        Output pointer to a CUdevResource structure
+        Output pointer to a :py:obj:`~.CUdevResource` structure
 
     See Also
     --------
@@ -56666,7 +56663,7 @@ def cuCtxGetDevResource(hCtx, typename not None : CUdevResourceType):
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_RESOURCE_TYPE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`
     resource : :py:obj:`~.CUdevResource`
-        Output pointer to a CUdevResource structure
+        Output pointer to a :py:obj:`~.CUdevResource` structure
 
     See Also
     --------
@@ -56710,7 +56707,7 @@ def cuGreenCtxGetDevResource(hCtx, typename not None : CUdevResourceType):
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_RESOURCE_TYPE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
     resource : :py:obj:`~.CUdevResource`
-        Output pointer to a CUdevResource structure
+        Output pointer to a :py:obj:`~.CUdevResource` structure
 
     See Also
     --------
@@ -56908,8 +56905,8 @@ def cuDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[CUdevResource]
     - There are no API ``flags`` at this time, so the value passed in
       should be 0.
 
-    - A CU_DEV_SM_RESOURCE_GROUP_PARAMS array of size ``nbGroups``. Each
-      entry must be zero-initialized.
+    - A :py:obj:`~.CU_DEV_SM_RESOURCE_GROUP_PARAMS` array of size
+      ``nbGroups``. Each entry must be zero-initialized.
 
       - ``smCount:`` must be either 0 or in the range of [2,inputSmCount]
         where inputSmCount is the amount of SMs the ``input`` resource has.
@@ -57414,7 +57411,7 @@ def cuStreamGetDevResource(hStream, typename not None : CUdevResourceType):
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_RESOURCE_TYPE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`
     resource : :py:obj:`~.CUdevResource`
-        Output pointer to a CUdevResource structure
+        Output pointer to a :py:obj:`~.CUdevResource` structure
 
     See Also
     --------
