@@ -43,23 +43,25 @@ ctypedef unsigned long long float_ptr
 ctypedef unsigned long long double_ptr
 ctypedef unsigned long long void_ptr
 
-#: Flags for nvrtcInstallBundledHeaders.Skip installation if version marker
-#: exists and version matches. This is the default behavior when flags=0.
+#: Flags for :func:`~.nvrtcInstallBundledHeaders`.Skip installation if
+#: version marker exists and version matches. This is the default behavior
+#: when flags=0.
 NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS = cynvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS
 
 #: Clear existing directory contents before installation. Guarantees
 #: consistency by removing any existing files first.
 NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE = cynvrtc.NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE
 
-#: Return NVRTC_ERROR_BUSY immediately if installation is in progress by
-#: another process, instead of waiting for the lock. Can be combined with
-#: FORCE_OVERWRITE using bitwise OR.
+#: Return :py:obj:`~.NVRTC_ERROR_BUSY` immediately if installation is in
+#: progress by another process, instead of waiting for the lock. Can be
+#: combined with FORCE_OVERWRITE using bitwise OR.
 NVRTC_INSTALL_HEADERS_NO_WAIT = cynvrtc.NVRTC_INSTALL_HEADERS_NO_WAIT
 
 class nvrtcResult(_FastEnum):
     """
-    The enumerated type nvrtcResult defines API call result codes.
-    NVRTC API functions return nvrtcResult to indicate the call result.
+    The enumerated type :py:obj:`~.nvrtcResult` defines API call result
+    codes. NVRTC API functions return :py:obj:`~.nvrtcResult` to
+    indicate the call result.
     """
 
     NVRTC_SUCCESS = cynvrtc.nvrtcResult.NVRTC_SUCCESS
@@ -104,9 +106,9 @@ cdef object _nvrtcResult = nvrtcResult
 cdef object _nvrtcResult_SUCCESS = nvrtcResult.NVRTC_SUCCESS
 
 cdef class nvrtcProgram:
-    """ nvrtcProgram is the unit of compilation, and an opaque handle for a program.
+    """ :py:obj:`~.nvrtcProgram` is the unit of compilation, and an opaque handle for a program.
 
-    To compile a CUDA program string, an instance of nvrtcProgram must be created first with nvrtcCreateProgram, then compiled with nvrtcCompileProgram.
+    To compile a CUDA program string, an instance of :py:obj:`~.nvrtcProgram` must be created first with :func:`~.nvrtcCreateProgram`, then compiled with :func:`~.nvrtcCompileProgram`.
 
     Methods
     -------
@@ -316,7 +318,7 @@ cdef class nvrtcBundledHeadersInfo(anon_struct0):
 
 @cython.embedsignature(True)
 def nvrtcGetErrorString(result not None : nvrtcResult):
-    """ nvrtcGetErrorString is a helper function that returns a string describing the given nvrtcResult code, e.g., NVRTC_SUCCESS to ``"NVRTC_SUCCESS"``. For unrecognized enumeration values, it returns ``"NVRTC_ERROR unknown"``.
+    """ :func:`~.nvrtcGetErrorString` is a helper function that returns a string describing the given :py:obj:`~.nvrtcResult` code, e.g., :py:obj:`~.NVRTC_SUCCESS` to ``"NVRTC_SUCCESS"``. For unrecognized enumeration values, it returns ``"NVRTC_ERROR unknown"``.
 
     Parameters
     ----------
@@ -337,11 +339,11 @@ def nvrtcGetErrorString(result not None : nvrtcResult):
 
 @cython.embedsignature(True)
 def nvrtcVersion():
-    """ nvrtcVersion sets the output parameters ``major`` and ``minor`` with the CUDA Runtime Compilation version number.
+    """ :func:`~.nvrtcVersion` sets the output parameters ``major`` and ``minor`` with the CUDA Runtime Compilation version number.
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
     major : int
@@ -359,13 +361,13 @@ def nvrtcVersion():
 
 @cython.embedsignature(True)
 def nvrtcGetNumSupportedArchs():
-    """ nvrtcGetNumSupportedArchs sets the output parameter ``numArchs`` with the number of architectures supported by NVRTC. This can then be used to pass an array to :py:obj:`~.nvrtcGetSupportedArchs` to get the supported architectures.
+    """ :func:`~.nvrtcGetNumSupportedArchs` sets the output parameter ``numArchs`` with the number of architectures supported by NVRTC. This can then be used to pass an array to :py:obj:`~.nvrtcGetSupportedArchs` to get the supported architectures.
 
     see :py:obj:`~.nvrtcGetSupportedArchs`
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
     numArchs : int
@@ -380,13 +382,13 @@ def nvrtcGetNumSupportedArchs():
 
 @cython.embedsignature(True)
 def nvrtcGetSupportedArchs():
-    """ nvrtcGetSupportedArchs populates the array passed via the output parameter ``supportedArchs`` with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using :py:obj:`~.nvrtcGetNumSupportedArchs`.
+    """ :func:`~.nvrtcGetSupportedArchs` populates the array passed via the output parameter ``supportedArchs`` with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using :py:obj:`~.nvrtcGetNumSupportedArchs`.
 
     see :py:obj:`~.nvrtcGetNumSupportedArchs`
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
     supportedArchs : list[int]
@@ -404,7 +406,7 @@ def nvrtcGetSupportedArchs():
 
 @cython.embedsignature(True)
 def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional[tuple[bytes] | list[bytes]], includeNames : Optional[tuple[bytes] | list[bytes]]):
-    """ nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter ``prog`` with it.
+    """ :func:`~.nvrtcCreateProgram` creates an instance of :py:obj:`~.nvrtcProgram` with the given input parameters, and sets the output parameter ``prog`` with it.
 
     Parameters
     ----------
@@ -427,7 +429,7 @@ def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_OUT_OF_MEMORY`
         - :py:obj:`~.NVRTC_ERROR_PROGRAM_CREATION_FAILURE`
@@ -459,7 +461,7 @@ def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional
 
 @cython.embedsignature(True)
 def nvrtcDestroyProgram(prog):
-    """ nvrtcDestroyProgram destroys the given program.
+    """ :func:`~.nvrtcDestroyProgram` destroys the given program.
 
     Parameters
     ----------
@@ -468,7 +470,7 @@ def nvrtcDestroyProgram(prog):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
 
@@ -492,9 +494,10 @@ def nvrtcDestroyProgram(prog):
 
 @cython.embedsignature(True)
 def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | list[bytes]]):
-    """ nvrtcCompileProgram compiles the given program.
+    """ :func:`~.nvrtcCompileProgram` compiles the given program.
 
-    It supports compile options listed in Supported Compile Options.
+    It supports compile options listed in :ref:`Supported Compile Options
+    <cuda-bindings-nvrtc-group__options>`.
 
     Parameters
     ----------
@@ -508,7 +511,7 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | 
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_OUT_OF_MEMORY`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
@@ -538,7 +541,7 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | 
 
 @cython.embedsignature(True)
 def nvrtcGetPTXSize(prog):
-    """ nvrtcGetPTXSize sets the value of ``ptxSizeRet`` with the size of the PTX generated by the previous compilation of ``prog`` (including the trailing ``NULL``).
+    """ :func:`~.nvrtcGetPTXSize` sets the value of ``ptxSizeRet`` with the size of the PTX generated by the previous compilation of ``prog`` (including the trailing ``NULL``).
 
     Parameters
     ----------
@@ -547,7 +550,7 @@ def nvrtcGetPTXSize(prog):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -575,7 +578,7 @@ def nvrtcGetPTXSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetPTX(prog, char* ptx):
-    """ nvrtcGetPTX stores the PTX generated by the previous compilation of ``prog`` in the memory pointed by ``ptx``.
+    """ :func:`~.nvrtcGetPTX` stores the PTX generated by the previous compilation of ``prog`` in the memory pointed by ``ptx``.
 
     Parameters
     ----------
@@ -586,7 +589,7 @@ def nvrtcGetPTX(prog, char* ptx):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -609,7 +612,7 @@ def nvrtcGetPTX(prog, char* ptx):
 
 @cython.embedsignature(True)
 def nvrtcGetCUBINSize(prog):
-    """ nvrtcGetCUBINSize sets the value of ``cubinSizeRet`` with the size of the cubin generated by the previous compilation of ``prog``. The value of cubinSizeRet is set to 0 if the value specified to ``-arch`` is a virtual architecture instead of an actual architecture.
+    """ :func:`~.nvrtcGetCUBINSize` sets the value of ``cubinSizeRet`` with the size of the cubin generated by the previous compilation of ``prog``. The value of cubinSizeRet is set to 0 if the value specified to ``-arch`` is a virtual architecture instead of an actual architecture.
 
     Parameters
     ----------
@@ -618,7 +621,7 @@ def nvrtcGetCUBINSize(prog):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -646,7 +649,7 @@ def nvrtcGetCUBINSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetCUBIN(prog, char* cubin):
-    """ nvrtcGetCUBIN stores the cubin generated by the previous compilation of ``prog`` in the memory pointed by ``cubin``. No cubin is available if the value specified to ``-arch`` is a virtual architecture instead of an actual architecture. The cubin does not contain code for the Tile functions (``__tile__`` / ``__tile_global__``) or variables (``__tile__``); use ``nvrtcGetTileIR()`` to extract the cuda_tile IR generated for Tile code.
+    """ :func:`~.nvrtcGetCUBIN` stores the cubin generated by the previous compilation of ``prog`` in the memory pointed by ``cubin``. No cubin is available if the value specified to ``-arch`` is a virtual architecture instead of an actual architecture. The cubin does not contain code for the Tile functions (``__tile__`` / ``__tile_global__``) or variables (``__tile__``); use :func:`~.nvrtcGetTileIR` to extract the cuda_tile IR generated for Tile code.
 
     Parameters
     ----------
@@ -657,7 +660,7 @@ def nvrtcGetCUBIN(prog, char* cubin):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -680,7 +683,7 @@ def nvrtcGetCUBIN(prog, char* cubin):
 
 @cython.embedsignature(True)
 def nvrtcGetLTOIRSize(prog):
-    """ nvrtcGetLTOIRSize sets the value of ``LTOIRSizeRet`` with the size of the LTO IR generated by the previous compilation of ``prog``. The value of LTOIRSizeRet is set to 0 if the program was not compiled with ``-dlto``.
+    """ :func:`~.nvrtcGetLTOIRSize` sets the value of ``LTOIRSizeRet`` with the size of the LTO IR generated by the previous compilation of ``prog``. The value of LTOIRSizeRet is set to 0 if the program was not compiled with ``-dlto``.
 
     Parameters
     ----------
@@ -689,7 +692,7 @@ def nvrtcGetLTOIRSize(prog):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -717,7 +720,7 @@ def nvrtcGetLTOIRSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetLTOIR(prog, char* LTOIR):
-    """ nvrtcGetLTOIR stores the LTO IR generated by the previous compilation of ``prog`` in the memory pointed by ``LTOIR``. No LTO IR is available if the program was compiled without ``-dlto``.
+    """ :func:`~.nvrtcGetLTOIR` stores the LTO IR generated by the previous compilation of ``prog`` in the memory pointed by ``LTOIR``. No LTO IR is available if the program was compiled without ``-dlto``.
 
     Parameters
     ----------
@@ -728,7 +731,7 @@ def nvrtcGetLTOIR(prog, char* LTOIR):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -751,7 +754,7 @@ def nvrtcGetLTOIR(prog, char* LTOIR):
 
 @cython.embedsignature(True)
 def nvrtcGetOptiXIRSize(prog):
-    """ nvrtcGetOptiXIRSize sets the value of ``optixirSizeRet`` with the size of the OptiX IR generated by the previous compilation of ``prog``. The value of nvrtcGetOptiXIRSize is set to 0 if the program was compiled with options incompatible with OptiX IR generation.
+    """ :func:`~.nvrtcGetOptiXIRSize` sets the value of ``optixirSizeRet`` with the size of the OptiX IR generated by the previous compilation of ``prog``. The value of :func:`~.nvrtcGetOptiXIRSize` is set to 0 if the program was compiled with options incompatible with OptiX IR generation.
 
     Parameters
     ----------
@@ -760,7 +763,7 @@ def nvrtcGetOptiXIRSize(prog):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -788,7 +791,7 @@ def nvrtcGetOptiXIRSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetOptiXIR(prog, char* optixir):
-    """ nvrtcGetOptiXIR stores the OptiX IR generated by the previous compilation of ``prog`` in the memory pointed by ``optixir``. No OptiX IR is available if the program was compiled with options incompatible with OptiX IR generation.
+    """ :func:`~.nvrtcGetOptiXIR` stores the OptiX IR generated by the previous compilation of ``prog`` in the memory pointed by ``optixir``. No OptiX IR is available if the program was compiled with options incompatible with OptiX IR generation.
 
     Parameters
     ----------
@@ -799,7 +802,7 @@ def nvrtcGetOptiXIR(prog, char* optixir):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -822,7 +825,7 @@ def nvrtcGetOptiXIR(prog, char* optixir):
 
 @cython.embedsignature(True)
 def nvrtcGetProgramLogSize(prog):
-    """ nvrtcGetProgramLogSize sets ``logSizeRet`` with the size of the log generated by the previous compilation of ``prog`` (including the trailing ``NULL``).
+    """ :func:`~.nvrtcGetProgramLogSize` sets ``logSizeRet`` with the size of the log generated by the previous compilation of ``prog`` (including the trailing ``NULL``).
 
     Note that compilation log may be generated with warnings and
     informative messages, even when the compilation of ``prog`` succeeds.
@@ -834,7 +837,7 @@ def nvrtcGetProgramLogSize(prog):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -862,7 +865,7 @@ def nvrtcGetProgramLogSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetProgramLog(prog, char* log):
-    """ nvrtcGetProgramLog stores the log generated by the previous compilation of ``prog`` in the memory pointed by ``log``.
+    """ :func:`~.nvrtcGetProgramLog` stores the log generated by the previous compilation of ``prog`` in the memory pointed by ``log``.
 
     Parameters
     ----------
@@ -873,7 +876,7 @@ def nvrtcGetProgramLog(prog, char* log):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -896,10 +899,10 @@ def nvrtcGetProgramLog(prog, char* log):
 
 @cython.embedsignature(True)
 def nvrtcAddNameExpression(prog, char* name_expression):
-    """ nvrtcAddNameExpression notes the given name expression denoting the address of a global function or device/__constant__ variable.
+    """ :func:`~.nvrtcAddNameExpression` notes the given name expression denoting the address of a global function or device/__constant__ variable.
 
     The identical name expression string must be provided on a subsequent
-    call to nvrtcGetLoweredName to extract the lowered name.
+    call to :func:`~.nvrtcGetLoweredName` to extract the lowered name.
 
     Parameters
     ----------
@@ -911,7 +914,7 @@ def nvrtcAddNameExpression(prog, char* name_expression):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
@@ -981,7 +984,7 @@ def nvrtcGetPCHHeapSize():
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
     ret : int
@@ -1009,7 +1012,7 @@ def nvrtcSetPCHHeapSize(size_t size):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
     """
     with nogil:
@@ -1020,20 +1023,20 @@ def nvrtcSetPCHHeapSize(size_t size):
 def nvrtcGetPCHCreateStatus(prog):
     """ returns the PCH creation status.
 
-    NVRTC_SUCCESS indicates that the PCH was successfully created.
-    NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED indicates that no PCH creation was
-    attempted, either because PCH functionality was not requested during
-    the preceding nvrtcCompileProgram call, or automatic PCH processing was
-    requested, and compiler chose not to create a PCH file.
-    NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED indicates that a PCH file could
-    potentially have been created, but the compiler ran out space in the
-    PCH heap. In this scenario, the
+    :py:obj:`~.NVRTC_SUCCESS` indicates that the PCH was successfully
+    created. :py:obj:`~.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED` indicates that
+    no PCH creation was attempted, either because PCH functionality was not
+    requested during the preceding :func:`~.nvrtcCompileProgram` call, or
+    automatic PCH processing was requested, and compiler chose not to
+    create a PCH file. :py:obj:`~.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED`
+    indicates that a PCH file could potentially have been created, but the
+    compiler ran out space in the PCH heap. In this scenario, the
     :py:obj:`~.nvrtcGetPCHHeapSizeRequired()` can be used to query the
     required heap size, the heap can be reallocated for this size with
     :py:obj:`~.nvrtcSetPCHHeapSize()` and PCH creation may be reattempted
     again invoking :py:obj:`~.nvrtcCompileProgram()` with a new NVRTC
-    program instance. NVRTC_ERROR_PCH_CREATE indicates that an error
-    condition prevented the PCH file from being created.
+    program instance. :py:obj:`~.NVRTC_ERROR_PCH_CREATE` indicates that an
+    error condition prevented the PCH file from being created.
 
     Parameters
     ----------
@@ -1042,7 +1045,7 @@ def nvrtcGetPCHCreateStatus(prog):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED`
         - :py:obj:`~.NVRTC_ERROR_PCH_CREATE`
@@ -1072,10 +1075,10 @@ def nvrtcGetPCHHeapSizeRequired(prog):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
-        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT` The size retrieved using this function is only valid if :py:obj:`~.nvrtcGetPCHCreateStatus()` returned NVRTC_SUCCESS or NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT` The size retrieved using this function is only valid if :py:obj:`~.nvrtcGetPCHCreateStatus()` returned :py:obj:`~.NVRTC_SUCCESS` or :py:obj:`~.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED`
     size : int
         pointer to location where the required size of the PCH Heap will be
         stored
@@ -1097,7 +1100,7 @@ def nvrtcGetPCHHeapSizeRequired(prog):
 
 @cython.embedsignature(True)
 def nvrtcSetFlowCallback(prog, callback, payload):
-    """ nvrtcSetFlowCallback registers a callback function that the compiler will invoke at different points during a call to nvrtcCompileProgram, and the callback function can decide whether to cancel compilation by returning specific values.
+    """ :func:`~.nvrtcSetFlowCallback` registers a callback function that the compiler will invoke at different points during a call to :func:`~.nvrtcCompileProgram`, and the callback function can decide whether to cancel compilation by returning specific values.
 
     The callback function must satisfy the following constraints:
 
@@ -1115,7 +1118,7 @@ def nvrtcSetFlowCallback(prog, callback, payload):
 
     (3) It must return consistent values. Once it returns 1 at one point,
     it must return 1 in all following invocations during the current
-    nvrtcCompileProgram call in progress.
+    :func:`~.nvrtcCompileProgram` call in progress.
 
     (4) It must be thread-safe.
 
@@ -1132,7 +1135,7 @@ def nvrtcSetFlowCallback(prog, callback, payload):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
@@ -1157,7 +1160,7 @@ def nvrtcSetFlowCallback(prog, callback, payload):
 
 @cython.embedsignature(True)
 def nvrtcGetTileIRSize(prog):
-    """ nvrtcGetTileIRSize sets the value of ``TileIRSizeRet`` with the size of the cuda_tile IR generated by the previous compilation of ``prog``.
+    """ :func:`~.nvrtcGetTileIRSize` sets the value of ``TileIRSizeRet`` with the size of the cuda_tile IR generated by the previous compilation of ``prog``.
 
     Parameters
     ----------
@@ -1166,7 +1169,7 @@ def nvrtcGetTileIRSize(prog):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -1194,7 +1197,7 @@ def nvrtcGetTileIRSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetTileIR(prog, char* TileIR):
-    """ nvrtcGetTileIR stores the cuda_tile IR generated by the previous compilation of ``prog`` in the memory pointed by ``TileIR``.
+    """ :func:`~.nvrtcGetTileIR` stores the cuda_tile IR generated by the previous compilation of ``prog`` in the memory pointed by ``TileIR``.
 
     Parameters
     ----------
@@ -1205,7 +1208,7 @@ def nvrtcGetTileIR(prog, char* TileIR):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
@@ -1228,7 +1231,7 @@ def nvrtcGetTileIR(prog, char* TileIR):
 
 @cython.embedsignature(True)
 def nvrtcInstallBundledHeaders(char* installPath, unsigned int flags):
-    """ nvrtcInstallBundledHeaders extracts CUDA headers bundled with NVRTC to a specified directory for use during compilation.
+    """ :func:`~.nvrtcInstallBundledHeaders` extracts CUDA headers bundled with NVRTC to a specified directory for use during compilation.
 
     NVRTC bundles a set of CUDA Toolkit headers and CUDA C++ Core Libraries
     (CCCL) within libnvrtc-builtins. This function extracts these headers
@@ -1238,7 +1241,7 @@ def nvrtcInstallBundledHeaders(char* installPath, unsigned int flags):
 
     After extraction, users can compile kernels by passing appropriate
     include paths (such as "-I<installPath>" and "-I<installPath>/cccl") to
-    nvrtcCompileProgram.
+    :func:`~.nvrtcCompileProgram`.
 
     A version marker file (.nvrtc_headers_version) is created in the
     installation directory to track the installed version.
@@ -1246,8 +1249,8 @@ def nvrtcInstallBundledHeaders(char* installPath, unsigned int flags):
     This function is thread-safe and process-safe. Concurrent calls from
     multiple threads or processes will be serialized using file locking. By
     default, the function waits for the lock; use
-    NVRTC_INSTALL_HEADERS_NO_WAIT to return immediately with
-    NVRTC_ERROR_BUSY if another process holds the lock.
+    :py:obj:`~.NVRTC_INSTALL_HEADERS_NO_WAIT` to return immediately with
+    :py:obj:`~.NVRTC_ERROR_BUSY` if another process holds the lock.
 
     Parameters
     ----------
@@ -1259,11 +1262,11 @@ def nvrtcInstallBundledHeaders(char* installPath, unsigned int flags):
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT` (invalid path or conflicting flags like SKIP_IF_EXISTS | FORCE_OVERWRITE)
         - :py:obj:`~.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE` (extraction failed or version mismatch)
-        - :py:obj:`~.NVRTC_ERROR_BUSY` (lock held by another process and NVRTC_INSTALL_HEADERS_NO_WAIT was specified)
+        - :py:obj:`~.NVRTC_ERROR_BUSY` (lock held by another process and :py:obj:`~.NVRTC_INSTALL_HEADERS_NO_WAIT` was specified)
     errorLog : bytes
         Optional pointer to receive detailed error message on failure. If
         non-NULL, ``*errorLog`` will be set to point to a string describing
@@ -1277,7 +1280,7 @@ def nvrtcInstallBundledHeaders(char* installPath, unsigned int flags):
 
     Notes
     -----
-    Use NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS to avoid reinstalling if headers already exist. Use NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE to guarantee consistency by clearing the directory first.
+    Use :py:obj:`~.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS` to avoid reinstalling if headers already exist. Use :py:obj:`~.NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE` to guarantee consistency by clearing the directory first.
     """
     cdef const char* errorLog = NULL
     with nogil:
@@ -1288,15 +1291,15 @@ def nvrtcInstallBundledHeaders(char* installPath, unsigned int flags):
 
 @cython.embedsignature(True)
 def nvrtcGetBundledHeadersInfo():
-    """ nvrtcGetBundledHeadersInfo queries information about the bundled headers without extracting them.
+    """ :func:`~.nvrtcGetBundledHeadersInfo` queries information about the bundled headers without extracting them.
 
     This function allows users to determine if bundled headers are
     available and get size estimates before calling
-    nvrtcInstallBundledHeaders.
+    :func:`~.nvrtcInstallBundledHeaders`.
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT` (info is NULL)
         - :py:obj:`~.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE` (failed to query bundled headers)
@@ -1319,22 +1322,22 @@ def nvrtcGetBundledHeadersInfo():
 
 @cython.embedsignature(True)
 def nvrtcRemoveBundledHeaders(char* installPath):
-    """ nvrtcRemoveBundledHeaders removes previously installed bundled headers.
+    """ :func:`~.nvrtcRemoveBundledHeaders` removes previously installed bundled headers.
 
     This function removes the headers installed by
-    nvrtcInstallBundledHeaders, helping users manage disk space. It
-    recursively removes all files and subdirectories within the
+    :func:`~.nvrtcInstallBundledHeaders`, helping users manage disk space.
+    It recursively removes all files and subdirectories within the
     installation directory.
 
     Parameters
     ----------
     installPath : bytes
         Path where headers were previously installed. Must be the same path
-        used with nvrtcInstallBundledHeaders.
+        used with :func:`~.nvrtcInstallBundledHeaders`.
 
     Returns
     -------
-    nvrtcResult
+    :py:obj:`~.nvrtcResult`
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT` (invalid path)
         - :py:obj:`~.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE` (removal failed)
