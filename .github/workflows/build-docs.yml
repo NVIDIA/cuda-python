@@ -253,6 +253,29 @@ jobs:
         run: |
           echo "${{ github.sha }}" > artifacts/docs/.preview-commit
 
+      - name: Write doc preview link-check URL list
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        env:
+          PREVIEW_URL: https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}
+        run: |
+          find "${GITHUB_WORKSPACE}/artifacts/docs" -type f -name '*.html' ! -path '*/_static/*' -printf '%P\n' \
+            | LC_ALL=C sort \
+            | sed "s#^#${PREVIEW_URL}/#" > lychee-preview-urls.txt
+          if [[ ! -s lychee-preview-urls.txt ]]; then
+            echo "error: no rendered HTML pages found for lychee" >&2
+            exit 1
+          fi
+          wc -l lychee-preview-urls.txt
+
+      - name: Upload doc preview link-check URL list
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: docs-preview-linkcheck-urls
+          path: lychee-preview-urls.txt
+          if-no-files-found: error
+          retention-days: 3
+
       # TODO: Consider removing this step?
       - name: Upload doc artifacts
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
@@ -267,84 +290,6 @@ jobs:
           source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
                               'artifacts/empty_docs' }}
           pr-number: ${{ env.PR_NUMBER }}
-
-      - name: Wait for doc preview deployment
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
-        env:
-          PREVIEW_URL: https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}
-          EXPECTED_SHA: ${{ github.sha }}
-        run: |
-          preview_ready=0
-          marker_url="${PREVIEW_URL}/.preview-commit"
-          for attempt in {1..60}; do
-            marker=$(curl -fsSL "${marker_url}" || true)
-            if [[ "${marker}" == "${EXPECTED_SHA}" ]]; then
-              preview_ready=1
-              break
-            fi
-            echo "Waiting for doc preview marker ${marker_url} (${attempt}/60)"
-            sleep 10
-          done
-          if [[ "${preview_ready}" != "1" ]]; then
-            echo "error: doc preview marker did not update to ${EXPECTED_SHA}" >&2
-            exit 1
-          fi
-          echo "Doc preview is available at ${PREVIEW_URL}"
-
-      - name: Restore lychee cache
-        id: restore-lychee-cache
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
-        with:
-          path: .lycheecache
-          key: docs-preview-lychee-${{ env.PR_NUMBER }}-${{ github.sha }}
-          restore-keys: |
-            docs-preview-lychee-${{ env.PR_NUMBER }}-
-
-      - name: Write lychee doc preview URL list
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
-        env:
-          PREVIEW_URL: https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}
-        run: |
-          find "${GITHUB_WORKSPACE}/artifacts/docs" -type f -name '*.html' ! -path '*/_static/*' -printf '%P\n' \
-            | LC_ALL=C sort \
-            | sed "s#^#${PREVIEW_URL}/#" > lychee-preview-urls.txt
-          if [[ ! -s lychee-preview-urls.txt ]]; then
-            echo "error: no rendered HTML pages found for lychee" >&2
-            exit 1
-          fi
-          wc -l lychee-preview-urls.txt
-
-      - name: Check doc preview links
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
-        uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0  # unreleased: supports v0.24.x archive layout
-        with:
-          args: >-
-            --files-from ${{ github.workspace }}/lychee-preview-urls.txt
-            --include-fragments=full
-            --cache
-            --max-cache-age 1d
-            --max-concurrency 16
-            --host-concurrency 2
-            --host-request-interval 250ms
-            --max-retries 3
-            --retry-wait-time 5
-            --timeout 30
-            --no-progress
-          fail: true
-          failIfEmpty: true
-          format: markdown
-          jobSummary: false
-          lycheeVersion: v0.24.2
-          output: lychee-preview.md
-          token: ${{ github.token }}
-
-      - name: Save lychee cache
-        if: ${{ always() && !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') && steps.restore-lychee-cache.outputs.cache-hit != 'true' && steps.restore-lychee-cache.outputs.cache-primary-key != '' }}
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
-        with:
-          path: .lycheecache
-          key: ${{ steps.restore-lychee-cache.outputs.cache-primary-key }}
 
       - name: Deploy doc update
         if: ${{ github.ref_name == 'main' || inputs.is-release }}

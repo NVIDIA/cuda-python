@@ -415,6 +415,18 @@ jobs:
     with:
       is-release: ${{ github.ref_type == 'tag' }}
 
+  doc-linkcheck:
+    name: Docs link check
+    if: ${{ github.repository_owner == 'nvidia' && startsWith(github.ref_name, 'pull-request/') && needs.doc.result == 'success' }}
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    needs:
+      - doc
+    secrets: inherit
+    uses: ./.github/workflows/check-doc-links.yml
+
   checks:
     name: Check job status
     if: always()
@@ -428,6 +440,7 @@ jobs:
       - test-linux-aarch64
       - test-windows
       - doc
+      - doc-linkcheck
     steps:
       - name: Exit
         run: |
@@ -461,6 +474,9 @@ jobs:
             exit 1
           fi
           if ${{ needs.doc.result == 'cancelled' || needs.doc.result == 'failure' }}; then
+            exit 1
+          fi
+          if ${{ needs.doc-linkcheck.result == 'cancelled' || needs.doc-linkcheck.result == 'failure' }}; then
             exit 1
           fi
           if ${{ needs.test-sdist-linux.result == 'cancelled' ||
