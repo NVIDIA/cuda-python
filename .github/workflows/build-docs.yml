@@ -248,11 +248,6 @@ jobs:
           fi
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
-      - name: Write doc preview marker
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
-        run: |
-          echo "${{ github.sha }}" > artifacts/docs/.preview-commit
-
       - name: Upload rendered docs for link checking
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
@@ -262,8 +257,9 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-      # TODO: Consider removing this step?
-      - name: Upload doc artifacts
+      # This is the GitHub Pages artifact format; the link checker needs a
+      # normal workflow artifact with the rendered HTML tree above.
+      - name: Upload docs GitHub Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
           path: artifacts/
