@@ -1304,13 +1304,14 @@
   <section id="nvrtc">
 <h1>nvrtc<a class="headerlink" href="#nvrtc" title="Link to this heading">#</a></h1>
 <section id="error-handling">
-<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">#</a></h2>
+<span id="cuda-bindings-nvrtc-group-error"></span><span id="cuda-bindings-nvrtc-error"></span><h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">#</a></h2>
 <p>NVRTC defines the following enumeration type and function for API call error handling.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult" title="Link to this definition">#</a></dt>
-<dd><p>The enumerated type nvrtcResult defines API call result codes.
-NVRTC API functions return nvrtcResult to indicate the call result.</p>
+<dd><p>The enumerated type <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> defines API call result
+codes. NVRTC API functions return <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> to
+indicate the call result.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS">
 <span class="sig-name descname"><span class="pre">NVRTC_SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;nvrtcResult.NVRTC_SUCCESS:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="Link to this definition">#</a></dt>
@@ -1411,7 +1412,7 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetErrorString">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetErrorString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><span class="pre">nvrtcResult</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetErrorString" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetErrorString is a helper function that returns a string describing the given nvrtcResult code, e.g., NVRTC_SUCCESS to <code class="docutils literal notranslate"><span class="pre">&quot;NVRTC_SUCCESS&quot;</span></code>. For unrecognized enumeration values, it returns <code class="docutils literal notranslate"><span class="pre">&quot;NVRTC_ERROR</span> <span class="pre">unknown&quot;</span></code>.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetErrorString" title="cuda.bindings.nvrtc.nvrtcGetErrorString"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetErrorString()</span></code></a> is a helper function that returns a string describing the given <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> code, e.g., <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a> to <code class="docutils literal notranslate"><span class="pre">&quot;NVRTC_SUCCESS&quot;</span></code>. For unrecognized enumeration values, it returns <code class="docutils literal notranslate"><span class="pre">&quot;NVRTC_ERROR</span> <span class="pre">unknown&quot;</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>result</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a>) – CUDA Runtime Compilation API result code.</p>
@@ -1428,16 +1429,16 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 
 </section>
 <section id="general-information-query">
-<h2>General Information Query<a class="headerlink" href="#general-information-query" title="Link to this heading">#</a></h2>
+<span id="cuda-bindings-nvrtc-group-query"></span><span id="cuda-bindings-nvrtc-query"></span><h2>General Information Query<a class="headerlink" href="#general-information-query" title="Link to this heading">#</a></h2>
 <p>NVRTC defines the following function for general information query.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcVersion">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcVersion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcVersion" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcVersion sets the output parameters <code class="docutils literal notranslate"><span class="pre">major</span></code> and <code class="docutils literal notranslate"><span class="pre">minor</span></code> with the CUDA Runtime Compilation version number.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcVersion" title="cuda.bindings.nvrtc.nvrtcVersion"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcVersion()</span></code></a> sets the output parameters <code class="docutils literal notranslate"><span class="pre">major</span></code> and <code class="docutils literal notranslate"><span class="pre">minor</span></code> with the CUDA Runtime Compilation version number.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
@@ -1454,12 +1455,12 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetNumSupportedArchs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetNumSupportedArchs sets the output parameter <code class="docutils literal notranslate"><span class="pre">numArchs</span></code> with the number of architectures supported by NVRTC. This can then be used to pass an array to <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetSupportedArchs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetSupportedArchs</span></code></a> to get the supported architectures.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetNumSupportedArchs()</span></code></a> sets the output parameter <code class="docutils literal notranslate"><span class="pre">numArchs</span></code> with the number of architectures supported by NVRTC. This can then be used to pass an array to <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetSupportedArchs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetSupportedArchs</span></code></a> to get the supported architectures.</p>
 <p>see <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetSupportedArchs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetSupportedArchs</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
@@ -1475,12 +1476,12 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetSupportedArchs">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetSupportedArchs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetSupportedArchs" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetSupportedArchs populates the array passed via the output parameter <code class="docutils literal notranslate"><span class="pre">supportedArchs</span></code> with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetNumSupportedArchs</span></code></a>.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetSupportedArchs"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetSupportedArchs()</span></code></a> populates the array passed via the output parameter <code class="docutils literal notranslate"><span class="pre">supportedArchs</span></code> with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetNumSupportedArchs</span></code></a>.</p>
 <p>see <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetNumSupportedArchs</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
@@ -1495,13 +1496,13 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 
 </section>
 <section id="compilation">
-<h2>Compilation<a class="headerlink" href="#compilation" title="Link to this heading">#</a></h2>
+<span id="cuda-bindings-nvrtc-group-compilation"></span><span id="cuda-bindings-nvrtc-compilation"></span><h2>Compilation<a class="headerlink" href="#compilation" title="Link to this heading">#</a></h2>
 <p>NVRTC defines the following type and functions for actual compilation.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcProgram">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcProgram" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcProgram is the unit of compilation, and an opaque handle for a program.</p>
-<p>To compile a CUDA program string, an instance of nvrtcProgram must be created first with nvrtcCreateProgram, then compiled with nvrtcCompileProgram.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a> is the unit of compilation, and an opaque handle for a program.</p>
+<p>To compile a CUDA program string, an instance of <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a> must be created first with <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCreateProgram" title="cuda.bindings.nvrtc.nvrtcCreateProgram"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcCreateProgram()</span></code></a>, then compiled with <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcProgram.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcProgram.getPtr" title="Link to this definition">#</a></dt>
@@ -1513,7 +1514,7 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcCreateProgram">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCreateProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">char</span> <span class="pre">*src,</span> <span class="pre">char</span> <span class="pre">*name,</span> <span class="pre">int</span> <span class="pre">numHeaders,</span> <span class="pre">headers:</span> <span class="pre">Optional[tuple[bytes]</span> <span class="pre">|</span> <span class="pre">list[bytes]],</span> <span class="pre">includeNames:</span> <span class="pre">Optional[tuple[bytes]</span> <span class="pre">|</span> <span class="pre">list[bytes]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcCreateProgram" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter <code class="docutils literal notranslate"><span class="pre">prog</span></code> with it.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCreateProgram" title="cuda.bindings.nvrtc.nvrtcCreateProgram"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcCreateProgram()</span></code></a> creates an instance of <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a> with the given input parameters, and sets the output parameter <code class="docutils literal notranslate"><span class="pre">prog</span></code> with it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1532,7 +1533,7 @@ names specified here.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_OUT_OF_MEMORY</span></code></a></p></li>
@@ -1555,7 +1556,7 @@ names specified here.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcDestroyProgram">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcDestroyProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcDestroyProgram" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcDestroyProgram destroys the given program.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcDestroyProgram" title="cuda.bindings.nvrtc.nvrtcDestroyProgram"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcDestroyProgram()</span></code></a> destroys the given program.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
@@ -1568,7 +1569,7 @@ names specified here.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1580,8 +1581,8 @@ names specified here.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcCompileProgram">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCompileProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog,</span> <span class="pre">int</span> <span class="pre">numOptions,</span> <span class="pre">options:</span> <span class="pre">Optional[tuple[bytes]</span> <span class="pre">|</span> <span class="pre">list[bytes]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcCompileProgram compiles the given program.</p>
-<p>It supports compile options listed in Supported Compile Options.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a> compiles the given program.</p>
+<p>It supports compile options listed in <a class="reference internal" href="#cuda-bindings-nvrtc-group-options"><span class="std std-ref">Supported Compile Options</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1606,7 +1607,7 @@ names specified here.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1614,14 +1615,14 @@ names specified here.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPTXSize">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPTXSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPTXSize" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetPTXSize sets the value of <code class="docutils literal notranslate"><span class="pre">ptxSizeRet</span></code> with the size of the PTX generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> (including the trailing <code class="docutils literal notranslate"><span class="pre">NULL</span></code>).</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPTXSize" title="cuda.bindings.nvrtc.nvrtcGetPTXSize"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetPTXSize()</span></code></a> sets the value of <code class="docutils literal notranslate"><span class="pre">ptxSizeRet</span></code> with the size of the PTX generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> (including the trailing <code class="docutils literal notranslate"><span class="pre">NULL</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
@@ -1642,7 +1643,7 @@ names specified here.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPTX">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPTX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*ptx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPTX" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetPTX stores the PTX generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">ptx</span></code>.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPTX" title="cuda.bindings.nvrtc.nvrtcGetPTX"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetPTX()</span></code></a> stores the PTX generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">ptx</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1659,7 +1660,7 @@ names specified here.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1671,14 +1672,14 @@ names specified here.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetCUBINSize">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetCUBINSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetCUBINSize" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetCUBINSize sets the value of <code class="docutils literal notranslate"><span class="pre">cubinSizeRet</span></code> with the size of the cubin generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>. The value of cubinSizeRet is set to 0 if the value specified to <code class="docutils literal notranslate"><span class="pre">-arch</span></code> is a virtual architecture instead of an actual architecture.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetCUBINSize" title="cuda.bindings.nvrtc.nvrtcGetCUBINSize"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetCUBINSize()</span></code></a> sets the value of <code class="docutils literal notranslate"><span class="pre">cubinSizeRet</span></code> with the size of the cubin generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>. The value of cubinSizeRet is set to 0 if the value specified to <code class="docutils literal notranslate"><span class="pre">-arch</span></code> is a virtual architecture instead of an actual architecture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
@@ -1699,7 +1700,7 @@ names specified here.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetCUBIN">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetCUBIN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*cubin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetCUBIN" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetCUBIN stores the cubin generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">cubin</span></code>. No cubin is available if the value specified to <code class="docutils literal notranslate"><span class="pre">-arch</span></code> is a virtual architecture instead of an actual architecture. The cubin does not contain code for the Tile functions (<code class="docutils literal notranslate"><span class="pre">__tile__</span></code> / <code class="docutils literal notranslate"><span class="pre">__tile_global__</span></code>) or variables (<code class="docutils literal notranslate"><span class="pre">__tile__</span></code>); use <code class="docutils literal notranslate"><span class="pre">nvrtcGetTileIR()</span></code> to extract the cuda_tile IR generated for Tile code.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetCUBIN" title="cuda.bindings.nvrtc.nvrtcGetCUBIN"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetCUBIN()</span></code></a> stores the cubin generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">cubin</span></code>. No cubin is available if the value specified to <code class="docutils literal notranslate"><span class="pre">-arch</span></code> is a virtual architecture instead of an actual architecture. The cubin does not contain code for the Tile functions (<code class="docutils literal notranslate"><span class="pre">__tile__</span></code> / <code class="docutils literal notranslate"><span class="pre">__tile_global__</span></code>) or variables (<code class="docutils literal notranslate"><span class="pre">__tile__</span></code>); use <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetTileIR" title="cuda.bindings.nvrtc.nvrtcGetTileIR"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetTileIR()</span></code></a> to extract the cuda_tile IR generated for Tile code.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1716,7 +1717,7 @@ names specified here.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1728,14 +1729,14 @@ names specified here.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetLTOIRSize">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetLTOIRSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetLTOIRSize" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetLTOIRSize sets the value of <code class="docutils literal notranslate"><span class="pre">LTOIRSizeRet</span></code> with the size of the LTO IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>. The value of LTOIRSizeRet is set to 0 if the program was not compiled with <code class="docutils literal notranslate"><span class="pre">-dlto</span></code>.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetLTOIRSize" title="cuda.bindings.nvrtc.nvrtcGetLTOIRSize"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetLTOIRSize()</span></code></a> sets the value of <code class="docutils literal notranslate"><span class="pre">LTOIRSizeRet</span></code> with the size of the LTO IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>. The value of LTOIRSizeRet is set to 0 if the program was not compiled with <code class="docutils literal notranslate"><span class="pre">-dlto</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
@@ -1756,7 +1757,7 @@ names specified here.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetLTOIR">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetLTOIR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*LTOIR</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetLTOIR" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetLTOIR stores the LTO IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code>. No LTO IR is available if the program was compiled without <code class="docutils literal notranslate"><span class="pre">-dlto</span></code>.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetLTOIR" title="cuda.bindings.nvrtc.nvrtcGetLTOIR"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetLTOIR()</span></code></a> stores the LTO IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code>. No LTO IR is available if the program was compiled without <code class="docutils literal notranslate"><span class="pre">-dlto</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1773,7 +1774,7 @@ names specified here.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1785,14 +1786,14 @@ names specified here.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetOptiXIRSize">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetOptiXIRSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIRSize" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetOptiXIRSize sets the value of <code class="docutils literal notranslate"><span class="pre">optixirSizeRet</span></code> with the size of the OptiX IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>. The value of nvrtcGetOptiXIRSize is set to 0 if the program was compiled with options incompatible with OptiX IR generation.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIRSize" title="cuda.bindings.nvrtc.nvrtcGetOptiXIRSize"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetOptiXIRSize()</span></code></a> sets the value of <code class="docutils literal notranslate"><span class="pre">optixirSizeRet</span></code> with the size of the OptiX IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>. The value of <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIRSize" title="cuda.bindings.nvrtc.nvrtcGetOptiXIRSize"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetOptiXIRSize()</span></code></a> is set to 0 if the program was compiled with options incompatible with OptiX IR generation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
@@ -1813,7 +1814,7 @@ names specified here.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetOptiXIR">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetOptiXIR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*optixir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIR" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetOptiXIR stores the OptiX IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">optixir</span></code>. No OptiX IR is available if the program was compiled with options incompatible with OptiX IR generation.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIR" title="cuda.bindings.nvrtc.nvrtcGetOptiXIR"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetOptiXIR()</span></code></a> stores the OptiX IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">optixir</span></code>. No OptiX IR is available if the program was compiled with options incompatible with OptiX IR generation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1830,7 +1831,7 @@ names specified here.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1842,7 +1843,7 @@ names specified here.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetProgramLogSize">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetProgramLogSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetProgramLogSize" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetProgramLogSize sets <code class="docutils literal notranslate"><span class="pre">logSizeRet</span></code> with the size of the log generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> (including the trailing <code class="docutils literal notranslate"><span class="pre">NULL</span></code>).</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetProgramLogSize" title="cuda.bindings.nvrtc.nvrtcGetProgramLogSize"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetProgramLogSize()</span></code></a> sets <code class="docutils literal notranslate"><span class="pre">logSizeRet</span></code> with the size of the log generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> (including the trailing <code class="docutils literal notranslate"><span class="pre">NULL</span></code>).</p>
 <p>Note that compilation log may be generated with warnings and
 informative messages, even when the compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> succeeds.</p>
 <dl class="field-list simple">
@@ -1851,7 +1852,7 @@ informative messages, even when the compilation of <code class="docutils literal
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
@@ -1872,7 +1873,7 @@ informative messages, even when the compilation of <code class="docutils literal
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetProgramLog">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetProgramLog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*log</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetProgramLog" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetProgramLog stores the log generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">log</span></code>.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetProgramLog" title="cuda.bindings.nvrtc.nvrtcGetProgramLog"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetProgramLog()</span></code></a> stores the log generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">log</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1889,7 +1890,7 @@ informative messages, even when the compilation of <code class="docutils literal
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1901,9 +1902,9 @@ informative messages, even when the compilation of <code class="docutils literal
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcAddNameExpression">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcAddNameExpression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*name_expression</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcAddNameExpression" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcAddNameExpression notes the given name expression denoting the address of a global function or device/__constant__ variable.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcAddNameExpression" title="cuda.bindings.nvrtc.nvrtcAddNameExpression"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcAddNameExpression()</span></code></a> notes the given name expression denoting the address of a global function or device/__constant__ variable.</p>
 <p>The identical name expression string must be provided on a subsequent
-call to nvrtcGetLoweredName to extract the lowered name.</p>
+call to <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetLoweredName" title="cuda.bindings.nvrtc.nvrtcGetLoweredName"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetLoweredName()</span></code></a> to extract the lowered name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1922,7 +1923,7 @@ device/__constant__ variable.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1964,7 +1965,7 @@ expression.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcSetFlowCallback">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcSetFlowCallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcSetFlowCallback" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcSetFlowCallback registers a callback function that the compiler will invoke at different points during a call to nvrtcCompileProgram, and the callback function can decide whether to cancel compilation by returning specific values.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcSetFlowCallback" title="cuda.bindings.nvrtc.nvrtcSetFlowCallback"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcSetFlowCallback()</span></code></a> registers a callback function that the compiler will invoke at different points during a call to <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a>, and the callback function can decide whether to cancel compilation by returning specific values.</p>
 <p>The callback function must satisfy the following constraints:</p>
 <ol class="arabic simple">
 <li><p>Its signature should be:</p></li>
@@ -1978,7 +1979,7 @@ extensions.</p>
 return values are reserved for future use.</p>
 <p>(3) It must return consistent values. Once it returns 1 at one point,
 it must return 1 in all following invocations during the current
-nvrtcCompileProgram call in progress.</p>
+<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a> call in progress.</p>
 <ol class="arabic simple" start="4">
 <li><p>It must be thread-safe.</p></li>
 <li><p>It must not invoke any nvrtc/libnvvm/ptx APIs.</p></li>
@@ -2000,7 +2001,7 @@ nvrtcCompileProgram call in progress.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2008,14 +2009,14 @@ nvrtcCompileProgram call in progress.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetTileIRSize">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetTileIRSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetTileIRSize" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetTileIRSize sets the value of <code class="docutils literal notranslate"><span class="pre">TileIRSizeRet</span></code> with the size of the cuda_tile IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetTileIRSize" title="cuda.bindings.nvrtc.nvrtcGetTileIRSize"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetTileIRSize()</span></code></a> sets the value of <code class="docutils literal notranslate"><span class="pre">TileIRSizeRet</span></code> with the size of the cuda_tile IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
@@ -2036,7 +2037,7 @@ nvrtcCompileProgram call in progress.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetTileIR">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetTileIR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*TileIR</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetTileIR" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetTileIR stores the cuda_tile IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">TileIR</span></code>.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetTileIR" title="cuda.bindings.nvrtc.nvrtcGetTileIR"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetTileIR()</span></code></a> stores the cuda_tile IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">TileIR</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2053,7 +2054,7 @@ nvrtcCompileProgram call in progress.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -2064,8 +2065,8 @@ nvrtcCompileProgram call in progress.</p>
 
 </section>
 <section id="precompiled-header-pch-cuda-12-8">
-<h2>Precompiled header (PCH) (CUDA 12.8+)<a class="headerlink" href="#precompiled-header-pch-cuda-12-8" title="Link to this heading">#</a></h2>
-<p>NVRTC defines the following function related to PCH. Also see PCH related flags passed to nvrtcCompileProgram.</p>
+<span id="cuda-bindings-nvrtc-group-precompiled-header"></span><span id="cuda-bindings-nvrtc-precompiled-header"></span><h2>Precompiled header (PCH) (CUDA 12.8+)<a class="headerlink" href="#precompiled-header-pch-cuda-12-8" title="Link to this heading">#</a></h2>
+<p>NVRTC defines the following function related to PCH. Also see PCH related flags passed to <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a>.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPCHHeapSize">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPCHHeapSize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSize" title="Link to this definition">#</a></dt>
@@ -2073,7 +2074,7 @@ nvrtcCompileProgram call in progress.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
@@ -2104,7 +2105,7 @@ memory will be freed and a new PCH Heap will be allocated.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2113,20 +2114,20 @@ memory will be freed and a new PCH Heap will be allocated.</p>
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPCHCreateStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus" title="Link to this definition">#</a></dt>
 <dd><p>returns the PCH creation status.</p>
-<p>NVRTC_SUCCESS indicates that the PCH was successfully created.
-NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED indicates that no PCH creation was
-attempted, either because PCH functionality was not requested during
-the preceding nvrtcCompileProgram call, or automatic PCH processing was
-requested, and compiler chose not to create a PCH file.
-NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED indicates that a PCH file could
-potentially have been created, but the compiler ran out space in the
-PCH heap. In this scenario, the
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a> indicates that the PCH was successfully
+created. <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED</span></code></a> indicates that
+no PCH creation was attempted, either because PCH functionality was not
+requested during the preceding <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a> call, or
+automatic PCH processing was requested, and compiler chose not to
+create a PCH file. <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</span></code></a>
+indicates that a PCH file could potentially have been created, but the
+compiler ran out space in the PCH heap. In this scenario, the
 <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired" title="cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetPCHHeapSizeRequired()</span></code></a> can be used to query the
 required heap size, the heap can be reallocated for this size with
 <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcSetPCHHeapSize" title="cuda.bindings.nvrtc.nvrtcSetPCHHeapSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcSetPCHHeapSize()</span></code></a> and PCH creation may be reattempted
 again invoking <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a> with a new NVRTC
-program instance. NVRTC_ERROR_PCH_CREATE indicates that an error
-condition prevented the PCH file from being created.</p>
+program instance. <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_PCH_CREATE</span></code></a> indicates that an
+error condition prevented the PCH file from being created.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
@@ -2142,7 +2143,7 @@ condition prevented the PCH file from being created.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2157,11 +2158,11 @@ condition prevented the PCH file from being created.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
-<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a> The size retrieved using this function is only valid if <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus" title="cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetPCHCreateStatus()</span></code></a> returned NVRTC_SUCCESS or NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a> The size retrieved using this function is only valid if <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus" title="cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetPCHCreateStatus()</span></code></a> returned <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a> or <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</span></code></a></p></li>
 </ul>
 </li>
 <li><p><strong>size</strong> (<em>int</em>) – pointer to location where the required size of the PCH Heap will be
@@ -2174,7 +2175,7 @@ stored</p></li>
 
 </section>
 <section id="bundled-headers-installation">
-<h2>Bundled Headers Installation<a class="headerlink" href="#bundled-headers-installation" title="Link to this heading">#</a></h2>
+<span id="cuda-bindings-nvrtc-group-bundled-headers"></span><span id="cuda-bindings-nvrtc-bundled-headers"></span><h2>Bundled Headers Installation<a class="headerlink" href="#bundled-headers-installation" title="Link to this heading">#</a></h2>
 <p>NVRTC defines the following types and functions for bundled headers installation and management.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcBundledHeadersInfo">
@@ -2205,7 +2206,7 @@ stored</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcInstallBundledHeaders">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcInstallBundledHeaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*installPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcInstallBundledHeaders" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcInstallBundledHeaders extracts CUDA headers bundled with NVRTC to a specified directory for use during compilation.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcInstallBundledHeaders" title="cuda.bindings.nvrtc.nvrtcInstallBundledHeaders"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcInstallBundledHeaders()</span></code></a> extracts CUDA headers bundled with NVRTC to a specified directory for use during compilation.</p>
 <p>NVRTC bundles a set of CUDA Toolkit headers and CUDA C++ Core Libraries
 (CCCL) within libnvrtc-builtins. This function extracts these headers
 to the specified directory, allowing NVRTC programs to compile without
@@ -2213,14 +2214,14 @@ requiring a separate CUDA Toolkit installation. The bundled headers
 match those available in the CUDA Toolkit plus CCCL libraries.</p>
 <p>After extraction, users can compile kernels by passing appropriate
 include paths (such as “-I&lt;installPath&gt;” and “-I&lt;installPath&gt;/cccl”) to
-nvrtcCompileProgram.</p>
+<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a>.</p>
 <p>A version marker file (.nvrtc_headers_version) is created in the
 installation directory to track the installed version.</p>
 <p>This function is thread-safe and process-safe. Concurrent calls from
 multiple threads or processes will be serialized using file locking. By
 default, the function waits for the lock; use
-NVRTC_INSTALL_HEADERS_NO_WAIT to return immediately with
-NVRTC_ERROR_BUSY if another process holds the lock.</p>
+<a class="reference internal" href="#cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_NO_WAIT" title="cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_NO_WAIT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_INSTALL_HEADERS_NO_WAIT</span></code></a> to return immediately with
+<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUSY" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUSY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_BUSY</span></code></a> if another process holds the lock.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2231,12 +2232,12 @@ directory will be created if it doesn’t exist.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a> (invalid path or conflicting flags like SKIP_IF_EXISTS | FORCE_OVERWRITE)</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></code></a> (extraction failed or version mismatch)</p></li>
-<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUSY" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUSY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_BUSY</span></code></a> (lock held by another process and NVRTC_INSTALL_HEADERS_NO_WAIT was specified)</p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUSY" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUSY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_BUSY</span></code></a> (lock held by another process and <a class="reference internal" href="#cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_NO_WAIT" title="cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_NO_WAIT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_INSTALL_HEADERS_NO_WAIT</span></code></a> was specified)</p></li>
 </ul>
 </li>
 <li><p><strong>errorLog</strong> (<em>bytes</em>) – Optional pointer to receive detailed error message on failure. If
@@ -2253,20 +2254,20 @@ needed.</p></li>
 <p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcCompileProgram</span></code></a></p>
 </div>
 <p class="rubric">Notes</p>
-<p>Use NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS to avoid reinstalling if headers already exist. Use NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE to guarantee consistency by clearing the directory first.</p>
+<p>Use <a class="reference internal" href="#cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS" title="cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS</span></code></a> to avoid reinstalling if headers already exist. Use <a class="reference internal" href="#cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE" title="cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE</span></code></a> to guarantee consistency by clearing the directory first.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetBundledHeadersInfo">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetBundledHeadersInfo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetBundledHeadersInfo" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetBundledHeadersInfo queries information about the bundled headers without extracting them.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetBundledHeadersInfo" title="cuda.bindings.nvrtc.nvrtcGetBundledHeadersInfo"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetBundledHeadersInfo()</span></code></a> queries information about the bundled headers without extracting them.</p>
 <p>This function allows users to determine if bundled headers are
 available and get size estimates before calling
-nvrtcInstallBundledHeaders.</p>
+<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcInstallBundledHeaders" title="cuda.bindings.nvrtc.nvrtcInstallBundledHeaders"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcInstallBundledHeaders()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a> (info is NULL)</p></li>
@@ -2288,19 +2289,19 @@ needed.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcRemoveBundledHeaders">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcRemoveBundledHeaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*installPath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcRemoveBundledHeaders" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcRemoveBundledHeaders removes previously installed bundled headers.</p>
+<dd><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcRemoveBundledHeaders" title="cuda.bindings.nvrtc.nvrtcRemoveBundledHeaders"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcRemoveBundledHeaders()</span></code></a> removes previously installed bundled headers.</p>
 <p>This function removes the headers installed by
-nvrtcInstallBundledHeaders, helping users manage disk space. It
-recursively removes all files and subdirectories within the
+<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcInstallBundledHeaders" title="cuda.bindings.nvrtc.nvrtcInstallBundledHeaders"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcInstallBundledHeaders()</span></code></a>, helping users manage disk space.
+It recursively removes all files and subdirectories within the
 installation directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>installPath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Path where headers were previously installed. Must be the same path
-used with nvrtcInstallBundledHeaders.</p>
+used with <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcInstallBundledHeaders" title="cuda.bindings.nvrtc.nvrtcInstallBundledHeaders"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcInstallBundledHeaders()</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>nvrtcResult</em> –</p>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> –</p>
 <ul>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a> (invalid path)</p></li>
@@ -2323,7 +2324,7 @@ needed.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS">
 <span class="sig-prename descclassname"><span class="pre">nvrtc.</span></span><span class="sig-name descname"><span class="pre">NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS" title="Link to this definition">#</a></dt>
-<dd><p>Flags for nvrtcInstallBundledHeaders.Skip installation if version marker exists and version matches. This is the default behavior when flags=0.</p>
+<dd><p>Flags for <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcInstallBundledHeaders" title="cuda.bindings.nvrtc.nvrtcInstallBundledHeaders"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcInstallBundledHeaders()</span></code></a>.Skip installation if version marker exists and version matches. This is the default behavior when flags=0.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -2335,12 +2336,12 @@ needed.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_NO_WAIT">
 <span class="sig-prename descclassname"><span class="pre">nvrtc.</span></span><span class="sig-name descname"><span class="pre">NVRTC_INSTALL_HEADERS_NO_WAIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_NO_WAIT" title="Link to this definition">#</a></dt>
-<dd><p>Return NVRTC_ERROR_BUSY immediately if installation is in progress by another process, instead of waiting for the lock. Can be combined with FORCE_OVERWRITE using bitwise OR.</p>
+<dd><p>Return <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUSY" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUSY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_BUSY</span></code></a> immediately if installation is in progress by another process, instead of waiting for the lock. Can be combined with FORCE_OVERWRITE using bitwise OR.</p>
 </dd></dl>
 
 </section>
 <section id="supported-compile-options">
-<h2>Supported Compile Options<a class="headerlink" href="#supported-compile-options" title="Link to this heading">#</a></h2>
+<span id="cuda-bindings-nvrtc-group-options"></span><span id="cuda-bindings-nvrtc-options"></span><h2>Supported Compile Options<a class="headerlink" href="#supported-compile-options" title="Link to this heading">#</a></h2>
 <p>NVRTC supports the compile options below. Option names with two preceding dashs (<code class="docutils literal notranslate"><span class="pre">--</span></code>) are long option names and option names with one preceding dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (<code class="docutils literal notranslate"><span class="pre">=</span></code>) is used to separate the compile option argument from the compile option name, e.g., <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture=compute_100&quot;</span></code>. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture&quot;</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;compute_100&quot;</span></code>. Single-character short option names, such as <code class="docutils literal notranslate"><span class="pre">-D</span></code>, <code class="docutils literal notranslate"><span class="pre">-U</span></code>, and <code class="docutils literal notranslate"><span class="pre">-I</span></code>, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, <code class="docutils literal notranslate"><span class="pre">&quot;-D=&lt;def&gt;&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;-D&lt;def&gt;&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;-D</span> <span class="pre">&lt;def&gt;&quot;</span></code> are all supported.</p>
 <p>The valid compiler options are:</p>
 <ul class="simple">
@@ -2499,7 +2500,7 @@ needed.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--dlink-time-opt</span></code> (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>)</p></li>
 </ul>
 </div></blockquote>
-<p>Generate intermediate code for later link-time optimization. It implies <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code>. Note: when this option is used the <code class="docutils literal notranslate"><span class="pre">nvrtcGetLTOIR</span></code> API should be used, as PTX or Cubin will not be generated.</p>
+<p>Generate intermediate code for later link-time optimization. It implies <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code>. Note: when this option is used the <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetLTOIR" title="cuda.bindings.nvrtc.nvrtcGetLTOIR"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcGetLTOIR()</span></code></a> API should be used, as PTX or Cubin will not be generated.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--gen-opt-lto</span></code> (<code class="docutils literal notranslate"><span class="pre">-gen-opt-lto</span></code>)</p></li>
@@ -2556,13 +2557,13 @@ needed.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--include-path=&lt;dir&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-I</span></code>)</p></li>
 </ul>
 </div></blockquote>
-<p>Add the directory <code class="docutils literal notranslate"><span class="pre">&lt;dir&gt;</span></code> to the list of directories to be searched for headers. These paths are searched after the list of headers given to nvrtcCreateProgram.</p>
+<p>Add the directory <code class="docutils literal notranslate"><span class="pre">&lt;dir&gt;</span></code> to the list of directories to be searched for headers. These paths are searched after the list of headers given to <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCreateProgram" title="cuda.bindings.nvrtc.nvrtcCreateProgram"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcCreateProgram()</span></code></a>.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--use-bundled-headers=&lt;dir&gt;</span></code></p></li>
 </ul>
 </div></blockquote>
-<p>Install bundled CUDA headers to <code class="docutils literal notranslate"><span class="pre">&lt;dir&gt;</span></code> and add include paths. This is a convenience flag that combines calling nvrtcInstallBundledHeaders and adding <code class="docutils literal notranslate"><span class="pre">-I&lt;dir&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">-I&lt;dir&gt;/cccl</span></code> to the include search path. Headers are installed only if they don’t already exist at the specified location.</p>
+<p>Install bundled CUDA headers to <code class="docutils literal notranslate"><span class="pre">&lt;dir&gt;</span></code> and add include paths. This is a convenience flag that combines calling <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcInstallBundledHeaders" title="cuda.bindings.nvrtc.nvrtcInstallBundledHeaders"><code class="xref py py-func docutils literal notranslate"><span class="pre">nvrtcInstallBundledHeaders()</span></code></a> and adding <code class="docutils literal notranslate"><span class="pre">-I&lt;dir&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">-I&lt;dir&gt;/cccl</span></code> to the include search path. Headers are installed only if they don’t already exist at the specified location.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--pre-include=&lt;header&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-include</span></code>)</p></li>

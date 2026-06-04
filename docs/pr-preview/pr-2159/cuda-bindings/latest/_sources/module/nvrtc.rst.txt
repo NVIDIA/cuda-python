@@ -5,6 +5,9 @@
 nvrtc
 -----
 
+.. _cuda-bindings-nvrtc-error:
+.. _cuda-bindings-nvrtc-group__error:
+
 Error Handling
 --------------
 
@@ -70,6 +73,9 @@ NVRTC defines the following enumeration type and function for API call error han
 
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetErrorString
 
+.. _cuda-bindings-nvrtc-query:
+.. _cuda-bindings-nvrtc-group__query:
+
 General Information Query
 -------------------------
 
@@ -78,6 +84,9 @@ NVRTC defines the following function for general information query.
 .. autofunction:: cuda.bindings.nvrtc.nvrtcVersion
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetSupportedArchs
+
+.. _cuda-bindings-nvrtc-compilation:
+.. _cuda-bindings-nvrtc-group__compilation:
 
 Compilation
 -----------
@@ -104,15 +113,21 @@ NVRTC defines the following type and functions for actual compilation.
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetTileIRSize
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetTileIR
 
+.. _cuda-bindings-nvrtc-precompiled_header:
+.. _cuda-bindings-nvrtc-group__precompiled__header:
+
 Precompiled header (PCH) (CUDA 12.8+)
 -------------------------------------
 
-NVRTC defines the following function related to PCH. Also see PCH related flags passed to nvrtcCompileProgram.
+NVRTC defines the following function related to PCH. Also see PCH related flags passed to :func:`~.nvrtcCompileProgram`.
 
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetPCHHeapSize
 .. autofunction:: cuda.bindings.nvrtc.nvrtcSetPCHHeapSize
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired
+
+.. _cuda-bindings-nvrtc-bundled_headers:
+.. _cuda-bindings-nvrtc-group__bundled__headers:
 
 Bundled Headers Installation
 ----------------------------
@@ -125,7 +140,7 @@ NVRTC defines the following types and functions for bundled headers installation
 .. autofunction:: cuda.bindings.nvrtc.nvrtcRemoveBundledHeaders
 .. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS
 
-    Flags for nvrtcInstallBundledHeaders.Skip installation if version marker exists and version matches. This is the default behavior when flags=0.
+    Flags for :func:`~.nvrtcInstallBundledHeaders`.Skip installation if version marker exists and version matches. This is the default behavior when flags=0.
 
 .. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE
 
@@ -133,8 +148,11 @@ NVRTC defines the following types and functions for bundled headers installation
 
 .. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_NO_WAIT
 
-    Return NVRTC_ERROR_BUSY immediately if installation is in progress by another process, instead of waiting for the lock. Can be combined with FORCE_OVERWRITE using bitwise OR.
+    Return :py:obj:`~.NVRTC_ERROR_BUSY` immediately if installation is in progress by another process, instead of waiting for the lock. Can be combined with FORCE_OVERWRITE using bitwise OR.
 
+
+.. _cuda-bindings-nvrtc-options:
+.. _cuda-bindings-nvrtc-group__options:
 
 Supported Compile Options
 -------------------------
@@ -447,7 +465,7 @@ On Linux, during compilation, use ``setrlimit()``\  to increase stack size to ma
 
   - ``--dlink-time-opt``\  (``-dlto``\ )
 
-Generate intermediate code for later link-time optimization. It implies ``-rdc=true``\ . Note: when this option is used the ``nvrtcGetLTOIR``\  API should be used, as PTX or Cubin will not be generated.
+Generate intermediate code for later link-time optimization. It implies ``-rdc=true``\ . Note: when this option is used the :func:`~.nvrtcGetLTOIR`\  API should be used, as PTX or Cubin will not be generated.
 
 
 
@@ -547,7 +565,7 @@ Cancel any previous definition of ``<def>``\ .
 
   - ``--include-path=<dir>``\  (``-I``\ )
 
-Add the directory ``<dir>``\  to the list of directories to be searched for headers. These paths are searched after the list of headers given to nvrtcCreateProgram.
+Add the directory ``<dir>``\  to the list of directories to be searched for headers. These paths are searched after the list of headers given to :func:`~.nvrtcCreateProgram`.
 
 
 
@@ -557,7 +575,7 @@ Add the directory ``<dir>``\  to the list of directories to be searched for head
 
   - ``--use-bundled-headers=<dir>``\
 
-Install bundled CUDA headers to ``<dir>``\  and add include paths. This is a convenience flag that combines calling nvrtcInstallBundledHeaders and adding ``-I<dir>``\  and ``-I<dir>/cccl``\  to the include search path. Headers are installed only if they don't already exist at the specified location.
+Install bundled CUDA headers to ``<dir>``\  and add include paths. This is a convenience flag that combines calling :func:`~.nvrtcInstallBundledHeaders` and adding ``-I<dir>``\  and ``-I<dir>/cccl``\  to the include search path. Headers are installed only if they don't already exist at the specified location.
 
 
 
