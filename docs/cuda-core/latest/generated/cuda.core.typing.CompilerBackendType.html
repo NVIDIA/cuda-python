@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f71dcbc1"></script>
+    <script src="../_static/documentation_options.js?v=53654fd8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev42';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev43';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -720,11 +720,43 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.typing.CompilerBackendType" title="Link to this definition">#</a></dt>
-<dd><p>CompilerBackendType</p>
-<p><strong>NVRTC</strong>: NVRTC</p>
-<p><strong>NVVM</strong>: NVVM</p>
-<p><strong>NVJITLINK</strong>: nvJitLink</p>
-<p><strong>DRIVER</strong>: driver</p>
+<dd><p>Compiler backend inferred from the program’s code type and exposed on <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.backend" title="cuda.core.Program.backend"><code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code></a>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">NVRTC</span></code> — NVIDIA Runtime Compilation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NVVM</span></code> — NVVM LLVM backend.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NVJITLINK</span></code> — nvJitLink device-side linker.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DRIVER</span></code> — CUDA driver PTX JIT compiler.</p></li>
+</ul>
+<dl class="simple">
+<dt><strong>NVRTC</strong>: NVRTC</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.backend" title="cuda.core.Program.backend"><code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code></a>.
+
+    * <code class="docutils literal notranslate"><span class="pre">NVRTC</span></code> — NVIDIA Runtime Compilation.
+    * <code class="docutils literal notranslate"><span class="pre">NVVM</span></code> — NVVM LLVM backend.
+    * <code class="docutils literal notranslate"><span class="pre">NVJITLINK</span></code> — nvJitLink device-side linker.
+    * <code class="docutils literal notranslate"><span class="pre">DRIVER</span></code> — CUDA driver PTX JIT compiler.</p>
+</dd>
+<dt><strong>NVVM</strong>: NVVM</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.backend" title="cuda.core.Program.backend"><code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code></a>.
+
+    * <code class="docutils literal notranslate"><span class="pre">NVRTC</span></code> — NVIDIA Runtime Compilation.
+    * <code class="docutils literal notranslate"><span class="pre">NVVM</span></code> — NVVM LLVM backend.
+    * <code class="docutils literal notranslate"><span class="pre">NVJITLINK</span></code> — nvJitLink device-side linker.
+    * <code class="docutils literal notranslate"><span class="pre">DRIVER</span></code> — CUDA driver PTX JIT compiler.</p>
+</dd>
+<dt><strong>NVJITLINK</strong>: nvJitLink</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.backend" title="cuda.core.Program.backend"><code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code></a>.
+
+    * <code class="docutils literal notranslate"><span class="pre">NVRTC</span></code> — NVIDIA Runtime Compilation.
+    * <code class="docutils literal notranslate"><span class="pre">NVVM</span></code> — NVVM LLVM backend.
+    * <code class="docutils literal notranslate"><span class="pre">NVJITLINK</span></code> — nvJitLink device-side linker.
+    * <code class="docutils literal notranslate"><span class="pre">DRIVER</span></code> — CUDA driver PTX JIT compiler.</p>
+</dd>
+<dt><strong>DRIVER</strong>: driver</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.backend" title="cuda.core.Program.backend"><code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code></a>.
+
+    * <code class="docutils literal notranslate"><span class="pre">NVRTC</span></code> — NVIDIA Runtime Compilation.
+    * <code class="docutils literal notranslate"><span class="pre">NVVM</span></code> — NVVM LLVM backend.
+    * <code class="docutils literal notranslate"><span class="pre">NVJITLINK</span></code> — nvJitLink device-side linker.
+    * <code class="docutils literal notranslate"><span class="pre">DRIVER</span></code> — CUDA driver PTX JIT compiler.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f71dcbc1"></script>
+    <script src="../_static/documentation_options.js?v=53654fd8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev42';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev43';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -720,9 +720,23 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.typing.VirtualMemoryGranularityType" title="Link to this definition">#</a></dt>
-<dd><p>VirtualMemoryGranularityType</p>
-<p><strong>MINIMUM</strong>: minimum</p>
-<p><strong>RECOMMENDED</strong>: recommended</p>
+<dd><p>Granularity query type for virtual memory allocations.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MINIMUM</span></code> — smallest allocation size supported by the device.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RECOMMENDED</span></code> — granularity that yields best performance on the device.</p></li>
+</ul>
+<dl class="simple">
+<dt><strong>MINIMUM</strong>: minimum</dt><dd><p>Granularity query type for virtual memory allocations.
+
+    * <code class="docutils literal notranslate"><span class="pre">MINIMUM</span></code> — smallest allocation size supported by the device.
+    * <code class="docutils literal notranslate"><span class="pre">RECOMMENDED</span></code> — granularity that yields best performance on the device.</p>
+</dd>
+<dt><strong>RECOMMENDED</strong>: recommended</dt><dd><p>Granularity query type for virtual memory allocations.
+
+    * <code class="docutils literal notranslate"><span class="pre">MINIMUM</span></code> — smallest allocation size supported by the device.
+    * <code class="docutils literal notranslate"><span class="pre">RECOMMENDED</span></code> — granularity that yields best performance on the device.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
