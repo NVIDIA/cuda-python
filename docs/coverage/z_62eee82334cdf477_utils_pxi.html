@@ -90,19 +90,19 @@
   "[": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[1]|run",
   "]": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[False]|run",
   "^": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[True]|run",
-  "_": "tests/graph/test_graph_definition.py::test_registry_cleanup|run",
-  "`": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_baseline|run",
-  "{": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a1|run",
-  "|": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a2|run",
-  "}": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_joint|run",
-  "~": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_insert_b|run",
-  "ab": "tests/graph/test_graph_definition_mutation.py::test_convert_linear_to_fan_in|run",
-  "bb": "tests/graph/test_graph_definition_mutation.py::test_destroyed_node|run",
-  "cb": "tests/graph/test_graph_update.py::test_graph_update_conditional|run",
-  "db": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphBuilder]|run",
-  "eb": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDefinition]|run",
+  "_": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_baseline|run",
+  "`": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a1|run",
+  "{": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a2|run",
+  "|": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_joint|run",
+  "}": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_insert_b|run",
+  "~": "tests/graph/test_graph_definition_mutation.py::test_convert_linear_to_fan_in|run",
+  "ab": "tests/graph/test_graph_definition_mutation.py::test_destroyed_node|run",
+  "bb": "tests/graph/test_graph_update.py::test_graph_update_conditional|run",
+  "cb": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphBuilder]|run",
+  "db": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDefinition]|run",
+  "eb": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|run",
   "fb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
-  "gb": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[True-True-True]|run",
+  "gb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|run",
   "hb": "tests/test_cudart.py::test_cudart_func_callback|run",
   "ib": "tests/test_cudart.py::test_cudart_hostRegister|run",
   "jb": "tests/test_cudart.py::test_cudart_make_api|run",
@@ -249,7 +249,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cudla_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-03 01:48 +0000
+            created at 2026-06-04 01:53 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -405,9 +405,9 @@
     <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">cdef void * _helper_input_void_ptr(ptr, _HelperInputVoidPtrStruct *helper):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    helper[0]._pybuffer.buf = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs142"><span class="r"><label for="ctxs142" class="ctx">163 ctx</label></span><span class="ctxs">25 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ y z A B _ C D ` { | } ~ abbbcbdbebfbgbt w E u Z 0 F v G H I J K L M N O P Q hbibjbR kblbmbnbobpbqbrbS d b l o m i e c sbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bac1 2 3 4 n bc</span></p>
-    <p class="run"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs143"><span class="r"><label for="ctxs143" class="ctx">163 ctx</label></span><span class="ctxs">25 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ y z A B _ C D ` { | } ~ abbbcbdbebfbgbt w E u Z 0 F v G H I J K L M N O P Q hbibjbR kblbmbnbobpbqbrbS d b l o m i e c sbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bac1 2 3 4 n bc</span></p>
-    <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        return &lt;void *>&lt;void_ptr>ptr        </span>&nbsp;</span><input type="checkbox" id="ctxs144"><span class="r"><label for="ctxs144" class="ctx">163 ctx</label></span><span class="ctxs">25 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ y z A B _ C D ` { | } ~ abbbcbdbebfbgbt w E u Z 0 F v G H I J K L M N O P Q hbibjbR kblbmbnbobpbqbrbS d b l o m i e c sbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bac1 2 3 4 n bc</span></p>
+    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    helper[0]._pybuffer.buf = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs142"><span class="r"><label for="ctxs142" class="ctx">163 ctx</label></span><span class="ctxs">25 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ y z A B C D _ ` { | } ~ abbbcbdbebfbgbt w E u Z 0 F v G H I J K L M N O P Q hbibjbR kblbmbnbobpbqbrbS d b l o m i e c sbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bac1 2 3 4 n bc</span></p>
+    <p class="run"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs143"><span class="r"><label for="ctxs143" class="ctx">163 ctx</label></span><span class="ctxs">25 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ y z A B C D _ ` { | } ~ abbbcbdbebfbgbt w E u Z 0 F v G H I J K L M N O P Q hbibjbR kblbmbnbobpbqbrbS d b l o m i e c sbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bac1 2 3 4 n bc</span></p>
+    <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        return &lt;void *>&lt;void_ptr>ptr        </span>&nbsp;</span><input type="checkbox" id="ctxs144"><span class="r"><label for="ctxs144" class="ctx">163 ctx</label></span><span class="ctxs">25 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ y z A B C D _ ` { | } ~ abbbcbdbebfbgbt w E u Z 0 F v G H I J K L M N O P Q hbibjbR kblbmbnbobpbqbrbS d b l o m i e c sbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bac1 2 3 4 n bc</span></p>
     <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    except:</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">33 ctx</label></span><span class="ctxs">1yzABCDtEuFvGHIJKLMNOPQRSdblomiecn</span></p>
     <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">        if ptr is None:</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">33 ctx</label></span><span class="ctxs">1yzABCDtEuFvGHIJKLMNOPQRSdblomiecn</span></p>
     <p class="mis show_mis"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">            return NULL</span>&nbsp;</span><span class="r"></span></p>
@@ -913,7 +913,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cudla_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-03 01:48 +0000
+            created at 2026-06-04 01:53 +0000
         </p>
     </div>
 </footer>

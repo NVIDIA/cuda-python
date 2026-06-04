@@ -86,8 +86,8 @@
   ";": "tests/test_helpers.py::test_latchkernel|run",
   "=": "tests/test_memory.py::test_legacy_pinned_allocate_zero_size|run",
   "?": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
-  "@": "tests/graph/test_graph_definition.py::test_registry_cleanup|run",
-  "[": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[True-True-True]|run",
+  "@": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|run",
+  "[": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|run",
   "]": "tests/test_memory.py::test_legacy_pinned_device_id_raises|run"
 }
     </script>
@@ -151,7 +151,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__managed_buffer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-03 01:48 +0000
+            created at 2026-06-04 01:53 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -240,14 +240,14 @@
     <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="str">            Keyword-only. If provided, ``stream.sync()`` is called before the</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="str">            host allocation is freed. ``None`` skips the sync.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">        <span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_stream</span> <span class="key">import</span> <span class="nam">Stream_accept</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">77 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzAB@CDEFGHIJKL.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+=,</span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">        <span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_stream</span> <span class="key">import</span> <span class="nam">Stream_accept</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">77 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKL@.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+=,</span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">        <span class="key">if</span> <span class="nam">stream</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">77 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzAB@CDEFGHIJKL.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+=,</span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">            <span class="nam">Stream_accept</span><span class="op">(</span><span class="nam">stream</span><span class="op">)</span><span class="op">.</span><span class="nam">sync</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">77 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzAB@CDEFGHIJKL.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+=,</span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">        <span class="key">if</span> <span class="nam">stream</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">77 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKL@.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+=,</span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">            <span class="nam">Stream_accept</span><span class="op">(</span><span class="nam">stream</span><span class="op">)</span><span class="op">.</span><span class="nam">sync</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">77 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKL@.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+=,</span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">        <span class="key">if</span> <span class="nam">size</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">77 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzAB@CDEFGHIJKL.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+=,</span></p>
-    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">            <span class="op">(</span><span class="nam">err</span><span class="op">,</span><span class="op">)</span> <span class="op">=</span> <span class="nam">driver</span><span class="op">.</span><span class="nam">cuMemFreeHost</span><span class="op">(</span><span class="nam">ptr</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">76 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzAB@CDEFGHIJKL.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+,</span></p>
-    <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">            <span class="nam">raise_if_driver_error</span><span class="op">(</span><span class="nam">err</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs82"><span class="r"><label for="ctxs82" class="ctx">76 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzAB@CDEFGHIJKL.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+,</span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">        <span class="key">if</span> <span class="nam">size</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">77 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKL@.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+=,</span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">            <span class="op">(</span><span class="nam">err</span><span class="op">,</span><span class="op">)</span> <span class="op">=</span> <span class="nam">driver</span><span class="op">.</span><span class="nam">cuMemFreeHost</span><span class="op">(</span><span class="nam">ptr</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">76 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKL@.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+,</span></p>
+    <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">            <span class="nam">raise_if_driver_error</span><span class="op">(</span><span class="nam">err</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs82"><span class="r"><label for="ctxs82" class="ctx">76 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKL@.[/:MNO;PQRSTUVWXYZ0123456789!#$%'()*+,</span></p>
     <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">    <span class="op">@</span><span class="nam">property</span>&nbsp;</span><span class="r"><label for="ctxs84" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">    <span class="key">def</span> <span class="nam">is_device_accessible</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs85" class="ctx">(empty)</label></span></p>
@@ -316,7 +316,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__managed_buffer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-03 01:48 +0000
+            created at 2026-06-04 01:53 +0000
         </p>
     </div>
 </footer>
