@@ -253,26 +253,12 @@ jobs:
         run: |
           echo "${{ github.sha }}" > artifacts/docs/.preview-commit
 
-      - name: Write doc preview link-check URL list
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
-        env:
-          PREVIEW_URL: https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}
-        run: |
-          find "${GITHUB_WORKSPACE}/artifacts/docs" -type f -name '*.html' ! -path '*/_static/*' -printf '%P\n' \
-            | LC_ALL=C sort \
-            | sed "s#^#${PREVIEW_URL}/#" > lychee-preview-urls.txt
-          if [[ ! -s lychee-preview-urls.txt ]]; then
-            echo "error: no rendered HTML pages found for lychee" >&2
-            exit 1
-          fi
-          wc -l lychee-preview-urls.txt
-
-      - name: Upload doc preview link-check URL list
+      - name: Upload rendered docs for link checking
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
-          name: docs-preview-linkcheck-urls
-          path: lychee-preview-urls.txt
+          name: docs-rendered-html
+          path: artifacts/docs/
           if-no-files-found: error
           retention-days: 3
 
