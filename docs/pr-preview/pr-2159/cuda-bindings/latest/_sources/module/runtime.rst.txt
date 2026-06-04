@@ -137,7 +137,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorInvalidConfiguration
 
 
-        This indicates that a kernel launch is requesting resources that can never be satisfied by the current device. Requesting more shared memory per block than the device supports will trigger this error, as will requesting too many threads or blocks. See cudaDeviceProp for more device limitations.
+        This indicates that a kernel launch is requesting resources that can never be satisfied by the current device. Requesting more shared memory per block than the device supports will trigger this error, as will requesting too many threads or blocks. See :py:obj:`~.cudaDeviceProp` for more device limitations.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorVersionTranslation
@@ -3946,25 +3946,25 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeParams
 
 
-        Adds cudaKernelNodeParams to output
+        Adds :py:obj:`~.cudaKernelNodeParams` to output
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemcpyNodeParams
 
 
-        Adds cudaMemcpy3DParms to output
+        Adds :py:obj:`~.cudaMemcpy3DParms` to output
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemsetNodeParams
 
 
-        Adds cudaMemsetParams to output
+        Adds :py:obj:`~.cudaMemsetParams` to output
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsHostNodeParams
 
 
-        Adds cudaHostNodeParams to output
+        Adds :py:obj:`~.cudaHostNodeParams` to output
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsEventNodeParams
@@ -3976,13 +3976,13 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasSignalNodeParams
 
 
-        Adds cudaExternalSemaphoreSignalNodeParams values to output
+        Adds :py:obj:`~.cudaExternalSemaphoreSignalNodeParams` values to output
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasWaitNodeParams
 
 
-        Adds cudaExternalSemaphoreWaitNodeParams to output
+        Adds :py:obj:`~.cudaExternalSemaphoreWaitNodeParams` to output
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeAttributes
@@ -4000,7 +4000,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsConditionalNodeParams
 
 
-        Adds cudaConditionalNodeParams to output
+        Adds :py:obj:`~.cudaConditionalNodeParams` to output
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphInstantiateFlags
 
@@ -5317,11 +5317,11 @@ Data types used by CUDA Runtime
 
 .. autoattribute:: cuda.bindings.runtime.cudaExternalSemaphoreSignalSkipNvSciBufMemSync
 
-    When the /p flags parameter of cudaExternalSemaphoreSignalParams contains this flag, it indicates that signaling an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as :py:obj:`~.cudaExternalMemoryHandleTypeNvSciBuf`, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.
+    When the /p flags parameter of :py:obj:`~.cudaExternalSemaphoreSignalParams` contains this flag, it indicates that signaling an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as :py:obj:`~.cudaExternalMemoryHandleTypeNvSciBuf`, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.
 
 .. autoattribute:: cuda.bindings.runtime.cudaExternalSemaphoreWaitSkipNvSciBufMemSync
 
-    When the /p flags parameter of cudaExternalSemaphoreWaitParams contains this flag, it indicates that waiting an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as :py:obj:`~.cudaExternalMemoryHandleTypeNvSciBuf`, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.
+    When the /p flags parameter of :py:obj:`~.cudaExternalSemaphoreWaitParams` contains this flag, it indicates that waiting an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as :py:obj:`~.cudaExternalMemoryHandleTypeNvSciBuf`, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.
 
 .. autoattribute:: cuda.bindings.runtime.cudaNvSciSyncAttrSignal
 

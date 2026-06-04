@@ -6832,7 +6832,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidConfiguration">
 <span class="sig-name descname"><span class="pre">cudaErrorInvalidConfiguration</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaError_t.cudaErrorInvalidConfiguration:</span> <span class="pre">9&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidConfiguration" title="Link to this definition">#</a></dt>
-<dd><p>This indicates that a kernel launch is requesting resources that can never be satisfied by the current device. Requesting more shared memory per block than the device supports will trigger this error, as will requesting too many threads or blocks. See cudaDeviceProp for more device limitations.</p>
+<dd><p>This indicates that a kernel launch is requesting resources that can never be satisfied by the current device. Requesting more shared memory per block than the device supports will trigger this error, as will requesting too many threads or blocks. See <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp" title="cuda.bindings.runtime.cudaDeviceProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceProp</span></code></a> for more device limitations.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -7949,8 +7949,8 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaAccessProperty">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaAccessProperty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaAccessProperty" title="Link to this definition">#</a></dt>
-<dd><p>Specifies performance hint with cudaAccessPolicyWindow for hitProp
-and missProp members.</p>
+<dd><p>Specifies performance hint with <a class="reference internal" href="#cuda.bindings.runtime.cudaAccessPolicyWindow" title="cuda.bindings.runtime.cudaAccessPolicyWindow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAccessPolicyWindow</span></code></a>
+for hitProp and missProp members.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaAccessProperty.cudaAccessPropertyNormal">
 <span class="sig-name descname"><span class="pre">cudaAccessPropertyNormal</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaAccessProperty.cudaAccessPropertyNormal:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaAccessProperty.cudaAccessPropertyNormal" title="Link to this definition">#</a></dt>
@@ -11025,25 +11025,25 @@ from the device</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeParams">
 <span class="sig-name descname"><span class="pre">cudaGraphDebugDotFlagsKernelNodeParams</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeParams:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeParams" title="Link to this definition">#</a></dt>
-<dd><p>Adds cudaKernelNodeParams to output</p>
+<dd><p>Adds <a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeParams" title="cuda.bindings.runtime.cudaKernelNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeParams</span></code></a> to output</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemcpyNodeParams">
 <span class="sig-name descname"><span class="pre">cudaGraphDebugDotFlagsMemcpyNodeParams</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemcpyNodeParams:</span> <span class="pre">8&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemcpyNodeParams" title="Link to this definition">#</a></dt>
-<dd><p>Adds cudaMemcpy3DParms to output</p>
+<dd><p>Adds <a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DParms" title="cuda.bindings.runtime.cudaMemcpy3DParms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DParms</span></code></a> to output</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemsetNodeParams">
 <span class="sig-name descname"><span class="pre">cudaGraphDebugDotFlagsMemsetNodeParams</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemsetNodeParams:</span> <span class="pre">16&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemsetNodeParams" title="Link to this definition">#</a></dt>
-<dd><p>Adds cudaMemsetParams to output</p>
+<dd><p>Adds <a class="reference internal" href="#cuda.bindings.runtime.cudaMemsetParams" title="cuda.bindings.runtime.cudaMemsetParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemsetParams</span></code></a> to output</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsHostNodeParams">
 <span class="sig-name descname"><span class="pre">cudaGraphDebugDotFlagsHostNodeParams</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsHostNodeParams:</span> <span class="pre">32&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsHostNodeParams" title="Link to this definition">#</a></dt>
-<dd><p>Adds cudaHostNodeParams to output</p>
+<dd><p>Adds <a class="reference internal" href="#cuda.bindings.runtime.cudaHostNodeParams" title="cuda.bindings.runtime.cudaHostNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaHostNodeParams</span></code></a> to output</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -11055,13 +11055,13 @@ from the device</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasSignalNodeParams">
 <span class="sig-name descname"><span class="pre">cudaGraphDebugDotFlagsExtSemasSignalNodeParams</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasSignalNodeParams:</span> <span class="pre">128&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasSignalNodeParams" title="Link to this definition">#</a></dt>
-<dd><p>Adds cudaExternalSemaphoreSignalNodeParams values to output</p>
+<dd><p>Adds <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreSignalNodeParams" title="cuda.bindings.runtime.cudaExternalSemaphoreSignalNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphoreSignalNodeParams</span></code></a> values to output</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasWaitNodeParams">
 <span class="sig-name descname"><span class="pre">cudaGraphDebugDotFlagsExtSemasWaitNodeParams</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasWaitNodeParams:</span> <span class="pre">256&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasWaitNodeParams" title="Link to this definition">#</a></dt>
-<dd><p>Adds cudaExternalSemaphoreWaitNodeParams to output</p>
+<dd><p>Adds <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParams" title="cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitNodeParams</span></code></a> to output</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -11079,7 +11079,7 @@ from the device</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsConditionalNodeParams">
 <span class="sig-name descname"><span class="pre">cudaGraphDebugDotFlagsConditionalNodeParams</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsConditionalNodeParams:</span> <span class="pre">32768&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsConditionalNodeParams" title="Link to this definition">#</a></dt>
-<dd><p>Adds cudaConditionalNodeParams to output</p>
+<dd><p>Adds <a class="reference internal" href="#cuda.bindings.runtime.cudaConditionalNodeParams" title="cuda.bindings.runtime.cudaConditionalNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaConditionalNodeParams</span></code></a> to output</p>
 </dd></dl>
 
 </dd></dl>
@@ -13895,13 +13895,13 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaExternalSemaphoreSignalSkipNvSciBufMemSync">
 <span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaExternalSemaphoreSignalSkipNvSciBufMemSync</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaExternalSemaphoreSignalSkipNvSciBufMemSync" title="Link to this definition">#</a></dt>
-<dd><p>When the /p flags parameter of cudaExternalSemaphoreSignalParams contains this flag, it indicates that signaling an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeNvSciBuf" title="cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeNvSciBuf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleTypeNvSciBuf</span></code></a>, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.</p>
+<dd><p>When the /p flags parameter of <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreSignalParams" title="cuda.bindings.runtime.cudaExternalSemaphoreSignalParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphoreSignalParams</span></code></a> contains this flag, it indicates that signaling an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeNvSciBuf" title="cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeNvSciBuf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleTypeNvSciBuf</span></code></a>, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaExternalSemaphoreWaitSkipNvSciBufMemSync">
 <span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaExternalSemaphoreWaitSkipNvSciBufMemSync</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaExternalSemaphoreWaitSkipNvSciBufMemSync" title="Link to this definition">#</a></dt>
-<dd><p>When the /p flags parameter of cudaExternalSemaphoreWaitParams contains this flag, it indicates that waiting an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeNvSciBuf" title="cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeNvSciBuf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleTypeNvSciBuf</span></code></a>, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.</p>
+<dd><p>When the /p flags parameter of <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreWaitParams" title="cuda.bindings.runtime.cudaExternalSemaphoreWaitParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitParams</span></code></a> contains this flag, it indicates that waiting an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeNvSciBuf" title="cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeNvSciBuf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleTypeNvSciBuf</span></code></a>, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -14120,7 +14120,7 @@ responsibility to ensure that the resources are not accessed or passed
 in subsequent API calls and doing so will result in undefined behavior.
 These resources include CUDA types <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>,
 <a class="reference internal" href="#cuda.bindings.runtime.cudaEvent_t" title="cuda.bindings.runtime.cudaEvent_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEvent_t</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaArray_t" title="cuda.bindings.runtime.cudaArray_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArray_t</span></code></a>,
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMipmappedArray_t" title="cuda.bindings.runtime.cudaMipmappedArray_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMipmappedArray_t</span></code></a>, cudaPitchedPtr,
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMipmappedArray_t" title="cuda.bindings.runtime.cudaMipmappedArray_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMipmappedArray_t</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a>,
 <a class="reference internal" href="#cuda.bindings.runtime.cudaTextureObject_t" title="cuda.bindings.runtime.cudaTextureObject_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaSurfaceObject_t" title="cuda.bindings.runtime.cudaSurfaceObject_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSurfaceObject_t</span></code></a>,
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">textureReference</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">surfaceReference</span></code>,
 <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemory_t" title="cuda.bindings.runtime.cudaExternalMemory_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalMemory_t</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphore_t" title="cuda.bindings.runtime.cudaExternalSemaphore_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphore_t</span></code></a>
@@ -16900,8 +16900,8 @@ returned. If either event was created with the
 <p>Imports an externally allocated memory object and returns a handle to
 that in <code class="docutils literal notranslate"><span class="pre">extMem_out</span></code>.</p>
 <p>The properties of the handle being imported must be described in
-<code class="docutils literal notranslate"><span class="pre">memHandleDesc</span></code>. The cudaExternalMemoryHandleDesc structure is
-defined as follows:</p>
+<code class="docutils literal notranslate"><span class="pre">memHandleDesc</span></code>. The <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemoryHandleDesc" title="cuda.bindings.runtime.cudaExternalMemoryHandleDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleDesc</span></code></a>
+structure is defined as follows:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemoryHandleDesc.type" title="cuda.bindings.runtime.cudaExternalMemoryHandleDesc.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code></a> specifies the type
 of handle being imported. <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemoryHandleType" title="cuda.bindings.runtime.cudaExternalMemoryHandleType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleType</span></code></a> is
@@ -17023,8 +17023,8 @@ and Cache Control” chapter from Vulkan specification.</p>
 <p>Maps a buffer onto an imported memory object and returns a device
 pointer in <code class="docutils literal notranslate"><span class="pre">devPtr</span></code>.</p>
 <p>The properties of the buffer being mapped must be described in
-<code class="docutils literal notranslate"><span class="pre">bufferDesc</span></code>. The cudaExternalMemoryBufferDesc structure is defined
-as follows:</p>
+<code class="docutils literal notranslate"><span class="pre">bufferDesc</span></code>. The <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemoryBufferDesc" title="cuda.bindings.runtime.cudaExternalMemoryBufferDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalMemoryBufferDesc</span></code></a> structure
+is defined as follows:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemoryBufferDesc.offset" title="cuda.bindings.runtime.cudaExternalMemoryBufferDesc.offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset</span></code></a> is the offset in
 the memory object where the buffer’s base address is.
@@ -17071,7 +17071,7 @@ pointer to derive the individual buffers.</p>
 handle to it in <code class="docutils literal notranslate"><span class="pre">mipmap</span></code>.</p>
 <p>The properties of the CUDA mipmapped array being mapped must be
 described in <code class="docutils literal notranslate"><span class="pre">mipmapDesc</span></code>. The structure
-cudaExternalMemoryMipmappedArrayDesc is defined as follows:</p>
+<a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemoryMipmappedArrayDesc" title="cuda.bindings.runtime.cudaExternalMemoryMipmappedArrayDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalMemoryMipmappedArrayDesc</span></code></a> is defined as follows:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalMemoryMipmappedArrayDesc.offset" title="cuda.bindings.runtime.cudaExternalMemoryMipmappedArrayDesc.offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset</span></code></a> is the
 offset in the memory object where the base level of the mipmap chain
@@ -17144,8 +17144,8 @@ and must be explicitly freed using <a class="reference internal" href="#cuda.bin
 <p>Imports an externally allocated synchronization object and returns a
 handle to that in <code class="docutils literal notranslate"><span class="pre">extSem_out</span></code>.</p>
 <p>The properties of the handle being imported must be described in
-<code class="docutils literal notranslate"><span class="pre">semHandleDesc</span></code>. The cudaExternalSemaphoreHandleDesc is defined as
-follows:</p>
+<code class="docutils literal notranslate"><span class="pre">semHandleDesc</span></code>. The <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreHandleDesc" title="cuda.bindings.runtime.cudaExternalSemaphoreHandleDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphoreHandleDesc</span></code></a> is
+defined as follows:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where <a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreHandleDesc.type" title="cuda.bindings.runtime.cudaExternalSemaphoreHandleDesc.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code></a> specifies the
 type of handle being imported.
@@ -18134,9 +18134,10 @@ performing 2D memory copies between different regions of device memory
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMallocArray">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMallocArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cudaChannelFormatDesc</span> <span class="pre">desc:</span> <span class="pre">Optional[cudaChannelFormatDesc],</span> <span class="pre">size_t</span> <span class="pre">width,</span> <span class="pre">size_t</span> <span class="pre">height,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMallocArray" title="Link to this definition">#</a></dt>
 <dd><p>Allocate an array on the device.</p>
-<p>Allocates a CUDA array according to the cudaChannelFormatDesc structure
-<code class="docutils literal notranslate"><span class="pre">desc</span></code> and returns a handle to the new CUDA array in <code class="docutils literal notranslate"><span class="pre">*array</span></code>.</p>
-<p>The cudaChannelFormatDesc is defined as:</p>
+<p>Allocates a CUDA array according to the
+<a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatDesc" title="cuda.bindings.runtime.cudaChannelFormatDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatDesc</span></code></a> structure <code class="docutils literal notranslate"><span class="pre">desc</span></code> and returns a
+handle to the new CUDA array in <code class="docutils literal notranslate"><span class="pre">*array</span></code>.</p>
+<p>The <a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatDesc" title="cuda.bindings.runtime.cudaChannelFormatDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatDesc</span></code></a> is defined as:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where <a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatKind" title="cuda.bindings.runtime.cudaChannelFormatKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatKind</span></code></a> is one of
 <a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindSigned" title="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindSigned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatKindSigned</span></code></a>,
@@ -18572,15 +18573,15 @@ reside in an address range allocated by <a class="reference internal" href="#cud
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMalloc3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cudaExtent</span> <span class="pre">extent:</span> <span class="pre">cudaExtent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMalloc3D" title="Link to this definition">#</a></dt>
 <dd><p>Allocates logical 1D, 2D, or 3D memory objects on the device.</p>
 <p>Allocates at least <code class="docutils literal notranslate"><span class="pre">width</span></code> * <code class="docutils literal notranslate"><span class="pre">height</span></code> * <code class="docutils literal notranslate"><span class="pre">depth</span></code> bytes of linear
-memory on the device and returns a cudaPitchedPtr in which <code class="docutils literal notranslate"><span class="pre">ptr</span></code> is a
-pointer to the allocated memory. The function may pad the allocation to
-ensure hardware alignment requirements are met. The pitch returned in
-the <code class="docutils literal notranslate"><span class="pre">pitch</span></code> field of <code class="docutils literal notranslate"><span class="pre">pitchedDevPtr</span></code> is the width in bytes of the
-allocation.</p>
-<p>The returned cudaPitchedPtr contains additional fields <code class="docutils literal notranslate"><span class="pre">xsize</span></code> and
-<code class="docutils literal notranslate"><span class="pre">ysize</span></code>, the logical width and height of the allocation, which are
-equivalent to the <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">height</span></code> <code class="docutils literal notranslate"><span class="pre">extent</span></code> parameters
-provided by the programmer during allocation.</p>
+memory on the device and returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> in which
+<code class="docutils literal notranslate"><span class="pre">ptr</span></code> is a pointer to the allocated memory. The function may pad the
+allocation to ensure hardware alignment requirements are met. The pitch
+returned in the <code class="docutils literal notranslate"><span class="pre">pitch</span></code> field of <code class="docutils literal notranslate"><span class="pre">pitchedDevPtr</span></code> is the width in
+bytes of the allocation.</p>
+<p>The returned <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> contains additional fields
+<code class="docutils literal notranslate"><span class="pre">xsize</span></code> and <code class="docutils literal notranslate"><span class="pre">ysize</span></code>, the logical width and height of the
+allocation, which are equivalent to the <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">height</span></code>
+<code class="docutils literal notranslate"><span class="pre">extent</span></code> parameters provided by the programmer during allocation.</p>
 <p>For allocations of 2D and 3D objects, it is highly recommended that
 programmers perform allocations using <a class="reference internal" href="#cuda.bindings.runtime.cudaMalloc3D" title="cuda.bindings.runtime.cudaMalloc3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMalloc3D()</span></code></a> or
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMallocPitch" title="cuda.bindings.runtime.cudaMallocPitch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocPitch()</span></code></a>. Due to alignment restrictions in the
@@ -18609,9 +18610,10 @@ arrays).</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMalloc3DArray">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMalloc3DArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cudaChannelFormatDesc</span> <span class="pre">desc:</span> <span class="pre">Optional[cudaChannelFormatDesc],</span> <span class="pre">cudaExtent</span> <span class="pre">extent:</span> <span class="pre">cudaExtent,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMalloc3DArray" title="Link to this definition">#</a></dt>
 <dd><p>Allocate an array on the device.</p>
-<p>Allocates a CUDA array according to the cudaChannelFormatDesc structure
-<code class="docutils literal notranslate"><span class="pre">desc</span></code> and returns a handle to the new CUDA array in <code class="docutils literal notranslate"><span class="pre">*array</span></code>.</p>
-<p>The cudaChannelFormatDesc is defined as:</p>
+<p>Allocates a CUDA array according to the
+<a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatDesc" title="cuda.bindings.runtime.cudaChannelFormatDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatDesc</span></code></a> structure <code class="docutils literal notranslate"><span class="pre">desc</span></code> and returns a
+handle to the new CUDA array in <code class="docutils literal notranslate"><span class="pre">*array</span></code>.</p>
+<p>The <a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatDesc" title="cuda.bindings.runtime.cudaChannelFormatDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatDesc</span></code></a> is defined as:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where <a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatKind" title="cuda.bindings.runtime.cudaChannelFormatKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatKind</span></code></a> is one of
 <a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindSigned" title="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindSigned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatKindSigned</span></code></a>,
@@ -18703,12 +18705,13 @@ range for (width, height, depth) is ((1,maxTexture2DGather[0]),
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMallocMipmappedArray">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMallocMipmappedArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cudaChannelFormatDesc</span> <span class="pre">desc:</span> <span class="pre">Optional[cudaChannelFormatDesc],</span> <span class="pre">cudaExtent</span> <span class="pre">extent:</span> <span class="pre">cudaExtent,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numLevels,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMallocMipmappedArray" title="Link to this definition">#</a></dt>
 <dd><p>Allocate a mipmapped array on the device.</p>
-<p>Allocates a CUDA mipmapped array according to the cudaChannelFormatDesc
-structure <code class="docutils literal notranslate"><span class="pre">desc</span></code> and returns a handle to the new CUDA mipmapped array
-in <code class="docutils literal notranslate"><span class="pre">*mipmappedArray</span></code>. <code class="docutils literal notranslate"><span class="pre">numLevels</span></code> specifies the number of mipmap
-levels to be allocated. This value is clamped to the range [1, 1 +
-floor(log2(max(width, height, depth)))].</p>
-<p>The cudaChannelFormatDesc is defined as:</p>
+<p>Allocates a CUDA mipmapped array according to the
+<a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatDesc" title="cuda.bindings.runtime.cudaChannelFormatDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatDesc</span></code></a> structure <code class="docutils literal notranslate"><span class="pre">desc</span></code> and returns a
+handle to the new CUDA mipmapped array in <code class="docutils literal notranslate"><span class="pre">*mipmappedArray</span></code>.
+<code class="docutils literal notranslate"><span class="pre">numLevels</span></code> specifies the number of mipmap levels to be allocated.
+This value is clamped to the range [1, 1 + floor(log2(max(width,
+height, depth)))].</p>
+<p>The <a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatDesc" title="cuda.bindings.runtime.cudaChannelFormatDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatDesc</span></code></a> is defined as:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where <a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatKind" title="cuda.bindings.runtime.cudaChannelFormatKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatKind</span></code></a> is one of
 <a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindSigned" title="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindSigned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatKindSigned</span></code></a>,
@@ -18836,8 +18839,8 @@ mipmapped array, <a class="reference internal" href="#cuda.bindings.runtime.cuda
 <p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3D" title="cuda.bindings.runtime.cudaMemcpy3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3D()</span></code></a> copies data betwen two 3D objects. The
 source and destination objects may be in either host memory, device
 memory, or a CUDA array. The source, destination, extent, and kind of
-copy performed is specified by the cudaMemcpy3DParms struct which
-should be initialized to zero before use:</p>
+copy performed is specified by the <a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DParms" title="cuda.bindings.runtime.cudaMemcpy3DParms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DParms</span></code></a> struct
+which should be initialized to zero before use:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>The struct passed to <a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3D" title="cuda.bindings.runtime.cudaMemcpy3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3D()</span></code></a> must specify one of
 <code class="docutils literal notranslate"><span class="pre">srcArray</span></code> or <code class="docutils literal notranslate"><span class="pre">srcPtr</span></code> and one of <code class="docutils literal notranslate"><span class="pre">dstArray</span></code> or <code class="docutils literal notranslate"><span class="pre">dstPtr</span></code>.
@@ -18877,8 +18880,8 @@ result.</p>
 the region defined by <code class="docutils literal notranslate"><span class="pre">dstPos</span></code> and <code class="docutils literal notranslate"><span class="pre">extent</span></code>.</p>
 <p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3D" title="cuda.bindings.runtime.cudaMemcpy3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3D()</span></code></a> returns an error if the pitch of <code class="docutils literal notranslate"><span class="pre">srcPtr</span></code>
 or <code class="docutils literal notranslate"><span class="pre">dstPtr</span></code> exceeds the maximum allowed. The pitch of a
-cudaPitchedPtr allocated with <a class="reference internal" href="#cuda.bindings.runtime.cudaMalloc3D" title="cuda.bindings.runtime.cudaMalloc3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMalloc3D()</span></code></a> will always be
-valid.</p>
+<a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> allocated with <a class="reference internal" href="#cuda.bindings.runtime.cudaMalloc3D" title="cuda.bindings.runtime.cudaMalloc3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMalloc3D()</span></code></a>
+will always be valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>p</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DParms" title="cuda.bindings.runtime.cudaMemcpy3DParms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DParms</span></code></a>) – 3D memory copy parameters</p>
@@ -18901,8 +18904,8 @@ valid.</p>
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemcpy3DPeer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cudaMemcpy3DPeerParms</span> <span class="pre">p:</span> <span class="pre">Optional[cudaMemcpy3DPeerParms]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemcpy3DPeer" title="Link to this definition">#</a></dt>
 <dd><p>Copies memory between devices.</p>
 <p>Perform a 3D memory copy according to the parameters specified in
-<code class="docutils literal notranslate"><span class="pre">p</span></code>. See the definition of the cudaMemcpy3DPeerParms structure for
-documentation of its parameters.</p>
+<code class="docutils literal notranslate"><span class="pre">p</span></code>. See the definition of the <a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DPeerParms" title="cuda.bindings.runtime.cudaMemcpy3DPeerParms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DPeerParms</span></code></a>
+structure for documentation of its parameters.</p>
 <p>Note that this function is synchronous with respect to the host only if
 the source or destination of the transfer is host memory. Note also
 that this copy is serialized with respect to all pending and future
@@ -18934,8 +18937,8 @@ and the copy’s destination device (use
 <p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DAsync" title="cuda.bindings.runtime.cudaMemcpy3DAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DAsync()</span></code></a> copies data betwen two 3D objects. The
 source and destination objects may be in either host memory, device
 memory, or a CUDA array. The source, destination, extent, and kind of
-copy performed is specified by the cudaMemcpy3DParms struct which
-should be initialized to zero before use:</p>
+copy performed is specified by the <a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DParms" title="cuda.bindings.runtime.cudaMemcpy3DParms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DParms</span></code></a> struct
+which should be initialized to zero before use:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>The struct passed to <a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DAsync" title="cuda.bindings.runtime.cudaMemcpy3DAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DAsync()</span></code></a> must specify one
 of <code class="docutils literal notranslate"><span class="pre">srcArray</span></code> or <code class="docutils literal notranslate"><span class="pre">srcPtr</span></code> and one of <code class="docutils literal notranslate"><span class="pre">dstArray</span></code> or <code class="docutils literal notranslate"><span class="pre">dstPtr</span></code>.
@@ -18976,8 +18979,8 @@ result.</p>
 within the region defined by <code class="docutils literal notranslate"><span class="pre">dstPos</span></code> and <code class="docutils literal notranslate"><span class="pre">extent</span></code>.</p>
 <p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DAsync" title="cuda.bindings.runtime.cudaMemcpy3DAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DAsync()</span></code></a> returns an error if the pitch of
 <code class="docutils literal notranslate"><span class="pre">srcPtr</span></code> or <code class="docutils literal notranslate"><span class="pre">dstPtr</span></code> exceeds the maximum allowed. The pitch of a
-cudaPitchedPtr allocated with <a class="reference internal" href="#cuda.bindings.runtime.cudaMalloc3D" title="cuda.bindings.runtime.cudaMalloc3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMalloc3D()</span></code></a> will always be
-valid.</p>
+<a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> allocated with <a class="reference internal" href="#cuda.bindings.runtime.cudaMalloc3D" title="cuda.bindings.runtime.cudaMalloc3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMalloc3D()</span></code></a>
+will always be valid.</p>
 <p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DAsync" title="cuda.bindings.runtime.cudaMemcpy3DAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DAsync()</span></code></a> is asynchronous with respect to the
 host, so the call may return before the copy is complete. The copy can
 optionally be associated to a stream by passing a non-zero <code class="docutils literal notranslate"><span class="pre">stream</span></code>
@@ -19011,8 +19014,8 @@ copies and cannot be given local or shared pointers.</p>
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemcpy3DPeerAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cudaMemcpy3DPeerParms</span> <span class="pre">p:</span> <span class="pre">Optional[cudaMemcpy3DPeerParms],</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemcpy3DPeerAsync" title="Link to this definition">#</a></dt>
 <dd><p>Copies memory between devices asynchronously.</p>
 <p>Perform a 3D memory copy according to the parameters specified in
-<code class="docutils literal notranslate"><span class="pre">p</span></code>. See the definition of the cudaMemcpy3DPeerParms structure for
-documentation of its parameters.</p>
+<code class="docutils literal notranslate"><span class="pre">p</span></code>. See the definition of the <a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DPeerParms" title="cuda.bindings.runtime.cudaMemcpy3DPeerParms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DPeerParms</span></code></a>
+structure for documentation of its parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -19156,7 +19159,7 @@ alignment necessary for mapping the CUDA array.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a> <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>memoryRequirements</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaArrayMemoryRequirements" title="cuda.bindings.runtime.cudaArrayMemoryRequirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArrayMemoryRequirements</span></code></a>) – Pointer to cudaArrayMemoryRequirements</p></li>
+<li><p><strong>memoryRequirements</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaArrayMemoryRequirements" title="cuda.bindings.runtime.cudaArrayMemoryRequirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArrayMemoryRequirements</span></code></a>) – Pointer to <a class="reference internal" href="#cuda.bindings.runtime.cudaArrayMemoryRequirements" title="cuda.bindings.runtime.cudaArrayMemoryRequirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArrayMemoryRequirements</span></code></a></p></li>
 </ul>
 </p>
 </dd>
@@ -19189,7 +19192,7 @@ the alignment necessary for mapping the CUDA mipmapped array.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a> <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>memoryRequirements</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaArrayMemoryRequirements" title="cuda.bindings.runtime.cudaArrayMemoryRequirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArrayMemoryRequirements</span></code></a>) – Pointer to cudaArrayMemoryRequirements</p></li>
+<li><p><strong>memoryRequirements</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaArrayMemoryRequirements" title="cuda.bindings.runtime.cudaArrayMemoryRequirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArrayMemoryRequirements</span></code></a>) – Pointer to <a class="reference internal" href="#cuda.bindings.runtime.cudaArrayMemoryRequirements" title="cuda.bindings.runtime.cudaArrayMemoryRequirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArrayMemoryRequirements</span></code></a></p></li>
 </ul>
 </p>
 </dd>
@@ -19227,7 +19230,7 @@ which <code class="docutils literal notranslate"><span class="pre">array</span><
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a> <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>sparseProperties</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaArraySparseProperties" title="cuda.bindings.runtime.cudaArraySparseProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArraySparseProperties</span></code></a>) – Pointer to return the cudaArraySparseProperties</p></li>
+<li><p><strong>sparseProperties</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaArraySparseProperties" title="cuda.bindings.runtime.cudaArraySparseProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArraySparseProperties</span></code></a>) – Pointer to return the <a class="reference internal" href="#cuda.bindings.runtime.cudaArraySparseProperties" title="cuda.bindings.runtime.cudaArraySparseProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArraySparseProperties</span></code></a></p></li>
 </ul>
 </p>
 </dd>
@@ -19265,7 +19268,7 @@ if <a class="reference internal" href="#cuda.bindings.runtime.cudaArraySparsePro
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a> <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>sparseProperties</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaArraySparseProperties" title="cuda.bindings.runtime.cudaArraySparseProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArraySparseProperties</span></code></a>) – Pointer to return cudaArraySparseProperties</p></li>
+<li><p><strong>sparseProperties</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaArraySparseProperties" title="cuda.bindings.runtime.cudaArraySparseProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArraySparseProperties</span></code></a>) – Pointer to return <a class="reference internal" href="#cuda.bindings.runtime.cudaArraySparseProperties" title="cuda.bindings.runtime.cudaArraySparseProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArraySparseProperties</span></code></a></p></li>
 </ul>
 </p>
 </dd>
@@ -19729,8 +19732,8 @@ pointers allocated outside CUDA (ex., via malloc) when it’s known that
 no prior operations in the stream can be accessing the memory.
 Specifying this flag allows the driver to optimize the copy on certain
 platforms. Each memcpy operation in the batch must have a valid
-cudaMemcpyAttributes corresponding to it including the appropriate
-srcAccessOrder setting, otherwise the API will return
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpyAttributes" title="cuda.bindings.runtime.cudaMemcpyAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code></a> corresponding to it including the
+appropriate srcAccessOrder setting, otherwise the API will return
 <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>.</p>
 <p>The <a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpyAttributes.srcLocHint" title="cuda.bindings.runtime.cudaMemcpyAttributes.srcLocHint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">srcLocHint</span></code></a> and
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpyAttributes.dstLocHint" title="cuda.bindings.runtime.cudaMemcpyAttributes.dstLocHint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dstLocHint</span></code></a> allows applications to
@@ -19881,7 +19884,8 @@ specifies the number of bytes to copy. <code class="docutils literal notranslate
 attributes for the copy and <code class="docutils literal notranslate"><span class="pre">hStream</span></code> specifies the stream to enqueue
 the operation in.</p>
 <p>For more information regarding the attributes, please refer to
-cudaMemcpyAttributes and it’s usage desciption in::cudaMemcpyBatchAsync</p>
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpyAttributes" title="cuda.bindings.runtime.cudaMemcpyAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code></a> and it’s usage desciption
+in::cudaMemcpyBatchAsync</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -19913,7 +19917,7 @@ cudaMemcpyAttributes and it’s usage desciption in::cudaMemcpyBatchAsync</p>
 the flags for the copy and <code class="docutils literal notranslate"><span class="pre">hStream</span></code> specifies the stream to enqueue
 the operation in.</p>
 <p>For more information regarding the operation, please refer to
-cudaMemcpy3DBatchOp and it’s usage desciption
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DBatchOp" title="cuda.bindings.runtime.cudaMemcpy3DBatchOp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DBatchOp</span></code></a> and it’s usage desciption
 in::cudaMemcpy3DBatchAsync</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -21082,9 +21086,9 @@ where the result of each attribute query will be written to.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.make_cudaPitchedPtr">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">make_cudaPitchedPtr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">xsz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">ysz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.make_cudaPitchedPtr" title="Link to this definition">#</a></dt>
-<dd><p>Returns a cudaPitchedPtr based on input parameters.</p>
-<p>Returns a cudaPitchedPtr based on the specified input parameters <code class="docutils literal notranslate"><span class="pre">d</span></code>,
-<code class="docutils literal notranslate"><span class="pre">p</span></code>, <code class="docutils literal notranslate"><span class="pre">xsz</span></code>, and <code class="docutils literal notranslate"><span class="pre">ysz</span></code>.</p>
+<dd><p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> based on input parameters.</p>
+<p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> based on the specified input
+parameters <code class="docutils literal notranslate"><span class="pre">d</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code>, <code class="docutils literal notranslate"><span class="pre">xsz</span></code>, and <code class="docutils literal notranslate"><span class="pre">ysz</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -21097,7 +21101,7 @@ where the result of each attribute query will be written to.</p></li>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t.cudaSuccess</em> – cudaError_t.cudaSuccess</p></li>
-<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> – cudaPitchedPtr specified by <code class="docutils literal notranslate"><span class="pre">d</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code>, <code class="docutils literal notranslate"><span class="pre">xsz</span></code>, and <code class="docutils literal notranslate"><span class="pre">ysz</span></code></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> – <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> specified by <code class="docutils literal notranslate"><span class="pre">d</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code>, <code class="docutils literal notranslate"><span class="pre">xsz</span></code>, and <code class="docutils literal notranslate"><span class="pre">ysz</span></code></p></li>
 </ul>
 </p>
 </dd>
@@ -21111,9 +21115,9 @@ where the result of each attribute query will be written to.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.make_cudaPos">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">make_cudaPos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.make_cudaPos" title="Link to this definition">#</a></dt>
-<dd><p>Returns a cudaPos based on input parameters.</p>
-<p>Returns a cudaPos based on the specified input parameters <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>,
-and <code class="docutils literal notranslate"><span class="pre">z</span></code>.</p>
+<dd><p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> based on input parameters.</p>
+<p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> based on the specified input parameters
+<code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, and <code class="docutils literal notranslate"><span class="pre">z</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -21125,7 +21129,7 @@ and <code class="docutils literal notranslate"><span class="pre">z</span></code>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t.cudaSuccess</em> – cudaError_t.cudaSuccess</p></li>
-<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> – cudaPos specified by <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, and <code class="docutils literal notranslate"><span class="pre">z</span></code></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> – <a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> specified by <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, and <code class="docutils literal notranslate"><span class="pre">z</span></code></p></li>
 </ul>
 </p>
 </dd>
@@ -21139,9 +21143,9 @@ and <code class="docutils literal notranslate"><span class="pre">z</span></code>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.make_cudaExtent">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">make_cudaExtent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.make_cudaExtent" title="Link to this definition">#</a></dt>
-<dd><p>Returns a cudaExtent based on input parameters.</p>
-<p>Returns a cudaExtent based on the specified input parameters <code class="docutils literal notranslate"><span class="pre">w</span></code>,
-<code class="docutils literal notranslate"><span class="pre">h</span></code>, and <code class="docutils literal notranslate"><span class="pre">d</span></code>.</p>
+<dd><p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> based on input parameters.</p>
+<p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> based on the specified input
+parameters <code class="docutils literal notranslate"><span class="pre">w</span></code>, <code class="docutils literal notranslate"><span class="pre">h</span></code>, and <code class="docutils literal notranslate"><span class="pre">d</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -21154,7 +21158,7 @@ referring to linear memory</p></li>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t.cudaSuccess</em> – cudaError_t.cudaSuccess</p></li>
-<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> – cudaExtent specified by <code class="docutils literal notranslate"><span class="pre">w</span></code>, <code class="docutils literal notranslate"><span class="pre">h</span></code>, and <code class="docutils literal notranslate"><span class="pre">d</span></code></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> – <a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> specified by <code class="docutils literal notranslate"><span class="pre">w</span></code>, <code class="docutils literal notranslate"><span class="pre">h</span></code>, and <code class="docutils literal notranslate"><span class="pre">d</span></code></p></li>
 </ul>
 </p>
 </dd>
@@ -21516,7 +21520,7 @@ For example: To create channel0 with the major number from
 /proc/devices users can execute the following command: <code class="docutils literal notranslate"><span class="pre">mknod</span>
 <span class="pre">/dev/nvidia-caps-imex-channels/channel0</span> <span class="pre">c</span> <span class="pre">&lt;major</span> <span class="pre">number&gt;</span> <span class="pre">0</span></code></p>
 <p>To create a managed memory pool, applications must set
-cudaMemPoolProps:cudaMemAllocationType to
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemPoolProps" title="cuda.bindings.runtime.cudaMemPoolProps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPoolProps</span></code></a>:cudaMemAllocationType to
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code></a>.
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationHandleType</span></code> must also be
 set to <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationHandleType.cudaMemHandleTypeNone" title="cuda.bindings.runtime.cudaMemAllocationHandleType.cudaMemHandleTypeNone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemHandleTypeNone</span></code></a> since IPC is not supported.
@@ -21916,7 +21920,7 @@ importing process before the free operation on the exporting process.</p>
 pointer was not allocated in, mapped by or registered with context
 supporting unified addressing <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a> is
 returned.</p>
-<p>The cudaPointerAttributes structure is defined as:</p>
+<p>The <a class="reference internal" href="#cuda.bindings.runtime.cudaPointerAttributes" title="cuda.bindings.runtime.cudaPointerAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPointerAttributes</span></code></a> structure is defined as:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>In this structure, the individual fields mean</p>
 <ul class="simple">
@@ -23095,7 +23099,7 @@ not mapped then <a class="reference internal" href="#cuda.bindings.runtime.cudaE
 <dd><p>Returns a channel descriptor using the specified format.</p>
 <p>Returns a channel descriptor with format <code class="docutils literal notranslate"><span class="pre">f</span></code> and number of bits of
 each component <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">z</span></code>, and <code class="docutils literal notranslate"><span class="pre">w</span></code>. The
-cudaChannelFormatDesc is defined as:</p>
+<a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatDesc" title="cuda.bindings.runtime.cudaChannelFormatDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatDesc</span></code></a> is defined as:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where <a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatKind" title="cuda.bindings.runtime.cudaChannelFormatKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatKind</span></code></a> is one of
 <a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindSigned" title="cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindSigned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatKindSigned</span></code></a>,
@@ -23140,7 +23144,7 @@ compressed format.</p>
 <p>Texture objects are only supported on devices of compute capability 3.0
 or higher. Additionally, a texture object is an opaque value, and, as
 such, should only be accessed through CUDA API calls.</p>
-<p>The cudaResourceDesc structure is defined as:</p>
+<p>The <a class="reference internal" href="#cuda.bindings.runtime.cudaResourceDesc" title="cuda.bindings.runtime.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a> structure is defined as:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where:</p>
 <ul class="simple">
@@ -23185,7 +23189,7 @@ height of the array in elements, and cannot exceed
 pitch between two rows in bytes and has to be aligned to
 <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.texturePitchAlignment" title="cuda.bindings.runtime.cudaDeviceProp.texturePitchAlignment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">texturePitchAlignment</span></code></a>. Pitch cannot exceed
 <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.maxTexture2DLinear" title="cuda.bindings.runtime.cudaDeviceProp.maxTexture2DLinear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxTexture2DLinear</span></code></a> <code class="docutils literal notranslate"><span class="pre">[2]</span></code>.</p>
-<p>The cudaTextureDesc struct is defined as</p>
+<p>The <a class="reference internal" href="#cuda.bindings.runtime.cudaTextureDesc" title="cuda.bindings.runtime.cudaTextureDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureDesc</span></code></a> struct is defined as</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where</p>
 <ul class="simple">
@@ -23255,7 +23259,7 @@ If the <a class="reference internal" href="#cuda.bindings.runtime.cudaTextureDes
 <a class="reference internal" href="#cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear" title="cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFilterModeLinear</span></code></a> seamless cube map filtering will be
 performed when sampling along the cube face borders.</p></li>
 </ul>
-<p>The cudaResourceViewDesc struct is defined as</p>
+<p>The <a class="reference internal" href="#cuda.bindings.runtime.cudaResourceViewDesc" title="cuda.bindings.runtime.cudaResourceViewDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceViewDesc</span></code></a> struct is defined as</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where:</p>
 <ul class="simple">
@@ -23759,7 +23763,7 @@ arguments specified in <code class="docutils literal notranslate"><span class="p
 <code class="docutils literal notranslate"><span class="pre">numDependencies</span></code> to be 0, in which case the node will be placed at
 the root of the graph. <code class="docutils literal notranslate"><span class="pre">pDependencies</span></code> may not have any duplicate
 entries. A handle to the new node will be returned in <code class="docutils literal notranslate"><span class="pre">pGraphNode</span></code>.</p>
-<p>The cudaKernelNodeParams structure is defined as:</p>
+<p>The <a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeParams" title="cuda.bindings.runtime.cudaKernelNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeParams</span></code></a> structure is defined as:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>When the graph is launched, the node will invoke kernel <code class="docutils literal notranslate"><span class="pre">func</span></code> on a
 (<code class="docutils literal notranslate"><span class="pre">gridDim.x</span></code> x <code class="docutils literal notranslate"><span class="pre">gridDim.y</span></code> x <code class="docutils literal notranslate"><span class="pre">gridDim.z</span></code>) grid of blocks. Each
