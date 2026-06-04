@@ -9,6 +9,7 @@ from collections.abc import Iterable
 from cuda.core._device import Device
 from cuda.core._event import Event
 from cuda.core._launch_config import LaunchConfig
+from cuda.core._memory._buffer import Buffer
 from cuda.core._module import Kernel
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
@@ -178,13 +179,16 @@ class GraphNode:
             A new FreeNode representing the free operation.
         """
 
-    def memset(self, dst: int, value, width: int, height: int=1, pitch: int=0) -> MemsetNode:
+    def memset(self, dst: Buffer | int, value, width: int, *, height: int=1, pitch: int=0, dst_owner=None) -> MemsetNode:
         """Add a memset node depending on this node.
 
         Parameters
         ----------
-        dst : int
-            Destination device pointer.
+        dst : Buffer or int
+            Destination. When ``dst`` is a :class:`Buffer`, the underlying
+            allocation is retained for the graph's lifetime. A raw pointer
+            (``int``) is used as-is; the caller must keep the underlying memory
+            alive, or supply ``dst_owner`` to have the graph retain it.
         value : int or buffer-protocol object
             Fill value. int for 1-byte fill (range [0, 256)),
             or buffer-protocol object of 1, 2, or 4 bytes.
@@ -194,14 +198,23 @@ class GraphNode:
             Number of rows (default 1).
         pitch : int, optional
             Pitch of destination in bytes (default 0, unused if height is 1).
+        dst_owner : object, optional
+            Object retained for the graph's lifetime when ``dst`` is a raw
+            pointer. A :class:`Buffer` owner retains its underlying allocation,
+            not the wrapper. Must not be passed when ``dst`` is a :class:`Buffer`.
 
         Returns
         -------
         MemsetNode
             A new MemsetNode representing the memset operation.
+
+        Raises
+        ------
+        ValueError
+            If ``dst_owner`` is given together with a :class:`Buffer` ``dst``.
         """
 
-    def memcpy(self, dst: int, src: int, size: int) -> MemcpyNode:
+    def memcpy(self, dst: Buffer | int, src: Buffer | int, size: int, *, dst_owner=None, src_owner=None) -> MemcpyNode:
         """Add a memcpy node depending on this node.
 
         Copies ``size`` bytes from ``src`` to ``dst``. Memory types are
@@ -210,17 +223,35 @@ class GraphNode:
 
         Parameters
         ----------
-        dst : int
-            Destination pointer (device or pinned host).
-        src : int
-            Source pointer (device or pinned host).
+        dst : Buffer or int
+            Destination (device or pinned host). When a :class:`Buffer` is given,
+            the underlying allocation is retained for the graph's lifetime. A raw
+            pointer (``int``) is used as-is; the caller must keep the underlying
+            memory alive, or supply ``dst_owner`` to have the graph retain it.
+        src : Buffer or int
+            Source (device or pinned host). Same retention rules as ``dst``;
+            use ``src_owner`` for a raw pointer.
         size : int
             Number of bytes to copy.
+        dst_owner : object, optional
+            Object retained for the graph's lifetime when ``dst`` is a raw
+            pointer. A :class:`Buffer` owner retains its underlying allocation.
+            Must not be passed when ``dst`` is a :class:`Buffer`.
+        src_owner : object, optional
+            Object retained for the graph's lifetime when ``src`` is a raw
+            pointer. A :class:`Buffer` owner retains its underlying allocation.
+            Must not be passed when ``src`` is a :class:`Buffer`.
 
         Returns
         -------
         MemcpyNode
             A new MemcpyNode representing the copy operation.
+
+        Raises
+        ------
+        ValueError
+            If ``dst_owner`` or ``src_owner`` is given together with a
+            :class:`Buffer` ``dst`` or ``src`` respectively.
         """
 
     def embed(self, child: GraphDefinition) -> ChildGraphNode:
