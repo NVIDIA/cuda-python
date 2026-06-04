@@ -174,10 +174,6 @@ jobs:
           # no-op for stable Python versions because CIBW_BUILD still filters
           # the target version.
           CIBW_ENABLE: cpython-prerelease
-          # v4.0 made delvewheel the default Windows repair command. We rely
-          # on cuda.pathfinder for runtime DLL discovery, so preserve the
-          # previous behaviour (no automatic DLL bundling) for now.
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
@@ -246,10 +242,6 @@ jobs:
           # no-op for stable Python versions because CIBW_BUILD still filters
           # the target version.
           CIBW_ENABLE: cpython-prerelease
-          # v4.0 made delvewheel the default Windows repair command. We rely
-          # on cuda.pathfinder for runtime DLL discovery, so preserve the
-          # previous behaviour (no automatic DLL bundling) for now.
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
@@ -502,10 +494,6 @@ jobs:
           # no-op for stable Python versions because CIBW_BUILD still filters
           # the target version.
           CIBW_ENABLE: cpython-prerelease
-          # v4.0 made delvewheel the default Windows repair command. We rely
-          # on cuda.pathfinder for runtime DLL discovery, so preserve the
-          # previous behaviour (no automatic DLL bundling) for now.
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
