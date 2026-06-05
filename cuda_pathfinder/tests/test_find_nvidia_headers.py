@@ -16,6 +16,7 @@ import glob
 import importlib.metadata
 import os
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -112,7 +113,18 @@ def _fake_cudart_canary_abs_path(ctk_root: Path) -> str:
     return str(ctk_root / "lib64" / "libcudart.so.13")
 
 
-@pytest.mark.parametrize("libname", SUPPORTED_HEADERS_NON_CTK.keys())
+# TODO: remove the Python 3.15 guard once 3.15 is officially supported
+_CUTLASS_SKIP = pytest.mark.skipif(
+    sys.version_info >= (3, 15),
+    reason="nvidia-cutlass not available on Python 3.15 (scipy missing)",
+)
+_NON_CTK_HEADER_PARAMS = [
+    pytest.param(name, marks=_CUTLASS_SKIP) if name in ("cutlass", "cute") else name
+    for name in SUPPORTED_HEADERS_NON_CTK.keys()
+]
+
+
+@pytest.mark.parametrize("libname", _NON_CTK_HEADER_PARAMS)
 def test_locate_non_ctk_headers(info_summary_append, libname):
     hdr_dir = find_nvidia_header_directory(libname)
     located_hdr_dir = locate_nvidia_header_directory(libname)
