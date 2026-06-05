@@ -120,7 +120,7 @@ _CUTLASS_SKIP = pytest.mark.skipif(
 )
 _NON_CTK_HEADER_PARAMS = [
     pytest.param(name, marks=_CUTLASS_SKIP) if name in ("cutlass", "cute") else name
-    for name in SUPPORTED_HEADERS_NON_CTK.keys()
+    for name in SUPPORTED_HEADERS_NON_CTK
 ]
 
 
