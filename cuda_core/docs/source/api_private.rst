@@ -43,6 +43,7 @@ CUDA runtime
    _device_resources.DeviceResources
    _memory._ipc.IPCAllocationHandle
    _memory._ipc.IPCBufferDescriptor
+   _memory._managed_buffer.AccessedBySetProxy
 
 
 CUDA graphs

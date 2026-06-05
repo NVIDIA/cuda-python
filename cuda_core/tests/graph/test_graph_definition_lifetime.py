@@ -12,6 +12,8 @@ import pytest
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
+from conftest import xfail_on_graph_mempool_oom
+
 
 def _wait_until(predicate, timeout=2.0, interval=0.01):
     """Poll predicate() until True or timeout, driving gc each iteration.
@@ -193,7 +195,8 @@ def test_event_record_node_keeps_event_alive(init_cuda):
     _skip_if_no_mempool()
     dev = Device()
     g = GraphDefinition()
-    alloc = g.allocate(1024)
+    with xfail_on_graph_mempool_oom(dev):
+        alloc = g.allocate(1024)
 
     event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.record(event)
@@ -210,7 +213,8 @@ def test_event_wait_node_keeps_event_alive(init_cuda):
     _skip_if_no_mempool()
     dev = Device()
     g = GraphDefinition()
-    alloc = g.allocate(1024)
+    with xfail_on_graph_mempool_oom(dev):
+        alloc = g.allocate(1024)
 
     event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.wait(event)

@@ -5,13 +5,14 @@ import multiprocessing as mp
 
 import pytest
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
 from cuda.core import Device, EventOptions
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 
@@ -67,6 +68,8 @@ class TestEventIpc:
         log("releasing stream1")
         latch.release()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
         log("done")
 
@@ -162,6 +165,8 @@ class TestIpcEventProperties:
         assert props[5] is None
 
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
     def child_main(self, q_in, q_out):

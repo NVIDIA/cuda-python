@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2012-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2012-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # Configuration file for the Sphinx documentation builder.
@@ -9,7 +9,6 @@
 
 # -- Path setup --------------------------------------------------------------
 
-import inspect
 import os
 import sys
 from pathlib import Path
@@ -44,6 +43,7 @@ GITHUB_EXAMPLES_REF = _github_examples_ref()
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.extlinks",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "myst_nb",
@@ -109,9 +109,16 @@ html_static_path = []  # ["_static"] does not exist in our environment
 # skip cmdline prompts
 copybutton_exclude = ".linenos, .gp"
 
-rst_epilog = f"""
-.. |cuda_bindings_github_ref| replace:: {GITHUB_EXAMPLES_REF}
-"""
+extlinks = {
+    "cuda-bindings-example": (
+        f"https://github.com/NVIDIA/cuda-python/blob/{GITHUB_EXAMPLES_REF}/cuda_bindings/examples/%s",
+        "%s",
+    ),
+    "cuda-bindings-examples": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/cuda_bindings/examples%s",
+        "%s",
+    ),
+}
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
@@ -120,29 +127,6 @@ intersphinx_mapping = {
     "nvjitlink": ("https://docs.nvidia.com/cuda/nvjitlink/", None),
     "cufile": ("https://docs.nvidia.com/gpudirect-storage/api-reference-guide/", None),
 }
-
-
-def _sanitize_generated_docstring(lines):
-    doc_lines = inspect.cleandoc("\n".join(lines)).splitlines()
-    if not doc_lines:
-        return
-
-    if "(" in doc_lines[0] and ")" in doc_lines[0]:
-        doc_lines = doc_lines[1:]
-        while doc_lines and not doc_lines[0].strip():
-            doc_lines.pop(0)
-
-    if not doc_lines:
-        lines[:] = []
-        return
-
-    lines[:] = [".. code-block:: text", ""]
-    lines.extend(f"   {line}" if line else "   " for line in doc_lines)
-
-
-def autodoc_process_docstring(app, what, name, obj, options, lines):
-    if name.startswith("cuda.bindings."):
-        _sanitize_generated_docstring(lines)
 
 
 def rewrite_source(app, docname, source):
@@ -161,5 +145,4 @@ suppress_warnings = [
 
 
 def setup(app):
-    app.connect("autodoc-process-docstring", autodoc_process_docstring)
     app.connect("source-read", rewrite_source)

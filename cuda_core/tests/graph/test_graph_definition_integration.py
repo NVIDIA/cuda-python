@@ -8,6 +8,7 @@ import ctypes
 import numpy as np
 import pytest
 
+from conftest import xfail_on_graph_mempool_oom
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import driver, handle_return
 from cuda.core.graph import GraphDefinition
@@ -204,7 +205,8 @@ def test_heat_diffusion(init_cuda):
     host_ptr = handle_return(driver.cuMemAllocHost(_HEAT_N * SIZEOF_FLOAT))
 
     try:
-        _run_heat_graph(dev, k_heat, k_countdown, host_ptr)
+        with xfail_on_graph_mempool_oom(dev):
+            _run_heat_graph(dev, k_heat, k_countdown, host_ptr)
     finally:
         handle_return(driver.cuMemFreeHost(host_ptr))
 
@@ -314,7 +316,8 @@ def test_bisection_root(init_cuda):
     host_ptr = handle_return(driver.cuMemAllocHost(SIZEOF_FLOAT))
 
     try:
-        _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_ptr)
+        with xfail_on_graph_mempool_oom(dev):
+            _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_ptr)
     finally:
         handle_return(driver.cuMemFreeHost(host_ptr))
 
@@ -416,7 +419,8 @@ def test_switch_dispatch(init_cuda, mode, expected):
     host_ptr = handle_return(driver.cuMemAllocHost(SIZEOF_INT))
 
     try:
-        _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr)
+        with xfail_on_graph_mempool_oom(dev):
+            _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr)
 
         result = ctypes.c_int.from_address(host_ptr).value
         assert result == expected

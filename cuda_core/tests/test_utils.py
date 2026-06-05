@@ -1036,3 +1036,61 @@ def test_torch_tensor_bridge_dtypes(init_cuda, dtype):
     smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
     assert smv.dtype.itemsize == a.element_size()
     assert smv.ptr == a.data_ptr()
+
+
+def test_check_has_dlpack_plain_object_raises():
+    """StridedMemoryView.from_any_interface rejects objects with neither DLPack nor CAI."""
+
+    class _NoProto:
+        pass
+
+    with pytest.raises(BufferError, match="does not support any data exchange protocol"):
+        StridedMemoryView.from_any_interface(_NoProto(), stream_ptr=-1)
+
+
+def test_dlpack_export_non_native_endian_rejected():
+    """Non-native-endian dtypes are rejected for DLPack export."""
+    # Build a native int32 view first, then re-view with a byte-swapped dtype
+    # so the export-time check fires (input validation only sees the native dtype).
+    swapped = np.dtype(np.int32).newbyteorder("S")
+    src = np.zeros(3, dtype=np.int32)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    bad_view = view.view(dtype=swapped)
+    with pytest.raises(BufferError, match="Non-native-endian"):
+        bad_view.__dlpack__()
+
+
+@pytest.mark.parametrize(
+    "dtype",
+    [
+        np.uint8,
+        np.uint16,
+        np.uint32,
+        np.uint64,
+        np.int8,
+        np.int16,
+        np.int32,
+        np.int64,
+        np.float16,
+        np.float32,
+        np.float64,
+        np.complex64,
+        np.complex128,
+        np.bool_,
+    ],
+)
+def test_strided_memory_view_dtype_roundtrip_all(dtype):
+    """Exercise dtype_dlpack_to_numpy for every NumPy-native DLPack dtype.
+
+    bfloat16 (kDLBfloat) is excluded -- NumPy's __dlpack__ doesn't reliably
+    export ml_dtypes-extended dtypes; cover separately via jax/torch if needed.
+    """
+    src = np.zeros(3, dtype=dtype)
+    # Probe NumPy first: if it can't export this dtype, skip as env limit.
+    # Any failure AFTER the probe is OUR consumer regression and must fail.
+    try:
+        src.__dlpack__()
+    except (BufferError, TypeError) as e:
+        pytest.skip(f"NumPy does not export {np.dtype(dtype)} via DLPack: {e}")
+    view = StridedMemoryView.from_dlpack(src, stream_ptr=-1)
+    assert view.dtype == np.dtype(dtype)  # .dtype triggers dtype_dlpack_to_numpy

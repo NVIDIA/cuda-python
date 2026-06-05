@@ -11,6 +11,7 @@ from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, Mem
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     deviceptr_alloc_async,
+    get_last_error,
     as_cu,
 )
 
@@ -194,7 +195,13 @@ cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream 
         check_capturing(s)
         h_ptr = deviceptr_alloc_async(size, stream._h_stream)
     if not h_ptr:
-        raise RuntimeError("Failed to allocate memory asynchronously")
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError(
+            f"Failed to allocate {size} bytes from GraphMemoryResource: "
+            "cuda-core returned an empty allocation handle without recording a CUDA error. "
+            "This is an internal cuda-core error; please report it with your CUDA driver, "
+            "CUDA Toolkit, and cuda-python versions."
+        )
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 
