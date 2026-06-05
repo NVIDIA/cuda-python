@@ -830,6 +830,49 @@ def test_extra_sources_empty_source():
         ProgramOptions(name="test", arch="sm_80", extra_sources=[("mod", b"")])
 
 
+@pytest.mark.parametrize(
+    ("extra_sources", "expected"),
+    [
+        (None, None),
+        ([("mod_s", "kernel-as-string")], [(b"mod_s", b"kernel-as-string")]),
+        (
+            [("mod_ba", bytearray(b"\x00\x01module-as-bytearray"))],
+            [(b"mod_ba", b"\x00\x01module-as-bytearray")],
+        ),
+        ([("mod_b", b"\x00\x01module-as-bytes")], [(b"mod_b", b"\x00\x01module-as-bytes")]),
+    ],
+    ids=["none", "str", "bytearray", "bytes"],
+)
+def test_prepare_extra_sources_bytes(extra_sources, expected):
+    """_prepare_extra_sources_bytes converts each input type to (bytes, bytes) tuples (None passthrough)."""
+    # arch is set to skip __post_init__'s Device() lookup, keeping this a pure unit test.
+    opts = ProgramOptions(name="t", arch="sm_80", extra_sources=extra_sources)
+    result = opts._prepare_extra_sources_bytes()
+    assert result == expected
+    # bytearray == bytes by content, so == alone misses type regressions.
+    if result is not None:
+        for name, source in result:
+            assert isinstance(name, bytes), f"name should be bytes, got {type(name).__name__}"
+            assert isinstance(source, bytes), f"source should be bytes, got {type(source).__name__}"
+
+
+def test_find_libdevice_path_delegates_to_pathfinder(monkeypatch):
+    """_find_libdevice_path calls cuda.pathfinder.find_bitcode_lib('device') and returns its result."""
+    import cuda.pathfinder
+    from cuda.core import _program
+
+    captured = []
+    sentinel = "/fake/path/libdevice.10.bc"
+
+    def fake_find(name):
+        captured.append(name)
+        return sentinel
+
+    monkeypatch.setattr(cuda.pathfinder, "find_bitcode_lib", fake_find)
+    assert _program._find_libdevice_path() == sentinel
+    assert captured == ["device"]
+
+
 def test_nvrtc_compile_with_logs_capture(init_cuda):
     """Program.compile with logs= exercises the NVRTC program-log reading path."""
     import io
