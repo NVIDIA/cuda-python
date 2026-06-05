@@ -58,7 +58,13 @@ cu12 = ["cuda-bindings[all]==12.*", "cuda-toolkit==12.*"]
 cu13 = ["cuda-bindings[all]==13.*", "cuda-toolkit==13.*"]
 
 [dependency-groups]
-test = ["cython>=3.2,<3.3", "setuptools", "pytest>=6.2.4", "pytest-benchmark", "pytest-randomly", "pytest-repeat", "pytest-rerunfailures", "pytest-timeout", "cloudpickle", "psutil", "cffi; python_version < '3.15'"]
+test = [
+    "cython>=3.2,<3.3", "setuptools", "pytest>=6.2.4", "pytest-benchmark",
+    "pytest-randomly", "pytest-repeat", "pytest-rerunfailures", "pytest-timeout",
+    "cloudpickle", "psutil",
+    # TODO: remove the Python 3.15 guard once 3.15 is officially supported
+    "cffi; python_version < '3.15'",
+]
 ml-dtypes = ["ml-dtypes>=0.5.4,<0.6.0"]
 test-cu12 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda12x; python_version < '3.14'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
 test-cu13 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda13x; python_version < '3.14'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy

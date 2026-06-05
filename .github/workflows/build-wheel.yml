@@ -170,6 +170,7 @@ jobs:
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # TODO: remove cpython-prerelease once 3.15 is officially supported
           # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
           # no-op for stable Python versions because CIBW_BUILD still filters
           # the target version.
@@ -238,6 +239,7 @@ jobs:
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # TODO: remove cpython-prerelease once 3.15 is officially supported
           # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
           # no-op for stable Python versions because CIBW_BUILD still filters
           # the target version.
@@ -337,6 +339,7 @@ jobs:
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
+          # TODO: remove allow-prereleases once 3.15 is officially supported
           allow-prereleases: ${{ startsWith(matrix.python-version, '3.15') }}
 
       - name: verify free-threaded build
@@ -364,6 +367,8 @@ jobs:
             mv "/c/Program Files/Git/usr/bin/link.exe" "/c/Program Files/Git/usr/bin/link.exe.bak"
           fi
 
+      # TODO: remove the numpy pre-build steps once 3.15 is officially supported
+      # (numpy will publish pre-built 3.15 wheels at that point)
       - name: Download and patch numpy sdist (pre-release Python)
         if: ${{ startsWith(matrix.python-version, '3.15') }}
         run: |
@@ -491,6 +496,7 @@ jobs:
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # TODO: remove cpython-prerelease once 3.15 is officially supported
           # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
           # no-op for stable Python versions because CIBW_BUILD still filters
           # the target version.
