@@ -46,7 +46,7 @@ cu13 = [
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",
 ]
 host = [
-    "nvidia-cutlass",
+    "nvidia-cutlass; python_version < '3.15'",
     "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 
