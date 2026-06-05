@@ -996,7 +996,7 @@ cdef bint check_has_dlpack(obj) except*:
     elif hasattr(obj, "__cuda_array_interface__"):
         has_dlpack = False
     else:
-        raise RuntimeError(
+        raise BufferError(
             "the input object does not support any data exchange protocol")
     return has_dlpack
 

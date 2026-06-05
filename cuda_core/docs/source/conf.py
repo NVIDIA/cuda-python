@@ -46,6 +46,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.extlinks",
     "myst_nb",
     "sphinx_copybutton",
     "sphinx_toolbox.more_autodoc.autoprotocol",
@@ -107,9 +108,16 @@ html_static_path = []  # ["_static"] does not exist in our environment
 # skip cmdline prompts
 copybutton_exclude = ".linenos, .gp"
 
-rst_epilog = f"""
-.. |cuda_core_github_ref| replace:: {GITHUB_EXAMPLES_REF}
-"""
+extlinks = {
+    "cuda-core-example": (
+        f"https://github.com/NVIDIA/cuda-python/blob/{GITHUB_EXAMPLES_REF}/cuda_core/examples/%s",
+        "%s",
+    ),
+    "cuda-core-examples": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/cuda_core/examples%s",
+        "%s",
+    ),
+}
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
