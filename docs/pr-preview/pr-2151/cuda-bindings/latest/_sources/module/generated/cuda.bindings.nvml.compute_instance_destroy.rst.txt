@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.compute\_instance\_destroy
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: compute_instance_destroy
