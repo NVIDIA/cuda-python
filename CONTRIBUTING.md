@@ -9,7 +9,8 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     them for a release. If you believe the issue needs priority attention
     comment on the issue to notify the team.
 2. You want to implement a feature, improvement, or bug fix:
-    - Please refer to each component's guideline:
+   - Before starting work on an existing issue, please comment on the issue to express your interest and wait to be assigned by a maintainer. This helps avoid redundant effort in case the issue is already being worked on by another contributor or an NVIDIA team member.
+   - Please refer to each component's guideline:
        - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
        - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
        - [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
