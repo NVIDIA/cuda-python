@@ -89,19 +89,7 @@ in_container() {
 host_install() {
   apt-get -y install build-essential dkms "linux-headers-$(uname -r)" psmisc kmod
 
-  # Take down nvidia-persistenced *without* systemctl. The packaged
-  # systemd unit declares `RuntimeDirectory=nvidia-persistenced`, which
-  # makes systemd unlink /run/nvidia-persistenced/ on stop. The
-  # container has /run/nvidia-persistenced/ bind-mounted from host, and
-  # the bind mount points to the dir's inode at container-start time --
-  # if systemd removes the dir and the new daemon recreates it under a
-  # different inode, the container's bind mount goes stale and its
-  # /run/nvidia-persistenced/socket loses its link to the live daemon
-  # endpoint (the file shows up with link count 0 inside the container).
-  # NVML state-changing calls in the container then return
-  # NVML_ERROR_UNKNOWN. Sending SIGTERM directly keeps the inode alive.
-  pkill -TERM nvidia-persistenced 2>/dev/null || true
-  systemctl stop dcgm-exporter 2>/dev/null || true
+  systemctl stop nvidia-persistenced dcgm-exporter 2>/dev/null || true
   # if-test instead of `fuser ... || true` so a kill failure surfaces
   # (fuser exits 1 when nothing holds the device, which is the happy path).
   if fuser /dev/nvidia* >/dev/null 2>&1; then
@@ -127,35 +115,25 @@ host_install() {
          --accept-license --ui=none --no-cc-version-check --kernel-module-type="$KMT" )
   modprobe nvidia nvidia_uvm nvidia_modeset
 
-  # Bring nvidia-persistenced back up. We stopped it above, and the
-  # `--silent --no-questions` .run installer drops `/usr/bin/nvidia-
-  # persistenced` but does not reliably reinstall a usable systemd
-  # unit -- so a previous attempt at `systemctl start nvidia-
-  # persistenced.service` was a no-op. Exec the daemon directly; it
-  # self-daemonizes and creates `/run/nvidia-persistenced/socket`,
-  # which NVML clients in the test container need for state-changing
-  # calls like `nvmlDeviceSetPersistenceMode` -- without it those
-  # calls return NVML_ERROR_UNKNOWN.
+  # Bring nvidia-persistenced back up. NVML state-changing calls from
+  # inside the test container (e.g. nvmlDeviceSetPersistenceMode, which
+  # cuda.core's test_persistence_mode_enabled exercises) talk to the
+  # daemon via /run/nvidia-persistenced/socket; without a live daemon
+  # they return NVML_ERROR_UNKNOWN.
   #
-  # `--user root`: the daemon's default user is `nvidia-persistenced`,
-  # which our apt purge of `nvidia-compute-utils-*` deleted. Without
-  # this flag the daemon's setuid(3) call fails post-fork and the
-  # process exits silently (which leaves Persistence-M flipping back
-  # to Off the moment we exit the start window).
+  # systemctl can't start the unit (the `--silent --no-questions` .run
+  # installer drops /usr/bin/nvidia-persistenced but no usable systemd
+  # unit), so exec the binary directly -- it self-daemonizes.
   #
-  # Same latent gap exists in nv-gha-runners/vm-images' `nvgha-driver`;
-  # their CUDA-runtime validation workload doesn't issue an NVML SET
-  # write so they haven't surfaced it yet.
-  set -x
-  /usr/bin/nvidia-persistenced --verbose --user root 2>&1 || true
-  sleep 1
-  # Diagnostics: confirm the daemon is alive + socket present.
-  pgrep -laf nvidia-persistenced || echo "WARN: nvidia-persistenced not running"
-  ls -la /run/nvidia-persistenced/ 2>&1 || echo "WARN: /run/nvidia-persistenced missing"
-  # Set persistence mode explicitly so we match the runner image's
-  # `Persistence-M: On` baseline regardless of how the daemon came up.
-  nvidia-smi -pm 1 || true
-  set +x
+  # `--user root` because the default `nvidia-persistenced` user was
+  # deleted along with `nvidia-compute-utils-*` in the purge above;
+  # without this flag the daemon's post-fork setuid() fails silently
+  # and the process exits.
+  #
+  # nv-gha-runners/vm-images' `nvgha-driver` has the same latent gap;
+  # its CUDA-runtime validation workload never issues an NVML SET
+  # write so it hasn't surfaced there.
+  /usr/bin/nvidia-persistenced --verbose --user root || true
 }
 
 # Replace the toolkit's bind-mounted nvidia libs/binaries inside this
@@ -200,21 +178,13 @@ refresh_container_libs() {
       [ -n "$src" ] || { echo "skip $tgt: no host source" >&2; continue; }
     fi
     umount "$tgt" 2>/dev/null || true
-    # --preserve=mode keeps the SUID bit. /usr/bin/nvidia-modprobe ships
-    # 4755 and NVML's state-changing calls (e.g.
-    # nvmlDeviceSetPersistenceMode) go through it; a plain `cp` strips
-    # SUID and the call then fails with NVML_ERROR_UNKNOWN. The runner
-    # team's nvgha-driver has the same bug; we differ here.
+    # --preserve=mode keeps the SUID bit so the refresh doesn't silently
+    # de-privilege binaries like nvidia-modprobe that ship 4755 (the
+    # runner-team's nvgha-driver uses plain `cp` and has the same gap).
     cp -f --preserve=mode --remove-destination "$src" "$tgt" \
       || echo "WARN: refresh failed for $tgt (src=$src)" >&2
   done
   ldconfig
-
-  # Diagnostic: confirm SUID survived on nvidia-modprobe (the load-bearing
-  # piece). One-liner so the next CI log proves the fix.
-  if [ -e /usr/bin/nvidia-modprobe ]; then
-    stat -c 'refresh: %n mode=%a uid=%u' /usr/bin/nvidia-modprobe >&2
-  fi
 }
 
 if [ -z "${_NVDRV_NSENTERED:-}" ] && in_container; then
@@ -228,22 +198,19 @@ if [ -z "${_NVDRV_NSENTERED:-}" ] && in_container; then
     || { echo "::error::container needs 'options: --privileged --pid=host'" >&2; exit 1; }
   refresh_container_libs
 
-  # Re-bind /run/nvidia-persistenced from host. The container's original
-  # bind mount of this dir was taken at container-start time and points
-  # to the host's then-current inode. Even with `pkill` (instead of
-  # systemctl) the host dir is recreated by the new daemon under a fresh
-  # inode -- leaving the container's bind mount stranded on a deleted
-  # inode (socket file shows up with link count 0). Re-do the bind mount
-  # so in-container NVML clients see the live daemon endpoint. Needs
-  # CAP_SYS_ADMIN, which we get from the --privileged --pid=host the
-  # workflow adds for custom-DRIVER rows.
+  # Re-bind /run/nvidia-persistenced from the host. The container's
+  # original bind mount was pinned to the host's at-container-start
+  # inode; the daemon stop+restart cycle recreates the dir under a
+  # fresh inode, stranding the bind mount on the deleted one (socket
+  # shows up with link count 0 inside the container, NVML SET calls
+  # return NVML_ERROR_UNKNOWN). Re-bind from /proc/1/root so the
+  # container picks up the live host dir. Needs CAP_SYS_ADMIN, which
+  # the workflow grants via --privileged --pid=host on custom-DRIVER
+  # rows.
   if [ -d /proc/1/root/run/nvidia-persistenced ]; then
-    set -x
     umount /run/nvidia-persistenced 2>/dev/null || true
     mkdir -p /run/nvidia-persistenced
     mount --bind /proc/1/root/run/nvidia-persistenced /run/nvidia-persistenced
-    ls -la /run/nvidia-persistenced/ >&2
-    set +x
   fi
 else
   host_install
