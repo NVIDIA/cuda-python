@@ -413,6 +413,78 @@ jobs:
     with:
       is-release: ${{ github.ref_type == 'tag' }}
 
+  # Fast-feedback probe for changes to ci/tools/install_gpu_driver.sh.
+  # Allocates one L4 GPU + container, runs the driver swap to a
+  # hard-coded version, then drives nvmlDeviceSetPersistenceMode via
+  # raw ctypes -- the *exact* NVML call that cuda.core's
+  # test_persistence_mode_enabled exercises. Total runtime is ~5 min
+  # vs. ~30 min for a full test matrix.
+  #
+  # `workflow_dispatch` only -- this is an opt-in debugging job, not
+  # part of regular PR or nightly traffic.
+  probe-driver-swap:
+    name: Probe custom-DRIVER install
+    if: ${{ github.event_name == 'workflow_dispatch' && github.repository_owner == 'nvidia' }}
+    runs-on: "linux-amd64-gpu-l4-latest-1"
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+    container:
+      options: -u root --security-opt seccomp=unconfined --shm-size 16g --privileged --pid=host
+      image: ubuntu:22.04
+      env:
+        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+
+      - name: Install host deps
+        run: |
+          apt-get update -qq
+          apt-get -y install --no-install-recommends util-linux python3
+
+      - name: Install GPU driver
+        env:
+          DRIVER: '610.43.02'
+          GPU_TYPE: 'l4'
+        run: ./ci/tools/install_gpu_driver.sh
+
+      - name: Show post-install host + container state
+        run: |
+          nvidia-smi --query-gpu=name,driver_version,persistence_mode --format=csv
+          echo
+          echo "=== /run/nvidia-persistenced ==="
+          ls -la /run/nvidia-persistenced/ 2>&1 || echo "MISSING"
+          echo
+          echo "=== nvidia-persistenced process ==="
+          pgrep -laf nvidia-persistenced || echo "(none)"
+
+      - name: Drive nvmlDeviceSetPersistenceMode via ctypes
+        run: |
+          python3 <<'PYEOF'
+          import ctypes, sys
+          NVML_SUCCESS, NVML_ERROR_NO_PERMISSION, NVML_ERROR_UNKNOWN = 0, 4, 999
+          nvml = ctypes.CDLL("libnvidia-ml.so.1")
+          assert nvml.nvmlInit_v2() == 0, "nvmlInit_v2 failed"
+          h = ctypes.c_void_p()
+          assert nvml.nvmlDeviceGetHandleByIndex_v2(0, ctypes.byref(h)) == 0
+          m = ctypes.c_uint(99)
+          nvml.nvmlDeviceGetPersistenceMode(h, ctypes.byref(m))
+          print(f"current persistence_mode = {m.value} (1=ENABLED, 0=DISABLED)")
+          ret = nvml.nvmlDeviceSetPersistenceMode(h, 0)
+          print(f"SET DISABLED -> {ret}  # 0=SUCCESS, 4=NO_PERMISSION, 999=UNKNOWN")
+          if ret == NVML_ERROR_UNKNOWN:
+              print("FAIL: NVML_ERROR_UNKNOWN -- daemon-down failure mode reproduced", file=sys.stderr)
+              sys.exit(1)
+          if ret != NVML_SUCCESS:
+              print(f"FAIL: unexpected return code {ret}", file=sys.stderr)
+              sys.exit(1)
+          # restore
+          nvml.nvmlDeviceSetPersistenceMode(h, m.value)
+          print("OK")
+          PYEOF
+
   checks:
     name: Check job status
     if: always()
