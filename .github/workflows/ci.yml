@@ -418,13 +418,11 @@ jobs:
   # hard-coded version, then drives nvmlDeviceSetPersistenceMode via
   # raw ctypes -- the *exact* NVML call that cuda.core's
   # test_persistence_mode_enabled exercises. Total runtime is ~5 min
-  # vs. ~30 min for a full test matrix.
-  #
-  # `workflow_dispatch` only -- this is an opt-in debugging job, not
-  # part of regular PR or nightly traffic.
+  # vs. ~30 min for a full test matrix; runs on every PR push so we
+  # can iterate on `ci/tools/install_gpu_driver.sh` quickly.
   probe-driver-swap:
     name: Probe custom-DRIVER install
-    if: ${{ github.event_name == 'workflow_dispatch' && github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     runs-on: "linux-amd64-gpu-l4-latest-1"
     timeout-minutes: 15
     defaults:
