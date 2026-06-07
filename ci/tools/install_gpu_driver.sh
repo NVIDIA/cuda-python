@@ -89,7 +89,19 @@ in_container() {
 host_install() {
   apt-get -y install build-essential dkms "linux-headers-$(uname -r)" psmisc kmod
 
-  systemctl stop nvidia-persistenced dcgm-exporter 2>/dev/null || true
+  # Take down nvidia-persistenced *without* systemctl. The packaged
+  # systemd unit declares `RuntimeDirectory=nvidia-persistenced`, which
+  # makes systemd unlink /run/nvidia-persistenced/ on stop. The
+  # container has /run/nvidia-persistenced/ bind-mounted from host, and
+  # the bind mount points to the dir's inode at container-start time --
+  # if systemd removes the dir and the new daemon recreates it under a
+  # different inode, the container's bind mount goes stale and its
+  # /run/nvidia-persistenced/socket loses its link to the live daemon
+  # endpoint (the file shows up with link count 0 inside the container).
+  # NVML state-changing calls in the container then return
+  # NVML_ERROR_UNKNOWN. Sending SIGTERM directly keeps the inode alive.
+  pkill -TERM nvidia-persistenced 2>/dev/null || true
+  systemctl stop dcgm-exporter 2>/dev/null || true
   # if-test instead of `fuser ... || true` so a kill failure surfaces
   # (fuser exits 1 when nothing holds the device, which is the happy path).
   if fuser /dev/nvidia* >/dev/null 2>&1; then
