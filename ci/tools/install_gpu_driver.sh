@@ -155,12 +155,21 @@ refresh_container_libs() {
   # the kernel suffixes field 4 with " (deleted)" once the host unlinks
   # the old lib -- don't break discovery. Filters skip what we can't or
   # shouldn't refresh:
-  #   $3 ~ /^0:/                tmpfs/proc/sysfs (e.g. the toolkit hook tmpfs)
-  #   $5 ~ /\.json$/            vulkan/glvnd config remaps (not version-bound)
-  #   $5 ~ /\/(firmware|xorg)\// firmware loads host-side; xorg unused in CUDA containers
+  #   $3 ~ /^0:/                  tmpfs/proc/sysfs (e.g. the toolkit hook tmpfs)
+  #   $5 must be under /usr/(bin|lib)  binaries + libs only -- explicitly
+  #                                NOT /run/nvidia-persistenced/socket
+  #                                (cp'ing the daemon's IPC socket unlinks
+  #                                the container's view and turns later
+  #                                NVML state-changing calls into
+  #                                NVML_ERROR_UNKNOWN); NOT /dev/nvidia*
+  #                                (character devices); NOT /proc/driver/nvidia
+  #                                (procfs); NOT /tmp/nvidia-mps (runtime).
+  #   $5 ~ /\.json$/              vulkan/glvnd config remaps (not version-bound)
+  #   $5 ~ /\/(firmware|xorg)\//  firmware loads host-side; xorg unused in CUDA containers
   local mounts
   mounts=$(awk '
     $3 !~ /^0:/                     &&
+    $5 ~ /^\/usr\/(bin|lib)/        &&
     $5 !~ /\.json$/                 &&
     $5 !~ /\/(firmware|xorg)\//     &&
     $5 ~ /(nvidia|libcuda)/         { print $5 }
