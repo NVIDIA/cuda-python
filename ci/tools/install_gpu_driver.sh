@@ -167,10 +167,21 @@ refresh_container_libs() {
       [ -n "$src" ] || { echo "skip $tgt: no host source" >&2; continue; }
     fi
     umount "$tgt" 2>/dev/null || true
-    cp -f --remove-destination "$src" "$tgt" \
+    # --preserve=mode keeps the SUID bit. /usr/bin/nvidia-modprobe ships
+    # 4755 and NVML's state-changing calls (e.g.
+    # nvmlDeviceSetPersistenceMode) go through it; a plain `cp` strips
+    # SUID and the call then fails with NVML_ERROR_UNKNOWN. The runner
+    # team's nvgha-driver has the same bug; we differ here.
+    cp -f --preserve=mode --remove-destination "$src" "$tgt" \
       || echo "WARN: refresh failed for $tgt (src=$src)" >&2
   done
   ldconfig
+
+  # Diagnostic: confirm SUID survived on nvidia-modprobe (the load-bearing
+  # piece). One-liner so the next CI log proves the fix.
+  if [ -e /usr/bin/nvidia-modprobe ]; then
+    stat -c 'refresh: %n mode=%a uid=%u' /usr/bin/nvidia-modprobe >&2
+  fi
 }
 
 if [ -z "${_NVDRV_NSENTERED:-}" ] && in_container; then
