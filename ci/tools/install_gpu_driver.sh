@@ -114,6 +114,15 @@ host_install() {
     && sh installer.run --silent --dkms --no-questions \
          --accept-license --ui=none --no-cc-version-check --kernel-module-type="$KMT" )
   modprobe nvidia nvidia_uvm nvidia_modeset
+
+  # Restore nvidia-persistenced. We stopped it before the install (and the
+  # purge may have removed it); the .run installer reinstalls the service.
+  # Some NVML calls -- e.g. nvmlDeviceSetPersistenceMode -- can fail with
+  # NVML_ERROR_UNKNOWN on newer drivers when the daemon isn't running, and
+  # cuda.core's test_persistence_mode_enabled trips on that.
+  if systemctl list-unit-files 2>/dev/null | grep -q '^nvidia-persistenced\.service'; then
+    systemctl start nvidia-persistenced || true
+  fi
 }
 
 # Replace the toolkit's bind-mounted nvidia libs/binaries inside this

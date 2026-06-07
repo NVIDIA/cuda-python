@@ -37,8 +37,21 @@ function Set-DriverMode {
         pnputil /disable-device "$($device.InstanceId)"
         pnputil /enable-device "$($device.InstanceId)"
     }
-    # Give it a minute to settle:
-    Start-Sleep -Seconds 5
+
+    # Poll nvidia-smi until NVML can initialize, or give up after ~60s.
+    # A fixed sleep is not enough on slower-coming-back-up multi-GPU rows
+    # (e.g. 2x H100 MCDM) where pnputil enable returns before NVML is
+    # ready. Pattern borrowed from the runner-team `nvgha-driver.ps1`.
+    Write-Output "Waiting for nvidia-smi/NVML to come back up after device cycle..."
+    $deadline = (Get-Date).AddSeconds(60)
+    do {
+        Start-Sleep -Seconds 2
+        & nvidia-smi.exe 2>&1 | Out-Null
+    } while ($LASTEXITCODE -ne 0 -and (Get-Date) -lt $deadline)
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "nvidia-smi did not return cleanly within 60s of the device cycle"
+        exit 1
+    }
 }
 
 # Run the functions
