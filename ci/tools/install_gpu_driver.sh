@@ -115,22 +115,23 @@ host_install() {
          --accept-license --ui=none --no-cc-version-check --kernel-module-type="$KMT" )
   modprobe nvidia nvidia_uvm nvidia_modeset
 
-  # Restore the runner image's baseline state: persistence mode ENABLED
-  # plus nvidia-persistenced running. The runner-team's pre-installed
-  # drivers come up with `Persistence-M: On`, but our .run install leaves
-  # it Off, which breaks tests that toggle the value (cuda.core's
-  # test_persistence_mode_enabled hits NVML_ERROR_UNKNOWN when setting
-  # the mode to its current value on driver 610.43.02).
-  #
-  # `nvidia-smi -pm 1` is the load-bearing call -- it sets the kernel-
-  # level persistence flag directly via NVML (equivalent to what the
-  # daemon would do on startup). The systemctl block is best-effort: the
-  # silent .run installer doesn't always drop the systemd unit, so we
-  # daemon-reload first and tolerate failure on `start`.
+  # Bring nvidia-persistenced back up. We stopped it above, and the
+  # `--silent --no-questions` .run installer drops `/usr/bin/nvidia-
+  # persistenced` but does not reliably reinstall a usable systemd
+  # unit -- so a previous attempt at `systemctl start nvidia-
+  # persistenced.service` was a no-op (see ComputeLab repro on driver
+  # 610.43.02). Exec the daemon directly; it self-daemonizes and
+  # creates `/run/nvidia-persistenced/socket`, which NVML clients in
+  # the test container need for state-changing calls like
+  # `nvmlDeviceSetPersistenceMode` -- without it those calls return
+  # NVML_ERROR_UNKNOWN. nv-gha-runners/vm-images' `nvgha-driver` has
+  # the same gap; their CUDA-runtime validation workload doesn't hit
+  # an NVML SET write so they haven't surfaced it yet.
   set -x
+  /usr/bin/nvidia-persistenced --verbose 2>&1 || true
+  # Set persistence mode explicitly so we match the runner image's
+  # `Persistence-M: On` baseline regardless of how the daemon came up.
   nvidia-smi -pm 1 || true
-  systemctl daemon-reload 2>/dev/null || true
-  systemctl start nvidia-persistenced.service 2>/dev/null || true
   set +x
 }
 
