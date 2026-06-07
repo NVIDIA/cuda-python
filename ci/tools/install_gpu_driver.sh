@@ -227,6 +227,24 @@ if [ -z "${_NVDRV_NSENTERED:-}" ] && in_container; then
   _NVDRV_NSENTERED=1 nsenter -t 1 -m -p -n -i -u -- bash -s < "$0" \
     || { echo "::error::container needs 'options: --privileged --pid=host'" >&2; exit 1; }
   refresh_container_libs
+
+  # Re-bind /run/nvidia-persistenced from host. The container's original
+  # bind mount of this dir was taken at container-start time and points
+  # to the host's then-current inode. Even with `pkill` (instead of
+  # systemctl) the host dir is recreated by the new daemon under a fresh
+  # inode -- leaving the container's bind mount stranded on a deleted
+  # inode (socket file shows up with link count 0). Re-do the bind mount
+  # so in-container NVML clients see the live daemon endpoint. Needs
+  # CAP_SYS_ADMIN, which we get from the --privileged --pid=host the
+  # workflow adds for custom-DRIVER rows.
+  if [ -d /proc/1/root/run/nvidia-persistenced ]; then
+    set -x
+    umount /run/nvidia-persistenced 2>/dev/null || true
+    mkdir -p /run/nvidia-persistenced
+    mount --bind /proc/1/root/run/nvidia-persistenced /run/nvidia-persistenced
+    ls -la /run/nvidia-persistenced/ >&2
+    set +x
+  fi
 else
   host_install
 fi
