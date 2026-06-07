@@ -119,16 +119,27 @@ host_install() {
   # `--silent --no-questions` .run installer drops `/usr/bin/nvidia-
   # persistenced` but does not reliably reinstall a usable systemd
   # unit -- so a previous attempt at `systemctl start nvidia-
-  # persistenced.service` was a no-op (see ComputeLab repro on driver
-  # 610.43.02). Exec the daemon directly; it self-daemonizes and
-  # creates `/run/nvidia-persistenced/socket`, which NVML clients in
-  # the test container need for state-changing calls like
-  # `nvmlDeviceSetPersistenceMode` -- without it those calls return
-  # NVML_ERROR_UNKNOWN. nv-gha-runners/vm-images' `nvgha-driver` has
-  # the same gap; their CUDA-runtime validation workload doesn't hit
-  # an NVML SET write so they haven't surfaced it yet.
+  # persistenced.service` was a no-op. Exec the daemon directly; it
+  # self-daemonizes and creates `/run/nvidia-persistenced/socket`,
+  # which NVML clients in the test container need for state-changing
+  # calls like `nvmlDeviceSetPersistenceMode` -- without it those
+  # calls return NVML_ERROR_UNKNOWN.
+  #
+  # `--user root`: the daemon's default user is `nvidia-persistenced`,
+  # which our apt purge of `nvidia-compute-utils-*` deleted. Without
+  # this flag the daemon's setuid(3) call fails post-fork and the
+  # process exits silently (which leaves Persistence-M flipping back
+  # to Off the moment we exit the start window).
+  #
+  # Same latent gap exists in nv-gha-runners/vm-images' `nvgha-driver`;
+  # their CUDA-runtime validation workload doesn't issue an NVML SET
+  # write so they haven't surfaced it yet.
   set -x
-  /usr/bin/nvidia-persistenced --verbose 2>&1 || true
+  /usr/bin/nvidia-persistenced --verbose --user root 2>&1 || true
+  sleep 1
+  # Diagnostics: confirm the daemon is alive + socket present.
+  pgrep -laf nvidia-persistenced || echo "WARN: nvidia-persistenced not running"
+  ls -la /run/nvidia-persistenced/ 2>&1 || echo "WARN: /run/nvidia-persistenced missing"
   # Set persistence mode explicitly so we match the runner image's
   # `Persistence-M: On` baseline regardless of how the daemon came up.
   nvidia-smi -pm 1 || true
