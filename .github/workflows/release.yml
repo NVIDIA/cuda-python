@@ -43,8 +43,9 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
-          # fetch-depth: 0 is required so the lookup-run-id script can access all git tags
-          fetch-depth: 0
+          # lookup-run-id resolves the git tag to a SHA; we need tags but not history.
+          fetch-depth: 1
+          fetch-tags: true
 
       - name: Determine Run ID
         id: lookup-run-id
@@ -62,7 +63,7 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Check or create draft release for the tag
         env:
