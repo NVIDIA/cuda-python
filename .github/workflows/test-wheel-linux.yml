@@ -121,9 +121,6 @@ jobs:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
         PIP_CACHE_DIR: "/tmp/pip-cache"
     steps:
-      - name: Ensure GPU is working
-        run: nvidia-smi
-
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
@@ -150,6 +147,9 @@ jobs:
           # conditionally above) and refreshes the toolkit bind mounts here.
           apt-get -y install --no-install-recommends util-linux
           ./ci/tools/install_gpu_driver.sh
+
+      - name: Ensure GPU is working
+        run: nvidia-smi
 
       - name: Set environment variables
         env:
