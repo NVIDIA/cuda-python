@@ -115,14 +115,23 @@ host_install() {
          --accept-license --ui=none --no-cc-version-check --kernel-module-type="$KMT" )
   modprobe nvidia nvidia_uvm nvidia_modeset
 
-  # Restore nvidia-persistenced. We stopped it before the install (and the
-  # purge may have removed it); the .run installer reinstalls the service.
-  # Some NVML calls -- e.g. nvmlDeviceSetPersistenceMode -- can fail with
-  # NVML_ERROR_UNKNOWN on newer drivers when the daemon isn't running, and
-  # cuda.core's test_persistence_mode_enabled trips on that.
-  if systemctl list-unit-files 2>/dev/null | grep -q '^nvidia-persistenced\.service'; then
-    systemctl start nvidia-persistenced || true
-  fi
+  # Restore the runner image's baseline state: persistence mode ENABLED
+  # plus nvidia-persistenced running. The runner-team's pre-installed
+  # drivers come up with `Persistence-M: On`, but our .run install leaves
+  # it Off, which breaks tests that toggle the value (cuda.core's
+  # test_persistence_mode_enabled hits NVML_ERROR_UNKNOWN when setting
+  # the mode to its current value on driver 610.43.02).
+  #
+  # `nvidia-smi -pm 1` is the load-bearing call -- it sets the kernel-
+  # level persistence flag directly via NVML (equivalent to what the
+  # daemon would do on startup). The systemctl block is best-effort: the
+  # silent .run installer doesn't always drop the systemd unit, so we
+  # daemon-reload first and tolerate failure on `start`.
+  set -x
+  nvidia-smi -pm 1 || true
+  systemctl daemon-reload 2>/dev/null || true
+  systemctl start nvidia-persistenced.service 2>/dev/null || true
+  set +x
 }
 
 # Replace the toolkit's bind-mounted nvidia libs/binaries inside this
