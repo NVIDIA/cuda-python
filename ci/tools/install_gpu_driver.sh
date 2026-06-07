@@ -156,7 +156,13 @@ refresh_container_libs() {
 }
 
 if [ -z "${_NVDRV_NSENTERED:-}" ] && in_container; then
-  _NVDRV_NSENTERED=1 nsenter -t 1 -m -p -n -i -u -- "$0" \
+  # Re-exec on the host. The runner-team's `nvgha-driver` script lives at a
+  # host-side absolute path so `"$0"` survives the mount-namespace flip;
+  # ours lives in the GH workspace mount (container-only), so we pipe the
+  # script body in via stdin instead -- the `< "$0"` fd is opened before
+  # nsenter and stays valid across the namespace switch. Env vars (DRIVER,
+  # GPU_TYPE, _NVDRV_NSENTERED) are inherited by the host-side bash.
+  _NVDRV_NSENTERED=1 nsenter -t 1 -m -p -n -i -u -- bash -s < "$0" \
     || { echo "::error::container needs 'options: --privileged --pid=host'" >&2; exit 1; }
   refresh_container_libs
 else

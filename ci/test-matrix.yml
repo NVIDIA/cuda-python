@@ -122,4 +122,4 @@ windows:
     - { MODE: 'nightly-pytorch',    ARCH: 'amd64', PY_VER: '3.12', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC', TORCH_VER: '2.9.1',  TORCH_CUDA: 'cu130' }
     # nightly-numba-cuda
     - { MODE: 'nightly-numba-cuda', ARCH: 'amd64', PY_VER: '3.12', CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
-    - { MODE: 'nightly-numba-cuda', ARCH: 'amd64', PY_VER: '3.12', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: '610.47',  DRIVER_MODE: 'TCC' }
+    - { MODE: 'nightly-numba-cuda', ARCH: 'amd64', PY_VER: '3.12', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: '596.36',  DRIVER_MODE: 'TCC' }
