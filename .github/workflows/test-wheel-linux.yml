@@ -85,8 +85,13 @@ jobs:
           # Read base matrix from YAML file for the specific architecture
           TEST_MATRIX=$(yq -o json ".linux[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
-          # Apply matrix filter and wrap in include structure
-          MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
+          # Apply matrix filter; reject custom DRIVER + FLAVOR=wsl (the
+          # in-container driver swap doesn't work under WSL); add a
+          # RUNNER_DRIVER field that maps any custom version back to
+          # 'latest' (the install script swaps the driver itself, so we
+          # need to land on the runner that ships with the most recent
+          # pre-installed driver); wrap in include structure.
+          MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | if any(.[]; .DRIVER != "latest" and .DRIVER != "earliest" and .FLAVOR == "wsl") then "Error: custom DRIVER is not supported with FLAVOR=wsl\n" | halt_error(1) else . end | map(. + {RUNNER_DRIVER: (if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)}) | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
 
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
@@ -101,13 +106,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
-    runs-on: "${{ matrix.FLAVOR || 'linux' }}-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-${{ matrix.GPU_COUNT }}"
+    runs-on: "${{ matrix.FLAVOR || 'linux' }}-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.RUNNER_DRIVER }}-${{ matrix.GPU_COUNT }}"
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
-      options: -u root --security-opt seccomp=unconfined --shm-size 16g
+      # Custom-DRIVER rows need --privileged --pid=host so install_gpu_driver.sh
+      # can nsenter to the host for the install + refresh the toolkit bind mounts
+      # back inside the container. Stock options for latest/earliest rows.
+      options: ${{ ((matrix.DRIVER == 'latest' || matrix.DRIVER == 'earliest') && '-u root --security-opt seccomp=unconfined --shm-size 16g') || '-u root --security-opt seccomp=unconfined --shm-size 16g --privileged --pid=host' }}
       image: ubuntu:22.04
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
@@ -130,6 +138,18 @@ jobs:
           # for artifact fetching, graphics libs, g++ required for cffi in example
           dependencies: "jq wget libgl1 libegl1 g++"
           dependent_exes: "jq wget"
+
+      - name: Install GPU driver
+        if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
+        env:
+          DRIVER: ${{ matrix.DRIVER }}
+          GPU_TYPE: ${{ matrix.GPU }}
+        run: |
+          # util-linux for nsenter; install_gpu_driver.sh re-execs onto the
+          # host (requires --privileged --pid=host on the container, set
+          # conditionally above) and refreshes the toolkit bind mounts here.
+          apt-get -y install --no-install-recommends util-linux
+          ./ci/tools/install_gpu_driver.sh
 
       - name: Set environment variables
         env:
