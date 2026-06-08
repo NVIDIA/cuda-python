@@ -118,7 +118,7 @@ cdef class ManagedMemoryResource(_MemPool):
             and instance methods (``prefetch``, ``discard``,
             ``discard_prefetch``).
         """
-        assert not isinstance(stream, GraphBuilder), "GraphBuilder is not supported for managed memory allocations"
+        assert isinstance(stream, Stream), "Only Stream is supported for managed memory allocations"
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)
