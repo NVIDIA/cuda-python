@@ -59,7 +59,7 @@ jobs:
             echo "version=${version}"
           } >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
           fetch-depth: 0
           # Resolve only the exact tag ref; checkout fails if the tag does not exist.
@@ -159,7 +159,7 @@ jobs:
       TAG: ${{ needs.prepare.outputs.tag }}
       RUN_ID: ${{ needs.prepare.outputs.run-id }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
           fetch-depth: 0
           ref: ${{ needs.prepare.outputs.tag }}

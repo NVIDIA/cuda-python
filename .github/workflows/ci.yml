@@ -33,7 +33,7 @@ jobs:
       CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
           fetch-depth: 0
       - name: Get CUDA build versions
@@ -52,7 +52,7 @@ jobs:
       doc-only: ${{ steps.get-should-skip.outputs.doc_only }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - name: Compute whether to skip builds and tests
         id: get-should-skip
         env:
@@ -104,7 +104,7 @@ jobs:
       test_pathfinder: ${{ steps.compose.outputs.test_pathfinder }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
           fetch-depth: 0
 

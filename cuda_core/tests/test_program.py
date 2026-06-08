@@ -92,6 +92,15 @@ def _check_nvvm_arch(arch: str) -> bool:
     return check_nvvm_compiler_options([f"-arch={arch}"])
 
 
+def _check_nvvm_supports_numba_debug() -> bool:
+    """Check if the installed libNVVM recognizes --numba-debug (CTK 13.2+)."""
+    if not _has_check_nvvm_compiler_options():
+        return False
+    from cuda.bindings.utils import check_nvvm_compiler_options
+
+    return check_nvvm_compiler_options(["--numba-debug"])
+
+
 @pytest.fixture(scope="session")
 def nvvm_ir():
     """Generate working NVVM IR with proper version metadata.
@@ -303,6 +312,8 @@ options = [
     ProgramOptions(prec_div=True),
     ProgramOptions(prec_sqrt=True),
     ProgramOptions(fma=True),
+    # Plumb-through; no-op at link time. See #1287.
+    ProgramOptions(debug=True, numba_debug=True),
 ]
 if not is_culink_backend:
     options += [
@@ -552,7 +563,6 @@ def test_nvvm_program_with_single_extra_source(nvvm_ir):
 
     nvvm = _get_nvvm_module()
     major, minor, debug_major, debug_minor = nvvm.ir_version()
-    # helper nvvm ir for multiple module loading
     helper_nvvmir = f"""target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
@@ -738,6 +748,33 @@ def test_program_options_as_bytes_nvvm_unsupported_option():
     options = ProgramOptions(arch="sm_80", lineinfo=True)
     with pytest.raises(CUDAError, match="not supported by NVVM backend"):
         options.as_bytes("nvvm")
+
+
+@nvvm_available
+def test_nvvm_program_options_as_bytes_numba_debug():
+    """numba_debug must be plumbed through to libNVVM as --numba-debug
+    (see #1287)."""
+    options = ProgramOptions(arch="sm_80", debug=True, numba_debug=True)
+    nvvm_bytes = options.as_bytes("nvvm")
+    assert b"--numba-debug" in nvvm_bytes
+    assert b"-g" in nvvm_bytes
+
+
+@nvvm_available
+@pytest.mark.skipif(
+    not _check_nvvm_supports_numba_debug(),
+    reason="installed libNVVM does not recognize --numba-debug (needs CTK 13.2+)",
+)
+def test_nvvm_program_numba_debug(init_cuda, nvvm_ir):
+    options = ProgramOptions(arch="sm_80", debug=True, numba_debug=True)
+    program = Program(nvvm_ir, "nvvm", options)
+    try:
+        assert program.backend == "NVVM"
+        result = program.compile("ptx")
+        assert isinstance(result, ObjectCode)
+        assert len(result.code) > 0
+    finally:
+        program.close()
 
 
 def test_program_options_repr():
