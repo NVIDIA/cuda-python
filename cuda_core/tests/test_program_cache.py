@@ -382,8 +382,10 @@ def test_make_program_cache_key_ptx_linker_equivalent_options_hash_same(a, b, mo
     presence-only (``time``), ``is True`` (``no_cache``). Semantically
     equivalent inputs under those gates must hash to the same key."""
     # Pin the linker probe so the only variable is the options gate.
+    from cuda.core import _linker
     from cuda.core.utils import _program_cache
 
+    monkeypatch.setattr(_linker, "_choose_backend", lambda *_args, **_kwargs: "nvjitlink")
     monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda _use_driver: ("nvJitLink", "12030"))
     k_a = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**a))
     k_b = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**b))
@@ -406,7 +408,7 @@ def test_make_program_cache_key_ptx_driver_ignored_fields_collapse(field, a, b, 
     compiles differing only in these flags produce identical ObjectCode."""
     from cuda.core import _linker
 
-    monkeypatch.setattr(_linker, "_decide_nvjitlink_or_driver", lambda: True)  # driver
+    monkeypatch.setattr(_linker, "_choose_backend", lambda *_args, **_kwargs: "driver")
     k_a = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**{field: a}))
     k_b = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**{field: b}))
     assert k_a == k_b
@@ -430,7 +432,7 @@ def test_make_program_cache_key_ptx_ptxas_options_canonicalized(a, b, monkeypatc
     as equivalent so equivalent compiles don't miss the cache."""
     from cuda.core import _linker
 
-    monkeypatch.setattr(_linker, "_decide_nvjitlink_or_driver", lambda: False)  # nvJitLink
+    monkeypatch.setattr(_linker, "_choose_backend", lambda *_args, **_kwargs: "nvjitlink")
     k_a = _make_key(code=".version 7.0", code_type="ptx", options=_opts(ptxas_options=a))
     k_b = _make_key(code=".version 7.0", code_type="ptx", options=_opts(ptxas_options=b))
     assert k_a == k_b
@@ -440,7 +442,7 @@ def test_make_program_cache_key_ptx_driver_ignored_fields_still_matter_under_nvj
     """nvJitLink does honour those fields; they must still differentiate keys there."""
     from cuda.core import _linker
 
-    monkeypatch.setattr(_linker, "_decide_nvjitlink_or_driver", lambda: False)  # nvJitLink
+    monkeypatch.setattr(_linker, "_choose_backend", lambda *_args, **_kwargs: "nvjitlink")
     k_a = _make_key(code=".version 7.0", code_type="ptx", options=_opts(ftz=True))
     k_b = _make_key(code=".version 7.0", code_type="ptx", options=_opts(ftz=False))
     assert k_a != k_b
@@ -600,7 +602,7 @@ def test_make_program_cache_key_ptx_rejects_driver_linker_unsupported(option_kw,
     to exactly mirror the driver-linker's own gate."""
     from cuda.core import _linker
 
-    monkeypatch.setattr(_linker, "_decide_nvjitlink_or_driver", lambda: True)  # driver
+    monkeypatch.setattr(_linker, "_choose_backend", lambda *_args, **_kwargs: "driver")
     with pytest.raises(ValueError, match="driver linker"):
         _make_key(code=".version 7.0", code_type="ptx", options=_opts(**option_kw))
 
@@ -610,7 +612,7 @@ def test_make_program_cache_key_ptx_accepts_driver_linker_unsupported_with_nvjit
     rejected at key time."""
     from cuda.core import _linker
 
-    monkeypatch.setattr(_linker, "_decide_nvjitlink_or_driver", lambda: False)  # nvJitLink
+    monkeypatch.setattr(_linker, "_choose_backend", lambda *_args, **_kwargs: "nvjitlink")
     # Should not raise.
     _make_key(code=".version 7.0", code_type="ptx", options=_opts(time=True))
 
@@ -999,9 +1001,12 @@ def test_make_program_cache_key_rejects_side_effect_options_nvrtc(option_kw, ext
         pytest.param({"time": "whatever.csv"}, id="time_path"),
     ],
 )
-def test_make_program_cache_key_accepts_side_effect_options_for_ptx(option_kw):
+def test_make_program_cache_key_accepts_side_effect_options_for_ptx(option_kw, monkeypatch):
     """The side-effect guard is NVRTC-specific: PTX (linker) and NVVM must
     not be blocked by options whose side effects only apply under NVRTC."""
+    from cuda.core import _linker
+
+    monkeypatch.setattr(_linker, "_choose_backend", lambda *_args, **_kwargs: "nvjitlink")
     _make_key(code=".version 7.0", code_type="ptx", options=_opts(**option_kw))  # no raise
 
 
@@ -1104,7 +1109,7 @@ def test_make_program_cache_key_driver_probe_failure_taints_ptx_under_cuLink(mon
     def _broken():
         raise RuntimeError("driver probe failed")
 
-    monkeypatch.setattr(_linker, "_decide_nvjitlink_or_driver", lambda: True)
+    monkeypatch.setattr(_linker, "_choose_backend", lambda *_args, **_kwargs: "driver")
     k_ok = _make_key(code=".ptx", code_type="ptx")
     monkeypatch.setattr(_program_cache._keys, "_driver_version", _broken)
     k_broken1 = _make_key(code=".ptx", code_type="ptx")
