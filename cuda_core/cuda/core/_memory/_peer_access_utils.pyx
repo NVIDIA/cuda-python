@@ -199,7 +199,7 @@ cpdef void replace_peer_accessible_by(DeviceMemoryResource mr, object devices):
 
 # ---- Python MutableSet proxy ------------------------------------------------
 
-class PeerAccessibleBySetProxy(MutableSet[Device]):
+class PeerAccessibleBySetProxy(MutableSet["Device"]):
     """Live driver-backed view of the peer devices granted access to a memory pool.
 
     Reads (``__contains__``, ``__iter__``, ``len(...)``) call ``cuMemPoolGetAccess``;

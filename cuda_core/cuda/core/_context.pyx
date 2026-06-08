@@ -21,7 +21,7 @@ from cuda.core._resource_handles cimport (
     as_intptr,
     as_py,
 )
-from cuda.core._stream import Stream, StreamOptions
+from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 if TYPE_CHECKING:
@@ -95,7 +95,7 @@ cdef class Context:
             raise RuntimeError("Cannot query resources on a closed context")
         return DeviceResources._init_from_ctx(self._h_context, self._device_id)
 
-    def create_stream(self, options: StreamOptions | None = None) -> Stream:
+    def create_stream(self, options: object = None) -> Stream:
         """Create a new stream bound to this green context.
 
         This method is only available on green contexts. For primary

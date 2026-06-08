@@ -77,7 +77,7 @@ class Stream:
         """Return the per-thread default stream (supports subclassing)."""
 
     @classmethod
-    def _init(cls, obj: IsStreamType | None=None, options: StreamOptions | None=None, device_id: int | None=None, ctx: Context | None=None) -> Stream:
+    def _init(cls, obj: IsStreamType | None=None, options: object=None, device_id: int | None=None, ctx: Context | None=None) -> Stream:
         ...
 
     def __cuda_stream__(self) -> tuple[int, int]:
@@ -177,7 +177,7 @@ class Stream:
         """
 
     @staticmethod
-    def from_handle(handle: int) -> Stream:
+    def from_handle(handle) -> Stream:
         """Create a new :obj:`~_stream.Stream` object from a foreign stream handle.
 
         Uses a cudaStream_t pointer address represented as a Python int

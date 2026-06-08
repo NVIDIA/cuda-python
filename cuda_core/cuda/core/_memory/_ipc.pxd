@@ -50,7 +50,7 @@ cdef class IPCAllocationHandle:
         FileDescriptorHandle _h_fd
         object               _uuid
 
-    cpdef void close(self)
+    cpdef close(self)
 
 
 # Buffer IPC Implementation

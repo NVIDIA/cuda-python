@@ -9,7 +9,7 @@ from cuda.core._context import Context, ContextOptions
 from cuda.core._device_resources import DeviceResources
 from cuda.core._event import Event, EventOptions
 from cuda.core._memory._buffer import Buffer, MemoryResource
-from cuda.core._stream import IsStreamType, Stream, StreamOptions
+from cuda.core._stream import IsStreamType, Stream
 from cuda.core._utils.cuda_utils import ComputeCapability
 from cuda.core.graph import GraphBuilder
 
@@ -817,7 +817,7 @@ class Device:
 
         """
 
-    def create_stream(self, obj: IsStreamType | None=None, options: StreamOptions | None=None) -> Stream:
+    def create_stream(self, obj: IsStreamType | None=None, options: object=None) -> Stream:
         """Create a :obj:`~_stream.Stream` object.
 
         New stream objects can be created in two different ways:

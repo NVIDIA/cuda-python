@@ -116,7 +116,7 @@ cdef class IPCAllocationHandle:
         self._uuid = uuid
         return self
 
-    cpdef void close(self):
+    cpdef close(self):
         """Close the handle."""
         self._h_fd.reset()
 

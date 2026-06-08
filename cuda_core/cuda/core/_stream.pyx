@@ -120,7 +120,7 @@ cdef class Stream:
         return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
-    def _init(cls, obj: IsStreamType | None = None, options: StreamOptions | None = None,
+    def _init(cls, obj: IsStreamType | None = None, options: object = None,
               device_id: int | None = None, ctx: Context | None = None) -> Stream:
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
@@ -371,7 +371,7 @@ cdef class Stream:
         return DeviceResources._init_from_ctx(self._h_context, self._device_id)
 
     @staticmethod
-    def from_handle(handle: int) -> Stream:
+    def from_handle(handle) -> Stream:
         """Create a new :obj:`~_stream.Stream` object from a foreign stream handle.
 
         Uses a cudaStream_t pointer address represented as a Python int

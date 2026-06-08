@@ -57,7 +57,7 @@ class IPCBufferDescriptor:
 class IPCAllocationHandle:
     """Shareable handle to an IPC-enabled device memory pool."""
 
-    def close(self) -> None:
+    def close(self):
         """Close the handle."""
 
     def __init__(self, *arg, **kwargs) -> None:
