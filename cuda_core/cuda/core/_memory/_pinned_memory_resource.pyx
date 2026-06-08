@@ -88,10 +88,10 @@ cdef class PinnedMemoryResource(_MemPool):
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
 
-    def __init__(self, options: PinnedMemoryResourceOptions | dict | None = None) -> None:
+    def __init__(self, options: PinnedMemoryResourceOptions | dict[str, object] | None = None) -> None:
         _PMR_init(self, options)
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         return PinnedMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
@@ -237,7 +237,7 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
         )
 
 
-def _deep_reduce_pinned_memory_resource(mr):
+def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:
     check_multiprocessing_start_method()
     alloc_handle = mr.allocation_handle
     return mr.from_allocation_handle, (alloc_handle,)

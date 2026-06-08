@@ -45,7 +45,7 @@ cdef is_supported():
 
 cdef class IPCDataForBuffer:
     """Data members related to sharing memory buffers via IPC."""
-    def __cinit__(self, IPCBufferDescriptor ipc_descriptor, bint is_mapped):
+    def __cinit__(self, IPCBufferDescriptor ipc_descriptor, bint is_mapped) -> None:
         self._ipc_descriptor = ipc_descriptor
         self._is_mapped = is_mapped
 
@@ -60,7 +60,7 @@ cdef class IPCDataForBuffer:
 
 cdef class IPCDataForMR:
     """Data members related to sharing memory resources via IPC."""
-    def __cinit__(self, IPCAllocationHandle alloc_handle, bint is_mapped):
+    def __cinit__(self, IPCAllocationHandle alloc_handle, bint is_mapped) -> None:
         self._alloc_handle = alloc_handle
         self._is_mapped = is_mapped
 
@@ -84,13 +84,13 @@ cdef class IPCBufferDescriptor:
         raise RuntimeError("IPCBufferDescriptor objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @staticmethod
-    def _init(reserved: bytes, size: int):
+    def _init(reserved: bytes, size: int) -> IPCBufferDescriptor:
         cdef IPCBufferDescriptor self = IPCBufferDescriptor.__new__(IPCBufferDescriptor)
         self._payload = reserved
         self._size = size
         return self
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         return IPCBufferDescriptor._init, (self._payload, self._size)
 
     @property
@@ -109,7 +109,7 @@ cdef class IPCAllocationHandle:
         raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, handle: int, uuid):  # no-cython-lint
+    def _init(cls, handle: int, uuid: uuid.UUID | None) -> IPCAllocationHandle:  # no-cython-lint
         cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
         assert handle >= 0
         self._h_fd = create_fd_handle(handle)
@@ -136,13 +136,13 @@ cdef class IPCAllocationHandle:
         return self._uuid
 
 
-def _reduce_allocation_handle(alloc_handle):
+def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -> tuple[object, ...]:
     check_multiprocessing_start_method()
     df = multiprocessing.reduction.DupFd(alloc_handle.handle)
     return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)
 
 
-def _reconstruct_allocation_handle(cls, df, uuid):  # no-cython-lint
+def _reconstruct_allocation_handle(cls: type, df: object, uuid: uuid.UUID | None) -> IPCAllocationHandle:  # no-cython-lint
     return cls._init(df.detach(), uuid)
 
 

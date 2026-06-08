@@ -155,7 +155,7 @@ def discard_batch(stream: Stream | GraphBuilder, buffers: Sequence[Buffer]) -> N
     _do_batch_discard(bufs, s)
 
 
-def _do_single_discard_py(Buffer buf, stream):
+def _do_single_discard_py(Buffer buf, stream: Stream | GraphBuilder | None) -> None:
     """Internal: single-buffer discard for ManagedBuffer.discard()."""
     _require_managed_buffer(buf, "discard")
     cdef Stream s = Stream_accept(stream)
@@ -189,7 +189,7 @@ cdef void _do_batch_discard(tuple bufs, Stream s):
         )
 
 
-def _advise_one(Buffer buf, advice, location):
+def _advise_one(Buffer buf, advice: driver.CUmem_advise, location: Device | Host | None) -> None:
     """Internal: apply managed-memory advice to a single buffer.
 
     Used by :class:`ManagedBuffer` property setters. Not part of the
@@ -274,7 +274,7 @@ def prefetch_batch(
     _do_batch_prefetch(bufs, locs, s)
 
 
-def _do_single_prefetch_py(Buffer buf, location, stream):
+def _do_single_prefetch_py(Buffer buf, location: Device | Host | None, stream: Stream | GraphBuilder | None) -> None:
     """Internal: single-buffer prefetch for ManagedBuffer.prefetch().
 
     Uses cuMemPrefetchAsync (works on CUDA 12 and 13).
@@ -309,7 +309,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
     ) except ?cydriver.CUDA_ERROR_NOT_FOUND nogil
 
 
-    def _read_preferred_location_v2(Buffer buf):
+    def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
         """Internal: read preferred_location with full NUMA detail.
 
         Bypasses cuda.bindings.driver.cuMemRangeGetAttribute (whose
@@ -372,7 +372,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
                 0, hstream,
             ))
 ELSE:
-    def _read_preferred_location_v2(Buffer buf):
+    def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
         # Symbol exists so _managed_buffer.py can `from ... import
         # _read_preferred_location_v2` unconditionally at module top.
         # `ManagedBuffer.preferred_location` gates on both
@@ -434,7 +434,7 @@ def discard_prefetch_batch(
     _do_batch_discard_prefetch(bufs, locs, s)
 
 
-def _do_single_discard_prefetch_py(Buffer buf, location, stream):
+def _do_single_discard_prefetch_py(Buffer buf, location: Device | Host | None, stream: Stream | GraphBuilder | None) -> None:
     """Internal: single-buffer discard+prefetch for
     ManagedBuffer.discard_prefetch()."""
     _require_managed_buffer(buf, "discard_prefetch")

@@ -120,8 +120,8 @@ cdef class Stream:
         return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
-    def _init(cls, obj: IsStreamType | None = None, options=None, device_id: int | None = None,
-              ctx: Context | None = None):
+    def _init(cls, obj: IsStreamType | None = None, options: StreamOptions | None = None,
+              device_id: int | None = None, ctx: Context | None = None) -> Stream:
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
         cdef ContextHandle h_context
@@ -192,7 +192,7 @@ cdef class Stream:
             self._device_id = device_id
         return self
 
-    cpdef close(self):
+    cpdef void close(self):
         """Destroy the stream.
 
         Releases the stream handle. For owned streams, this destroys the

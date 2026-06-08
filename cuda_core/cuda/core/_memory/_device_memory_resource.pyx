@@ -139,11 +139,11 @@ cdef class DeviceMemoryResource(_MemPool):
     def __init__(
         self,
         device_id: Device | int,
-        options: DeviceMemoryResourceOptions | dict | None = None
+        options: DeviceMemoryResourceOptions | dict[str, object] | None = None
     ) -> None:
         _DMR_init(self, device_id, options)
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         return DeviceMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
@@ -328,7 +328,7 @@ cpdef str DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
         return ""
 
 
-def _deep_reduce_device_memory_resource(mr):
+def _deep_reduce_device_memory_resource(mr) -> tuple[object, ...]:
     check_multiprocessing_start_method()
     from .._device import Device
     device = Device(mr.device_id)

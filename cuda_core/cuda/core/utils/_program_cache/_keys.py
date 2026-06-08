@@ -14,7 +14,7 @@ from __future__ import annotations
 import abc
 import collections.abc
 import hashlib
-from typing import Sequence
+from typing import Any, Callable, Sequence
 
 # Mutual-dependency contract: this module imports ProgramOptions from
 # cuda.core._program at module level, and cuda.core._program imports
@@ -62,27 +62,27 @@ _SUPPORTED_TARGETS_BY_CODE_TYPE = {
 # forcing spurious misses. Single source of truth: every reader iterates
 # this dict, so adding a field here is enough -- there is no parallel
 # field-name list to keep in sync.
-def _gate_presence(v):
+def _gate_presence(v: Any) -> bool:
     return v is not None
 
 
-def _gate_truthy(v):
+def _gate_truthy(v: Any) -> bool:
     return bool(v)
 
 
-def _gate_is_true(v):
+def _gate_is_true(v: Any) -> bool:
     return v is True
 
 
-def _gate_tristate_bool(v):
+def _gate_tristate_bool(v: Any) -> bool | None:
     return None if v is None else bool(v)
 
 
-def _gate_identity(v):
+def _gate_identity(v: Any) -> Any:
     return v
 
 
-def _gate_ptxas_options(v):
+def _gate_ptxas_options(v: Any) -> Any:
     # ``_prepare_nvjitlink_options`` emits one ``-Xptxas=<s>`` per element, and
     # treats ``str`` as a single-element sequence. Canonicalize to a tuple so
     # ``"-v"`` / ``["-v"]`` / ``("-v",)`` all hash the same. An empty sequence
@@ -222,8 +222,8 @@ def _nvvm_fingerprint() -> str:
     from cuda.core._program import _get_nvvm_module
 
     module = _get_nvvm_module()
-    lib_major, lib_minor = module.version()
-    major, minor, debug_major, debug_minor = module.ir_version()
+    lib_major, lib_minor = module.version()  # type: ignore[attr-defined]
+    major, minor, debug_major, debug_minor = module.ir_version()  # type: ignore[attr-defined]
     return f"lib={lib_major}.{lib_minor};ir={major}.{minor}.{debug_major}.{debug_minor}"
 
 
@@ -295,7 +295,7 @@ def _option_is_set(options: ProgramOptions, name: str) -> bool:
     return True
 
 
-def _hash_probe_failure(update, label: str, exc: BaseException) -> None:
+def _hash_probe_failure(update: Callable[[str, bytes], None], label: str, exc: BaseException) -> None:
     """Mix a probe failure into the digest under a stable, content-free label.
 
     Hashing only the exception's CLASS NAME (not its message) keeps the
@@ -344,7 +344,7 @@ class _KeyBackend(abc.ABC):
     def option_fingerprint(self, options: ProgramOptions, target_type: str) -> list[bytes]:
         """Fingerprint of the ``ProgramOptions`` fields that reach the compiler."""
 
-    def encode_name_expressions(self, name_expressions: Sequence) -> tuple[bytes, ...] | None:  # noqa: ARG002
+    def encode_name_expressions(self, name_expressions: Sequence[Any]) -> tuple[bytes, ...] | None:  # noqa: ARG002
         """Sorted, type-tagged name expressions, or ``None`` if the
         backend does not consume them.
 
@@ -358,7 +358,7 @@ class _KeyBackend(abc.ABC):
         return None
 
     @abc.abstractmethod
-    def hash_version_probe(self, update) -> None:
+    def hash_version_probe(self, update: Callable[[str, bytes], None]) -> None:
         """Mix the runtime/compiler version probe into the digest via
         ``update(label, payload)``. On probe failure, mix
         ``_hash_probe_failure(update, "<label>", exc)`` instead so the
@@ -366,14 +366,14 @@ class _KeyBackend(abc.ABC):
         mode.
         """
 
-    def hash_extra_payload(self, options: ProgramOptions, update) -> None:  # noqa: B027
+    def hash_extra_payload(self, options: ProgramOptions, update: Callable[[str, bytes], None]) -> None:  # noqa: B027
         """Mix backend-specific extras (e.g. NVVM ``extra_sources`` /
         ``use_libdevice``). Default: nothing.
         """
 
 
 class _NvrtcBackend(_KeyBackend):
-    def validate(self, options, target_type, extra_digest):  # noqa: ARG002
+    def validate(self, options: ProgramOptions, target_type: str, extra_digest: bytes | None) -> None:  # noqa: ARG002
         # Side-effect options are NVRTC-specific:
         # ``time``/``fdevice_time_trace`` write artifacts via NVRTC,
         # ``create_pch`` writes via NVRTC. The Linker's ``-time`` logs to
@@ -423,12 +423,12 @@ class _NvrtcBackend(_KeyBackend):
                     f"covering the headers it may pull in must be supplied."
                 )
 
-    def option_fingerprint(self, options, target_type):
+    def option_fingerprint(self, options: ProgramOptions, target_type: str) -> list[bytes]:
         # ``ProgramOptions.as_bytes("nvrtc", ...)`` gives the real
         # compile-time flag surface for NVRTC.
         return options.as_bytes("nvrtc", target_type)
 
-    def encode_name_expressions(self, name_expressions):
+    def encode_name_expressions(self, name_expressions: Sequence[Any]) -> tuple[bytes, ...]:
         # ``"foo"`` and ``b"foo"`` get distinct tags because
         # ``Program.compile`` records the original Python object as the
         # ``ObjectCode.symbol_mapping`` key, so a cached ObjectCode whose
@@ -439,7 +439,7 @@ class _NvrtcBackend(_KeyBackend):
         # then crash in ``symbol_mapping[n] = ...``. Accepting it here
         # would let the cache serve hits for inputs the uncached path
         # can't handle.
-        def _tag(n):
+        def _tag(n: Any) -> bytes:
             if isinstance(n, bytes):
                 return b"b:" + n
             if isinstance(n, str):
@@ -454,7 +454,7 @@ class _NvrtcBackend(_KeyBackend):
 
         return tuple(sorted(_tag(n) for n in name_expressions))
 
-    def hash_version_probe(self, update):
+    def hash_version_probe(self, update: Callable[[str, bytes], None]) -> None:
         try:
             major, minor = _nvrtc_version()
         except Exception as exc:
@@ -467,7 +467,7 @@ _DECISION_UNSET = object()
 
 
 class _LinkerBackend(_KeyBackend):
-    def __init__(self):
+    def __init__(self) -> None:
         # Cache the linker-backend decision (and any probe failure) for
         # the duration of one ``make_program_cache_key`` call so
         # ``validate``, ``option_fingerprint``, and ``hash_version_probe``
@@ -491,9 +491,9 @@ class _LinkerBackend(_KeyBackend):
             except Exception as exc:
                 self._cached_decision = None
                 self._cached_decision_exc = exc
-        return self._cached_decision
+        return self._cached_decision  # type: ignore[return-value]
 
-    def validate(self, options, target_type, extra_digest):  # noqa: ARG002
+    def validate(self, options: ProgramOptions, target_type: str, extra_digest: bytes | None) -> None:  # noqa: ARG002
         if getattr(options, "extra_sources", None) is not None:
             raise ValueError(
                 "extra_sources is only valid for code_type='nvvm'; Program() rejects it for code_type='ptx'."
@@ -520,7 +520,7 @@ class _LinkerBackend(_KeyBackend):
                     f"configuration before producing an ObjectCode."
                 )
 
-    def option_fingerprint(self, options, target_type):  # noqa: ARG002
+    def option_fingerprint(self, options: ProgramOptions, target_type: str) -> list[bytes]:  # noqa: ARG002
         # For PTX inputs the Linker reads only a subset of ProgramOptions
         # (see ``_translate_program_options`` in _program.pyx); fingerprint
         # just those fields so shared ProgramOptions carrying NVRTC-only
@@ -528,7 +528,7 @@ class _LinkerBackend(_KeyBackend):
         # force spurious cache misses on PTX.
         return _linker_option_fingerprint(options, use_driver_linker=self._decide_driver())
 
-    def hash_version_probe(self, update):
+    def hash_version_probe(self, update: Callable[[str, bytes], None]) -> None:
         # Only cuLink (driver-backed linker) goes through the CUDA driver
         # for codegen. nvJitLink is a separate library, so a driver
         # upgrade under it does not change the compiled bytes -- skip the
@@ -537,6 +537,7 @@ class _LinkerBackend(_KeyBackend):
         # so the bytes are still in the digest via ``linker_version``.
         use_driver = self._decide_driver()
         if use_driver is None:
+            assert self._cached_decision_exc is not None
             _hash_probe_failure(update, "linker", self._cached_decision_exc)
             return
         try:
@@ -549,7 +550,7 @@ class _LinkerBackend(_KeyBackend):
 
 
 class _NvvmBackend(_KeyBackend):
-    def encode_code(self, code, code_type):  # noqa: ARG002
+    def encode_code(self, code: object, code_type: str) -> bytes:  # noqa: ARG002
         # NVVM accepts both str and bytes (matching ``Program()``).
         if isinstance(code, str):
             return code.encode("utf-8")
@@ -557,7 +558,7 @@ class _NvvmBackend(_KeyBackend):
             return bytes(code)
         raise TypeError(f"code must be str or bytes, got {type(code).__name__}")
 
-    def validate(self, options, target_type, extra_digest):  # noqa: ARG002
+    def validate(self, options: ProgramOptions, target_type: str, extra_digest: bytes | None) -> None:  # noqa: ARG002
         # NVVM with ``use_libdevice=True`` reads external libdevice
         # bitcode at compile time (see Program_init in _program.pyx). The
         # file is resolved from the active toolkit, so a changed
@@ -575,10 +576,10 @@ class _NvvmBackend(_KeyBackend):
                 "to link against, or disable use_libdevice."
             )
 
-    def option_fingerprint(self, options, target_type):
+    def option_fingerprint(self, options: ProgramOptions, target_type: str) -> list[bytes]:
         return options.as_bytes("nvvm", target_type)
 
-    def hash_version_probe(self, update):
+    def hash_version_probe(self, update: Callable[[str, bytes], None]) -> None:
         try:
             fp = _nvvm_fingerprint()
         except Exception as exc:
@@ -586,7 +587,7 @@ class _NvvmBackend(_KeyBackend):
             return
         update("nvvm", fp.encode("ascii"))
 
-    def hash_extra_payload(self, options, update):
+    def hash_extra_payload(self, options: ProgramOptions, update: Callable[[str, bytes], None]) -> None:
         extra_sources = getattr(options, "extra_sources", None)
         if extra_sources:
             # ``extra_sources`` is hashed in caller-provided order on purpose.

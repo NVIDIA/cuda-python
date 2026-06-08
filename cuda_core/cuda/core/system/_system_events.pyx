@@ -102,7 +102,7 @@ cdef class RegisteredSystemEvents:
         # this class's __dealloc__ method.
         nvml.system_register_events(event_bitmask, self._event_set)
 
-    def __dealloc__(self):
+    def __dealloc__(self) -> None:
         if self._event_set != 0:
             nvml.system_event_set_free(self._event_set)
 

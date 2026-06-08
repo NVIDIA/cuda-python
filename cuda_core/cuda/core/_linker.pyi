@@ -207,7 +207,7 @@ class LinkerOptions:
     def _prepare_nvjitlink_options(self, as_bytes: bool=False) -> list[bytes] | list[str]:
         ...
 
-    def _prepare_driver_options(self) -> tuple[list, list]:
+    def _prepare_driver_options(self) -> tuple[list[object], list[object]]:
         ...
 
     def as_bytes(self, backend: str='nvjitlink') -> list[bytes]:
@@ -246,5 +246,5 @@ def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
 def _decide_nvjitlink_or_driver() -> bool:
     """Return True if falling back to the cuLink* driver APIs."""
 
-def _lazy_init():
+def _lazy_init() -> None:
     ...

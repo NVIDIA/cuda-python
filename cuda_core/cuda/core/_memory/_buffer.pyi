@@ -24,7 +24,7 @@ class Buffer:
     def __cinit__(self) -> None:
         ...
 
-    def _clear(self):
+    def _clear(self) -> None:
         ...
 
     def __init__(self, *args, **kwargs) -> None:
@@ -43,7 +43,7 @@ class Buffer:
     def _reduce_helper(mr, ipc_descriptor):
         ...
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         ...
 
     @staticmethod

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 
 class LaunchConfig:
     """Customizable launch options.
@@ -52,7 +54,7 @@ class LaunchConfig:
             Whether to launch as cooperative kernel (default: False)
         """
 
-    def _identity(self):
+    def _identity(self) -> tuple[Any, ...]:
         ...
 
     def __repr__(self) -> str:

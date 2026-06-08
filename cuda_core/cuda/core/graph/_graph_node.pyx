@@ -382,7 +382,7 @@ cdef class GraphNode:
         """
         return GN_wait_event(self, <Event>event)
 
-    def callback(self, fn, *, user_data=None) -> HostCallbackNode:
+    def callback(self, fn, *, user_data=None) -> object:
         """Add a host callback node depending on this node.
 
         The callback runs on the host CPU when the graph reaches this node.

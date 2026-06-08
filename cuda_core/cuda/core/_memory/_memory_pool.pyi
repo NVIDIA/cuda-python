@@ -53,7 +53,7 @@ class _MemPoolAttributes:
 
 class _MemPool(MemoryResource):
 
-    def __cinit__(self):
+    def __cinit__(self) -> None:
         ...
 
     def close(self) -> None:

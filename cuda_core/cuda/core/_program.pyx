@@ -91,7 +91,7 @@ cdef class Program:
     def compile(
         self,
         target_type: ObjectCodeFormatType | str,
-        name_expressions: tuple | list = (),
+        name_expressions: tuple[str, ...] | list[str] = (),
         logs: object = None,
         *,
         cache: ProgramCacheResource | None = None,
@@ -645,7 +645,7 @@ _nvvm_module = None
 _nvvm_import_attempted = False
 
 
-def _get_nvvm_module():
+def _get_nvvm_module() -> object:
     """Get the NVVM module, importing it lazily with availability checks."""
     global _nvvm_module, _nvvm_import_attempted
 
@@ -680,7 +680,7 @@ def _get_nvvm_module():
         _nvvm_module = None
         raise
 
-def _find_libdevice_path():
+def _find_libdevice_path() -> object:
     """Find libdevice*.bc for NVVM compilation using cuda.pathfinder."""
     from cuda.pathfinder import find_bitcode_lib
     return find_bitcode_lib("device")

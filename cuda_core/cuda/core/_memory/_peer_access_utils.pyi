@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Iterator, MutableSet, Set
+from collections.abc import Callable, Iterable, Iterator, Set
 from dataclasses import dataclass
 from typing import Any
 
@@ -17,7 +17,7 @@ class PeerAccessPlan:
     to_add: tuple[int, ...]
     to_remove: tuple[int, ...]
 
-class PeerAccessibleBySetProxy(MutableSet):
+class PeerAccessibleBySetProxy:
     """Live driver-backed view of the peer devices granted access to a memory pool.
 
     Reads (``__contains__``, ``__iter__``, ``len(...)``) call ``cuMemPoolGetAccess``;
@@ -41,7 +41,7 @@ class PeerAccessibleBySetProxy(MutableSet):
         ...
 
     @classmethod
-    def _from_iterable(cls, it):
+    def _from_iterable(cls, it: Iterable[Device]) -> set[Device]:
         ...
 
     def __contains__(self, value: object) -> bool:
@@ -74,7 +74,7 @@ class PeerAccessibleBySetProxy(MutableSet):
     def symmetric_difference_update(self, other: Iterable[Device | int]) -> None:
         """Toggle peer access for every device in ``other`` in one driver call."""
 
-    def __ior__(self, other: Set[Any]) -> PeerAccessibleBySetProxy: # type: ignore[override,misc]
+    def __ior__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
         ...
 
     def __iand__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
@@ -83,7 +83,7 @@ class PeerAccessibleBySetProxy(MutableSet):
     def __isub__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
         ...
 
-    def __ixor__(self, other: Set[Any]) -> PeerAccessibleBySetProxy: # type: ignore[override,misc]
+    def __ixor__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
         ...
 
     def __repr__(self) -> str:
@@ -98,7 +98,7 @@ class PeerAccessibleBySetProxy(MutableSet):
         removals bypass that check (revoking is always permitted).
         """
 
-def replace_peer_accessible_by(mr: DeviceMemoryResource, devices) -> None:
+def replace_peer_accessible_by(mr: DeviceMemoryResource, devices: object) -> None:
     """Replace the full peer-access set in a single batched driver call.
 
     Backs the ``mr.peer_accessible_by = [...]`` setter. Uses the same planner
@@ -113,10 +113,10 @@ def normalize_peer_access_targets(owner_device_id: int, requested_devices: Itera
 def plan_peer_access_update(owner_device_id: int, current_peer_ids: Iterable[int], requested_devices: Iterable[object], *, resolve_device_id: Callable[[object], int], can_access_peer: Callable[[int], bool]) -> PeerAccessPlan:
     """Compute the peer-access target state and add/remove deltas."""
 
-def _resolve_peer_device_id(value):
+def _resolve_peer_device_id(value: Device | int | None) -> int:
     """Coerce ``Device | int`` into a device-ordinal int."""
 
-def _set_pool_access(mr, to_add: tuple, to_remove: tuple):
+def _set_pool_access(mr: object, to_add: tuple[int, ...], to_remove: tuple[int, ...]) -> None:
     """Issue one ``cuMemPoolSetAccess`` for the given add/remove deltas.
 
     The thin Python-callable layer that wraps the actual driver call: building
@@ -128,7 +128,7 @@ def _set_pool_access(mr, to_add: tuple, to_remove: tuple):
     responsible for skipping empty diffs).
     """
 
-def _apply_peer_access_diff(mr, to_add, to_remove):
+def _apply_peer_access_diff(mr: DeviceMemoryResource, to_add: Iterable[int], to_remove: Iterable[int]) -> None:
     """Apply a peer-access diff in at most one driver call.
 
     Every write path on :class:`PeerAccessibleBySetProxy` and the

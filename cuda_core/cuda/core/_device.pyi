@@ -637,7 +637,7 @@ class Device:
     def __new__(cls, device_id: Device | int | None=None) -> Device:
         ...
 
-    def _check_context_initialized(self):
+    def _check_context_initialized(self) -> None:
         ...
 
     @classmethod
@@ -764,7 +764,7 @@ class Device:
     def __eq__(self, other: object) -> bool:
         ...
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         ...
 
     def set_current(self, ctx: Context | None=None) -> Context | None:

@@ -9,6 +9,7 @@ from cuda.core._graph import GraphBuilder
 from cuda.core._host import Host
 from cuda.core._memory._buffer import Buffer
 from cuda.core._stream import Stream
+from cuda.core._utils.cuda_utils import driver
 
 
 def discard_batch(stream: Stream | GraphBuilder, buffers: Sequence[Buffer]) -> None:
@@ -33,10 +34,10 @@ def discard_batch(stream: Stream | GraphBuilder, buffers: Sequence[Buffer]) -> N
         On a CUDA 12 build of ``cuda.core``.
     """
 
-def _do_single_discard_py(buf: Buffer, stream):
+def _do_single_discard_py(buf: Buffer, stream: Stream | GraphBuilder | None) -> None:
     """Internal: single-buffer discard for ManagedBuffer.discard()."""
 
-def _advise_one(buf: Buffer, advice, location):
+def _advise_one(buf: Buffer, advice: driver.CUmem_advise, location: Device | Host | None) -> None:
     """Internal: apply managed-memory advice to a single buffer.
 
     Used by :class:`ManagedBuffer` property setters. Not part of the
@@ -67,13 +68,13 @@ def prefetch_batch(stream: Stream | GraphBuilder, buffers: Sequence[Buffer], loc
     CUDA 12). CUDA 13 builds use ``cuMemPrefetchBatchAsync`` directly.
     """
 
-def _do_single_prefetch_py(buf: Buffer, location, stream):
+def _do_single_prefetch_py(buf: Buffer, location: Device | Host | None, stream: Stream | GraphBuilder | None) -> None:
     """Internal: single-buffer prefetch for ManagedBuffer.prefetch().
 
     Uses cuMemPrefetchAsync (works on CUDA 12 and 13).
     """
 
-def _read_preferred_location_v2(buf: Buffer):
+def _read_preferred_location_v2(buf: Buffer) -> Device | Host | None:
     ...
 
 def discard_prefetch_batch(stream: Stream | GraphBuilder, buffers: Sequence[Buffer], locations: Device | Host | Sequence[Device | Host]) -> None:
@@ -99,6 +100,6 @@ def discard_prefetch_batch(stream: Stream | GraphBuilder, buffers: Sequence[Buff
         On a CUDA 12 build of ``cuda.core``.
     """
 
-def _do_single_discard_prefetch_py(buf: Buffer, location, stream):
+def _do_single_discard_prefetch_py(buf: Buffer, location: Device | Host | None, stream: Stream | GraphBuilder | None) -> None:
     """Internal: single-buffer discard+prefetch for
     ManagedBuffer.discard_prefetch()."""

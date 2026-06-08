@@ -90,7 +90,7 @@ cdef class Buffer:
     def __cinit__(self) -> None:
         self._clear()
 
-    def _clear(self):
+    def _clear(self) -> None:
         self._h_ptr.reset()  # Release the handle
         self._size = 0
         self._memory_resource = None
@@ -137,7 +137,7 @@ cdef class Buffer:
         # stream; the receiver can override via buffer.close(stream).
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         # Must not serialize the parent's stream!
         return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 

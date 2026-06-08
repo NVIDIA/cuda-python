@@ -102,7 +102,7 @@ cdef class ThermalSettings:
     def __init__(self, thermal_settings: nvml.ThermalSettings):
         self._thermal_settings = thermal_settings
 
-    def __len__(self):
+    def __len__(self) -> int:
         # MAX_THERMAL_SENSORS_PER_GPU is 3
         return min(self._thermal_settings.count, 3)
 

@@ -4,10 +4,7 @@
 import ctypes
 import sys
 
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
+from cuda.bindings import driver
 
 try:
     import numpy as np

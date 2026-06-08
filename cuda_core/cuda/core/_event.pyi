@@ -62,7 +62,7 @@ class Event:
 
     """
 
-    def close(self):
+    def close(self) -> None:
         """Destroy the event.
 
         Releases the event handle. The underlying CUDA event is destroyed
@@ -72,7 +72,7 @@ class Event:
     def __init__(self, *args, **kwargs) -> None:
         ...
 
-    def __isub__(self, other: object): # type: ignore[misc]
+    def __isub__(self, other: object):
         ...
 
     def __rsub__(self, other: object):
@@ -172,14 +172,14 @@ class IPCEventDescriptor:
         ...
 
     @staticmethod
-    def _init(reserved: bytes, is_blocking_sync: cython.bint):
+    def _init(reserved: bytes, is_blocking_sync: cython.bint) -> IPCEventDescriptor:
         ...
 
     def __eq__(self, other: object) -> bool:
         ...
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         ...
 
-def _reduce_event(event):
+def _reduce_event(event: Event) -> tuple[object, ...]:
     ...

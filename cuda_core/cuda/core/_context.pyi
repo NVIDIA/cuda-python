@@ -18,7 +18,7 @@ class Context:
     Use Device or Stream APIs to obtain context objects.
     """
 
-    def close(self):
+    def close(self) -> None:
         """Release this context wrapper's underlying CUDA handles."""
 
     def __init__(self, *args, **kwargs) -> None:

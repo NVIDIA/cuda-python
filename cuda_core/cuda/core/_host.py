@@ -78,7 +78,7 @@ class Host:
         """Construct a ``Host`` referring to the calling thread's NUMA node."""
         return cls(is_numa_current=True)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Host):
             return NotImplemented
         return self is other
@@ -86,7 +86,7 @@ class Host:
     def __hash__(self) -> int:
         return hash((Host, self._numa_id, self._is_numa_current))
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
         if self._is_numa_current:
             return (_reconstruct_numa_current, ())
         return (Host, (self._numa_id,))

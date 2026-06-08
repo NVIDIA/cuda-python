@@ -109,41 +109,41 @@ class VirtualMemoryResourceOptions:
         _allocation_type[VirtualMemoryAllocationType.MANAGED] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED
 
     @staticmethod
-    def _access_to_flags(spec: VirtualMemoryAccessType | None):
+    def _access_to_flags(spec: VirtualMemoryAccessType | None) -> int:
         flags = VirtualMemoryResourceOptions._access_flags.get(spec)
         if flags is None:
             raise ValueError(f"Unknown access spec: {spec!r}")
-        return flags
+        return flags  # type: ignore[no-any-return]
 
     @staticmethod
-    def _allocation_type_to_driver(spec: VirtualMemoryAllocationType):
+    def _allocation_type_to_driver(spec: VirtualMemoryAllocationType) -> int:
         alloc_type = VirtualMemoryResourceOptions._allocation_type.get(spec)
         if alloc_type is None:
             raise ValueError(f"Unsupported allocation_type: {spec!r}")
-        return alloc_type
+        return alloc_type  # type: ignore[no-any-return]
 
     @staticmethod
-    def _location_type_to_driver(spec: VirtualMemoryLocationType):
+    def _location_type_to_driver(spec: VirtualMemoryLocationType) -> int:
         loc_type = VirtualMemoryResourceOptions._location_type.get(spec)
         if loc_type is None:
             raise ValueError(f"Unsupported location_type: {spec!r}")
-        return loc_type
+        return loc_type  # type: ignore[no-any-return]
 
     @staticmethod
-    def _handle_type_to_driver(spec: VirtualMemoryHandleType | None):
+    def _handle_type_to_driver(spec: VirtualMemoryHandleType | None) -> int:
         if spec == "win32":
             raise NotImplementedError("win32 is currently not supported, please reach out to the CUDA Python team")
         handle_type = VirtualMemoryResourceOptions._handle_types.get(spec)
         if handle_type is None:
             raise ValueError(f"Unsupported handle_type: {spec!r}")
-        return handle_type
+        return handle_type  # type: ignore[no-any-return]
 
     @staticmethod
-    def _granularity_to_driver(spec: VirtualMemoryGranularityType):
+    def _granularity_to_driver(spec: VirtualMemoryGranularityType) -> int:
         granularity = VirtualMemoryResourceOptions._granularity.get(spec)
         if granularity is None:
             raise ValueError(f"Unsupported granularity: {spec!r}")
-        return granularity
+        return granularity  # type: ignore[no-any-return]
 
 
 class VirtualMemoryResource(MemoryResource):
@@ -167,7 +167,7 @@ class VirtualMemoryResource(MemoryResource):
 
     def __init__(self, device_id: Device | int, config: VirtualMemoryResourceOptions | None = None) -> None:
         self.device: Device | None = Device(device_id)
-        self.config = check_or_create_options(
+        self.config: VirtualMemoryResourceOptions = check_or_create_options(  # type: ignore[assignment]
             VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False
         )
         # Matches ("host", "host_numa", "host_numa_current")
@@ -397,7 +397,7 @@ class VirtualMemoryResource(MemoryResource):
             (result,) = driver.cuMemUnmap(int(buf.handle), aligned_prev_size)
             raise_if_driver_error(result)
 
-            def _remap_old():
+            def _remap_old() -> None:
                 # Try to remap the old physical memory back to the original VA range
                 try:
                     (res,) = driver.cuMemMap(int(buf.handle), aligned_prev_size, 0, old_handle, 0)
@@ -452,7 +452,7 @@ class VirtualMemoryResource(MemoryResource):
         # Return a new Buffer for the new mapping
         return Buffer.from_handle(ptr=new_ptr, size=new_size, mr=self)
 
-    def _build_access_descriptors(self, prop: driver.CUmemAllocationProp) -> list:
+    def _build_access_descriptors(self, prop: driver.CUmemAllocationProp) -> list[driver.CUmemAccessDesc]:
         """
         Build access descriptors for memory access permissions.
 

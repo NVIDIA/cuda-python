@@ -338,7 +338,7 @@ cdef class GraphDefinition:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDebugDotPrint(as_cu(self._h_graph), c_path, flags))
 
-    def nodes(self) -> set:
+    def nodes(self) -> set[GraphNode]:
         """Return all nodes in the graph.
 
         Returns
@@ -363,7 +363,7 @@ cdef class GraphDefinition:
 
         return {GraphNode._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes)}
 
-    def edges(self) -> set:
+    def edges(self) -> set[tuple[GraphNode, GraphNode]]:
         """Return all edges in the graph as (from_node, to_node) pairs.
 
         Returns

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from cuda.core._memory._managed_buffer import ManagedBuffer
 from cuda.core._memory._memory_pool import _MemPool
 from cuda.core._stream import Stream
 from cuda.core.graph import GraphBuilder
@@ -76,10 +77,10 @@ class ManagedMemoryResource(_MemPool):
     memory pools.
     """
 
-    def __init__(self, options: ManagedMemoryResourceOptions | dict | None=None) -> None:
+    def __init__(self, options: ManagedMemoryResourceOptions | dict[str, object] | None=None) -> None:
         ...
 
-    def allocate(self, size: int, *, stream: Stream | GraphBuilder):
+    def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> ManagedBuffer:
         """Allocate a managed-memory buffer of the requested size.
 
         Parameters

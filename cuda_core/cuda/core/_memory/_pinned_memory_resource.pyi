@@ -73,10 +73,10 @@ class PinnedMemoryResource(_MemPool):
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
 
-    def __init__(self, options: PinnedMemoryResourceOptions | dict | None=None) -> None:
+    def __init__(self, options: PinnedMemoryResourceOptions | dict[str, object] | None=None) -> None:
         ...
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         ...
 
     @staticmethod
@@ -144,5 +144,5 @@ class PinnedMemoryResource(_MemPool):
         """Return True. This memory resource provides host-accessible buffers."""
 __all__ = ['PinnedMemoryResource', 'PinnedMemoryResourceOptions']
 
-def _deep_reduce_pinned_memory_resource(mr):
+def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:
     ...

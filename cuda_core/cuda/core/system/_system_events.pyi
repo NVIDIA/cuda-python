@@ -58,7 +58,7 @@ class RegisteredSystemEvents:
     def __init__(self, events: SystemEventType | str | list[SystemEventType | str]):
         ...
 
-    def __dealloc__(self):
+    def __dealloc__(self) -> None:
         ...
 
     def wait(self, timeout_ms: int=0, buffer_size: int=1) -> SystemEvents:

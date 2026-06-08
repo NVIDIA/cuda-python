@@ -989,7 +989,7 @@ class Device:
         except IndexError:
             raise ValueError(f"device_id must be within [0, {len(devices)}), got {device_id}") from None
 
-    def _check_context_initialized(self):
+    def _check_context_initialized(self) -> None:
         if not self._has_inited:
             raise CUDAError(
                 f"Device {self._device_id} is not yet initialized, perhaps you forgot to call .set_current() first?"
@@ -1211,7 +1211,7 @@ class Device:
             return NotImplemented
         return self._device_id == other._device_id
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         return Device, (self.device_id,)
 
     def set_current(self, ctx: Context | None = None) -> Context | None:

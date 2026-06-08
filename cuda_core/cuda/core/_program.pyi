@@ -42,7 +42,7 @@ class Program:
     def close(self) -> None:
         """Destroy this program."""
 
-    def compile(self, target_type: ObjectCodeFormatType | str, name_expressions: tuple | list=..., logs: object=None, *, cache: ProgramCacheResource | None=None) -> ObjectCode:
+    def compile(self, target_type: ObjectCodeFormatType | str, name_expressions: tuple[str, ...] | list[str]=..., logs: object=None, *, cache: ProgramCacheResource | None=None) -> ObjectCode:
         """Compile the program to the specified target type.
 
         Parameters
@@ -433,8 +433,8 @@ def _program_compile_uncached(program, target_type, name_expressions, logs):
     outside the class.
     """
 
-def _get_nvvm_module():
+def _get_nvvm_module() -> object:
     """Get the NVVM module, importing it lazily with availability checks."""
 
-def _find_libdevice_path():
+def _find_libdevice_path() -> object:
     """Find libdevice*.bc for NVVM compilation using cuda.pathfinder."""

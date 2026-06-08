@@ -108,7 +108,7 @@ cdef class GraphMemoryResourceAttributes:
 
 
 cdef class cyGraphMemoryResource(MemoryResource):
-    def __cinit__(self, int device_id):
+    def __cinit__(self, int device_id) -> None:
         self._device_id = device_id
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:

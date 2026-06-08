@@ -57,7 +57,7 @@ class Stream:
     using Stream.from_handle().
     """
 
-    def close(self):
+    def close(self) -> None:
         """Destroy the stream.
 
         Releases the stream handle. For owned streams, this destroys the
@@ -77,7 +77,7 @@ class Stream:
         """Return the per-thread default stream (supports subclassing)."""
 
     @classmethod
-    def _init(cls, obj: IsStreamType | None=None, options=None, device_id: int | None=None, ctx: Context | None=None):
+    def _init(cls, obj: IsStreamType | None=None, options: StreamOptions | None=None, device_id: int | None=None, ctx: Context | None=None) -> Stream:
         ...
 
     def __cuda_stream__(self) -> tuple[int, int]:

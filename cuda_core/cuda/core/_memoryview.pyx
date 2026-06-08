@@ -15,6 +15,7 @@ import functools
 import sys
 import warnings
 from collections.abc import Callable  # no-cython-lint  # used in string annotations below
+from typing import Any  # no-cython-lint  # used in string annotations below
 
 import numpy
 
@@ -335,7 +336,7 @@ cdef class StridedMemoryView:
         )
         return view
 
-    def __dealloc__(self):
+    def __dealloc__(self) -> None:
         if self.dl_tensor == NULL:
             return
 
@@ -1095,12 +1096,12 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
 
 
 @functools.lru_cache
-def _typestr2dtype(str typestr):
+def _typestr2dtype(str typestr) -> numpy.dtype:
     return numpy.dtype(typestr)
 
 
 @functools.lru_cache
-def _typestr2itemsize(str typestr):
+def _typestr2itemsize(str typestr) -> int:
     return _typestr2dtype(typestr).itemsize
 
 
@@ -1244,7 +1245,7 @@ cpdef StridedMemoryView view_as_array_interface(obj, view=None):
     return buf
 
 
-def args_viewable_as_strided_memory(tuple arg_indices) -> "Callable[[Callable], Callable]":
+def args_viewable_as_strided_memory(arg_indices: tuple[int, ...]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator to create proxy objects to :obj:`StridedMemoryView` for the
     specified positional arguments.

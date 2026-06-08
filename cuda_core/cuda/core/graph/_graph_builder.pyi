@@ -120,7 +120,7 @@ class GraphBuilder:
         ...
 
     @classmethod
-    def _init(cls, stream, is_stream_owner, conditional_graph=None, is_join_required=False):
+    def _init(cls, stream: Stream | None, is_stream_owner: bool, conditional_graph: object=None, is_join_required: bool=False) -> GraphBuilder:
         ...
 
     @property
@@ -245,7 +245,7 @@ class GraphBuilder:
             A condition variable for controlling conditional execution.
         """
 
-    def _cond_with_params(self, node_params) -> tuple:
+    def _cond_with_params(self, node_params: object) -> tuple[GraphBuilder, ...]:
         ...
 
     def if_then(self, condition: GraphCondition) -> GraphBuilder:
@@ -406,7 +406,7 @@ class Graph:
         ...
 
     @classmethod
-    def _init(cls, graph):
+    def _init(cls, graph: driver.CUgraphExec) -> Graph:
         ...
 
     def close(self) -> None:

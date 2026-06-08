@@ -3,13 +3,13 @@
 """Mutable-set proxy for graph node predecessors and successors."""
 from __future__ import annotations
 
-from collections.abc import Iterator, MutableSet, Set
+from collections.abc import Iterator, Set
 from typing import Any
 
 from cuda.core.graph._graph_node import GraphNode
 
 
-class AdjacencySetProxy(MutableSet):
+class AdjacencySetProxy:
     """Mutable set proxy for a node's predecessors or successors.  Mutations
     write through to the underlying CUDA graph."""
     __slots__ = ('_core',)
@@ -18,7 +18,7 @@ class AdjacencySetProxy(MutableSet):
         ...
 
     @classmethod
-    def _from_iterable(cls, it):
+    def _from_iterable(cls, it) -> set[GraphNode]:
         ...
 
     def __contains__(self, x: object) -> bool:
@@ -45,7 +45,7 @@ class AdjacencySetProxy(MutableSet):
     def update(self, *others) -> None:
         """Add edges to multiple nodes at once."""
 
-    def __ior__(self, it: Set[Any]) -> 'AdjacencySetProxy': # type: ignore[override,misc]
+    def __ior__(self, it: Set[Any]) -> 'AdjacencySetProxy':
         """Add edges to all nodes in *it* in a single driver call."""
 
     def __repr__(self) -> str:

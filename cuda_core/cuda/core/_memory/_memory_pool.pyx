@@ -117,7 +117,7 @@ cdef class _MemPoolAttributes:
 
 cdef class _MemPool(MemoryResource):
 
-    def __cinit__(self):
+    def __cinit__(self) -> None:
         # Note: subclasses use MP_init_create_pool or MP_init_current_pool to initialize.
         self._mempool_owned = False
         self._ipc_data = None

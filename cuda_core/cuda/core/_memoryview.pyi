@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import functools
 from collections.abc import Callable
+from typing import Any
 
 import numpy
 from cuda.core._layout import _StridedLayout
@@ -155,7 +156,7 @@ class StridedMemoryView:
             Whether the mark the view as readonly.
         """
 
-    def __dealloc__(self):
+    def __dealloc__(self) -> None:
         ...
 
     def view(self, layout: _StridedLayout | None=None, dtype: numpy.dtype | None=None) -> StridedMemoryView:
@@ -268,14 +269,14 @@ def view_as_array_interface(obj, view=None) -> StridedMemoryView:
     ...
 
 @functools.lru_cache
-def _typestr2dtype(typestr: str):
+def _typestr2dtype(typestr: str) -> numpy.dtype:
     ...
 
 @functools.lru_cache
-def _typestr2itemsize(typestr: str):
+def _typestr2itemsize(typestr: str) -> int:
     ...
 
-def args_viewable_as_strided_memory(arg_indices: tuple) -> 'Callable[[Callable], Callable]':
+def args_viewable_as_strided_memory(arg_indices: tuple[int, ...]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator to create proxy objects to :obj:`StridedMemoryView` for the
     specified positional arguments.

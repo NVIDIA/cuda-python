@@ -21,7 +21,7 @@ from typing import Any
 
 # ---- Python MutableSet wrapper ----------------------------------------------
 
-class AdjacencySetProxy(MutableSet):
+class AdjacencySetProxy(MutableSet[GraphNode]):
     """Mutable set proxy for a node's predecessors or successors.  Mutations
     write through to the underlying CUDA graph."""
 
@@ -32,7 +32,7 @@ class AdjacencySetProxy(MutableSet):
 
     # Used by operators such as &|^ to create non-proxy views when needed.
     @classmethod
-    def _from_iterable(cls, it):
+    def _from_iterable(cls, it) -> set[GraphNode]:
         return set(it)
 
     # --- abstract methods required by MutableSet ---
@@ -99,7 +99,7 @@ class AdjacencySetProxy(MutableSet):
         if new:
             (<_AdjacencySetCore>self._core).add_edges(new)
 
-    def __ior__(self, it: Set[Any]) -> "AdjacencySetProxy":  # type: ignore[override,misc]
+    def __ior__(self, it: Set[Any]) -> "AdjacencySetProxy":
         """Add edges to all nodes in *it* in a single driver call."""
         self.update(it)
         return self

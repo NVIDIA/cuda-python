@@ -70,7 +70,7 @@ def plan_peer_access_update(
     )
 
 
-def _resolve_peer_device_id(value):
+def _resolve_peer_device_id(value: Device | int | None) -> int:
     """Coerce ``Device | int`` into a device-ordinal int."""
     from cuda.core._device import Device
 
@@ -122,7 +122,7 @@ cdef inline bint _peer_access_includes(DeviceMemoryResource mr, int dev_id):
     return flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
 
 
-def _set_pool_access(mr, tuple to_add, tuple to_remove):
+def _set_pool_access(mr: object, to_add: tuple[int, ...], to_remove: tuple[int, ...]) -> None:
     """Issue one ``cuMemPoolSetAccess`` for the given add/remove deltas.
 
     The thin Python-callable layer that wraps the actual driver call: building
@@ -161,7 +161,7 @@ def _set_pool_access(mr, tuple to_add, tuple to_remove):
             PyMem_Free(access_desc)
 
 
-def _apply_peer_access_diff(mr, to_add, to_remove):
+def _apply_peer_access_diff(mr: DeviceMemoryResource, to_add: Iterable[int], to_remove: Iterable[int]) -> None:
     """Apply a peer-access diff in at most one driver call.
 
     Every write path on :class:`PeerAccessibleBySetProxy` and the
@@ -176,7 +176,7 @@ def _apply_peer_access_diff(mr, to_add, to_remove):
     _set_pool_access(mr, add_tuple, remove_tuple)
 
 
-cpdef void replace_peer_accessible_by(DeviceMemoryResource mr, devices):
+cpdef void replace_peer_accessible_by(DeviceMemoryResource mr, object devices):
     """Replace the full peer-access set in a single batched driver call.
 
     Backs the ``mr.peer_accessible_by = [...]`` setter. Uses the same planner
@@ -199,7 +199,7 @@ cpdef void replace_peer_accessible_by(DeviceMemoryResource mr, devices):
 
 # ---- Python MutableSet proxy ------------------------------------------------
 
-class PeerAccessibleBySetProxy(MutableSet):
+class PeerAccessibleBySetProxy(MutableSet[Device]):
     """Live driver-backed view of the peer devices granted access to a memory pool.
 
     Reads (``__contains__``, ``__iter__``, ``len(...)``) call ``cuMemPoolGetAccess``;
@@ -224,7 +224,7 @@ class PeerAccessibleBySetProxy(MutableSet):
         self._mr = mr
 
     @classmethod
-    def _from_iterable(cls, it):
+    def _from_iterable(cls, it: Iterable[Device]) -> set[Device]:  # type: ignore[override]
         # Binary set operators (&, |, -, ^) collect their result through
         # _from_iterable. Returning a plain set lets the user reason about
         # the result independently of any pool's driver state.
@@ -336,7 +336,7 @@ class PeerAccessibleBySetProxy(MutableSet):
         if to_add or to_remove:
             self._apply(to_add, to_remove)
 
-    def __ior__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:  # type: ignore[override,misc]
+    def __ior__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
         self.update(other)
         return self
 
@@ -351,7 +351,7 @@ class PeerAccessibleBySetProxy(MutableSet):
             self.difference_update(other)
         return self
 
-    def __ixor__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:  # type: ignore[override,misc]
+    def __ixor__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
         self.symmetric_difference_update(other)
         return self
 

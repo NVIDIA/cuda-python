@@ -4,6 +4,8 @@
 
 from libc.string cimport memset
 
+from typing import Any
+
 from cuda.core._device import Device
 from cuda.core._utils.cuda_utils import (
     CUDAError,
@@ -101,7 +103,7 @@ cdef class LaunchConfig:
         if self.is_cooperative and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
 
-    def _identity(self):
+    def _identity(self) -> tuple[Any, ...]:
         return tuple(getattr(self, attr) for attr in _LAUNCH_CONFIG_ATTRS)
 
     def __repr__(self) -> str:

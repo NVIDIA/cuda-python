@@ -241,7 +241,7 @@ class GraphBuilder:
         )
 
     @classmethod
-    def _init(cls, stream, is_stream_owner, conditional_graph=None, is_join_required=False):
+    def _init(cls, stream: Stream | None, is_stream_owner: bool, conditional_graph: object = None, is_join_required: bool = False) -> GraphBuilder:
         self = cls.__new__(cls)
         self._mnff = GraphBuilder._MembersNeededForFinalize(
             self, stream, is_stream_owner, conditional_graph, is_join_required
@@ -486,7 +486,7 @@ class GraphBuilder:
         )
         return GraphCondition._from_handle(<cydriver.CUgraphConditionalHandle><intptr_t>int(raw_handle))
 
-    def _cond_with_params(self, node_params) -> tuple:
+    def _cond_with_params(self, node_params: object) -> tuple[GraphBuilder, ...]:
         # Get current capture info to ensure we're in a valid state
         status, _, graph, *deps_info, num_dependencies = handle_return(
             driver.cuStreamGetCaptureInfo(self._mnff.stream.handle)
@@ -799,7 +799,7 @@ class Graph:
         raise RuntimeError("directly constructing a Graph instance is not supported")
 
     @classmethod
-    def _init(cls, graph):
+    def _init(cls, graph: driver.CUgraphExec) -> Graph:
         self = cls.__new__(cls)
         self._mnff = Graph._MembersNeededForFinalize(self, graph)
         return self

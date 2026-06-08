@@ -111,10 +111,10 @@ class DeviceMemoryResource(_MemPool):
     def __cinit__(self, *args, **kwargs) -> None:
         ...
 
-    def __init__(self, device_id: Device | int, options: DeviceMemoryResourceOptions | dict | None=None) -> None:
+    def __init__(self, device_id: Device | int, options: DeviceMemoryResourceOptions | dict[str, object] | None=None) -> None:
         ...
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         ...
 
     @staticmethod
@@ -222,5 +222,5 @@ def DMR_mempool_get_access(dmr: DeviceMemoryResource, device_id: int) -> str:
         Access permissions: "rw" for read-write, "r" for read-only, "" for no access.
     """
 
-def _deep_reduce_device_memory_resource(mr):
+def _deep_reduce_device_memory_resource(mr) -> tuple[object, ...]:
     ...

@@ -210,7 +210,7 @@ cdef inline int _check_error(error, handle=None) except?-1:
         raise RuntimeError(f"Unknown error type: {error}")
 
 
-def handle_return(tuple result, handle=None) -> Any:
+def handle_return(result: tuple[Any, ...], handle: object = None) -> Any:
     _check_error(result[0], handle=handle)
     cdef int out_len = len(result)
     if out_len == 1:
@@ -221,7 +221,7 @@ def handle_return(tuple result, handle=None) -> Any:
         return result[1:]
 
 
-cpdef check_or_create_options(type cls, options, str options_description="", bint keep_none=False):
+cpdef object check_or_create_options(type cls, object options, str options_description="", bint keep_none=False):
     """
     Create the specified options dataclass from a dictionary of options or None.
     """
@@ -248,7 +248,7 @@ def _handle_boolean_option(option: bool) -> str:
     return "true" if bool(option) else "false"
 
 
-def precondition(checker: Callable[..., None], str what="") -> Callable:
+def precondition(checker: Callable[..., None], str what="") -> Callable[..., Any]:
     """
     A decorator that adds checks to ensure any preconditions are met.
 
@@ -328,7 +328,7 @@ class Transaction:
         self._entered = False
         return self._stack.__exit__(exc_type, exc, tb)
 
-    def append(self, fn: Callable, /, *args, **kwargs) -> None:
+    def append(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
         """
         Register an undo action (runs if the with-block exits without commit()).
         Values are bound now via partial so late mutations don't bite you.

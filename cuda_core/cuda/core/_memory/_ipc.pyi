@@ -8,7 +8,7 @@ import uuid
 class IPCDataForBuffer:
     """Data members related to sharing memory buffers via IPC."""
 
-    def __cinit__(self, ipc_descriptor: IPCBufferDescriptor, is_mapped: bool):
+    def __cinit__(self, ipc_descriptor: IPCBufferDescriptor, is_mapped: bool) -> None:
         ...
 
     @property
@@ -22,7 +22,7 @@ class IPCDataForBuffer:
 class IPCDataForMR:
     """Data members related to sharing memory resources via IPC."""
 
-    def __cinit__(self, alloc_handle: IPCAllocationHandle, is_mapped: bool):
+    def __cinit__(self, alloc_handle: IPCAllocationHandle, is_mapped: bool) -> None:
         ...
 
     @property
@@ -44,10 +44,10 @@ class IPCBufferDescriptor:
         ...
 
     @staticmethod
-    def _init(reserved: bytes, size: int):
+    def _init(reserved: bytes, size: int) -> IPCBufferDescriptor:
         ...
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         ...
 
     @property
@@ -64,7 +64,7 @@ class IPCAllocationHandle:
         ...
 
     @classmethod
-    def _init(cls, handle: int, uuid):
+    def _init(cls, handle: int, uuid: uuid.UUID | None) -> IPCAllocationHandle:
         ...
 
     def __int__(self) -> int:
@@ -79,8 +79,8 @@ class IPCAllocationHandle:
         ...
 __all__ = ['IPCBufferDescriptor', 'IPCAllocationHandle']
 
-def _reduce_allocation_handle(alloc_handle):
+def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -> tuple[object, ...]:
     ...
 
-def _reconstruct_allocation_handle(cls, df, uuid):
+def _reconstruct_allocation_handle(cls: type, df: object, uuid: uuid.UUID | None) -> IPCAllocationHandle:
     ...

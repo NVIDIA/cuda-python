@@ -38,11 +38,11 @@ class KernelNode(GraphNode):
         ...
 
     @property
-    def grid(self) -> tuple:
+    def grid(self) -> tuple[int, int, int]:
         """Grid dimensions as a 3-tuple (gridDimX, gridDimY, gridDimZ)."""
 
     @property
-    def block(self) -> tuple:
+    def block(self) -> tuple[int, int, int]:
         """Block dimensions as a 3-tuple (blockDimX, blockDimY, blockDimZ)."""
 
     @property
@@ -98,7 +98,7 @@ class AllocNode(GraphNode):
         """The type of memory: ``"device"``, ``"host"``, or ``"managed"``."""
 
     @property
-    def peer_access(self) -> tuple:
+    def peer_access(self) -> tuple[int, ...]:
         """Device IDs with read-write access to this allocation."""
 
 class FreeNode(GraphNode):
@@ -290,7 +290,7 @@ class ConditionalNode(GraphNode):
         """
 
     @property
-    def branches(self) -> tuple:
+    def branches(self) -> tuple[GraphDefinition, ...]:
         """The body graphs for each branch as a tuple of GraphDefinition.
 
         Returns an empty tuple when reconstructed from the driver

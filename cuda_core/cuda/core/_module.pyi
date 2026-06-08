@@ -283,7 +283,7 @@ class Kernel:
         ...
 
     @staticmethod
-    def from_handle(handle, mod: ObjectCode | None=None) -> Kernel:
+    def from_handle(handle: int, mod: ObjectCode | None=None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a kernel handle.
 
         Parameters
@@ -324,18 +324,18 @@ class ObjectCode:
         ...
 
     @classmethod
-    def _init(cls, module, code_type, *, name: str='', symbol_mapping: dict | None=None):
+    def _init(cls, module, code_type, *, name: str='', symbol_mapping: dict[str, str] | None=None) -> ObjectCode:
         ...
 
     @staticmethod
     def _reduce_helper(module, code_type, name, symbol_mapping):
         ...
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         ...
 
     @staticmethod
-    def from_cubin(module: bytes | str | PathLike, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
+    def from_cubin(module: bytes | str | PathLike[str], *, name: str='', symbol_mapping: dict[str, str] | None=None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
@@ -353,7 +353,7 @@ class ObjectCode:
         """
 
     @staticmethod
-    def from_ptx(module: bytes | str | PathLike, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
+    def from_ptx(module: bytes | str | PathLike[str], *, name: str='', symbol_mapping: dict[str, str] | None=None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
@@ -371,7 +371,7 @@ class ObjectCode:
         """
 
     @staticmethod
-    def from_ltoir(module: bytes | str | PathLike, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
+    def from_ltoir(module: bytes | str | PathLike[str], *, name: str='', symbol_mapping: dict[str, str] | None=None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
@@ -389,7 +389,7 @@ class ObjectCode:
         """
 
     @staticmethod
-    def from_fatbin(module: bytes | str | PathLike, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
+    def from_fatbin(module: bytes | str | PathLike[str], *, name: str='', symbol_mapping: dict[str, str] | None=None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
@@ -407,7 +407,7 @@ class ObjectCode:
         """
 
     @staticmethod
-    def from_object(module: bytes | str, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
+    def from_object(module: bytes | str, *, name: str='', symbol_mapping: dict[str, str] | None=None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing object code.
 
         Parameters
@@ -424,7 +424,7 @@ class ObjectCode:
         """
 
     @staticmethod
-    def from_library(module: bytes | str, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
+    def from_library(module: bytes | str, *, name: str='', symbol_mapping: dict[str, str] | None=None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing library.
 
         Parameters
@@ -468,7 +468,7 @@ class ObjectCode:
         """Return the type of the underlying code object."""
 
     @property
-    def symbol_mapping(self) -> dict:
+    def symbol_mapping(self) -> dict[str, str]:
         """Return a copy of the symbol mapping dictionary."""
 
     @property

@@ -218,7 +218,7 @@ class GraphDefinition:
             Customizable options for the debug print.
         """
 
-    def nodes(self) -> set:
+    def nodes(self) -> set[GraphNode]:
         """Return all nodes in the graph.
 
         Returns
@@ -227,7 +227,7 @@ class GraphDefinition:
             All nodes in the graph.
         """
 
-    def edges(self) -> set:
+    def edges(self) -> set[tuple[GraphNode, GraphNode]]:
         """Return all edges in the graph as (from_node, to_node) pairs.
 
         Returns

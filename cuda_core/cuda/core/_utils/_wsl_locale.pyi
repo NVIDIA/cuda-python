@@ -10,7 +10,7 @@ class c_locale_guard:
     locale is unaffected. Restores the previous thread locale on exit.
     """
 
-    def __cinit__(self):
+    def __cinit__(self) -> None:
         ...
 
     def __enter__(self):

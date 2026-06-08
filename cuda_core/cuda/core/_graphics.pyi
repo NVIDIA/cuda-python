@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Sequence
+
 from cuda.bindings import cydriver
 from cuda.core._memory._buffer import Buffer
 from cuda.core._stream import Stream
@@ -47,7 +49,7 @@ class GraphicsResource:
                 pass
     """
 
-    def close(self, stream=None):
+    def close(self, stream: object=None) -> None:
         """Unregister this graphics resource from CUDA.
 
         If the resource is currently mapped, it is unmapped first. After
@@ -141,7 +143,7 @@ class GraphicsResource:
             If an unknown flag string is provided.
         """
 
-    def _get_mapped_buffer(self):
+    def _get_mapped_buffer(self) -> object:
         ...
 
     def map(self, *, stream: Stream) -> Buffer:
@@ -197,10 +199,10 @@ class GraphicsResource:
             If the unmapping fails.
         """
 
-    def __enter__(self):
+    def __enter__(self) -> object:
         ...
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: type | None, exc_val: BaseException | None, exc_tb: object) -> bool:
         ...
 
     @property
@@ -220,5 +222,5 @@ class GraphicsResource:
 __all__ = ['GraphicsResource']
 _REGISTER_FLAGS = {'none': cydriver.CU_GRAPHICS_REGISTER_FLAGS_NONE, 'read_only': cydriver.CU_GRAPHICS_REGISTER_FLAGS_READ_ONLY, 'write_discard': cydriver.CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD, 'surface_load_store': cydriver.CU_GRAPHICS_REGISTER_FLAGS_SURFACE_LDST, 'texture_gather': cydriver.CU_GRAPHICS_REGISTER_FLAGS_TEXTURE_GATHER}
 
-def _parse_register_flags(flags):
+def _parse_register_flags(flags: str | Sequence[str] | None) -> int:
     ...

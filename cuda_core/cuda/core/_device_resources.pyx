@@ -114,10 +114,10 @@ cdef class SMResourceOptions:
         (Default to ``False``)
     """
 
-    count: int | SequenceABC | None = None
-    coscheduled_sm_count: int | SequenceABC | None = None
-    preferred_coscheduled_sm_count: int | SequenceABC | None = None
-    backfill: bool | SequenceABC = False
+    count: int | SequenceABC[int] | None = None
+    coscheduled_sm_count: int | SequenceABC[int] | None = None
+    preferred_coscheduled_sm_count: int | SequenceABC[int] | None = None
+    backfill: bool | SequenceABC[bool] = False
 
 
 @dataclass

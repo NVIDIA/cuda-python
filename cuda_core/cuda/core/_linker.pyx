@@ -364,7 +364,7 @@ class LinkerOptions:
         else:
             return options
 
-    def _prepare_driver_options(self) -> tuple[list, list]:
+    def _prepare_driver_options(self) -> tuple[list[object], list[object]]:
         formatted_options = []
         option_keys = []
 
@@ -693,7 +693,7 @@ def _decide_nvjitlink_or_driver() -> bool:
     return True
 
 
-def _lazy_init():
+def _lazy_init() -> None:
     global _inited, _nvjitlink_input_types, _driver_input_types
     if _inited:
         return

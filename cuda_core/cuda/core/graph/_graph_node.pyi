@@ -15,10 +15,9 @@ from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
 from cuda.core.graph._graph_definition import GraphCondition, GraphDefinition
 from cuda.core.graph._subclasses import (AllocNode, ChildGraphNode, EmptyNode,
                                          EventRecordNode, EventWaitNode,
-                                         FreeNode, HostCallbackNode,
-                                         IfElseNode, IfNode, KernelNode,
-                                         MemcpyNode, MemsetNode, SwitchNode,
-                                         WhileNode)
+                                         FreeNode, IfElseNode, IfNode,
+                                         KernelNode, MemcpyNode, MemsetNode,
+                                         SwitchNode, WhileNode)
 from cuda.core.typing import GraphMemoryType
 
 
@@ -270,7 +269,7 @@ class GraphNode:
             A new EventWaitNode representing the event wait operation.
         """
 
-    def callback(self, fn, *, user_data=None) -> HostCallbackNode:
+    def callback(self, fn, *, user_data=None) -> object:
         """Add a host callback node depending on this node.
 
         The callback runs on the host CPU when the graph reaches this node.

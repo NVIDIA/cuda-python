@@ -146,7 +146,7 @@ cdef class Event:
         self._ipc_descriptor = None
         return self
 
-    cpdef close(self):
+    cpdef void close(self):
         """Destroy the event.
 
         Releases the event handle. The underlying CUDA event is destroyed
@@ -154,7 +154,7 @@ cdef class Event:
         """
         self._h_event.reset()
 
-    def __isub__(self, other: object):  # type: ignore[misc]
+    def __isub__(self, other: object):
         return NotImplemented
 
     def __rsub__(self, other: object):
@@ -329,7 +329,7 @@ cdef class IPCEventDescriptor:
         raise RuntimeError("IPCEventDescriptor objects cannot be instantiated directly. Please use Event APIs.")
 
     @staticmethod
-    def _init(reserved: bytes, is_blocking_sync: cython.bint):
+    def _init(reserved: bytes, is_blocking_sync: cython.bint) -> IPCEventDescriptor:
         cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(IPCEventDescriptor)
         self._reserved = reserved
         self._is_blocking_sync = is_blocking_sync
@@ -341,11 +341,11 @@ cdef class IPCEventDescriptor:
         # No need to check self._is_blocking_sync.
         return self._reserved == (<IPCEventDescriptor>other)._reserved
 
-    def __reduce__(self) -> tuple:
+    def __reduce__(self) -> tuple[object, ...]:
         return IPCEventDescriptor._init, (self._reserved, self._is_blocking_sync)
 
 
-def _reduce_event(event):
+def _reduce_event(event: Event) -> tuple[object, ...]:
     check_multiprocessing_start_method()
     return event.from_ipc_descriptor, (event.ipc_descriptor,)
 

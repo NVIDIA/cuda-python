@@ -55,7 +55,7 @@ class GraphMemoryResourceAttributes:
 
 class cyGraphMemoryResource(MemoryResource):
 
-    def __cinit__(self, device_id: int):
+    def __cinit__(self, device_id: int) -> None:
         ...
 
     def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> Buffer:

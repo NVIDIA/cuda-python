@@ -45,7 +45,7 @@ class Transaction:
     def __exit__(self, exc_type, exc, tb):
         ...
 
-    def append(self, fn: Callable, /, *args, **kwargs) -> None:
+    def append(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
         """
         Register an undo action (runs if the with-block exits without commit()).
         Values are bound now via partial so late mutations don't bite you.
@@ -70,7 +70,7 @@ def _check_runtime_error(error) -> int:
 def _check_nvrtc_error(error, handle=None) -> int:
     ...
 
-def check_or_create_options(cls: type, options, options_description: str='', keep_none: bool=False):
+def check_or_create_options(cls: type, options: object, options_description: str='', keep_none: bool=False) -> object:
     """
     Create the specified options dataclass from a dictionary of options or None.
     """
@@ -102,7 +102,7 @@ def _parse_fill_value(value) -> tuple:
 def cast_to_3_tuple(label: str, cfg: int | tuple[int, ...]) -> tuple[int, int, int]:
     ...
 
-def handle_return(result: tuple, handle=None) -> Any:
+def handle_return(result: tuple[Any, ...], handle: object=None) -> Any:
     ...
 
 def _handle_boolean_option(option: bool) -> str:
@@ -110,7 +110,7 @@ def _handle_boolean_option(option: bool) -> str:
     Convert a boolean option to a string representation.
     """
 
-def precondition(checker: Callable[..., None], what: str='') -> Callable:
+def precondition(checker: Callable[..., None], what: str='') -> Callable[..., Any]:
     """
     A decorator that adds checks to ensure any preconditions are met.
 

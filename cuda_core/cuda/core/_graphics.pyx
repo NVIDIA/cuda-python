@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Sequence
+
 from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
     create_graphics_resource_handle,
@@ -26,7 +28,7 @@ _REGISTER_FLAGS = {
 }
 
 
-def _parse_register_flags(flags):
+def _parse_register_flags(flags: str | Sequence[str] | None) -> int:
     if flags is None:
         return 0
     if isinstance(flags, str):
@@ -206,7 +208,7 @@ cdef class GraphicsResource:
         self._entered_buffer = None
         return self
 
-    def _get_mapped_buffer(self):
+    def _get_mapped_buffer(self) -> object:
         cdef Buffer buf
         if self._mapped_buffer is None:
             return None
@@ -308,17 +310,17 @@ cdef class GraphicsResource:
         buf.close(stream=stream)
         self._mapped_buffer = None
 
-    def __enter__(self):
+    def __enter__(self) -> object:
         if self._context_manager_stream is None:
             return self
         self._entered_buffer = self.map(stream=self._context_manager_stream)
         return self._entered_buffer
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: type | None, exc_val: BaseException | None, exc_tb: object) -> bool:
         self.close()
         return False
 
-    cpdef close(self, stream=None):
+    cpdef void close(self, object stream=None):
         """Unregister this graphics resource from CUDA.
 
         If the resource is currently mapped, it is unmapped first. After

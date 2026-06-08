@@ -47,7 +47,7 @@ class ClockInfo:
     Accesses various clock information about a device.
     """
 
-    def __init__(self, handle, clock_type: ClockType | str):
+    def __init__(self, handle: int, clock_type: ClockType | str):
         ...
 
     def get_current_mhz(self, clock_id: ClockId | str=...) -> int:
@@ -272,7 +272,7 @@ class DeviceEvents:
     def __init__(self, device_handle: int, events: EventType | str | list[EventType | str]):
         ...
 
-    def __dealloc__(self):
+    def __dealloc__(self) -> None:
         ...
 
     def wait(self, timeout_ms: int=0) -> EventData:
@@ -342,7 +342,7 @@ class FanInfo:
         """
 
     @speed.setter
-    def speed(self, speed: int):
+    def speed(self, speed: int) -> None:
         ...
 
     @property
@@ -399,7 +399,7 @@ class FanInfo:
         For all CUDA-capable discrete products with fans.
         """
 
-    def set_default_speed(self):
+    def set_default_speed(self) -> None:
         """
         Set the speed of the fan control policy to default.
 
@@ -684,7 +684,7 @@ class MigInfo:
         """
 
     @mode.setter
-    def mode(self, mode: bool):
+    def mode(self, mode: bool) -> None:
         """
         Set the MIG mode for the device.
 
@@ -1007,7 +1007,7 @@ class GpuDynamicPstatesInfo:
     def __init__(self, gpu_dynamic_pstates_info: nvml.GpuDynamicPstatesInfo):
         ...
 
-    def __len__(self):
+    def __len__(self) -> int:
         ...
 
     def __getitem__(self, idx: int) -> GpuDynamicPstatesUtilization:
@@ -1099,7 +1099,7 @@ class ThermalSettings:
     def __init__(self, thermal_settings: nvml.ThermalSettings):
         ...
 
-    def __len__(self):
+    def __len__(self) -> int:
         ...
 
     def __getitem__(self, idx: int) -> nvml.ThermalSensor:
@@ -1869,7 +1869,7 @@ _GPU_TOPOLOGY_LEVEL_MAPPING = {GpuTopologyLevel.INTERNAL: nvml.GpuTopologyLevel.
 _GPU_TOPOLOGY_LEVEL_INV_MAPPING = {v: k for k, v in _GPU_TOPOLOGY_LEVEL_MAPPING.items()}
 __all__ = ['Device', 'get_p2p_status', 'get_topology_common_ancestor', 'NvlinkInfo']
 
-def _unpack_bitmask(arr) -> list:
+def _unpack_bitmask(arr: object) -> list[int]:
     """
     Unpack a list of integers containing bitmasks.
     """
