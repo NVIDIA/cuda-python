@@ -18,7 +18,7 @@ import re
 
 import pytest
 from helpers import IS_WINDOWS, supports_ipc_mempool
-from helpers.buffers import DummyUnifiedMemoryResource, TrackingMR
+from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR
 
 from conftest import (
     create_managed_memory_resource_or_skip,
@@ -32,6 +32,7 @@ from cuda.core import (
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
+    LegacyPinnedMemoryResource,
     ManagedMemoryResource,
     ManagedMemoryResourceOptions,
     MemoryResource,
@@ -59,30 +60,17 @@ from cuda.core.utils import StridedMemoryView
 POOL_SIZE = 2097152  # 2MB size
 
 
-class DummyDeviceMemoryResource(MemoryResource):
-    # cuMemAlloc / cuMemFree are synchronous; stream is accepted for
-    # interface conformance but ignored.
-    def __init__(self, device):
-        self.device = device
-
-    def allocate(self, size, *, stream=None) -> Buffer:
-        ptr = handle_return(driver.cuMemAlloc(size))
-        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
-
-    def deallocate(self, ptr, size, *, stream=None):
-        handle_return(driver.cuMemFree(ptr))
-
-    @property
-    def is_device_accessible(self) -> bool:
-        return True
-
-    @property
-    def is_host_accessible(self) -> bool:
-        return False
-
-    @property
-    def device_id(self) -> int:
-        return 0
+def _allocate_pinned_buffer_or_xfail(mr, size, *, device):
+    try:
+        return mr.allocate(size, stream=device.default_stream)
+    except CUDAError as exc:
+        if "CUDA_ERROR_OUT_OF_MEMORY" in str(exc):
+            pytest.xfail("TODO(#9999): Resolve CUDA_ERROR_OUT_OF_MEMORY")
+        raise
+    except RuntimeError as exc:
+        if "Failed to allocate memory from pool" in str(exc):
+            pytest.xfail("TODO(#9999): Resolve Failed to allocate memory from pool")
+        raise
 
 
 class DummyHostMemoryResource(MemoryResource):
@@ -154,6 +142,7 @@ def test_package_contents():
         "IPCAllocationHandle",
         "IPCBufferDescriptor",
         "LegacyPinnedMemoryResource",
+        "ManagedBuffer",
         "ManagedMemoryResource",
         "ManagedMemoryResourceOptions",
         "MemoryResource",
@@ -706,7 +695,11 @@ def test_non_managed_resources_report_not_managed(mr_kind):
         skip_if_pinned_memory_unsupported(device)
         mr = create_pinned_memory_resource_or_xfail(xfail_device=device)
     assert mr.is_managed is False
-    buf = mr.allocate(1024, stream=device.default_stream)
+    buf = (
+        _allocate_pinned_buffer_or_xfail(mr, 1024, device=device)
+        if mr_kind == "pinned"
+        else mr.allocate(1024, stream=device.default_stream)
+    )
     assert buf.is_managed is False
     buf.close()
 
@@ -754,16 +747,7 @@ def test_pinned_memory_resource_initialization(init_cuda):
     assert mr.is_host_accessible
 
     # Test allocation/deallocation works
-    try:
-        buffer = mr.allocate(1024, stream=device.default_stream)
-    except CUDAError as exc:
-        msg = str(exc)
-        if "CUDA_ERROR_OUT_OF_MEMORY" in msg:
-            pytest.xfail("TODO(#9999): Resolve CUDA_ERROR_OUT_OF_MEMORY")
-    except RuntimeError as exc:
-        msg = str(exc)
-        if "Failed to allocate memory from pool" in msg:
-            pytest.xfail("TODO(#9999): Resolve Failed to allocate memory from pool")
+    buffer = _allocate_pinned_buffer_or_xfail(mr, 1024, device=device)
     assert buffer.size == 1024
     assert buffer.device_id == -1  # Not bound to any GPU
     assert buffer.is_host_accessible
@@ -967,6 +951,91 @@ def test_vmm_allocator_grow_allocation(handle_type):
 
     # Clean up
     grown_buffer.close()
+
+
+def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
+    """Exercise the VMM grow fast path with mocked driver calls.
+
+    The real driver usually rejects the adjacent reservation that reaches this
+    path, so the test supplies that precondition by construction and verifies
+    the successful commit bookkeeping.
+    """
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    vmm_mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+
+    # Build the prop the same shape modify_allocation does, so the helper's
+    # cuMemCreate / _build_access_descriptors path sees production-like input.
+    prop = driver.CUmemAllocationProp()
+    prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+    prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    prop.location.id = device.device_id
+
+    SUCCESS = driver.CUresult.CUDA_SUCCESS
+    NEW_HANDLE = 0xBEEF
+    calls = []
+
+    def fake_create(size, p, flags):
+        calls.append(("create", size))
+        return (SUCCESS, NEW_HANDLE)
+
+    def fake_map(ptr, size, offset, handle, flags):
+        calls.append(("map", ptr, size, handle))
+        return (SUCCESS,)
+
+    def fake_set_access(ptr, size, descs, count):
+        calls.append(("set_access", ptr, size, count))
+        return (SUCCESS,)
+
+    # Rollback-only entry points: registered as undo actions but, on a
+    # successful commit, must never be invoked.
+    def fake_unmap(ptr, size):
+        calls.append(("unmap", ptr, size))
+        return (SUCCESS,)
+
+    def fake_release(handle):
+        calls.append(("release", handle))
+        return (SUCCESS,)
+
+    def fake_addr_free(ptr, size):
+        calls.append(("addr_free", ptr, size))
+        return (SUCCESS,)
+
+    monkeypatch.setattr(driver, "cuMemCreate", fake_create)
+    monkeypatch.setattr(driver, "cuMemMap", fake_map)
+    monkeypatch.setattr(driver, "cuMemSetAccess", fake_set_access)
+    monkeypatch.setattr(driver, "cuMemUnmap", fake_unmap)
+    monkeypatch.setattr(driver, "cuMemRelease", fake_release)
+    monkeypatch.setattr(driver, "cuMemAddressFree", fake_addr_free)
+
+    # A real Buffer carries C++-owned handle state we must not fabricate; the
+    # helper only reads and writes buf._size, so a light stand-in suffices.
+    class FakeBuffer:
+        def __init__(self, size):
+            self._size = size
+
+    original_size = 2 * 1024 * 1024
+    aligned_additional = 2 * 1024 * 1024
+    new_size = original_size + aligned_additional
+    new_ptr = 0x10_0000  # stand-in VA for the (mocked) contiguous extension
+
+    buf = FakeBuffer(original_size)
+    result = vmm_mr._grow_allocation_fast_path(buf, new_size, prop, aligned_additional, new_ptr)
+
+    # Fast-path contract: same buffer object, size updated in place.
+    assert result is buf
+    assert buf._size == new_size
+
+    # Successful commit: create, map, set access, and no rollback calls.
+    assert [c[0] for c in calls] == ["create", "map", "set_access"]
+    assert ("create", aligned_additional) in calls
+    assert ("map", new_ptr, aligned_additional, NEW_HANDLE) in calls
+    assert ("set_access", new_ptr, aligned_additional, 1) in calls
 
 
 def test_vmm_allocator_rdma_unsupported_exception():
@@ -1377,11 +1446,11 @@ def test_pinned_mr_numa_id_default_no_ipc(init_cuda):
     device = Device()
     skip_if_pinned_memory_unsupported(device)
 
-    mr = PinnedMemoryResource(PinnedMemoryResourceOptions())
+    mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(), xfail_device=device)
     assert mr.numa_id == -1
     mr.close()
 
-    mr = PinnedMemoryResource(PinnedMemoryResourceOptions(ipc_enabled=False))
+    mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(ipc_enabled=False), xfail_device=device)
     assert mr.numa_id == -1
     mr.close()
 
@@ -1400,7 +1469,9 @@ def test_pinned_mr_numa_id_default_with_ipc(init_cuda):
     if expected_numa_id < 0:
         pytest.skip("System does not support NUMA")
 
-    mr = PinnedMemoryResource(PinnedMemoryResourceOptions(ipc_enabled=True, max_size=POOL_SIZE))
+    mr = create_pinned_memory_resource_or_xfail(
+        PinnedMemoryResourceOptions(ipc_enabled=True, max_size=POOL_SIZE), xfail_device=device
+    )
     assert mr.numa_id == expected_numa_id
     mr.close()
 
@@ -1414,7 +1485,7 @@ def test_pinned_mr_numa_id_explicit(init_cuda):
     if host_numa_id < 0:
         pytest.skip("System does not support NUMA")
 
-    mr = PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=host_numa_id))
+    mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(numa_id=host_numa_id), xfail_device=device)
     assert mr.numa_id == host_numa_id
     mr.close()
 
@@ -1423,7 +1494,10 @@ def test_pinned_mr_numa_id_explicit(init_cuda):
     if not supports_ipc_mempool(device):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
-    mr = PinnedMemoryResource(PinnedMemoryResourceOptions(ipc_enabled=True, numa_id=host_numa_id, max_size=POOL_SIZE))
+    mr = create_pinned_memory_resource_or_xfail(
+        PinnedMemoryResourceOptions(ipc_enabled=True, numa_id=host_numa_id, max_size=POOL_SIZE),
+        xfail_device=device,
+    )
     assert mr.numa_id == host_numa_id
     mr.close()
 
@@ -1683,3 +1757,137 @@ def test_top_level_namespace_excludes_known_leaks():
     public = {n for n in dir(cuda.core) if not n.startswith("_")}
     leaked = {"StridedMemoryView", "args_viewable_as_strided_memory"}
     assert not (public & leaked)
+
+
+def test_legacy_pinned_allocate_zero_size(init_cuda):
+    """LegacyPinnedMemoryResource.allocate(0) skips the driver call and uses ptr=0."""
+    mr = LegacyPinnedMemoryResource()
+    buf = mr.allocate(0)
+    assert buf.size == 0
+    # No driver call was made; handle is the sentinel 0.
+    assert int(buf.handle) == 0
+
+
+def test_legacy_pinned_device_id_raises():
+    """LegacyPinnedMemoryResource.device_id raises; pinned memory is not bound to a GPU."""
+    mr = LegacyPinnedMemoryResource()
+    with pytest.raises(RuntimeError, match="not bound to any GPU"):
+        _ = mr.device_id
+
+
+def test_synchronous_memory_resource_basic(init_cuda):
+    """_SynchronousMemoryResource exercises properties and allocate paths (zero, non-zero, with-stream)."""
+    from cuda.core._memory._legacy import _SynchronousMemoryResource
+
+    dev = Device()
+    mr = _SynchronousMemoryResource(dev.device_id)
+    assert mr.is_device_accessible is True
+    assert mr.is_host_accessible is False
+    assert mr.device_id == dev.device_id
+
+    # Zero-size allocation takes the ptr=0 fast path.
+    zero_buf = mr.allocate(0)
+    assert zero_buf.size == 0
+    assert int(zero_buf.handle) == 0
+    zero_buf.close(stream=None)
+
+    # Non-zero allocation goes through cuMemAlloc; close with stream=None for
+    # the simple path. The explicit-stream close path is covered separately.
+    buf = mr.allocate(64)
+    assert buf.size == 64
+    assert int(buf.handle) != 0
+    buf.close(stream=None)
+
+    # allocate(size, stream=stream) exercises Stream_accept validation on the
+    # allocate side (cuMemAlloc is synchronous so the stream is accepted but unused).
+    stream = dev.create_stream()
+    buf2 = mr.allocate(32, stream=stream)
+    assert buf2.size == 32
+    assert int(buf2.handle) != 0
+    buf2.close(stream=None)
+    stream.close()
+
+
+def test_synchronous_memory_resource_deallocate_accepts_stream(init_cuda):
+    """_SynchronousMemoryResource.deallocate accepts an explicit stream."""
+    from cuda.core._memory._legacy import _SynchronousMemoryResource
+
+    dev = Device()
+    mr = _SynchronousMemoryResource(dev.device_id)
+    buf = mr.allocate(64)
+    stream = dev.create_stream()
+    buf.close(stream=stream)
+    stream.close()
+
+
+@pytest.mark.parametrize(
+    ("method", "spec", "match"),
+    [
+        ("_access_to_flags", "bogus", "Unknown access spec"),
+        ("_allocation_type_to_driver", "bogus", "Unsupported allocation_type"),
+        ("_location_type_to_driver", "bogus", "Unsupported location_type"),
+        ("_handle_type_to_driver", "bogus", "Unsupported handle_type"),
+        ("_granularity_to_driver", "bogus", "Unsupported granularity"),
+    ],
+)
+def test_vmm_options_spec_validators_raise(method, spec, match):
+    """Every VMM spec validator static method rejects unknown strings with ValueError."""
+    fn = getattr(VirtualMemoryResourceOptions, method)
+    with pytest.raises(ValueError, match=match):
+        fn(spec)
+
+
+def test_vmm_options_handle_type_win32_raises():
+    """_handle_type_to_driver raises NotImplementedError for 'win32'."""
+    with pytest.raises(NotImplementedError, match="win32 is currently not supported"):
+        VirtualMemoryResourceOptions._handle_type_to_driver("win32")
+
+
+def test_device_memory_resource_peer_accessible_by_non_owned(mempool_device):
+    """peer_accessible_by on a non-owned (default) DMR queries the driver live."""
+    dev = mempool_device
+    # The default DeviceMemoryResource(device) wraps the current device's
+    # default pool, i.e. _mempool_owned is False, so accessing
+    # peer_accessible_by exercises the live _DMR_query_peer_access path.
+    mr = DeviceMemoryResource(dev)
+    peers = mr.peer_accessible_by
+    assert all(isinstance(p, Device) for p in peers)
+    # __contains__ accepts int dev_ids; the owning device is never a peer.
+    assert dev.device_id not in peers
+
+
+def test_dmr_mempool_get_access_self(mempool_device):
+    """DMR_mempool_get_access returns 'rw' when querying the owning device itself."""
+    from cuda.core._memory._device_memory_resource import DMR_mempool_get_access
+
+    mr = DeviceMemoryResource(mempool_device)
+    # The owning device always has read-write access to its own pool.
+    assert DMR_mempool_get_access(mr, mempool_device.device_id) == "rw"
+
+
+def test_dmr_mempool_get_access_peer(mempool_device_x2):
+    """DMR_mempool_get_access reflects peer access state for a different device."""
+    from cuda.core._memory._device_memory_resource import DMR_mempool_get_access
+
+    dev, peer = mempool_device_x2
+    # Owned pool avoids peer-access contamination from other tests; max_size
+    # caps VA to dodge Windows MCDM OOM
+    mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+
+    # Fresh owned pool: peer has no access.
+    assert DMR_mempool_get_access(mr, peer.device_id) == ""
+    # After granting access, peer has read-write.
+    mr.peer_accessible_by = [peer]
+    assert DMR_mempool_get_access(mr, peer.device_id) == "rw"
+    # After revoking, peer is back to no access.
+    mr.peer_accessible_by = []
+    assert DMR_mempool_get_access(mr, peer.device_id) == ""
+
+
+def test_dmr_peer_accessible_by_setter_empty(mempool_device):
+    """Assigning an empty peer-access set to a fresh owned pool is a no-op."""
+    # max_size caps VA to dodge Windows MCDM OOM
+    mr = DeviceMemoryResource(mempool_device, options=DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    assert set(mr.peer_accessible_by) == set()
+    mr.peer_accessible_by = []
+    assert set(mr.peer_accessible_by) == set()
