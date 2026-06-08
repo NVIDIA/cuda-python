@@ -547,7 +547,9 @@ def test_get_inforom_version():
         with unsupported_before(device, "HAS_INFOROM"):
             board_part_number = inforom.board_part_number
         assert isinstance(board_part_number, str)
-        assert len(board_part_number) > 0
+
+        # Some boards (e.g. NVIDIA T4G) do not program a board part number
+        assert board_part_number == "" or board_part_number.strip() == board_part_number
 
         inforom.validate()
 
