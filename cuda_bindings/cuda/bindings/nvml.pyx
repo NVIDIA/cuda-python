@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1568+g289771de9.d20260413. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -422,6 +422,7 @@ class NvlinkVersion(_FastEnum):
     VERSION_3_1 = (NVML_NVLINK_VERSION_3_1, 'NVLink Version 3.1.')
     VERSION_4_0 = (NVML_NVLINK_VERSION_4_0, 'NVLink Version 4.0.')
     VERSION_5_0 = (NVML_NVLINK_VERSION_5_0, 'NVLink Version 5.0.')
+    VERSION_6_0 = (NVML_NVLINK_VERSION_6_0, 'NVLink Version 6.0.')
 
 class EccCounterType(_FastEnum):
     """
@@ -714,6 +715,7 @@ class DeviceGpuRecoveryAction(_FastEnum):
     GPU_RECOVERY_ACTION_NODE_REBOOT = (NVML_GPU_RECOVERY_ACTION_NODE_REBOOT, 'Reboot Node.')
     GPU_RECOVERY_ACTION_DRAIN_P2P = (NVML_GPU_RECOVERY_ACTION_DRAIN_P2P, 'Drain P2P.')
     GPU_RECOVERY_ACTION_DRAIN_AND_RESET = (NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET, 'Drain P2P and Reset Gpu.')
+    GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN = (NVML_GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN, 'Recover IMEX Domain.')
 
 class FanState(_FastEnum):
     """
@@ -994,6 +996,42 @@ class GpmMetricId(_FastEnum):
     GPM_METRIC_GR7_CTXSW_REQUESTS = NVML_GPM_METRIC_GR7_CTXSW_REQUESTS
     GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ
     GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT
+    GPM_METRIC_NVLINK_L18_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L18_RX_PER_SEC
+    GPM_METRIC_NVLINK_L18_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L18_TX_PER_SEC
+    GPM_METRIC_NVLINK_L19_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L19_RX_PER_SEC
+    GPM_METRIC_NVLINK_L19_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L19_TX_PER_SEC
+    GPM_METRIC_NVLINK_L20_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L20_RX_PER_SEC
+    GPM_METRIC_NVLINK_L20_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L20_TX_PER_SEC
+    GPM_METRIC_NVLINK_L21_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L21_RX_PER_SEC
+    GPM_METRIC_NVLINK_L21_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L21_TX_PER_SEC
+    GPM_METRIC_NVLINK_L22_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L22_RX_PER_SEC
+    GPM_METRIC_NVLINK_L22_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L22_TX_PER_SEC
+    GPM_METRIC_NVLINK_L23_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L23_RX_PER_SEC
+    GPM_METRIC_NVLINK_L23_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L23_TX_PER_SEC
+    GPM_METRIC_NVLINK_L24_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L24_RX_PER_SEC
+    GPM_METRIC_NVLINK_L24_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L24_TX_PER_SEC
+    GPM_METRIC_NVLINK_L25_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L25_RX_PER_SEC
+    GPM_METRIC_NVLINK_L25_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L25_TX_PER_SEC
+    GPM_METRIC_NVLINK_L26_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L26_RX_PER_SEC
+    GPM_METRIC_NVLINK_L26_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L26_TX_PER_SEC
+    GPM_METRIC_NVLINK_L27_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L27_RX_PER_SEC
+    GPM_METRIC_NVLINK_L27_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L27_TX_PER_SEC
+    GPM_METRIC_NVLINK_L28_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L28_RX_PER_SEC
+    GPM_METRIC_NVLINK_L28_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L28_TX_PER_SEC
+    GPM_METRIC_NVLINK_L29_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L29_RX_PER_SEC
+    GPM_METRIC_NVLINK_L29_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L29_TX_PER_SEC
+    GPM_METRIC_NVLINK_L30_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L30_RX_PER_SEC
+    GPM_METRIC_NVLINK_L30_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L30_TX_PER_SEC
+    GPM_METRIC_NVLINK_L31_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L31_RX_PER_SEC
+    GPM_METRIC_NVLINK_L31_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L31_TX_PER_SEC
+    GPM_METRIC_NVLINK_L32_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L32_RX_PER_SEC
+    GPM_METRIC_NVLINK_L32_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L32_TX_PER_SEC
+    GPM_METRIC_NVLINK_L33_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L33_RX_PER_SEC
+    GPM_METRIC_NVLINK_L33_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L33_TX_PER_SEC
+    GPM_METRIC_NVLINK_L34_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L34_RX_PER_SEC
+    GPM_METRIC_NVLINK_L34_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L34_TX_PER_SEC
+    GPM_METRIC_NVLINK_L35_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L35_RX_PER_SEC
+    GPM_METRIC_NVLINK_L35_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L35_TX_PER_SEC
     GPM_METRIC_SM_CYCLES_ELAPSED = (NVML_GPM_METRIC_SM_CYCLES_ELAPSED, "The GPU's SM cycles elapsed since reboot.")
     GPM_METRIC_SM_CYCLES_ACTIVE = (NVML_GPM_METRIC_SM_CYCLES_ACTIVE, "The GPU's SM activity since reboot.")
     GPM_METRIC_MMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_MMA_CYCLES_ACTIVE, "The GPU's SM MMA tensor activity since reboot.")
@@ -1043,6 +1081,42 @@ class GpmMetricId(_FastEnum):
     GPM_METRIC_NVLINK_L16_TX = (NVML_GPM_METRIC_NVLINK_L16_TX, 'NvLink write for link 16 in bytes since reboot.')
     GPM_METRIC_NVLINK_L17_RX = (NVML_GPM_METRIC_NVLINK_L17_RX, 'NvLink read for link 17 in bytes since reboot.')
     GPM_METRIC_NVLINK_L17_TX = (NVML_GPM_METRIC_NVLINK_L17_TX, 'NvLink write for link 17 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L18_RX = (NVML_GPM_METRIC_NVLINK_L18_RX, 'NvLink read for link 18 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L18_TX = (NVML_GPM_METRIC_NVLINK_L18_TX, 'NvLink write for link 18 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L19_RX = (NVML_GPM_METRIC_NVLINK_L19_RX, 'NvLink read for link 19 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L19_TX = (NVML_GPM_METRIC_NVLINK_L19_TX, 'NvLink write for link 19 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L20_RX = (NVML_GPM_METRIC_NVLINK_L20_RX, 'NvLink read for link 20 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L20_TX = (NVML_GPM_METRIC_NVLINK_L20_TX, 'NvLink write for link 20 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L21_RX = (NVML_GPM_METRIC_NVLINK_L21_RX, 'NvLink read for link 21 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L21_TX = (NVML_GPM_METRIC_NVLINK_L21_TX, 'NvLink write for link 21 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L22_RX = (NVML_GPM_METRIC_NVLINK_L22_RX, 'NvLink read for link 22 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L22_TX = (NVML_GPM_METRIC_NVLINK_L22_TX, 'NvLink write for link 22 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L23_RX = (NVML_GPM_METRIC_NVLINK_L23_RX, 'NvLink read for link 23 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L23_TX = (NVML_GPM_METRIC_NVLINK_L23_TX, 'NvLink write for link 23 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L24_RX = (NVML_GPM_METRIC_NVLINK_L24_RX, 'NvLink read for link 24 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L24_TX = (NVML_GPM_METRIC_NVLINK_L24_TX, 'NvLink write for link 24 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L25_RX = (NVML_GPM_METRIC_NVLINK_L25_RX, 'NvLink read for link 25 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L25_TX = (NVML_GPM_METRIC_NVLINK_L25_TX, 'NvLink write for link 25 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L26_RX = (NVML_GPM_METRIC_NVLINK_L26_RX, 'NvLink read for link 26 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L26_TX = (NVML_GPM_METRIC_NVLINK_L26_TX, 'NvLink write for link 26 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L27_RX = (NVML_GPM_METRIC_NVLINK_L27_RX, 'NvLink read for link 27 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L27_TX = (NVML_GPM_METRIC_NVLINK_L27_TX, 'NvLink write for link 27 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L28_RX = (NVML_GPM_METRIC_NVLINK_L28_RX, 'NvLink read for link 28 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L28_TX = (NVML_GPM_METRIC_NVLINK_L28_TX, 'NvLink write for link 28 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L29_RX = (NVML_GPM_METRIC_NVLINK_L29_RX, 'NvLink read for link 29 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L29_TX = (NVML_GPM_METRIC_NVLINK_L29_TX, 'NvLink write for link 29 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L30_RX = (NVML_GPM_METRIC_NVLINK_L30_RX, 'NvLink read for link 30 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L30_TX = (NVML_GPM_METRIC_NVLINK_L30_TX, 'NvLink write for link 30 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L31_RX = (NVML_GPM_METRIC_NVLINK_L31_RX, 'NvLink read for link 31 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L31_TX = (NVML_GPM_METRIC_NVLINK_L31_TX, 'NvLink write for link 31 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L32_RX = (NVML_GPM_METRIC_NVLINK_L32_RX, 'NvLink read for link 32 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L32_TX = (NVML_GPM_METRIC_NVLINK_L32_TX, 'NvLink write for link 32 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L33_RX = (NVML_GPM_METRIC_NVLINK_L33_RX, 'NvLink read for link 33 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L33_TX = (NVML_GPM_METRIC_NVLINK_L33_TX, 'NvLink write for link 33 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L34_RX = (NVML_GPM_METRIC_NVLINK_L34_RX, 'NvLink read for link 34 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L34_TX = (NVML_GPM_METRIC_NVLINK_L34_TX, 'NvLink write for link 34 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L35_RX = (NVML_GPM_METRIC_NVLINK_L35_RX, 'NvLink read for link 35 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L35_TX = (NVML_GPM_METRIC_NVLINK_L35_TX, 'NvLink write for link 35 in bytes since reboot.')
     GPM_METRIC_MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1.')
 
 class PowerProfileType(_FastEnum):
@@ -1108,6 +1182,27 @@ class PowerProfileOperation(_FastEnum):
     SET = (NVML_POWER_PROFILE_OPERATION_SET, 'Add the requested profiles to the existing list of requested profiles.')
     SET_AND_OVERWRITE = (NVML_POWER_PROFILE_OPERATION_SET_AND_OVERWRITE, 'Overwrite the existing list of requested profiles with just the requested profiles.')
     MAX = (NVML_POWER_PROFILE_OPERATION_MAX, 'Max value above +1.')
+
+class ProcessMode(_FastEnum):
+    """
+    Enum to represent process mode.
+
+    See `nvmlProcessMode_t`.
+    """
+    COMPUTE = (NVML_PROCESS_MODE_COMPUTE, 'Processes with a compute context.')
+    GRAPHICS = (NVML_PROCESS_MODE_GRAPHICS, 'Processes with a graphics context.')
+    MPS = (NVML_PROCESS_MODE_MPS, 'Processes with a MPS (Multi-Process Service) compute context.')
+    ALL = (NVML_PROCESS_MODE_ALL, 'All processes running on the GPU (compute, graphics, MPS, and other types)')
+    MAX = (NVML_PROCESS_MODE_MAX, 'Maximum value for bounds checking.')
+
+class CPERType(_FastEnum):
+    """
+    Bitmask of CPER record types. Multiple values may be combined to
+    request records from several sources in one call.
+
+    See `nvmlCPERType_t`.
+    """
+    CPER_ACCESS_TYPE_GPU = (NVML_CPER_ACCESS_TYPE_GPU, 'Access GPU CPER records.')
 
 
 class AffinityScope(_FastEnum):
@@ -1903,97 +1998,66 @@ class NvmlError(Exception):
 
 class UninitializedError(NvmlError):
     pass
-
 class InvalidArgumentError(NvmlError):
     pass
-
 class NotSupportedError(NvmlError):
     pass
-
 class NoPermissionError(NvmlError):
     pass
-
 class AlreadyInitializedError(NvmlError):
     pass
-
 class NotFoundError(NvmlError):
     pass
-
 class InsufficientSizeError(NvmlError):
     pass
-
 class InsufficientPowerError(NvmlError):
     pass
-
 class DriverNotLoadedError(NvmlError):
     pass
-
 class TimeoutError(NvmlError):
     pass
-
 class IrqIssueError(NvmlError):
     pass
-
 class LibraryNotFoundError(NvmlError):
     pass
-
 class FunctionNotFoundError(NvmlError):
     pass
-
 class CorruptedInforomError(NvmlError):
     pass
-
 class GpuIsLostError(NvmlError):
     pass
-
 class ResetRequiredError(NvmlError):
     pass
-
 class OperatingSystemError(NvmlError):
     pass
-
 class LibRmVersionMismatchError(NvmlError):
     pass
-
 class InUseError(NvmlError):
     pass
-
 class MemoryError(NvmlError):
     pass
-
 class NoDataError(NvmlError):
     pass
-
 class VgpuEccNotSupportedError(NvmlError):
     pass
-
 class InsufficientResourcesError(NvmlError):
     pass
-
 class FreqNotSupportedError(NvmlError):
     pass
-
 class ArgumentVersionMismatchError(NvmlError):
     pass
-
 class DeprecatedError(NvmlError):
     pass
-
 class NotReadyError(NvmlError):
     pass
-
 class GpuNotFoundError(NvmlError):
     pass
-
 class InvalidStateError(NvmlError):
     pass
-
 class ResetTypeNotSupportedError(NvmlError):
     pass
-
 class UnknownError(NvmlError):
     pass
-
 cdef object _nvml_error_factory(int status):
     cdef object pystatus = status
     if status == 1:
@@ -15537,7 +15601,7 @@ cdef class VgpuSchedulerStateInfo_v2:
 
     @property
     def avg_factor(self):
-        """int: OUT: Average factor in compensating the timeslice for Adaptive Round Robin mode."""
+        """int: OUT: Average factor in compensating the timeslice for Adaptive Round Robin mode. 0 when there is no active scheduling."""
         return self._ptr[0].avgFactor
 
     @avg_factor.setter
@@ -15548,7 +15612,7 @@ cdef class VgpuSchedulerStateInfo_v2:
 
     @property
     def timeslice(self):
-        """int: OUT: The timeslice in ns for each software run list as configured, or the default value otherwise."""
+        """int: OUT: The timeslice in ns for each software run list as configured, or the default value otherwise. 0 when there is no active scheduling."""
         return self._ptr[0].timeslice
 
     @timeslice.setter
@@ -16223,7 +16287,7 @@ cdef class ProcessDetailList_v1:
 
     @property
     def mode(self):
-        """int: Process mode(Compute/Graphics/MPSCompute)"""
+        """int: Process mode, One of `nvmlProcessMode_t`."""
         return self._ptr[0].mode
 
     @mode.setter
@@ -19878,7 +19942,7 @@ cdef class VgpuSchedulerLogInfo_v2:
 
     @property
     def avg_factor(self):
-        """int: OUT: Average factor in compensating the timeslice for Adaptive Round Robin mode."""
+        """int: OUT: Average factor in compensating the timeslice for Adaptive Round Robin mode. 0 when there is no active scheduling."""
         return self._ptr[0].avgFactor
 
     @avg_factor.setter
@@ -19889,7 +19953,7 @@ cdef class VgpuSchedulerLogInfo_v2:
 
     @property
     def timeslice(self):
-        """int: OUT: The timeslice in ns for each software run list as configured, or the default value otherwise."""
+        """int: OUT: The timeslice in ns for each software run list as configured, or the default value otherwise. 0 when there is no active scheduling."""
         return self._ptr[0].timeslice
 
     @timeslice.setter
@@ -23224,10 +23288,10 @@ cpdef object device_get_memory_info_v2(intptr_t device):
 
 
 cpdef int device_get_compute_mode(intptr_t device) except? -1:
-    """Retrieves the current compute mode for the device.
+    """Retrieves the current compute mode for the device or MIG device.
 
     Args:
-        device (intptr_t): The identifier of the target device.
+        device (intptr_t): The identifier of the target device handle or MIG device handle.
 
     Returns:
         int: Reference in which to return the current compute mode.
@@ -24405,10 +24469,10 @@ cpdef device_set_persistence_mode(intptr_t device, int mode):
 
 
 cpdef device_set_compute_mode(intptr_t device, int mode):
-    """Set the compute mode for the device.
+    """Set the compute mode for the device or MIG device.
 
     Args:
-        device (intptr_t): The identifier of the target device.
+        device (intptr_t): The identifier of the target device handle or MIG device handle.
         mode (ComputeMode): The target compute mode.
 
     .. seealso:: `nvmlDeviceSetComputeMode`

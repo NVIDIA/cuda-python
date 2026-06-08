@@ -7,6 +7,7 @@ from __future__ import annotations
 from libc.stddef cimport size_t
 
 from collections import namedtuple
+from os import fsencode, fspath, PathLike
 
 from cuda.core._device import Device
 from cuda.core._launch_config cimport LaunchConfig
@@ -608,7 +609,13 @@ cdef class ObjectCode:
         self._h_library = LibraryHandle()  # Empty handle
 
         self._code_type = str(code_type)
-        self._module = module
+
+        if isinstance(module, (str, bytes, bytearray)):
+            self._module = module
+        elif isinstance(module, PathLike):
+            self._module = fspath(module)
+        else:
+            self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
         self._name = name if name else ""
 
@@ -622,14 +629,15 @@ cdef class ObjectCode:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_cubin(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : Union[bytes, str, os.PathLike]
             Either a bytes object containing the in-memory cubin to load, or
-            a file path string pointing to the on-disk cubin to load.
+            a file path object (or its string representation) pointing to the
+            on-disk cubin to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
@@ -640,14 +648,15 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.CUBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ptx(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : Union[bytes, str, os.PathLike]
             Either a bytes object containing the in-memory ptx code to load, or
-            a file path string pointing to the on-disk ptx file to load.
+            a file path object (or its string representation) pointing to the
+            on-disk ptx file to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
@@ -658,14 +667,15 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.PTX, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ltoir(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
         ----------
-        module : Union[bytes, str]
-            Either a bytes object containing the in-memory ltoir code to load, or
-            a file path string pointing to the on-disk ltoir file to load.
+        module : Union[bytes, str, os.PathLike]
+            Either a bytes object containing the in-memory ltoir code to load,
+            or a file path object (or its string representation) pointing to the
+            on-disk ltoir file to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
@@ -676,14 +686,15 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.LTOIR, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_fatbin(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : Union[bytes, str, os.PathLike]
             Either a bytes object containing the in-memory fatbin to load, or
-            a file path string pointing to the on-disk fatbin to load.
+            or a file path object (or its string representation) pointing to the
+            on-disk fatbin to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
@@ -735,21 +746,22 @@ cdef class ObjectCode:
         if self._h_library:
             return 0
         module = self._module
-        assert_type_str_or_bytes_like(module)
         cdef bytes path_bytes
         if isinstance(module, str):
             path_bytes = module.encode()
             self._h_library = create_library_handle_from_file(<const char*>path_bytes)
-            if not self._h_library:
-                HANDLE_RETURN(get_last_error())
-            return 0
-        if isinstance(module, (bytes, bytearray)):
+        elif isinstance(module, (bytes, bytearray)):
             self._h_library = create_library_handle_from_data(<const void*><char*>module)
-            if not self._h_library:
-                HANDLE_RETURN(get_last_error())
-            return 0
-        raise_code_path_meant_to_be_unreachable()
-        return -1
+        elif isinstance(module, PathLike):
+            path_bytes = fsencode(module)
+            self._h_library = create_library_handle_from_file(<const char*>path_bytes)
+        else:
+            assert_type_str_or_bytes_like(module)
+            raise_code_path_meant_to_be_unreachable()
+            return -1
+        if not self._h_library:
+            HANDLE_RETURN(get_last_error())
+        return 0
 
     def get_kernel(self, name: str | bytes) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.

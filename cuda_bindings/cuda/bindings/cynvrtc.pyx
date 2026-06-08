@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
 
 from ._internal cimport nvrtc as _nvrtc
 
@@ -83,3 +83,12 @@ cdef nvrtcResult nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) ex
 
 cdef nvrtcResult nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     return _nvrtc._nvrtcGetTileIR(prog, TileIR)
+
+cdef nvrtcResult nvrtcInstallBundledHeaders(const char* installPath, unsigned int flags, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    return _nvrtc._nvrtcInstallBundledHeaders(installPath, flags, errorLog)
+
+cdef nvrtcResult nvrtcGetBundledHeadersInfo(nvrtcBundledHeadersInfo* info, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    return _nvrtc._nvrtcGetBundledHeadersInfo(info, errorLog)
+
+cdef nvrtcResult nvrtcRemoveBundledHeaders(const char* installPath, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    return _nvrtc._nvrtcRemoveBundledHeaders(installPath, errorLog)

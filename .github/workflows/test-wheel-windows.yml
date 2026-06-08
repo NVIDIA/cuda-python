@@ -61,7 +61,7 @@ jobs:
       MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
       - name: Validate Test Type
         run: |
@@ -88,6 +88,7 @@ jobs:
 
   test:
     name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }} (${{ matrix.DRIVER_MODE }})${{ matrix.TORCH_VER && format(', {0}', matrix.TORCH_VER) || '' }}${{ matrix.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
+    timeout-minutes: 60
     # The build stage could fail but we want the CI to keep moving.
     needs: compute-matrix
     strategy:
@@ -97,7 +98,7 @@ jobs:
     runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-${{ matrix.GPU_COUNT }}"
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main

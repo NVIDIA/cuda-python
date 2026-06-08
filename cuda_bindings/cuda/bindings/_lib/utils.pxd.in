@@ -142,6 +142,18 @@ cdef class _HelperCUmemAllocationHandleType:
     cdef driver.CUmemFabricHandle _mem_fabric_handle
     {{endif}}
 {{endif}}
+{{if 'CUlogicalEndpointIpcHandleType_enum' in found_types}}
+
+cdef class _HelperCUlogicalEndpointIpcHandleType:
+    cdef void* _cptr
+    cdef cydriver.CUlogicalEndpointIpcHandleType_enum _type
+
+    # Return values
+    cdef int _int
+    {{if 'CUlogicalEndpointFabricHandle' in found_types}}
+    cdef driver.CUlogicalEndpointFabricHandle _fabric_handle
+    {{endif}}
+{{endif}}
 
 cdef class _InputVoidPtrPtrHelper:
     cdef object _references

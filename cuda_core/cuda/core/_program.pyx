@@ -738,6 +738,7 @@ cdef inline object _translate_program_options(object options):
         split_compile=options.split_compile,
         ptxas_options=options.ptxas_options,
         no_cache=options.no_cache,
+        numba_debug = options.numba_debug
     )
 
 
@@ -1227,6 +1228,8 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
     options.append(f"-arch={arch}")
     if opts.debug is not None and opts.debug:
         options.append("-g")
+    if opts.numba_debug:
+        options.append("--numba-debug")
     if opts.device_code_optimize is False:
         options.append("-opt=0")
     elif opts.device_code_optimize is True:
@@ -1303,8 +1306,6 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
         unsupported.append("fdevice_syntax_only")
     if opts.minimal is not None and opts.minimal:
         unsupported.append("minimal")
-    if opts.numba_debug is not None and opts.numba_debug:
-        unsupported.append("numba_debug")
     if unsupported:
         raise CUDAError(f"The following options are not supported by NVVM backend: {', '.join(unsupported)}")
 

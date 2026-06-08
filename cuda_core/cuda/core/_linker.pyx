@@ -295,6 +295,7 @@ class LinkerOptions:
     split_compile: int | None = None
     split_compile_extended: int | None = None
     no_cache: bool | None = None
+    numba_debug: bool | None = None
 
     def __post_init__(self) -> None:
         _lazy_init()
