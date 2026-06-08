@@ -6,9 +6,6 @@ import ctypes as _ctypes
 from collections.abc import Mapping as _Mapping
 from typing import Any as _Any
 
-# TODO: Are we sure we don't need this fallback anymore?
-# (Previously wrapped in try/except ImportError for the legacy
-# `from cuda import cuda as _driver` import path.)
 from cuda.bindings import driver as _driver
 from cuda.core._utils.cuda_utils import handle_return as _handle_cuda_return
 from cuda.core._utils.version import binding_version as _binding_version

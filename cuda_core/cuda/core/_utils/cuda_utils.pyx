@@ -12,12 +12,6 @@ from collections.abc import Sequence
 from contextlib import ExitStack
 from typing import Any, Callable
 
-# TODO: Are we sure we don't need this fallback anymore?
-
-# (Previously wrapped in try/except ImportError for the legacy
-# `from cuda import cuda as driver` etc. import path.)
-# `as X` form is the PEP 484 explicit re-export marker, which type checkers
-# need to treat these names as part of the public API of this module.
 from cuda.bindings import driver as driver, nvrtc as nvrtc, runtime as runtime
 
 # Module-level annotations that reference `driver`, `nvrtc`, and `runtime` so
