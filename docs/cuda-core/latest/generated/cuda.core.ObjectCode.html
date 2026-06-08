@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=93d21b85"></script>
+    <script src="../_static/documentation_options.js?v=37aa9f9c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev52';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev53';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -730,16 +730,7 @@ from all other possible code types should be avoided in favor of compilation thr
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ObjectCode.from_cubin">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cubin</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_cubin" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cubin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike[str],</span> <span class="pre">*,</span> <span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_cubin" title="Link to this definition">#</a></dt>
 <dd><p>Create an <a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing cubin.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -758,16 +749,7 @@ them (default to no mappings).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ObjectCode.from_fatbin">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_fatbin</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_fatbin" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_fatbin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike[str],</span> <span class="pre">*,</span> <span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_fatbin" title="Link to this definition">#</a></dt>
 <dd><p>Create an <a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing fatbin.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -792,7 +774,8 @@ them (default to no mappings).</p></li>
 <dd><em class="sig-param"><span class="n"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_library" title="Link to this definition">#</a></dt>
@@ -813,16 +796,7 @@ them (default to no mappings).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ObjectCode.from_ltoir">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ltoir</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_ltoir" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ltoir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike[str],</span> <span class="pre">*,</span> <span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_ltoir" title="Link to this definition">#</a></dt>
 <dd><p>Create an <a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing LTOIR.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -847,7 +821,8 @@ them (default to no mappings).</p></li>
 <dd><em class="sig-param"><span class="n"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_object" title="Link to this definition">#</a></dt>
@@ -868,16 +843,7 @@ them (default to no mappings).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ObjectCode.from_ptx">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ptx</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_ptx" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ptx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike[str],</span> <span class="pre">*,</span> <span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_ptx" title="Link to this definition">#</a></dt>
 <dd><p>Create an <a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing PTX.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -896,7 +862,7 @@ them (default to no mappings).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ObjectCode.get_kernel">
-<span class="sig-name descname"><span class="pre">get_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><span class="pre">Kernel</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.get_kernel" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><span class="pre">Kernel</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.get_kernel" title="Link to this definition">#</a></dt>
 <dd><p>Return the <a class="reference internal" href="cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> of a specified name from this object code.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -944,7 +910,8 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Ob
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ObjectCode.symbol_mapping">
 <span class="sig-name descname"><span class="pre">symbol_mapping</span></span><a class="headerlink" href="#cuda.core.ObjectCode.symbol_mapping" title="Link to this definition">#</a></dt>
-<dd><p>Return a copy of the symbol mapping dictionary.</p>
+<dd><p>dict[str, str]</p>
+<p>Return a copy of the symbol mapping dictionary.</p>
 </dd></dl>
 
 </dd></dl>

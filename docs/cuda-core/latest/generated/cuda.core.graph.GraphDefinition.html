@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=93d21b85"></script>
+    <script src="../_static/documentation_options.js?v=37aa9f9c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev52';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev53';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -731,12 +731,12 @@ instantiate() to obtain an executable Graph.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">device:</span> <span class="pre">'Device'</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">device:</span> <span class="pre">Device</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">memory_type:</span> <span class="pre">GraphMemoryType</span> <span class="pre">=</span> <span class="pre">GraphMemoryType.DEVICE</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">list</span> <span class="pre">peer_access:</span> <span class="pre">list['Device'</span> <span class="pre">|</span> <span class="pre">int]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">list</span> <span class="pre">peer_access:</span> <span class="pre">list[Device</span> <span class="pre">|</span> <span class="pre">int]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'AllocNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.allocate" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode" title="cuda.core.graph.AllocNode"><span class="pre">AllocNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.allocate" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point memory allocation node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.allocate" title="cuda.core.graph.GraphNode.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.allocate()</span></code></a> for full documentation.</p>
 </dd></dl>
@@ -752,7 +752,7 @@ instantiate() to obtain an executable Graph.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'HostCallbackNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.callback" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode"><span class="pre">HostCallbackNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.callback" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point host callback node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.callback" title="cuda.core.graph.GraphNode.callback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.callback()</span></code></a> for full documentation.</p>
 </dd></dl>
@@ -787,7 +787,7 @@ If None, no default is assigned.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphDefinition.deallocate">
-<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dptr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'FreeNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.deallocate" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">dptr:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode" title="cuda.core.graph.FreeNode"><span class="pre">FreeNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.deallocate" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point memory free node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.deallocate" title="cuda.core.graph.GraphNode.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.deallocate()</span></code></a> for full documentation.</p>
 </dd></dl>
@@ -799,7 +799,7 @@ If None, no default is assigned.</p>
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">path:</span> <span class="pre">str</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options:</span> <span class="pre">GraphDebugPrintOptions</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.debug_dot_print" title="Link to this definition">#</a></dt>
@@ -816,7 +816,7 @@ If None, no default is assigned.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphDefinition.edges">
-<span class="sig-name descname"><span class="pre">edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.edges" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><span class="pre">GraphNode</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><span class="pre">GraphNode</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.edges" title="Link to this definition">#</a></dt>
 <dd><p>Return all edges in the graph as (from_node, to_node) pairs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -838,14 +838,14 @@ a dependency edge in the graph.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">GraphDefinition</span> <span class="pre">child:</span> <span class="pre">GraphDefinition</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'ChildGraphNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.embed" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.ChildGraphNode.html#cuda.core.graph.ChildGraphNode" title="cuda.core.graph.ChildGraphNode"><span class="pre">ChildGraphNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.embed" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point child graph node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.embed" title="cuda.core.graph.GraphNode.embed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.embed()</span></code></a> for full documentation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphDefinition.empty">
-<span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'EmptyNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.empty" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode" title="cuda.core.graph.EmptyNode"><span class="pre">EmptyNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.empty" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point empty node (no dependencies).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -866,7 +866,7 @@ a dependency edge in the graph.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">GraphCondition</span> <span class="pre">condition:</span> <span class="pre">GraphCondition</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'IfElseNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.if_else" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.IfElseNode.html#cuda.core.graph.IfElseNode" title="cuda.core.graph.IfElseNode"><span class="pre">IfElseNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.if_else" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point if-else conditional node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.if_else" title="cuda.core.graph.GraphNode.if_else"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.if_else()</span></code></a> for full documentation.</p>
 </dd></dl>
@@ -880,14 +880,21 @@ a dependency edge in the graph.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">GraphCondition</span> <span class="pre">condition:</span> <span class="pre">GraphCondition</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'IfNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.if_then" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.IfNode.html#cuda.core.graph.IfNode" title="cuda.core.graph.IfNode"><span class="pre">IfNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.if_then" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point if-conditional node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.if_then" title="cuda.core.graph.GraphNode.if_then"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.if_then()</span></code></a> for full documentation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphDefinition.instantiate">
-<span class="sig-name descname"><span class="pre">instantiate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.instantiate" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">instantiate</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html#cuda.core.graph.GraphCompleteOptions" title="cuda.core.graph.GraphCompleteOptions"><span class="pre">GraphCompleteOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><span class="pre">Graph</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.instantiate" title="Link to this definition">#</a></dt>
 <dd><p>Instantiate the graph definition into an executable Graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -904,7 +911,7 @@ a dependency edge in the graph.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphDefinition.join">
-<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'EmptyNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.join" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><span class="pre">GraphNode</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode" title="cuda.core.graph.EmptyNode"><span class="pre">EmptyNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.join" title="Link to this definition">#</a></dt>
 <dd><p>Create an empty node that depends on all given nodes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -921,14 +928,32 @@ a dependency edge in the graph.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphDefinition.launch">
-<span class="sig-name descname"><span class="pre">launch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'KernelNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.launch" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">launch</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><span class="pre">LaunchConfig</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><span class="pre">Kernel</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode" title="cuda.core.graph.KernelNode"><span class="pre">KernelNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.launch" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point kernel launch node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.launch" title="cuda.core.graph.GraphNode.launch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.launch()</span></code></a> for full documentation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphDefinition.memcpy">
-<span class="sig-name descname"><span class="pre">memcpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'MemcpyNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.memcpy" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">memcpy</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">dst:</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">src:</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode" title="cuda.core.graph.MemcpyNode"><span class="pre">MemcpyNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.memcpy" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point memcpy node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.memcpy" title="cuda.core.graph.GraphNode.memcpy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.memcpy()</span></code></a> for full documentation.</p>
 </dd></dl>
@@ -939,21 +964,21 @@ a dependency edge in the graph.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">dst:</span> <span class="pre">int</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">width</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">height=1</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">pitch=0</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'MemsetNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.memset" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode"><span class="pre">MemsetNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.memset" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point memset node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.memset" title="cuda.core.graph.GraphNode.memset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.memset()</span></code></a> for full documentation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphDefinition.nodes">
-<span class="sig-name descname"><span class="pre">nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.nodes" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><span class="pre">GraphNode</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.nodes" title="Link to this definition">#</a></dt>
 <dd><p>Return all nodes in the graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -967,7 +992,7 @@ a dependency edge in the graph.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphDefinition.record">
-<span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'EventRecordNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.record" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><span class="pre">Event</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode" title="cuda.core.graph.EventRecordNode"><span class="pre">EventRecordNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.record" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point event record node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.record" title="cuda.core.graph.GraphNode.record"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.record()</span></code></a> for full documentation.</p>
 </dd></dl>
@@ -982,14 +1007,14 @@ a dependency edge in the graph.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">count</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'SwitchNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.switch" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.SwitchNode.html#cuda.core.graph.SwitchNode" title="cuda.core.graph.SwitchNode"><span class="pre">SwitchNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.switch" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point switch conditional node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.switch" title="cuda.core.graph.GraphNode.switch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.switch()</span></code></a> for full documentation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphDefinition.wait">
-<span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'EventWaitNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.wait" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><span class="pre">Event</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode" title="cuda.core.graph.EventWaitNode"><span class="pre">EventWaitNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.wait" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point event wait node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.wait" title="cuda.core.graph.GraphNode.wait"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.wait()</span></code></a> for full documentation.</p>
 </dd></dl>
@@ -1003,7 +1028,7 @@ a dependency edge in the graph.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">GraphCondition</span> <span class="pre">condition:</span> <span class="pre">GraphCondition</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'WhileNode'</span></span></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.while_loop" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode" title="cuda.core.graph.WhileNode"><span class="pre">WhileNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.while_loop" title="Link to this definition">#</a></dt>
 <dd><p>Add an entry-point while-loop conditional node (no dependencies).</p>
 <p>See <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.while_loop" title="cuda.core.graph.GraphNode.while_loop"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphNode.while_loop()</span></code></a> for full documentation.</p>
 </dd></dl>
