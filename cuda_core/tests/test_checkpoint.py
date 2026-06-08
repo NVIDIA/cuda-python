@@ -33,13 +33,47 @@ def _checkpoint_available():
     try:
         checkpoint._get_driver()
         return True
-    except RuntimeError:
+    except RuntimeError as exc:
+        if _checkpoint_unavailable_can_skip(str(exc)):
+            return False
+        raise
+
+
+def _checkpoint_gpu_mapping_available():
+    """Return True if checkpoint restore GPU remapping is usable on this system."""
+    if not _checkpoint_available():
         return False
+    try:
+        checkpoint._require_gpu_mapping_bindings(checkpoint._get_driver())
+        return True
+    except RuntimeError as exc:
+        if _checkpoint_gpu_mapping_unavailable_can_skip(str(exc)):
+            return False
+        raise
+
+
+def _checkpoint_unavailable_can_skip(message):
+    return message.startswith(
+        (
+            "CUDA checkpointing is not supported by the installed NVIDIA driver.",
+            "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. Found cuda.bindings ",
+        )
+    )
+
+
+def _checkpoint_gpu_mapping_unavailable_can_skip(message):
+    return message.startswith(
+        "CUDA checkpoint GPU remapping requires cuda.bindings with GPU remapping support. Missing: CUcheckpointGpuPair"
+    )
 
 
 needs_checkpoint = pytest.mark.skipif(
     sys.platform != "linux" or not _checkpoint_available(),
     reason="CUDA checkpoint API requires Linux and a supported driver/bindings",
+)
+needs_checkpoint_gpu_mapping = pytest.mark.skipif(
+    sys.platform != "linux" or not _checkpoint_gpu_mapping_available(),
+    reason="CUDA checkpoint GPU remapping requires Linux and supported driver/bindings",
 )
 
 
@@ -384,6 +418,42 @@ class TestInputValidation:
         assert checkpoint.__all__ == ["Process"]
         assert not hasattr(checkpoint, "ProcessStateType")
 
+    @pytest.mark.parametrize(
+        ("message", "expected_failure"),
+        [
+            ("CUDA checkpointing is not supported by the installed NVIDIA driver.", None),
+            (
+                "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. "
+                "Found cuda.bindings 12.7.0.",
+                None,
+            ),
+            (
+                "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. "
+                "Missing: CUcheckpointRestoreArgs",
+                "Missing: CUcheckpointRestoreArgs",
+            ),
+        ],
+    )
+    def test_checkpoint_available_policy(self, monkeypatch, message, expected_failure):
+        def raise_runtime_error():
+            raise RuntimeError(message)
+
+        monkeypatch.setattr(checkpoint, "_get_driver", raise_runtime_error)
+
+        if expected_failure is None:
+            assert not _checkpoint_available()
+        else:
+            with pytest.raises(RuntimeError, match=expected_failure):
+                _checkpoint_available()
+
+    def test_checkpoint_gpu_mapping_available_skips_missing_gpu_pair(self, monkeypatch):
+        class Driver:
+            pass
+
+        monkeypatch.setattr(checkpoint, "_get_driver", lambda: Driver)
+
+        assert not _checkpoint_gpu_mapping_available()
+
     def test_pid_is_read_only(self):
         proc = checkpoint.Process(1)
         assert proc.pid == 1
@@ -420,7 +490,7 @@ class TestCheckpointLifecycle:
 # -- GPU migration (>= 2 same-chip GPUs, real driver) ---------------------
 
 
-@needs_checkpoint
+@needs_checkpoint_gpu_mapping
 class TestCheckpointGpuMigration:
     """GPU UUID remapping tests following the r580-migration-api.c pattern.
 

@@ -861,6 +861,27 @@ def test_cuCheckpointProcessGetState_failure():
     assert state is None
 
 
+@pytest.mark.skipif(not supportsCudaAPI("cuCheckpointProcessGetState"), reason="When API was introduced")
+def test_cuCheckpoint_required_bindings_present():
+    required_bindings = (
+        "cuCheckpointProcessCheckpoint",
+        "cuCheckpointProcessGetRestoreThreadId",
+        "cuCheckpointProcessGetState",
+        "cuCheckpointProcessLock",
+        "cuCheckpointProcessRestore",
+        "cuCheckpointProcessUnlock",
+        "CUcheckpointLockArgs",
+        "CUprocessState",
+        "CUcheckpointRestoreArgs",
+    )
+    if cuda.CUDA_VERSION >= 13000:
+        required_bindings += ("CUcheckpointGpuPair",)
+
+    missing = [name for name in required_bindings if not hasattr(cuda, name)]
+
+    assert missing == []
+
+
 def test_private_function_pointer_inspector():
     from cuda.bindings._bindings.cydriver import _inspect_function_pointer
 
