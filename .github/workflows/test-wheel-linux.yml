@@ -132,8 +132,10 @@ jobs:
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
         with:
-          # for artifact fetching, graphics libs, g++ required for cffi in example
-          dependencies: "jq wget libgl1 libegl1 g++"
+          # for artifact fetching, graphics libs, g++ required for cffi in
+          # example; util-linux for `nsenter` (custom-DRIVER rows re-exec
+          # install_gpu_driver.sh onto the host through nsenter)
+          dependencies: "jq wget libgl1 libegl1 g++ util-linux"
           dependent_exes: "jq wget"
 
       - name: Install GPU driver
@@ -141,12 +143,7 @@ jobs:
         env:
           DRIVER: ${{ matrix.DRIVER }}
           GPU_TYPE: ${{ matrix.GPU }}
-        run: |
-          # util-linux for nsenter; install_gpu_driver.sh re-execs onto the
-          # host (requires --privileged --pid=host on the container, set
-          # conditionally above) and refreshes the toolkit bind mounts here.
-          apt-get -y install --no-install-recommends util-linux
-          ./ci/tools/install_gpu_driver.sh
+        run: ./ci/tools/install_gpu_driver.sh
 
       - name: Ensure GPU is working
         run: nvidia-smi

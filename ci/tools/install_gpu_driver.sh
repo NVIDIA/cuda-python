@@ -89,7 +89,7 @@ in_container() {
 host_install() {
   apt-get -y install build-essential dkms "linux-headers-$(uname -r)" psmisc kmod
 
-  systemctl stop nvidia-persistenced dcgm-exporter 2>/dev/null || true
+  systemctl stop nvidia-persistenced dcgm-exporter || true
   # if-test instead of `fuser ... || true` so a kill failure surfaces
   # (fuser exits 1 when nothing holds the device, which is the happy path).
   if fuser /dev/nvidia* >/dev/null 2>&1; then
