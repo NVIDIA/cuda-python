@@ -320,7 +320,7 @@ cdef class GraphicsResource:
         self.close()
         return False
 
-    cpdef void close(self, object stream=None):
+    cpdef close(self, object stream=None):
         """Unregister this graphics resource from CUDA.
 
         If the resource is currently mapped, it is unmapped first. After

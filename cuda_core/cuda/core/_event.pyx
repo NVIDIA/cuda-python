@@ -146,7 +146,7 @@ cdef class Event:
         self._ipc_descriptor = None
         return self
 
-    cpdef void close(self):
+    cpdef close(self):
         """Destroy the event.
 
         Releases the event handle. The underlying CUDA event is destroyed

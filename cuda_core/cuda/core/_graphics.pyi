@@ -49,7 +49,7 @@ class GraphicsResource:
                 pass
     """
 
-    def close(self, stream: object=None) -> None:
+    def close(self, stream: object=None):
         """Unregister this graphics resource from CUDA.
 
         If the resource is currently mapped, it is unmapped first. After

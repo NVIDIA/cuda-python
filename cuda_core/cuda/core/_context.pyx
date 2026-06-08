@@ -121,7 +121,7 @@ cdef class Context:
 
         return Stream._init(options=options, device_id=self._device_id, ctx=self)
 
-    cpdef void close(self):
+    cpdef close(self):
         """Release this context wrapper's underlying CUDA handles."""
         cdef cydriver.CUcontext current_ctx
         if self._h_context and as_cu(self._h_context) != NULL:

@@ -62,7 +62,7 @@ class Event:
 
     """
 
-    def close(self) -> None:
+    def close(self):
         """Destroy the event.
 
         Releases the event handle. The underlying CUDA event is destroyed

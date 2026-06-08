@@ -192,7 +192,7 @@ cdef class Stream:
             self._device_id = device_id
         return self
 
-    cpdef void close(self):
+    cpdef close(self):
         """Destroy the stream.
 
         Releases the stream handle. For owned streams, this destroys the

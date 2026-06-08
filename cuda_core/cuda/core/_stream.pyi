@@ -57,7 +57,7 @@ class Stream:
     using Stream.from_handle().
     """
 
-    def close(self) -> None:
+    def close(self):
         """Destroy the stream.
 
         Releases the stream handle. For owned streams, this destroys the
