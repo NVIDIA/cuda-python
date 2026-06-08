@@ -35,7 +35,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
-          fetch-depth: 0
+          fetch-depth: 1
       - name: Get CUDA build versions
         id: get-vars
         run: |
@@ -106,7 +106,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
+          # Treeless clone: commit graph is needed for `git merge-base` and
+          # `git diff --name-only` below, but historical blobs aren't.
           fetch-depth: 0
+          filter: blob:none
 
       # copy-pr-bot pushes every PR (whether it targets main or a backport
       # branch such as 12.9.x) to pull-request/<N>, so the base branch
