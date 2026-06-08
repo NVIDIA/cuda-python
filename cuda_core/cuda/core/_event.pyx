@@ -31,11 +31,16 @@ from cuda.core._utils.cuda_utils cimport (
 import cython
 from dataclasses import dataclass
 import multiprocessing
+from typing import TYPE_CHECKING
 
 from cuda.core._utils.cuda_utils import (
     CUDAError,
     check_multiprocessing_start_method,
 )
+
+if TYPE_CHECKING:
+    import cuda.bindings.driver  # no-cython-lint
+    from cuda.core._device import Device
 
 
 @dataclass
@@ -92,7 +97,7 @@ cdef class Event:
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
 
     @staticmethod
@@ -149,13 +154,13 @@ cdef class Event:
         """
         self._h_event.reset()
 
-    def __isub__(self, other):
+    def __isub__(self, other: object):
         return NotImplemented
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: object):
         return NotImplemented
 
-    def __sub__(self, other: Event):
+    def __sub__(self, other: Event) -> float:
         # return self - other (in milliseconds)
         cdef float timing
         with nogil:
@@ -187,7 +192,7 @@ cdef class Event:
     def __hash__(self) -> int:
         return hash(as_intptr(self._h_event))
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         # Note: using isinstance because `Event` can be subclassed.
         if not isinstance(other, Event):
             return NotImplemented
@@ -254,7 +259,7 @@ cdef class Event:
         """
         return get_event_is_blocking_sync(self._h_event)
 
-    def sync(self):
+    def sync(self) -> None:
         """Synchronize until the event completes.
 
         If the event was created with ``blocking_sync=True``, the
@@ -320,27 +325,27 @@ cdef class IPCEventDescriptor:
         bytes _reserved
         bint _is_blocking_sync
 
-    def __init__(self, *arg, **kwargs):
+    def __init__(self, *arg, **kwargs) -> None:
         raise RuntimeError("IPCEventDescriptor objects cannot be instantiated directly. Please use Event APIs.")
 
     @staticmethod
-    def _init(reserved: bytes, is_blocking_sync: cython.bint):
+    def _init(reserved: bytes, is_blocking_sync: cython.bint) -> IPCEventDescriptor:
         cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(IPCEventDescriptor)
         self._reserved = reserved
         self._is_blocking_sync = is_blocking_sync
         return self
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, IPCEventDescriptor):
             return NotImplemented
         # No need to check self._is_blocking_sync.
         return self._reserved == (<IPCEventDescriptor>other)._reserved
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
         return IPCEventDescriptor._init, (self._reserved, self._is_blocking_sync)
 
 
-def _reduce_event(event):
+def _reduce_event(event: Event) -> tuple[object, ...]:
     check_multiprocessing_start_method()
     return event.from_ipc_descriptor, (event.ipc_descriptor,)
 

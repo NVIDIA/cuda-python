@@ -33,6 +33,9 @@ class Host:
 
     __slots__ = ("__weakref__", "_is_numa_current", "_numa_id")
 
+    _numa_id: int | None
+    _is_numa_current: bool
+
     # Singleton cache keyed by (numa_id, is_numa_current).
     _instances: ClassVar[dict[tuple[int | None, bool], Host]] = {}
     _instances_lock: ClassVar[threading.Lock] = threading.Lock()
@@ -75,7 +78,7 @@ class Host:
         """Construct a ``Host`` referring to the calling thread's NUMA node."""
         return cls(is_numa_current=True)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Host):
             return NotImplemented
         return self is other
@@ -83,7 +86,7 @@ class Host:
     def __hash__(self) -> int:
         return hash((Host, self._numa_id, self._is_numa_current))
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
         if self._is_numa_current:
             return (_reconstruct_numa_current, ())
         return (Host, (self._numa_id,))

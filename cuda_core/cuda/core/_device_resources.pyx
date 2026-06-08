@@ -114,10 +114,10 @@ cdef class SMResourceOptions:
         (Default to ``False``)
     """
 
-    count: int | SequenceABC | None = None
-    coscheduled_sm_count: int | SequenceABC | None = None
-    preferred_coscheduled_sm_count: int | SequenceABC | None = None
-    backfill: bool | SequenceABC = False
+    count: int | SequenceABC[int] | None = None
+    coscheduled_sm_count: int | SequenceABC[int] | None = None
+    preferred_coscheduled_sm_count: int | SequenceABC[int] | None = None
+    backfill: bool | SequenceABC[bool] = False
 
 
 @dataclass
@@ -471,7 +471,12 @@ cdef class SMResource:
         """Raw flags from the underlying SM resource."""
         return self._flags
 
-    def split(self, options not None, *, bint dry_run=False):
+    def split(
+        self,
+        options: SMResourceOptions,
+        *,
+        bint dry_run=False
+    ) -> tuple[list[SMResource], SMResource]:
         """Split this SM resource into groups and a remainder.
 
         Parameters
@@ -508,7 +513,7 @@ cdef class WorkqueueResource:
     cannot be instantiated directly.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError(
             "WorkqueueResource cannot be instantiated directly. "
             "Use dev.resources.workqueue."
@@ -529,7 +534,7 @@ cdef class WorkqueueResource:
         """Return the address of the underlying config ``CUdevResource`` struct."""
         return <intptr_t>(&self._wq_config_resource)
 
-    def configure(self, options not None):
+    def configure(self, options: WorkqueueResourceOptions) -> None:
         """Configure the workqueue resource in place.
 
         Parameters
@@ -576,7 +581,7 @@ cdef class DeviceResources:
     This class cannot be instantiated directly.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError(
             "DeviceResources cannot be instantiated directly. "
             "Use dev.resources or ctx.resources."
