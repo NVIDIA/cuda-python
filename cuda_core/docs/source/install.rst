@@ -71,8 +71,14 @@ and likewise use ``cuda-version=13`` for CUDA 13.
 Note that to use ``cuda.core`` with nvJitLink installed from conda-forge requires ``cuda.bindings`` 12.8.0+.
 
 
+Development environment
+-----------------------
+
+The sections above cover end-user installation. The section below focuses on
+a repeatable *development* workflow (editable installs and running tests).
+
 Installing the latest nightly (top-of-tree builds)
---------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These are useful for users looking to test new features or bug fixes prior to
 their inclusion in a release.
@@ -95,13 +101,6 @@ Replace ``python312`` with your Python version (e.g. ``python310``, ``python311`
 ``python313``, ``python314``, ``python314t``). For aarch64, replace ``linux-64``
 with ``linux-aarch64``; for Windows, use ``win-64``. Replace ``cu13`` with
 ``cu12`` for CUDA 12.x environments.
-
-
-Development environment
------------------------
-
-The sections above cover end-user installation. The section below focuses on
-a repeatable *development* workflow (editable installs and running tests).
 
 Development with uv
 ~~~~~~~~~~~~~~~~~~~
