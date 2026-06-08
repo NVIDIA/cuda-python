@@ -151,7 +151,7 @@ class ManagedBuffer(Buffer):
         size: int,
         mr: MemoryResource | None = None,
         owner: object | None = None,
-    ) -> ManagedBuffer:
+    ) -> Buffer:
         """Wrap an existing managed-memory pointer in a :class:`ManagedBuffer`.
 
         Use this when you have an externally-allocated managed pointer

@@ -20,7 +20,7 @@ import tempfile
 import threading
 import time
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 from cuda.core._module import ObjectCode
 
@@ -81,7 +81,7 @@ def _default_cache_dir() -> Path:
     return root / "cuda-python" / "program-cache"
 
 
-def _with_sharing_retry(op, *args, on_exhausted=None, **kwargs):
+def _with_sharing_retry(op: Callable, *args, on_exhausted=None, **kwargs):
     """Run ``op(*args, **kwargs)`` retrying transient Windows sharing
     violations under the bounded ``_REPLACE_RETRY_DELAYS`` budget.
 

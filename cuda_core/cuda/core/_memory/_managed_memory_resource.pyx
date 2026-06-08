@@ -15,10 +15,14 @@ from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
 from dataclasses import dataclass
 import threading
+from typing import TYPE_CHECKING
 import warnings
 
 from cuda.core._memory._managed_buffer import ManagedBuffer
 from cuda.core.typing import ManagedMemoryLocationType
+
+if TYPE_CHECKING:
+    from cuda.core.graph import GraphBuilder
 
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
 
@@ -93,7 +97,7 @@ cdef class ManagedMemoryResource(_MemPool):
     def __init__(self, options: ManagedMemoryResourceOptions | dict | None = None) -> None:
         _MMR_init(self, options)
 
-    def allocate(self, size_t size, *, stream: Stream):
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder):
         """Allocate a managed-memory buffer of the requested size.
 
         Parameters
@@ -114,6 +118,7 @@ cdef class ManagedMemoryResource(_MemPool):
             and instance methods (``prefetch``, ``discard``,
             ``discard_prefetch``).
         """
+        assert not isinstance(stream, GraphBuilder), "GraphBuilder is not supported for managed memory allocations"
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
+from os import PathLike
 
 from cuda.core._device import Device
 from cuda.core._launch_config import LaunchConfig
@@ -334,14 +335,15 @@ class ObjectCode:
         ...
 
     @staticmethod
-    def from_cubin(module: bytes | str, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
+    def from_cubin(module: bytes | str | PathLike, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : Union[bytes, str, os.PathLike]
             Either a bytes object containing the in-memory cubin to load, or
-            a file path string pointing to the on-disk cubin to load.
+            a file path object (or its string representation) pointing to the
+            on-disk cubin to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
@@ -351,14 +353,15 @@ class ObjectCode:
         """
 
     @staticmethod
-    def from_ptx(module: bytes | str, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
+    def from_ptx(module: bytes | str | PathLike, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : Union[bytes, str, os.PathLike]
             Either a bytes object containing the in-memory ptx code to load, or
-            a file path string pointing to the on-disk ptx file to load.
+            a file path object (or its string representation) pointing to the
+            on-disk ptx file to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
@@ -368,14 +371,15 @@ class ObjectCode:
         """
 
     @staticmethod
-    def from_ltoir(module: bytes | str, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
+    def from_ltoir(module: bytes | str | PathLike, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
         ----------
-        module : Union[bytes, str]
-            Either a bytes object containing the in-memory ltoir code to load, or
-            a file path string pointing to the on-disk ltoir file to load.
+        module : Union[bytes, str, os.PathLike]
+            Either a bytes object containing the in-memory ltoir code to load,
+            or a file path object (or its string representation) pointing to the
+            on-disk ltoir file to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
@@ -385,14 +389,15 @@ class ObjectCode:
         """
 
     @staticmethod
-    def from_fatbin(module: bytes | str, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
+    def from_fatbin(module: bytes | str | PathLike, *, name: str='', symbol_mapping: dict | None=None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : Union[bytes, str, os.PathLike]
             Either a bytes object containing the in-memory fatbin to load, or
-            a file path string pointing to the on-disk fatbin to load.
+            or a file path object (or its string representation) pointing to the
+            on-disk fatbin to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     from libcpp.vector cimport vector
@@ -19,6 +20,9 @@ from cuda.core._host import Host
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._memory._managed_location import _coerce_location
 
+if TYPE_CHECKING:
+    from cuda.core._graph import GraphBuilder
+    from cuda.core._device import Device
 
 cdef frozenset _ALL_LOCATION_TYPES = frozenset(("device", "host", "host_numa", "host_numa_current"))
 cdef frozenset _DEVICE_HOST_NUMA = frozenset(("device", "host", "host_numa"))

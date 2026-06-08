@@ -33,6 +33,9 @@ class Host:
 
     __slots__ = ("__weakref__", "_is_numa_current", "_numa_id")
 
+    _numa_id: int | None
+    _is_numa_current: bool
+
     # Singleton cache keyed by (numa_id, is_numa_current).
     _instances: ClassVar[dict[tuple[int | None, bool], Host]] = {}
     _instances_lock: ClassVar[threading.Lock] = threading.Lock()

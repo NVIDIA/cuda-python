@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from cuda.core._memory._memory_pool import _MemPool
+from cuda.core._stream import Stream
+from cuda.core.graph import GraphBuilder
 from cuda.core.typing import ManagedMemoryLocationType
 
 
@@ -76,6 +78,28 @@ class ManagedMemoryResource(_MemPool):
 
     def __init__(self, options: ManagedMemoryResourceOptions | dict | None=None) -> None:
         ...
+
+    def allocate(self, size: int, *, stream: Stream | GraphBuilder):
+        """Allocate a managed-memory buffer of the requested size.
+
+        Parameters
+        ----------
+        size : int
+            The size of the buffer to allocate, in bytes.
+        stream : :obj:`~_stream.Stream`
+            Keyword-only. The stream on which to perform the allocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
+
+        Returns
+        -------
+        ManagedBuffer
+            A :class:`ManagedBuffer` (a :class:`Buffer` subclass) that
+            exposes the property-style advice API
+            (``read_mostly``, ``preferred_location``, ``accessed_by``)
+            and instance methods (``prefetch``, ``discard``,
+            ``discard_prefetch``).
+        """
 
     @property
     def device_id(self) -> int:
