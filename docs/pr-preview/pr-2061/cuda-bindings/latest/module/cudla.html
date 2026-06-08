@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,23 +37,23 @@
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
 
 
-    <script src="../_static/documentation_options.js?v=a86adfc4"></script>
+    <script src="../_static/documentation_options.js?v=ee471ff7"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'module/cudla';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.3.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -304,11 +304,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
     </div>
     
@@ -502,11 +509,18 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
       </div>
     
@@ -523,7 +537,8 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/13.2.1-notes.html">13.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.3.1-notes.html">13.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.3.0-notes.html">13.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.0-notes.html">13.1.0</a></li>
@@ -531,6 +546,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.4-notes.html">12.9.4</a></li>
@@ -1351,17 +1367,13 @@ cuDLA is not available on desktop GPUs.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.module_get_attributes">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">module_get_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">h_module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">attr_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.module_get_attributes" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Query module attributes, interpreting the cudlaModuleAttribute union
-based on the requested attribute type.
-
-For count attributes (NUM_INPUT_TENSORS, NUM_OUTPUT_TENSORS,
-NUM_OUTPUT_TASK_STATISTICS), returns an int.
-
-For descriptor attributes (INPUT_TENSOR_DESCRIPTORS,
+<dd><p>Query module attributes, interpreting the cudlaModuleAttribute union
+based on the requested attribute type.</p>
+<p>For count attributes (NUM_INPUT_TENSORS, NUM_OUTPUT_TENSORS,
+NUM_OUTPUT_TASK_STATISTICS), returns an int.</p>
+<p>For descriptor attributes (INPUT_TENSOR_DESCRIPTORS,
 OUTPUT_TENSOR_DESCRIPTORS, OUTPUT_TASK_STATISTICS_DESCRIPTORS),
-returns a list of ModuleTensorDescriptor objects.
-</pre></div>
-</div>
+returns a list of ModuleTensorDescriptor objects.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1405,99 +1417,90 @@ returns a list of ModuleTensorDescriptor objects.
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.ExternalMemoryHandleDesc">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">ExternalMemoryHandleDesc</span></span><a class="headerlink" href="#cuda.bindings.cudla.ExternalMemoryHandleDesc" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaExternalMemoryHandleDesc_t`.
-
-
-.. seealso:: `cudlaExternalMemoryHandleDesc_t`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaExternalMemoryHandleDesc_t</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaExternalMemoryHandleDesc_t</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.ExternalSemaphoreHandleDesc">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">ExternalSemaphoreHandleDesc</span></span><a class="headerlink" href="#cuda.bindings.cudla.ExternalSemaphoreHandleDesc" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaExternalSemaphoreHandleDesc_t`.
-
-
-.. seealso:: `cudlaExternalSemaphoreHandleDesc_t`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaExternalSemaphoreHandleDesc_t</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaExternalSemaphoreHandleDesc_t</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.ModuleTensorDescriptor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">ModuleTensorDescriptor</span></span><a class="headerlink" href="#cuda.bindings.cudla.ModuleTensorDescriptor" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaModuleTensorDescriptor`.
-
-
-.. seealso:: `cudlaModuleTensorDescriptor`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleTensorDescriptor</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleTensorDescriptor</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.Fence">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">Fence</span></span><a class="headerlink" href="#cuda.bindings.cudla.Fence" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `CudlaFence`.
-
-
-.. seealso:: `CudlaFence`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CudlaFence</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CudlaFence</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.DevAttribute">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">DevAttribute</span></span><a class="headerlink" href="#cuda.bindings.cudla.DevAttribute" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaDevAttribute`.
-
-
-.. seealso:: `cudlaDevAttribute`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaDevAttribute</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaDevAttribute</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.ModuleAttribute">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">ModuleAttribute</span></span><a class="headerlink" href="#cuda.bindings.cudla.ModuleAttribute" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaModuleAttribute`.
-
-
-.. seealso:: `cudlaModuleAttribute`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleAttribute</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleAttribute</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.WaitEvents">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">WaitEvents</span></span><a class="headerlink" href="#cuda.bindings.cudla.WaitEvents" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaWaitEvents`.
-
-
-.. seealso:: `cudlaWaitEvents`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaWaitEvents</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaWaitEvents</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.SignalEvents">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">SignalEvents</span></span><a class="headerlink" href="#cuda.bindings.cudla.SignalEvents" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaSignalEvents`.
-
-
-.. seealso:: `cudlaSignalEvents`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaSignalEvents</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaSignalEvents</span></code></p>
 </div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.Task">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cudla.</span></span><span class="sig-name descname"><span class="pre">Task</span></span><a class="headerlink" href="#cuda.bindings.cudla.Task" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `cudlaTask`.
-
-
-.. seealso:: `cudlaTask`
-</pre></div>
+<dd><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaTask</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaTask</span></code></p>
 </div>
 </dd></dl>
 
@@ -1520,9 +1523,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.Status" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaStatus`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaStatus</span></code>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.Status.Success">
 <span class="sig-name descname"><span class="pre">Success</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.bindings.cudla.Status.Success" title="Link to this definition">#</a></dt>
@@ -1546,9 +1547,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.Mode" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaMode`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaMode</span></code>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.cudla.Mode.CUDA_DLA">
 <span class="sig-name descname"><span class="pre">CUDA_DLA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.bindings.cudla.Mode.CUDA_DLA" title="Link to this definition">#</a></dt>
@@ -1577,9 +1576,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.ModuleAttributeType" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaModuleAttributeType`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleAttributeType</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1598,9 +1595,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.FenceType" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaFenceType`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaFenceType</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1619,9 +1614,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.ModuleLoadFlags" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaModuleLoadFlags`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaModuleLoadFlags</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1640,9 +1633,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.SubmissionFlags" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaSubmissionFlags`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaSubmissionFlags</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1661,9 +1652,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.AccessPermissionFlags" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaAccessPermissionFlags`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaAccessPermissionFlags</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1682,9 +1671,7 @@ returns a list of ModuleTensorDescriptor objects.
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cudla.DevAttributeType" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>See `cudlaDevAttributeType`.
-</pre></div>
-</div>
+<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">cudlaDevAttributeType</span></code>.</p>
 </dd></dl>
 
 </section>
@@ -1804,8 +1791,8 @@ returns a list of ModuleTensorDescriptor objects.
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
 
 
   <footer class="bd-footer">
