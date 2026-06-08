@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1711+g875fec45. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -23250,7 +23250,11 @@ cdef class CUcheckpointRestoreArgs_st:
 
     Attributes
     ----------
-    {{if 'CUcheckpointRestoreArgs_st.reserved' in found_struct}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'char'}}
+    reserved : bytes
+        Reserved for future use, must be zeroed
+    {{endif}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'cuuint64_t'}}
     reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
     {{endif}}
@@ -23283,7 +23287,26 @@ cdef class CUcheckpointRestoreArgs_st:
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'CUcheckpointRestoreArgs_st.reserved' in found_struct}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'char'}}
+    @property
+    def reserved(self):
+        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, {{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}})
+    @reserved.setter
+    def reserved(self, reserved):
+        if len(reserved) != {{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}:
+            raise ValueError("reserved length must be {{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}, is " + str(len(reserved)))
+        if CHAR_MIN == 0:
+            for i, b in enumerate(reserved):
+                if b < 0 and b > -129:
+                    b = b + 256
+                self._pvt_ptr[0].reserved[i] = b
+        else:
+            for i, b in enumerate(reserved):
+                if b > 127 and b < 256:
+                    b = b - 256
+                self._pvt_ptr[0].reserved[i] = b
+    {{endif}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'cuuint64_t'}}
     @property
     def reserved(self):
         return [cuuint64_t(init_value=_reserved) for _reserved in self._pvt_ptr[0].reserved]
@@ -32759,16 +32782,15 @@ def cuMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[CUDA_MEMCPY3D_BA
     :py:obj:`~.CUmemcpy3DOperand.op.ptr.rowLength` field specifies the
     length of each row in elements and must either be zero or be greater
     than or equal to the width of the copy specified in
-    :py:obj:`~.CUDA_MEMCPY3D_BATCH_OP`::extent::width. The
+    :py:obj:`~.CUDA_MEMCPY3D_BATCH_OP.extent.width`. The
     :py:obj:`~.CUmemcpy3DOperand.op.ptr.layerHeight` field specifies the
     height of each layer and must either be zero or be greater than or
     equal to the height of the copy specified in
-    :py:obj:`~.CUDA_MEMCPY3D_BATCH_OP`::extent::height. When either of
-    these values is zero, that aspect of the operand is considered to be
-    tightly packed according to the copy extent. For managed memory
-    pointers on devices where
-    :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS` is true or
-    system-allocated pageable memory on devices where
+    :py:obj:`~.CUDA_MEMCPY3D_BATCH_OP.extent.height`. When either of these
+    values is zero, that aspect of the operand is considered to be tightly
+    packed according to the copy extent. For managed memory pointers on
+    devices where :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`
+    is true or system-allocated pageable memory on devices where
     :py:obj:`~.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS` is true, the
     :py:obj:`~.CUmemcpy3DOperand.op.ptr.locHint` field can be used to hint
     the location of the operand.
@@ -34551,9 +34573,9 @@ def cuMemCreate(size_t size, prop : Optional[CUmemAllocationProp], unsigned long
     allocation targeting a specific host NUMA node, applications must set
     :py:obj:`~.CUmemAllocationProp.CUmemLocation.type` to
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA` and
-    :py:obj:`~.CUmemAllocationProp`::CUmemLocation::id must specify the
-    NUMA ID of the CPU. On systems where NUMA is not available
-    :py:obj:`~.CUmemAllocationProp`::CUmemLocation::id must be set to 0.
+    :py:obj:`~.CUmemAllocationProp.CUmemLocation.id` must specify the NUMA
+    ID of the CPU. On systems where NUMA is not available
+    :py:obj:`~.CUmemAllocationProp.CUmemLocation.id` must be set to 0.
     Specifying :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT` or
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` as the
     :py:obj:`~.CUmemLocation.type` will result in
@@ -34757,7 +34779,7 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
 
     where :py:obj:`~.CUarrayMapInfo.resourceType` specifies the type of
     resource to be operated on. If :py:obj:`~.CUarrayMapInfo.resourceType`
-    is set to :py:obj:`~.CUresourcetype`::CU_RESOURCE_TYPE_ARRAY then
+    is set to :py:obj:`~.CUresourcetype.CU_RESOURCE_TYPE_ARRAY` then
     :py:obj:`~.CUarrayMapInfo.resource.array` must be set to a valid sparse
     CUDA array handle. The CUDA array must be either a 2D, 2D layered or 3D
     CUDA array and must have been allocated using :py:obj:`~.cuArrayCreate`
@@ -34767,7 +34789,7 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
     using :py:obj:`~.cuMipmappedArrayGetLevel`,
     :py:obj:`~.CUDA_ERROR_INVALID_VALUE` will be returned. If
     :py:obj:`~.CUarrayMapInfo.resourceType` is set to
-    :py:obj:`~.CUresourcetype`::CU_RESOURCE_TYPE_MIPMAPPED_ARRAY then
+    :py:obj:`~.CUresourcetype.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY` then
     :py:obj:`~.CUarrayMapInfo.resource.mipmap` must be set to a valid
     sparse CUDA mipmapped array handle. The CUDA mipmapped array must be
     either a 2D, 2D layered or 3D CUDA mipmapped array and must have been
@@ -34782,16 +34804,16 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
     **View CUDA Toolkit Documentation for a C++ code example**
 
     where
-    :py:obj:`~.CUarraySparseSubresourceType`::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL
+    :py:obj:`~.CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL`
     indicates a sparse-miplevel which spans at least one tile in every
     dimension. The remaining miplevels which are too small to span at least
     one tile in any dimension constitute the mip tail region as indicated
     by
-    :py:obj:`~.CUarraySparseSubresourceType`::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL
+    :py:obj:`~.CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL`
     subresource type.
 
     If :py:obj:`~.CUarrayMapInfo.subresourceType` is set to
-    :py:obj:`~.CUarraySparseSubresourceType`::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL
+    :py:obj:`~.CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL`
     then :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel` struct must
     contain valid array subregion offsets and extents. The
     :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel.offsetX`,
@@ -34817,7 +34839,7 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
     :py:obj:`~.cuMipmappedArrayGetSparseProperties`
 
     If :py:obj:`~.CUarrayMapInfo.subresourceType` is set to
-    :py:obj:`~.CUarraySparseSubresourceType`::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL
+    :py:obj:`~.CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL`
     then :py:obj:`~.CUarrayMapInfo.subresource.miptail` struct must contain
     valid mip tail offset in
     :py:obj:`~.CUarrayMapInfo.subresource.miptail.offset` and size in
@@ -34842,17 +34864,17 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
     **View CUDA Toolkit Documentation for a C++ code example**
 
     If :py:obj:`~.CUarrayMapInfo.memOperationType` is set to
-    :py:obj:`~.CUmemOperationType`::CU_MEM_OPERATION_TYPE_MAP then the
+    :py:obj:`~.CUmemOperationType.CU_MEM_OPERATION_TYPE_MAP` then the
     subresource will be mapped onto the tile pool memory specified by
     :py:obj:`~.CUarrayMapInfo.memHandle` at offset
     :py:obj:`~.CUarrayMapInfo.offset`. The tile pool allocation has to be
     created by specifying the :py:obj:`~.CU_MEM_CREATE_USAGE_TILE_POOL`
     flag when calling :py:obj:`~.cuMemCreate`. Also,
     :py:obj:`~.CUarrayMapInfo.memHandleType` must be set to
-    :py:obj:`~.CUmemHandleType`::CU_MEM_HANDLE_TYPE_GENERIC.
+    :py:obj:`~.CUmemHandleType.CU_MEM_HANDLE_TYPE_GENERIC`.
 
     If :py:obj:`~.CUarrayMapInfo.memOperationType` is set to
-    :py:obj:`~.CUmemOperationType`::CU_MEM_OPERATION_TYPE_UNMAP then an
+    :py:obj:`~.CUmemOperationType.CU_MEM_OPERATION_TYPE_UNMAP` then an
     unmapping operation is performed. :py:obj:`~.CUarrayMapInfo.memHandle`
     must be NULL.
 
@@ -34861,7 +34883,7 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
     exactly one bit set, and the corresponding device must match the device
     associated with the stream. If
     :py:obj:`~.CUarrayMapInfo.memOperationType` is set to
-    :py:obj:`~.CUmemOperationType`::CU_MEM_OPERATION_TYPE_MAP, the device
+    :py:obj:`~.CUmemOperationType.CU_MEM_OPERATION_TYPE_MAP`, the device
     must also match the device associated with the tile pool memory
     allocation as specified by :py:obj:`~.CUarrayMapInfo.memHandle`.
 
@@ -34976,9 +34998,9 @@ def cuMemSetAccess(ptr, size_t size, desc : Optional[tuple[CUmemAccessDesc] | li
     :py:obj:`~.cuMemCreate`. Users cannot specify
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA` accessibility for
     allocations created on with other location types. Note: When
-    :py:obj:`~.CUmemAccessDesc`::CUmemLocation::type is
+    :py:obj:`~.CUmemAccessDesc.CUmemLocation.type` is
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`,
-    :py:obj:`~.CUmemAccessDesc`::CUmemLocation::id is ignored. When setting
+    :py:obj:`~.CUmemAccessDesc.CUmemLocation.id` is ignored. When setting
     the access flags for a virtual address range mapping a multicast
     object, `ptr` and `size` must be aligned to the value returned by
     :py:obj:`~.cuMulticastGetGranularity` with the flag
@@ -35727,13 +35749,13 @@ def cuMemPoolCreate(poolProps : Optional[CUmemPoolProps]):
     device and IPC capabilities.
 
     To create a memory pool targeting a specific host NUMA node,
-    applications must set :py:obj:`~.CUmemPoolProps`::CUmemLocation::type
-    to :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA` and
-    :py:obj:`~.CUmemPoolProps`::CUmemLocation::id must specify the NUMA ID
-    of the host memory node. Specifying
+    applications must set :py:obj:`~.CUmemPoolProps.CUmemLocation.type` to
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA` and
+    :py:obj:`~.CUmemPoolProps.CUmemLocation.id` must specify the NUMA ID of
+    the host memory node. Specifying
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT` or
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` as the
-    :py:obj:`~.CUmemPoolProps`::CUmemLocation::type will result in
+    :py:obj:`~.CUmemPoolProps.CUmemLocation.type` will result in
     :py:obj:`~.CUDA_ERROR_INVALID_VALUE`. By default, the pool's memory
     will be accessible from the device it is allocated on. In the case of
     pools created with :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`, their
@@ -40088,7 +40110,7 @@ def cuExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : Optional[CUDA_E
     the mipmapped array is bound as a color target in the graphics API,
     then the flag :py:obj:`~.CUDA_ARRAY3D_COLOR_ATTACHMENT` must be
     specified in
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC`::arrayDesc::Flags.
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC.arrayDesc.Flags`.
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC.numLevels`
     specifies the total number of levels in the mipmap chain.
 
@@ -40394,7 +40416,7 @@ def cuSignalExternalSemaphoresAsync(extSemArray : Optional[tuple[CUexternalSemap
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX`,
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX_KMT`
     then the keyed mutex will be released with the key specified in
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_PARAMS`::params::keyedmutex::key.
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_PARAMS.params.keyedmutex.key`.
 
     Parameters
     ----------
@@ -42669,7 +42691,7 @@ def cuLaunchGridAsync(f, int grid_width, int grid_height, hStream):
 
     Notes
     -----
-    In certain cases where cubins are created with no ABI (i.e., using `ptxas` `--abi-compile` `no`), this function may serialize kernel launches. The CUDA driver retains asynchronous behavior by growing the per-thread stack as needed per launch and not shrinking it afterwards.
+    In certain cases where cubins are created with no ABI (i.e., using `ptxas`  `no`), this function may serialize kernel launches. The CUDA driver retains asynchronous behavior by growing the per-thread stack as needed per launch and not shrinking it afterwards.
     """
     cdef cydriver.CUstream cyhStream
     if hStream is None:

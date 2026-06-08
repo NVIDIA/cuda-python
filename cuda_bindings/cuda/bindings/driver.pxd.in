@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1588+g61faef43a. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1711+g875fec45. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -5097,7 +5097,11 @@ cdef class CUcheckpointRestoreArgs_st:
 
     Attributes
     ----------
-    {{if 'CUcheckpointRestoreArgs_st.reserved' in found_struct}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'char'}}
+    reserved : bytes
+        Reserved for future use, must be zeroed
+    {{endif}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'cuuint64_t'}}
     reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
     {{endif}}
@@ -10560,7 +10564,11 @@ cdef class CUcheckpointRestoreArgs(CUcheckpointRestoreArgs_st):
 
     Attributes
     ----------
-    {{if 'CUcheckpointRestoreArgs_st.reserved' in found_struct}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'char'}}
+    reserved : bytes
+        Reserved for future use, must be zeroed
+    {{endif}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'cuuint64_t'}}
     reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
     {{endif}}
