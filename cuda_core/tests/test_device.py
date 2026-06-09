@@ -3,14 +3,10 @@
 
 import contextlib
 
-try:
-    from cuda.bindings import driver, runtime
-except ImportError:
-    from cuda import cuda as driver
-    from cuda import cudart as runtime
 import pytest
 
 import cuda.core
+from cuda.bindings import driver, runtime
 from cuda.core import Device
 from cuda.core._utils.cuda_utils import ComputeCapability, handle_return
 from cuda.core._utils.version import binding_version, driver_version

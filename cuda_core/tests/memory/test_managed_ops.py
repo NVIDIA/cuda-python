@@ -5,14 +5,9 @@ import pytest
 from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource
 
 from conftest import create_managed_memory_resource_or_skip
+from cuda.bindings import driver
 from cuda.core import Device, Host, ManagedBuffer
 from cuda.core._memory._managed_buffer import _get_int_attr
-
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
-
 
 _MANAGED_TEST_ALLOCATION_SIZE = 4096
 _READ_MOSTLY_ENABLED = 1

@@ -22,7 +22,7 @@ jobs:
       CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - name: Get CUDA version
         id: get-vars
         run: |
@@ -64,9 +64,12 @@ jobs:
           apt-get install -y git
 
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
+          # Treeless clone: setuptools-scm needs the commit graph (`git describe`)
+          # but not historical blobs.
           fetch-depth: 0
+          filter: blob:none
 
       - name: Fix workspace ownership
         run: |
@@ -196,9 +199,12 @@ jobs:
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
+          # Treeless clone: setuptools-scm needs the commit graph (`git describe`)
+          # but not historical blobs.
           fetch-depth: 0
+          filter: blob:none
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
@@ -267,21 +273,23 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
 
-      - name: Update driver
+      # DRIVER above is 'latest' so install_gpu_driver.ps1 is intentionally
+      # skipped (it errors on latest/earliest); configure_driver_mode.ps1
+      # still runs to put the pre-installed driver into TCC mode.
+      - name: Configure driver mode
         shell: powershell
         env:
           DRIVER_MODE: "TCC"
-          GPU_TYPE: "a100"
         run: |
-          ci/tools/install_gpu_driver.ps1
+          ci/tools/configure_driver_mode.ps1
 
       - name: Ensure GPU is working
         run: |
@@ -391,7 +399,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
