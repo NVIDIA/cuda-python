@@ -40,7 +40,6 @@ on:
       - "cuda_core/tests/cython/**"
       - "ci/versions.yml"
       - ".github/workflows/ci-pixi-source-test.yml"
-      - ".github/actions/setup-pixi/**"
   workflow_dispatch:
     inputs:
       cuda-env:
@@ -72,9 +71,12 @@ jobs:
           fetch-depth: 0
 
       - name: Setup pixi
-        uses: ./.github/actions/setup-pixi
+        # Pinned to a commit SHA; install logic lives in the action and is
+        # auditable/pinned (vs. a curl|bash of an unverified installer).
+        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
           pixi-version: ${{ env.PIXI_VERSION }}
+          run-install: false
 
       - name: Source-build + import + cython-placement smoke
         env:
@@ -118,10 +120,10 @@ jobs:
       - name: Install system packages
         run: |
           apt-get update
-          # curl/ca-certificates for the pixi installer; git for checkout;
-          # libgl1/libegl1 for pyglet (pulled in by the test env).
+          # ca-certificates + git for checkout; libgl1/libegl1 for pyglet
+          # (pulled in by the test env). pixi itself is installed by setup-pixi.
           apt-get install -y --no-install-recommends \
-            curl ca-certificates git libgl1 libegl1
+            ca-certificates git libgl1 libegl1
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -136,9 +138,12 @@ jobs:
         continue-on-error: true
 
       - name: Setup pixi
-        uses: ./.github/actions/setup-pixi
+        # Pinned to a commit SHA; install logic lives in the action and is
+        # auditable/pinned (vs. a curl|bash of an unverified installer).
+        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
           pixi-version: ${{ env.PIXI_VERSION }}
+          run-install: false
 
       - name: pixi run test
         run: pixi run -e "${{ inputs.cuda-env || 'cu13' }}" test
