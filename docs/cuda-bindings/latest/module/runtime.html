@@ -59,7 +59,7 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/module/runtime.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/runtime.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -6992,7 +6992,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaError_t.cudaErrorIncompatibleDriverContext">
 <span class="sig-name descname"><span class="pre">cudaErrorIncompatibleDriverContext</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaError_t.cudaErrorIncompatibleDriverContext:</span> <span class="pre">49&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaError_t.cudaErrorIncompatibleDriverContext" title="Link to this definition">#</a></dt>
-<dd><p>This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see :py:obj:<a href="#id5"><span class="problematic" id="id6">`</span></a>~.Interactions`with the CUDA Driver API” for more information.</p>
+<dd><p>This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see <a class="reference internal" href="#interactions-with-the-cuda-driver-api">Interactions with the CUDA Driver API</a> for more information.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -13006,8 +13006,8 @@ through cudaDevAttrMemSyncDomainCount.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaLaunchAttributeValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
 <dd><p>Launch attributes union; used as value field of cudaLaunchAttribute</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id7">
-<span class="sig-name descname"><span class="pre">pad</span></span><a class="headerlink" href="#id7" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">pad</span></span><a class="headerlink" href="#id5" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
@@ -13016,8 +13016,8 @@ through cudaDevAttrMemSyncDomainCount.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id8">
-<span class="sig-name descname"><span class="pre">accessPolicyWindow</span></span><a class="headerlink" href="#id8" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">accessPolicyWindow</span></span><a class="headerlink" href="#id6" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute cudaLaunchAttributeAccessPolicyWindow.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -13027,8 +13027,8 @@ through cudaDevAttrMemSyncDomainCount.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id9">
-<span class="sig-name descname"><span class="pre">cooperative</span></span><a class="headerlink" href="#id9" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">cooperative</span></span><a class="headerlink" href="#id7" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute cudaLaunchAttributeCooperative. Nonzero
 indicates a cooperative kernel (see cudaLaunchCooperativeKernel).</p>
 <dl class="field-list simple">
@@ -13039,8 +13039,8 @@ indicates a cooperative kernel (see cudaLaunchCooperativeKernel).</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id10">
-<span class="sig-name descname"><span class="pre">syncPolicy</span></span><a class="headerlink" href="#id10" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id8">
+<span class="sig-name descname"><span class="pre">syncPolicy</span></span><a class="headerlink" href="#id8" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
 cudaSynchronizationPolicy for work queued up in this stream.</p>
 <dl class="field-list simple">
@@ -13051,8 +13051,8 @@ cudaSynchronizationPolicy for work queued up in this stream.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id11">
-<span class="sig-name descname"><span class="pre">clusterDim</span></span><a class="headerlink" href="#id11" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">clusterDim</span></span><a class="headerlink" href="#id9" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute cudaLaunchAttributeClusterDimension that
 represents the desired cluster dimensions for the kernel. Opaque
 type with the following fields: - <cite>x</cite> - The X dimension of the
@@ -13068,8 +13068,8 @@ in blocks. Must be a divisor of the grid Z dimension.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id12">
-<span class="sig-name descname"><span class="pre">clusterSchedulingPolicyPreference</span></span><a class="headerlink" href="#id12" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id10">
+<span class="sig-name descname"><span class="pre">clusterSchedulingPolicyPreference</span></span><a class="headerlink" href="#id10" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute
 cudaLaunchAttributeClusterSchedulingPolicyPreference. Cluster
 scheduling policy preference for the kernel.</p>
@@ -13081,8 +13081,8 @@ scheduling policy preference for the kernel.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id13">
-<span class="sig-name descname"><span class="pre">programmaticStreamSerializationAllowed</span></span><a class="headerlink" href="#id13" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id11">
+<span class="sig-name descname"><span class="pre">programmaticStreamSerializationAllowed</span></span><a class="headerlink" href="#id11" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute
 cudaLaunchAttributeProgrammaticStreamSerialization.</p>
 <dl class="field-list simple">
@@ -13093,8 +13093,8 @@ cudaLaunchAttributeProgrammaticStreamSerialization.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id14">
-<span class="sig-name descname"><span class="pre">programmaticEvent</span></span><a class="headerlink" href="#id14" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id12">
+<span class="sig-name descname"><span class="pre">programmaticEvent</span></span><a class="headerlink" href="#id12" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
 the following fields: - <cite>cudaEvent_t</cite> event - Event to fire when
 all blocks trigger it.    - <cite>int</cite> flags; - Event record flags, see
@@ -13109,8 +13109,8 @@ launch will automatically trigger the event.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id15">
-<span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#id15" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id13">
+<span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#id13" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute cudaLaunchAttributePriority. Execution
 priority of the kernel.</p>
 <dl class="field-list simple">
@@ -13121,8 +13121,8 @@ priority of the kernel.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id16">
-<span class="sig-name descname"><span class="pre">memSyncDomainMap</span></span><a class="headerlink" href="#id16" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id14">
+<span class="sig-name descname"><span class="pre">memSyncDomainMap</span></span><a class="headerlink" href="#id14" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute cudaLaunchAttributeMemSyncDomainMap. See
 cudaLaunchMemSyncDomainMap.</p>
 <dl class="field-list simple">
@@ -13133,8 +13133,8 @@ cudaLaunchMemSyncDomainMap.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id17">
-<span class="sig-name descname"><span class="pre">memSyncDomain</span></span><a class="headerlink" href="#id17" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id15">
+<span class="sig-name descname"><span class="pre">memSyncDomain</span></span><a class="headerlink" href="#id15" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
 cudaLaunchMemSyncDomain.</p>
 <dl class="field-list simple">
@@ -13145,8 +13145,8 @@ cudaLaunchMemSyncDomain.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id18">
-<span class="sig-name descname"><span class="pre">preferredClusterDim</span></span><a class="headerlink" href="#id18" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id16">
+<span class="sig-name descname"><span class="pre">preferredClusterDim</span></span><a class="headerlink" href="#id16" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute
 cudaLaunchAttributePreferredClusterDimension that represents the
 desired preferred cluster dimensions for the kernel. Opaque type
@@ -13167,8 +13167,8 @@ of ::cudaLaunchAttributeValue::clusterDim.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id19">
-<span class="sig-name descname"><span class="pre">launchCompletionEvent</span></span><a class="headerlink" href="#id19" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id17">
+<span class="sig-name descname"><span class="pre">launchCompletionEvent</span></span><a class="headerlink" href="#id17" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
 with the following fields: - <cite>cudaEvent_t</cite> event - Event to fire
 when the last block launches.    - <cite>int</cite> flags - Event record
@@ -13182,8 +13182,8 @@ cudaEventRecordExternal.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id20">
-<span class="sig-name descname"><span class="pre">deviceUpdatableKernelNode</span></span><a class="headerlink" href="#id20" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id18">
+<span class="sig-name descname"><span class="pre">deviceUpdatableKernelNode</span></span><a class="headerlink" href="#id18" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute
 cudaLaunchAttributeDeviceUpdatableKernelNode with the following
 fields: - <cite>int</cite> deviceUpdatable - Whether or not the resulting
@@ -13198,8 +13198,8 @@ various device-side update functions.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id21">
-<span class="sig-name descname"><span class="pre">sharedMemCarveout</span></span><a class="headerlink" href="#id21" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id19">
+<span class="sig-name descname"><span class="pre">sharedMemCarveout</span></span><a class="headerlink" href="#id19" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute
 cudaLaunchAttributePreferredSharedMemoryCarveout.</p>
 <dl class="field-list simple">
@@ -13210,8 +13210,8 @@ cudaLaunchAttributePreferredSharedMemoryCarveout.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id22">
-<span class="sig-name descname"><span class="pre">nvlinkUtilCentricScheduling</span></span><a class="headerlink" href="#id22" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id20">
+<span class="sig-name descname"><span class="pre">nvlinkUtilCentricScheduling</span></span><a class="headerlink" href="#id20" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute
 cudaLaunchAttributeNvlinkUtilCentricScheduling.</p>
 <dl class="field-list simple">
@@ -13222,8 +13222,8 @@ cudaLaunchAttributeNvlinkUtilCentricScheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id23">
-<span class="sig-name descname"><span class="pre">portableClusterSizeMode</span></span><a class="headerlink" href="#id23" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id21">
+<span class="sig-name descname"><span class="pre">portableClusterSizeMode</span></span><a class="headerlink" href="#id21" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute
 cudaLaunchAttributePortableClusterSizeMode</p>
 <dl class="field-list simple">
@@ -13234,8 +13234,8 @@ cudaLaunchAttributePortableClusterSizeMode</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id24">
-<span class="sig-name descname"><span class="pre">sharedMemoryMode</span></span><a class="headerlink" href="#id24" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id22">
+<span class="sig-name descname"><span class="pre">sharedMemoryMode</span></span><a class="headerlink" href="#id22" title="Link to this definition">#</a></dt>
 <dd><p>Value of launch attribute cudaLaunchAttributeSharedMemoryMode. See
 cudaSharedMemoryMode for acceptable values.</p>
 <dl class="field-list simple">
@@ -13246,8 +13246,8 @@ cudaSharedMemoryMode for acceptable values.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id25">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id25" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id23">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id23" title="Link to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 
@@ -17508,7 +17508,7 @@ shared memory</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, :py:obj:<a href="#id26"><span class="problematic" id="id27">`</span></a>~.cudaErrorInvalidDeviceFunction`2</p>
+<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, :py:obj:<a href="#id24"><span class="problematic" id="id25">`</span></a>~.cudaErrorInvalidDeviceFunction`2</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t" title="cuda.bindings.runtime.cudaError_t">cudaError_t</a></p>
@@ -17542,7 +17542,7 @@ currently being used.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, :py:obj:<a href="#id28"><span class="problematic" id="id29">`</span></a>~.cudaErrorInvalidDeviceFunction`2</p></li>
+<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, :py:obj:<a href="#id26"><span class="problematic" id="id27">`</span></a>~.cudaErrorInvalidDeviceFunction`2</p></li>
 <li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaFuncAttributes" title="cuda.bindings.runtime.cudaFuncAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncAttributes</span></code></a>) – Return pointer to function’s attributes</p></li>
 </ul>
 </p>
@@ -21163,7 +21163,7 @@ referring to linear memory</p></li>
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMallocAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hStream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMallocAsync" title="Link to this definition">#</a></dt>
 <dd><p>Allocates memory with stream ordered semantics.</p>
 <p>Inserts an allocation operation into <cite>hStream</cite>. A pointer to the
-allocated memory is returned immediately in <a href="#id30"><span class="problematic" id="id31">*</span></a>dptr. The allocation must
+allocated memory is returned immediately in <a href="#id28"><span class="problematic" id="id29">*</span></a>dptr. The allocation must
 not be accessed until the the allocation operation completes. The
 allocation comes from the memory pool associated with the stream’s
 device.</p>
@@ -21697,7 +21697,7 @@ please refer to the documentation for <a class="reference internal" href="#cuda.
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMallocFromPoolAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memPool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMallocFromPoolAsync" title="Link to this definition">#</a></dt>
 <dd><p>Allocates memory from a specified pool with stream ordered semantics.</p>
 <p>Inserts an allocation operation into <cite>hStream</cite>. A pointer to the
-allocated memory is returned immediately in <a href="#id32"><span class="problematic" id="id33">*</span></a>dptr. The allocation must
+allocated memory is returned immediately in <a href="#id30"><span class="problematic" id="id31">*</span></a>dptr. The allocation must
 not be accessed until the the allocation operation completes. The
 allocation comes from the specified memory pool.</p>
 <dl class="field-list simple">
@@ -22755,7 +22755,7 @@ called for EGL graphics resources.</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaEventCreateFromEGLSync">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaEventCreateFromEGLSync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eglSync</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaEventCreateFromEGLSync" title="Link to this definition">#</a></dt>
 <dd><p>Creates an event from EGLSync object.</p>
-<p>Creates an event <a href="#id34"><span class="problematic" id="id35">*</span></a>phEvent from an EGLSyncKHR eglSync with the flages
+<p>Creates an event <a href="#id32"><span class="problematic" id="id33">*</span></a>phEvent from an EGLSyncKHR eglSync with the flages
 specified via <cite>flags</cite>. Valid flags include:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaEventDefault" title="cuda.bindings.runtime.cudaEventDefault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEventDefault</span></code></a>: Default event creation flag.</p></li>
@@ -23162,7 +23162,7 @@ and height of the array in elements, and cannot exceed
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code>::<a class="reference external" href="res::pitch2D::pitchInBytes">res::pitch2D::pitchInBytes</a> specifies the
 pitch between two rows in bytes and has to be aligned to
 <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.texturePitchAlignment" title="cuda.bindings.runtime.cudaDeviceProp.texturePitchAlignment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">texturePitchAlignment</span></code></a>. Pitch cannot exceed
-:py:obj:<a href="#id36"><span class="problematic" id="id37">`</span></a>~.cudaDeviceProp.maxTexture2DLinear`[2].</p>
+:py:obj:<a href="#id34"><span class="problematic" id="id35">`</span></a>~.cudaDeviceProp.maxTexture2DLinear`[2].</p>
 <p>The <a class="reference internal" href="#cuda.bindings.runtime.cudaTextureDesc" title="cuda.bindings.runtime.cudaTextureDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureDesc</span></code></a> struct is defined as</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where</p>
@@ -23743,7 +23743,7 @@ available to each thread block.</p>
 <p>Kernel parameters to <cite>func</cite> can be specified in one of two ways:</p>
 <p>1) Kernel parameters can be specified via <cite>kernelParams</cite>. If the kernel
 has N parameters, then <cite>kernelParams</cite> needs to be an array of N
-pointers. Each pointer, from <a href="#id38"><span class="problematic" id="id39">`</span></a>kernelParams`[0] to <a href="#id40"><span class="problematic" id="id41">`</span></a>kernelParams`[N-1],
+pointers. Each pointer, from <a href="#id36"><span class="problematic" id="id37">`</span></a>kernelParams`[0] to <a href="#id38"><span class="problematic" id="id39">`</span></a>kernelParams`[N-1],
 points to the region of memory from which the actual parameter will be
 copied. The number of kernel parameters and their offsets and sizes do
 not need to be specified as that information is retrieved directly from
@@ -28337,7 +28337,7 @@ impl_private</p>
 <p>The types ::CUevent and cudaEvent_t are identical and may be used interchangeably.</p>
 <p><strong>Interactions between CUarray and cudaArray_t</strong></p>
 <p>The types ::CUarray and struct ::cudaArray * represent the same data type and may be used interchangeably by casting the two types between each other.</p>
-<p>In order to use a ::CUarray in a CUDA Runtime API function which takes a struct ::cudaArray <a href="#id42"><span class="problematic" id="id43">*</span></a>, it is necessary to explicitly cast the ::CUarray to a struct ::cudaArray <a href="#id44"><span class="problematic" id="id45">*</span></a>.</p>
+<p>In order to use a ::CUarray in a CUDA Runtime API function which takes a struct ::cudaArray <a href="#id40"><span class="problematic" id="id41">*</span></a>, it is necessary to explicitly cast the ::CUarray to a struct ::cudaArray <a href="#id42"><span class="problematic" id="id43">*</span></a>.</p>
 <p>In order to use a struct ::cudaArray * in a CUDA Driver API function which takes a ::CUarray, it is necessary to explicitly cast the struct ::cudaArray * to a ::CUarray .</p>
 <p><strong>Interactions between CUgraphicsResource and cudaGraphicsResource_t</strong></p>
 <p>The types ::CUgraphicsResource and cudaGraphicsResource_t represent the same data type and may be used interchangeably by casting the two types between each other.</p>
@@ -30400,25 +30400,25 @@ profiling to be done only on selective pieces of code.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id0"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id7"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.pad</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id8"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.accessPolicyWindow</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id9"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.cooperative</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id10"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.syncPolicy</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id11"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.clusterDim</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id12"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.clusterSchedulingPolicyPreference</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id13"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.programmaticStreamSerializationAllowed</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id14"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.programmaticEvent</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id15"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.priority</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id16"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.memSyncDomainMap</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id17"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.memSyncDomain</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id18"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.preferredClusterDim</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id19"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.launchCompletionEvent</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id20"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.deviceUpdatableKernelNode</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id21"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.sharedMemCarveout</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id22"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.nvlinkUtilCentricScheduling</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id23"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.portableClusterSizeMode</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id24"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.sharedMemoryMode</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id25"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.getPtr()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id5"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.pad</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.accessPolicyWindow</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id7"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.cooperative</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id8"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.syncPolicy</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id9"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.clusterDim</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id10"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.clusterSchedulingPolicyPreference</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id11"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.programmaticStreamSerializationAllowed</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id12"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.programmaticEvent</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id13"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.priority</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id14"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.memSyncDomainMap</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id15"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.memSyncDomain</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id16"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.preferredClusterDim</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id17"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.launchCompletionEvent</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id18"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.deviceUpdatableKernelNode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id19"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.sharedMemCarveout</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id20"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.nvlinkUtilCentricScheduling</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id21"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.portableClusterSizeMode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id22"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.sharedMemoryMode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id23"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLaunchAttribute"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttribute</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
