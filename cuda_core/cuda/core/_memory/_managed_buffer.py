@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from collections.abc import MutableSet
-from typing import TYPE_CHECKING
+from collections.abc import Iterable, Iterator, MutableSet
+from typing import TYPE_CHECKING, Any
 
 from cuda.core._device import Device
 from cuda.core._host import Host
@@ -42,8 +42,8 @@ _ATTR_PREFERRED = _RANGE.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION
 _ATTR_ACCESSED_BY = _RANGE.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY
 
 
-def _get_int_attr(buf: Buffer, attribute) -> int:
-    return handle_return(driver.cuMemRangeGetAttribute(_INT_SIZE, attribute, buf.handle, buf.size))
+def _get_int_attr(buf: Buffer, attribute: Any) -> int:
+    return int(handle_return(driver.cuMemRangeGetAttribute(_INT_SIZE, attribute, buf.handle, buf.size)))
 
 
 def _query_accessed_by(buf: Buffer) -> list[Device | Host]:
@@ -58,7 +58,7 @@ def _query_accessed_by(buf: Buffer) -> list[Device | Host]:
     return [Host() if v == -1 else Device(v) for v in raw if v != -2]
 
 
-class AccessedBySetProxy(MutableSet):
+class AccessedBySetProxy(MutableSet[Device | Host]):
     """Live driver-backed view of ``set_accessed_by`` advice for a managed buffer.
 
     Reads (``__contains__``, ``__iter__``, ``len(...)``) call
@@ -80,17 +80,17 @@ class AccessedBySetProxy(MutableSet):
 
     # Operators such as &|^ produce a plain set, not another proxy.
     @classmethod
-    def _from_iterable(cls, it):
+    def _from_iterable(cls, it: Iterable[Any]) -> set[Device | Host]:  # type: ignore[override]
         return set(it)
 
     # --- abstract methods required by MutableSet ---
 
-    def __contains__(self, location) -> bool:
+    def __contains__(self, location: object) -> bool:
         if not isinstance(location, (Device, Host)):
             return False
         return location in _query_accessed_by(self._buf)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Device | Host]:
         return iter(_query_accessed_by(self._buf))
 
     def __len__(self) -> int:
@@ -151,7 +151,7 @@ class ManagedBuffer(Buffer):
         size: int,
         mr: MemoryResource | None = None,
         owner: object | None = None,
-    ) -> ManagedBuffer:
+    ) -> Buffer:
         """Wrap an existing managed-memory pointer in a :class:`ManagedBuffer`.
 
         Use this when you have an externally-allocated managed pointer
@@ -219,7 +219,7 @@ class ManagedBuffer(Buffer):
         return AccessedBySetProxy(self)
 
     @accessed_by.setter
-    def accessed_by(self, locations) -> None:
+    def accessed_by(self, locations: Iterable[Device | Host]) -> None:
         # Validate every target before issuing any cuMemAdvise so an invalid
         # element can't leave accessed_by partially mutated.
         target: set[Device | Host] = set()

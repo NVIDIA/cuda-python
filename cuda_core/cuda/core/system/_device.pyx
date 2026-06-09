@@ -6,7 +6,7 @@ from libc.stdint cimport intptr_t, uint64_t
 from libc.math cimport ceil
 
 from multiprocessing import cpu_count
-from typing import Iterable
+from typing import Iterable, TYPE_CHECKING
 import warnings
 
 from cuda.bindings import nvml
@@ -33,6 +33,9 @@ from cuda.core.system.typing import (
     ThermalController,
     ThermalTarget,
 )
+
+if TYPE_CHECKING:
+    import cuda.core  # no-cython-lint
 
 
 cdef object _pstate_to_int(object pstate):
@@ -181,7 +184,7 @@ cdef class Device:
         index: int | None = None,
         uuid: bytes | str | None = None,
         pci_bus_id: bytes | str | None = None,
-    ):
+    ) -> None:
         args = [index, uuid, pci_bus_id]
         cdef int arg_count = sum(arg is not None for arg in args)
 
@@ -554,7 +557,7 @@ cdef class Device:
             )
         )
 
-    def set_cpu_affinity(self):
+    def set_cpu_affinity(self) -> None:
         """
         Sets the ideal affinity for the calling thread and device.
 
@@ -564,7 +567,7 @@ cdef class Device:
         """
         nvml.device_set_cpu_affinity(self._handle)
 
-    def clear_cpu_affinity(self):
+    def clear_cpu_affinity(self) -> None:
         """
         Clear all affinity bindings for the calling thread.
 

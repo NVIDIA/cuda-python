@@ -8,6 +8,7 @@
 # contexts created, so that a user can use NVML to explore things about their
 # system without loading CUDA.
 
+from typing import TYPE_CHECKING
 
 __all__ = [
     "CUDA_BINDINGS_NVML_IS_COMPATIBLE",
@@ -22,7 +23,16 @@ from cuda.core.system import typing
 
 from ._system import *
 
-if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+# The TYPE_CHECKING branch is split out from the runtime branch so that
+# stubgen-pyx, which only recognizes the literal `if TYPE_CHECKING:` form,
+# preserves these imports in the generated .pyi.  When
+# CUDA_BINDINGS_NVML_IS_COMPATIBLE is no longer necessary, this complexity can
+# be removed.
+if TYPE_CHECKING:
+    from ._device import *
+    from ._system_events import *
+    from .exceptions import *
+elif CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from ._device import *
     from ._device import __all__ as _device_all
     from ._system_events import *

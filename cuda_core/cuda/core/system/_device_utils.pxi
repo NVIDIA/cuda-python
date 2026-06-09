@@ -1,11 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 from libc.stdint cimport uint64_t
 
 
-cpdef inline list[int] _unpack_bitmask(uint64_t[:] arr):
+def _unpack_bitmask(arr: object) -> list[int]:
     """
     Unpack a list of integers containing bitmasks.
     """
