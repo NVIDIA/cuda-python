@@ -5,6 +5,9 @@
 runtime
 -------
 
+.. _cuda-bindings-runtime-cudart_types:
+.. _cuda-bindings-runtime-group__cudart__types:
+
 Data types used by CUDA Runtime
 -------------------------------
 
@@ -179,7 +182,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorInvalidTextureBinding
 
 
-        This indicates that the texture binding is not valid. This occurs if you call :py:obj:`~.cudaGetTextureAlignmentOffset()` with an unbound texture.
+        This indicates that the texture binding is not valid. This occurs if you call ``cudaGetTextureAlignmentOffset()`` with an unbound texture.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorInvalidChannelDescriptor
@@ -299,13 +302,13 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorIncompatibleDriverContext
 
 
-        This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see :py:obj:`~.Interactions`with the CUDA Driver API" for more information.
+        This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see :ref:`Interactions with the CUDA Driver API <cuda-bindings-runtime-group__cudart__driver>` for more information.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorMissingConfiguration
 
 
-        The device function being invoked (usually via :py:obj:`~.cudaLaunchKernel()`) was not previously configured via the :py:obj:`~.cudaConfigureCall()` function.
+        The device function being invoked (usually via :py:obj:`~.cudaLaunchKernel()`) was not previously configured via the ``cudaConfigureCall()`` function.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorPriorLaunchFailure
@@ -389,7 +392,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorDeviceUninitialized
 
 
-        This most frequently indicates that there is no context bound to the current thread. This can also be returned if the context passed to an API call is not a valid handle (such as a context that has had :py:obj:`~.cuCtxDestroy()` invoked on it). This can also be returned if a user mixes different API versions (i.e. 3010 context with 3020 API calls). See :py:obj:`~.cuCtxGetApiVersion()` for more details.
+        This most frequently indicates that there is no context bound to the current thread. This can also be returned if the context passed to an API call is not a valid handle (such as a context that has had :func:`~.cuCtxDestroy` invoked on it). This can also be returned if a user mixes different API versions (i.e. 3010 context with 3020 API calls). See :func:`~.cuCtxGetApiVersion` for more details.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorMapBufferObjectFailed
@@ -515,7 +518,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorUnsupportedDevSideSync
 
 
-        This indicates that the code to be compiled by the PTX JIT contains unsupported call to cudaDeviceSynchronize.
+        This indicates that the code to be compiled by the PTX JIT contains unsupported call to :func:`~.cudaDeviceSynchronize`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorContained
@@ -623,13 +626,13 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorSetOnActiveProcess
 
 
-        This indicates that the user has called :py:obj:`~.cudaSetValidDevices()`, :py:obj:`~.cudaSetDeviceFlags()`, :py:obj:`~.cudaD3D9SetDirect3DDevice()`, :py:obj:`~.cudaD3D10SetDirect3DDevice`, :py:obj:`~.cudaD3D11SetDirect3DDevice()`, or :py:obj:`~.cudaVDPAUSetVDPAUDevice()` after initializing the CUDA runtime by calling non-device management operations (allocating memory and launching kernels are examples of non-device management operations). This error can also be returned if using runtime/driver interoperability and there is an existing :py:obj:`~.CUcontext` active on the host thread.
+        This indicates that the user has called :py:obj:`~.cudaSetValidDevices()`, :py:obj:`~.cudaSetDeviceFlags()`, ``cudaD3D9SetDirect3DDevice()``, ``cudaD3D10SetDirect3DDevice``, ``cudaD3D11SetDirect3DDevice()``, or :py:obj:`~.cudaVDPAUSetVDPAUDevice()` after initializing the CUDA runtime by calling non-device management operations (allocating memory and launching kernels are examples of non-device management operations). This error can also be returned if using runtime/driver interoperability and there is an existing :py:obj:`~.CUcontext` active on the host thread.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorContextIsDestroyed
 
 
-        This error indicates that the context current to the calling thread has been destroyed using :py:obj:`~.cuCtxDestroy`, or is a primary context which has not yet been initialized.
+        This error indicates that the context current to the calling thread has been destroyed using :func:`~.cuCtxDestroy`, or is a primary context which has not yet been initialized.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorAssert
@@ -641,7 +644,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorTooManyPeers
 
 
-        This error indicates that the hardware resources required to enable peer access have been exhausted for one or more of the devices passed to :py:obj:`~.cudaEnablePeerAccess()`.
+        This error indicates that the hardware resources required to enable peer access have been exhausted for one or more of the devices passed to ``cudaEnablePeerAccess()``.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorHostMemoryAlreadyRegistered
@@ -821,7 +824,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorStreamCaptureImplicit
 
 
-        The operation would have resulted in a disallowed implicit dependency on a current capture sequence from cudaStreamLegacy.
+        The operation would have resulted in a disallowed implicit dependency on a current capture sequence from :py:obj:`~.cudaStreamLegacy`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorCapturedEvent
@@ -1984,7 +1987,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaGPUDirectRDMAWritesOrdering.cudaGPUDirectRDMAWritesOrderingNone
 
 
-        The device does not natively support ordering of GPUDirect RDMA writes. :py:obj:`~.cudaFlushGPUDirectRDMAWrites()` can be leveraged if supported.
+        The device does not natively support ordering of GPUDirect RDMA writes. ``cudaFlushGPUDirectRDMAWrites()`` can be leveraged if supported.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGPUDirectRDMAWritesOrdering.cudaGPUDirectRDMAWritesOrderingOwner
@@ -2281,13 +2284,13 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxTexture2DGatherWidth
 
 
-        Maximum 2D texture width if cudaArrayTextureGather is set
+        Maximum 2D texture width if :py:obj:`~.cudaArrayTextureGather` is set
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxTexture2DGatherHeight
 
 
-        Maximum 2D texture height if cudaArrayTextureGather is set
+        Maximum 2D texture height if :py:obj:`~.cudaArrayTextureGather` is set
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxTexture3DWidthAlt
@@ -2539,7 +2542,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrPageableMemoryAccess
 
 
-        Device supports coherently accessing pageable memory without calling cudaHostRegister on it
+        Device supports coherently accessing pageable memory without calling :func:`~.cudaHostRegister` on it
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess
@@ -2641,7 +2644,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostRegisterReadOnlySupported
 
 
-        Device supports using the :py:obj:`~.cudaHostRegister` flag cudaHostRegisterReadOnly to register memory that must be mapped as read-only to the GPU
+        Device supports using the :py:obj:`~.cudaHostRegister` flag :py:obj:`~.cudaHostRegisterReadOnly` to register memory that must be mapped as read-only to the GPU
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrTimelineSemaphoreInteropSupported
@@ -2653,7 +2656,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported
 
 
-        Device supports using the :py:obj:`~.cudaMallocAsync` and :py:obj:`~.cudaMemPool` family of APIs
+        Device supports using the :py:obj:`~.cudaMallocAsync` and ``cudaMemPool`` family of APIs
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrGPUDirectRDMASupported
@@ -2779,7 +2782,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaMemoryPoolsSupported
 
 
-        Device supports HOST_NUMA location with the :py:obj:`~.cudaMallocAsync` and :py:obj:`~.cudaMemPool` family of APIs
+        Device supports HOST_NUMA location with the :py:obj:`~.cudaMallocAsync` and ``cudaMemPool`` family of APIs
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaMultinodeIpcSupported
@@ -2791,7 +2794,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostMemoryPoolsSupported
 
 
-        Device suports HOST location with the :py:obj:`~.cuMemAllocAsync` and :py:obj:`~.cuMemPool` family of APIs
+        Device suports HOST location with the :func:`~.cuMemAllocAsync` and ``cuMemPool`` family of APIs
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved145
@@ -2822,7 +2825,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolReuseFollowEventDependencies
 
 
-        (value type = int) Allow cuMemAllocAsync to use memory asynchronously freed in another streams as long as a stream ordering dependency of the allocating stream on the free action exists. Cuda events and null stream interactions can create the required stream ordered dependencies. (default enabled)
+        (value type = int) Allow :func:`~.cuMemAllocAsync` to use memory asynchronously freed in another streams as long as a stream ordering dependency of the allocating stream on the free action exists. Cuda events and null stream interactions can create the required stream ordered dependencies. (default enabled)
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolReuseAllowOpportunistic
@@ -2834,67 +2837,67 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolReuseAllowInternalDependencies
 
 
-        (value type = int) Allow cuMemAllocAsync to insert new stream dependencies in order to establish the stream ordering required to reuse a piece of memory released by cuFreeAsync (default enabled).
+        (value type = int) Allow :func:`~.cuMemAllocAsync` to insert new stream dependencies in order to establish the stream ordering required to reuse a piece of memory released by cuFreeAsync (default enabled).
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrReleaseThreshold
 
 
-        (value type = cuuint64_t) Amount of reserved memory in bytes to hold onto before trying to release memory back to the OS. When more than the release threshold bytes of memory are held by the memory pool, the allocator will try to release memory back to the OS on the next call to stream, event or context synchronize. (default 0)
+        (value type = :py:obj:`~.cuuint64_t`) Amount of reserved memory in bytes to hold onto before trying to release memory back to the OS. When more than the release threshold bytes of memory are held by the memory pool, the allocator will try to release memory back to the OS on the next call to stream, event or context synchronize. (default 0)
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrReservedMemCurrent
 
 
-        (value type = cuuint64_t) Amount of backing memory currently allocated for the mempool.
+        (value type = :py:obj:`~.cuuint64_t`) Amount of backing memory currently allocated for the mempool.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrReservedMemHigh
 
 
-        (value type = cuuint64_t) High watermark of backing memory allocated for the mempool since the last time it was reset. High watermark can only be reset to zero.
+        (value type = :py:obj:`~.cuuint64_t`) High watermark of backing memory allocated for the mempool since the last time it was reset. High watermark can only be reset to zero.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrUsedMemCurrent
 
 
-        (value type = cuuint64_t) Amount of memory from the pool that is currently in use by the application.
+        (value type = :py:obj:`~.cuuint64_t`) Amount of memory from the pool that is currently in use by the application.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrUsedMemHigh
 
 
-        (value type = cuuint64_t) High watermark of the amount of memory from the pool that was in use by the application since the last time it was reset. High watermark can only be reset to zero.
+        (value type = :py:obj:`~.cuuint64_t`) High watermark of the amount of memory from the pool that was in use by the application since the last time it was reset. High watermark can only be reset to zero.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrAllocationType
 
 
-        (value type = cudaMemAllocationType) The allocation type of the mempool
+        (value type = :py:obj:`~.cudaMemAllocationType`) The allocation type of the mempool
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrExportHandleTypes
 
 
-        (value type = cudaMemAllocationHandleType) Available export handle types for the mempool. For imported pools this value is always cudaMemHandleTypeNone as an imported pool cannot be re-exported
+        (value type = :py:obj:`~.cudaMemAllocationHandleType`) Available export handle types for the mempool. For imported pools this value is always :py:obj:`~.cudaMemHandleTypeNone` as an imported pool cannot be re-exported
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocationId
 
 
-        (value type = int) The location id for the mempool. If the location type for this pool is cudaMemLocationTypeInvisible then ID will be cudaInvalidDeviceId
+        (value type = int) The location id for the mempool. If the location type for this pool is :py:obj:`~.cudaMemLocationTypeInvisible` then ID will be :py:obj:`~.cudaInvalidDeviceId`
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocationType
 
 
-        (value type = cudaMemLocationType) The location type for the mempool. For imported memory pools where the device is not directly visible to the importing process or pools imported via fabric handles across nodes this will be cudaMemLocationTypeInvisible
+        (value type = :py:obj:`~.cudaMemLocationType`) The location type for the mempool. For imported memory pools where the device is not directly visible to the importing process or pools imported via fabric handles across nodes this will be :py:obj:`~.cudaMemLocationTypeInvisible`
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrMaxPoolSize
 
 
-        (value type = cuuint64_t) Maximum size of the pool in bytes, this value may be higher than what was initially passed to cudaMemPoolCreate due to alignment requirements. A value of 0 indicates no maximum size. For cudaMemAllocationTypeManaged and IPC imported pools this value will be system dependent.
+        (value type = :py:obj:`~.cuuint64_t`) Maximum size of the pool in bytes, this value may be higher than what was initially passed to :func:`~.cudaMemPoolCreate` due to alignment requirements. A value of 0 indicates no maximum size. For :py:obj:`~.cudaMemAllocationTypeManaged` and IPC imported pools this value will be system dependent.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrHwDecompressEnabled
@@ -2940,7 +2943,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvisible
 
 
-        Location is not visible but device is accessible, id is always cudaInvalidDeviceId
+        Location is not visible but device is accessible, id is always :py:obj:`~.cudaInvalidDeviceId`
 
 .. autoclass:: cuda.bindings.runtime.cudaMemAccessFlags
 
@@ -3009,32 +3012,32 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaMemAllocationHandleType.cudaMemHandleTypeFabric
 
 
-        Allows a fabric handle to be used for exporting. (cudaMemFabricHandle_t)
+        Allows a fabric handle to be used for exporting. (:py:obj:`~.cudaMemFabricHandle_t`)
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphMemAttributeType
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphMemAttributeType.cudaGraphMemAttrUsedMemCurrent
 
 
-        (value type = cuuint64_t) Amount of memory, in bytes, currently associated with graphs.
+        (value type = :py:obj:`~.cuuint64_t`) Amount of memory, in bytes, currently associated with graphs.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphMemAttributeType.cudaGraphMemAttrUsedMemHigh
 
 
-        (value type = cuuint64_t) High watermark of memory, in bytes, associated with graphs since the last time it was reset. High watermark can only be reset to zero.
+        (value type = :py:obj:`~.cuuint64_t`) High watermark of memory, in bytes, associated with graphs since the last time it was reset. High watermark can only be reset to zero.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphMemAttributeType.cudaGraphMemAttrReservedMemCurrent
 
 
-        (value type = cuuint64_t) Amount of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
+        (value type = :py:obj:`~.cuuint64_t`) Amount of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphMemAttributeType.cudaGraphMemAttrReservedMemHigh
 
 
-        (value type = cuuint64_t) High watermark of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
+        (value type = :py:obj:`~.cuuint64_t`) High watermark of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
 
 .. autoclass:: cuda.bindings.runtime.cudaMemcpyFlags
 
@@ -3085,7 +3088,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaMemcpy3DOperandType.cudaMemcpyOperandTypeArray
 
 
-        Memcpy operand is a CUarray.
+        Memcpy operand is a :py:obj:`~.CUarray`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemcpy3DOperandType.cudaMemcpyOperandTypeMax
@@ -3384,7 +3387,7 @@ Data types used by CUDA Runtime
 
         Pointer to a buffer in which to print any log messages that are informational in nature (the buffer size is specified via option :py:obj:`~.cudaJitInfoLogBufferSizeBytes`)
 
-        Option type: char *
+        Option type: ``char *``
 
         Applies to: compiler and linker
 
@@ -3406,7 +3409,7 @@ Data types used by CUDA Runtime
 
         Pointer to a buffer in which to print any log messages that reflect errors (the buffer size is specified via option :py:obj:`~.cudaJitErrorLogBufferSizeBytes`)
 
-        Option type: char *
+        Option type: ``char *``
 
         Applies to: compiler and linker
 
@@ -3474,7 +3477,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitCacheMode
 
 
-        Specifies whether to enable caching explicitly (-dlcm) 
+        Specifies whether to enable caching explicitly (-dlcm)
 
         Choice is based on supplied :py:obj:`~.cudaJit_CacheMode`.
 
@@ -3524,7 +3527,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLibraryOption.cudaLibraryBinaryIsPreserved
 
 
-        Specifes that the argument `code` passed to :py:obj:`~.cudaLibraryLoadData()` will be preserved. Specifying this option will let the driver know that `code` can be accessed at any point until :py:obj:`~.cudaLibraryUnload()`. The default behavior is for the driver to allocate and maintain its own copy of `code`. Note that this is only a memory usage optimization hint and the driver can choose to ignore it if required. Specifying this option with :py:obj:`~.cudaLibraryLoadFromFile()` is invalid and will return :py:obj:`~.cudaErrorInvalidValue`.
+        Specifes that the argument ``code`` passed to :py:obj:`~.cudaLibraryLoadData()` will be preserved. Specifying this option will let the driver know that ``code`` can be accessed at any point until :py:obj:`~.cudaLibraryUnload()`. The default behavior is for the driver to allocate and maintain its own copy of ``code``. Note that this is only a memory usage optimization hint and the driver can choose to ignore it if required. Specifying this option with :py:obj:`~.cudaLibraryLoadFromFile()` is invalid and will return :py:obj:`~.cudaErrorInvalidValue`.
 
 .. autoclass:: cuda.bindings.runtime.cudaJit_CacheMode
 
@@ -3594,13 +3597,13 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaKernelFunctionType.cudaKernelFunctionTypeKernel
 
 
-        Function handle is a cudaKernel_t
+        Function handle is a :py:obj:`~.cudaKernel_t`
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaKernelFunctionType.cudaKernelFunctionTypeFunction
 
 
-        Function handle is a cudaFunction_t
+        Function handle is a :py:obj:`~.cudaFunction_t`
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphConditionalHandleFlags
 
@@ -3614,7 +3617,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaGraphConditionalNodeType.cudaGraphCondTypeIf
 
 
-        Conditional 'if/else' Node. Body[0] executed if condition is non-zero. If `size` == 2, an optional ELSE graph is created and this is executed if the condition is zero.
+        Conditional 'if/else' Node. Body[0] executed if condition is non-zero. If ``size`` == 2, an optional ELSE graph is created and this is executed if the condition is zero.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphConditionalNodeType.cudaGraphCondTypeWhile
@@ -3717,7 +3720,7 @@ Data types used by CUDA Runtime
 
                                            Handles must be created in advance of creating the node
 
-                                           using :py:obj:`~.cudaGraphConditionalHandleCreate`.
+                                           using :func:`~.cudaGraphConditionalHandleCreate`.
 
 
 
@@ -3733,7 +3736,7 @@ Data types used by CUDA Runtime
 
                                            To set the control value, supply a default value when creating the handle and/or
 
-                                           call :py:obj:`~.cudaGraphSetConditional` from device code.
+                                           call ``cudaGraphSetConditional`` from device code.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeReserved16
@@ -3759,7 +3762,7 @@ Data types used by CUDA Runtime
 
 
 
-        The following restrictions apply to child graphs after they have been moved: Cannot be independently instantiated or destroyed; Cannot be added as a child graph of a separate parent graph; Cannot be used as an argument to cudaGraphExecUpdate; Cannot have additional memory allocation or free nodes added.
+        The following restrictions apply to child graphs after they have been moved: Cannot be independently instantiated or destroyed; Cannot be added as a child graph of a separate parent graph; Cannot be used as an argument to :func:`~.cudaGraphExecUpdate`; Cannot have additional memory allocation or free nodes added.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipInvalid
@@ -3778,7 +3781,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDependencyType.cudaGraphDependencyTypeProgrammatic
 
 
-        This dependency type allows the downstream node to use `cudaGridDependencySynchronize()`. It may only be used between kernel nodes, and must be used with either the :py:obj:`~.cudaGraphKernelNodePortProgrammatic` or :py:obj:`~.cudaGraphKernelNodePortLaunchCompletion` outgoing port.
+        This dependency type allows the downstream node to use ``cudaGridDependencySynchronize()``. It may only be used between kernel nodes, and must be used with either the :py:obj:`~.cudaGraphKernelNodePortProgrammatic` or :py:obj:`~.cudaGraphKernelNodePortLaunchCompletion` outgoing port.
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphExecUpdateResult
 
@@ -3970,7 +3973,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsEventNodeParams
 
 
-        Adds cudaEvent_t handle from record and wait nodes to output
+        Adds :py:obj:`~.cudaEvent_t` handle from record and wait nodes to output
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasSignalNodeParams
@@ -3988,7 +3991,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeAttributes
 
 
-        Adds cudaKernelNodeAttrID values to output
+        Adds :py:obj:`~.cudaKernelNodeAttrID` values to output
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsHandles
@@ -4013,21 +4016,21 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagUpload
 
 
-        Automatically upload the graph after instantiation. Only supported by 
+        Automatically upload the graph after instantiation. Only supported by
 
-         :py:obj:`~.cudaGraphInstantiateWithParams`. The upload will be performed using the 
+         :py:obj:`~.cudaGraphInstantiateWithParams`. The upload will be performed using the
 
-         stream provided in `instantiateParams`.
+         stream provided in ``instantiateParams``.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagDeviceLaunch
 
 
-        Instantiate the graph to be launchable from the device. This flag can only 
+        Instantiate the graph to be launchable from the device. This flag can only
 
-         be used on platforms which support unified addressing. This flag cannot be 
+         be used on platforms which support unified addressing. This flag cannot be
 
-         used in conjunction with cudaGraphInstantiateFlagAutoFreeOnLaunch.
+         used in conjunction with :py:obj:`~.cudaGraphInstantiateFlagAutoFreeOnLaunch`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagUseNodePriority
@@ -4078,43 +4081,43 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::accessPolicyWindow.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.accessPolicyWindow`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeCooperative
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::cooperative.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.cooperative`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeSynchronizationPolicy
 
 
-        Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue`::syncPolicy.
+        Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue.syncPolicy`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeClusterDimension
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::clusterDim.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeClusterSchedulingPolicyPreference
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::clusterSchedulingPolicyPreference.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.clusterSchedulingPolicyPreference`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticStreamSerialization
 
 
-        Valid for launches. Setting :py:obj:`~.cudaLaunchAttributeValue`::programmaticStreamSerializationAllowed to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
+        Valid for launches. Setting :py:obj:`~.cudaLaunchAttributeValue.programmaticStreamSerializationAllowed` to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticEvent
 
 
-        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue`::programmaticEvent to record the event. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event programmatically in a future CUDA release. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling :py:obj:`~.cudaEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cudaEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. Note also this type of dependency allows, but does not guarantee, concurrent execution of tasks. 
+        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue.programmaticEvent` to record the event. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event programmatically in a future CUDA release. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling :py:obj:`~.cudaEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cudaEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. Note also this type of dependency allows, but does not guarantee, concurrent execution of tasks.
 
          The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the :py:obj:`~.cudaEventDisableTiming` flag set).
 
@@ -4122,39 +4125,39 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePriority
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::priority.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.priority`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomainMap
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::memSyncDomainMap.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.memSyncDomainMap`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomain
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::memSyncDomain.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.memSyncDomain`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePreferredClusterDimension
 
 
-        Valid for graph nodes and launches. Set :py:obj:`~.cudaLaunchAttributeValue`::preferredClusterDim to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with :py:obj:`~.cudaLaunchAttributeClusterDimension` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible. 
+        Valid for graph nodes and launches. Set :py:obj:`~.cudaLaunchAttributeValue.preferredClusterDim` to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with :py:obj:`~.cudaLaunchAttributeClusterDimension` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible.
 
-         Each type of cluster will have its enumeration / coordinate setup as if the grid consists solely of its type of cluster. For example, if the preferred substitute cluster dimensions double the regular cluster dimensions, there might be simultaneously a regular cluster indexed at (1,0,0), and a preferred cluster indexed at (1,0,0). In this example, the preferred substitute cluster (1,0,0) replaces regular clusters (2,0,0) and (3,0,0) and groups their blocks. 
+         Each type of cluster will have its enumeration / coordinate setup as if the grid consists solely of its type of cluster. For example, if the preferred substitute cluster dimensions double the regular cluster dimensions, there might be simultaneously a regular cluster indexed at (1,0,0), and a preferred cluster indexed at (1,0,0). In this example, the preferred substitute cluster (1,0,0) replaces regular clusters (2,0,0) and (3,0,0) and groups their blocks.
 
-         This attribute will only take effect when a regular cluster dimension has been specified. The preferred substitute cluster dimension must be an integer multiple greater than zero of the regular cluster dimension and must divide the grid. It must also be no more than `maxBlocksPerCluster`, if it is set in the kernel's `__launch_bounds__`. Otherwise it must be less than the maximum value the driver can support. Otherwise, setting this attribute to a value physically unable to fit on any particular device is permitted.
+         This attribute will only take effect when a regular cluster dimension has been specified. The preferred substitute cluster dimension must be an integer multiple greater than zero of the regular cluster dimension and must divide the grid. It must also be no more than ``maxBlocksPerCluster``, if it is set in the kernel's ``__launch_bounds__``. Otherwise it must be less than the maximum value the driver can support. Otherwise, setting this attribute to a value physically unable to fit on any particular device is permitted.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent
 
 
-        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue`::launchCompletionEvent to record the event. 
+        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue.launchCompletionEvent` to record the event.
 
-         Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock. 
+         Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock.
 
-         A launch completion event is nominally similar to a programmatic event with `triggerAtBlockStart` set except that it is not visible to `cudaGridDependencySynchronize()` and can be used with compute capability less than 9.0. 
+         A launch completion event is nominally similar to a programmatic event with ``triggerAtBlockStart`` set except that it is not visible to ``cudaGridDependencySynchronize()`` and can be used with compute capability less than 9.0.
 
          The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the :py:obj:`~.cudaEventDisableTiming` flag set).
 
@@ -4162,39 +4165,39 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode
 
 
-        Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error. 
+        Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error.
 
-         :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.cudaLaunchAttributeValue`::deviceUpdatableKernelNode::devNode which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
+         :py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable` can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode` which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see ``cudaGraphKernelNodeUpdatesApply``.
 
-         Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via :py:obj:`~.cudaGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via :py:obj:`~.cudaGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to :py:obj:`~.cudaGraphExecUpdate`. 
+         Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via :py:obj:`~.cudaGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via :py:obj:`~.cudaGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to :py:obj:`~.cudaGraphExecUpdate`.
 
-         If a graph contains device-updatable nodes and updates those nodes from the device from within the graph, the graph must be uploaded with :py:obj:`~.cuGraphUpload` before it is launched. For such a graph, if host-side executable graph updates are made to the device-updatable nodes, the graph must be uploaded before it is launched again.
+         If a graph contains device-updatable nodes and updates those nodes from the device from within the graph, the graph must be uploaded with :func:`~.cuGraphUpload` before it is launched. For such a graph, if host-side executable graph updates are made to the device-updatable nodes, the graph must be uploaded before it is launched again.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout
 
 
-        Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.cudaLaunchAttributeValue`::sharedMemCarveout to a percentage between 0-100 signals sets the shared memory carveout preference in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is only a hint, and the driver can choose a different configuration if required for the launch.
+        Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.cudaLaunchAttributeValue.sharedMemCarveout` to a percentage between 0-100 signals sets the shared memory carveout preference in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is only a hint, and the driver can choose a different configuration if required for the launch.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeNvlinkUtilCentricScheduling
 
 
-        Valid for streams, graph nodes, launches. This attribute is a hint to the CUDA runtime that the launch should attempt to make the kernel maximize its NVLINK utilization. 
+        Valid for streams, graph nodes, launches. This attribute is a hint to the CUDA runtime that the launch should attempt to make the kernel maximize its NVLINK utilization.
 
 
 
-         When possible to honor this hint, CUDA will assume each block in the grid launch will carry out an even amount of NVLINK traffic, and make a best-effort attempt to adjust the kernel launch based on that assumption. 
+         When possible to honor this hint, CUDA will assume each block in the grid launch will carry out an even amount of NVLINK traffic, and make a best-effort attempt to adjust the kernel launch based on that assumption.
 
-         This attribute is a hint only. CUDA makes no functional or performance guarantee. Its applicability can be affected by many different factors, including driver version (i.e. CUDA doesn't guarantee the performance characteristics will be maintained between driver versions or a driver update could alter or regress previously observed perf characteristics.) It also doesn't guarantee a successful result, i.e. applying the attribute may not improve the performance of either the targeted kernel or the encapsulating application. 
+         This attribute is a hint only. CUDA makes no functional or performance guarantee. Its applicability can be affected by many different factors, including driver version (i.e. CUDA doesn't guarantee the performance characteristics will be maintained between driver versions or a driver update could alter or regress previously observed perf characteristics.) It also doesn't guarantee a successful result, i.e. applying the attribute may not improve the performance of either the targeted kernel or the encapsulating application.
 
-         Valid values for :py:obj:`~.cudaLaunchAttributeValue`::nvlinkUtilCentricScheduling are 0 (disabled) and 1 (enabled).
+         Valid values for :py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0 (disabled) and 1 (enabled).
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePortableClusterSizeMode
 
 
-        Valid for graph nodes, launches. This indicates whether the kernel launch is allowed to use a non-portable cluster size. Valid values for :py:obj:`~.cudaLaunchAttributeValue`::portableClusterSizeMode are values for :py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will return :py:obj:`~.cudaErrorInvalidValue`
+        Valid for graph nodes, launches. This indicates whether the kernel launch is allowed to use a non-portable cluster size. Valid values for :py:obj:`~.cudaLaunchAttributeValue.portableClusterSizeMode` are values for :py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will return :py:obj:`~.cudaErrorInvalidValue`
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeSharedMemoryMode
@@ -4213,7 +4216,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceNumaConfig.cudaDeviceNumaConfigNumaNode
 
 
-        The GPU is a NUMA node, cudaDevAttrNumaId contains its NUMA ID
+        The GPU is a NUMA node, :py:obj:`~.cudaDevAttrNumaId` contains its NUMA ID
 
 .. autoclass:: cuda.bindings.runtime.cudaAsyncNotificationType
 
@@ -5136,7 +5139,7 @@ Data types used by CUDA Runtime
 
 
 
-    Stream handle that can be passed as a cudaStream_t to use an implicit stream with legacy synchronization behavior.
+    Stream handle that can be passed as a :py:obj:`~.cudaStream_t` to use an implicit stream with legacy synchronization behavior.
 
 
 
@@ -5148,7 +5151,7 @@ Data types used by CUDA Runtime
 
 
 
-    Stream handle that can be passed as a cudaStream_t to use an implicit stream with per-thread synchronization behavior.
+    Stream handle that can be passed as a :py:obj:`~.cudaStream_t` to use an implicit stream with per-thread synchronization behavior.
 
 
 
@@ -5168,7 +5171,7 @@ Data types used by CUDA Runtime
 
 .. autoattribute:: cuda.bindings.runtime.cudaEventInterprocess
 
-    Event is suitable for interprocess use. cudaEventDisableTiming must be set
+    Event is suitable for interprocess use. :py:obj:`~.cudaEventDisableTiming` must be set
 
 .. autoattribute:: cuda.bindings.runtime.cudaEventRecordDefault
 
@@ -5232,31 +5235,31 @@ Data types used by CUDA Runtime
 
 .. autoattribute:: cuda.bindings.runtime.cudaArrayLayered
 
-    Must be set in cudaMalloc3DArray to create a layered CUDA array
+    Must be set in :func:`~.cudaMalloc3DArray` to create a layered CUDA array
 
 .. autoattribute:: cuda.bindings.runtime.cudaArraySurfaceLoadStore
 
-    Must be set in cudaMallocArray or cudaMalloc3DArray in order to bind surfaces to the CUDA array
+    Must be set in :func:`~.cudaMallocArray` or :func:`~.cudaMalloc3DArray` in order to bind surfaces to the CUDA array
 
 .. autoattribute:: cuda.bindings.runtime.cudaArrayCubemap
 
-    Must be set in cudaMalloc3DArray to create a cubemap CUDA array
+    Must be set in :func:`~.cudaMalloc3DArray` to create a cubemap CUDA array
 
 .. autoattribute:: cuda.bindings.runtime.cudaArrayTextureGather
 
-    Must be set in cudaMallocArray or cudaMalloc3DArray in order to perform texture gather operations on the CUDA array
+    Must be set in :func:`~.cudaMallocArray` or :func:`~.cudaMalloc3DArray` in order to perform texture gather operations on the CUDA array
 
 .. autoattribute:: cuda.bindings.runtime.cudaArrayColorAttachment
 
-    Must be set in cudaExternalMemoryGetMappedMipmappedArray if the mipmapped array is used as a color target in a graphics API
+    Must be set in :func:`~.cudaExternalMemoryGetMappedMipmappedArray` if the mipmapped array is used as a color target in a graphics API
 
 .. autoattribute:: cuda.bindings.runtime.cudaArraySparse
 
-    Must be set in cudaMallocArray, cudaMalloc3DArray or cudaMallocMipmappedArray in order to create a sparse CUDA array or CUDA mipmapped array
+    Must be set in :func:`~.cudaMallocArray`, :func:`~.cudaMalloc3DArray` or :func:`~.cudaMallocMipmappedArray` in order to create a sparse CUDA array or CUDA mipmapped array
 
 .. autoattribute:: cuda.bindings.runtime.cudaArrayDeferredMapping
 
-    Must be set in cudaMallocArray, cudaMalloc3DArray or cudaMallocMipmappedArray in order to create a deferred mapping CUDA array or CUDA mipmapped array
+    Must be set in :func:`~.cudaMallocArray`, :func:`~.cudaMalloc3DArray` or :func:`~.cudaMallocMipmappedArray` in order to create a deferred mapping CUDA array or CUDA mipmapped array
 
 .. autoattribute:: cuda.bindings.runtime.cudaIpcMemLazyEnablePeerAccess
 
@@ -5292,7 +5295,7 @@ Data types used by CUDA Runtime
 
 .. autoattribute:: cuda.bindings.runtime.cudaInitDeviceFlagsAreValid
 
-    Tell the CUDA runtime that DeviceFlags is being set in cudaInitDevice call
+    Tell the CUDA runtime that DeviceFlags is being set in :func:`~.cudaInitDevice` call
 
 .. autoattribute:: cuda.bindings.runtime.cudaArraySparsePropertiesSingleMipTail
 
@@ -5382,6 +5385,9 @@ Data types used by CUDA Runtime
     Maximum number of planes per frame
 
 
+.. _cuda-bindings-runtime-cudart_device:
+.. _cuda-bindings-runtime-group__cudart__device:
+
 Device Management
 -----------------
 
@@ -5430,6 +5436,9 @@ This section describes the device management functions of the CUDA runtime appli
 .. autofunction:: cuda.bindings.runtime.cudaSetDeviceFlags
 .. autofunction:: cuda.bindings.runtime.cudaGetDeviceFlags
 
+.. _cuda-bindings-runtime-cudart_error:
+.. _cuda-bindings-runtime-group__cudart__error:
+
 Error Handling
 --------------
 
@@ -5439,6 +5448,9 @@ This section describes the error handling functions of the CUDA runtime applicat
 .. autofunction:: cuda.bindings.runtime.cudaPeekAtLastError
 .. autofunction:: cuda.bindings.runtime.cudaGetErrorName
 .. autofunction:: cuda.bindings.runtime.cudaGetErrorString
+
+.. _cuda-bindings-runtime-cudart_stream:
+.. _cuda-bindings-runtime-group__cudart__stream:
 
 Stream Management
 -----------------
@@ -5474,6 +5486,9 @@ This section describes the stream management functions of the CUDA runtime appli
 .. autofunction:: cuda.bindings.runtime.cudaStreamGetCaptureInfo
 .. autofunction:: cuda.bindings.runtime.cudaStreamUpdateCaptureDependencies
 
+.. _cuda-bindings-runtime-cudart_event:
+.. _cuda-bindings-runtime-group__cudart__event:
+
 Event Management
 ----------------
 
@@ -5488,6 +5503,9 @@ This section describes the event management functions of the CUDA runtime applic
 .. autofunction:: cuda.bindings.runtime.cudaEventDestroy
 .. autofunction:: cuda.bindings.runtime.cudaEventElapsedTime
 
+.. _cuda-bindings-runtime-cudart_extres_interop:
+.. _cuda-bindings-runtime-group__cudart__extres__interop:
+
 External Resource Interoperability
 ----------------------------------
 
@@ -5501,6 +5519,9 @@ This section describes the external resource interoperability functions of the C
 .. autofunction:: cuda.bindings.runtime.cudaSignalExternalSemaphoresAsync
 .. autofunction:: cuda.bindings.runtime.cudaWaitExternalSemaphoresAsync
 .. autofunction:: cuda.bindings.runtime.cudaDestroyExternalSemaphore
+
+.. _cuda-bindings-runtime-cudart_execution:
+.. _cuda-bindings-runtime-group__cudart__execution:
 
 Execution Control
 -----------------
@@ -5518,6 +5539,9 @@ Some functions have overloaded C++ API template versions documented separately i
 .. autofunction:: cuda.bindings.runtime.cudaLaunchHostFunc
 .. autofunction:: cuda.bindings.runtime.cudaLaunchHostFunc_v2
 
+.. _cuda-bindings-runtime-cudart_occupancy:
+.. _cuda-bindings-runtime-group__cudart__occupancy:
+
 Occupancy
 ---------
 
@@ -5525,15 +5549,18 @@ This section describes the occupancy calculation functions of the CUDA runtime a
 
 
 
-Besides the occupancy calculator functions (cudaOccupancyMaxActiveBlocksPerMultiprocessor and cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags), there are also C++ only occupancy-based launch configuration functions documented in C++ API Routines module.
+Besides the occupancy calculator functions (:func:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessor` and :func:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags`), there are also C++ only occupancy-based launch configuration functions documented in C++ API Routines module.
 
 
 
-See cudaOccupancyMaxPotentialBlockSize (C++ API), cudaOccupancyMaxPotentialBlockSize (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMem (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMem (C++ API) cudaOccupancyAvailableDynamicSMemPerBlock (C++ API),
+See cudaOccupancyMaxPotentialBlockSize (C++ API), cudaOccupancyMaxPotentialBlockSize (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMem (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMem (C++ API) :func:`~.cudaOccupancyAvailableDynamicSMemPerBlock` (C++ API),
 
 .. autofunction:: cuda.bindings.runtime.cudaOccupancyMaxActiveBlocksPerMultiprocessor
 .. autofunction:: cuda.bindings.runtime.cudaOccupancyAvailableDynamicSMemPerBlock
 .. autofunction:: cuda.bindings.runtime.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
+
+.. _cuda-bindings-runtime-cudart_memory:
+.. _cuda-bindings-runtime-group__cudart__memory:
 
 Memory Management
 -----------------
@@ -5605,6 +5632,9 @@ Some functions have overloaded C++ API template versions documented separately i
 .. autofunction:: cuda.bindings.runtime.make_cudaPos
 .. autofunction:: cuda.bindings.runtime.make_cudaExtent
 
+.. _cuda-bindings-runtime-cudart_memory_pools:
+.. _cuda-bindings-runtime-group__cudart__memory__pools:
+
 Stream Ordered Memory Allocator
 -------------------------------
 
@@ -5624,7 +5654,7 @@ The allocator is free to reallocate the memory as long as it can guarantee that 
 
 
 
-Whether or not a device supports the integrated stream ordered memory allocator may be queried by calling cudaDeviceGetAttribute() with the device attribute cudaDevAttrMemoryPoolsSupported.
+Whether or not a device supports the integrated stream ordered memory allocator may be queried by calling :func:`~.cudaDeviceGetAttribute` with the device attribute :py:obj:`~.cudaDevAttrMemoryPoolsSupported`.
 
 .. autofunction:: cuda.bindings.runtime.cudaMallocAsync
 .. autofunction:: cuda.bindings.runtime.cudaFreeAsync
@@ -5644,6 +5674,9 @@ Whether or not a device supports the integrated stream ordered memory allocator 
 .. autofunction:: cuda.bindings.runtime.cudaMemPoolExportPointer
 .. autofunction:: cuda.bindings.runtime.cudaMemPoolImportPointer
 
+.. _cuda-bindings-runtime-cudart_unified:
+.. _cuda-bindings-runtime-group__cudart__unified:
+
 Unified Addressing
 ------------------
 
@@ -5657,7 +5690,7 @@ This section describes the unified addressing functions of the CUDA runtime appl
 
 
 
-CUDA devices can share a unified address space with the host. 
+CUDA devices can share a unified address space with the host.
 
  For these devices there is no distinction between a device pointer and a host pointer -- the same pointer value may be used to access memory from the host program and from a kernel running on the device (with exceptions enumerated below).
 
@@ -5669,7 +5702,7 @@ CUDA devices can share a unified address space with the host.
 
 
 
-Whether or not a device supports unified addressing may be queried by calling cudaGetDeviceProperties() with the device property cudaDeviceProp::unifiedAddressing.
+Whether or not a device supports unified addressing may be queried by calling :func:`~.cudaGetDeviceProperties` with the device property :py:obj:`~.cudaDeviceProp.unifiedAddressing`.
 
 Unified addressing is automatically enabled in 64-bit processes .
 
@@ -5681,11 +5714,11 @@ Unified addressing is automatically enabled in 64-bit processes .
 
 
 
-It is possible to look up information about the memory which backs a pointer value. For instance, one may want to know if a pointer points to host or device memory. As another example, in the case of device memory, one may want to know on which CUDA device the memory resides. These properties may be queried using the function cudaPointerGetAttributes()
+It is possible to look up information about the memory which backs a pointer value. For instance, one may want to know if a pointer points to host or device memory. As another example, in the case of device memory, one may want to know on which CUDA device the memory resides. These properties may be queried using the function :func:`~.cudaPointerGetAttributes`
 
-Since pointers are unique, it is not necessary to specify information about the pointers specified to cudaMemcpy() and other copy functions. 
+Since pointers are unique, it is not necessary to specify information about the pointers specified to :func:`~.cudaMemcpy` and other copy functions.
 
- The copy direction cudaMemcpyDefault may be used to specify that the CUDA runtime should infer the location of the pointer from its value.
+ The copy direction :py:obj:`~.cudaMemcpyDefault` may be used to specify that the CUDA runtime should infer the location of the pointer from its value.
 
 
 
@@ -5695,13 +5728,13 @@ Since pointers are unique, it is not necessary to specify information about the 
 
 
 
-All host memory allocated through all devices using cudaMallocHost() and cudaHostAlloc() is always directly accessible from all devices that support unified addressing. This is the case regardless of whether or not the flags cudaHostAllocPortable and cudaHostAllocMapped are specified.
+All host memory allocated through all devices using :func:`~.cudaMallocHost` and :func:`~.cudaHostAlloc` is always directly accessible from all devices that support unified addressing. This is the case regardless of whether or not the flags :py:obj:`~.cudaHostAllocPortable` and :py:obj:`~.cudaHostAllocMapped` are specified.
 
-The pointer value through which allocated host memory may be accessed in kernels on all devices that support unified addressing is the same as the pointer value through which that memory is accessed on the host. It is not necessary to call cudaHostGetDevicePointer() to get the device pointer for these allocations. 
+The pointer value through which allocated host memory may be accessed in kernels on all devices that support unified addressing is the same as the pointer value through which that memory is accessed on the host. It is not necessary to call :func:`~.cudaHostGetDevicePointer` to get the device pointer for these allocations.
 
 
 
-Note that this is not the case for memory allocated using the flag cudaHostAllocWriteCombined, as discussed below.
+Note that this is not the case for memory allocated using the flag :py:obj:`~.cudaHostAllocWriteCombined`, as discussed below.
 
 
 
@@ -5711,7 +5744,7 @@ Note that this is not the case for memory allocated using the flag cudaHostAlloc
 
 
 
-Upon enabling direct access from a device that supports unified addressing to another peer device that supports unified addressing using cudaDeviceEnablePeerAccess() all memory allocated in the peer device using cudaMalloc() and cudaMallocPitch() will immediately be accessible by the current device. The device pointer value through which any peer's memory may be accessed in the current device is the same pointer value through which that memory may be accessed from the peer device.
+Upon enabling direct access from a device that supports unified addressing to another peer device that supports unified addressing using :func:`~.cudaDeviceEnablePeerAccess` all memory allocated in the peer device using :func:`~.cudaMalloc` and :func:`~.cudaMallocPitch` will immediately be accessible by the current device. The device pointer value through which any peer's memory may be accessed in the current device is the same pointer value through which that memory may be accessed from the peer device.
 
 
 
@@ -5721,13 +5754,16 @@ Upon enabling direct access from a device that supports unified addressing to an
 
 
 
-Not all memory may be accessed on devices through the same pointer value through which they are accessed on the host. These exceptions are host memory registered using cudaHostRegister() and host memory allocated using the flag cudaHostAllocWriteCombined. For these exceptions, there exists a distinct host and device address for the memory. The device address is guaranteed to not overlap any valid host pointer range and is guaranteed to have the same value across all devices that support unified addressing. 
+Not all memory may be accessed on devices through the same pointer value through which they are accessed on the host. These exceptions are host memory registered using :func:`~.cudaHostRegister` and host memory allocated using the flag :py:obj:`~.cudaHostAllocWriteCombined`. For these exceptions, there exists a distinct host and device address for the memory. The device address is guaranteed to not overlap any valid host pointer range and is guaranteed to have the same value across all devices that support unified addressing.
 
 
 
-This device address may be queried using cudaHostGetDevicePointer() when a device using unified addressing is current. Either the host or the unified device pointer value may be used to refer to this memory in cudaMemcpy() and similar functions using the cudaMemcpyDefault memory direction.
+This device address may be queried using :func:`~.cudaHostGetDevicePointer` when a device using unified addressing is current. Either the host or the unified device pointer value may be used to refer to this memory in :func:`~.cudaMemcpy` and similar functions using the :py:obj:`~.cudaMemcpyDefault` memory direction.
 
 .. autofunction:: cuda.bindings.runtime.cudaPointerGetAttributes
+
+.. _cuda-bindings-runtime-cudart_peer:
+.. _cuda-bindings-runtime-group__cudart__peer:
 
 Peer Device Memory Access
 -------------------------
@@ -5737,6 +5773,9 @@ This section describes the peer device memory access functions of the CUDA runti
 .. autofunction:: cuda.bindings.runtime.cudaDeviceCanAccessPeer
 .. autofunction:: cuda.bindings.runtime.cudaDeviceEnablePeerAccess
 .. autofunction:: cuda.bindings.runtime.cudaDeviceDisablePeerAccess
+
+.. _cuda-bindings-runtime-cudart_opengl:
+.. _cuda-bindings-runtime-group__cudart__opengl:
 
 OpenGL Interoperability
 -----------------------
@@ -5770,11 +5809,17 @@ This section describes the OpenGL interoperability functions of the CUDA runtime
 .. autofunction:: cuda.bindings.runtime.cudaGraphicsGLRegisterImage
 .. autofunction:: cuda.bindings.runtime.cudaGraphicsGLRegisterBuffer
 
+.. _cuda-bindings-runtime-cudart_d3d9:
+.. _cuda-bindings-runtime-group__cudart__d3d9:
+
 Direct3D 9 Interoperability
 ---------------------------
 
 
 
+
+.. _cuda-bindings-runtime-cudart_d3d10:
+.. _cuda-bindings-runtime-group__cudart__d3d10:
 
 Direct3D 10 Interoperability
 ----------------------------
@@ -5782,11 +5827,17 @@ Direct3D 10 Interoperability
 
 
 
+.. _cuda-bindings-runtime-cudart_d3d11:
+.. _cuda-bindings-runtime-group__cudart__d3d11:
+
 Direct3D 11 Interoperability
 ----------------------------
 
 
 
+
+.. _cuda-bindings-runtime-cudart_vdpau:
+.. _cuda-bindings-runtime-group__cudart__vdpau:
 
 VDPAU Interoperability
 ----------------------
@@ -5797,6 +5848,9 @@ This section describes the VDPAU interoperability functions of the CUDA runtime 
 .. autofunction:: cuda.bindings.runtime.cudaVDPAUSetVDPAUDevice
 .. autofunction:: cuda.bindings.runtime.cudaGraphicsVDPAURegisterVideoSurface
 .. autofunction:: cuda.bindings.runtime.cudaGraphicsVDPAURegisterOutputSurface
+
+.. _cuda-bindings-runtime-cudart_egl:
+.. _cuda-bindings-runtime-group__cudart__egl:
 
 EGL Interoperability
 --------------------
@@ -5816,6 +5870,9 @@ This section describes the EGL interoperability functions of the CUDA runtime ap
 .. autofunction:: cuda.bindings.runtime.cudaGraphicsResourceGetMappedEglFrame
 .. autofunction:: cuda.bindings.runtime.cudaEventCreateFromEGLSync
 
+.. _cuda-bindings-runtime-cudart_interop:
+.. _cuda-bindings-runtime-group__cudart__interop:
+
 Graphics Interoperability
 -------------------------
 
@@ -5828,6 +5885,9 @@ This section describes the graphics interoperability functions of the CUDA runti
 .. autofunction:: cuda.bindings.runtime.cudaGraphicsResourceGetMappedPointer
 .. autofunction:: cuda.bindings.runtime.cudaGraphicsSubResourceGetMappedArray
 .. autofunction:: cuda.bindings.runtime.cudaGraphicsResourceGetMappedMipmappedArray
+
+.. _cuda-bindings-runtime-cudart_texture_object:
+.. _cuda-bindings-runtime-group__cudart__texture__object:
 
 Texture Object Management
 -------------------------
@@ -5842,6 +5902,9 @@ This section describes the low level texture object management functions of the 
 .. autofunction:: cuda.bindings.runtime.cudaGetTextureObjectTextureDesc
 .. autofunction:: cuda.bindings.runtime.cudaGetTextureObjectResourceViewDesc
 
+.. _cuda-bindings-runtime-cudart_surface_object:
+.. _cuda-bindings-runtime-group__cudart__surface__object:
+
 Surface Object Management
 -------------------------
 
@@ -5851,6 +5914,9 @@ This section describes the low level texture object management functions of the 
 .. autofunction:: cuda.bindings.runtime.cudaDestroySurfaceObject
 .. autofunction:: cuda.bindings.runtime.cudaGetSurfaceObjectResourceDesc
 
+.. _cuda-bindings-runtime-cudart__version:
+.. _cuda-bindings-runtime-group__cudart____version:
+
 Version Management
 ------------------
 
@@ -5859,6 +5925,9 @@ Version Management
 .. autofunction:: cuda.bindings.runtime.cudaDriverGetVersion
 .. autofunction:: cuda.bindings.runtime.cudaRuntimeGetVersion
 .. autofunction:: cuda.bindings.runtime.getLocalRuntimeVersion
+
+.. _cuda-bindings-runtime-cudart_logs:
+.. _cuda-bindings-runtime-group__cudart__logs:
 
 Error Log Management Functions
 ------------------------------
@@ -5871,6 +5940,9 @@ This section describes the error log management functions of the CUDA runtime ap
 .. autofunction:: cuda.bindings.runtime.cudaLogsCurrent
 .. autofunction:: cuda.bindings.runtime.cudaLogsDumpToFile
 .. autofunction:: cuda.bindings.runtime.cudaLogsDumpToMemory
+
+.. _cuda-bindings-runtime-cudart_graph:
+.. _cuda-bindings-runtime-group__cudart__graph:
 
 Graph Management
 ----------------
@@ -5967,6 +6039,9 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate
 .. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate_v2
 
+.. _cuda-bindings-runtime-cudart_driver_entry_point:
+.. _cuda-bindings-runtime-group__cudart__driver__entry__point:
+
 Driver Entry Point Access
 -------------------------
 
@@ -5974,6 +6049,9 @@ This section describes the driver entry point access functions of CUDA runtime a
 
 .. autofunction:: cuda.bindings.runtime.cudaGetDriverEntryPoint
 .. autofunction:: cuda.bindings.runtime.cudaGetDriverEntryPointByVersion
+
+.. _cuda-bindings-runtime-cudart_library:
+.. _cuda-bindings-runtime-group__cudart__library:
 
 Library Management
 ------------------
@@ -5991,6 +6069,9 @@ This section describes the library management functions of the CUDA runtime appl
 .. autofunction:: cuda.bindings.runtime.cudaLibraryEnumerateKernels
 .. autofunction:: cuda.bindings.runtime.cudaKernelSetAttributeForDevice
 
+.. _cuda-bindings-runtime-cudart_execution_context:
+.. _cuda-bindings-runtime-group__cudart__execution__context:
+
 Execution Context Management
 ----------------------------
 
@@ -6004,11 +6085,11 @@ This section describes the execution context management functions of the CUDA ru
 
 
 
-A CUDA execution context cudaExecutionContext_t serves as an abstraction for the contexts exposed by the CUDA Runtime, specifically green contexts and the primary context, and provides a unified programming model and API interface for contexts in the Runtime.
+A CUDA execution context :py:obj:`~.cudaExecutionContext_t` serves as an abstraction for the contexts exposed by the CUDA Runtime, specifically green contexts and the primary context, and provides a unified programming model and API interface for contexts in the Runtime.
 
 There are two primary ways today to obtain an execution context:
 
-- cudaDeviceGetExecutionCtx: Returns the execution context that corresponds to the primary context of the specified device.
+- :func:`~.cudaDeviceGetExecutionCtx`: Returns the execution context that corresponds to the primary context of the specified device.
 
 
 
@@ -6016,7 +6097,7 @@ There are two primary ways today to obtain an execution context:
 
 
 
-- cudaGreenCtxCreate: Creates a green context with the specified resources and returns an execution context.
+- :func:`~.cudaGreenCtxCreate`: Creates a green context with the specified resources and returns an execution context.
 
 
 
@@ -6028,7 +6109,7 @@ There are two primary ways today to obtain an execution context:
 
 Once you have an execution context at hand, you can perform context-level operations via the CUDA Runtime APIs. This includes:
 
-- Submitting work via streams created with cudaExecutionCtxStreamCreate.
+- Submitting work via streams created with :func:`~.cudaExecutionCtxStreamCreate`.
 
 
 
@@ -6036,7 +6117,7 @@ Once you have an execution context at hand, you can perform context-level operat
 
 
 
-- Querying context via cudaExecutionCtxGetDevResource, cudaExecutionCtxGetDevice, etc.
+- Querying context via :func:`~.cudaExecutionCtxGetDevResource`, :func:`~.cudaExecutionCtxGetDevice`, etc.
 
 
 
@@ -6044,7 +6125,7 @@ Once you have an execution context at hand, you can perform context-level operat
 
 
 
-- Synchronizing and tracking context-level operations via cudaExecutionCtxSynchronize, cudaExecutionCtxRecordEvent, cudaExecutionCtxWaitEvent.
+- Synchronizing and tracking context-level operations via :func:`~.cudaExecutionCtxSynchronize`, :func:`~.cudaExecutionCtxRecordEvent`, :func:`~.cudaExecutionCtxWaitEvent`.
 
 
 
@@ -6052,7 +6133,7 @@ Once you have an execution context at hand, you can perform context-level operat
 
 
 
-- Performing context-level graph node operations via cudaGraphAddNode by specifying the context in ``nodeParams``\ . Note that individual node creation APIs, such as cudaGraphAddKernelNode, do not support specifying an execution context.
+- Performing context-level graph node operations via :func:`~.cudaGraphAddNode` by specifying the context in ``nodeParams``\ . Note that individual node creation APIs, such as :func:`~.cudaGraphAddKernelNode`, do not support specifying an execution context.
 
 
 
@@ -6062,9 +6143,9 @@ Once you have an execution context at hand, you can perform context-level operat
 
 
 
-Note: The above APIs take in an explicit cudaExecutionContext_t handle and ignores the context that is current to the calling thread. This enables explicit context-based programming without relying on thread-local state. If no context is specified, the APIs return cudaErrorInvalidValue.
+Note: The above APIs take in an explicit :py:obj:`~.cudaExecutionContext_t` handle and ignores the context that is current to the calling thread. This enables explicit context-based programming without relying on thread-local state. If no context is specified, the APIs return :py:obj:`~.cudaErrorInvalidValue`.
 
-Note: Developers should treat cudaExecutionContext_t as an opaque handle and avoid assumptions about its underlying representation. The CUDA Runtime does not provide a way to convert this handle into driver-level contexts, such as ::CUcontext or ::CUgreenCtx.
+Note: Developers should treat :py:obj:`~.cudaExecutionContext_t` as an opaque handle and avoid assumptions about its underlying representation. The CUDA Runtime does not provide a way to convert this handle into driver-level contexts, such as :py:obj:`~.CUcontext` or :py:obj:`~.CUgreenCtx`.
 
 
 
@@ -6074,7 +6155,7 @@ Note: Developers should treat cudaExecutionContext_t as an opaque handle and avo
 
 
 
-The lifetime of CUDA resources (memory, streams, events, modules, etc) is not tied to the lifetime of the execution context. Their lifetime is tied to the device against which they were created. As such, usage of cudaDeviceReset() should be avoided to persist the lifetime of these resources.
+The lifetime of CUDA resources (memory, streams, events, modules, etc) is not tied to the lifetime of the execution context. Their lifetime is tied to the device against which they were created. As such, usage of :func:`~.cudaDeviceReset` should be avoided to persist the lifetime of these resources.
 
 
 
@@ -6092,7 +6173,7 @@ The CUDA runtime does not provide a way to set an execution context as current. 
 
 
 
-To work with these APIs (for example, cudaMalloc, cudaEventCreate, etc), developers are expected to call cudaSetDevice() prior to invoking them. Doing so does not impact functional correctness as these APIs operate on resources that are device-wide. If users have a context handle at hand, they can get the device handle from the context handle using cudaExecutionCtxGetDevice().
+To work with these APIs (for example, :func:`~.cudaMalloc`, :func:`~.cudaEventCreate`, etc), developers are expected to call :func:`~.cudaSetDevice` prior to invoking them. Doing so does not impact functional correctness as these APIs operate on resources that are device-wide. If users have a context handle at hand, they can get the device handle from the context handle using :func:`~.cudaExecutionCtxGetDevice`.
 
 
 
@@ -6102,7 +6183,7 @@ To work with these APIs (for example, cudaMalloc, cudaEventCreate, etc), develop
 
 
 
-These APIs (for example, cudaLaunchKernel, cudaMemcpyAsync, cudaMemsetAsync, etc) take in a stream and resources are inferred from the context bound to the stream at creation. See cudaExecutionCtxStreamCreate for more details. Developers are expected to use the stream-based APIs for context awareness and always pass an explicit stream handle to ensure context-awareness, and avoid reliance on the default NULL stream, which implicitly binds to the current context.
+These APIs (for example, :func:`~.cudaLaunchKernel`, :func:`~.cudaMemcpyAsync`, :func:`~.cudaMemsetAsync`, etc) take in a stream and resources are inferred from the context bound to the stream at creation. See :func:`~.cudaExecutionCtxStreamCreate` for more details. Developers are expected to use the stream-based APIs for context awareness and always pass an explicit stream handle to ensure context-awareness, and avoid reliance on the default NULL stream, which implicitly binds to the current context.
 
 
 
@@ -6118,7 +6199,7 @@ Green contexts are a lightweight alternative to traditional contexts, that can b
 
 Here are the broad initial steps to follow to get started:
 
-- (1) Start with an initial set of resources. For SM resources, they can be fetched via cudaDeviceGetDevResource. In case of workqueues, a new configuration can be used or an existing one queried via the cudaDeviceGetDevResource API.
+- (1) Start with an initial set of resources. For SM resources, they can be fetched via :func:`~.cudaDeviceGetDevResource`. In case of workqueues, a new configuration can be used or an existing one queried via the :func:`~.cudaDeviceGetDevResource` API.
 
 
 
@@ -6126,7 +6207,7 @@ Here are the broad initial steps to follow to get started:
 
 
 
-- (2) Modify these resources by either partitioning them (in case of SMs) or changing the configuration (in case of workqueues). To partition SMs, we recommend cudaDevSmResourceSplit. Changing the workqueue configuration can be done directly in place.
+- (2) Modify these resources by either partitioning them (in case of SMs) or changing the configuration (in case of workqueues). To partition SMs, we recommend :func:`~.cudaDevSmResourceSplit`. Changing the workqueue configuration can be done directly in place.
 
 
 
@@ -6134,7 +6215,7 @@ Here are the broad initial steps to follow to get started:
 
 
 
-- (3) Finalize the specification of resources by creating a descriptor via cudaDevResourceGenerateDesc.
+- (3) Finalize the specification of resources by creating a descriptor via :func:`~.cudaDevResourceGenerateDesc`.
 
 
 
@@ -6142,7 +6223,7 @@ Here are the broad initial steps to follow to get started:
 
 
 
-- (4) Create a green context via cudaGreenCtxCreate. This provisions the resource, such as workqueues (until this step it was only a configuration specification).
+- (4) Create a green context via :func:`~.cudaGreenCtxCreate`. This provisions the resource, such as workqueues (until this step it was only a configuration specification).
 
 
 
@@ -6150,7 +6231,7 @@ Here are the broad initial steps to follow to get started:
 
 
 
-- (5) Create a stream via cudaExecutionCtxStreamCreate, and use it throughout your application.
+- (5) Create a stream via :func:`~.cudaExecutionCtxStreamCreate`, and use it throughout your application.
 
 
 
@@ -6162,7 +6243,7 @@ Here are the broad initial steps to follow to get started:
 
 SMs
 
-There are two possible partition operations - with cudaDevSmResourceSplitByCount the partitions created have to follow default SM count granularity requirements, so it will often be rounded up and aligned to a default value. On the other hand, cudaDevSmResourceSplit is explicit and allows for creation of non-equal groups. It will not round up automatically - instead it is the developer’s responsibility to query and set the correct values. These requirements can be queried with cudaDeviceGetDevResource to determine the alignment granularity (sm.smCoscheduledAlignment). A general guideline on the default values for each compute architecture:
+There are two possible partition operations - with :func:`~.cudaDevSmResourceSplitByCount` the partitions created have to follow default SM count granularity requirements, so it will often be rounded up and aligned to a default value. On the other hand, :func:`~.cudaDevSmResourceSplit` is explicit and allows for creation of non-equal groups. It will not round up automatically - instead it is the developer’s responsibility to query and set the correct values. These requirements can be queried with :func:`~.cudaDeviceGetDevResource` to determine the alignment granularity (sm.smCoscheduledAlignment). A general guideline on the default values for each compute architecture:
 
 - On Compute Architecture 7.X, 8.X, and all Tegra SoC:
 
@@ -6216,17 +6297,9 @@ There are two possible partition operations - with cudaDevSmResourceSplitByCount
 
 Workqueues
 
-For ``cudaDevResourceTypeWorkqueueConfig``\ , the resource specifies the expected maximum number of concurrent stream-ordered workloads via the ``wqConcurrencyLimit``\  field. The ``sharingScope``\  field determines how workqueue resources are shared:
+For :py:obj:`~.cudaDevResourceTypeWorkqueueConfig`\ , the resource specifies the expected maximum number of concurrent stream-ordered workloads via the ``wqConcurrencyLimit``\  field. The ``sharingScope``\  field determines how workqueue resources are shared:
 
-- ``cudaDevWorkqueueConfigScopeDeviceCtx:``\  Use all shared workqueue resources across all contexts (default driver behavior).
-
-
-
-
-
-
-
-- ``cudaDevWorkqueueConfigScopeGreenCtxBalanced:``\  When possible, use non-overlapping workqueue resources with other balanced green contexts.
+- :py:obj:`~.cudaDevWorkqueueConfigScopeDeviceCtx`:\  Use all shared workqueue resources across all contexts (default driver behavior).
 
 
 
@@ -6234,15 +6307,23 @@ For ``cudaDevResourceTypeWorkqueueConfig``\ , the resource specifies the expecte
 
 
 
+- :py:obj:`~.cudaDevWorkqueueConfigScopeGreenCtxBalanced`:\  When possible, use non-overlapping workqueue resources with other balanced green contexts.
 
 
-The maximum concurrency limit depends on ::CUDA_DEVICE_MAX_CONNECTIONS and can be queried from the device via cudaDeviceGetDevResource. Configurations may exceed this concurrency limit, but the driver will not guarantee that work submission remains non-overlapping.
 
-For ``cudaDevResourceTypeWorkqueue``\ , the resource represents a pre-existing workqueue that can be retrieved from existing execution contexts. This allows reusing workqueue resources across different execution contexts.
+
+
+
+
+
+
+The maximum concurrency limit depends on ``CUDA_DEVICE_MAX_CONNECTIONS`` and can be queried from the device via :func:`~.cudaDeviceGetDevResource`. Configurations may exceed this concurrency limit, but the driver will not guarantee that work submission remains non-overlapping.
+
+For :py:obj:`~.cudaDevResourceTypeWorkqueue`\ , the resource represents a pre-existing workqueue that can be retrieved from existing execution contexts. This allows reusing workqueue resources across different execution contexts.
 
 On Concurrency
 
-Even if the green contexts have disjoint SM partitions, it is not guaranteed that the kernels launched in them will run concurrently or have forward progress guarantees. This is due to other resources that could cause a dependency. Using a combination of disjoint SMs and ``cudaDevWorkqueueConfigScopeGreenCtxBalanced``\  workqueue configurations can provide the best chance of avoiding interference. More resources will be added in the future to provide stronger guarantees.
+Even if the green contexts have disjoint SM partitions, it is not guaranteed that the kernels launched in them will run concurrently or have forward progress guarantees. This is due to other resources that could cause a dependency. Using a combination of disjoint SMs and :py:obj:`~.cudaDevWorkqueueConfigScopeGreenCtxBalanced`\  workqueue configurations can provide the best chance of avoiding interference. More resources will be added in the future to provide stronger guarantees.
 
 Additionally, there are two known scenarios, where its possible for the workload to run on more SMs than was provisioned (but never less).
 
@@ -6274,6 +6355,9 @@ Additionally, there are two known scenarios, where its possible for the workload
 .. autofunction:: cuda.bindings.runtime.cudaExecutionCtxWaitEvent
 .. autofunction:: cuda.bindings.runtime.cudaDeviceGetExecutionCtx
 
+.. _cuda-bindings-runtime-cudart_highlevel:
+.. _cuda-bindings-runtime-group__cudart__highlevel:
+
 C++ API Routines
 ----------------
 C++-style interface built on top of CUDA runtime API.
@@ -6288,6 +6372,9 @@ impl_private
 This section describes the C++ high level API functions of the CUDA runtime application programming interface. To use these functions, your application needs to be compiled with the ``nvcc``\  compiler.
 
 
+.. _cuda-bindings-runtime-cudart_driver:
+.. _cuda-bindings-runtime-group__cudart__driver:
+
 Interactions with the CUDA Driver API
 -------------------------------------
 
@@ -6301,11 +6388,11 @@ This section describes the interactions between the CUDA Driver API and the CUDA
 
 
 
-The CUDA Runtime provides cudaExecutionContext_t as an abstraction over driver-level contexts—specifically, green contexts and the primary context.
+The CUDA Runtime provides :py:obj:`~.cudaExecutionContext_t` as an abstraction over driver-level contexts—specifically, green contexts and the primary context.
 
 There are two primary ways to obtain an execution context:
 
-- cudaDeviceGetExecutionCtx: Returns the execution context that corresponds to the primary context of the specified device.
+- :func:`~.cudaDeviceGetExecutionCtx`: Returns the execution context that corresponds to the primary context of the specified device.
 
 
 
@@ -6313,7 +6400,7 @@ There are two primary ways to obtain an execution context:
 
 
 
-- cudaGreenCtxCreate: Creates a green context with the specified resources and returns an execution context.
+- :func:`~.cudaGreenCtxCreate`: Creates a green context with the specified resources and returns an execution context.
 
 
 
@@ -6323,7 +6410,7 @@ There are two primary ways to obtain an execution context:
 
 
 
-Note: Developers should treat cudaExecutionContext_t as an opaque handle and avoid assumptions about its underlying representation. The CUDA Runtime does not provide a way to convert this handle into a ::CUcontext or ::CUgreenCtx.
+Note: Developers should treat :py:obj:`~.cudaExecutionContext_t` as an opaque handle and avoid assumptions about its underlying representation. The CUDA Runtime does not provide a way to convert this handle into a :py:obj:`~.CUcontext` or :py:obj:`~.CUgreenCtx`.
 
 
 
@@ -6333,11 +6420,11 @@ Note: Developers should treat cudaExecutionContext_t as an opaque handle and avo
 
 
 
-The primary context is the default execution context associated with a device in the Runtime. It can be obtained via a call to cudaDeviceGetExecutionCtx(). There is a one-to-one mapping between CUDA devices in the runtime and their primary contexts within a process.
+The primary context is the default execution context associated with a device in the Runtime. It can be obtained via a call to :func:`~.cudaDeviceGetExecutionCtx`. There is a one-to-one mapping between CUDA devices in the runtime and their primary contexts within a process.
 
 From the CUDA Runtime’s perspective, a device and its primary context are functionally synonymous.
 
-Unless explicitly overridden, either by making a different context current via the Driver API (e.g., ::cuCtxSetCurrent()) or by using an explicit execution context handle, the Runtime will implicitly initialize and use the primary context for API calls as needed.
+Unless explicitly overridden, either by making a different context current via the Driver API (e.g., :func:`~.cuCtxSetCurrent`) or by using an explicit execution context handle, the Runtime will implicitly initialize and use the primary context for API calls as needed.
 
 
 
@@ -6347,13 +6434,13 @@ Unless explicitly overridden, either by making a different context current via t
 
 
 
-Unless an explicit execution context is specified (see “Execution Context Management” for APIs), CUDA Runtime API calls operate on the CUDA Driver ::CUcontext which is current to the calling host thread. If no ::CUcontext is current to the calling thread when a CUDA Runtime API call which requires an active context is made, then the primary context (device execution context) for a device will be selected, made current to the calling thread, and initialized. The context will be initialized using the parameters specified by the CUDA Runtime API functions cudaSetDeviceFlags(), ::cudaD3D9SetDirect3DDevice(), ::cudaD3D10SetDirect3DDevice(), ::cudaD3D11SetDirect3DDevice(), cudaGLSetGLDevice(), and cudaVDPAUSetVDPAUDevice(). Note that these functions will fail with cudaErrorSetOnActiveProcess if they are called when the primary context for the specified device has already been initialized, except for cudaSetDeviceFlags() which will simply overwrite the previous settings.
+Unless an explicit execution context is specified (see “Execution Context Management” for APIs), CUDA Runtime API calls operate on the CUDA Driver :py:obj:`~.CUcontext` which is current to the calling host thread. If no :py:obj:`~.CUcontext` is current to the calling thread when a CUDA Runtime API call which requires an active context is made, then the primary context (device execution context) for a device will be selected, made current to the calling thread, and initialized. The context will be initialized using the parameters specified by the CUDA Runtime API functions :func:`~.cudaSetDeviceFlags`, ``cudaD3D9SetDirect3DDevice()``, ``cudaD3D10SetDirect3DDevice()``, ``cudaD3D11SetDirect3DDevice()``, :func:`~.cudaGLSetGLDevice`, and :func:`~.cudaVDPAUSetVDPAUDevice`. Note that these functions will fail with :py:obj:`~.cudaErrorSetOnActiveProcess` if they are called when the primary context for the specified device has already been initialized, except for :func:`~.cudaSetDeviceFlags` which will simply overwrite the previous settings.
 
-The function cudaInitDevice() ensures that the primary context is initialized for the requested device but does not make it current to the calling thread.
+The function :func:`~.cudaInitDevice` ensures that the primary context is initialized for the requested device but does not make it current to the calling thread.
 
-The function cudaSetDevice() initializes the primary context for the specified device and makes it current to the calling thread by calling ::cuCtxSetCurrent().
+The function :func:`~.cudaSetDevice` initializes the primary context for the specified device and makes it current to the calling thread by calling :func:`~.cuCtxSetCurrent`.
 
-Primary contexts will remain active until they are explicitly deinitialized using cudaDeviceReset(). The function cudaDeviceReset() will deinitialize the primary context for the calling thread's current device immediately. The context will remain current to all of the threads that it was current to. The next CUDA Runtime API call on any thread which requires an active context will trigger the reinitialization of that device's primary context.
+Primary contexts will remain active until they are explicitly deinitialized using :func:`~.cudaDeviceReset`. The function :func:`~.cudaDeviceReset` will deinitialize the primary context for the calling thread's current device immediately. The context will remain current to all of the threads that it was current to. The next CUDA Runtime API call on any thread which requires an active context will trigger the reinitialization of that device's primary context.
 
 Note that primary contexts are shared resources. It is recommended that the primary context not be reset except just before exit or to recover from an unspecified launch failure.
 
@@ -6361,121 +6448,124 @@ Note that primary contexts are shared resources. It is recommended that the prim
 
 
 
-**CUcontext Interoperability**
+**:py:obj:`~.CUcontext` Interoperability**
 
 
 
-Note that the use of multiple ::CUcontext s per device within a single process will substantially degrade performance and is strongly discouraged. Instead, it is highly recommended to either use execution contexts cudaExecutionContext_t or the implicit one-to-one device-to-primary context mapping for the process provided by the CUDA Runtime API.
+Note that the use of multiple :py:obj:`~.CUcontext` s per device within a single process will substantially degrade performance and is strongly discouraged. Instead, it is highly recommended to either use execution contexts :py:obj:`~.cudaExecutionContext_t` or the implicit one-to-one device-to-primary context mapping for the process provided by the CUDA Runtime API.
 
-If a non-primary ::CUcontext created by the CUDA Driver API is current to a thread then the CUDA Runtime API calls to that thread will operate on that ::CUcontext, with some exceptions listed below. Interoperability between data types is discussed in the following sections.
+If a non-primary :py:obj:`~.CUcontext` created by the CUDA Driver API is current to a thread then the CUDA Runtime API calls to that thread will operate on that :py:obj:`~.CUcontext`, with some exceptions listed below. Interoperability between data types is discussed in the following sections.
 
-The function cudaDeviceEnablePeerAccess() and the rest of the peer access API may not be called when a non-primary CUcontext is current. To use the peer access APIs with a context created using the CUDA Driver API, it is necessary that the CUDA Driver API be used to access these features.
+The function :func:`~.cudaDeviceEnablePeerAccess` and the rest of the peer access API may not be called when a non-primary :py:obj:`~.CUcontext` is current. To use the peer access APIs with a context created using the CUDA Driver API, it is necessary that the CUDA Driver API be used to access these features.
 
-All CUDA Runtime API state (e.g, global variables' addresses and values) travels with its underlying ::CUcontext. In particular, if a ::CUcontext is moved from one thread to another then all CUDA Runtime API state will move to that thread as well.
+All CUDA Runtime API state (e.g, global variables' addresses and values) travels with its underlying :py:obj:`~.CUcontext`. In particular, if a :py:obj:`~.CUcontext` is moved from one thread to another then all CUDA Runtime API state will move to that thread as well.
 
-Please note that attaching to legacy CUcontext (those with a version of 3010 as returned by ::cuCtxGetApiVersion()) is not possible. The CUDA Runtime will return cudaErrorIncompatibleDriverContext in such cases.
+Please note that attaching to legacy :py:obj:`~.CUcontext` (those with a version of 3010 as returned by :func:`~.cuCtxGetApiVersion`) is not possible. The CUDA Runtime will return :py:obj:`~.cudaErrorIncompatibleDriverContext` in such cases.
 
 
 
 
 
-**Interactions between CUstream and cudaStream_t**
+**Interactions between :py:obj:`~.CUstream` and :py:obj:`~.cudaStream_t`**
 
 
 
-The types ::CUstream and cudaStream_t are identical and may be used interchangeably.
+The types :py:obj:`~.CUstream` and :py:obj:`~.cudaStream_t` are identical and may be used interchangeably.
 
 
 
 
 
-**Interactions between CUevent and cudaEvent_t**
+**Interactions between :py:obj:`~.CUevent` and :py:obj:`~.cudaEvent_t`**
 
 
 
-The types ::CUevent and cudaEvent_t are identical and may be used interchangeably.
+The types :py:obj:`~.CUevent` and :py:obj:`~.cudaEvent_t` are identical and may be used interchangeably.
 
 
 
 
 
-**Interactions between CUarray and cudaArray_t**
+**Interactions between :py:obj:`~.CUarray` and :py:obj:`~.cudaArray_t`**
 
 
 
-The types ::CUarray and struct ::cudaArray * represent the same data type and may be used interchangeably by casting the two types between each other.
+The types :py:obj:`~.CUarray` and :py:obj:`~.cudaArray_t` represent the same data type and may be used interchangeably by casting the two types between each other.
 
-In order to use a ::CUarray in a CUDA Runtime API function which takes a struct ::cudaArray *, it is necessary to explicitly cast the ::CUarray to a struct ::cudaArray *.
+In order to use a :py:obj:`~.CUarray` in a CUDA Runtime API function which takes a :py:obj:`~.cudaArray_t`, it is necessary to explicitly cast the :py:obj:`~.CUarray` to a :py:obj:`~.cudaArray_t`.
 
-In order to use a struct ::cudaArray * in a CUDA Driver API function which takes a ::CUarray, it is necessary to explicitly cast the struct ::cudaArray * to a ::CUarray .
+In order to use a :py:obj:`~.cudaArray_t` in a CUDA Driver API function which takes a :py:obj:`~.CUarray`, it is necessary to explicitly cast the :py:obj:`~.cudaArray_t` to a :py:obj:`~.CUarray` .
 
 
 
 
 
-**Interactions between CUgraphicsResource and cudaGraphicsResource_t**
+**Interactions between :py:obj:`~.CUgraphicsResource` and :py:obj:`~.cudaGraphicsResource_t`**
 
 
 
-The types ::CUgraphicsResource and cudaGraphicsResource_t represent the same data type and may be used interchangeably by casting the two types between each other.
+The types :py:obj:`~.CUgraphicsResource` and :py:obj:`~.cudaGraphicsResource_t` represent the same data type and may be used interchangeably by casting the two types between each other.
 
-In order to use a ::CUgraphicsResource in a CUDA Runtime API function which takes a cudaGraphicsResource_t, it is necessary to explicitly cast the ::CUgraphicsResource to a cudaGraphicsResource_t.
+In order to use a :py:obj:`~.CUgraphicsResource` in a CUDA Runtime API function which takes a :py:obj:`~.cudaGraphicsResource_t`, it is necessary to explicitly cast the :py:obj:`~.CUgraphicsResource` to a :py:obj:`~.cudaGraphicsResource_t`.
 
-In order to use a cudaGraphicsResource_t in a CUDA Driver API function which takes a ::CUgraphicsResource, it is necessary to explicitly cast the cudaGraphicsResource_t to a ::CUgraphicsResource.
+In order to use a :py:obj:`~.cudaGraphicsResource_t` in a CUDA Driver API function which takes a :py:obj:`~.CUgraphicsResource`, it is necessary to explicitly cast the :py:obj:`~.cudaGraphicsResource_t` to a :py:obj:`~.CUgraphicsResource`.
 
 
 
 
 
-**Interactions between CUtexObject and cudaTextureObject_t**
+**Interactions between :py:obj:`~.CUtexObject` and :py:obj:`~.cudaTextureObject_t`**
 
 
 
-The types ::CUtexObject and cudaTextureObject_t represent the same data type and may be used interchangeably by casting the two types between each other.
+The types :py:obj:`~.CUtexObject` and :py:obj:`~.cudaTextureObject_t` represent the same data type and may be used interchangeably by casting the two types between each other.
 
-In order to use a ::CUtexObject in a CUDA Runtime API function which takes a cudaTextureObject_t, it is necessary to explicitly cast the ::CUtexObject to a cudaTextureObject_t.
+In order to use a :py:obj:`~.CUtexObject` in a CUDA Runtime API function which takes a :py:obj:`~.cudaTextureObject_t`, it is necessary to explicitly cast the :py:obj:`~.CUtexObject` to a :py:obj:`~.cudaTextureObject_t`.
 
-In order to use a cudaTextureObject_t in a CUDA Driver API function which takes a ::CUtexObject, it is necessary to explicitly cast the cudaTextureObject_t to a ::CUtexObject.
+In order to use a :py:obj:`~.cudaTextureObject_t` in a CUDA Driver API function which takes a :py:obj:`~.CUtexObject`, it is necessary to explicitly cast the :py:obj:`~.cudaTextureObject_t` to a :py:obj:`~.CUtexObject`.
 
 
 
 
 
-**Interactions between CUsurfObject and cudaSurfaceObject_t**
+**Interactions between :py:obj:`~.CUsurfObject` and :py:obj:`~.cudaSurfaceObject_t`**
 
 
 
-The types ::CUsurfObject and cudaSurfaceObject_t represent the same data type and may be used interchangeably by casting the two types between each other.
+The types :py:obj:`~.CUsurfObject` and :py:obj:`~.cudaSurfaceObject_t` represent the same data type and may be used interchangeably by casting the two types between each other.
 
-In order to use a ::CUsurfObject in a CUDA Runtime API function which takes a cudaSurfaceObject_t, it is necessary to explicitly cast the ::CUsurfObject to a cudaSurfaceObject_t.
+In order to use a :py:obj:`~.CUsurfObject` in a CUDA Runtime API function which takes a :py:obj:`~.cudaSurfaceObject_t`, it is necessary to explicitly cast the :py:obj:`~.CUsurfObject` to a :py:obj:`~.cudaSurfaceObject_t`.
 
-In order to use a cudaSurfaceObject_t in a CUDA Driver API function which takes a ::CUsurfObject, it is necessary to explicitly cast the cudaSurfaceObject_t to a ::CUsurfObject.
+In order to use a :py:obj:`~.cudaSurfaceObject_t` in a CUDA Driver API function which takes a :py:obj:`~.CUsurfObject`, it is necessary to explicitly cast the :py:obj:`~.cudaSurfaceObject_t` to a :py:obj:`~.CUsurfObject`.
 
 
 
 
 
-**Interactions between CUfunction and cudaFunction_t**
+**Interactions between :py:obj:`~.CUfunction` and :py:obj:`~.cudaFunction_t`**
 
 
 
-The types ::CUfunction and cudaFunction_t represent the same data type and may be used interchangeably by casting the two types between each other.
+The types :py:obj:`~.CUfunction` and :py:obj:`~.cudaFunction_t` represent the same data type and may be used interchangeably by casting the two types between each other.
 
-In order to use a cudaFunction_t in a CUDA Driver API function which takes a ::CUfunction, it is necessary to explicitly cast the cudaFunction_t to a ::CUfunction.
+In order to use a :py:obj:`~.cudaFunction_t` in a CUDA Driver API function which takes a :py:obj:`~.CUfunction`, it is necessary to explicitly cast the :py:obj:`~.cudaFunction_t` to a :py:obj:`~.CUfunction`.
 
 
 
 
 
-**Interactions between CUkernel and cudaKernel_t**
+**Interactions between :py:obj:`~.CUkernel` and :py:obj:`~.cudaKernel_t`**
 
 
 
-The types ::CUkernel and cudaKernel_t represent the same data type and may be used interchangeably by casting the two types between each other.
+The types :py:obj:`~.CUkernel` and :py:obj:`~.cudaKernel_t` represent the same data type and may be used interchangeably by casting the two types between each other.
 
-In order to use a cudaKernel_t in a CUDA Driver API function which takes a ::CUkernel, it is necessary to explicitly cast the cudaKernel_t to a ::CUkernel.
+In order to use a :py:obj:`~.cudaKernel_t` in a CUDA Driver API function which takes a :py:obj:`~.CUkernel`, it is necessary to explicitly cast the :py:obj:`~.cudaKernel_t` to a :py:obj:`~.CUkernel`.
 
 .. autofunction:: cuda.bindings.runtime.cudaGetKernel
+
+.. _cuda-bindings-runtime-cudart_profiler:
+.. _cuda-bindings-runtime-group__cudart__profiler:
 
 Profiler Control
 ----------------

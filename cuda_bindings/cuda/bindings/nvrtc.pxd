@@ -1,15 +1,15 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1731+g535901cce.d20260604. Do not modify it directly.
 cimport cuda.bindings.cynvrtc as cynvrtc
 
 include "_lib/utils.pxd"
 
 cdef class nvrtcProgram:
-    """ nvrtcProgram is the unit of compilation, and an opaque handle for a program.
+    """ :py:obj:`~.nvrtcProgram` is the unit of compilation, and an opaque handle for a program.
 
-    To compile a CUDA program string, an instance of nvrtcProgram must be created first with nvrtcCreateProgram, then compiled with nvrtcCompileProgram.
+    To compile a CUDA program string, an instance of :py:obj:`~.nvrtcProgram` must be created first with :func:`~.nvrtcCreateProgram`, then compiled with :func:`~.nvrtcCompileProgram`.
 
     Methods
     -------

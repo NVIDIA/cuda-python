@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1731+g535901cce.d20260604. Do not modify it directly.
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -12,7 +12,7 @@ cimport cuda.bindings.driver as driver
 cdef class cudaDevResourceDesc_t:
     """
 
-    An opaque descriptor handle. The descriptor encapsulates multiple created and configured resources. Created via ::cudaDeviceResourceGenerateDesc
+    An opaque descriptor handle. The descriptor encapsulates multiple created and configured resources. Created via ``cudaDeviceResourceGenerateDesc``
 
     Methods
     -------
@@ -29,7 +29,7 @@ cdef class cudaDevResourceDesc_t:
 cdef class cudaExecutionContext_t:
     """
 
-    An opaque handle to a CUDA execution context. It represents an execution context created via CUDA Runtime APIs such as cudaGreenCtxCreate.
+    An opaque handle to a CUDA execution context. It represents an execution context created via CUDA Runtime APIs such as :func:`~.cudaGreenCtxCreate`.
 
     Methods
     -------
@@ -415,7 +415,7 @@ cdef class cudaChannelFormatDesc:
         w
     {{endif}}
     {{if 'cudaChannelFormatDesc.f' in found_struct}}
-    f : cudaChannelFormatKind
+    f : :py:obj:`~.cudaChannelFormatKind`
         Channel format kind
     {{endif}}
 
@@ -475,7 +475,8 @@ cdef class cudaArraySparseProperties:
     {{endif}}
     {{if 'cudaArraySparseProperties.flags' in found_struct}}
     flags : unsigned int
-        Flags will either be zero or cudaArraySparsePropertiesSingleMipTail
+        Flags will either be zero or
+        :py:obj:`~.cudaArraySparsePropertiesSingleMipTail`
     {{endif}}
     {{if 'cudaArraySparseProperties.reserved' in found_struct}}
     reserved : list[unsigned int]
@@ -526,7 +527,7 @@ cdef class cudaArrayMemoryRequirements:
 
 cdef class cudaPitchedPtr:
     """
-    CUDA Pitched memory pointer  make_cudaPitchedPtr
+    CUDA Pitched memory pointer  :func:`~.make_cudaPitchedPtr`
 
     Attributes
     ----------
@@ -562,7 +563,7 @@ cdef class cudaPitchedPtr:
 
 cdef class cudaExtent:
     """
-    CUDA extent  make_cudaExtent
+    CUDA extent  :func:`~.make_cudaExtent`
 
     Attributes
     ----------
@@ -592,7 +593,7 @@ cdef class cudaExtent:
 
 cdef class cudaPos:
     """
-    CUDA 3D position  make_cudaPos
+    CUDA 3D position  :func:`~.make_cudaPos`
 
     Attributes
     ----------
@@ -626,35 +627,35 @@ cdef class cudaMemcpy3DParms:
     Attributes
     ----------
     {{if 'cudaMemcpy3DParms.srcArray' in found_struct}}
-    srcArray : cudaArray_t
+    srcArray : :py:obj:`~.cudaArray_t`
         Source memory address
     {{endif}}
     {{if 'cudaMemcpy3DParms.srcPos' in found_struct}}
-    srcPos : cudaPos
+    srcPos : :py:obj:`~.cudaPos`
         Source position offset
     {{endif}}
     {{if 'cudaMemcpy3DParms.srcPtr' in found_struct}}
-    srcPtr : cudaPitchedPtr
+    srcPtr : :py:obj:`~.cudaPitchedPtr`
         Pitched source memory address
     {{endif}}
     {{if 'cudaMemcpy3DParms.dstArray' in found_struct}}
-    dstArray : cudaArray_t
+    dstArray : :py:obj:`~.cudaArray_t`
         Destination memory address
     {{endif}}
     {{if 'cudaMemcpy3DParms.dstPos' in found_struct}}
-    dstPos : cudaPos
+    dstPos : :py:obj:`~.cudaPos`
         Destination position offset
     {{endif}}
     {{if 'cudaMemcpy3DParms.dstPtr' in found_struct}}
-    dstPtr : cudaPitchedPtr
+    dstPtr : :py:obj:`~.cudaPitchedPtr`
         Pitched destination memory address
     {{endif}}
     {{if 'cudaMemcpy3DParms.extent' in found_struct}}
-    extent : cudaExtent
+    extent : :py:obj:`~.cudaExtent`
         Requested memory copy size
     {{endif}}
     {{if 'cudaMemcpy3DParms.kind' in found_struct}}
-    kind : cudaMemcpyKind
+    kind : :py:obj:`~.cudaMemcpyKind`
         Type of transfer
     {{endif}}
 
@@ -704,12 +705,12 @@ cdef class cudaMemcpyNodeParams:
         Must be zero
     {{endif}}
     {{if 'cudaMemcpyNodeParams.ctx' in found_struct}}
-    ctx : cudaExecutionContext_t
+    ctx : :py:obj:`~.cudaExecutionContext_t`
         Context in which to run the memcpy. If NULL will try to use the
         current context.
     {{endif}}
     {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
-    copyParams : cudaMemcpy3DParms
+    copyParams : :py:obj:`~.cudaMemcpy3DParms`
         Parameters for the memory copy
     {{endif}}
 
@@ -736,15 +737,15 @@ cdef class cudaMemcpy3DPeerParms:
     Attributes
     ----------
     {{if 'cudaMemcpy3DPeerParms.srcArray' in found_struct}}
-    srcArray : cudaArray_t
+    srcArray : :py:obj:`~.cudaArray_t`
         Source memory address
     {{endif}}
     {{if 'cudaMemcpy3DPeerParms.srcPos' in found_struct}}
-    srcPos : cudaPos
+    srcPos : :py:obj:`~.cudaPos`
         Source position offset
     {{endif}}
     {{if 'cudaMemcpy3DPeerParms.srcPtr' in found_struct}}
-    srcPtr : cudaPitchedPtr
+    srcPtr : :py:obj:`~.cudaPitchedPtr`
         Pitched source memory address
     {{endif}}
     {{if 'cudaMemcpy3DPeerParms.srcDevice' in found_struct}}
@@ -752,15 +753,15 @@ cdef class cudaMemcpy3DPeerParms:
         Source device
     {{endif}}
     {{if 'cudaMemcpy3DPeerParms.dstArray' in found_struct}}
-    dstArray : cudaArray_t
+    dstArray : :py:obj:`~.cudaArray_t`
         Destination memory address
     {{endif}}
     {{if 'cudaMemcpy3DPeerParms.dstPos' in found_struct}}
-    dstPos : cudaPos
+    dstPos : :py:obj:`~.cudaPos`
         Destination position offset
     {{endif}}
     {{if 'cudaMemcpy3DPeerParms.dstPtr' in found_struct}}
-    dstPtr : cudaPitchedPtr
+    dstPtr : :py:obj:`~.cudaPitchedPtr`
         Pitched destination memory address
     {{endif}}
     {{if 'cudaMemcpy3DPeerParms.dstDevice' in found_struct}}
@@ -768,7 +769,7 @@ cdef class cudaMemcpy3DPeerParms:
         Destination device
     {{endif}}
     {{if 'cudaMemcpy3DPeerParms.extent' in found_struct}}
-    extent : cudaExtent
+    extent : :py:obj:`~.cudaExtent`
         Requested memory copy size
     {{endif}}
 
@@ -878,7 +879,7 @@ cdef class cudaMemsetParamsV2:
         Number of rows
     {{endif}}
     {{if 'cudaMemsetParamsV2.ctx' in found_struct}}
-    ctx : cudaExecutionContext_t
+    ctx : :py:obj:`~.cudaExecutionContext_t`
         Context in which to run the memset. If NULL will try to use the
         current context.
     {{endif}}
@@ -928,12 +929,12 @@ cdef class cudaAccessPolicyWindow:
         assigned missProp.
     {{endif}}
     {{if 'cudaAccessPolicyWindow.hitProp' in found_struct}}
-    hitProp : cudaAccessProperty
-        ::CUaccessProperty set for hit.
+    hitProp : :py:obj:`~.cudaAccessProperty`
+        :py:obj:`~.CUaccessProperty` set for hit.
     {{endif}}
     {{if 'cudaAccessPolicyWindow.missProp' in found_struct}}
-    missProp : cudaAccessProperty
-        ::CUaccessProperty set for miss. Must be either NORMAL or
+    missProp : :py:obj:`~.cudaAccessProperty`
+        :py:obj:`~.CUaccessProperty` set for miss. Must be either NORMAL or
         STREAMING.
     {{endif}}
 
@@ -957,7 +958,7 @@ cdef class cudaHostNodeParams:
     Attributes
     ----------
     {{if 'cudaHostNodeParams.fn' in found_struct}}
-    fn : cudaHostFn_t
+    fn : :py:obj:`~.cudaHostFn_t`
         The function to call when the node executes
     {{endif}}
     {{if 'cudaHostNodeParams.userData' in found_struct}}
@@ -988,7 +989,7 @@ cdef class cudaHostNodeParamsV2:
     Attributes
     ----------
     {{if 'cudaHostNodeParamsV2.fn' in found_struct}}
-    fn : cudaHostFn_t
+    fn : :py:obj:`~.cudaHostFn_t`
         The function to call when the node executes
     {{endif}}
     {{if 'cudaHostNodeParamsV2.userData' in found_struct}}
@@ -1021,7 +1022,7 @@ cdef class anon_struct1:
     Attributes
     ----------
     {{if 'cudaResourceDesc.res.array.array' in found_struct}}
-    array : cudaArray_t
+    array : :py:obj:`~.cudaArray_t`
 
     {{endif}}
 
@@ -1042,7 +1043,7 @@ cdef class anon_struct2:
     Attributes
     ----------
     {{if 'cudaResourceDesc.res.mipmap.mipmap' in found_struct}}
-    mipmap : cudaMipmappedArray_t
+    mipmap : :py:obj:`~.cudaMipmappedArray_t`
 
     {{endif}}
 
@@ -1067,7 +1068,7 @@ cdef class anon_struct3:
 
     {{endif}}
     {{if 'cudaResourceDesc.res.linear.desc' in found_struct}}
-    desc : cudaChannelFormatDesc
+    desc : :py:obj:`~.cudaChannelFormatDesc`
 
     {{endif}}
     {{if 'cudaResourceDesc.res.linear.sizeInBytes' in found_struct}}
@@ -1099,7 +1100,7 @@ cdef class anon_struct4:
 
     {{endif}}
     {{if 'cudaResourceDesc.res.pitch2D.desc' in found_struct}}
-    desc : cudaChannelFormatDesc
+    desc : :py:obj:`~.cudaChannelFormatDesc`
 
     {{endif}}
     {{if 'cudaResourceDesc.res.pitch2D.width' in found_struct}}
@@ -1204,7 +1205,7 @@ cdef class cudaResourceDesc:
     Attributes
     ----------
     {{if 'cudaResourceDesc.resType' in found_struct}}
-    resType : cudaResourceType
+    resType : :py:obj:`~.cudaResourceType`
         Resource type
     {{endif}}
     {{if 'cudaResourceDesc.res' in found_struct}}
@@ -1236,7 +1237,7 @@ cdef class cudaResourceViewDesc:
     Attributes
     ----------
     {{if 'cudaResourceViewDesc.format' in found_struct}}
-    format : cudaResourceViewFormat
+    format : :py:obj:`~.cudaResourceViewFormat`
         Resource view format
     {{endif}}
     {{if 'cudaResourceViewDesc.width' in found_struct}}
@@ -1289,19 +1290,21 @@ cdef class cudaPointerAttributes:
     Attributes
     ----------
     {{if 'cudaPointerAttributes.type' in found_struct}}
-    type : cudaMemoryType
-        The type of memory - cudaMemoryTypeUnregistered,
-        cudaMemoryTypeHost, cudaMemoryTypeDevice or cudaMemoryTypeManaged.
+    type : :py:obj:`~.cudaMemoryType`
+        The type of memory - :py:obj:`~.cudaMemoryTypeUnregistered`,
+        :py:obj:`~.cudaMemoryTypeHost`, :py:obj:`~.cudaMemoryTypeDevice` or
+        :py:obj:`~.cudaMemoryTypeManaged`.
     {{endif}}
     {{if 'cudaPointerAttributes.device' in found_struct}}
     device : int
         The device against which the memory was allocated or registered. If
-        the memory type is cudaMemoryTypeDevice then this identifies the
-        device on which the memory referred physically resides. If the
-        memory type is cudaMemoryTypeHost or::cudaMemoryTypeManaged then
-        this identifies the device which was current when the memory was
-        allocated or registered (and if that device is deinitialized then
-        this allocation will vanish with that device's state).
+        the memory type is :py:obj:`~.cudaMemoryTypeDevice` then this
+        identifies the device on which the memory referred physically
+        resides. If the memory type is :py:obj:`~.cudaMemoryTypeHost` or
+        :py:obj:`~.cudaMemoryTypeManaged` then this identifies the device
+        which was current when the memory was allocated or registered (and
+        if that device is deinitialized then this allocation will vanish
+        with that device's state).
     {{endif}}
     {{if 'cudaPointerAttributes.devicePointer' in found_struct}}
     devicePointer : Any
@@ -1397,9 +1400,10 @@ cdef class cudaFuncAttributes:
         On devices where the L1 cache and shared memory use the same
         hardware resources, this sets the shared memory carveout
         preference, in percent of the maximum shared memory. Refer to
-        cudaDevAttrMaxSharedMemoryPerMultiprocessor. This is only a hint,
-        and the driver can choose a different ratio if required to execute
-        the function. See cudaFuncSetAttribute
+        :py:obj:`~.cudaDevAttrMaxSharedMemoryPerMultiprocessor`. This is
+        only a hint, and the driver can choose a different ratio if
+        required to execute the function. See
+        :func:`~.cudaFuncSetAttribute`
     {{endif}}
     {{if 'cudaFuncAttributes.clusterDimMustBeSet' in found_struct}}
     clusterDimMustBeSet : int
@@ -1412,8 +1416,8 @@ cdef class cudaFuncAttributes:
         either all be 0 or all be positive. The validity of the cluster
         dimensions is otherwise checked at launch time.  If the value is
         set during compile time, it cannot be set at runtime. Setting it at
-        runtime should return cudaErrorNotPermitted. See
-        cudaFuncSetAttribute
+        runtime should return :py:obj:`~.cudaErrorNotPermitted`. See
+        :func:`~.cudaFuncSetAttribute`
     {{endif}}
     {{if 'cudaFuncAttributes.requiredClusterHeight' in found_struct}}
     requiredClusterHeight : int
@@ -1425,7 +1429,8 @@ cdef class cudaFuncAttributes:
     {{endif}}
     {{if 'cudaFuncAttributes.clusterSchedulingPolicyPreference' in found_struct}}
     clusterSchedulingPolicyPreference : int
-        The block scheduling policy of a function. See cudaFuncSetAttribute
+        The block scheduling policy of a function. See
+        :func:`~.cudaFuncSetAttribute`
     {{endif}}
     {{if 'cudaFuncAttributes.nonPortableClusterSizeAllowed' in found_struct}}
     nonPortableClusterSizeAllowed : int
@@ -1433,15 +1438,16 @@ cdef class cudaFuncAttributes:
         size. 1 is allowed, 0 is disallowed. A non-portable cluster size
         may only function on the specific SKUs the program is tested on.
         The launch might fail if the program is run on a different hardware
-        platform.  CUDA API provides cudaOccupancyMaxActiveClusters to
-        assist with checking whether the desired size can be launched on
-        the current device.  Portable Cluster Size  A portable cluster size
-        is guaranteed to be functional on all compute capabilities higher
-        than the target compute capability. The portable cluster size for
-        sm_90 is 8 blocks per cluster. This value may increase for future
-        compute capabilities.  The specific hardware unit may support
-        higher cluster sizes that’s not guaranteed to be portable. See
-        cudaFuncSetAttribute
+        platform.  CUDA API provides
+        :func:`~.cudaOccupancyMaxActiveClusters` to assist with checking
+        whether the desired size can be launched on the current device.
+        Portable Cluster Size  A portable cluster size is guaranteed to be
+        functional on all compute capabilities higher than the target
+        compute capability. The portable cluster size for sm_90 is 8 blocks
+        per cluster. This value may increase for future compute
+        capabilities.  The specific hardware unit may support higher
+        cluster sizes that’s not guaranteed to be portable. See
+        :func:`~.cudaFuncSetAttribute`
     {{endif}}
     {{if 'cudaFuncAttributes.deviceNodeUpdateStatus' in found_struct}}
     deviceNodeUpdateStatus : int
@@ -1471,21 +1477,23 @@ cdef class cudaFuncAttributes:
 cdef class cudaMemLocation:
     """
     Specifies a memory location.  To specify a gpu, set type =
-    cudaMemLocationTypeDevice and set id = the gpu's device ordinal. To
-    specify a cpu NUMA node, set type = cudaMemLocationTypeHostNuma and
-    set id = host NUMA node id.
+    :py:obj:`~.cudaMemLocationTypeDevice` and set id = the gpu's device
+    ordinal. To specify a cpu NUMA node, set type =
+    :py:obj:`~.cudaMemLocationTypeHostNuma` and set id = host NUMA node
+    id.
 
     Attributes
     ----------
     {{if 'cudaMemLocation.type' in found_struct}}
-    type : cudaMemLocationType
+    type : :py:obj:`~.cudaMemLocationType`
         Specifies the location type, which modifies the meaning of id.
     {{endif}}
     {{if 'cudaMemLocation.id' in found_struct}}
     id : int
-        Identifier for cudaMemLocationType::cudaMemLocationTypeDevice,
-        cudaMemLocationType::cudaMemLocationTypeHost, or
-        cudaMemLocationType::cudaMemLocationTypeHostNuma.
+        Identifier for
+        :py:obj:`~.cudaMemLocationType.cudaMemLocationTypeDevice`,
+        :py:obj:`~.cudaMemLocationType.cudaMemLocationTypeHost`, or
+        :py:obj:`~.cudaMemLocationType.cudaMemLocationTypeHostNuma`.
     {{endif}}
 
     Methods
@@ -1505,12 +1513,12 @@ cdef class cudaMemAccessDesc:
     Attributes
     ----------
     {{if 'cudaMemAccessDesc.location' in found_struct}}
-    location : cudaMemLocation
+    location : :py:obj:`~.cudaMemLocation`
         Location on which the request is to change it's accessibility
     {{endif}}
     {{if 'cudaMemAccessDesc.flags' in found_struct}}
-    flags : cudaMemAccessFlags
-        ::CUmemProt accessibility flags to set on the request
+    flags : :py:obj:`~.cudaMemAccessFlags`
+        ``CUmemProt`` accessibility flags to set on the request
     {{endif}}
 
     Methods
@@ -1533,25 +1541,25 @@ cdef class cudaMemPoolProps:
     Attributes
     ----------
     {{if 'cudaMemPoolProps.allocType' in found_struct}}
-    allocType : cudaMemAllocationType
+    allocType : :py:obj:`~.cudaMemAllocationType`
         Allocation type. Currently must be specified as
-        cudaMemAllocationTypePinned
+        :py:obj:`~.cudaMemAllocationTypePinned`
     {{endif}}
     {{if 'cudaMemPoolProps.handleTypes' in found_struct}}
-    handleTypes : cudaMemAllocationHandleType
+    handleTypes : :py:obj:`~.cudaMemAllocationHandleType`
         Handle types that will be supported by allocations from the pool.
     {{endif}}
     {{if 'cudaMemPoolProps.location' in found_struct}}
-    location : cudaMemLocation
+    location : :py:obj:`~.cudaMemLocation`
         Location allocations should reside.
     {{endif}}
     {{if 'cudaMemPoolProps.win32SecurityAttributes' in found_struct}}
     win32SecurityAttributes : Any
         Windows-specific LPSECURITYATTRIBUTES required when
-        cudaMemHandleTypeWin32 is specified. This security attribute
-        defines the scope of which exported allocations may be tranferred
-        to other processes. In all other cases, this field is required to
-        be zero.
+        :py:obj:`~.cudaMemHandleTypeWin32` is specified. This security
+        attribute defines the scope of which exported allocations may be
+        tranferred to other processes. In all other cases, this field is
+        required to be zero.
     {{endif}}
     {{if 'cudaMemPoolProps.maxSize' in found_struct}}
     maxSize : size_t
@@ -1611,20 +1619,20 @@ cdef class cudaMemAllocNodeParams:
     Attributes
     ----------
     {{if 'cudaMemAllocNodeParams.poolProps' in found_struct}}
-    poolProps : cudaMemPoolProps
+    poolProps : :py:obj:`~.cudaMemPoolProps`
         in: location where the allocation should reside (specified in
-        ::location). ::handleTypes must be cudaMemHandleTypeNone. IPC is
-        not supported. in: array of memory access descriptors. Used to
-        describe peer GPU access
+        ``location``). ``handleTypes`` must be
+        :py:obj:`~.cudaMemHandleTypeNone`. IPC is not supported. in: array
+        of memory access descriptors. Used to describe peer GPU access
     {{endif}}
     {{if 'cudaMemAllocNodeParams.accessDescs' in found_struct}}
-    accessDescs : cudaMemAccessDesc
+    accessDescs : :py:obj:`~.cudaMemAccessDesc`
         in: number of memory access descriptors. Must not exceed the number
         of GPUs.
     {{endif}}
     {{if 'cudaMemAllocNodeParams.accessDescCount' in found_struct}}
     accessDescCount : size_t
-        in: Number of `accessDescs`s
+        in: Number of ``accessDescs``
     {{endif}}
     {{if 'cudaMemAllocNodeParams.bytesize' in found_struct}}
     bytesize : size_t
@@ -1662,20 +1670,20 @@ cdef class cudaMemAllocNodeParamsV2:
     Attributes
     ----------
     {{if 'cudaMemAllocNodeParamsV2.poolProps' in found_struct}}
-    poolProps : cudaMemPoolProps
+    poolProps : :py:obj:`~.cudaMemPoolProps`
         in: location where the allocation should reside (specified in
-        ::location). ::handleTypes must be cudaMemHandleTypeNone. IPC is
-        not supported. in: array of memory access descriptors. Used to
-        describe peer GPU access
+        ``location``). ``handleTypes`` must be
+        :py:obj:`~.cudaMemHandleTypeNone`. IPC is not supported. in: array
+        of memory access descriptors. Used to describe peer GPU access
     {{endif}}
     {{if 'cudaMemAllocNodeParamsV2.accessDescs' in found_struct}}
-    accessDescs : cudaMemAccessDesc
+    accessDescs : :py:obj:`~.cudaMemAccessDesc`
         in: number of memory access descriptors. Must not exceed the number
         of GPUs.
     {{endif}}
     {{if 'cudaMemAllocNodeParamsV2.accessDescCount' in found_struct}}
     accessDescCount : size_t
-        in: Number of `accessDescs`s
+        in: Number of ``accessDescs``
     {{endif}}
     {{if 'cudaMemAllocNodeParamsV2.bytesize' in found_struct}}
     bytesize : size_t
@@ -1733,29 +1741,29 @@ cdef class cudaMemFreeNodeParams:
 cdef class cudaMemcpyAttributes:
     """
     Attributes specific to copies within a batch. For more details on
-    usage see cudaMemcpyBatchAsync.
+    usage see :func:`~.cudaMemcpyBatchAsync`.
 
     Attributes
     ----------
     {{if 'cudaMemcpyAttributes.srcAccessOrder' in found_struct}}
-    srcAccessOrder : cudaMemcpySrcAccessOrder
+    srcAccessOrder : :py:obj:`~.cudaMemcpySrcAccessOrder`
         Source access ordering to be observed for copies with this
         attribute.
     {{endif}}
     {{if 'cudaMemcpyAttributes.srcLocHint' in found_struct}}
-    srcLocHint : cudaMemLocation
+    srcLocHint : :py:obj:`~.cudaMemLocation`
         Hint location for the source operand. Ignored when the pointers are
         not managed memory or memory allocated outside CUDA.
     {{endif}}
     {{if 'cudaMemcpyAttributes.dstLocHint' in found_struct}}
-    dstLocHint : cudaMemLocation
+    dstLocHint : :py:obj:`~.cudaMemLocation`
         Hint location for the destination operand. Ignored when the
         pointers are not managed memory or memory allocated outside CUDA.
     {{endif}}
     {{if 'cudaMemcpyAttributes.flags' in found_struct}}
     flags : unsigned int
         Additional flags for copies with this attribute. See
-        cudaMemcpyFlags.
+        :py:obj:`~.cudaMemcpyFlags`.
     {{endif}}
 
     Methods
@@ -1776,7 +1784,8 @@ cdef class cudaMemcpyAttributes:
 
 cdef class cudaOffset3D:
     """
-    Struct representing offset into a cudaArray_t in elements
+    Struct representing offset into a :py:obj:`~.cudaArray_t` in
+    elements
 
     Attributes
     ----------
@@ -1820,7 +1829,7 @@ cdef class anon_struct6:
 
     {{endif}}
     {{if 'cudaMemcpy3DOperand.op.ptr.locHint' in found_struct}}
-    locHint : cudaMemLocation
+    locHint : :py:obj:`~.cudaMemLocation`
 
     {{endif}}
 
@@ -1844,11 +1853,11 @@ cdef class anon_struct7:
     Attributes
     ----------
     {{if 'cudaMemcpy3DOperand.op.array.array' in found_struct}}
-    array : cudaArray_t
+    array : :py:obj:`~.cudaArray_t`
 
     {{endif}}
     {{if 'cudaMemcpy3DOperand.op.array.offset' in found_struct}}
-    offset : cudaOffset3D
+    offset : :py:obj:`~.cudaOffset3D`
 
     {{endif}}
 
@@ -1897,12 +1906,13 @@ cdef class anon_union2:
 
 cdef class cudaMemcpy3DOperand:
     """
-    Struct representing an operand for copy with cudaMemcpy3DBatchAsync
+    Struct representing an operand for copy with
+    :func:`~.cudaMemcpy3DBatchAsync`
 
     Attributes
     ----------
     {{if 'cudaMemcpy3DOperand.type' in found_struct}}
-    type : cudaMemcpy3DOperandType
+    type : :py:obj:`~.cudaMemcpy3DOperandType`
 
     {{endif}}
     {{if 'cudaMemcpy3DOperand.op' in found_struct}}
@@ -1928,25 +1938,26 @@ cdef class cudaMemcpy3DBatchOp:
     Attributes
     ----------
     {{if 'cudaMemcpy3DBatchOp.src' in found_struct}}
-    src : cudaMemcpy3DOperand
+    src : :py:obj:`~.cudaMemcpy3DOperand`
         Source memcpy operand.
     {{endif}}
     {{if 'cudaMemcpy3DBatchOp.dst' in found_struct}}
-    dst : cudaMemcpy3DOperand
+    dst : :py:obj:`~.cudaMemcpy3DOperand`
         Destination memcpy operand.
     {{endif}}
     {{if 'cudaMemcpy3DBatchOp.extent' in found_struct}}
-    extent : cudaExtent
+    extent : :py:obj:`~.cudaExtent`
         Extents of the memcpy between src and dst. The width, height and
         depth components must not be 0.
     {{endif}}
     {{if 'cudaMemcpy3DBatchOp.srcAccessOrder' in found_struct}}
-    srcAccessOrder : cudaMemcpySrcAccessOrder
+    srcAccessOrder : :py:obj:`~.cudaMemcpySrcAccessOrder`
         Source access ordering to be observed for copy from src to dst.
     {{endif}}
     {{if 'cudaMemcpy3DBatchOp.flags' in found_struct}}
     flags : unsigned int
-        Additional flags for copy from src to dst. See cudaMemcpyFlags.
+        Additional flags for copy from src to dst. See
+        :py:obj:`~.cudaMemcpyFlags`.
     {{endif}}
 
     Methods
@@ -1998,7 +2009,7 @@ cdef class cudaDeviceProp:
         ASCII string identifying device
     {{endif}}
     {{if 'cudaDeviceProp.uuid' in found_struct}}
-    uuid : cudaUUID_t
+    uuid : :py:obj:`~.cudaUUID_t`
         16-byte unique identifier
     {{endif}}
     {{if 'cudaDeviceProp.luid' in found_struct}}
@@ -2075,7 +2086,7 @@ cdef class cudaDeviceProp:
     {{if 'cudaDeviceProp.canMapHostMemory' in found_struct}}
     canMapHostMemory : int
         Device can map host memory with
-        cudaHostAlloc/cudaHostGetDevicePointer
+        :func:`~.cudaHostAlloc`/:func:`~.cudaHostGetDevicePointer`
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture1D' in found_struct}}
     maxTexture1D : int
@@ -2248,7 +2259,7 @@ cdef class cudaDeviceProp:
     {{if 'cudaDeviceProp.pageableMemoryAccess' in found_struct}}
     pageableMemoryAccess : int
         Device supports coherently accessing pageable memory without
-        calling cudaHostRegister on it
+        calling :func:`~.cudaHostRegister` on it
     {{endif}}
     {{if 'cudaDeviceProp.concurrentManagedAccess' in found_struct}}
     concurrentManagedAccess : int
@@ -2267,7 +2278,7 @@ cdef class cudaDeviceProp:
     {{if 'cudaDeviceProp.cooperativeLaunch' in found_struct}}
     cooperativeLaunch : int
         Device supports launching cooperative kernels via
-        cudaLaunchCooperativeKernel
+        :func:`~.cudaLaunchCooperativeKernel`
     {{endif}}
     {{if 'cudaDeviceProp.sharedMemPerBlockOptin' in found_struct}}
     sharedMemPerBlockOptin : size_t
@@ -2288,7 +2299,7 @@ cdef class cudaDeviceProp:
     {{endif}}
     {{if 'cudaDeviceProp.accessPolicyMaxWindowSize' in found_struct}}
     accessPolicyMaxWindowSize : int
-        The maximum value of cudaAccessPolicyWindow::num_bytes.
+        The maximum value of :py:obj:`~.cudaAccessPolicyWindow.num_bytes`.
     {{endif}}
     {{if 'cudaDeviceProp.reservedSharedMemPerBlock' in found_struct}}
     reservedSharedMemPerBlock : size_t
@@ -2296,7 +2307,8 @@ cdef class cudaDeviceProp:
     {{endif}}
     {{if 'cudaDeviceProp.hostRegisterSupported' in found_struct}}
     hostRegisterSupported : int
-        Device supports host memory registration via cudaHostRegister.
+        Device supports host memory registration via
+        :func:`~.cudaHostRegister`.
     {{endif}}
     {{if 'cudaDeviceProp.sparseCudaArraySupported' in found_struct}}
     sparseCudaArraySupported : int
@@ -2305,9 +2317,9 @@ cdef class cudaDeviceProp:
     {{endif}}
     {{if 'cudaDeviceProp.hostRegisterReadOnlySupported' in found_struct}}
     hostRegisterReadOnlySupported : int
-        Device supports using the cudaHostRegister flag
-        cudaHostRegisterReadOnly to register memory that must be mapped as
-        read-only to the GPU
+        Device supports using the :func:`~.cudaHostRegister` flag
+        :py:obj:`~.cudaHostRegisterReadOnly` to register memory that must
+        be mapped as read-only to the GPU
     {{endif}}
     {{if 'cudaDeviceProp.timelineSemaphoreInteropSupported' in found_struct}}
     timelineSemaphoreInteropSupported : int
@@ -2315,8 +2327,8 @@ cdef class cudaDeviceProp:
     {{endif}}
     {{if 'cudaDeviceProp.memoryPoolsSupported' in found_struct}}
     memoryPoolsSupported : int
-        1 if the device supports using the cudaMallocAsync and cudaMemPool
-        family of APIs, 0 otherwise
+        1 if the device supports using the :func:`~.cudaMallocAsync` and
+        cudaMemPool family of APIs, 0 otherwise
     {{endif}}
     {{if 'cudaDeviceProp.gpuDirectRDMASupported' in found_struct}}
     gpuDirectRDMASupported : int
@@ -2325,11 +2337,12 @@ cdef class cudaDeviceProp:
     {{if 'cudaDeviceProp.gpuDirectRDMAFlushWritesOptions' in found_struct}}
     gpuDirectRDMAFlushWritesOptions : unsigned int
         Bitmask to be interpreted according to the
-        cudaFlushGPUDirectRDMAWritesOptions enum
+        :py:obj:`~.cudaFlushGPUDirectRDMAWritesOptions` enum
     {{endif}}
     {{if 'cudaDeviceProp.gpuDirectRDMAWritesOrdering' in found_struct}}
     gpuDirectRDMAWritesOrdering : int
-        See the cudaGPUDirectRDMAWritesOrdering enum for numerical values
+        See the :py:obj:`~.cudaGPUDirectRDMAWritesOrdering` enum for
+        numerical values
     {{endif}}
     {{if 'cudaDeviceProp.memoryPoolSupportedHandleTypes' in found_struct}}
     memoryPoolSupportedHandleTypes : unsigned int
@@ -2355,7 +2368,7 @@ cdef class cudaDeviceProp:
     {{if 'cudaDeviceProp.deviceNumaConfig' in found_struct}}
     deviceNumaConfig : int
         NUMA configuration of a device: value is of type
-        cudaDeviceNumaConfig enum
+        :py:obj:`~.cudaDeviceNumaConfig` enum
     {{endif}}
     {{if 'cudaDeviceProp.deviceNumaId' in found_struct}}
     deviceNumaId : int
@@ -2530,7 +2543,7 @@ cdef class cudaExternalMemoryHandleDesc:
     Attributes
     ----------
     {{if 'cudaExternalMemoryHandleDesc.type' in found_struct}}
-    type : cudaExternalMemoryHandleType
+    type : :py:obj:`~.cudaExternalMemoryHandleType`
         Type of the handle
     {{endif}}
     {{if 'cudaExternalMemoryHandleDesc.handle' in found_struct}}
@@ -2543,7 +2556,8 @@ cdef class cudaExternalMemoryHandleDesc:
     {{endif}}
     {{if 'cudaExternalMemoryHandleDesc.flags' in found_struct}}
     flags : unsigned int
-        Flags must either be zero or cudaExternalMemoryDedicated
+        Flags must either be zero or
+        :py:obj:`~.cudaExternalMemoryDedicated`
     {{endif}}
     {{if 'cudaExternalMemoryHandleDesc.reserved' in found_struct}}
     reserved : list[unsigned int]
@@ -2608,17 +2622,17 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
         chain is.
     {{endif}}
     {{if 'cudaExternalMemoryMipmappedArrayDesc.formatDesc' in found_struct}}
-    formatDesc : cudaChannelFormatDesc
+    formatDesc : :py:obj:`~.cudaChannelFormatDesc`
         Format of base level of the mipmap chain
     {{endif}}
     {{if 'cudaExternalMemoryMipmappedArrayDesc.extent' in found_struct}}
-    extent : cudaExtent
+    extent : :py:obj:`~.cudaExtent`
         Dimensions of base level of the mipmap chain
     {{endif}}
     {{if 'cudaExternalMemoryMipmappedArrayDesc.flags' in found_struct}}
     flags : unsigned int
         Flags associated with CUDA mipmapped arrays. See
-        cudaMallocMipmappedArray
+        :func:`~.cudaMallocMipmappedArray`
     {{endif}}
     {{if 'cudaExternalMemoryMipmappedArrayDesc.numLevels' in found_struct}}
     numLevels : unsigned int
@@ -2712,7 +2726,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
     Attributes
     ----------
     {{if 'cudaExternalSemaphoreHandleDesc.type' in found_struct}}
-    type : cudaExternalSemaphoreHandleType
+    type : :py:obj:`~.cudaExternalSemaphoreHandleType`
         Type of the handle
     {{endif}}
     {{if 'cudaExternalSemaphoreHandleDesc.handle' in found_struct}}
@@ -2853,14 +2867,16 @@ cdef class cudaExternalSemaphoreSignalParams:
     {{endif}}
     {{if 'cudaExternalSemaphoreSignalParams.flags' in found_struct}}
     flags : unsigned int
-        Only when cudaExternalSemaphoreSignalParams is used to signal a
-        cudaExternalSemaphore_t of type
-        cudaExternalSemaphoreHandleTypeNvSciSync, the valid flag is
-        cudaExternalSemaphoreSignalSkipNvSciBufMemSync: which indicates
-        that while signaling the cudaExternalSemaphore_t, no memory
-        synchronization operations should be performed for any external
-        memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
-        all other types of cudaExternalSemaphore_t, flags must be zero.
+        Only when :py:obj:`~.cudaExternalSemaphoreSignalParams` is used to
+        signal a :py:obj:`~.cudaExternalSemaphore_t` of type
+        :py:obj:`~.cudaExternalSemaphoreHandleTypeNvSciSync`, the valid
+        flag is :py:obj:`~.cudaExternalSemaphoreSignalSkipNvSciBufMemSync`:
+        which indicates that while signaling the
+        :py:obj:`~.cudaExternalSemaphore_t`, no memory synchronization
+        operations should be performed for any external memory object
+        imported as :py:obj:`~.cudaExternalMemoryHandleTypeNvSciBuf`. For
+        all other types of :py:obj:`~.cudaExternalSemaphore_t`, flags must
+        be zero.
     {{endif}}
     {{if 'cudaExternalSemaphoreSignalParams.reserved' in found_struct}}
     reserved : list[unsigned int]
@@ -2996,14 +3012,16 @@ cdef class cudaExternalSemaphoreWaitParams:
     {{endif}}
     {{if 'cudaExternalSemaphoreWaitParams.flags' in found_struct}}
     flags : unsigned int
-        Only when cudaExternalSemaphoreSignalParams is used to signal a
-        cudaExternalSemaphore_t of type
-        cudaExternalSemaphoreHandleTypeNvSciSync, the valid flag is
-        cudaExternalSemaphoreSignalSkipNvSciBufMemSync: which indicates
-        that while waiting for the cudaExternalSemaphore_t, no memory
-        synchronization operations should be performed for any external
-        memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
-        all other types of cudaExternalSemaphore_t, flags must be zero.
+        Only when :py:obj:`~.cudaExternalSemaphoreSignalParams` is used to
+        signal a :py:obj:`~.cudaExternalSemaphore_t` of type
+        :py:obj:`~.cudaExternalSemaphoreHandleTypeNvSciSync`, the valid
+        flag is :py:obj:`~.cudaExternalSemaphoreSignalSkipNvSciBufMemSync`:
+        which indicates that while waiting for the
+        :py:obj:`~.cudaExternalSemaphore_t`, no memory synchronization
+        operations should be performed for any external memory object
+        imported as :py:obj:`~.cudaExternalMemoryHandleTypeNvSciBuf`. For
+        all other types of :py:obj:`~.cudaExternalSemaphore_t`, flags must
+        be zero.
     {{endif}}
     {{if 'cudaExternalSemaphoreWaitParams.reserved' in found_struct}}
     reserved : list[unsigned int]
@@ -3049,7 +3067,7 @@ cdef class cudaDevSmResource:
     {{if 'cudaDevSmResource.flags' in found_struct}}
     flags : unsigned int
         The flags set on this SM resource. For available flags see
-        cudaDevSmResourceGroup_flags.
+        :py:obj:`~.cudaDevSmResourceGroup_flags`.
     {{endif}}
 
     Methods
@@ -3077,7 +3095,7 @@ cdef class cudaDevWorkqueueConfigResource:
         The expected maximum number of concurrent stream-ordered workloads
     {{endif}}
     {{if 'cudaDevWorkqueueConfigResource.sharingScope' in found_struct}}
-    sharingScope : cudaDevWorkqueueConfigScope
+    sharingScope : :py:obj:`~.cudaDevWorkqueueConfigScope`
         The sharing scope for the workqueue resources
     {{endif}}
 
@@ -3134,8 +3152,8 @@ cdef class cudaDevSmResourceGroupParams_st:
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
     flags : unsigned int
-        Combination of `cudaDevSmResourceGroup_flags` values to indicate
-        this this group is created.
+        Combination of :py:obj:`~.cudaDevSmResourceGroup_flags` values to
+        indicate this this group is created.
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
     reserved : list[unsigned int]
@@ -3159,21 +3177,23 @@ cdef class cudaDevResource_st:
     of the API that created it. struct enumcudaDevResourceTypetype;
     union structcudaDevSmResourcesm;
     structcudaDevWorkqueueConfigResourcewqConfig;
-    structcudaDevWorkqueueResourcewq; ; ;  - If `typename` is
-    `cudaDevResourceTypeInvalid`, this resoure is not valid and cannot
-    be further accessed.    - If `typename` is `cudaDevResourceTypeSm`,
-    the cudaDevSmResource structure `sm` is filled in. For example,
-    `sm.smCount` will reflect the amount of streaming multiprocessors
-    available in this resource.    - If `typename` is
-    `cudaDevResourceTypeWorkqueueConfig`, the
-    cudaDevWorkqueueConfigResource structure `wqConfig` is filled in.
-    - If `typename` is `cudaDevResourceTypeWorkqueue`, the
-    cudaDevWorkqueueResource structure `wq` is filled in.
+    structcudaDevWorkqueueResourcewq; ; ;  - If ``typename`` is
+    :py:obj:`~.cudaDevResourceTypeInvalid`, this resoure is not valid
+    and cannot be further accessed.    - If ``typename`` is
+    :py:obj:`~.cudaDevResourceTypeSm`, the
+    :py:obj:`~.cudaDevSmResource` structure ``sm`` is filled in. For
+    example, ``sm.smCount`` will reflect the amount of streaming
+    multiprocessors available in this resource.    - If ``typename`` is
+    :py:obj:`~.cudaDevResourceTypeWorkqueueConfig`, the
+    :py:obj:`~.cudaDevWorkqueueConfigResource` structure ``wqConfig``
+    is filled in.    - If ``typename`` is
+    :py:obj:`~.cudaDevResourceTypeWorkqueue`, the
+    :py:obj:`~.cudaDevWorkqueueResource` structure ``wq`` is filled in.
 
     Attributes
     ----------
     {{if 'cudaDevResource_st.type' in found_struct}}
-    type : cudaDevResourceType
+    type : :py:obj:`~.cudaDevResourceType`
         Type of resource, dictates which union field was last set
     {{endif}}
     {{if 'cudaDevResource_st._internal_padding' in found_struct}}
@@ -3181,24 +3201,26 @@ cdef class cudaDevResource_st:
 
     {{endif}}
     {{if 'cudaDevResource_st.sm' in found_struct}}
-    sm : cudaDevSmResource
-        Resource corresponding to cudaDevResourceTypeSm `typename`.
+    sm : :py:obj:`~.cudaDevSmResource`
+        Resource corresponding to :py:obj:`~.cudaDevResourceTypeSm`
+        ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st.wqConfig' in found_struct}}
-    wqConfig : cudaDevWorkqueueConfigResource
-        Resource corresponding to cudaDevResourceTypeWorkqueueConfig
-        `typename`.
+    wqConfig : :py:obj:`~.cudaDevWorkqueueConfigResource`
+        Resource corresponding to
+        :py:obj:`~.cudaDevResourceTypeWorkqueueConfig` ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st.wq' in found_struct}}
-    wq : cudaDevWorkqueueResource
-        Resource corresponding to cudaDevResourceTypeWorkqueue `typename`.
+    wq : :py:obj:`~.cudaDevWorkqueueResource`
+        Resource corresponding to :py:obj:`~.cudaDevResourceTypeWorkqueue`
+        ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st._oversize' in found_struct}}
     _oversize : bytes
 
     {{endif}}
     {{if 'cudaDevResource_st.nextResource' in found_struct}}
-    nextResource : cudaDevResource_st
+    nextResource : :py:obj:`~.cudaDevResource_st`
 
     {{endif}}
 
@@ -3273,11 +3295,11 @@ cdef class cudaKernelNodeParams:
         Kernel to launch
     {{endif}}
     {{if 'cudaKernelNodeParams.gridDim' in found_struct}}
-    gridDim : dim3
+    gridDim : :py:obj:`~.dim3`
         Grid dimensions
     {{endif}}
     {{if 'cudaKernelNodeParams.blockDim' in found_struct}}
-    blockDim : dim3
+    blockDim : :py:obj:`~.dim3`
         Block dimensions
     {{endif}}
     {{if 'cudaKernelNodeParams.sharedMemBytes' in found_struct}}
@@ -3326,19 +3348,19 @@ cdef class cudaKernelNodeParamsV2:
         functionType = cudaKernelFucntionTypeDevice
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.kern' in found_struct}}
-    kern : cudaKernel_t
+    kern : :py:obj:`~.cudaKernel_t`
         functionType = cudaKernelFucntionTypeKernel
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.cuFunc' in found_struct}}
-    cuFunc : cudaFunction_t
+    cuFunc : :py:obj:`~.cudaFunction_t`
         functionType = cudaKernelFucntionTypeFunction
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
-    gridDim : dim3
+    gridDim : :py:obj:`~.dim3`
         Grid dimensions
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.blockDim' in found_struct}}
-    blockDim : dim3
+    blockDim : :py:obj:`~.dim3`
         Block dimensions
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.sharedMemBytes' in found_struct}}
@@ -3354,12 +3376,12 @@ cdef class cudaKernelNodeParamsV2:
         Pointer to kernel arguments in the "extra" format
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.ctx' in found_struct}}
-    ctx : cudaExecutionContext_t
+    ctx : :py:obj:`~.cudaExecutionContext_t`
         Context in which to run the kernel. If NULL will try to use the
         current context.
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.functionType' in found_struct}}
-    functionType : cudaKernelFunctionType
+    functionType : :py:obj:`~.cudaKernelFunctionType`
         Type of handle passed in the func/kern/cuFunc union above
     {{endif}}
 
@@ -3401,11 +3423,11 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     Attributes
     ----------
     {{if 'cudaExternalSemaphoreSignalNodeParams.extSemArray' in found_struct}}
-    extSemArray : cudaExternalSemaphore_t
+    extSemArray : :py:obj:`~.cudaExternalSemaphore_t`
         Array of external semaphore handles.
     {{endif}}
     {{if 'cudaExternalSemaphoreSignalNodeParams.paramsArray' in found_struct}}
-    paramsArray : cudaExternalSemaphoreSignalParams
+    paramsArray : :py:obj:`~.cudaExternalSemaphoreSignalParams`
         Array of external semaphore signal parameters.
     {{endif}}
     {{if 'cudaExternalSemaphoreSignalNodeParams.numExtSems' in found_struct}}
@@ -3439,11 +3461,11 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
     Attributes
     ----------
     {{if 'cudaExternalSemaphoreSignalNodeParamsV2.extSemArray' in found_struct}}
-    extSemArray : cudaExternalSemaphore_t
+    extSemArray : :py:obj:`~.cudaExternalSemaphore_t`
         Array of external semaphore handles.
     {{endif}}
     {{if 'cudaExternalSemaphoreSignalNodeParamsV2.paramsArray' in found_struct}}
-    paramsArray : cudaExternalSemaphoreSignalParams
+    paramsArray : :py:obj:`~.cudaExternalSemaphoreSignalParams`
         Array of external semaphore signal parameters.
     {{endif}}
     {{if 'cudaExternalSemaphoreSignalNodeParamsV2.numExtSems' in found_struct}}
@@ -3477,11 +3499,11 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     Attributes
     ----------
     {{if 'cudaExternalSemaphoreWaitNodeParams.extSemArray' in found_struct}}
-    extSemArray : cudaExternalSemaphore_t
+    extSemArray : :py:obj:`~.cudaExternalSemaphore_t`
         Array of external semaphore handles.
     {{endif}}
     {{if 'cudaExternalSemaphoreWaitNodeParams.paramsArray' in found_struct}}
-    paramsArray : cudaExternalSemaphoreWaitParams
+    paramsArray : :py:obj:`~.cudaExternalSemaphoreWaitParams`
         Array of external semaphore wait parameters.
     {{endif}}
     {{if 'cudaExternalSemaphoreWaitNodeParams.numExtSems' in found_struct}}
@@ -3515,11 +3537,11 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
     Attributes
     ----------
     {{if 'cudaExternalSemaphoreWaitNodeParamsV2.extSemArray' in found_struct}}
-    extSemArray : cudaExternalSemaphore_t
+    extSemArray : :py:obj:`~.cudaExternalSemaphore_t`
         Array of external semaphore handles.
     {{endif}}
     {{if 'cudaExternalSemaphoreWaitNodeParamsV2.paramsArray' in found_struct}}
-    paramsArray : cudaExternalSemaphoreWaitParams
+    paramsArray : :py:obj:`~.cudaExternalSemaphoreWaitParams`
         Array of external semaphore wait parameters.
     {{endif}}
     {{if 'cudaExternalSemaphoreWaitNodeParamsV2.numExtSems' in found_struct}}
@@ -3553,22 +3575,23 @@ cdef class cudaConditionalNodeParams:
     Attributes
     ----------
     {{if 'cudaConditionalNodeParams.handle' in found_struct}}
-    handle : cudaGraphConditionalHandle
+    handle : :py:obj:`~.cudaGraphConditionalHandle`
         Conditional node handle. Handles must be created in advance of
-        creating the node using cudaGraphConditionalHandleCreate.
+        creating the node using :func:`~.cudaGraphConditionalHandleCreate`.
     {{endif}}
     {{if 'cudaConditionalNodeParams.type' in found_struct}}
-    type : cudaGraphConditionalNodeType
+    type : :py:obj:`~.cudaGraphConditionalNodeType`
         Type of conditional node.
     {{endif}}
     {{if 'cudaConditionalNodeParams.size' in found_struct}}
     size : unsigned int
         Size of graph output array. Allowed values are 1 for
-        cudaGraphCondTypeWhile, 1 or 2 for cudaGraphCondTypeIf, or any
-        value greater than zero for cudaGraphCondTypeSwitch.
+        :py:obj:`~.cudaGraphCondTypeWhile`, 1 or 2 for
+        :py:obj:`~.cudaGraphCondTypeIf`, or any value greater than zero for
+        :py:obj:`~.cudaGraphCondTypeSwitch`.
     {{endif}}
     {{if 'cudaConditionalNodeParams.phGraph_out' in found_struct}}
-    phGraph_out : cudaGraph_t
+    phGraph_out : :py:obj:`~.cudaGraph_t`
         CUDA-owned array populated with conditional node child graphs
         during creation of the node. Valid for the lifetime of the
         conditional node. The contents of the graph(s) are subject to the
@@ -3578,16 +3601,18 @@ cdef class cudaConditionalNodeParams:
         - All kernels, including kernels in nested conditionals or child
         graphs at any level, must belong to the same CUDA context.
         These graphs may be populated using graph node creation APIs or
-        cudaStreamBeginCaptureToGraph. cudaGraphCondTypeIf: phGraph_out[0]
-        is executed when the condition is non-zero. If `size` == 2,
-        phGraph_out[1] will be executed when the condition is zero.
-        cudaGraphCondTypeWhile: phGraph_out[0] is executed as long as the
-        condition is non-zero. cudaGraphCondTypeSwitch: phGraph_out[n] is
-        executed when the condition is equal to n. If the condition >=
-        `size`, no body graph is executed.
+        :func:`~.cudaStreamBeginCaptureToGraph`.
+        :py:obj:`~.cudaGraphCondTypeIf`: phGraph_out[0] is executed when
+        the condition is non-zero. If ``size`` == 2, phGraph_out[1] will be
+        executed when the condition is zero.
+        :py:obj:`~.cudaGraphCondTypeWhile`: phGraph_out[0] is executed as
+        long as the condition is non-zero.
+        :py:obj:`~.cudaGraphCondTypeSwitch`: phGraph_out[n] is executed
+        when the condition is equal to n. If the condition >= ``size``, no
+        body graph is executed.
     {{endif}}
     {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
-    ctx : cudaExecutionContext_t
+    ctx : :py:obj:`~.cudaExecutionContext_t`
         CUDA Execution Context
     {{endif}}
 
@@ -3618,7 +3643,7 @@ cdef class cudaChildGraphNodeParams:
     Attributes
     ----------
     {{if 'cudaChildGraphNodeParams.graph' in found_struct}}
-    graph : cudaGraph_t
+    graph : :py:obj:`~.cudaGraph_t`
         The child graph to clone into the node for node creation, or a
         handle to the graph owned by the node for node query. The graph
         must not contain conditional nodes. Graphs containing memory
@@ -3626,7 +3651,7 @@ cdef class cudaChildGraphNodeParams:
         to the parent.
     {{endif}}
     {{if 'cudaChildGraphNodeParams.ownership' in found_struct}}
-    ownership : cudaGraphChildGraphNodeOwnership
+    ownership : :py:obj:`~.cudaGraphChildGraphNodeOwnership`
         The ownership relationship of the child graph node.
     {{endif}}
 
@@ -3650,7 +3675,7 @@ cdef class cudaEventRecordNodeParams:
     Attributes
     ----------
     {{if 'cudaEventRecordNodeParams.event' in found_struct}}
-    event : cudaEvent_t
+    event : :py:obj:`~.cudaEvent_t`
         The event to record when the node executes
     {{endif}}
 
@@ -3674,7 +3699,7 @@ cdef class cudaEventWaitNodeParams:
     Attributes
     ----------
     {{if 'cudaEventWaitNodeParams.event' in found_struct}}
-    event : cudaEvent_t
+    event : :py:obj:`~.cudaEvent_t`
         The event to wait on from the node
     {{endif}}
 
@@ -3693,12 +3718,12 @@ cdef class cudaEventWaitNodeParams:
 
 cdef class cudaGraphNodeParams:
     """
-    Graph node parameters. See cudaGraphAddNode.
+    Graph node parameters. See :func:`~.cudaGraphAddNode`.
 
     Attributes
     ----------
     {{if 'cudaGraphNodeParams.type' in found_struct}}
-    type : cudaGraphNodeType
+    type : :py:obj:`~.cudaGraphNodeType`
         Type of the node
     {{endif}}
     {{if 'cudaGraphNodeParams.reserved0' in found_struct}}
@@ -3710,51 +3735,51 @@ cdef class cudaGraphNodeParams:
         Padding. Unused bytes must be zero.
     {{endif}}
     {{if 'cudaGraphNodeParams.kernel' in found_struct}}
-    kernel : cudaKernelNodeParamsV2
+    kernel : :py:obj:`~.cudaKernelNodeParamsV2`
         Kernel node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.memcpy' in found_struct}}
-    memcpy : cudaMemcpyNodeParams
+    memcpy : :py:obj:`~.cudaMemcpyNodeParams`
         Memcpy node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.memset' in found_struct}}
-    memset : cudaMemsetParamsV2
+    memset : :py:obj:`~.cudaMemsetParamsV2`
         Memset node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.host' in found_struct}}
-    host : cudaHostNodeParamsV2
+    host : :py:obj:`~.cudaHostNodeParamsV2`
         Host node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.graph' in found_struct}}
-    graph : cudaChildGraphNodeParams
+    graph : :py:obj:`~.cudaChildGraphNodeParams`
         Child graph node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.eventWait' in found_struct}}
-    eventWait : cudaEventWaitNodeParams
+    eventWait : :py:obj:`~.cudaEventWaitNodeParams`
         Event wait node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.eventRecord' in found_struct}}
-    eventRecord : cudaEventRecordNodeParams
+    eventRecord : :py:obj:`~.cudaEventRecordNodeParams`
         Event record node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.extSemSignal' in found_struct}}
-    extSemSignal : cudaExternalSemaphoreSignalNodeParamsV2
+    extSemSignal : :py:obj:`~.cudaExternalSemaphoreSignalNodeParamsV2`
         External semaphore signal node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.extSemWait' in found_struct}}
-    extSemWait : cudaExternalSemaphoreWaitNodeParamsV2
+    extSemWait : :py:obj:`~.cudaExternalSemaphoreWaitNodeParamsV2`
         External semaphore wait node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.alloc' in found_struct}}
-    alloc : cudaMemAllocNodeParamsV2
+    alloc : :py:obj:`~.cudaMemAllocNodeParamsV2`
         Memory allocation node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.free' in found_struct}}
-    free : cudaMemFreeNodeParams
+    free : :py:obj:`~.cudaMemFreeNodeParams`
         Memory free node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.conditional' in found_struct}}
-    conditional : cudaConditionalNodeParams
+    conditional : :py:obj:`~.cudaConditionalNodeParams`
         Conditional node parameters.
     {{endif}}
     {{if 'cudaGraphNodeParams.reserved2' in found_struct}}
@@ -3812,8 +3837,8 @@ cdef class cudaGraphEdgeData_st:
     """
     Optional annotation for edges in a CUDA graph. Note, all edges
     implicitly have annotations and default to a zero-initialized value
-    if not specified. A zero-initialized struct indicates a standard
-    full serialization of two nodes with memory visibility.
+    if not specified. A zero-initialized ``struct indicates`` a
+    standard full serialization of two nodes with memory visibility.
 
     Attributes
     ----------
@@ -3823,16 +3848,16 @@ cdef class cudaGraphEdgeData_st:
         node on the edge. The meaning is specfic to the node type. A value
         of 0 in all cases means full completion of the upstream node, with
         memory visibility to the downstream node or portion thereof
-        (indicated by `to_port`).   Only kernel nodes define non-zero
+        (indicated by ``to_port``).   Only kernel nodes define non-zero
         ports. A kernel node can use the following output port types:
-        cudaGraphKernelNodePortDefault,
-        cudaGraphKernelNodePortProgrammatic, or
-        cudaGraphKernelNodePortLaunchCompletion.
+        :py:obj:`~.cudaGraphKernelNodePortDefault`,
+        :py:obj:`~.cudaGraphKernelNodePortProgrammatic`, or
+        :py:obj:`~.cudaGraphKernelNodePortLaunchCompletion`.
     {{endif}}
     {{if 'cudaGraphEdgeData_st.to_port' in found_struct}}
     to_port : bytes
         This indicates what portion of the downstream node is dependent on
-        the upstream node or portion thereof (indicated by `from_port`).
+        the upstream node or portion thereof (indicated by ``from_port``).
         The meaning is specific to the node type. A value of 0 in all cases
         means the entirety of the downstream node is dependent on the
         upstream work.   Currently no node types define non-zero ports.
@@ -3840,9 +3865,10 @@ cdef class cudaGraphEdgeData_st:
     {{endif}}
     {{if 'cudaGraphEdgeData_st.type' in found_struct}}
     type : bytes
-        This should be populated with a value from cudaGraphDependencyType.
-        (It is typed as char due to compiler-specific layout of bitfields.)
-        See cudaGraphDependencyType.
+        This should be populated with a value from
+        :py:obj:`~.cudaGraphDependencyType`. (It is typed as char due to
+        compiler-specific layout of bitfields.) See
+        :py:obj:`~.cudaGraphDependencyType`.
     {{endif}}
     {{if 'cudaGraphEdgeData_st.reserved' in found_struct}}
     reserved : bytes
@@ -3871,15 +3897,15 @@ cdef class cudaGraphInstantiateParams_st:
         Instantiation flags
     {{endif}}
     {{if 'cudaGraphInstantiateParams_st.uploadStream' in found_struct}}
-    uploadStream : cudaStream_t
+    uploadStream : :py:obj:`~.cudaStream_t`
         Upload stream
     {{endif}}
     {{if 'cudaGraphInstantiateParams_st.errNode_out' in found_struct}}
-    errNode_out : cudaGraphNode_t
+    errNode_out : :py:obj:`~.cudaGraphNode_t`
         The node which caused instantiation to fail, if any
     {{endif}}
     {{if 'cudaGraphInstantiateParams_st.result_out' in found_struct}}
-    result_out : cudaGraphInstantiateResult
+    result_out : :py:obj:`~.cudaGraphInstantiateResult`
         Whether instantiation was successful. If it failed, the reason why
     {{endif}}
 
@@ -3901,22 +3927,22 @@ cdef class cudaGraphInstantiateParams_st:
 
 cdef class cudaGraphExecUpdateResultInfo_st:
     """
-    Result information returned by cudaGraphExecUpdate
+    Result information returned by :func:`~.cudaGraphExecUpdate`
 
     Attributes
     ----------
     {{if 'cudaGraphExecUpdateResultInfo_st.result' in found_struct}}
-    result : cudaGraphExecUpdateResult
+    result : :py:obj:`~.cudaGraphExecUpdateResult`
         Gives more specific detail when a cuda graph update fails.
     {{endif}}
     {{if 'cudaGraphExecUpdateResultInfo_st.errorNode' in found_struct}}
-    errorNode : cudaGraphNode_t
+    errorNode : :py:obj:`~.cudaGraphNode_t`
         The "to node" of the error edge when the topologies do not match.
         The error node when the error is associated with a specific node.
         NULL when the error is generic.
     {{endif}}
     {{if 'cudaGraphExecUpdateResultInfo_st.errorFromNode' in found_struct}}
-    errorFromNode : cudaGraphNode_t
+    errorFromNode : :py:obj:`~.cudaGraphNode_t`
         The from node of error edge when the topologies do not match.
         Otherwise NULL.
     {{endif}}
@@ -3971,7 +3997,7 @@ cdef class anon_union10:
     Attributes
     ----------
     {{if 'cudaGraphKernelNodeUpdate.updateData.gridDim' in found_struct}}
-    gridDim : dim3
+    gridDim : :py:obj:`~.dim3`
 
     {{endif}}
     {{if 'cudaGraphKernelNodeUpdate.updateData.param' in found_struct}}
@@ -4001,16 +4027,16 @@ cdef class anon_union10:
 cdef class cudaGraphKernelNodeUpdate:
     """
     Struct to specify a single node update to pass as part of a larger
-    array to ::cudaGraphKernelNodeUpdatesApply
+    array to ``cudaGraphKernelNodeUpdatesApply``
 
     Attributes
     ----------
     {{if 'cudaGraphKernelNodeUpdate.node' in found_struct}}
-    node : cudaGraphDeviceNode_t
+    node : :py:obj:`~.cudaGraphDeviceNode_t`
         Node to update
     {{endif}}
     {{if 'cudaGraphKernelNodeUpdate.field' in found_struct}}
-    field : cudaGraphKernelNodeField
+    field : :py:obj:`~.cudaGraphKernelNodeField`
         Which type of update to apply. Determines how updateData is
         interpreted
     {{endif}}
@@ -4037,13 +4063,15 @@ cdef class cudaGraphKernelNodeUpdate:
 
 cdef class cudaLaunchMemSyncDomainMap_st:
     """
-    Memory Synchronization Domain map  See cudaLaunchMemSyncDomain.  By
-    default, kernels are launched in domain 0. Kernel launched with
-    cudaLaunchMemSyncDomainRemote will have a different domain ID. User
-    may also alter the domain ID with cudaLaunchMemSyncDomainMap for a
-    specific stream / graph node / kernel launch. See
-    cudaLaunchAttributeMemSyncDomainMap.  Domain ID range is available
-    through cudaDevAttrMemSyncDomainCount.
+    Memory Synchronization Domain map  See
+    :py:obj:`~.cudaLaunchMemSyncDomain`.  By default, kernels are
+    launched in domain 0. Kernel launched with
+    :py:obj:`~.cudaLaunchMemSyncDomainRemote` will have a different
+    domain ID. User may also alter the domain ID with
+    :py:obj:`~.cudaLaunchMemSyncDomainMap` for a specific stream /
+    graph node / kernel launch. See
+    :py:obj:`~.cudaLaunchAttributeMemSyncDomainMap`.  Domain ID range
+    is available through :py:obj:`~.cudaDevAttrMemSyncDomainCount`.
 
     Attributes
     ----------
@@ -4097,7 +4125,7 @@ cdef class anon_struct18:
     Attributes
     ----------
     {{if 'cudaLaunchAttributeValue.programmaticEvent.event' in found_struct}}
-    event : cudaEvent_t
+    event : :py:obj:`~.cudaEvent_t`
 
     {{endif}}
     {{if 'cudaLaunchAttributeValue.programmaticEvent.flags' in found_struct}}
@@ -4152,7 +4180,7 @@ cdef class anon_struct20:
     Attributes
     ----------
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent.event' in found_struct}}
-    event : cudaEvent_t
+    event : :py:obj:`~.cudaEvent_t`
 
     {{endif}}
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent.flags' in found_struct}}
@@ -4181,7 +4209,7 @@ cdef class anon_struct21:
 
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode' in found_struct}}
-    devNode : cudaGraphDeviceNode_t
+    devNode : :py:obj:`~.cudaGraphDeviceNode_t`
 
     {{endif}}
 
@@ -4199,7 +4227,8 @@ cdef class anon_struct21:
 
 cdef class cudaLaunchAttributeValue:
     """
-    Launch attributes union; used as value field of cudaLaunchAttribute
+    Launch attributes union; used as value field of
+    :py:obj:`~.cudaLaunchAttribute`
 
     Attributes
     ----------
@@ -4208,115 +4237,126 @@ cdef class cudaLaunchAttributeValue:
 
     {{endif}}
     {{if 'cudaLaunchAttributeValue.accessPolicyWindow' in found_struct}}
-    accessPolicyWindow : cudaAccessPolicyWindow
-        Value of launch attribute cudaLaunchAttributeAccessPolicyWindow.
+    accessPolicyWindow : :py:obj:`~.cudaAccessPolicyWindow`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeAccessPolicyWindow`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.cooperative' in found_struct}}
     cooperative : int
-        Value of launch attribute cudaLaunchAttributeCooperative. Nonzero
-        indicates a cooperative kernel (see cudaLaunchCooperativeKernel).
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeCooperative`. Nonzero indicates a
+        cooperative kernel (see :func:`~.cudaLaunchCooperativeKernel`).
     {{endif}}
     {{if 'cudaLaunchAttributeValue.syncPolicy' in found_struct}}
-    syncPolicy : cudaSynchronizationPolicy
-        Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
-        cudaSynchronizationPolicy for work queued up in this stream.
+    syncPolicy : :py:obj:`~.cudaSynchronizationPolicy`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeSynchronizationPolicy`.
+        :py:obj:`~.cudaSynchronizationPolicy` for work queued up in this
+        stream.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterDim' in found_struct}}
     clusterDim : anon_struct17
-        Value of launch attribute cudaLaunchAttributeClusterDimension that
-        represents the desired cluster dimensions for the kernel. Opaque
-        type with the following fields: - `x` - The X dimension of the
-        cluster, in blocks. Must be a divisor of the grid X dimension.    -
-        `y` - The Y dimension of the cluster, in blocks. Must be a divisor
-        of the grid Y dimension.    - `z` - The Z dimension of the cluster,
-        in blocks. Must be a divisor of the grid Z dimension.
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeClusterDimension` that represents the
+        desired cluster dimensions for the kernel. Opaque type with the
+        following fields: - ``x`` - The X dimension of the cluster, in
+        blocks. Must be a divisor of the grid X dimension.    - ``y`` - The
+        Y dimension of the cluster, in blocks. Must be a divisor of the
+        grid Y dimension.    - ``z`` - The Z dimension of the cluster, in
+        blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterSchedulingPolicyPreference' in found_struct}}
-    clusterSchedulingPolicyPreference : cudaClusterSchedulingPolicy
+    clusterSchedulingPolicyPreference : :py:obj:`~.cudaClusterSchedulingPolicy`
         Value of launch attribute
-        cudaLaunchAttributeClusterSchedulingPolicyPreference. Cluster
-        scheduling policy preference for the kernel.
+        :py:obj:`~.cudaLaunchAttributeClusterSchedulingPolicyPreference`.
+        Cluster scheduling policy preference for the kernel.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.programmaticStreamSerializationAllowed' in found_struct}}
     programmaticStreamSerializationAllowed : int
         Value of launch attribute
-        cudaLaunchAttributeProgrammaticStreamSerialization.
+        :py:obj:`~.cudaLaunchAttributeProgrammaticStreamSerialization`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct18
-        Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
-        the following fields: - `cudaEvent_t` event - Event to fire when
-        all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeProgrammaticEvent` with the following
+        fields: - :py:obj:`~.cudaEvent_t` event - Event to fire when all
+        blocks trigger it.    - ``int`` flags; - Event record flags, see
+        :func:`~.cudaEventRecordWithFlags`. Does not accept
+        :py:obj:`~.cudaEventRecordExternal`.    - ``int``
+        triggerAtBlockStart - If this is set to non-0, each block launch
+        will automatically trigger the event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
-        Value of launch attribute cudaLaunchAttributePriority. Execution
-        priority of the kernel.
+        Value of launch attribute :py:obj:`~.cudaLaunchAttributePriority`.
+        Execution priority of the kernel.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.memSyncDomainMap' in found_struct}}
-    memSyncDomainMap : cudaLaunchMemSyncDomainMap
-        Value of launch attribute cudaLaunchAttributeMemSyncDomainMap. See
-        cudaLaunchMemSyncDomainMap.
+    memSyncDomainMap : :py:obj:`~.cudaLaunchMemSyncDomainMap`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeMemSyncDomainMap`. See
+        :py:obj:`~.cudaLaunchMemSyncDomainMap`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.memSyncDomain' in found_struct}}
-    memSyncDomain : cudaLaunchMemSyncDomain
-        Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
-        cudaLaunchMemSyncDomain.
+    memSyncDomain : :py:obj:`~.cudaLaunchMemSyncDomain`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeMemSyncDomain`. See
+        :py:obj:`~.cudaLaunchMemSyncDomain`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.preferredClusterDim' in found_struct}}
     preferredClusterDim : anon_struct19
         Value of launch attribute
-        cudaLaunchAttributePreferredClusterDimension that represents the
-        desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        :py:obj:`~.cudaLaunchAttributePreferredClusterDimension` that
+        represents the desired preferred cluster dimensions for the kernel.
+        Opaque type with the following fields: - ``x`` - The X dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.    - ``y`` - The Y
+        dimension of the preferred cluster, in blocks. Must be a divisor of
+        the grid Y dimension, and must be a multiple of the ``y`` field of
+        :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.    - ``z`` - The Z
+        dimension of the preferred cluster, in blocks. Must be equal to the
+        ``z`` field of :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
-        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
-        with the following fields: - `cudaEvent_t` event - Event to fire
-        when the last block launches.    - `int` flags - Event record
-        flags, see cudaEventRecordWithFlags. Does not accept
-        cudaEventRecordExternal.
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeLaunchCompletionEvent` with the
+        following fields: - :py:obj:`~.cudaEvent_t` event - Event to fire
+        when the last block launches.    - ``int`` flags - Event record
+        flags, see :func:`~.cudaEventRecordWithFlags`. Does not accept
+        :py:obj:`~.cudaEventRecordExternal`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
     deviceUpdatableKernelNode : anon_struct21
         Value of launch attribute
-        cudaLaunchAttributeDeviceUpdatableKernelNode with the following
-        fields: - `int` deviceUpdatable - Whether or not the resulting
-        kernel node should be device-updatable.    -
-        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        :py:obj:`~.cudaLaunchAttributeDeviceUpdatableKernelNode` with the
+        following fields: - ``int`` deviceUpdatable - Whether or not the
+        resulting kernel node should be device-updatable.    -
+        :py:obj:`~.cudaGraphDeviceNode_t` devNode - Returns a handle to
+        pass to the various device-side update functions.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
         Value of launch attribute
-        cudaLaunchAttributePreferredSharedMemoryCarveout.
+        :py:obj:`~.cudaLaunchAttributePreferredSharedMemoryCarveout`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.nvlinkUtilCentricScheduling' in found_struct}}
     nvlinkUtilCentricScheduling : unsigned int
         Value of launch attribute
-        cudaLaunchAttributeNvlinkUtilCentricScheduling.
+        :py:obj:`~.cudaLaunchAttributeNvlinkUtilCentricScheduling`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
-    portableClusterSizeMode : cudaLaunchAttributePortableClusterMode
+    portableClusterSizeMode : :py:obj:`~.cudaLaunchAttributePortableClusterMode`
         Value of launch attribute
-        cudaLaunchAttributePortableClusterSizeMode
+        :py:obj:`~.cudaLaunchAttributePortableClusterSizeMode`
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
-    sharedMemoryMode : cudaSharedMemoryMode
-        Value of launch attribute cudaLaunchAttributeSharedMemoryMode. See
-        cudaSharedMemoryMode for acceptable values.
+    sharedMemoryMode : :py:obj:`~.cudaSharedMemoryMode`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeSharedMemoryMode`. See
+        :py:obj:`~.cudaSharedMemoryMode` for acceptable values.
     {{endif}}
 
     Methods
@@ -4357,11 +4397,11 @@ cdef class cudaLaunchAttribute_st:
     Attributes
     ----------
     {{if 'cudaLaunchAttribute_st.id' in found_struct}}
-    id : cudaLaunchAttributeID
+    id : :py:obj:`~.cudaLaunchAttributeID`
         Attribute to set
     {{endif}}
     {{if 'cudaLaunchAttribute_st.val' in found_struct}}
-    val : cudaLaunchAttributeValue
+    val : :py:obj:`~.cudaLaunchAttributeValue`
         Value of the attribute
     {{endif}}
 
@@ -4424,12 +4464,12 @@ cdef class cudaAsyncNotificationInfo:
     Attributes
     ----------
     {{if 'cudaAsyncNotificationInfo.type' in found_struct}}
-    type : cudaAsyncNotificationType
+    type : :py:obj:`~.cudaAsyncNotificationType`
         The type of notification being sent
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
     info : anon_union11
-        Information about the notification. `typename` must be checked in
+        Information about the notification. ``typename`` must be checked in
         order to interpret this field.
     {{endif}}
 
@@ -4453,15 +4493,15 @@ cdef class cudaTextureDesc:
     Attributes
     ----------
     {{if 'cudaTextureDesc.addressMode' in found_struct}}
-    addressMode : list[cudaTextureAddressMode]
+    addressMode : list[:py:obj:`~.cudaTextureAddressMode`]
         Texture address mode for up to 3 dimensions
     {{endif}}
     {{if 'cudaTextureDesc.filterMode' in found_struct}}
-    filterMode : cudaTextureFilterMode
+    filterMode : :py:obj:`~.cudaTextureFilterMode`
         Texture filter mode
     {{endif}}
     {{if 'cudaTextureDesc.readMode' in found_struct}}
-    readMode : cudaTextureReadMode
+    readMode : :py:obj:`~.cudaTextureReadMode`
         Texture read mode
     {{endif}}
     {{if 'cudaTextureDesc.sRGB' in found_struct}}
@@ -4481,7 +4521,7 @@ cdef class cudaTextureDesc:
         Limit to the anisotropy ratio
     {{endif}}
     {{if 'cudaTextureDesc.mipmapFilterMode' in found_struct}}
-    mipmapFilterMode : cudaTextureFilterMode
+    mipmapFilterMode : :py:obj:`~.cudaTextureFilterMode`
         Mipmap filter mode
     {{endif}}
     {{if 'cudaTextureDesc.mipmapLevelBias' in found_struct}}
@@ -4523,7 +4563,7 @@ cdef class cudaGraphRecaptureCallbackData:
     Attributes
     ----------
     {{if 'cudaGraphRecaptureCallbackData.callbackFunc' in found_struct}}
-    callbackFunc : cudaGraphRecaptureCallback_t
+    callbackFunc : :py:obj:`~.cudaGraphRecaptureCallback_t`
         Callback function that will be invoked
     {{endif}}
     {{if 'cudaGraphRecaptureCallbackData.userData' in found_struct}}
@@ -4575,7 +4615,7 @@ cdef class cudaEglPlaneDesc_st:
         Number of channels for the plane
     {{endif}}
     {{if True}}
-    channelDesc : cudaChannelFormatDesc
+    channelDesc : :py:obj:`~.cudaChannelFormatDesc`
         Channel Format Descriptor
     {{endif}}
     {{if True}}
@@ -4601,11 +4641,11 @@ cdef class anon_union12:
     Attributes
     ----------
     {{if True}}
-    pArray : list[cudaArray_t]
+    pArray : list[:py:obj:`~.cudaArray_t`]
 
     {{endif}}
     {{if True}}
-    pPitch : list[cudaPitchedPtr]
+    pPitch : list[:py:obj:`~.cudaPitchedPtr`]
 
     {{endif}}
 
@@ -4623,11 +4663,11 @@ cdef class cudaEglFrame_st:
     CUDA EGLFrame Descriptor - structure defining one frame of EGL.
     Each frame may contain one or more planes depending on whether the
     surface is Multiplanar or not. Each plane of EGLFrame is
-    represented by cudaEglPlaneDesc which is defined as:
+    represented by :py:obj:`~.cudaEglPlaneDesc` which is defined as:
     typedefstructcudaEglPlaneDesc_st unsignedintwidth;
     unsignedintheight; unsignedintdepth; unsignedintpitch;
     unsignedintnumChannels; structcudaChannelFormatDescchannelDesc;
-    unsignedintreserved[4]; cudaEglPlaneDesc;
+    unsignedintreserved[4]; :py:obj:`~.cudaEglPlaneDesc`;
 
     Attributes
     ----------
@@ -4636,19 +4676,19 @@ cdef class cudaEglFrame_st:
 
     {{endif}}
     {{if True}}
-    planeDesc : list[cudaEglPlaneDesc]
-        CUDA EGL Plane Descriptor cudaEglPlaneDesc
+    planeDesc : list[:py:obj:`~.cudaEglPlaneDesc`]
+        CUDA EGL Plane Descriptor :py:obj:`~.cudaEglPlaneDesc`
     {{endif}}
     {{if True}}
     planeCount : unsigned int
         Number of planes
     {{endif}}
     {{if True}}
-    frameType : cudaEglFrameType
+    frameType : :py:obj:`~.cudaEglFrameType`
         Array or Pitch
     {{endif}}
     {{if True}}
-    eglColorFormat : cudaEglColorFormat
+    eglColorFormat : :py:obj:`~.cudaEglColorFormat`
         CUDA EGL Color Format
     {{endif}}
 
@@ -4781,8 +4821,8 @@ cdef class cudaDevSmResourceGroupParams(cudaDevSmResourceGroupParams_st):
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
     flags : unsigned int
-        Combination of `cudaDevSmResourceGroup_flags` values to indicate
-        this this group is created.
+        Combination of :py:obj:`~.cudaDevSmResourceGroup_flags` values to
+        indicate this this group is created.
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
     reserved : list[unsigned int]
@@ -4805,21 +4845,23 @@ cdef class cudaDevResource(cudaDevResource_st):
     of the API that created it. struct enumcudaDevResourceTypetype;
     union structcudaDevSmResourcesm;
     structcudaDevWorkqueueConfigResourcewqConfig;
-    structcudaDevWorkqueueResourcewq; ; ;  - If `typename` is
-    `cudaDevResourceTypeInvalid`, this resoure is not valid and cannot
-    be further accessed.    - If `typename` is `cudaDevResourceTypeSm`,
-    the cudaDevSmResource structure `sm` is filled in. For example,
-    `sm.smCount` will reflect the amount of streaming multiprocessors
-    available in this resource.    - If `typename` is
-    `cudaDevResourceTypeWorkqueueConfig`, the
-    cudaDevWorkqueueConfigResource structure `wqConfig` is filled in.
-    - If `typename` is `cudaDevResourceTypeWorkqueue`, the
-    cudaDevWorkqueueResource structure `wq` is filled in.
+    structcudaDevWorkqueueResourcewq; ; ;  - If ``typename`` is
+    :py:obj:`~.cudaDevResourceTypeInvalid`, this resoure is not valid
+    and cannot be further accessed.    - If ``typename`` is
+    :py:obj:`~.cudaDevResourceTypeSm`, the
+    :py:obj:`~.cudaDevSmResource` structure ``sm`` is filled in. For
+    example, ``sm.smCount`` will reflect the amount of streaming
+    multiprocessors available in this resource.    - If ``typename`` is
+    :py:obj:`~.cudaDevResourceTypeWorkqueueConfig`, the
+    :py:obj:`~.cudaDevWorkqueueConfigResource` structure ``wqConfig``
+    is filled in.    - If ``typename`` is
+    :py:obj:`~.cudaDevResourceTypeWorkqueue`, the
+    :py:obj:`~.cudaDevWorkqueueResource` structure ``wq`` is filled in.
 
     Attributes
     ----------
     {{if 'cudaDevResource_st.type' in found_struct}}
-    type : cudaDevResourceType
+    type : :py:obj:`~.cudaDevResourceType`
         Type of resource, dictates which union field was last set
     {{endif}}
     {{if 'cudaDevResource_st._internal_padding' in found_struct}}
@@ -4827,24 +4869,26 @@ cdef class cudaDevResource(cudaDevResource_st):
 
     {{endif}}
     {{if 'cudaDevResource_st.sm' in found_struct}}
-    sm : cudaDevSmResource
-        Resource corresponding to cudaDevResourceTypeSm `typename`.
+    sm : :py:obj:`~.cudaDevSmResource`
+        Resource corresponding to :py:obj:`~.cudaDevResourceTypeSm`
+        ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st.wqConfig' in found_struct}}
-    wqConfig : cudaDevWorkqueueConfigResource
-        Resource corresponding to cudaDevResourceTypeWorkqueueConfig
-        `typename`.
+    wqConfig : :py:obj:`~.cudaDevWorkqueueConfigResource`
+        Resource corresponding to
+        :py:obj:`~.cudaDevResourceTypeWorkqueueConfig` ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st.wq' in found_struct}}
-    wq : cudaDevWorkqueueResource
-        Resource corresponding to cudaDevResourceTypeWorkqueue `typename`.
+    wq : :py:obj:`~.cudaDevWorkqueueResource`
+        Resource corresponding to :py:obj:`~.cudaDevResourceTypeWorkqueue`
+        ``typename``.
     {{endif}}
     {{if 'cudaDevResource_st._oversize' in found_struct}}
     _oversize : bytes
 
     {{endif}}
     {{if 'cudaDevResource_st.nextResource' in found_struct}}
-    nextResource : cudaDevResource_st
+    nextResource : :py:obj:`~.cudaDevResource_st`
 
     {{endif}}
 
@@ -4861,8 +4905,8 @@ cdef class cudaGraphEdgeData(cudaGraphEdgeData_st):
     """
     Optional annotation for edges in a CUDA graph. Note, all edges
     implicitly have annotations and default to a zero-initialized value
-    if not specified. A zero-initialized struct indicates a standard
-    full serialization of two nodes with memory visibility.
+    if not specified. A zero-initialized ``struct indicates`` a
+    standard full serialization of two nodes with memory visibility.
 
     Attributes
     ----------
@@ -4872,16 +4916,16 @@ cdef class cudaGraphEdgeData(cudaGraphEdgeData_st):
         node on the edge. The meaning is specfic to the node type. A value
         of 0 in all cases means full completion of the upstream node, with
         memory visibility to the downstream node or portion thereof
-        (indicated by `to_port`).   Only kernel nodes define non-zero
+        (indicated by ``to_port``).   Only kernel nodes define non-zero
         ports. A kernel node can use the following output port types:
-        cudaGraphKernelNodePortDefault,
-        cudaGraphKernelNodePortProgrammatic, or
-        cudaGraphKernelNodePortLaunchCompletion.
+        :py:obj:`~.cudaGraphKernelNodePortDefault`,
+        :py:obj:`~.cudaGraphKernelNodePortProgrammatic`, or
+        :py:obj:`~.cudaGraphKernelNodePortLaunchCompletion`.
     {{endif}}
     {{if 'cudaGraphEdgeData_st.to_port' in found_struct}}
     to_port : bytes
         This indicates what portion of the downstream node is dependent on
-        the upstream node or portion thereof (indicated by `from_port`).
+        the upstream node or portion thereof (indicated by ``from_port``).
         The meaning is specific to the node type. A value of 0 in all cases
         means the entirety of the downstream node is dependent on the
         upstream work.   Currently no node types define non-zero ports.
@@ -4889,9 +4933,10 @@ cdef class cudaGraphEdgeData(cudaGraphEdgeData_st):
     {{endif}}
     {{if 'cudaGraphEdgeData_st.type' in found_struct}}
     type : bytes
-        This should be populated with a value from cudaGraphDependencyType.
-        (It is typed as char due to compiler-specific layout of bitfields.)
-        See cudaGraphDependencyType.
+        This should be populated with a value from
+        :py:obj:`~.cudaGraphDependencyType`. (It is typed as char due to
+        compiler-specific layout of bitfields.) See
+        :py:obj:`~.cudaGraphDependencyType`.
     {{endif}}
     {{if 'cudaGraphEdgeData_st.reserved' in found_struct}}
     reserved : bytes
@@ -4919,15 +4964,15 @@ cdef class cudaGraphInstantiateParams(cudaGraphInstantiateParams_st):
         Instantiation flags
     {{endif}}
     {{if 'cudaGraphInstantiateParams_st.uploadStream' in found_struct}}
-    uploadStream : cudaStream_t
+    uploadStream : :py:obj:`~.cudaStream_t`
         Upload stream
     {{endif}}
     {{if 'cudaGraphInstantiateParams_st.errNode_out' in found_struct}}
-    errNode_out : cudaGraphNode_t
+    errNode_out : :py:obj:`~.cudaGraphNode_t`
         The node which caused instantiation to fail, if any
     {{endif}}
     {{if 'cudaGraphInstantiateParams_st.result_out' in found_struct}}
-    result_out : cudaGraphInstantiateResult
+    result_out : :py:obj:`~.cudaGraphInstantiateResult`
         Whether instantiation was successful. If it failed, the reason why
     {{endif}}
 
@@ -4942,22 +4987,22 @@ cdef class cudaGraphInstantiateParams(cudaGraphInstantiateParams_st):
 
 cdef class cudaGraphExecUpdateResultInfo(cudaGraphExecUpdateResultInfo_st):
     """
-    Result information returned by cudaGraphExecUpdate
+    Result information returned by :func:`~.cudaGraphExecUpdate`
 
     Attributes
     ----------
     {{if 'cudaGraphExecUpdateResultInfo_st.result' in found_struct}}
-    result : cudaGraphExecUpdateResult
+    result : :py:obj:`~.cudaGraphExecUpdateResult`
         Gives more specific detail when a cuda graph update fails.
     {{endif}}
     {{if 'cudaGraphExecUpdateResultInfo_st.errorNode' in found_struct}}
-    errorNode : cudaGraphNode_t
+    errorNode : :py:obj:`~.cudaGraphNode_t`
         The "to node" of the error edge when the topologies do not match.
         The error node when the error is associated with a specific node.
         NULL when the error is generic.
     {{endif}}
     {{if 'cudaGraphExecUpdateResultInfo_st.errorFromNode' in found_struct}}
-    errorFromNode : cudaGraphNode_t
+    errorFromNode : :py:obj:`~.cudaGraphNode_t`
         The from node of error edge when the topologies do not match.
         Otherwise NULL.
     {{endif}}
@@ -4973,13 +5018,15 @@ cdef class cudaGraphExecUpdateResultInfo(cudaGraphExecUpdateResultInfo_st):
 
 cdef class cudaLaunchMemSyncDomainMap(cudaLaunchMemSyncDomainMap_st):
     """
-    Memory Synchronization Domain map  See cudaLaunchMemSyncDomain.  By
-    default, kernels are launched in domain 0. Kernel launched with
-    cudaLaunchMemSyncDomainRemote will have a different domain ID. User
-    may also alter the domain ID with cudaLaunchMemSyncDomainMap for a
-    specific stream / graph node / kernel launch. See
-    cudaLaunchAttributeMemSyncDomainMap.  Domain ID range is available
-    through cudaDevAttrMemSyncDomainCount.
+    Memory Synchronization Domain map  See
+    :py:obj:`~.cudaLaunchMemSyncDomain`.  By default, kernels are
+    launched in domain 0. Kernel launched with
+    :py:obj:`~.cudaLaunchMemSyncDomainRemote` will have a different
+    domain ID. User may also alter the domain ID with
+    :py:obj:`~.cudaLaunchMemSyncDomainMap` for a specific stream /
+    graph node / kernel launch. See
+    :py:obj:`~.cudaLaunchAttributeMemSyncDomainMap`.  Domain ID range
+    is available through :py:obj:`~.cudaDevAttrMemSyncDomainCount`.
 
     Attributes
     ----------
@@ -5008,11 +5055,11 @@ cdef class cudaLaunchAttribute(cudaLaunchAttribute_st):
     Attributes
     ----------
     {{if 'cudaLaunchAttribute_st.id' in found_struct}}
-    id : cudaLaunchAttributeID
+    id : :py:obj:`~.cudaLaunchAttributeID`
         Attribute to set
     {{endif}}
     {{if 'cudaLaunchAttribute_st.val' in found_struct}}
-    val : cudaLaunchAttributeValue
+    val : :py:obj:`~.cudaLaunchAttributeValue`
         Value of the attribute
     {{endif}}
 
@@ -5032,12 +5079,12 @@ cdef class cudaAsyncNotificationInfo_t(cudaAsyncNotificationInfo):
     Attributes
     ----------
     {{if 'cudaAsyncNotificationInfo.type' in found_struct}}
-    type : cudaAsyncNotificationType
+    type : :py:obj:`~.cudaAsyncNotificationType`
         The type of notification being sent
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
     info : anon_union11
-        Information about the notification. `typename` must be checked in
+        Information about the notification. ``typename`` must be checked in
         order to interpret this field.
     {{endif}}
 
@@ -5052,7 +5099,8 @@ cdef class cudaAsyncNotificationInfo_t(cudaAsyncNotificationInfo):
 
 cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     """
-    Launch attributes union; used as value field of cudaLaunchAttribute
+    Launch attributes union; used as value field of
+    :py:obj:`~.cudaLaunchAttribute`
 
     Attributes
     ----------
@@ -5061,115 +5109,126 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
 
     {{endif}}
     {{if 'cudaLaunchAttributeValue.accessPolicyWindow' in found_struct}}
-    accessPolicyWindow : cudaAccessPolicyWindow
-        Value of launch attribute cudaLaunchAttributeAccessPolicyWindow.
+    accessPolicyWindow : :py:obj:`~.cudaAccessPolicyWindow`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeAccessPolicyWindow`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.cooperative' in found_struct}}
     cooperative : int
-        Value of launch attribute cudaLaunchAttributeCooperative. Nonzero
-        indicates a cooperative kernel (see cudaLaunchCooperativeKernel).
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeCooperative`. Nonzero indicates a
+        cooperative kernel (see :func:`~.cudaLaunchCooperativeKernel`).
     {{endif}}
     {{if 'cudaLaunchAttributeValue.syncPolicy' in found_struct}}
-    syncPolicy : cudaSynchronizationPolicy
-        Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
-        cudaSynchronizationPolicy for work queued up in this stream.
+    syncPolicy : :py:obj:`~.cudaSynchronizationPolicy`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeSynchronizationPolicy`.
+        :py:obj:`~.cudaSynchronizationPolicy` for work queued up in this
+        stream.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterDim' in found_struct}}
     clusterDim : anon_struct17
-        Value of launch attribute cudaLaunchAttributeClusterDimension that
-        represents the desired cluster dimensions for the kernel. Opaque
-        type with the following fields: - `x` - The X dimension of the
-        cluster, in blocks. Must be a divisor of the grid X dimension.    -
-        `y` - The Y dimension of the cluster, in blocks. Must be a divisor
-        of the grid Y dimension.    - `z` - The Z dimension of the cluster,
-        in blocks. Must be a divisor of the grid Z dimension.
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeClusterDimension` that represents the
+        desired cluster dimensions for the kernel. Opaque type with the
+        following fields: - ``x`` - The X dimension of the cluster, in
+        blocks. Must be a divisor of the grid X dimension.    - ``y`` - The
+        Y dimension of the cluster, in blocks. Must be a divisor of the
+        grid Y dimension.    - ``z`` - The Z dimension of the cluster, in
+        blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterSchedulingPolicyPreference' in found_struct}}
-    clusterSchedulingPolicyPreference : cudaClusterSchedulingPolicy
+    clusterSchedulingPolicyPreference : :py:obj:`~.cudaClusterSchedulingPolicy`
         Value of launch attribute
-        cudaLaunchAttributeClusterSchedulingPolicyPreference. Cluster
-        scheduling policy preference for the kernel.
+        :py:obj:`~.cudaLaunchAttributeClusterSchedulingPolicyPreference`.
+        Cluster scheduling policy preference for the kernel.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.programmaticStreamSerializationAllowed' in found_struct}}
     programmaticStreamSerializationAllowed : int
         Value of launch attribute
-        cudaLaunchAttributeProgrammaticStreamSerialization.
+        :py:obj:`~.cudaLaunchAttributeProgrammaticStreamSerialization`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct18
-        Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
-        the following fields: - `cudaEvent_t` event - Event to fire when
-        all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeProgrammaticEvent` with the following
+        fields: - :py:obj:`~.cudaEvent_t` event - Event to fire when all
+        blocks trigger it.    - ``int`` flags; - Event record flags, see
+        :func:`~.cudaEventRecordWithFlags`. Does not accept
+        :py:obj:`~.cudaEventRecordExternal`.    - ``int``
+        triggerAtBlockStart - If this is set to non-0, each block launch
+        will automatically trigger the event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
-        Value of launch attribute cudaLaunchAttributePriority. Execution
-        priority of the kernel.
+        Value of launch attribute :py:obj:`~.cudaLaunchAttributePriority`.
+        Execution priority of the kernel.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.memSyncDomainMap' in found_struct}}
-    memSyncDomainMap : cudaLaunchMemSyncDomainMap
-        Value of launch attribute cudaLaunchAttributeMemSyncDomainMap. See
-        cudaLaunchMemSyncDomainMap.
+    memSyncDomainMap : :py:obj:`~.cudaLaunchMemSyncDomainMap`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeMemSyncDomainMap`. See
+        :py:obj:`~.cudaLaunchMemSyncDomainMap`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.memSyncDomain' in found_struct}}
-    memSyncDomain : cudaLaunchMemSyncDomain
-        Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
-        cudaLaunchMemSyncDomain.
+    memSyncDomain : :py:obj:`~.cudaLaunchMemSyncDomain`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeMemSyncDomain`. See
+        :py:obj:`~.cudaLaunchMemSyncDomain`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.preferredClusterDim' in found_struct}}
     preferredClusterDim : anon_struct19
         Value of launch attribute
-        cudaLaunchAttributePreferredClusterDimension that represents the
-        desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        :py:obj:`~.cudaLaunchAttributePreferredClusterDimension` that
+        represents the desired preferred cluster dimensions for the kernel.
+        Opaque type with the following fields: - ``x`` - The X dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.    - ``y`` - The Y
+        dimension of the preferred cluster, in blocks. Must be a divisor of
+        the grid Y dimension, and must be a multiple of the ``y`` field of
+        :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.    - ``z`` - The Z
+        dimension of the preferred cluster, in blocks. Must be equal to the
+        ``z`` field of :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
-        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
-        with the following fields: - `cudaEvent_t` event - Event to fire
-        when the last block launches.    - `int` flags - Event record
-        flags, see cudaEventRecordWithFlags. Does not accept
-        cudaEventRecordExternal.
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeLaunchCompletionEvent` with the
+        following fields: - :py:obj:`~.cudaEvent_t` event - Event to fire
+        when the last block launches.    - ``int`` flags - Event record
+        flags, see :func:`~.cudaEventRecordWithFlags`. Does not accept
+        :py:obj:`~.cudaEventRecordExternal`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
     deviceUpdatableKernelNode : anon_struct21
         Value of launch attribute
-        cudaLaunchAttributeDeviceUpdatableKernelNode with the following
-        fields: - `int` deviceUpdatable - Whether or not the resulting
-        kernel node should be device-updatable.    -
-        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        :py:obj:`~.cudaLaunchAttributeDeviceUpdatableKernelNode` with the
+        following fields: - ``int`` deviceUpdatable - Whether or not the
+        resulting kernel node should be device-updatable.    -
+        :py:obj:`~.cudaGraphDeviceNode_t` devNode - Returns a handle to
+        pass to the various device-side update functions.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
         Value of launch attribute
-        cudaLaunchAttributePreferredSharedMemoryCarveout.
+        :py:obj:`~.cudaLaunchAttributePreferredSharedMemoryCarveout`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.nvlinkUtilCentricScheduling' in found_struct}}
     nvlinkUtilCentricScheduling : unsigned int
         Value of launch attribute
-        cudaLaunchAttributeNvlinkUtilCentricScheduling.
+        :py:obj:`~.cudaLaunchAttributeNvlinkUtilCentricScheduling`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
-    portableClusterSizeMode : cudaLaunchAttributePortableClusterMode
+    portableClusterSizeMode : :py:obj:`~.cudaLaunchAttributePortableClusterMode`
         Value of launch attribute
-        cudaLaunchAttributePortableClusterSizeMode
+        :py:obj:`~.cudaLaunchAttributePortableClusterSizeMode`
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
-    sharedMemoryMode : cudaSharedMemoryMode
-        Value of launch attribute cudaLaunchAttributeSharedMemoryMode. See
-        cudaSharedMemoryMode for acceptable values.
+    sharedMemoryMode : :py:obj:`~.cudaSharedMemoryMode`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeSharedMemoryMode`. See
+        :py:obj:`~.cudaSharedMemoryMode` for acceptable values.
     {{endif}}
 
     Methods
@@ -5183,7 +5242,8 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
 
 cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     """
-    Launch attributes union; used as value field of cudaLaunchAttribute
+    Launch attributes union; used as value field of
+    :py:obj:`~.cudaLaunchAttribute`
 
     Attributes
     ----------
@@ -5192,115 +5252,126 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
 
     {{endif}}
     {{if 'cudaLaunchAttributeValue.accessPolicyWindow' in found_struct}}
-    accessPolicyWindow : cudaAccessPolicyWindow
-        Value of launch attribute cudaLaunchAttributeAccessPolicyWindow.
+    accessPolicyWindow : :py:obj:`~.cudaAccessPolicyWindow`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeAccessPolicyWindow`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.cooperative' in found_struct}}
     cooperative : int
-        Value of launch attribute cudaLaunchAttributeCooperative. Nonzero
-        indicates a cooperative kernel (see cudaLaunchCooperativeKernel).
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeCooperative`. Nonzero indicates a
+        cooperative kernel (see :func:`~.cudaLaunchCooperativeKernel`).
     {{endif}}
     {{if 'cudaLaunchAttributeValue.syncPolicy' in found_struct}}
-    syncPolicy : cudaSynchronizationPolicy
-        Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
-        cudaSynchronizationPolicy for work queued up in this stream.
+    syncPolicy : :py:obj:`~.cudaSynchronizationPolicy`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeSynchronizationPolicy`.
+        :py:obj:`~.cudaSynchronizationPolicy` for work queued up in this
+        stream.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterDim' in found_struct}}
     clusterDim : anon_struct17
-        Value of launch attribute cudaLaunchAttributeClusterDimension that
-        represents the desired cluster dimensions for the kernel. Opaque
-        type with the following fields: - `x` - The X dimension of the
-        cluster, in blocks. Must be a divisor of the grid X dimension.    -
-        `y` - The Y dimension of the cluster, in blocks. Must be a divisor
-        of the grid Y dimension.    - `z` - The Z dimension of the cluster,
-        in blocks. Must be a divisor of the grid Z dimension.
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeClusterDimension` that represents the
+        desired cluster dimensions for the kernel. Opaque type with the
+        following fields: - ``x`` - The X dimension of the cluster, in
+        blocks. Must be a divisor of the grid X dimension.    - ``y`` - The
+        Y dimension of the cluster, in blocks. Must be a divisor of the
+        grid Y dimension.    - ``z`` - The Z dimension of the cluster, in
+        blocks. Must be a divisor of the grid Z dimension.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterSchedulingPolicyPreference' in found_struct}}
-    clusterSchedulingPolicyPreference : cudaClusterSchedulingPolicy
+    clusterSchedulingPolicyPreference : :py:obj:`~.cudaClusterSchedulingPolicy`
         Value of launch attribute
-        cudaLaunchAttributeClusterSchedulingPolicyPreference. Cluster
-        scheduling policy preference for the kernel.
+        :py:obj:`~.cudaLaunchAttributeClusterSchedulingPolicyPreference`.
+        Cluster scheduling policy preference for the kernel.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.programmaticStreamSerializationAllowed' in found_struct}}
     programmaticStreamSerializationAllowed : int
         Value of launch attribute
-        cudaLaunchAttributeProgrammaticStreamSerialization.
+        :py:obj:`~.cudaLaunchAttributeProgrammaticStreamSerialization`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct18
-        Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
-        the following fields: - `cudaEvent_t` event - Event to fire when
-        all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeProgrammaticEvent` with the following
+        fields: - :py:obj:`~.cudaEvent_t` event - Event to fire when all
+        blocks trigger it.    - ``int`` flags; - Event record flags, see
+        :func:`~.cudaEventRecordWithFlags`. Does not accept
+        :py:obj:`~.cudaEventRecordExternal`.    - ``int``
+        triggerAtBlockStart - If this is set to non-0, each block launch
+        will automatically trigger the event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
-        Value of launch attribute cudaLaunchAttributePriority. Execution
-        priority of the kernel.
+        Value of launch attribute :py:obj:`~.cudaLaunchAttributePriority`.
+        Execution priority of the kernel.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.memSyncDomainMap' in found_struct}}
-    memSyncDomainMap : cudaLaunchMemSyncDomainMap
-        Value of launch attribute cudaLaunchAttributeMemSyncDomainMap. See
-        cudaLaunchMemSyncDomainMap.
+    memSyncDomainMap : :py:obj:`~.cudaLaunchMemSyncDomainMap`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeMemSyncDomainMap`. See
+        :py:obj:`~.cudaLaunchMemSyncDomainMap`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.memSyncDomain' in found_struct}}
-    memSyncDomain : cudaLaunchMemSyncDomain
-        Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
-        cudaLaunchMemSyncDomain.
+    memSyncDomain : :py:obj:`~.cudaLaunchMemSyncDomain`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeMemSyncDomain`. See
+        :py:obj:`~.cudaLaunchMemSyncDomain`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.preferredClusterDim' in found_struct}}
     preferredClusterDim : anon_struct19
         Value of launch attribute
-        cudaLaunchAttributePreferredClusterDimension that represents the
-        desired preferred cluster dimensions for the kernel. Opaque type
-        with the following fields: - `x` - The X dimension of the preferred
-        cluster, in blocks. Must be a divisor of the grid X dimension, and
-        must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        :py:obj:`~.cudaLaunchAttributePreferredClusterDimension` that
+        represents the desired preferred cluster dimensions for the kernel.
+        Opaque type with the following fields: - ``x`` - The X dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid X
+        dimension, and must be a multiple of the ``x`` field of
+        :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.    - ``y`` - The Y
+        dimension of the preferred cluster, in blocks. Must be a divisor of
+        the grid Y dimension, and must be a multiple of the ``y`` field of
+        :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.    - ``z`` - The Z
+        dimension of the preferred cluster, in blocks. Must be equal to the
+        ``z`` field of :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
-        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
-        with the following fields: - `cudaEvent_t` event - Event to fire
-        when the last block launches.    - `int` flags - Event record
-        flags, see cudaEventRecordWithFlags. Does not accept
-        cudaEventRecordExternal.
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeLaunchCompletionEvent` with the
+        following fields: - :py:obj:`~.cudaEvent_t` event - Event to fire
+        when the last block launches.    - ``int`` flags - Event record
+        flags, see :func:`~.cudaEventRecordWithFlags`. Does not accept
+        :py:obj:`~.cudaEventRecordExternal`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
     deviceUpdatableKernelNode : anon_struct21
         Value of launch attribute
-        cudaLaunchAttributeDeviceUpdatableKernelNode with the following
-        fields: - `int` deviceUpdatable - Whether or not the resulting
-        kernel node should be device-updatable.    -
-        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        :py:obj:`~.cudaLaunchAttributeDeviceUpdatableKernelNode` with the
+        following fields: - ``int`` deviceUpdatable - Whether or not the
+        resulting kernel node should be device-updatable.    -
+        :py:obj:`~.cudaGraphDeviceNode_t` devNode - Returns a handle to
+        pass to the various device-side update functions.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
         Value of launch attribute
-        cudaLaunchAttributePreferredSharedMemoryCarveout.
+        :py:obj:`~.cudaLaunchAttributePreferredSharedMemoryCarveout`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.nvlinkUtilCentricScheduling' in found_struct}}
     nvlinkUtilCentricScheduling : unsigned int
         Value of launch attribute
-        cudaLaunchAttributeNvlinkUtilCentricScheduling.
+        :py:obj:`~.cudaLaunchAttributeNvlinkUtilCentricScheduling`.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
-    portableClusterSizeMode : cudaLaunchAttributePortableClusterMode
+    portableClusterSizeMode : :py:obj:`~.cudaLaunchAttributePortableClusterMode`
         Value of launch attribute
-        cudaLaunchAttributePortableClusterSizeMode
+        :py:obj:`~.cudaLaunchAttributePortableClusterSizeMode`
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
-    sharedMemoryMode : cudaSharedMemoryMode
-        Value of launch attribute cudaLaunchAttributeSharedMemoryMode. See
-        cudaSharedMemoryMode for acceptable values.
+    sharedMemoryMode : :py:obj:`~.cudaSharedMemoryMode`
+        Value of launch attribute
+        :py:obj:`~.cudaLaunchAttributeSharedMemoryMode`. See
+        :py:obj:`~.cudaSharedMemoryMode` for acceptable values.
     {{endif}}
 
     Methods
@@ -5340,7 +5411,7 @@ cdef class cudaEglPlaneDesc(cudaEglPlaneDesc_st):
         Number of channels for the plane
     {{endif}}
     {{if True}}
-    channelDesc : cudaChannelFormatDesc
+    channelDesc : :py:obj:`~.cudaChannelFormatDesc`
         Channel Format Descriptor
     {{endif}}
     {{if True}}
@@ -5362,11 +5433,11 @@ cdef class cudaEglFrame(cudaEglFrame_st):
     CUDA EGLFrame Descriptor - structure defining one frame of EGL.
     Each frame may contain one or more planes depending on whether the
     surface is Multiplanar or not. Each plane of EGLFrame is
-    represented by cudaEglPlaneDesc which is defined as:
+    represented by :py:obj:`~.cudaEglPlaneDesc` which is defined as:
     typedefstructcudaEglPlaneDesc_st unsignedintwidth;
     unsignedintheight; unsignedintdepth; unsignedintpitch;
     unsignedintnumChannels; structcudaChannelFormatDescchannelDesc;
-    unsignedintreserved[4]; cudaEglPlaneDesc;
+    unsignedintreserved[4]; :py:obj:`~.cudaEglPlaneDesc`;
 
     Attributes
     ----------
@@ -5375,19 +5446,19 @@ cdef class cudaEglFrame(cudaEglFrame_st):
 
     {{endif}}
     {{if True}}
-    planeDesc : list[cudaEglPlaneDesc]
-        CUDA EGL Plane Descriptor cudaEglPlaneDesc
+    planeDesc : list[:py:obj:`~.cudaEglPlaneDesc`]
+        CUDA EGL Plane Descriptor :py:obj:`~.cudaEglPlaneDesc`
     {{endif}}
     {{if True}}
     planeCount : unsigned int
         Number of planes
     {{endif}}
     {{if True}}
-    frameType : cudaEglFrameType
+    frameType : :py:obj:`~.cudaEglFrameType`
         Array or Pitch
     {{endif}}
     {{if True}}
-    eglColorFormat : cudaEglColorFormat
+    eglColorFormat : :py:obj:`~.cudaEglColorFormat`
         CUDA EGL Color Format
     {{endif}}
 
