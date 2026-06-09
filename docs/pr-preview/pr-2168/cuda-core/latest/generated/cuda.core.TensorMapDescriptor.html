@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a42a91ef"></script>
+    <script src="../_static/documentation_options.js?v=cbdb853b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev51';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev57';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -729,7 +729,7 @@ kernel argument.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.TensorMapDescriptor.replace_address">
-<span class="sig-name descname"><span class="pre">replace_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.TensorMapDescriptor.replace_address" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">replace_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.TensorMapDescriptor.replace_address" title="Link to this definition">#</a></dt>
 <dd><p>Replace the global memory address in this tensor map descriptor.</p>
 <p>This is useful when the tensor data has been reallocated but the
 shape, strides, and other parameters remain the same.</p>
@@ -746,7 +746,8 @@ device-accessible memory with a 16-byte-aligned pointer.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.TensorMapDescriptor.device">
 <span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#cuda.core.TensorMapDescriptor.device" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> associated with this descriptor.</p>
+<dd><p>Device | None</p>
+<p>Return the <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> associated with this descriptor.</p>
 </dd></dl>
 
 </dd></dl>
