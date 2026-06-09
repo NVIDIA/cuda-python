@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 Installation
@@ -12,7 +12,7 @@ Runtime Requirements
 * Linux (x86-64, arm64) and Windows (x86-64)
 * Python 3.10 - 3.14
 * Driver: Linux (580.65.06 or later) Windows (580.88 or later)
-* Optionally, NVRTC, nvJitLink, NVVM, and cuFile from CUDA Toolkit 13.x
+* Optionally, NVRTC, nvJitLink, nvFatBin, NVVM, cuFile, and cuDLA from CUDA Toolkit 13.x
 
 .. note::
 
@@ -52,10 +52,12 @@ Where the optional dependencies include:
 
 * ``nvidia-cuda-nvrtc`` (NVRTC runtime compilation library)
 * ``nvidia-nvjitlink`` (nvJitLink library)
+* ``nvidia-nvfatbin`` (nvFatBin library)
 * ``nvidia-nvvm`` (NVVM library)
 * ``nvidia-cufile`` (cuFile library, Linux only)
+* ``nvidia-cudla`` (cuDLA library, Linux aarch64 only)
 
-These are now installed through the ``cuda-toolkit`` metapackage for improved dependency resolution.
+These are now installed through the ``cuda-toolkit`` metapackage, where available, for improved dependency resolution.
 
 Installing from Conda
 ---------------------
@@ -73,6 +75,10 @@ For example:
 .. code-block:: console
 
    $ conda install -c conda-forge cuda-python cuda-version=13
+
+.. note::
+
+   Tegra users can install the cuDLA conda package from conda-forge through ``conda install -c conda-forge libcudla cuda-version=13``, if it does not already exist on the system.
 
 Installing from Source
 ----------------------
@@ -93,7 +99,7 @@ Source builds require that the provided CUDA headers are of the same major.minor
 
    $ export CUDA_PATH=/usr/local/cuda
 
-See `Environment Variables <environment_variables.rst>`_ for a description of other build-time environment variables.
+See :doc:`Environment Variables <environment_variables>` for a description of other build-time environment variables.
 
 .. note::
 

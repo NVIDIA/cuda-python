@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../_static/documentation_options.js?v=a86adfc4"></script>
+    <script src="../../_static/documentation_options.js?v=ee471ff7"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.3.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/module/generated/cuda.bindings.nvml.ComputeInstancePlacement.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2086/cuda-bindings/latest/module/generated/cuda.bindings.nvml.ComputeInstancePlacement.html" />
     <link rel="icon" href="../../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -537,6 +537,8 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.3.1-notes.html">13.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.3.0-notes.html">13.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.1.0-notes.html">13.1.0</a></li>
@@ -544,6 +546,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.4-notes.html">12.9.4</a></li>
@@ -590,6 +593,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../nvjitlink.html">nvjitlink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../nvvm.html">nvvm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../nvfatbin.html">nvfatbin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cudla.html">cudla</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
@@ -1305,15 +1309,17 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.ComputeInstancePlacement">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">ComputeInstancePlacement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.ComputeInstancePlacement" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an array of `nvmlComputeInstancePlacement_t`.
-The resulting object is of length `size` and of dtype `compute_instance_placement_dtype`.
-If default-constructed, the instance represents a single struct.
-
-:param size: number of structs, default=1.
-:type size: int
-
-.. seealso:: `nvmlComputeInstancePlacement_t`
-</pre></div>
+<dd><p>Empty-initialize an array of <cite>nvmlComputeInstancePlacement_t</cite>.
+The resulting object is of length <cite>size</cite> and of dtype <cite>compute_instance_placement_dtype</cite>.
+If default-constructed, the instance represents a single struct.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – number of structs, default=1.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><cite>nvmlComputeInstancePlacement_t</cite></p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.ComputeInstancePlacement.__init__">
@@ -1327,13 +1333,13 @@ If default-constructed, the instance represents a single struct.
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_buffer</span></code>(buffer)</p></td>
-<td><p></p></td>
+<td><p>Create an ComputeInstancePlacement instance with the memory from the given buffer.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_data</span></code>(data)</p></td>
-<td><p></p></td>
+<td><p>Create an ComputeInstancePlacement instance wrapping the given NumPy array.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_ptr</span></code>(intptr_t ptr, size_t size=1, ...)</p></td>
-<td><p></p></td>
+<td><p>Create an ComputeInstancePlacement instance wrapping the given pointer.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1342,13 +1348,13 @@ If default-constructed, the instance represents a single struct.
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ptr</span></code></p></td>
-<td><p></p></td>
+<td><p>Get the pointer address to the data as Python <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">size_</span></code></p></td>
-<td><p></p></td>
+<td><p>Union[~_numpy.uint32, int]:</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code></p></td>
-<td><p></p></td>
+<td><p>Union[~_numpy.uint32, int]:</p></td>
 </tr>
 </tbody>
 </table>
