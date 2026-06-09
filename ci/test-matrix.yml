@@ -13,7 +13,16 @@
 # Windows entries also include DRIVER_MODE.
 #
 # Notes:
+# - DRIVER accepts:
+#     * 'latest'   - use the runner's pre-installed latest driver (no install step)
+#     * 'earliest' - use the runner's pre-installed earliest driver (no install step)
+#     * a version string (e.g. '580.65.06')
+#                  - install that version via ci/tools/install_gpu_driver.sh (Linux)
+#                    or ci/tools/install_gpu_driver.ps1 (Windows) at the start of the
+#                    job. The matrix row is routed to the 'latest' runner image (the
+#                    install scripts swap the driver themselves).
 # - DRIVER: 'earliest' does not work with CUDA 12.9.1
+# - DRIVER: a custom version is not supported with FLAVOR=wsl on Linux.
 
 linux:
   pull-request:
@@ -29,10 +38,10 @@ linux:
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'v100',       GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: '610.43.02' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 't4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '610.43.02' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
@@ -77,7 +86,7 @@ linux:
     - { MODE: 'nightly-pytorch',    ARCH: 'arm64', PY_VER: '3.12', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: 'latest', TORCH_VER: '2.9.1',  TORCH_CUDA: 'cu130' }
     # nightly-numba-cuda
     - { MODE: 'nightly-numba-cuda', ARCH: 'amd64', PY_VER: '3.12', CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: 'latest' }
-    - { MODE: 'nightly-numba-cuda', ARCH: 'amd64', PY_VER: '3.12', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: 'latest' }
+    - { MODE: 'nightly-numba-cuda', ARCH: 'amd64', PY_VER: '3.12', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: '580.65.06' }
     - { MODE: 'nightly-numba-cuda', ARCH: 'arm64', PY_VER: '3.12', CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: 'latest' }
     - { MODE: 'nightly-numba-cuda', ARCH: 'arm64', PY_VER: '3.12', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: 'latest' }
     # nightly-standard (arm64 l4×2 — nightly-only per runner team request)
@@ -116,4 +125,4 @@ windows:
     - { MODE: 'nightly-pytorch',    ARCH: 'amd64', PY_VER: '3.12', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC', TORCH_VER: '2.9.1',  TORCH_CUDA: 'cu130' }
     # nightly-numba-cuda
     - { MODE: 'nightly-numba-cuda', ARCH: 'amd64', PY_VER: '3.12', CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
-    - { MODE: 'nightly-numba-cuda', ARCH: 'amd64', PY_VER: '3.12', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
+    - { MODE: 'nightly-numba-cuda', ARCH: 'amd64', PY_VER: '3.12', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4', GPU_COUNT: '1', DRIVER: '596.36',  DRIVER_MODE: 'TCC' }
