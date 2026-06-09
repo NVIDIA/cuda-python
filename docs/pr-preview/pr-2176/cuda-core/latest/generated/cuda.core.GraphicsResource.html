@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=51737f9d"></script>
+    <script src="../_static/documentation_options.js?v=5a4dbb0d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev64';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev72';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -768,8 +768,9 @@ mapped buffer, if one exists.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">gl_buffer</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">flags=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">flags:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">tuple[str</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">...]</span> <span class="pre">|</span> <span class="pre">list[str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.GraphicsResource" title="cuda.core.GraphicsResource"><span class="pre">GraphicsResource</span></a></span></span><a class="headerlink" href="#cuda.core.GraphicsResource.from_gl_buffer" title="Link to this definition">#</a></dt>
@@ -829,7 +830,8 @@ The returned resource can be used as a context manager. If
 <dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">image</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">target</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">flags=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">flags:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">tuple[str</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">...]</span> <span class="pre">|</span> <span class="pre">list[str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.GraphicsResource" title="cuda.core.GraphicsResource"><span class="pre">GraphicsResource</span></a></span></span><a class="headerlink" href="#cuda.core.GraphicsResource.from_gl_image" title="Link to this definition">#</a></dt>
@@ -898,7 +900,15 @@ unmapped.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphicsResource.unmap">
-<span class="sig-name descname"><span class="pre">unmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphicsResource.unmap" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">unmap</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.GraphicsResource.unmap" title="Link to this definition">#</a></dt>
 <dd><p>Unmap this graphics resource, releasing it back to the graphics API.</p>
 <p>After unmapping, the <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> previously returned
 by <a class="reference internal" href="#cuda.core.GraphicsResource.map" title="cuda.core.GraphicsResource.map"><code class="xref py py-meth docutils literal notranslate"><span class="pre">map()</span></code></a> must not be used.</p>
