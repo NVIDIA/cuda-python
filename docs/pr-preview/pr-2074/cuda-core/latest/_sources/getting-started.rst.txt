@@ -32,7 +32,7 @@ Example: Compiling and Launching a CUDA kernel
 ----------------------------------------------
 
 To get a taste for ``cuda.core``, let's walk through a simple example that compiles and launches a vector addition kernel.
-You can find the complete example in :cuda-core-example:`vector_add.py`
+You can find the complete example in :cuda-core-example:`vector_add.py <vector_add.py>`
 and browse the :doc:`examples page <examples>` for the rest of the shipped
 workflows.
 
@@ -80,7 +80,7 @@ Note the use of the ``name_expressions`` parameter to the :meth:`Program.compile
 Next, we retrieve the compiled kernel from the CUBIN and prepare the arguments and kernel configuration.
 We're using `CuPy <https://cupy.dev/>`_ arrays as inputs for this example, but
 you can use PyTorch tensors too (see
-:cuda-core-example:`pytorch_example.py`
+:cuda-core-example:`pytorch_example.py <pytorch_example.py>`
 and the :doc:`examples page <examples>`).
 
 .. code-block:: python

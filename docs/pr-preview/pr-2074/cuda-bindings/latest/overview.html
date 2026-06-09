@@ -59,7 +59,7 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/overview.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2074/cuda-bindings/latest/overview.html" />
     <link rel="icon" href="_static/favicon.png"/>
 
     <link rel="index" title="Index" href="genindex.html" />
@@ -1330,8 +1330,8 @@ end-to-end samples, see the <a class="reference internal" href="examples.html"><
 API</a> and
 <a class="reference external" href="https://docs.nvidia.com/cuda/nvrtc/index.html">NVRTC</a> modules from the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>
 package. Next, we consider how to store host data and pass it to the device. Different
-approaches can be used to accomplish this and are described in <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html#preparing-kernel-arguments">Preparing kernel
-arguments</a>.
+approaches can be used to accomplish this and are described in
+<a class="reference internal" href="#preparing-kernel-arguments"><span class="std std-ref">Preparing kernel arguments</span></a>.
 In this example, we will use NumPy to store host data and pass it to the device, so let’s
 import this dependency as well.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.bindings</span><span class="w"> </span><span class="kn">import</span> <span class="n">driver</span><span class="p">,</span> <span class="n">nvrtc</span>
@@ -1578,8 +1578,8 @@ maximize performance ({numref}``Figure 1``).</p>
 </figcaption>
 </figure>
 </section>
-<section id="id3">
-<h2>Preparing kernel arguments<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<section id="preparing-kernel-arguments">
+<span id="id3"></span><h2>Preparing kernel arguments<a class="headerlink" href="#preparing-kernel-arguments" title="Link to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> API bindings retain low-level CUDA argument preparation requirements:</p>
 <ul class="simple">
 <li><p>Each kernel argument is a <code class="docutils literal notranslate"><span class="pre">void*</span></code> (i.e. pointer to the argument)</p></li>
@@ -1785,7 +1785,7 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
 <h3>CUDA objects<a class="headerlink" href="#cuda-objects" title="Link to this heading">#</a></h3>
 <p>Certain CUDA kernels use native CUDA types as their parameters such as <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>. These types require special handling since they’re neither a primitive ctype nor a custom user type. Since <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> exposes each of them as Python classes, they each implement <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> and <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#">Tips and Tricks</a>.</p>
 <p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from
-<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>.
+<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/2e91fc83cae4a1e6babb66921511c615a2624f19/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>.
 The <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page links to more samples covering textures, graphs,
 memory mapping, and multi-GPU workflows.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simpleCubemapTexture</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
@@ -1882,7 +1882,7 @@ memory mapping, and multi-GPU workflows.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-bindings-workflow"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> workflow</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance">Performance</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Preparing kernel arguments</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preparing-kernel-arguments">Preparing kernel arguments</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-numpy">Using NumPy</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-ctypes">Using ctypes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-objects">CUDA objects</a></li>

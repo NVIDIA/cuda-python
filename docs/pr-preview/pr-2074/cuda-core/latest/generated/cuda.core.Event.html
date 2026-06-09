@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=37aa9f9c"></script>
+    <script src="../_static/documentation_options.js?v=c9cdb57e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev53';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev70';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.Event.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2074/cuda-core/latest/generated/cuda.core.Event.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -774,7 +774,7 @@ another process.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Event.sync">
-<span class="sig-name descname"><span class="pre">sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Event.sync" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Event.sync" title="Link to this definition">#</a></dt>
 <dd><p>Synchronize until the event completes.</p>
 <p>If the event was created with <code class="docutils literal notranslate"><span class="pre">blocking_sync=True</span></code>, the
 calling CPU thread blocks (yields) until the event has been
