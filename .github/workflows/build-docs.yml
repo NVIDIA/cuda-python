@@ -245,17 +245,65 @@ jobs:
           fi
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
-      - name: Upload rendered docs for link checking
+      - name: Write rendered docs file list
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: docs-rendered-html
-          path: artifacts/docs/
-          if-no-files-found: error
-          retention-days: 3
+        run: |
+          find "${GITHUB_WORKSPACE}/artifacts/docs" -type f -name '*.html' ! -path '*/_static/*' \
+            | LC_ALL=C sort > lychee-rendered-html-files.txt
+          if [[ ! -s lychee-rendered-html-files.txt ]]; then
+            echo "error: no rendered HTML pages found for lychee" >&2
+            exit 1
+          fi
+          wc -l lychee-rendered-html-files.txt
 
-      # This is the GitHub Pages artifact format; the link checker needs a
-      # normal workflow artifact with the rendered HTML tree above.
+      - name: Restore lychee cache
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        id: restore-lychee-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        with:
+          path: .lycheecache
+          key: docs-rendered-lychee-${{ env.PR_NUMBER }}-${{ github.sha }}
+          restore-keys: |
+            docs-rendered-lychee-${{ env.PR_NUMBER }}-
+
+      - name: Check rendered docs links
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0  # unreleased: supports v0.24.x archive layout
+        with:
+          # PR-preview canonical URLs are checked by the preview deployment workflow.
+          # The cuda-bindings #id links are docutils "problematic" anchors from generated API docs.
+          # TODO: Remove this exclusion after cybind stops emitting those problematic anchors.
+          # Preferred Networks rejects hosted-runner GETs, but the URL is browser reachable.
+          args: >-
+            --files-from ${{ github.workspace }}/lychee-rendered-html-files.txt
+            --include-fragments=full
+            --cache
+            --max-cache-age 1d
+            --max-concurrency 16
+            --host-concurrency 2
+            --host-request-interval 250ms
+            --max-retries 3
+            --retry-wait-time 5
+            --timeout 30
+            --no-progress
+            --exclude '^https://nvidia\.github\.io/cuda-python/pr-preview/pr-[0-9]+/'
+            --exclude '^file://.*/cuda-bindings/latest/module/(driver|runtime)\.html#id[0-9]+$'
+            --exclude '^https://www\.preferred\.jp/en/?$'
+          fail: true
+          failIfEmpty: true
+          format: markdown
+          jobSummary: false
+          lycheeVersion: v0.24.2
+          output: lychee-rendered-html.md
+          token: ${{ github.token }}
+
+      - name: Save lychee cache
+        if: ${{ always() && !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') && steps.restore-lychee-cache.outputs.cache-hit != 'true' && steps.restore-lychee-cache.outputs.cache-primary-key != '' }}
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        with:
+          path: .lycheecache
+          key: ${{ steps.restore-lychee-cache.outputs.cache-primary-key }}
+
       - name: Upload docs GitHub Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
