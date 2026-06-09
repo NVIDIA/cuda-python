@@ -65,6 +65,7 @@ jobs:
         with:
           # PR-preview canonical URLs are checked by the preview deployment workflow.
           # The cuda-bindings #id links are docutils "problematic" anchors from generated API docs.
+          # TODO: Remove this exclusion after cybind stops emitting those problematic anchors.
           # Preferred Networks rejects hosted-runner GETs, but the URL is browser reachable.
           args: >-
             --files-from ${{ github.workspace }}/lychee-rendered-html-files.txt
