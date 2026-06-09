@@ -2000,6 +2000,184 @@ def test_filestream_cache_tracker_clamps_at_zero_under_delete_race(tmp_path):
     assert cache._tracked_size_bytes == 0, f"tracker went negative: {cache._tracked_size_bytes}"
 
 
+def test_filestream_delitem_missing_key_with_cap_raises_keyerror(tmp_path):
+    """With a size cap active, ``__delitem__`` of an absent key raises KeyError
+    from the stat-before-unlink miss branch (so the tracker stays correct)."""
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc", max_size_bytes=1000) as cache, pytest.raises(KeyError):
+        del cache[b"absent"]
+
+
+def test_filestream_clear_with_cap_resets_tracker(tmp_path):
+    """``clear()`` re-derives the size tracker from the post-clear disk state
+    when a size cap is active."""
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc", max_size_bytes=10_000) as cache:
+        cache[b"a"] = b"a" * 100
+        cache[b"b"] = b"b" * 100
+        assert len(cache) == 2
+        assert cache._tracked_size_bytes == 200
+
+        cache.clear()
+        assert len(cache) == 0
+        assert cache._tracked_size_bytes == 0
+
+
+def test_filestream_iter_entry_paths_skips_stray_top_level_file(tmp_path):
+    """A non-directory file sitting directly in ``entries/`` is ignored; only
+    the two-level digest shards hold real entries."""
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        cache[b"k"] = b"v"
+        stray = cache._entries / "not-a-shard"
+        stray.write_bytes(b"junk")
+        # The stray top-level file is skipped; only the real entry counts.
+        assert len(cache) == 1
+
+
+def test_filestream_iter_entry_paths_returns_when_entries_dir_missing(tmp_path):
+    """``_iter_entry_paths`` returns cleanly (len 0) if ``entries/`` vanishes."""
+    import shutil
+
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        cache[b"k"] = b"v"
+        shutil.rmtree(cache._entries)
+        assert len(cache) == 0
+
+
+def test_filestream_sum_tmp_sizes_returns_zero_when_tmp_dir_missing(tmp_path):
+    """``_sum_tmp_sizes`` (via ``_iter_tmp_entries``) returns 0 if ``tmp/`` is gone."""
+    import shutil
+
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        shutil.rmtree(cache._tmp)
+        assert cache._sum_tmp_sizes() == 0
+
+
+def test_filestream_enforce_size_cap_noop_without_cap(tmp_path):
+    """``_enforce_size_cap`` returns immediately when no size cap is configured."""
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc") as cache:  # max_size_bytes=None
+        cache[b"k"] = b"v"
+        cache._enforce_size_cap()  # no-op; must not raise or evict
+        assert len(cache) == 1
+
+
+def test_filestream_touch_atime_path_fallback_swallows_stat_failure(tmp_path, monkeypatch):
+    """In the path-based fallback (the Windows code path), a failing
+    ``path.stat()`` is swallowed: ``_touch_atime`` returns without raising
+    and without calling ``os.utime`` -- the entry just isn't re-stamped."""
+    import os as _os
+
+    from cuda.core.utils import FileStreamProgramCache, _program_cache
+    from cuda.core.utils._program_cache._file_stream import _touch_atime
+
+    monkeypatch.setattr(_program_cache._file_stream, "_UTIME_SUPPORTS_FD", False)
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        cache[b"k"] = b"v"
+        path = cache._path_for_key(b"k")
+        st_before = path.stat()
+        path.unlink()  # now the fallback's re-stat raises FileNotFoundError (an OSError)
+
+        utime_calls = []
+        monkeypatch.setattr(_os, "utime", lambda *a, **k: utime_calls.append((a, k)))
+
+        # Best-effort: the failing stat is swallowed -- no exception, no utime.
+        assert _touch_atime(path, st_before) is None
+        assert not utime_calls, "os.utime must not run when path.stat() fails"
+
+
+def test_filestream_touch_atime_swallows_open_failure(tmp_path, monkeypatch):
+    """The best-effort atime bump swallows an ``os.open`` failure: the read
+    still returns the cached bytes and never reaches ``os.utime``."""
+    import os as _os
+
+    from cuda.core.utils import FileStreamProgramCache, _program_cache
+
+    monkeypatch.setattr(_program_cache._file_stream, "_UTIME_SUPPORTS_FD", True)
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        cache[b"k"] = b"v"
+        entry_path = cache._path_for_key(b"k")
+
+        # Fail only this entry's atime-bump open; let other os.open calls pass
+        # through so a broken read can't masquerade as the swallowed failure.
+        real_open = _os.open
+        opened = []
+
+        def _failing_open(path, flags, *args, **kwargs):
+            if _os.fspath(path) == _os.fspath(entry_path) and flags == _os.O_RDONLY:
+                opened.append(path)
+                raise OSError("open refused")
+            return real_open(path, flags, *args, **kwargs)
+
+        utime_calls = []
+        monkeypatch.setattr(_os, "open", _failing_open)
+        monkeypatch.setattr(_os, "utime", lambda *a, **k: utime_calls.append((a, k)))
+
+        assert cache[b"k"] == b"v"
+        assert opened, "the atime bump should have attempted os.open on the entry"
+        assert not utime_calls, "os.utime must not run after os.open fails"
+
+
+def test_filestream_touch_atime_swallows_fstat_failure(tmp_path, monkeypatch):
+    """The best-effort atime bump swallows an ``os.fstat`` failure after the fd
+    was opened: the read still returns the cached bytes, closes the fd, and
+    never reaches ``os.utime``."""
+    import os as _os
+
+    from cuda.core.utils import FileStreamProgramCache, _program_cache
+
+    monkeypatch.setattr(_program_cache._file_stream, "_UTIME_SUPPORTS_FD", True)
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        cache[b"k"] = b"v"
+        entry_path = cache._path_for_key(b"k")
+
+        # Record the fd the atime bump opens so we can prove it gets closed even
+        # though fstat fails -- a leaked fd would block deletes on Windows.
+        real_open = _os.open
+        opened_fds = []
+
+        def _recording_open(path, flags, *args, **kwargs):
+            fd = real_open(path, flags, *args, **kwargs)
+            if _os.fspath(path) == _os.fspath(entry_path) and flags == _os.O_RDONLY:
+                opened_fds.append(fd)
+            return fd
+
+        closed_fds = []
+        real_close = _os.close
+
+        def _recording_close(fd):
+            closed_fds.append(fd)
+            return real_close(fd)
+
+        # os.fstat runs only in the atime bump here; the wrapper forces and confirms the swallowed failure.
+        fstat_calls = []
+
+        def _failing_fstat(fd):
+            fstat_calls.append(fd)
+            raise OSError("fstat refused")
+
+        utime_calls = []
+        monkeypatch.setattr(_os, "open", _recording_open)
+        monkeypatch.setattr(_os, "close", _recording_close)
+        monkeypatch.setattr(_os, "fstat", _failing_fstat)
+        monkeypatch.setattr(_os, "utime", lambda *a, **k: utime_calls.append((a, k)))
+
+        assert cache[b"k"] == b"v"
+        assert fstat_calls, "the atime bump should have attempted os.fstat"
+        assert opened_fds, "the atime bump should have opened the entry fd"
+        assert opened_fds[0] in closed_fds, "the opened fd must be closed even when fstat fails"
+        assert not utime_calls, "os.utime must not run after os.fstat fails"
+
+
 def test_make_program_cache_key_changes_with_key_schema_version(monkeypatch):
     """Bumping ``_KEY_SCHEMA_VERSION`` produces a different cache key for
     the same logical inputs. That's what makes a schema bump invalidate
