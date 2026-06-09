@@ -1,0 +1,83 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Claude Code
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  issues:
+    types: [opened]
+
+jobs:
+  authorize:
+    # Use author_association as a cheap pre-filter so most unauthorized
+    # "@claude" mentions do not start a runner. The step below still checks
+    # the triggering actor's actual repository permission before the workflow
+    # grants write permissions or exposes the Anthropic API key.
+    if: |
+      (github.event_name == 'issue_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)) ||
+      (github.event_name == 'pull_request_review_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)) ||
+      (github.event_name == 'pull_request_review' &&
+        contains(github.event.review.body, '@claude') &&
+        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.review.author_association)) ||
+      (github.event_name == 'issues' &&
+        (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')) &&
+        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      has_write_access: ${{ steps.actor-permission.outputs.has_write_access }}
+    steps:
+      - name: Check actor repository permission
+        id: actor-permission
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TRIGGERING_ACTOR: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+
+          permission="$(gh api "repos/${GH_REPO}/collaborators/${TRIGGERING_ACTOR}/permission" --jq '.permission' 2>/dev/null || true)"
+
+          case "${permission}" in
+            admin|maintain|write)
+              echo "has_write_access=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "has_write_access=false" >> "$GITHUB_OUTPUT"
+              echo "Skipping Claude because ${TRIGGERING_ACTOR} does not have write access to ${GH_REPO}."
+              ;;
+          esac
+
+  claude:
+    needs: authorize
+    if: needs.authorize.outputs.has_write_access == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read  # Required for Claude to read CI results on PRs
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@62238ddb33772a079b0a6d8665a1ff3043583067  # v1.0.114
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
