@@ -11,4 +11,4 @@ cdef class DeviceMemoryResource(_MemPool):
         int _dev_id
 
 
-cpdef DMR_mempool_get_access(DeviceMemoryResource, int)
+cpdef str DMR_mempool_get_access(DeviceMemoryResource, int)

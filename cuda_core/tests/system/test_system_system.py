@@ -7,11 +7,7 @@ import os
 
 import pytest
 
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
-
+from cuda.bindings import driver
 from cuda.core import system
 from cuda.core._utils.cuda_utils import handle_return
 

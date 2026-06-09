@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Iterable
 
 if TYPE_CHECKING:
     from cuda.core._stream import Stream
+    from cuda.core.graph import GraphBuilder
 
 from cuda.core._device import Device
 from cuda.core._memory._buffer import Buffer, MemoryResource
@@ -22,6 +23,7 @@ from cuda.core._utils.cuda_utils import (
 )
 from cuda.core._utils.version import binding_version
 from cuda.core.typing import (
+    DevicePointerType,
     VirtualMemoryAccessType,
     VirtualMemoryAllocationType,
     VirtualMemoryGranularityType,
@@ -107,41 +109,41 @@ class VirtualMemoryResourceOptions:
         _allocation_type[VirtualMemoryAllocationType.MANAGED] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED
 
     @staticmethod
-    def _access_to_flags(spec: str):
+    def _access_to_flags(spec: VirtualMemoryAccessType | None) -> int:
         flags = VirtualMemoryResourceOptions._access_flags.get(spec)
         if flags is None:
             raise ValueError(f"Unknown access spec: {spec!r}")
-        return flags
+        return flags  # type: ignore[no-any-return]
 
     @staticmethod
-    def _allocation_type_to_driver(spec: str):
+    def _allocation_type_to_driver(spec: VirtualMemoryAllocationType) -> int:
         alloc_type = VirtualMemoryResourceOptions._allocation_type.get(spec)
         if alloc_type is None:
             raise ValueError(f"Unsupported allocation_type: {spec!r}")
-        return alloc_type
+        return alloc_type  # type: ignore[no-any-return]
 
     @staticmethod
-    def _location_type_to_driver(spec: str):
+    def _location_type_to_driver(spec: VirtualMemoryLocationType) -> int:
         loc_type = VirtualMemoryResourceOptions._location_type.get(spec)
         if loc_type is None:
             raise ValueError(f"Unsupported location_type: {spec!r}")
-        return loc_type
+        return loc_type  # type: ignore[no-any-return]
 
     @staticmethod
-    def _handle_type_to_driver(spec: str):
+    def _handle_type_to_driver(spec: VirtualMemoryHandleType | None) -> int:
         if spec == "win32":
             raise NotImplementedError("win32 is currently not supported, please reach out to the CUDA Python team")
         handle_type = VirtualMemoryResourceOptions._handle_types.get(spec)
         if handle_type is None:
             raise ValueError(f"Unsupported handle_type: {spec!r}")
-        return handle_type
+        return handle_type  # type: ignore[no-any-return]
 
     @staticmethod
-    def _granularity_to_driver(spec: str):
+    def _granularity_to_driver(spec: VirtualMemoryGranularityType) -> int:
         granularity = VirtualMemoryResourceOptions._granularity.get(spec)
         if granularity is None:
             raise ValueError(f"Unsupported granularity: {spec!r}")
-        return granularity
+        return granularity  # type: ignore[no-any-return]
 
 
 class VirtualMemoryResource(MemoryResource):
@@ -152,7 +154,7 @@ class VirtualMemoryResource(MemoryResource):
     device_id : Device | int
         Device for which a memory resource is constructed.
 
-    config : VirtualMemoryResourceOptions
+    config : VirtualMemoryResourceOptions, optional
         A configuration object for the VirtualMemoryResource
 
 
@@ -163,9 +165,9 @@ class VirtualMemoryResource(MemoryResource):
         in cuda.core should already meet the common needs.
     """
 
-    def __init__(self, device_id: Device | int, config: VirtualMemoryResourceOptions = None):
-        self.device = Device(device_id)
-        self.config = check_or_create_options(
+    def __init__(self, device_id: Device | int, config: VirtualMemoryResourceOptions | None = None) -> None:
+        self.device: Device | None = Device(device_id)
+        self.config: VirtualMemoryResourceOptions = check_or_create_options(  # type: ignore[assignment]
             VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False
         )
         # Matches ("host", "host_numa", "host_numa_current")
@@ -193,7 +195,9 @@ class VirtualMemoryResource(MemoryResource):
         """
         return (size + gran - 1) & ~(gran - 1)
 
-    def modify_allocation(self, buf: Buffer, new_size: int, config: VirtualMemoryResourceOptions = None) -> Buffer:
+    def modify_allocation(
+        self, buf: Buffer, new_size: int, config: VirtualMemoryResourceOptions | None = None
+    ) -> Buffer:
         """
         Grow an existing allocation using CUDA VMM, with a configurable policy.
 
@@ -224,6 +228,10 @@ class VirtualMemoryResource(MemoryResource):
         prop = driver.CUmemAllocationProp()
         prop.type = VirtualMemoryResourceOptions._allocation_type_to_driver(self.config.allocation_type)
         prop.location.type = VirtualMemoryResourceOptions._location_type_to_driver(self.config.location_type)
+        # Caller must not invoke modify_allocation on a host-located resource;
+        # we rely on the dataclass invariant that self.device is non-None for
+        # device-located resources (it's only None when location is host).
+        assert self.device is not None, "modify_allocation requires a device-located resource"
         prop.location.id = self.device.device_id
         prop.allocFlags.gpuDirectRDMACapable = 1 if self.config.gpu_direct_rdma else 0
         prop.requestedHandleTypes = VirtualMemoryResourceOptions._handle_type_to_driver(self.config.handle_type)
@@ -335,7 +343,9 @@ class VirtualMemoryResource(MemoryResource):
             trans.commit()
 
         # Update the buffer size (pointer stays the same)
-        buf._size = new_size
+        # TODO: #2049 This is a real bug, accessing _size which doesn't exist.
+        # Fix bug and remove the "type: ignore[attr-defined]" comment.
+        buf._size = new_size  # type: ignore[attr-defined]
         return buf
 
     def _grow_allocation_slow_path(
@@ -387,7 +397,7 @@ class VirtualMemoryResource(MemoryResource):
             (result,) = driver.cuMemUnmap(int(buf.handle), aligned_prev_size)
             raise_if_driver_error(result)
 
-            def _remap_old():
+            def _remap_old() -> None:
                 # Try to remap the old physical memory back to the original VA range
                 try:
                     (res,) = driver.cuMemMap(int(buf.handle), aligned_prev_size, 0, old_handle, 0)
@@ -442,7 +452,7 @@ class VirtualMemoryResource(MemoryResource):
         # Return a new Buffer for the new mapping
         return Buffer.from_handle(ptr=new_ptr, size=new_size, mr=self)
 
-    def _build_access_descriptors(self, prop: driver.CUmemAllocationProp) -> list:
+    def _build_access_descriptors(self, prop: driver.CUmemAllocationProp) -> list[driver.CUmemAccessDesc]:
         """
         Build access descriptors for memory access permissions.
 
@@ -474,7 +484,7 @@ class VirtualMemoryResource(MemoryResource):
 
         return descs
 
-    def allocate(self, size: int, *, stream: Stream | None = None) -> Buffer:
+    def allocate(self, size: int, *, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """
         Allocate a buffer of the given size using CUDA virtual memory.
 
@@ -513,7 +523,7 @@ class VirtualMemoryResource(MemoryResource):
         prop = driver.CUmemAllocationProp()
         prop.type = VirtualMemoryResourceOptions._allocation_type_to_driver(config.allocation_type)
         prop.location.type = VirtualMemoryResourceOptions._location_type_to_driver(config.location_type)
-        prop.location.id = self.device.device_id if config.location_type == "device" else -1
+        prop.location.id = self.device.device_id if self.device is not None else -1
         prop.allocFlags.gpuDirectRDMACapable = 1 if config.gpu_direct_rdma else 0
         prop.requestedHandleTypes = VirtualMemoryResourceOptions._handle_type_to_driver(config.handle_type)
         prop.win32HandleMetaData = 0
@@ -559,13 +569,13 @@ class VirtualMemoryResource(MemoryResource):
         buf = Buffer.from_handle(ptr=ptr, size=aligned_size, mr=self)
         return buf
 
-    def deallocate(self, ptr: int, size: int, *, stream: Stream | None = None) -> None:
+    def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder | None = None) -> None:
         """
         Deallocate memory on the device using CUDA VMM APIs.
 
         Parameters
         ----------
-        ptr : int
+        ptr : DevicePointerType
             The pointer to the memory to deallocate.
         size : int
             The size in bytes of the memory to deallocate.
@@ -573,6 +583,8 @@ class VirtualMemoryResource(MemoryResource):
             Keyword-only. Unused because virtual memory operations are
             synchronous.
         """
+        ptr = 0 if ptr is None else int(ptr)
+
         if stream is not None:
             from cuda.core._stream import Stream_accept
 
@@ -608,7 +620,7 @@ class VirtualMemoryResource(MemoryResource):
         Returns:
             int: CUDA device ID. -1 if the memory resource allocates host memory
         """
-        return self.device.device_id if self.config.location_type == "device" else -1
+        return self.device.device_id if self.device is not None else -1
 
     def __repr__(self) -> str:
         """

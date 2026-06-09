@@ -45,56 +45,56 @@ cdef is_supported():
 
 cdef class IPCDataForBuffer:
     """Data members related to sharing memory buffers via IPC."""
-    def __cinit__(self, IPCBufferDescriptor ipc_descriptor, bint is_mapped):
+    def __cinit__(self, IPCBufferDescriptor ipc_descriptor, bint is_mapped) -> None:
         self._ipc_descriptor = ipc_descriptor
         self._is_mapped = is_mapped
 
     @property
-    def ipc_descriptor(self):
+    def ipc_descriptor(self) -> IPCBufferDescriptor:
         return self._ipc_descriptor
 
     @property
-    def is_mapped(self):
+    def is_mapped(self) -> bool:
         return self._is_mapped
 
 
 cdef class IPCDataForMR:
     """Data members related to sharing memory resources via IPC."""
-    def __cinit__(self, IPCAllocationHandle alloc_handle, bint is_mapped):
+    def __cinit__(self, IPCAllocationHandle alloc_handle, bint is_mapped) -> None:
         self._alloc_handle = alloc_handle
         self._is_mapped = is_mapped
 
     @property
-    def alloc_handle(self):
+    def alloc_handle(self) -> IPCAllocationHandle:
         return self._alloc_handle
 
     @property
-    def is_mapped(self):
+    def is_mapped(self) -> bool:
         return self._is_mapped
 
     @property
-    def uuid(self):
+    def uuid(self) -> uuid.UUID | None:
         return getattr(self._alloc_handle, 'uuid', None)
 
 
 cdef class IPCBufferDescriptor:
     """Serializable object describing a buffer that can be shared between processes."""
 
-    def __init__(self, *arg, **kwargs):
+    def __init__(self, *arg, **kwargs) -> None:
         raise RuntimeError("IPCBufferDescriptor objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @staticmethod
-    def _init(reserved: bytes, size: int):
+    def _init(reserved: bytes, size: int) -> IPCBufferDescriptor:
         cdef IPCBufferDescriptor self = IPCBufferDescriptor.__new__(IPCBufferDescriptor)
         self._payload = reserved
         self._size = size
         return self
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
         return IPCBufferDescriptor._init, (self._payload, self._size)
 
     @property
-    def size(self):
+    def size(self) -> int:
         return self._size
 
     cdef const void* payload_ptr(self) noexcept:
@@ -105,11 +105,11 @@ cdef class IPCBufferDescriptor:
 cdef class IPCAllocationHandle:
     """Shareable handle to an IPC-enabled device memory pool."""
 
-    def __init__(self, *arg, **kwargs):
+    def __init__(self, *arg, **kwargs) -> None:
         raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, handle: int, uuid):  # no-cython-lint
+    def _init(cls, handle: int, uuid: uuid.UUID | None) -> IPCAllocationHandle:  # no-cython-lint
         cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
         assert handle >= 0
         self._h_fd = create_fd_handle(handle)
@@ -136,13 +136,13 @@ cdef class IPCAllocationHandle:
         return self._uuid
 
 
-def _reduce_allocation_handle(alloc_handle):
+def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -> tuple[object, ...]:
     check_multiprocessing_start_method()
     df = multiprocessing.reduction.DupFd(alloc_handle.handle)
     return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)
 
 
-def _reconstruct_allocation_handle(cls, df, uuid):  # no-cython-lint
+def _reconstruct_allocation_handle(cls: type, df: object, uuid: uuid.UUID | None) -> IPCAllocationHandle:  # no-cython-lint
     return cls._init(df.detach(), uuid)
 
 

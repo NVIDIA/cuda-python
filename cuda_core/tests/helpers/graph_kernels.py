@@ -8,11 +8,7 @@ import ctypes
 import numpy as np
 import pytest
 
-try:
-    from cuda.bindings import nvrtc
-except ImportError:
-    from cuda import nvrtc
-
+from cuda.bindings import nvrtc
 from cuda.core import Device, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import NVRTCError, handle_return
 
