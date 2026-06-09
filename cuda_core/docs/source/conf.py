@@ -28,12 +28,23 @@ release = os.environ["SPHINX_CUDA_CORE_VER"]
 
 
 def _github_examples_ref():
+    if ref := os.environ.get("CUDA_PYTHON_DOCS_GITHUB_REF"):
+        return ref
     if int(os.environ.get("BUILD_PREVIEW", 0)) or int(os.environ.get("BUILD_LATEST", 0)):
         return "main"
     return f"cuda-core-v{release}"
 
 
 GITHUB_EXAMPLES_REF = _github_examples_ref()
+
+
+def _html_baseurl():
+    docs_domain = os.environ.get("CUDA_PYTHON_DOCS_DOMAIN", "https://nvidia.github.io/cuda-python")
+    if int(os.environ.get("BUILD_PREVIEW", 0)):
+        return f"{docs_domain}/pr-preview/pr-{os.environ['PR_NUMBER']}/cuda-core/latest/"
+    if int(os.environ.get("BUILD_LATEST", 0)):
+        return f"{docs_domain}/cuda-core/latest/"
+    return f"{docs_domain}/cuda-core/{release}/"
 
 
 # -- General configuration ---------------------------------------------------
@@ -44,6 +55,7 @@ GITHUB_EXAMPLES_REF = _github_examples_ref()
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.extlinks",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx.ext.extlinks",
@@ -73,7 +85,7 @@ toc_object_entries_show_parents = "domain"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_baseurl = "docs"
+html_baseurl = _html_baseurl()
 html_theme = "nvidia_sphinx_theme"
 html_theme_options = {
     "switcher": {
