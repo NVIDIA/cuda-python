@@ -113,10 +113,10 @@ major version is built on ``main``; wheels for the prior CUDA major are
 published from the corresponding backport branch.
 
 Installing from Source
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 Requirements
-~~~~~~~~~~~~
+^^^^^^^^^^^^
 
 * CUDA Toolkit headers[^1]
 * CUDA Runtime static library[^2]
@@ -138,7 +138,7 @@ See :doc:`Environment Variables <environment_variables>` for a description of ot
    Only ``cydriver``, ``cyruntime`` and ``cynvrtc`` are impacted by the header requirement.
 
 Editable Install
-~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^
 
 You can use:
 
