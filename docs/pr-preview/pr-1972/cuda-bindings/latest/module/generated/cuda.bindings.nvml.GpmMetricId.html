@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,23 +37,23 @@
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
 
 
-    <script src="../../_static/documentation_options.js?v=a86adfc4"></script>
+    <script src="../../_static/documentation_options.js?v=ee471ff7"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'module/generated/cuda.bindings.nvml.GpmMetricId';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.3.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -304,11 +304,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
     </div>
     
@@ -502,11 +509,18 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
       </div>
     
@@ -523,6 +537,8 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.3.1-notes.html">13.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.3.0-notes.html">13.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.1.0-notes.html">13.1.0</a></li>
@@ -530,6 +546,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.4-notes.html">12.9.4</a></li>
@@ -576,6 +593,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../nvjitlink.html">nvjitlink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../nvvm.html">nvvm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../nvfatbin.html">nvfatbin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cudla.html">cudla</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
@@ -1291,11 +1309,8 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.GpmMetricId">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">GpmMetricId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.GpmMetricId" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>GPM Metric Identifiers.
-
-See ``nvmlGpmMetricId_t``.
-</pre></div>
-</div>
+<dd><p>GPM Metric Identifiers.</p>
+<p>See <code class="docutils literal notranslate"><span class="pre">nvmlGpmMetricId_t</span></code>.</p>
 <dl class="simple">
 <dt><strong>GPM_METRIC_GRAPHICS_UTIL</strong>: 1</dt><dd><p>Percentage of time any compute/graphics app was active on the GPU. 0.0 - 100.0.</p>
 </dd>
@@ -1550,6 +1565,42 @@ See ``nvmlGpmMetricId_t``.
 <p><strong>GPM_METRIC_GR7_CTXSW_REQUESTS</strong>: 207</p>
 <p><strong>GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ</strong>: 208</p>
 <p><strong>GPM_METRIC_GR7_CTXSW_ACTIVE_PCT</strong>: 209</p>
+<p><strong>GPM_METRIC_NVLINK_L18_RX_PER_SEC</strong>: 212</p>
+<p><strong>GPM_METRIC_NVLINK_L18_TX_PER_SEC</strong>: 213</p>
+<p><strong>GPM_METRIC_NVLINK_L19_RX_PER_SEC</strong>: 214</p>
+<p><strong>GPM_METRIC_NVLINK_L19_TX_PER_SEC</strong>: 215</p>
+<p><strong>GPM_METRIC_NVLINK_L20_RX_PER_SEC</strong>: 216</p>
+<p><strong>GPM_METRIC_NVLINK_L20_TX_PER_SEC</strong>: 217</p>
+<p><strong>GPM_METRIC_NVLINK_L21_RX_PER_SEC</strong>: 218</p>
+<p><strong>GPM_METRIC_NVLINK_L21_TX_PER_SEC</strong>: 219</p>
+<p><strong>GPM_METRIC_NVLINK_L22_RX_PER_SEC</strong>: 220</p>
+<p><strong>GPM_METRIC_NVLINK_L22_TX_PER_SEC</strong>: 221</p>
+<p><strong>GPM_METRIC_NVLINK_L23_RX_PER_SEC</strong>: 222</p>
+<p><strong>GPM_METRIC_NVLINK_L23_TX_PER_SEC</strong>: 223</p>
+<p><strong>GPM_METRIC_NVLINK_L24_RX_PER_SEC</strong>: 224</p>
+<p><strong>GPM_METRIC_NVLINK_L24_TX_PER_SEC</strong>: 225</p>
+<p><strong>GPM_METRIC_NVLINK_L25_RX_PER_SEC</strong>: 226</p>
+<p><strong>GPM_METRIC_NVLINK_L25_TX_PER_SEC</strong>: 227</p>
+<p><strong>GPM_METRIC_NVLINK_L26_RX_PER_SEC</strong>: 228</p>
+<p><strong>GPM_METRIC_NVLINK_L26_TX_PER_SEC</strong>: 229</p>
+<p><strong>GPM_METRIC_NVLINK_L27_RX_PER_SEC</strong>: 230</p>
+<p><strong>GPM_METRIC_NVLINK_L27_TX_PER_SEC</strong>: 231</p>
+<p><strong>GPM_METRIC_NVLINK_L28_RX_PER_SEC</strong>: 232</p>
+<p><strong>GPM_METRIC_NVLINK_L28_TX_PER_SEC</strong>: 233</p>
+<p><strong>GPM_METRIC_NVLINK_L29_RX_PER_SEC</strong>: 234</p>
+<p><strong>GPM_METRIC_NVLINK_L29_TX_PER_SEC</strong>: 235</p>
+<p><strong>GPM_METRIC_NVLINK_L30_RX_PER_SEC</strong>: 236</p>
+<p><strong>GPM_METRIC_NVLINK_L30_TX_PER_SEC</strong>: 237</p>
+<p><strong>GPM_METRIC_NVLINK_L31_RX_PER_SEC</strong>: 238</p>
+<p><strong>GPM_METRIC_NVLINK_L31_TX_PER_SEC</strong>: 239</p>
+<p><strong>GPM_METRIC_NVLINK_L32_RX_PER_SEC</strong>: 240</p>
+<p><strong>GPM_METRIC_NVLINK_L32_TX_PER_SEC</strong>: 241</p>
+<p><strong>GPM_METRIC_NVLINK_L33_RX_PER_SEC</strong>: 242</p>
+<p><strong>GPM_METRIC_NVLINK_L33_TX_PER_SEC</strong>: 243</p>
+<p><strong>GPM_METRIC_NVLINK_L34_RX_PER_SEC</strong>: 244</p>
+<p><strong>GPM_METRIC_NVLINK_L34_TX_PER_SEC</strong>: 245</p>
+<p><strong>GPM_METRIC_NVLINK_L35_RX_PER_SEC</strong>: 246</p>
+<p><strong>GPM_METRIC_NVLINK_L35_TX_PER_SEC</strong>: 247</p>
 <dl class="simple">
 <dt><strong>GPM_METRIC_SM_CYCLES_ELAPSED</strong>: 248</dt><dd><p>The GPU’s SM cycles elapsed since reboot.</p>
 </dd>
@@ -1649,6 +1700,78 @@ See ``nvmlGpmMetricId_t``.
 </dd>
 <dt><strong>GPM_METRIC_NVLINK_L17_TX</strong>: 296</dt><dd><p>NvLink write for link 17 in bytes since reboot.</p>
 </dd>
+<dt><strong>GPM_METRIC_NVLINK_L18_RX</strong>: 297</dt><dd><p>NvLink read for link 18 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L18_TX</strong>: 298</dt><dd><p>NvLink write for link 18 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L19_RX</strong>: 299</dt><dd><p>NvLink read for link 19 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L19_TX</strong>: 300</dt><dd><p>NvLink write for link 19 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L20_RX</strong>: 301</dt><dd><p>NvLink read for link 20 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L20_TX</strong>: 302</dt><dd><p>NvLink write for link 20 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L21_RX</strong>: 303</dt><dd><p>NvLink read for link 21 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L21_TX</strong>: 304</dt><dd><p>NvLink write for link 21 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L22_RX</strong>: 305</dt><dd><p>NvLink read for link 22 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L22_TX</strong>: 306</dt><dd><p>NvLink write for link 22 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L23_RX</strong>: 307</dt><dd><p>NvLink read for link 23 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L23_TX</strong>: 308</dt><dd><p>NvLink write for link 23 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L24_RX</strong>: 309</dt><dd><p>NvLink read for link 24 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L24_TX</strong>: 310</dt><dd><p>NvLink write for link 24 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L25_RX</strong>: 311</dt><dd><p>NvLink read for link 25 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L25_TX</strong>: 312</dt><dd><p>NvLink write for link 25 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L26_RX</strong>: 313</dt><dd><p>NvLink read for link 26 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L26_TX</strong>: 314</dt><dd><p>NvLink write for link 26 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L27_RX</strong>: 315</dt><dd><p>NvLink read for link 27 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L27_TX</strong>: 316</dt><dd><p>NvLink write for link 27 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L28_RX</strong>: 317</dt><dd><p>NvLink read for link 28 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L28_TX</strong>: 318</dt><dd><p>NvLink write for link 28 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L29_RX</strong>: 319</dt><dd><p>NvLink read for link 29 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L29_TX</strong>: 320</dt><dd><p>NvLink write for link 29 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L30_RX</strong>: 321</dt><dd><p>NvLink read for link 30 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L30_TX</strong>: 322</dt><dd><p>NvLink write for link 30 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L31_RX</strong>: 323</dt><dd><p>NvLink read for link 31 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L31_TX</strong>: 324</dt><dd><p>NvLink write for link 31 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L32_RX</strong>: 325</dt><dd><p>NvLink read for link 32 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L32_TX</strong>: 326</dt><dd><p>NvLink write for link 32 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L33_RX</strong>: 327</dt><dd><p>NvLink read for link 33 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L33_TX</strong>: 328</dt><dd><p>NvLink write for link 33 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L34_RX</strong>: 329</dt><dd><p>NvLink read for link 34 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L34_TX</strong>: 330</dt><dd><p>NvLink write for link 34 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L35_RX</strong>: 331</dt><dd><p>NvLink read for link 35 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L35_TX</strong>: 332</dt><dd><p>NvLink write for link 35 in bytes since reboot.</p>
+</dd>
 <dt><strong>GPM_METRIC_MAX</strong>: 333</dt><dd><p>Maximum value above +1.</p>
 </dd>
 </dl>
@@ -1724,8 +1847,8 @@ See ``nvmlGpmMetricId_t``.
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
 
 
   <footer class="bd-footer">
