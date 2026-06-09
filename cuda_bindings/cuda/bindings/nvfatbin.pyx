@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.4.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -270,6 +270,17 @@ cpdef tuple version():
         __status__ = nvFatbinVersion(&major, &minor)
     check_status(__status__)
     return (major, minor)
+
+
+cpdef add_index(intptr_t handle, code, size_t size, identifier):
+    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    if not isinstance(identifier, str):
+        raise TypeError("identifier must be a Python str")
+    cdef bytes _temp_identifier_ = (<str>identifier).encode()
+    cdef char* _identifier_ = _temp_identifier_
+    with nogil:
+        __status__ = nvFatbinAddIndex(<Handle>handle, <const void*>_code_, size, <const char*>_identifier_)
+    check_status(__status__)
 
 
 cpdef add_reloc(intptr_t handle, code, size_t size):

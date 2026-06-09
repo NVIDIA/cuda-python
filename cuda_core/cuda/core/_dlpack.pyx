@@ -1,6 +1,7 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+
 
 from enum import IntEnum
 
@@ -88,7 +89,7 @@ cdef inline int setup_dl_tensor_layout(DLTensor* dl_tensor, object buf) except -
     return 0
 
 
-def classify_dl_device(buf) -> tuple[int, int]:
+def classify_dl_device(buf: object) -> tuple[int, int]:
     """Classify a buffer into a DLPack (device_type, device_id) pair.
 
     ``buf`` must expose ``is_device_accessible``, ``is_host_accessible``,
@@ -165,8 +166,11 @@ cpdef object make_py_capsule(object buf, bint versioned):
     return ret
 
 
+# Values are fixed by the DLPack spec; see _include/dlpack.h. They are
+# hard-coded here (rather than referencing the cdef extern names) so that the
+# generated .pyi stub doesn't reference Cython-only identifiers.
 class DLDeviceType(IntEnum):
-    kDLCPU = _kDLCPU
-    kDLCUDA = _kDLCUDA
-    kDLCUDAHost = _kDLCUDAHost
-    kDLCUDAManaged = _kDLCUDAManaged
+    kDLCPU = 1
+    kDLCUDA = 2
+    kDLCUDAHost = 3
+    kDLCUDAManaged = 13

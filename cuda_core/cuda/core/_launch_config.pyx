@@ -4,6 +4,8 @@
 
 from libc.string cimport memset
 
+from typing import Any
+
 from cuda.core._device import Device
 from cuda.core._utils.cuda_utils import (
     CUDAError,
@@ -11,7 +13,7 @@ from cuda.core._utils.cuda_utils import (
     driver,
 )
 
-_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'cooperative_launch')
+_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative')
 
 
 cdef class LaunchConfig:
@@ -42,15 +44,21 @@ cdef class LaunchConfig:
     shmem_size : int, optional
         Dynamic shared-memory size per thread block in bytes.
         (Default to size 0)
-    cooperative_launch : bool, optional
+    is_cooperative : bool, optional
         Whether this config can be used to launch a cooperative kernel.
     """
 
     # TODO: expand LaunchConfig to include other attributes
     # Note: attributes are declared in _launch_config.pxd
 
-    def __init__(self, grid=None, cluster=None, block=None,
-                 shmem_size=None, cooperative_launch=False):
+    def __init__(
+        self,
+        grid: int | tuple[int, ...] | None = None,
+        cluster: int | tuple[int, ...] | None = None,
+        block: int | tuple[int, ...] | None = None,
+        shmem_size: int | None = None,
+        is_cooperative: bool = False,
+    ) -> None:
         """Initialize LaunchConfig with validation.
 
         Parameters
@@ -63,7 +71,7 @@ cdef class LaunchConfig:
             Block dimensions (threads per block)
         shmem_size : int, optional
             Dynamic shared memory size in bytes (default: 0)
-        cooperative_launch : bool, optional
+        is_cooperative : bool, optional
             Whether to launch as cooperative kernel (default: False)
         """
         # Convert and validate grid and block dimensions
@@ -90,22 +98,20 @@ cdef class LaunchConfig:
         else:
             self.shmem_size = shmem_size
 
-        # Handle cooperative_launch
-        self.cooperative_launch = cooperative_launch
+        self.is_cooperative = is_cooperative
 
-        # Validate cooperative launch support
-        if self.cooperative_launch and not Device().properties.cooperative_launch:
+        if self.is_cooperative and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
 
-    def _identity(self):
+    def _identity(self) -> tuple[Any, ...]:
         return tuple(getattr(self, attr) for attr in _LAUNCH_CONFIG_ATTRS)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation of LaunchConfig."""
         parts = ', '.join(f'{attr}={getattr(self, attr)!r}' for attr in _LAUNCH_CONFIG_ATTRS)
         return f"LaunchConfig({parts})"
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, LaunchConfig):
             return NotImplemented
         return self._identity() == (<LaunchConfig>other)._identity()
@@ -136,7 +142,7 @@ cdef class LaunchConfig:
         drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = self.block
         drv_cfg.sharedMemBytes = self.shmem_size
 
-        if self.cooperative_launch:
+        if self.is_cooperative:
             attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
             attr.value.cooperative = 1
             self._attrs.push_back(attr)
@@ -190,7 +196,7 @@ cpdef object _to_native_launch_config(LaunchConfig config):
     drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
     drv_cfg.sharedMemBytes = config.shmem_size
 
-    if config.cooperative_launch:
+    if config.is_cooperative:
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
         attr.value.cooperative = 1

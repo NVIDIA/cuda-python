@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.2.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -394,6 +394,12 @@ cdef extern from 'cuda.h':
         CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED
         CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED
         CU_DEVICE_ATTRIBUTE_ATOMIC_REDUCTION_SUPPORTED
+        CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED
+        CU_DEVICE_ATTRIBUTE_DMA_BUF_MMAP_SUPPORTED
+        CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_SUPPORTED
+        CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_MULTICAST_SUPPORTED
+        CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_COUNTED_OPS_SUPPORTED
+        CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED
         CU_DEVICE_ATTRIBUTE_MAX
     ctypedef CUdevice_attribute_enum CUdevice_attribute
 
@@ -440,6 +446,7 @@ cdef extern from 'cuda.h':
         CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
         CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED
         CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+        CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED
         CU_FUNC_ATTRIBUTE_MAX
     ctypedef CUfunction_attribute_enum CUfunction_attribute
 
@@ -687,6 +694,7 @@ cdef extern from 'cuda.h':
         CU_GRAPH_NODE_TYPE_MEM_FREE
         CU_GRAPH_NODE_TYPE_BATCH_MEM_OP
         CU_GRAPH_NODE_TYPE_CONDITIONAL
+        CU_GRAPH_NODE_TYPE_RESERVED_16
     ctypedef CUgraphNodeType_enum CUgraphNodeType
 
 cdef extern from 'cuda.h':
@@ -898,6 +906,7 @@ cdef extern from 'cuda.h':
         CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION
         CUDA_ERROR_KEY_ROTATION
         CUDA_ERROR_STREAM_DETACHED
+        CUDA_ERROR_GRAPH_RECAPTURE_FAILURE
         CUDA_ERROR_UNKNOWN
     ctypedef cudaError_enum CUresult
 
@@ -1313,10 +1322,14 @@ cdef extern from 'cuda.h':
         CU_COREDUMP_SKIP_ABORT
         CU_COREDUMP_SKIP_CONSTBANK_MEMORY
         CU_COREDUMP_GZIP_COMPRESS
+        CU_COREDUMP_FAULTED_CONTEXTS_ONLY
+        CU_COREDUMP_NO_ERRBAR_AT_EXIT
+        CU_COREDUMP_LOG_ONLY
         CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
 cdef extern from 'cuda.h':
     ctypedef enum CUgreenCtxCreate_flags:
+        CU_GREEN_CTX_NONE
         CU_GREEN_CTX_DEFAULT_STREAM
 
 cdef extern from 'cuda.h':
@@ -1555,6 +1568,32 @@ cdef extern from 'cuda.h':
     ctypedef enum CUstreamCigDataType_enum:
         STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST
     ctypedef CUstreamCigDataType_enum CUstreamCigDataType
+
+cdef extern from 'cuda.h':
+    ctypedef enum CUlogicalEndpointIpcHandleType_enum:
+        CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE
+        CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC
+    ctypedef CUlogicalEndpointIpcHandleType_enum CUlogicalEndpointIpcHandleType
+
+cdef extern from 'cuda.h':
+    ctypedef enum CUlogicalEndpointType_enum:
+        CU_LOGICAL_ENDPOINT_TYPE_INVALID
+        CU_LOGICAL_ENDPOINT_TYPE_UNICAST
+        CU_LOGICAL_ENDPOINT_TYPE_MULTICAST
+    ctypedef CUlogicalEndpointType_enum CUlogicalEndpointType
+
+cdef extern from 'cuda.h':
+    ctypedef enum CUlogicalEndpointFlag_enum:
+        CU_LOGICAL_ENDPOINT_FLAG_NONE
+        CU_LOGICAL_ENDPOINT_FLAG_COUNTED_OPS
+    ctypedef CUlogicalEndpointFlag_enum CUlogicalEndpointFlag
+
+cdef extern from 'cuda.h':
+    ctypedef enum CUgraphRecaptureStatus_enum:
+        CU_GRAPH_RECAPTURE_ELIGIBLE_FOR_UPDATE
+        CU_GRAPH_RECAPTURE_INELIGIBLE_FOR_UPDATE
+        CU_GRAPH_RECAPTURE_ERROR
+    ctypedef CUgraphRecaptureStatus_enum CUgraphRecaptureStatus
 cdef enum: _CURESULT_INTERNAL_LOADING_ERROR = CUresult.CUDA_ERROR_NOT_FOUND
 
 
@@ -2040,6 +2079,14 @@ cdef extern from 'cuda.h':
     ctypedef CUstreamCigParam_st CUstreamCigParam
 
 cdef extern from 'cuda.h':
+    cdef struct CUlogicalEndpointFabricHandle_st:
+        unsigned char data[64]
+    ctypedef CUlogicalEndpointFabricHandle_st CUlogicalEndpointFabricHandle
+
+cdef struct cuda_bindings_driver__anon_pod43:
+    unsigned int numDevices
+
+cdef extern from 'cuda.h':
     ctypedef size_t (*CUoccupancyB2DSize 'CUoccupancyB2DSize')(
         int blockSize
     )
@@ -2052,6 +2099,10 @@ cdef extern from 'cuda.h':
         char* message,
         size_t length
     )
+
+
+cdef extern from 'cuda.h':
+    ctypedef cuuint32_t CUlogicalEndpointId 'CUlogicalEndpointId'
 
 
 cdef extern from 'cuda.h':
@@ -2530,6 +2581,9 @@ cdef extern from 'cuda.h':
         CUdevWorkqueueConfigScope sharingScope
     ctypedef CUdevWorkqueueConfigResource_st CUdevWorkqueueConfigResource
 
+cdef struct cuda_bindings_driver__anon_pod42:
+    CUdevice device
+
 cdef extern from 'cuda.h':
     ctypedef void (*CUcoredumpStatusCallback 'CUcoredumpStatusCallback')(
         void* userData,
@@ -2594,8 +2648,7 @@ cdef extern from 'cuda.h':
     cdef struct CUcheckpointRestoreArgs_st:
         CUcheckpointGpuPair* gpuPairs
         unsigned int gpuPairsCount
-        char reserved[(52 - 8)]
-        cuuint64_t reserved1
+        char reserved[((64 - 8) - 4)]
     ctypedef CUcheckpointRestoreArgs_st CUcheckpointRestoreArgs
 
 cdef extern from 'cuda.h':
@@ -2815,6 +2868,16 @@ cdef extern from 'cuda.h':
     ctypedef CUdevResource_st CUdevResource_v1
 
 cdef extern from 'cuda.h':
+    cdef struct CUlogicalEndpointProp_struct:
+        CUlogicalEndpointType type
+        cuda_bindings_driver__anon_pod42 unicast
+        cuda_bindings_driver__anon_pod43 multicast
+        unsigned long long size
+        unsigned int ipcHandleTypes
+        unsigned int flags
+    ctypedef CUlogicalEndpointProp_struct CUlogicalEndpointProp
+
+cdef extern from 'cuda.h':
     ctypedef CUexecAffinityParam_v1 CUexecAffinityParam 'CUexecAffinityParam'
 
 
@@ -2985,6 +3048,7 @@ cdef extern from 'cuda.h':
         CUDA_MEM_FREE_NODE_PARAMS free
         CUDA_BATCH_MEM_OP_NODE_PARAMS_v2 memOp
         CUDA_CONDITIONAL_NODE_PARAMS conditional
+        char asBytes[232]
         long long reserved2
     ctypedef CUgraphNodeParams_st CUgraphNodeParams
 
@@ -2996,6 +3060,16 @@ cdef extern from 'cuda.h':
         CUmemcpySrcAccessOrder srcAccessOrder
         unsigned int flags
     ctypedef CUDA_MEMCPY3D_BATCH_OP_st CUDA_MEMCPY3D_BATCH_OP_v1
+
+cdef extern from 'cuda.h':
+    ctypedef CUresult (*CUgraphRecaptureCallback 'CUgraphRecaptureCallback')(
+        void* data,
+        CUgraphNode node,
+        const CUgraphNodeParams* originalParams,
+        const CUgraphNodeParams* recaptureParams,
+        CUgraphRecaptureStatus status
+    )
+
 
 cdef extern from 'cuda.h':
     ctypedef CUDA_MEMCPY3D_BATCH_OP_v1 CUDA_MEMCPY3D_BATCH_OP 'CUDA_MEMCPY3D_BATCH_OP'

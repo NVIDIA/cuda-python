@@ -5,13 +5,14 @@ import multiprocessing as mp
 
 import pytest
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
 from cuda.core import Device, EventOptions
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 
@@ -67,6 +68,8 @@ class TestEventIpc:
         log("releasing stream1")
         latch.release()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
         log("done")
 
@@ -114,7 +117,7 @@ def test_event_is_monadic(ipc_device):
 
 @pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize(
-    "options", [{"ipc_enabled": True, "enable_timing": True}, EventOptions(ipc_enabled=True, enable_timing=True)]
+    "options", [{"ipc_enabled": True, "timing_enabled": True}, EventOptions(ipc_enabled=True, timing_enabled=True)]
 )
 def test_event_timing_disabled(ipc_device, options):
     """Check that IPC-enabled events cannot be created with timing enabled."""
@@ -131,10 +134,10 @@ class TestIpcEventProperties:
     """
 
     @pytest.mark.flaky(reruns=2)
-    @pytest.mark.parametrize("busy_waited_sync", [True, False])
+    @pytest.mark.parametrize("blocking_sync", [True, False])
     @pytest.mark.parametrize("use_options_cls", [True, False])
     @pytest.mark.parametrize("use_option_kw", [True, False])
-    def test_main(self, ipc_device, busy_waited_sync, use_options_cls, use_option_kw):
+    def test_main(self, ipc_device, blocking_sync, use_options_cls, use_option_kw):
         device = ipc_device
         stream = device.create_stream()
 
@@ -145,23 +148,25 @@ class TestIpcEventProperties:
 
         # Create an event and send it.
         options = (
-            EventOptions(ipc_enabled=True, busy_waited_sync=busy_waited_sync)
+            EventOptions(ipc_enabled=True, blocking_sync=blocking_sync)
             if use_options_cls
-            else {"ipc_enabled": True, "busy_waited_sync": busy_waited_sync}
+            else {"ipc_enabled": True, "blocking_sync": blocking_sync}
         )
         e = stream.record(options=options) if use_option_kw else stream.record(None, options)
         q_out.put(e)
 
         # Check its properties.
         props = q_in.get(timeout=CHILD_TIMEOUT_SEC)
-        assert props[0] == e.get_ipc_descriptor()
+        assert props[0] == e.ipc_descriptor
         assert props[1] == e.is_ipc_enabled
-        assert props[2] == e.is_timing_disabled
-        assert props[3] == e.is_sync_busy_waited
+        assert props[2] == e.is_timing_enabled
+        assert props[3] == e.is_blocking_sync
         assert props[4] is None
         assert props[5] is None
 
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
     def child_main(self, q_in, q_out):
@@ -173,10 +178,10 @@ class TestIpcEventProperties:
 
         # Send its properties.
         props = (
-            e.get_ipc_descriptor(),
+            e.ipc_descriptor,
             e.is_ipc_enabled,
-            e.is_timing_disabled,
-            e.is_sync_busy_waited,
+            e.is_timing_enabled,
+            e.is_blocking_sync,
             e.device,
             e.context,
         )

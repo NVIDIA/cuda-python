@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.2.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 
 from ._internal cimport nvrtc as _nvrtc
 
@@ -108,3 +108,15 @@ cdef nvrtcResult nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) ex
 
 cdef nvrtcResult nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvrtc._nvrtcGetTileIR(prog, TileIR)
+
+
+cdef nvrtcResult nvrtcInstallBundledHeaders(const char* installPath, unsigned int flags, const char** errorLog) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+    return _nvrtc._nvrtcInstallBundledHeaders(installPath, flags, errorLog)
+
+
+cdef nvrtcResult nvrtcGetBundledHeadersInfo(nvrtcBundledHeadersInfo* info, const char** errorLog) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+    return _nvrtc._nvrtcGetBundledHeadersInfo(info, errorLog)
+
+
+cdef nvrtcResult nvrtcRemoveBundledHeaders(const char* installPath, const char** errorLog) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+    return _nvrtc._nvrtcRemoveBundledHeaders(installPath, errorLog)

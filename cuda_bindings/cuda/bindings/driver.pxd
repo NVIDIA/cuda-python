@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -464,6 +464,18 @@ cdef class CUoccupancyB2DSize:
     """
     cdef cydriver.CUoccupancyB2DSize  _pvt_val
     cdef cydriver.CUoccupancyB2DSize* _pvt_ptr
+
+cdef class CUgraphRecaptureCallback:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef cydriver.CUgraphRecaptureCallback  _pvt_val
+    cdef cydriver.CUgraphRecaptureCallback* _pvt_ptr
 
 cdef class CUcoredumpStatusCallback:
     """
@@ -4052,7 +4064,9 @@ cdef class CUmemLocation_st:
 
 
     id : int
-
+        Identifier for CUmemLocationType::CU_MEM_LOCATION_TYPE_DEVICE,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST_NUMA.
 
 
     Methods
@@ -4824,6 +4838,10 @@ cdef class CUgraphNodeParams_st:
         Conditional node parameters.
 
 
+    asBytes : bytes
+        Padding as bytes
+
+
     reserved2 : long long
         Reserved bytes. Must be zero.
 
@@ -4971,7 +4989,7 @@ cdef class CUcheckpointRestoreArgs_st:
         Reserved for future use, must be zeroed
 
 
-    reserved1 : cuuint64_t
+    reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
 
 
@@ -4985,9 +5003,6 @@ cdef class CUcheckpointRestoreArgs_st:
 
     cdef size_t _gpuPairs_length
     cdef cydriver.CUcheckpointGpuPair* _gpuPairs
-
-
-    cdef cuuint64_t _reserved1
 
 
 cdef class CUcheckpointUnlockArgs_st:
@@ -5066,6 +5081,106 @@ cdef class CUmemDecompressParams_st:
 
 
     cdef _HelperInputVoidPtr _cydst
+
+
+cdef class CUlogicalEndpointFabricHandle_st:
+    """
+    Fabric handle for a logical endpoint
+
+    Attributes
+    ----------
+
+    data : bytes
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUlogicalEndpointFabricHandle_st _pvt_val
+    cdef cydriver.CUlogicalEndpointFabricHandle_st* _pvt_ptr
+
+cdef class anon_struct25:
+    """
+    Attributes
+    ----------
+
+    device : CUdevice
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUlogicalEndpointProp_struct* _pvt_ptr
+
+    cdef CUdevice _device
+
+
+cdef class anon_struct26:
+    """
+    Attributes
+    ----------
+
+    numDevices : unsigned int
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUlogicalEndpointProp_struct* _pvt_ptr
+
+cdef class CUlogicalEndpointProp_struct:
+    """
+    Properties of a logical endpoint construction
+
+    Attributes
+    ----------
+
+    type : CUlogicalEndpointType
+        Type of the logical endpoint defined in CUlogicalEndpointType
+
+
+    unicast : anon_struct25
+
+
+
+    multicast : anon_struct26
+
+
+
+    size : unsigned long long
+        Size of the logical endpoint
+
+
+    ipcHandleTypes : unsigned int
+        A bitmask of IPC handle types defined in
+        CUlogicalEndpointIpcHandleType
+
+
+    flags : unsigned int
+        A bitmask of flags defined in CUlogicalEndpointFlag
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUlogicalEndpointProp_struct* _val_ptr
+    cdef cydriver.CUlogicalEndpointProp_struct* _pvt_ptr
+
+    cdef anon_struct25 _unicast
+
+
+    cdef anon_struct26 _multicast
 
 
 cdef class CUdevSmResource_st:
@@ -5239,7 +5354,7 @@ cdef class CUdevResource_st:
     cdef cydriver.CUdevResource_st* _nextResource
 
 
-cdef class anon_union16:
+cdef class anon_union17:
     """
     Attributes
     ----------
@@ -5268,7 +5383,7 @@ cdef class CUeglFrame_st:
     Attributes
     ----------
 
-    frame : anon_union16
+    frame : anon_union17
 
 
 
@@ -5316,7 +5431,7 @@ cdef class CUeglFrame_st:
     cdef cydriver.CUeglFrame_st* _val_ptr
     cdef cydriver.CUeglFrame_st* _pvt_ptr
 
-    cdef anon_union16 _frame
+    cdef anon_union17 _frame
 
 
 cdef class CUdeviceptr:
@@ -9414,7 +9529,9 @@ cdef class CUmemLocation_v1(CUmemLocation_st):
 
 
     id : int
-
+        Identifier for CUmemLocationType::CU_MEM_LOCATION_TYPE_DEVICE,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST_NUMA.
 
 
     Methods
@@ -9436,7 +9553,9 @@ cdef class CUmemLocation(CUmemLocation_v1):
 
 
     id : int
-
+        Identifier for CUmemLocationType::CU_MEM_LOCATION_TYPE_DEVICE,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST_NUMA.
 
 
     Methods
@@ -10369,6 +10488,10 @@ cdef class CUgraphNodeParams(CUgraphNodeParams_st):
         Conditional node parameters.
 
 
+    asBytes : bytes
+        Padding as bytes
+
+
     reserved2 : long long
         Reserved bytes. Must be zero.
 
@@ -10467,7 +10590,7 @@ cdef class CUcheckpointRestoreArgs(CUcheckpointRestoreArgs_st):
         Reserved for future use, must be zeroed
 
 
-    reserved1 : cuuint64_t
+    reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
 
 
@@ -10539,6 +10662,75 @@ cdef class CUmemDecompressParams(CUmemDecompressParams_st):
 
     padding : bytes
 
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+
+cdef class CUlogicalEndpointId:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef cydriver.CUlogicalEndpointId  _pvt_val
+    cdef cydriver.CUlogicalEndpointId* _pvt_ptr
+
+cdef class CUlogicalEndpointFabricHandle(CUlogicalEndpointFabricHandle_st):
+    """
+    Fabric handle for a logical endpoint
+
+    Attributes
+    ----------
+
+    data : bytes
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+
+cdef class CUlogicalEndpointProp(CUlogicalEndpointProp_struct):
+    """
+    Properties of a logical endpoint construction
+
+    Attributes
+    ----------
+
+    type : CUlogicalEndpointType
+        Type of the logical endpoint defined in CUlogicalEndpointType
+
+
+    unicast : anon_struct25
+
+
+
+    multicast : anon_struct26
+
+
+
+    size : unsigned long long
+        Size of the logical endpoint
+
+
+    ipcHandleTypes : unsigned int
+        A bitmask of IPC handle types defined in
+        CUlogicalEndpointIpcHandleType
+
+
+    flags : unsigned int
+        A bitmask of flags defined in CUlogicalEndpointFlag
 
 
     Methods
@@ -10749,7 +10941,7 @@ cdef class CUeglFrame_v1(CUeglFrame_st):
     Attributes
     ----------
 
-    frame : anon_union16
+    frame : anon_union17
 
 
 
@@ -10805,7 +10997,7 @@ cdef class CUeglFrame(CUeglFrame_v1):
     Attributes
     ----------
 
-    frame : anon_union16
+    frame : anon_union17
 
 
 

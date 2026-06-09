@@ -7,10 +7,11 @@ import os
 
 import pytest
 from helpers.buffers import PatternGen
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, PinnedMemoryResource
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 POOL_SIZE = 2097152
 
@@ -34,18 +35,20 @@ class TestObjectSerializationDirect:
         process.start()
 
         # Send a memory resource by allocation handle.
-        alloc_handle = mr.get_allocation_handle()
+        alloc_handle = mr.allocation_handle
         mp.reduction.send_handle(parent_conn, alloc_handle.handle, process.pid)
 
         # Send a buffer.
-        buffer1 = mr.allocate(NBYTES)
+        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
         parent_conn.send(buffer1)  # directly
 
-        buffer2 = mr.allocate(NBYTES)
-        parent_conn.send(buffer2.get_ipc_descriptor())  # by descriptor
+        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
+        parent_conn.send(buffer2.ipc_descriptor)  # by descriptor
 
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         # Confirm buffers were modified.
@@ -68,7 +71,7 @@ class TestObjectSerializationDirect:
         # Receive the buffers.
         buffer1 = conn.recv()  # directly
         buffer_desc = conn.recv()
-        buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc)  # by descriptor
+        buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc, stream=device.default_stream)  # by descriptor
 
         # Modify the buffers.
         pgen = PatternGen(device, NBYTES)
@@ -98,11 +101,13 @@ class TestObjectSerializationWithMR:
         assert uuid == mr.uuid
 
         # Send a buffer.
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=device.default_stream)
         pipe[0].put(buffer)
 
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         # Confirm buffer was modified.
@@ -140,9 +145,9 @@ class TestObjectPassing:
         # Define the objects.
         device = ipc_device
         mr = ipc_memory_resource
-        alloc_handle = mr.get_allocation_handle()
-        buffer = mr.allocate(NBYTES)
-        buffer_desc = buffer.get_ipc_descriptor()
+        alloc_handle = mr.allocation_handle
+        buffer = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer_desc = buffer.ipc_descriptor
 
         pgen = PatternGen(device, NBYTES)
         pgen.fill_buffer(buffer, seed=False)
@@ -151,6 +156,8 @@ class TestObjectPassing:
         process = mp.Process(target=self.child_main, args=(alloc_handle, mr, buffer_desc, buffer))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         pgen.verify_buffer(buffer, seed=True)

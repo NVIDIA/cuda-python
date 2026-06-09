@@ -884,6 +884,12 @@ Data types used by CUDA Runtime
         This error indicates that the requested operation is not permitted because the stream is in a detached state. This can occur if the green context associated with the stream has been destroyed, limiting the stream's operational capabilities.
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorGraphRecaptureFailure
+
+
+        This error indicates that a graph recapture failed and had to be terminated.
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorUnknown
 
 
@@ -1085,6 +1091,90 @@ Data types used by CUDA Runtime
 
         4 channel unsigned normalized (10-bit, 10-bit, 10-bit, 2-bit) format
 
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422
+
+
+        4 channel unsigned 8-bit packed format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444
+
+
+        4 channel unsigned 8-bit packed format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420
+
+
+        3 channel unsigned 8-bit semi-planar format, with 4:2:0 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420
+
+
+        3 channel unsigned 16-bit semi-planar format, with 4:2:0 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422
+
+
+        3 channel unsigned 8-bit semi-planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422
+
+
+        3 channel unsigned 16-bit semi-planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444
+
+
+        3 channel unsigned 8-bit semi-planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444
+
+
+        3 channel unsigned 16-bit semi-planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420
+
+
+        3 channel unsigned 8-bit planar format, with 4:2:0 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420
+
+
+        3 channel unsigned 16-bit planar format, with 4:2:0 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422
+
+
+        3 channel unsigned 8-bit planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422
+
+
+        3 channel unsigned 16-bit planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444
+
+
+        3 channel unsigned 8-bit planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444
+
+
+        3 channel unsigned 16-bit planar format, with 4:4:4 sampling
+
 .. autoclass:: cuda.bindings.runtime.cudaMemoryType
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemoryType.cudaMemoryTypeUnregistered
@@ -1178,6 +1268,25 @@ Data types used by CUDA Runtime
 
 
         Stream is part of a capture sequence that has been invalidated, but not terminated
+
+.. autoclass:: cuda.bindings.runtime.cudaGraphRecaptureStatus
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureEligibleForUpdate
+
+
+        Node is eligible for update in an instantiated graph.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureIneligibleForUpdate
+
+
+        Parameter changes in the node cannot be applied to an instantiated graph.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphRecaptureStatus.cudaGraphRecaptureError
+
+
+        Error while attempting to recapture the node. The recapture will be ended regardless of the return value from the callback.
 
 .. autoclass:: cuda.bindings.runtime.cudaStreamCaptureMode
 
@@ -1577,6 +1686,25 @@ Data types used by CUDA Runtime
 
 
         Block compressed 7
+
+.. autoclass:: cuda.bindings.runtime.cudaSharedMemoryMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault
+
+
+        The default to use for allowing non-portable shared memory size on launch - uses current function attributes for :py:obj:`~.cudaFuncAttributeMaxDynamicSharedMemorySize`
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable
+
+
+        Specifies that the shared memory size requested must be a portable size within :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlock`
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable
+
+
+        Specifies that the shared memory size requested may be a non-portable size up to :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlockOptin`
 
 .. autoclass:: cuda.bindings.runtime.cudaFuncAttribute
 
@@ -2675,6 +2803,18 @@ Data types used by CUDA Runtime
         Link between the device and the host supports only some native atomic operations
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrAtomicReductionSupported
+
+
+        Device supports atomic reduction operations in stream batch memory operations
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrCigStreamsSupported
+
+
+        Device supports CIG streams
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax
 
 .. autoclass:: cuda.bindings.runtime.cudaMemPoolAttr
@@ -3596,6 +3736,12 @@ Data types used by CUDA Runtime
                                            call :py:obj:`~.cudaGraphSetConditional` from device code.
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeReserved16
+
+
+        Reserved.
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeCount
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership
@@ -3921,25 +4067,6 @@ Data types used by CUDA Runtime
 
         Specifies that the cluster size requested may be a non-portable size
 
-.. autoclass:: cuda.bindings.runtime.cudaSharedMemoryMode
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault
-
-
-        The default to use for allowing non-portable shared memory size on launch - uses current function attributes for :py:obj:`~.cudaFuncAttributeMaxDynamicSharedMemorySize`
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable
-
-
-        Specifies that the shared memory size requested must be a portable size within :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlock`
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable
-
-
-        Specifies that the shared memory size requested may be a non-portable size up to :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlockOptin`
-
 .. autoclass:: cuda.bindings.runtime.cudaLaunchAttributeID
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeIgnore
@@ -3951,43 +4078,43 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::accessPolicyWindow.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.accessPolicyWindow`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeCooperative
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::cooperative.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.cooperative`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeSynchronizationPolicy
 
 
-        Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue`::syncPolicy.
+        Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue.syncPolicy`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeClusterDimension
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::clusterDim.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeClusterSchedulingPolicyPreference
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::clusterSchedulingPolicyPreference.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.clusterSchedulingPolicyPreference`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticStreamSerialization
 
 
-        Valid for launches. Setting :py:obj:`~.cudaLaunchAttributeValue`::programmaticStreamSerializationAllowed to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
+        Valid for launches. Setting :py:obj:`~.cudaLaunchAttributeValue.programmaticStreamSerializationAllowed` to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticEvent
 
 
-        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue`::programmaticEvent to record the event. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event programmatically in a future CUDA release. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling :py:obj:`~.cudaEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cudaEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. Note also this type of dependency allows, but does not guarantee, concurrent execution of tasks. 
+        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue.programmaticEvent` to record the event. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event programmatically in a future CUDA release. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling :py:obj:`~.cudaEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cudaEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. Note also this type of dependency allows, but does not guarantee, concurrent execution of tasks. 
 
          The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the :py:obj:`~.cudaEventDisableTiming` flag set).
 
@@ -3995,25 +4122,25 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePriority
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::priority.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.priority`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomainMap
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::memSyncDomainMap.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.memSyncDomainMap`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomain
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::memSyncDomain.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.memSyncDomain`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePreferredClusterDimension
 
 
-        Valid for graph nodes and launches. Set :py:obj:`~.cudaLaunchAttributeValue`::preferredClusterDim to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with :py:obj:`~.cudaLaunchAttributeClusterDimension` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible. 
+        Valid for graph nodes and launches. Set :py:obj:`~.cudaLaunchAttributeValue.preferredClusterDim` to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with :py:obj:`~.cudaLaunchAttributeClusterDimension` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible. 
 
          Each type of cluster will have its enumeration / coordinate setup as if the grid consists solely of its type of cluster. For example, if the preferred substitute cluster dimensions double the regular cluster dimensions, there might be simultaneously a regular cluster indexed at (1,0,0), and a preferred cluster indexed at (1,0,0). In this example, the preferred substitute cluster (1,0,0) replaces regular clusters (2,0,0) and (3,0,0) and groups their blocks. 
 
@@ -4023,7 +4150,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent
 
 
-        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue`::launchCompletionEvent to record the event. 
+        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue.launchCompletionEvent` to record the event. 
 
          Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock. 
 
@@ -4037,7 +4164,7 @@ Data types used by CUDA Runtime
 
         Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error. 
 
-         :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.cudaLaunchAttributeValue`::deviceUpdatableKernelNode::devNode which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
+         :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode` which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
 
          Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via :py:obj:`~.cudaGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via :py:obj:`~.cudaGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to :py:obj:`~.cudaGraphExecUpdate`. 
 
@@ -4047,7 +4174,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout
 
 
-        Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.cudaLaunchAttributeValue`::sharedMemCarveout to a percentage between 0-100 signals sets the shared memory carveout preference in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is only a hint, and the driver can choose a different configuration if required for the launch.
+        Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.cudaLaunchAttributeValue.sharedMemCarveout` to a percentage between 0-100 signals sets the shared memory carveout preference in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is only a hint, and the driver can choose a different configuration if required for the launch.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeNvlinkUtilCentricScheduling
@@ -4061,13 +4188,13 @@ Data types used by CUDA Runtime
 
          This attribute is a hint only. CUDA makes no functional or performance guarantee. Its applicability can be affected by many different factors, including driver version (i.e. CUDA doesn't guarantee the performance characteristics will be maintained between driver versions or a driver update could alter or regress previously observed perf characteristics.) It also doesn't guarantee a successful result, i.e. applying the attribute may not improve the performance of either the targeted kernel or the encapsulating application. 
 
-         Valid values for :py:obj:`~.cudaLaunchAttributeValue`::nvlinkUtilCentricScheduling are 0 (disabled) and 1 (enabled).
+         Valid values for :py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0 (disabled) and 1 (enabled).
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePortableClusterSizeMode
 
 
-        Valid for graph nodes, launches. This indicates whether the kernel launch is allowed to use a non-portable cluster size. Valid values for :py:obj:`~.cudaLaunchAttributeValue`::portableClusterSizeMode are values for :py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will return :py:obj:`~.cudaErrorInvalidValue`
+        Valid for graph nodes, launches. This indicates whether the kernel launch is allowed to use a non-portable cluster size. Valid values for :py:obj:`~.cudaLaunchAttributeValue.portableClusterSizeMode` are values for :py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will return :py:obj:`~.cudaErrorInvalidValue`
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeSharedMemoryMode
@@ -4101,6 +4228,26 @@ Data types used by CUDA Runtime
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLogLevel.cudaLogLevelWarning
+
+.. autoclass:: cuda.bindings.runtime.cudaFabricOpStatusSource
+
+    .. autoattribute:: cuda.bindings.runtime.cudaFabricOpStatusSource.cudaFabricOpStatusSourceMbarrierV1
+
+
+        1B-aligned 1B-wide status from an mbarrier.layout::v1
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaFabricOpStatusSource.cudaFabricOpStatusSourceMax
+
+.. autoclass:: cuda.bindings.runtime.cudaFabricOpStatusInfo
+
+    .. autoattribute:: cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoSuccess
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoLast
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoMax
 
 .. autoclass:: cuda.bindings.runtime.cudaSurfaceBoundaryMode
 
@@ -5252,6 +5399,7 @@ This section describes the device management functions of the CUDA runtime appli
 .. autofunction:: cuda.bindings.runtime.cudaDeviceSynchronize
 .. autofunction:: cuda.bindings.runtime.cudaDeviceSetLimit
 .. autofunction:: cuda.bindings.runtime.cudaDeviceGetLimit
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetTexture1DLinearMaxWidth
 .. autofunction:: cuda.bindings.runtime.cudaDeviceGetCacheConfig
 .. autofunction:: cuda.bindings.runtime.cudaDeviceGetStreamPriorityRange
 .. autofunction:: cuda.bindings.runtime.cudaDeviceSetCacheConfig
@@ -5262,6 +5410,7 @@ This section describes the device management functions of the CUDA runtime appli
 .. autofunction:: cuda.bindings.runtime.cudaIpcGetMemHandle
 .. autofunction:: cuda.bindings.runtime.cudaIpcOpenMemHandle
 .. autofunction:: cuda.bindings.runtime.cudaIpcCloseMemHandle
+.. autofunction:: cuda.bindings.runtime.cudaDeviceFlushGPUDirectRDMAWrites
 .. autofunction:: cuda.bindings.runtime.cudaDeviceRegisterAsyncNotification
 .. autofunction:: cuda.bindings.runtime.cudaDeviceUnregisterAsyncNotification
 .. autofunction:: cuda.bindings.runtime.cudaGetDeviceCount
@@ -5296,7 +5445,9 @@ Stream Management
 
 This section describes the stream management functions of the CUDA runtime application programming interface.
 
+.. autoclass:: cuda.bindings.runtime.cudaGraphRecaptureCallbackData
 .. autoclass:: cuda.bindings.runtime.cudaStreamCallback_t
+.. autoclass:: cuda.bindings.runtime.cudaGraphRecaptureCallback_t
 .. autofunction:: cuda.bindings.runtime.cudaStreamCreate
 .. autofunction:: cuda.bindings.runtime.cudaStreamCreateWithFlags
 .. autofunction:: cuda.bindings.runtime.cudaStreamCreateWithPriority
@@ -5315,6 +5466,7 @@ This section describes the stream management functions of the CUDA runtime appli
 .. autofunction:: cuda.bindings.runtime.cudaStreamQuery
 .. autofunction:: cuda.bindings.runtime.cudaStreamAttachMemAsync
 .. autofunction:: cuda.bindings.runtime.cudaStreamBeginCapture
+.. autofunction:: cuda.bindings.runtime.cudaStreamBeginRecaptureToGraph
 .. autofunction:: cuda.bindings.runtime.cudaStreamBeginCaptureToGraph
 .. autofunction:: cuda.bindings.runtime.cudaThreadExchangeStreamCaptureMode
 .. autofunction:: cuda.bindings.runtime.cudaStreamEndCapture
@@ -5330,6 +5482,7 @@ This section describes the event management functions of the CUDA runtime applic
 .. autofunction:: cuda.bindings.runtime.cudaEventCreate
 .. autofunction:: cuda.bindings.runtime.cudaEventCreateWithFlags
 .. autofunction:: cuda.bindings.runtime.cudaEventRecord
+.. autofunction:: cuda.bindings.runtime.cudaEventRecordWithFlags
 .. autofunction:: cuda.bindings.runtime.cudaEventQuery
 .. autofunction:: cuda.bindings.runtime.cudaEventSynchronize
 .. autofunction:: cuda.bindings.runtime.cudaEventDestroy
@@ -5418,6 +5571,8 @@ Some functions have overloaded C++ API template versions documented separately i
 .. autofunction:: cuda.bindings.runtime.cudaArrayGetPlane
 .. autofunction:: cuda.bindings.runtime.cudaArrayGetMemoryRequirements
 .. autofunction:: cuda.bindings.runtime.cudaMipmappedArrayGetMemoryRequirements
+.. autofunction:: cuda.bindings.runtime.cudaArrayGetSparseProperties
+.. autofunction:: cuda.bindings.runtime.cudaMipmappedArrayGetSparseProperties
 .. autofunction:: cuda.bindings.runtime.cudaMemcpy
 .. autofunction:: cuda.bindings.runtime.cudaMemcpyPeer
 .. autofunction:: cuda.bindings.runtime.cudaMemcpy2D
@@ -5730,8 +5885,10 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeGetAttribute
 .. autofunction:: cuda.bindings.runtime.cudaGraphKernelNodeSetAttribute
 .. autofunction:: cuda.bindings.runtime.cudaGraphAddMemcpyNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddMemcpyNode1D
 .. autofunction:: cuda.bindings.runtime.cudaGraphMemcpyNodeGetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphMemcpyNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphMemcpyNodeSetParams1D
 .. autofunction:: cuda.bindings.runtime.cudaGraphAddMemsetNode
 .. autofunction:: cuda.bindings.runtime.cudaGraphMemsetNodeGetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphMemsetNodeSetParams
@@ -5741,6 +5898,25 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.bindings.runtime.cudaGraphAddChildGraphNode
 .. autofunction:: cuda.bindings.runtime.cudaGraphChildGraphNodeGetGraph
 .. autofunction:: cuda.bindings.runtime.cudaGraphAddEmptyNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddEventRecordNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphEventRecordNodeGetEvent
+.. autofunction:: cuda.bindings.runtime.cudaGraphEventRecordNodeSetEvent
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddEventWaitNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphEventWaitNodeGetEvent
+.. autofunction:: cuda.bindings.runtime.cudaGraphEventWaitNodeSetEvent
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddExternalSemaphoresSignalNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphExternalSemaphoresSignalNodeGetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExternalSemaphoresSignalNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddExternalSemaphoresWaitNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeGetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddMemAllocNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphMemAllocNodeGetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphAddMemFreeNode
+.. autofunction:: cuda.bindings.runtime.cudaGraphMemFreeNodeGetParams
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGraphMemTrim
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetGraphMemAttribute
+.. autofunction:: cuda.bindings.runtime.cudaDeviceSetGraphMemAttribute
 .. autofunction:: cuda.bindings.runtime.cudaGraphClone
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeFindInClone
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetType
@@ -5758,13 +5934,23 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.bindings.runtime.cudaGraphRemoveDependencies
 .. autofunction:: cuda.bindings.runtime.cudaGraphDestroyNode
 .. autofunction:: cuda.bindings.runtime.cudaGraphInstantiate
+.. autofunction:: cuda.bindings.runtime.cudaGraphInstantiateWithFlags
 .. autofunction:: cuda.bindings.runtime.cudaGraphInstantiateWithParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphExecGetFlags
 .. autofunction:: cuda.bindings.runtime.cudaGraphExecKernelNodeSetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphExecMemcpyNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecMemcpyNodeSetParams1D
 .. autofunction:: cuda.bindings.runtime.cudaGraphExecMemsetNodeSetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphExecHostNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecChildGraphNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecEventRecordNodeSetEvent
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecEventWaitNodeSetEvent
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecExternalSemaphoresSignalNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecExternalSemaphoresWaitNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeSetEnabled
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetEnabled
 .. autofunction:: cuda.bindings.runtime.cudaGraphExecUpdate
+.. autofunction:: cuda.bindings.runtime.cudaGraphUpload
 .. autofunction:: cuda.bindings.runtime.cudaGraphLaunch
 .. autofunction:: cuda.bindings.runtime.cudaGraphExecDestroy
 .. autofunction:: cuda.bindings.runtime.cudaGraphDestroy

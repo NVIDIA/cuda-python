@@ -23,7 +23,7 @@ def test_event_init_disabled():
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 def test_timing_success(init_cuda):
-    options = EventOptions(enable_timing=True)
+    options = EventOptions(timing_enabled=True)
     device = Device()
     stream = device.create_stream()
 
@@ -48,20 +48,20 @@ def test_timing_success(init_cuda):
     assert elapsed_time_ms > 10
 
 
-def test_is_sync_busy_waited(init_cuda):
-    options = EventOptions(enable_timing=False, busy_waited_sync=True)
+def test_is_blocking_sync(init_cuda):
+    options = EventOptions(timing_enabled=False, blocking_sync=True)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.is_sync_busy_waited is True
+    assert event.is_blocking_sync is True
 
-    options = EventOptions(enable_timing=False)
+    options = EventOptions(timing_enabled=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.is_sync_busy_waited is False
+    assert event.is_blocking_sync is False
 
 
 def test_sync(init_cuda):
-    options = EventOptions(enable_timing=False)
+    options = EventOptions(timing_enabled=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
     event.sync()
@@ -69,7 +69,7 @@ def test_sync(init_cuda):
 
 
 def test_is_done(init_cuda):
-    options = EventOptions(enable_timing=False)
+    options = EventOptions(timing_enabled=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
     # Without a sync, the captured work might not have yet completed
@@ -80,14 +80,14 @@ def test_is_done(init_cuda):
 def test_error_timing_disabled():
     device = Device()
     device.set_current()
-    enabled = EventOptions(enable_timing=True)
-    disabled = EventOptions(enable_timing=False)
+    enabled = EventOptions(timing_enabled=True)
+    disabled = EventOptions(timing_enabled=False)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)
     event2 = stream.record(options=disabled)
-    assert not event1.is_timing_disabled
-    assert event2.is_timing_disabled
+    assert event1.is_timing_enabled
+    assert not event2.is_timing_enabled
     stream.sync()
     with pytest.raises(RuntimeError, match="^Both Events must be created with timing enabled"):
         event2 - event1
@@ -102,7 +102,7 @@ def test_error_timing_disabled():
 def test_error_timing_recorded():
     device = Device()
     device.set_current()
-    enabled = EventOptions(enable_timing=True)
+    enabled = EventOptions(timing_enabled=True)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)
@@ -123,7 +123,7 @@ def test_error_timing_incomplete():
     device = Device()
     device.set_current()
     latch = LatchKernel(device)
-    enabled = EventOptions(enable_timing=True)
+    enabled = EventOptions(timing_enabled=True)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)
@@ -213,13 +213,13 @@ def test_event_rsub_not_implemented(init_cuda):
     assert result is NotImplemented
 
 
-def test_event_get_ipc_descriptor_non_ipc(init_cuda):
-    """get_ipc_descriptor raises RuntimeError on a non-IPC event."""
+def test_event_ipc_descriptor_non_ipc(init_cuda):
+    """ipc_descriptor raises RuntimeError on a non-IPC event."""
     device = Device()
     stream = device.create_stream()
     event = stream.record()
     with pytest.raises(RuntimeError, match="not IPC-enabled"):
-        event.get_ipc_descriptor()
+        _ = event.ipc_descriptor
 
 
 def test_event_is_done_false(init_cuda):
@@ -241,6 +241,43 @@ def test_ipc_event_descriptor_direct_init():
 
     with pytest.raises(RuntimeError, match="cannot be instantiated directly"):
         _event_module.IPCEventDescriptor()
+
+
+@pytest.mark.parametrize(
+    "other",
+    [None, "string", 42, 3.14, (b"\x00" * 64,), object()],
+    ids=["None", "str", "int", "float", "tuple", "object"],
+)
+def test_ipc_event_descriptor_eq_other_type(other):
+    """IPCEventDescriptor.__eq__ returns NotImplemented for unrelated types.
+
+    Regression test for https://github.com/NVIDIA/cuda-python/issues/2050: comparing
+    an IPCEventDescriptor to objects of unrelated types must not raise TypeError /
+    AttributeError; it must follow Python's rich-comparison protocol and yield False.
+    """
+    import cuda.core._event as _event_module
+
+    desc = _event_module.IPCEventDescriptor._init(b"\x00" * 64, True)
+    assert desc != other
+    assert not (desc == other)  # noqa: SIM201
+    assert other != desc
+    assert desc.__eq__(other) is NotImplemented
+
+
+def test_ipc_event_descriptor_eq_same_value():
+    """Two IPCEventDescriptors with the same _reserved compare equal."""
+    import cuda.core._event as _event_module
+
+    reserved = b"\x01" * 64
+    a = _event_module.IPCEventDescriptor._init(reserved, True)
+    b = _event_module.IPCEventDescriptor._init(reserved, True)
+    c = _event_module.IPCEventDescriptor._init(b"\x02" * 64, True)
+    assert a == a
+    assert a == b
+    assert a != c
+    # _is_blocking_sync is intentionally ignored by __eq__.
+    d = _event_module.IPCEventDescriptor._init(reserved, False)
+    assert a == d
 
 
 # ============================================================================

@@ -105,13 +105,32 @@ class _Struct:
         self._name = name
         self._member_names = []
         self._member_types = []
+        self._member_declarators = []
         for var_name, var_type, _ in members:
-            var_type = var_type[0]
-            var_type = var_type.removeprefix("struct ")
-            var_type = var_type.removeprefix("union ")
+            base_type = var_type[0]
+            base_type = base_type.removeprefix("struct ")
+            base_type = base_type.removeprefix("union ")
 
             self._member_names += [var_name]
-            self._member_types += [var_type]
+            self._member_types += [base_type]
+            self._member_declarators += [tuple(var_type[1:])]
+
+    def member_type(self, member_name):
+        try:
+            return self._member_types[self._member_names.index(member_name)]
+        except ValueError:
+            return None
+
+    def member_array_length(self, member_name):
+        try:
+            declarators = self._member_declarators[self._member_names.index(member_name)]
+        except ValueError:
+            return None
+
+        for declarator in declarators:
+            if isinstance(declarator, list) and len(declarator) == 1:
+                return declarator[0]
+        return None
 
     def discoverMembers(self, memberDict, prefix, seen=None):
         if seen is None:
@@ -188,6 +207,7 @@ def _parse_headers(header_dict, include_path_list, parser_caching):
         # Since we only support 64 bit architectures, we can inline the sizeof(T*) to 8 and then compute the
         # result in Python. The arithmetic expression is preserved to help with clarity and understanding
         r"char reserved\[52 - sizeof\(CUcheckpointGpuPair \*\)\];": rf"char reserved[{52 - 8}];",
+        r"char reserved\[64 - sizeof\(CUcheckpointGpuPair \*\) - sizeof\(unsigned int\)\];": rf"char reserved[{64 - 8 - 4}];",
     }
 
     print(f'Parsing headers in "{include_path_list}" (Caching = {parser_caching})', flush=True)
@@ -337,6 +357,13 @@ def _build_cuda_bindings(debug=False):
     found_types, found_functions, found_values, found_struct, struct_list = _parse_headers(
         header_dict, include_path_list, parser_caching
     )
+    struct_field_types = {}
+    struct_field_array_lengths = {}
+    for struct_name, struct in struct_list.items():
+        for member_name in struct._member_names:
+            key = f"{struct_name}.{member_name}"
+            struct_field_types[key] = struct.member_type(member_name)
+            struct_field_array_lengths[key] = struct.member_array_length(member_name)
 
     # Generate code from .in templates
     path_list = [
@@ -359,6 +386,8 @@ def _build_cuda_bindings(debug=False):
         "found_values": found_values,
         "found_struct": found_struct,
         "struct_list": struct_list,
+        "struct_field_types": struct_field_types,
+        "struct_field_array_lengths": struct_field_array_lengths,
         "os": os,
         "sys": sys,
         "platform": platform,

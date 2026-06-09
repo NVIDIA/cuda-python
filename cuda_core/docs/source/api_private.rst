@@ -16,22 +16,34 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   typing.DevicePointerT
-   _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryGranularityT
-   _memory._virtual_memory_resource.VirtualMemoryAccessTypeT
-   _memory._virtual_memory_resource.VirtualMemoryHandleTypeT
+   _memory._peer_access_utils.PeerAccessibleBySetProxy
    _module.KernelAttributes
    _module.KernelOccupancy
-   _module.ParamInfo
    _module.MaxPotentialBlockSizeOccupancyResult
+   _module.ParamInfo
+   typing.CompilerBackendType
+   typing.DevicePointerType
+   typing.DeviceResourcesType
+   typing.GraphConditionalType
+   typing.GraphMemoryType
+   typing.ManagedMemoryLocationType
+   typing.ObjectCodeFormatType
+   typing.PCHStatusType
+   typing.ProcessStateType
+   typing.SourceCodeType
+   typing.VirtualMemoryAccessType
+   typing.VirtualMemoryAllocationType
+   typing.VirtualMemoryGranularityType
+   typing.VirtualMemoryHandleType
+   typing.VirtualMemoryLocationType
 
    :template: autosummary/cyclass.rst
 
    _device.DeviceProperties
+   _device_resources.DeviceResources
    _memory._ipc.IPCAllocationHandle
    _memory._ipc.IPCBufferDescriptor
+   _memory._managed_buffer.AccessedBySetProxy
 
 
 CUDA graphs
@@ -50,7 +62,7 @@ CUDA protocols
    :toctree: generated/
    :template: protocol.rst
 
-   typing.IsStreamT
+   typing.IsStreamType
 
 NVML
 ----
@@ -71,19 +83,41 @@ NVML
    system._device.FieldValues
    system._device.GpuDynamicPstatesInfo
    system._device.GpuDynamicPstatesUtilization
-   system._device.GpuP2PCapsIndex
-   system._device.GpuP2PStatus
-   system._device.GpuTopologyLevel
    system._device.InforomInfo
    system._device.MemoryInfo
    system._device.MigInfo
-   system._device.NvlinkInfo
    system._device.PciInfo
    system._device.ProcessInfo
    system._device.RepairStatus
    system._device.Temperature
    system._device.ThermalSensor
    system._device.ThermalSettings
+   system._device.Utilization
    system._system_events.RegisteredSystemEvents
    system._system_events.SystemEvent
    system._system_events.SystemEvents
+
+.. These are not technically private, but are included here to avoid cluttering the main API reference.
+
+.. autosummary::
+   :toctree: generated/
+
+   system.typing.AddressingMode
+   system.typing.AffinityScope
+   system.typing.ClockId
+   system.typing.ClocksEventReasons
+   system.typing.ClockType
+   system.typing.CoolerControl
+   system.typing.CoolerTarget
+   system.typing.DeviceArch
+   system.typing.EventType
+   system.typing.FanControlPolicy
+   system.typing.FieldId
+   system.typing.GpuP2PCapsIndex
+   system.typing.GpuP2PStatus
+   system.typing.GpuTopologyLevel
+   system.typing.InforomObject
+   system.typing.SystemEventType
+   system.typing.TemperatureThresholds
+   system.typing.ThermalController
+   system.typing.ThermalTarget

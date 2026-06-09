@@ -1,14 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-try:
-    from cuda.bindings import driver, runtime
-except ImportError:
-    from cuda import cuda as driver
-    from cuda import cudart as runtime
+import contextlib
+
 import pytest
 
 import cuda.core
+from cuda.bindings import driver, runtime
 from cuda.core import Device
 from cuda.core._utils.cuda_utils import ComputeCapability, handle_return
 from cuda.core._utils.version import binding_version, driver_version
@@ -45,7 +43,9 @@ def test_to_system_device(deinit_cuda):
 
     # CUDA only returns a 2-byte PCI bus ID domain, whereas NVML returns a
     # 4-byte domain
-    assert device.pci_bus_id == system_device.pci_info.bus_id[4:]
+    # MIG devices don't have pci_info, so skip the bus ID check if it's missing
+    with contextlib.suppress(RuntimeError):
+        assert device.pci_bus_id == system_device.pci_info.bus_id[4:]
 
 
 def test_device_set_current(deinit_cuda):
@@ -63,7 +63,7 @@ def test_device_repr(deinit_cuda):
 def test_device_alloc(deinit_cuda):
     device = Device()
     device.set_current()
-    buffer = device.allocate(1024)
+    buffer = device.allocate(1024, stream=device.default_stream)
     device.sync()
     assert buffer.handle != 0
     assert buffer.size == 1024
@@ -73,7 +73,7 @@ def test_device_alloc(deinit_cuda):
 def test_device_alloc_zero_bytes(deinit_cuda):
     device = Device()
     device.set_current()
-    buffer = device.allocate(0)
+    buffer = device.allocate(0, stream=device.default_stream)
     device.sync()
     assert buffer.handle >= 0
     assert buffer.size == 0

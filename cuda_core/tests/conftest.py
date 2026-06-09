@@ -1,22 +1,17 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing
 import os
 import pathlib
 import sys
+from contextlib import contextmanager
 from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
 
-from cuda.pathfinder import get_cuda_path_or_home
-
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
-
 import cuda.core
+from cuda.bindings import driver
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -27,7 +22,58 @@ from cuda.core import (
     PinnedMemoryResourceOptions,
     _device,
 )
-from cuda.core._utils.cuda_utils import handle_return
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
+from cuda.pathfinder import get_cuda_path_or_home
+
+try:
+    from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
+except ModuleNotFoundError:
+    # Older cuda.bindings artifacts (for example 12.9.x backports) do not ship
+    # this helper yet. Keep the fallback local so tests against published
+    # bindings still xfail the known Windows MCDM mempool setup issue.
+    #
+    # Keep in sync with cuda_bindings/cuda/bindings/_test_helpers/mempool.py.
+    # This copy is intentionally simpler because it only handles cuda_core
+    # CUDAError exceptions when the shared helper is absent.
+    def _is_windows_mcdm_device(device=0):
+        if sys.platform != "win32":
+            return False
+        import cuda.bindings.nvml as nvml
+
+        device_id = int(getattr(device, "device_id", device))
+        (err,) = driver.cuInit(0)
+        if err != driver.CUresult.CUDA_SUCCESS:
+            return False
+        err, pci_bus_id = driver.cuDeviceGetPCIBusId(13, device_id)
+        if err != driver.CUresult.CUDA_SUCCESS:
+            return False
+        pci_bus_id = pci_bus_id.split(b"\x00", 1)[0].decode("ascii")
+        nvml.init_v2()
+        try:
+            handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
+            current, _ = nvml.device_get_driver_model_v2(handle)
+            return current == nvml.DriverModel.DRIVER_MCDM
+        finally:
+            nvml.shutdown()
+
+    def xfail_if_mempool_oom(err_or_exc, api_name=None, device=0):
+        if api_name is not None and not isinstance(api_name, str):
+            device = api_name
+            api_name = None
+
+        if "CUDA_ERROR_OUT_OF_MEMORY" not in str(err_or_exc):
+            return
+        try:
+            is_windows_mcdm = _is_windows_mcdm_device(device)
+        except Exception:
+            # If MCDM detection fails, leave the primary test failure visible.
+            return
+        if not is_windows_mcdm:
+            return
+
+        api_context = f"{api_name} " if api_name else ""
+        pytest.xfail(f"{api_context}could not reserve VA for mempool operations on Windows MCDM")
+
 
 # Import shared test helpers for tests across subprojects.
 # PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.
@@ -61,19 +107,80 @@ def skip_if_managed_memory_unsupported(device):
         pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
     try:
         ManagedMemoryResource()
+    except CUDAError as e:
+        xfail_if_mempool_oom(e, device)
+        raise
     except RuntimeError as e:
         if "requires CUDA 13.0" in str(e):
             pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
         raise
 
 
-def create_managed_memory_resource_or_skip(*args, **kwargs):
+def create_managed_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
+    # Keep the established "skip" helper name for call-site readability, even though
+    # Windows MCDM mempool OOM setup failures are xfailed instead of skipped.
     try:
         return ManagedMemoryResource(*args, **kwargs)
+    except CUDAError as e:
+        xfail_if_mempool_oom(e, _device_id_from_resource_options(xfail_device, args, kwargs))
+        if "CUDA_ERROR_NOT_SUPPORTED" in str(e):
+            pytest.skip("ManagedMemoryResource is not supported on this platform/device")
+        raise
     except RuntimeError as e:
         if "requires CUDA 13.0" in str(e):
             pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
         raise
+
+
+def create_pinned_memory_resource_or_xfail(*args, xfail_device=None, **kwargs):
+    try:
+        return PinnedMemoryResource(*args, **kwargs)
+    except CUDAError as e:
+        xfail_if_mempool_oom(e, xfail_device)
+        raise
+
+
+@contextmanager
+def xfail_on_graph_mempool_oom(device=0):
+    try:
+        yield
+    except CUDAError as e:
+        xfail_if_mempool_oom(e, "cuGraphAddMemAllocNode", device)
+        raise
+
+
+def _device_id_from_resource_options(device, args, kwargs):
+    if device is not None:
+        return device
+    options = kwargs.get("options")
+    if options is None and args:
+        options = args[0]
+    if options is None:
+        return 0
+    if isinstance(options, dict):
+        preferred_location = options.get("preferred_location")
+        preferred_location_type = options.get("preferred_location_type")
+    else:
+        preferred_location = getattr(options, "preferred_location", None)
+        preferred_location_type = getattr(options, "preferred_location_type", None)
+    if preferred_location_type in (None, "device") and isinstance(preferred_location, int) and preferred_location >= 0:
+        return preferred_location
+    return 0
+
+
+def _require_ipc_mempool_devices(devices):
+    """Return devices if they all support IPC-enabled mempools, otherwise skip."""
+    from helpers import IS_WSL, supports_ipc_mempool
+
+    checked_devices = tuple(devices)
+
+    if not all(device.properties.handle_type_posix_file_descriptor_supported for device in checked_devices):
+        pytest.skip("Device does not support IPC")
+
+    if IS_WSL or not all(supports_ipc_mempool(device) for device in checked_devices):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
+    return devices
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -141,26 +248,24 @@ def deinit_all_contexts_function():
 
 @pytest.fixture
 def ipc_device():
-    """Obtains a device suitable for IPC-enabled mempool tests, or skips."""
-    # Check if IPC is supported on this platform/device
+    """Obtains a device suitable for IPC-enabled mempool tests, or skips.
+
+    The fixture also tracks every ``multiprocessing.Process`` spawned during
+    the test and kills any survivors at teardown. This prevents a stuck child
+    (e.g., compute-sanitizer wedged during IPC teardown -- see issue #2004)
+    from blocking ``ipc_memory_resource``'s ``mr.close()`` for hours.
+    """
+    from helpers.child_processes import track_child_processes
+
     device = Device(0)
     device.set_current()
 
     if not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
 
-    # Note: Linux specific. Once Windows support for IPC is implemented, this
-    # test should be updated.
-    if not device.properties.handle_type_posix_file_descriptor_supported:
-        pytest.skip("Device does not support IPC")
-
-    # Skip on WSL or if driver rejects IPC-enabled mempool creation on this platform/device
-    from helpers import IS_WSL, supports_ipc_mempool
-
-    if IS_WSL or not supports_ipc_mempool(device):
-        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
-
-    return device
+    device = _require_ipc_mempool_devices((device,))[0]
+    with track_child_processes():
+        yield device
 
 
 @pytest.fixture(
@@ -227,6 +332,20 @@ def mempool_device_x2():
 def mempool_device_x3():
     """Fixture that provides three devices if available, otherwise skips test."""
     return _mempool_device_impl(3)
+
+
+@pytest.fixture
+def ipc_mempool_device_x2(mempool_device_x2):
+    """Fixture that provides two IPC-capable mempool devices, or skips.
+
+    Also tracks/kills any leftover ``multiprocessing.Process`` children at
+    teardown for the same reasons documented on :func:`ipc_device`.
+    """
+    from helpers.child_processes import track_child_processes
+
+    devices = _require_ipc_mempool_devices(mempool_device_x2)
+    with track_child_processes():
+        yield devices
 
 
 @pytest.fixture(

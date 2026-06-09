@@ -1603,7 +1603,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN
 
 
-        Maximum optin shared memory per block
+        Maximum optin shared memory per block. That is shared memory that is available for dynamic allocation or static allocation (including architecture specific static shared memory) on this device but is not guaranteed to be portable.
 
 
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_FLUSH_REMOTE_WRITES
@@ -1918,6 +1918,42 @@ Data types used by CUDA driver
         Device supports atomic reduction operations in stream batch memory operations
 
 
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED
+
+
+        Device supports CIG streams with D3D12
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DMA_BUF_MMAP_SUPPORTED
+
+
+        Device supports mmap() of dmabuf file descriptors for CUDA device memory allocations
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_SUPPORTED
+
+
+        Device supports unicast logical endpoints
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_MULTICAST_SUPPORTED
+
+
+        Device supports multicast logical endpoints
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_COUNTED_OPS_SUPPORTED
+
+
+        Device supports counted operations via logical endpoints
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED
+
+
+        Device supports unicast logical endpoint access on the owner device
+
+
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX
 
 .. autoclass:: cuda.bindings.driver.CUpointer_attribute
@@ -2171,6 +2207,12 @@ Data types used by CUDA driver
 
 
         The block scheduling policy of a function. The value type is CUclusterSchedulingPolicy / cudaClusterSchedulingPolicy. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
+
+
+    .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED
+
+
+        Whether the function can be updated on device. 1 means device node update is supported, 0 is unsupported. See :py:obj:`~.cuFuncGetAttribute`.
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX
@@ -3325,6 +3367,12 @@ Data types used by CUDA driver
 
                                                 call :py:obj:`~.cudaGraphSetConditional` from device code.
 
+
+    .. autoattribute:: cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_RESERVED_16
+
+
+        Reserved
+
 .. autoclass:: cuda.bindings.driver.CUgraphDependencyType
 
     .. autoattribute:: cuda.bindings.driver.CUgraphDependencyType.CU_GRAPH_DEPENDENCY_TYPE_DEFAULT
@@ -4309,6 +4357,12 @@ Data types used by CUDA driver
 
 
         This error indicates that the requested operation is not permitted because the stream is in a detached state. This can occur if the green context associated with the stream has been destroyed, limiting the stream's operational capabilities.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_GRAPH_RECAPTURE_FAILURE
+
+
+        This error indicates that a graph recapture failed and had to be terminated.
 
 
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_UNKNOWN
@@ -6986,6 +7040,59 @@ Support for multicast on a specific device can be queried using the device attri
 .. autofunction:: cuda.bindings.driver.cuMulticastUnbind
 .. autofunction:: cuda.bindings.driver.cuMulticastGetGranularity
 
+Logical Endpoint
+----------------
+
+This section describes the logical endpoint functions of the low-level CUDA driver application programming interface.
+
+.. autoclass:: cuda.bindings.driver.CUlogicalEndpointFabricHandle_st
+.. autoclass:: cuda.bindings.driver.CUlogicalEndpointProp_struct
+.. autoclass:: cuda.bindings.driver.CUlogicalEndpointIpcHandleType
+
+    .. autoattribute:: cuda.bindings.driver.CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE
+
+
+    .. autoattribute:: cuda.bindings.driver.CUlogicalEndpointIpcHandleType.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC
+
+.. autoclass:: cuda.bindings.driver.CUlogicalEndpointType
+
+    .. autoattribute:: cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_INVALID
+
+
+    .. autoattribute:: cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_UNICAST
+
+
+    .. autoattribute:: cuda.bindings.driver.CUlogicalEndpointType.CU_LOGICAL_ENDPOINT_TYPE_MULTICAST
+
+.. autoclass:: cuda.bindings.driver.CUlogicalEndpointFlag
+
+    .. autoattribute:: cuda.bindings.driver.CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_NONE
+
+
+        Default flag for logical endpoint construction
+
+
+    .. autoattribute:: cuda.bindings.driver.CUlogicalEndpointFlag.CU_LOGICAL_ENDPOINT_FLAG_COUNTED_OPS
+
+
+        Indicate the programmer's intention to use counted operations with the logical endpoint
+
+.. autoclass:: cuda.bindings.driver.CUlogicalEndpointId
+.. autoclass:: cuda.bindings.driver.CUlogicalEndpointFabricHandle
+.. autoclass:: cuda.bindings.driver.CUlogicalEndpointProp
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointIdReserve
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointIdRelease
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointCreate
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointAddDevice
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointDestroy
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointBindAddr
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointBindMem
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointUnbind
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointExport
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointImport
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointGetLimits
+.. autofunction:: cuda.bindings.driver.cuLogicalEndpointQuery
+
 Unified Addressing
 ------------------
 
@@ -7077,6 +7184,26 @@ Stream Management
 
 This section describes the stream management functions of the low-level CUDA driver application programming interface.
 
+.. autoclass:: cuda.bindings.driver.CUgraphRecaptureStatus
+
+    .. autoattribute:: cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ELIGIBLE_FOR_UPDATE
+
+
+        Node is eligible for update in an instantiated graph.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_INELIGIBLE_FOR_UPDATE
+
+
+        Parameter changes in the node cannot be applied to an instantiated graph.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUgraphRecaptureStatus.CU_GRAPH_RECAPTURE_ERROR
+
+
+        Error while attempting to recapture the node. The recapture will be ended regardless of the return value from the callback.
+
+.. autoclass:: cuda.bindings.driver.CUgraphRecaptureCallback
 .. autofunction:: cuda.bindings.driver.cuStreamCreate
 .. autofunction:: cuda.bindings.driver.cuStreamCreateWithPriority
 .. autofunction:: cuda.bindings.driver.cuStreamBeginCaptureToCig
@@ -7090,6 +7217,7 @@ This section describes the stream management functions of the low-level CUDA dri
 .. autofunction:: cuda.bindings.driver.cuStreamWaitEvent
 .. autofunction:: cuda.bindings.driver.cuStreamAddCallback
 .. autofunction:: cuda.bindings.driver.cuStreamBeginCapture
+.. autofunction:: cuda.bindings.driver.cuStreamBeginRecaptureToGraph
 .. autofunction:: cuda.bindings.driver.cuStreamBeginCaptureToGraph
 .. autofunction:: cuda.bindings.driver.cuThreadExchangeStreamCaptureMode
 .. autofunction:: cuda.bindings.driver.cuStreamEndCapture
@@ -7193,7 +7321,6 @@ This section describes the execution control functions of the low-level CUDA dri
 .. autofunction:: cuda.bindings.driver.cuLaunchKernel
 .. autofunction:: cuda.bindings.driver.cuLaunchKernelEx
 .. autofunction:: cuda.bindings.driver.cuLaunchCooperativeKernel
-.. autofunction:: cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice
 .. autofunction:: cuda.bindings.driver.cuLaunchHostFunc
 .. autofunction:: cuda.bindings.driver.cuLaunchHostFunc_v2
 
@@ -7421,6 +7548,15 @@ This section describes the coredump attribute control functions of the low-level
     .. autoattribute:: cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_GZIP_COMPRESS
 
 
+    .. autoattribute:: cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_FAULTED_CONTEXTS_ONLY
+
+
+    .. autoattribute:: cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_NO_ERRBAR_AT_EXIT
+
+
+    .. autoattribute:: cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_LOG_ONLY
+
+
     .. autoattribute:: cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
 .. autoclass:: cuda.bindings.driver.CUcoredumpCallbackHandle
@@ -7623,10 +7759,13 @@ Additionally, there are two known scenarios, where its possible for the workload
 .. autoclass:: cuda.bindings.driver.CUdevResource
 .. autoclass:: cuda.bindings.driver.CUgreenCtxCreate_flags
 
+    .. autoattribute:: cuda.bindings.driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_NONE
+
+
     .. autoattribute:: cuda.bindings.driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM
 
 
-        Required. Creates a default stream to use inside the green context
+        Creates a default stream to use inside the green context
 
 .. autoclass:: cuda.bindings.driver.CUdevSmResourceGroup_flags
 

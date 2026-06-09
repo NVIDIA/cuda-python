@@ -29,6 +29,12 @@ namespace cuda_core {
 decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain = nullptr;
 decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease = nullptr;
 decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent = nullptr;
+decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate = nullptr;
+decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy = nullptr;
+decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx = nullptr;
+decltype(&cuDevResourceGenerateDesc) p_cuDevResourceGenerateDesc = nullptr;
+
+decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate = nullptr;
 
 decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority = nullptr;
 decltype(&cuStreamDestroy) p_cuStreamDestroy = nullptr;
@@ -70,6 +76,13 @@ decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
 // GL interop pointers
 decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources = nullptr;
 decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource = nullptr;
+
+// SM resource split (13.1+ — may be null on older drivers/bindings)
+#if CUDA_VERSION >= 13010
+decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit = nullptr;
+#else
+void* p_cuDevSmResourceSplit = nullptr;
+#endif
 
 // NVRTC function pointers
 decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram = nullptr;
@@ -223,12 +236,108 @@ void clear_last_error() noexcept {
 namespace {
 struct ContextBox {
     CUcontext resource;
+    GreenCtxHandle h_green_ctx;
 };
+
+struct GreenCtxBox {
+    CUgreenCtx resource;
+};
+
+static const ContextBox* get_box(const ContextHandle& h) noexcept {
+    const CUcontext* p = h.get();
+    return reinterpret_cast<const ContextBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(ContextBox, resource)
+    );
+}
+
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
+static HandleRegistry<CUcontext, ContextHandle> context_registry;
+
+// Create a context handle reference, with optional green context as source.
+ContextHandle create_context_handle_ref(CUcontext ctx, GreenCtxHandle h_green_ctx) {
+    if (!ctx) {
+        return {};
+    }
+    if (auto h = context_registry.lookup(ctx)) {
+        return h;
+    }
+    auto box = std::shared_ptr<const ContextBox>(
+        new ContextBox{ctx, std::move(h_green_ctx)},
+        [](const ContextBox* b) {
+            context_registry.unregister_handle(b->resource);
+            delete b;
+        }
+    );
+    ContextHandle h(box, &box->resource);
+    context_registry.register_handle(ctx, h);
+    return h;
+}
 }  // namespace
 
 ContextHandle create_context_handle_ref(CUcontext ctx) {
-    auto box = std::make_shared<const ContextBox>(ContextBox{ctx});
-    return ContextHandle(box, &box->resource);
+    return create_context_handle_ref(ctx, {});
+}
+
+ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx) {
+    GILReleaseGuard gil;
+    if (!h_green_ctx) {
+        return {};
+    }
+    if (!p_cuCtxFromGreenCtx) {
+        err = CUDA_ERROR_NOT_SUPPORTED;
+        return {};
+    }
+
+    CUcontext ctx = nullptr;
+    if (CUDA_SUCCESS != (err = p_cuCtxFromGreenCtx(&ctx, as_cu(h_green_ctx)))) {
+        return {};
+    }
+
+    return create_context_handle_ref(ctx, h_green_ctx);
+}
+
+GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept {
+    if (!h) {
+        return {};
+    }
+    return get_box(h)->h_green_ctx;
+}
+
+GreenCtxHandle create_green_ctx_handle(CUdevResource* resources, unsigned int nbResources,
+                                       CUdevice dev, unsigned int flags) {
+    GILReleaseGuard gil;
+    if (!p_cuDevResourceGenerateDesc || !p_cuGreenCtxCreate || !p_cuGreenCtxDestroy) {
+        err = CUDA_ERROR_NOT_SUPPORTED;
+        return {};
+    }
+
+    CUdevResourceDesc desc = nullptr;
+    if (CUDA_SUCCESS != (err = p_cuDevResourceGenerateDesc(&desc, resources, nbResources))) {
+        return {};
+    }
+
+    CUgreenCtx green_ctx = nullptr;
+    if (CUDA_SUCCESS != (err = p_cuGreenCtxCreate(&green_ctx, desc, dev, flags))) {
+        return {};
+    }
+
+    auto box = std::shared_ptr<const GreenCtxBox>(
+        new GreenCtxBox{green_ctx},
+        [](const GreenCtxBox* b) {
+            GILReleaseGuard gil;
+            p_cuGreenCtxDestroy(b->resource);
+            delete b;
+        }
+    );
+    return GreenCtxHandle(box, &box->resource);
+}
+
+GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx green_ctx) {
+    if (!green_ctx) {
+        return {};
+    }
+    auto box = std::make_shared<const GreenCtxBox>(GreenCtxBox{green_ctx});
+    return GreenCtxHandle(box, &box->resource);
 }
 
 // Thread-local cache of primary contexts indexed by device ID
@@ -250,14 +359,16 @@ ContextHandle get_primary_context(int device_id) {
     }
 
     auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox{ctx},
+        new ContextBox{ctx, {}},
         [device_id](const ContextBox* b) {
+            context_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
             p_cuDevicePrimaryCtxRelease(device_id);
             delete b;
         }
     );
     auto h = ContextHandle(box, &box->resource);
+    context_registry.register_handle(ctx, h);
 
     // Update cache
     if (static_cast<size_t>(device_id) >= primary_context_cache.size()) {
@@ -286,33 +397,78 @@ ContextHandle get_current_context() {
 namespace {
 struct StreamBox {
     CUstream resource;
+    ContextHandle h_context;
 };
+
+static const StreamBox* get_box(const StreamHandle& h) noexcept {
+    const CUstream* p = h.get();
+    return reinterpret_cast<const StreamBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(StreamBox, resource)
+    );
+}
+
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
+static HandleRegistry<CUstream, StreamHandle> stream_registry;
 }  // namespace
 
 StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags, int priority) {
     GILReleaseGuard gil;
     CUstream stream;
-    if (CUDA_SUCCESS != (err = p_cuStreamCreateWithPriority(&stream, flags, priority))) {
-        return {};
+
+    // Dispatch: green context uses cuGreenCtxStreamCreate, primary uses cuStreamCreateWithPriority
+    GreenCtxHandle h_green = get_context_green_ctx(h_ctx);
+    if (h_green) {
+        if (!p_cuGreenCtxStreamCreate) {
+            err = CUDA_ERROR_NOT_SUPPORTED;
+            return {};
+        }
+        if (CUDA_SUCCESS != (err = p_cuGreenCtxStreamCreate(&stream, as_cu(h_green), flags, priority))) {
+            return {};
+        }
+    } else {
+        if (CUDA_SUCCESS != (err = p_cuStreamCreateWithPriority(&stream, flags, priority))) {
+            return {};
+        }
     }
 
     auto box = std::shared_ptr<const StreamBox>(
-        new StreamBox{stream},
-        [h_ctx](const StreamBox* b) {
+        new StreamBox{stream, h_ctx},
+        [](const StreamBox* b) {
+            stream_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
             p_cuStreamDestroy(b->resource);
             delete b;
         }
     );
-    return StreamHandle(box, &box->resource);
+    StreamHandle h(box, &box->resource);
+    stream_registry.register_handle(stream, h);
+    return h;
 }
 
 StreamHandle create_stream_handle_ref(CUstream stream) {
-    auto box = std::make_shared<const StreamBox>(StreamBox{stream});
-    return StreamHandle(box, &box->resource);
+    if (auto h = stream_registry.lookup(stream)) {
+        return h;
+    }
+    auto box = std::shared_ptr<const StreamBox>(
+        new StreamBox{stream, {}},
+        [](const StreamBox* b) {
+            stream_registry.unregister_handle(b->resource);
+            delete b;
+        }
+    );
+    StreamHandle h(box, &box->resource);
+    stream_registry.register_handle(stream, h);
+    return h;
 }
 
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
+    if (auto h = stream_registry.lookup(stream)) {
+        // Reuse handles that already carry structural context metadata, e.g.
+        // cuda-core-owned streams.
+        if (get_box(h)->h_context) {
+            return h;
+        }
+    }
     if (!owner) {
         return create_stream_handle_ref(stream);
     }
@@ -323,8 +479,11 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
         return create_stream_handle_ref(stream);
     }
     Py_INCREF(owner);
+    // Owner-backed handles are NOT registered in the stream registry to avoid
+    // corruption when multiple owners wrap the same CUstream (each stacks its
+    // own Py_INCREF/Py_DECREF independently).
     auto box = std::shared_ptr<const StreamBox>(
-        new StreamBox{stream},
+        new StreamBox{stream, {}},
         [owner](const StreamBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
@@ -334,6 +493,10 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
         }
     );
     return StreamHandle(box, &box->resource);
+}
+
+ContextHandle get_stream_context(const StreamHandle& h) noexcept {
+    return h ? get_box(h)->h_context : ContextHandle{};
 }
 
 StreamHandle get_legacy_stream() {
@@ -353,8 +516,8 @@ StreamHandle get_per_thread_stream() {
 namespace {
 struct EventBox {
     CUevent resource;
-    bool timing_disabled;
-    bool busy_waited;
+    bool timing_enabled;
+    bool is_blocking_sync;
     bool ipc_enabled;
     int device_id;
     ContextHandle h_context;
@@ -368,12 +531,12 @@ static const EventBox* get_box(const EventHandle& h) {
     );
 }
 
-bool get_event_timing_disabled(const EventHandle& h) noexcept {
-    return h ? get_box(h)->timing_disabled : true;
+bool get_event_timing_enabled(const EventHandle& h) noexcept {
+    return h ? get_box(h)->timing_enabled : false;
 }
 
-bool get_event_busy_waited(const EventHandle& h) noexcept {
-    return h ? get_box(h)->busy_waited : false;
+bool get_event_is_blocking_sync(const EventHandle& h) noexcept {
+    return h ? get_box(h)->is_blocking_sync : false;
 }
 
 bool get_event_ipc_enabled(const EventHandle& h) noexcept {
@@ -392,7 +555,7 @@ ContextHandle get_event_context(const EventHandle& h) noexcept {
 static HandleRegistry<CUevent, EventHandle> event_registry;
 
 EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
-                                bool timing_disabled, bool busy_waited,
+                                bool timing_enabled, bool is_blocking_sync,
                                 bool ipc_enabled, int device_id) {
     GILReleaseGuard gil;
     CUevent event;
@@ -401,7 +564,7 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
     }
 
     auto box = std::shared_ptr<const EventBox>(
-        new EventBox{event, timing_disabled, busy_waited, ipc_enabled, device_id, h_ctx},
+        new EventBox{event, timing_enabled, is_blocking_sync, ipc_enabled, device_id, h_ctx},
         [h_ctx](const EventBox* b) {
             event_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
@@ -415,19 +578,19 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
 }
 
 EventHandle create_event_handle_noctx(unsigned int flags) {
-    return create_event_handle(ContextHandle{}, flags, true, false, false, -1);
+    return create_event_handle(ContextHandle{}, flags, false, false, false, -1);
 }
 
 EventHandle create_event_handle_ref(CUevent event) {
     if (auto h = event_registry.lookup(event)) {
         return h;
     }
-    auto box = std::make_shared<const EventBox>(EventBox{event, true, false, false, -1, {}});
+    auto box = std::make_shared<const EventBox>(EventBox{event, false, false, false, -1, {}});
     return EventHandle(box, &box->resource);
 }
 
 EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
-                                    bool busy_waited) {
+                                    bool is_blocking_sync) {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuIpcOpenEventHandle(&event, ipc_handle))) {
@@ -435,7 +598,7 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
     }
 
     auto box = std::shared_ptr<const EventBox>(
-        new EventBox{event, true, busy_waited, true, -1, {}},
+        new EventBox{event, false, is_blocking_sync, true, -1, {}},
         [](const EventBox* b) {
             event_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
@@ -1161,6 +1324,29 @@ FileDescriptorHandle create_fd_handle_ref(int fd) {
 #else
     return std::make_shared<const int>(fd);
 #endif
+}
+
+// ============================================================================
+// SM resource split wrapper
+// ============================================================================
+
+CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
+                           const CUdevResource* input, CUdevResource* remainder,
+                           unsigned int flags, void* groupParams) {
+#if CUDA_VERSION >= 13010
+    if (!p_cuDevSmResourceSplit) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+    return p_cuDevSmResourceSplit(
+        result, nbGroups, input, remainder, flags,
+        static_cast<CU_DEV_SM_RESOURCE_GROUP_PARAMS*>(groupParams));
+#else
+    return CUDA_ERROR_NOT_SUPPORTED;
+#endif
+}
+
+bool has_sm_resource_split() noexcept {
+    return p_cuDevSmResourceSplit != nullptr;
 }
 
 }  // namespace cuda_core

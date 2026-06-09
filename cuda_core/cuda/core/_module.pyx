@@ -7,11 +7,13 @@ from __future__ import annotations
 from libc.stddef cimport size_t
 
 from collections import namedtuple
+from os import fsencode, fspath, PathLike
 
 from cuda.core._device import Device
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._launch_config import LaunchConfig
-from cuda.core._stream cimport Stream
+from cuda.core._stream cimport Stream, Stream_accept
+from cuda.core._program import ObjectCodeFormatType
 from cuda.core._resource_handles cimport (
     LibraryHandle,
     KernelHandle,
@@ -31,7 +33,7 @@ from cuda.core._utils.clear_error_support import (
     raise_code_path_meant_to_be_unreachable,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-from cuda.core._utils.version cimport cy_driver_version
+from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
 from cuda.core._utils.cuda_utils import driver
 from cuda.bindings cimport cydriver
 
@@ -39,17 +41,38 @@ __all__ = ["Kernel", "ObjectCode"]
 
 
 cdef class KernelAttributes:
-    """Provides access to kernel attributes."""
+    """Read-only view of a kernel's per-device attributes.
 
-    def __init__(self, *args, **kwargs):
+    The default view returned by :attr:`Kernel.attributes` is bound to
+    the current device, resolved at attribute-access time. Use
+    ``kernel.attributes[device]`` to obtain a view bound to a specific
+    device (an :class:`int` device ordinal or :class:`Device`). Per-device
+    views share the underlying cache so a value queried through one view
+    is visible through the others.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
     @staticmethod
     cdef KernelAttributes _init(KernelHandle h_kernel):
         cdef KernelAttributes self = KernelAttributes.__new__(KernelAttributes)
         self._h_kernel = h_kernel
+        self._device_id = -1
         self._cache = {}
         return self
+
+    cdef KernelAttributes _view_for_device(self, int device_id):
+        cdef KernelAttributes view = KernelAttributes.__new__(KernelAttributes)
+        view._h_kernel = self._h_kernel
+        view._device_id = device_id
+        view._cache = self._cache
+        return view
+
+    cdef inline int _effective_device_id(self) except? -1:
+        if self._device_id >= 0:
+            return self._device_id
+        return Device().device_id
 
     cdef int _get_cached_attribute(self, int device_id, cydriver.CUfunction_attribute attribute) except? -1:
         """Helper function to get a cached attribute or fetch and cache it if not present."""
@@ -63,126 +86,157 @@ cdef class KernelAttributes:
         self._cache[cache_key] = result
         return result
 
-    cdef inline int _resolve_device_id(self, device_id) except? -1:
-        """Convert Device or int to device_id int."""
-        return Device(device_id).device_id
+    def __getitem__(self, device: Device | int) -> KernelAttributes:
+        """Return a view of these attributes bound to a specific device.
 
-    def max_threads_per_block(self, device_id: Device | int = None) -> int:
+        Parameters
+        ----------
+        device : Device or int
+            The device whose attributes to query. Accepts a :class:`Device`
+            or a device ordinal (:class:`int`).
+
+        Returns
+        -------
+        KernelAttributes
+            A view bound to ``device`` that shares the underlying cache
+            with this view.
+        """
+        return self._view_for_device(Device(device).device_id)
+
+    @property
+    def max_threads_per_block(self) -> int:
         """int : The maximum number of threads per block.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
         )
 
-    def shared_size_bytes(self, device_id: Device | int = None) -> int:
+    @property
+    def shared_size_bytes(self) -> int:
         """int : The size in bytes of statically-allocated shared memory required by this function.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES
         )
 
-    def const_size_bytes(self, device_id: Device | int = None) -> int:
+    @property
+    def const_size_bytes(self) -> int:
         """int : The size in bytes of user-allocated constant memory required by this function.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES
         )
 
-    def local_size_bytes(self, device_id: Device | int = None) -> int:
+    @property
+    def local_size_bytes(self) -> int:
         """int : The size in bytes of local memory used by each thread of this function.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES
         )
 
-    def num_regs(self, device_id: Device | int = None) -> int:
+    @property
+    def num_regs(self) -> int:
         """int : The number of registers used by each thread of this function.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_NUM_REGS
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_NUM_REGS
         )
 
-    def ptx_version(self, device_id: Device | int = None) -> int:
+    @property
+    def ptx_version(self) -> int:
         """int : The PTX virtual architecture version for which the function was compiled.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_PTX_VERSION
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_PTX_VERSION
         )
 
-    def binary_version(self, device_id: Device | int = None) -> int:
+    @property
+    def binary_version(self) -> int:
         """int : The binary architecture version for which the function was compiled.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_BINARY_VERSION
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_BINARY_VERSION
         )
 
-    def cache_mode_ca(self, device_id: Device | int = None) -> bool:
+    @property
+    def cache_mode_ca(self) -> bool:
         """bool : Whether the function has been compiled with user specified option "-Xptxas --dlcm=ca" set.
         This attribute is read-only."""
         return bool(
             self._get_cached_attribute(
-                self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA
+                self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA
             )
         )
 
-    def max_dynamic_shared_size_bytes(self, device_id: Device | int = None) -> int:
+    @property
+    def max_dynamic_shared_size_bytes(self) -> int:
         """int : The maximum size in bytes of dynamically-allocated shared memory that can be used
         by this function."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
         )
 
-    def preferred_shared_memory_carveout(self, device_id: Device | int = None) -> int:
+    @property
+    def preferred_shared_memory_carveout(self) -> int:
         """int : The shared memory carveout preference, in percent of the total shared memory."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
         )
 
-    def cluster_size_must_be_set(self, device_id: Device | int = None) -> bool:
+    @property
+    def cluster_size_must_be_set(self) -> bool:
         """bool : The kernel must launch with a valid cluster size specified.
         This attribute is read-only."""
         return bool(
             self._get_cached_attribute(
-                self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET
+                self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET
             )
         )
 
-    def required_cluster_width(self, device_id: Device | int = None) -> int:
+    @property
+    def required_cluster_width(self) -> int:
         """int : The required cluster width in blocks."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
         )
 
-    def required_cluster_height(self, device_id: Device | int = None) -> int:
+    @property
+    def required_cluster_height(self) -> int:
         """int : The required cluster height in blocks."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
         )
 
-    def required_cluster_depth(self, device_id: Device | int = None) -> int:
+    @property
+    def required_cluster_depth(self) -> int:
         """int : The required cluster depth in blocks."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
+            self._effective_device_id(), cydriver.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
         )
 
-    def non_portable_cluster_size_allowed(self, device_id: Device | int = None) -> bool:
+    @property
+    def non_portable_cluster_size_allowed(self) -> bool:
         """bool : Whether the function can be launched with non-portable cluster size."""
         return bool(
             self._get_cached_attribute(
-                self._resolve_device_id(device_id),
+                self._effective_device_id(),
                 cydriver.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED,
             )
         )
 
-    def cluster_scheduling_policy_preference(self, device_id: Device | int = None) -> int:
+    @property
+    def cluster_scheduling_policy_preference(self) -> int:
         """int : The block scheduling policy of a function."""
         return self._get_cached_attribute(
-            self._resolve_device_id(device_id),
+            self._effective_device_id(),
             cydriver.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE,
         )
 
 
-MaxPotentialBlockSizeOccupancyResult = namedtuple("MaxPotential", ("min_grid_size", "max_block_size"))
+MaxPotentialBlockSizeOccupancyResult = namedtuple(
+    "MaxPotentialBlockSizeOccupancyResult", ("min_grid_size", "max_block_size")
+)
 
 
 cdef class KernelOccupancy:
@@ -190,7 +244,7 @@ cdef class KernelOccupancy:
     launch parameters such as block size, grid size, and shared memory usage.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("KernelOccupancy cannot be instantiated directly. Please use Kernel APIs.")
 
     @staticmethod
@@ -257,7 +311,7 @@ cdef class KernelOccupancy:
         Returns
         -------
         :obj:`~MaxPotentialBlockSizeOccupancyResult`
-            An object with `min_grid_size` amd `max_block_size` attributes encoding
+            An object with `min_grid_size` and `max_block_size` attributes encoding
             the suggested launch configuration.
 
         Note
@@ -317,7 +371,7 @@ cdef class KernelOccupancy:
             ))
         return dynamic_smem_size
 
-    def max_potential_cluster_size(self, config: LaunchConfig, stream: Stream | None = None) -> int:
+    def max_potential_cluster_size(self, config: LaunchConfig, *, stream: Stream) -> int:
         """Maximum potential cluster size.
 
         The maximum potential cluster size for this kernel and given launch configuration.
@@ -326,8 +380,10 @@ cdef class KernelOccupancy:
         ----------
             config: :obj:`~_launch_config.LaunchConfig`
                 Kernel launch configuration. Cluster dimensions in the configuration are ignored.
-            stream: :obj:`~Stream`, optional
-                The stream on which this kernel is to be launched.
+            stream: :obj:`~Stream`
+                Keyword-only. The stream on which this kernel is to be launched.
+                Must be passed explicitly; pass ``device.default_stream`` to
+                use the default stream.
 
         Returns
         -------
@@ -335,17 +391,15 @@ cdef class KernelOccupancy:
             The maximum cluster size that can be launched for this kernel and launch configuration.
         """
         cdef cydriver.CUlaunchConfig drv_cfg = (<LaunchConfig>config)._to_native_launch_config()
-        cdef Stream s
-        if stream is not None:
-            s = <Stream>stream
-            drv_cfg.hStream = as_cu(s._h_stream)
+        cdef Stream s = Stream_accept(stream)
+        drv_cfg.hStream = as_cu(s._h_stream)
         cdef int cluster_size
         cdef cydriver.CUfunction func = <cydriver.CUfunction>as_cu(self._h_kernel)
         with nogil:
             HANDLE_RETURN(cydriver.cuOccupancyMaxPotentialClusterSize(&cluster_size, func, &drv_cfg))
         return cluster_size
 
-    def max_active_clusters(self, config: LaunchConfig, stream: Stream | None = None) -> int:
+    def max_active_clusters(self, config: LaunchConfig, *, stream: Stream) -> int:
         """Maximum number of active clusters on the target device.
 
         The maximum number of clusters that could concurrently execute on the target device.
@@ -354,8 +408,10 @@ cdef class KernelOccupancy:
         ----------
             config: :obj:`~_launch_config.LaunchConfig`
                 Kernel launch configuration.
-            stream: :obj:`~Stream`, optional
-                The stream on which this kernel is to be launched.
+            stream: :obj:`~Stream`
+                Keyword-only. The stream on which this kernel is to be launched.
+                Must be passed explicitly; pass ``device.default_stream`` to
+                use the default stream.
 
         Returns
         -------
@@ -363,10 +419,8 @@ cdef class KernelOccupancy:
             The maximum number of clusters that could co-exist on the target device.
         """
         cdef cydriver.CUlaunchConfig drv_cfg = (<LaunchConfig>config)._to_native_launch_config()
-        cdef Stream s
-        if stream is not None:
-            s = <Stream>stream
-            drv_cfg.hStream = as_cu(s._h_stream)
+        cdef Stream s = Stream_accept(stream)
+        drv_cfg.hStream = as_cu(s._h_stream)
         cdef int num_clusters
         cdef cydriver.CUfunction func = <cydriver.CUfunction>as_cu(self._h_kernel)
         with nogil:
@@ -388,7 +442,7 @@ cdef class Kernel:
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
     @staticmethod
@@ -411,6 +465,11 @@ cdef class Kernel:
             raise NotImplementedError(
                 "Driver version 12.4 or newer is required for this function. "
                 f"Using driver version {'.'.join(map(str, cy_driver_version()))}"
+            )
+        if cy_binding_version() < (12, 4, 0):
+            raise NotImplementedError(
+                "cuda.bindings 12.4 or newer is required for this function. "
+                f"Using binding version {'.'.join(map(str, cy_binding_version()))}"
             )
         cdef size_t arg_pos = 0
         cdef list param_info_data = []
@@ -449,7 +508,7 @@ cdef class Kernel:
         return self._occupancy
 
     @property
-    def handle(self):
+    def handle(self) -> object:
         """Return the underlying kernel handle object.
 
         .. caution::
@@ -460,11 +519,11 @@ cdef class Kernel:
         return as_py(self._h_kernel)
 
     @property
-    def _handle(self):
+    def _handle(self) -> object:
         return self.handle
 
     @staticmethod
-    def from_handle(handle, mod: ObjectCode = None) -> Kernel:
+    def from_handle(handle, mod: ObjectCode | None = None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a kernel handle.
 
         Parameters
@@ -505,7 +564,7 @@ cdef class Kernel:
             k._keepalive = mod
         return k
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Kernel):
             return NotImplemented
         return as_intptr(self._h_kernel) == as_intptr((<Kernel>other)._h_kernel)
@@ -519,7 +578,7 @@ cdef class Kernel:
 
 CodeTypeT = bytes | bytearray | str
 
-cdef tuple _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
+cdef tuple _supported_code_type = tuple(ObjectCodeFormatType.__members__.values())
 
 cdef class ObjectCode:
     """Represent a compiled program to be loaded onto the device.
@@ -535,22 +594,28 @@ cdef class ObjectCode:
     :class:`~cuda.core.Program`
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError(
             "ObjectCode objects cannot be instantiated directly. "
             "Please use ObjectCode APIs (from_cubin, from_ptx) or Program APIs (compile)."
         )
 
     @classmethod
-    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict | None = None):
+    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         assert code_type in _supported_code_type, f"{code_type=} is not supported"
         cdef ObjectCode self = ObjectCode.__new__(ObjectCode)
 
         # _h_library is assigned during _lazy_load_module
         self._h_library = LibraryHandle()  # Empty handle
 
-        self._code_type = code_type
-        self._module = module
+        self._code_type = str(code_type)
+
+        if isinstance(module, (str, bytes, bytearray)):
+            self._module = module
+        elif isinstance(module, PathLike):
+            self._module = fspath(module)
+        else:
+            self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
         self._name = name if name else ""
 
@@ -560,18 +625,19 @@ cdef class ObjectCode:
     def _reduce_helper(module, code_type, name, symbol_mapping):
         return ObjectCode._init(module, code_type, name=name if name else "", symbol_mapping=symbol_mapping)
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_cubin(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : Union[bytes, str, os.PathLike]
             Either a bytes object containing the in-memory cubin to load, or
-            a file path string pointing to the on-disk cubin to load.
+            a file path object (or its string representation) pointing to the
+            on-disk cubin to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
@@ -579,17 +645,18 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "cubin", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.CUBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ptx(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : Union[bytes, str, os.PathLike]
             Either a bytes object containing the in-memory ptx code to load, or
-            a file path string pointing to the on-disk ptx file to load.
+            a file path object (or its string representation) pointing to the
+            on-disk ptx file to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
@@ -597,17 +664,18 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "ptx", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.PTX, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ltoir(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
         ----------
-        module : Union[bytes, str]
-            Either a bytes object containing the in-memory ltoir code to load, or
-            a file path string pointing to the on-disk ltoir file to load.
+        module : Union[bytes, str, os.PathLike]
+            Either a bytes object containing the in-memory ltoir code to load,
+            or a file path object (or its string representation) pointing to the
+            on-disk ltoir file to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
@@ -615,17 +683,18 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "ltoir", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.LTOIR, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_fatbin(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : Union[bytes, str, os.PathLike]
             Either a bytes object containing the in-memory fatbin to load, or
-            a file path string pointing to the on-disk fatbin to load.
+            or a file path object (or its string representation) pointing to the
+            on-disk fatbin to load.
         name : Optional[str]
             A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
@@ -633,10 +702,10 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "fatbin", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.FATBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing object code.
 
         Parameters
@@ -651,10 +720,10 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "object", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.OBJECT, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing library.
 
         Parameters
@@ -669,7 +738,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "library", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, ObjectCodeFormatType.LIBRARY, name=name, symbol_mapping=symbol_mapping)
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
@@ -677,23 +746,24 @@ cdef class ObjectCode:
         if self._h_library:
             return 0
         module = self._module
-        assert_type_str_or_bytes_like(module)
         cdef bytes path_bytes
         if isinstance(module, str):
             path_bytes = module.encode()
             self._h_library = create_library_handle_from_file(<const char*>path_bytes)
-            if not self._h_library:
-                HANDLE_RETURN(get_last_error())
-            return 0
-        if isinstance(module, (bytes, bytearray)):
+        elif isinstance(module, (bytes, bytearray)):
             self._h_library = create_library_handle_from_data(<const void*><char*>module)
-            if not self._h_library:
-                HANDLE_RETURN(get_last_error())
-            return 0
-        raise_code_path_meant_to_be_unreachable()
-        return -1
+        elif isinstance(module, PathLike):
+            path_bytes = fsencode(module)
+            self._h_library = create_library_handle_from_file(<const char*>path_bytes)
+        else:
+            assert_type_str_or_bytes_like(module)
+            raise_code_path_meant_to_be_unreachable()
+            return -1
+        if not self._h_library:
+            HANDLE_RETURN(get_last_error())
+        return 0
 
-    def get_kernel(self, name) -> Kernel:
+    def get_kernel(self, name: str | bytes) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
         Parameters
@@ -708,7 +778,7 @@ cdef class ObjectCode:
 
         """
         self._lazy_load_module()
-        supported_code_types = ("cubin", "ptx", "fatbin")
+        supported_code_types = (ObjectCodeFormatType.CUBIN, ObjectCodeFormatType.PTX, ObjectCodeFormatType.FATBIN)
         if self._code_type not in supported_code_types:
             raise RuntimeError(f'Unsupported code type "{self._code_type}" ({supported_code_types=})')
         try:
@@ -738,12 +808,12 @@ cdef class ObjectCode:
         return self._code_type
 
     @property
-    def symbol_mapping(self) -> dict:
+    def symbol_mapping(self) -> dict[str, str]:
         """Return a copy of the symbol mapping dictionary."""
         return dict(self._sym_map)
 
     @property
-    def handle(self):
+    def handle(self) -> object:
         """Return the underlying handle object.
 
         .. caution::
@@ -754,7 +824,7 @@ cdef class ObjectCode:
         self._lazy_load_module()
         return as_py(self._h_library)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, ObjectCode):
             return NotImplemented
         # Trigger lazy load for both objects to compare handles

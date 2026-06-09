@@ -1,0 +1,246 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
+
+from collections.abc import Iterable, Iterator, MutableSet
+from typing import TYPE_CHECKING, Any
+
+from cuda.core._device import Device
+from cuda.core._host import Host
+from cuda.core._memory._buffer import Buffer
+from cuda.core._memory._managed_memory_ops import (
+    _advise_one,
+    _do_single_discard_prefetch_py,
+    _do_single_discard_py,
+    _do_single_prefetch_py,
+    _read_preferred_location_v2,
+)
+from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core._utils.version import binding_version, driver_version
+
+if TYPE_CHECKING:
+    from cuda.core._memory._buffer import MemoryResource
+    from cuda.core._stream import Stream
+    from cuda.core.graph import GraphBuilder
+
+
+_INT_SIZE = 4
+
+# Enum aliases — referenced once per property write, so cache the lookup.
+_ADV = driver.CUmem_advise
+_SET_READ_MOSTLY = _ADV.CU_MEM_ADVISE_SET_READ_MOSTLY
+_UNSET_READ_MOSTLY = _ADV.CU_MEM_ADVISE_UNSET_READ_MOSTLY
+_SET_PREFERRED = _ADV.CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+_UNSET_PREFERRED = _ADV.CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION
+_SET_ACCESSED_BY = _ADV.CU_MEM_ADVISE_SET_ACCESSED_BY
+_UNSET_ACCESSED_BY = _ADV.CU_MEM_ADVISE_UNSET_ACCESSED_BY
+
+_RANGE = driver.CUmem_range_attribute
+_ATTR_READ_MOSTLY = _RANGE.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY
+_ATTR_PREFERRED = _RANGE.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION
+_ATTR_ACCESSED_BY = _RANGE.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY
+
+
+def _get_int_attr(buf: Buffer, attribute: Any) -> int:
+    return int(handle_return(driver.cuMemRangeGetAttribute(_INT_SIZE, attribute, buf.handle, buf.size)))
+
+
+def _query_accessed_by(buf: Buffer) -> list[Device | Host]:
+    """Read the live ``CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY`` list.
+
+    Driver fills an int32 array: device id, ``-1`` = host, ``-2`` = empty.
+    Sized to ``cuDeviceGetCount() + 1`` (every visible device plus host).
+    """
+    num_devices = handle_return(driver.cuDeviceGetCount())
+    n = num_devices + 1
+    raw = handle_return(driver.cuMemRangeGetAttribute(n * _INT_SIZE, _ATTR_ACCESSED_BY, buf.handle, buf.size))
+    return [Host() if v == -1 else Device(v) for v in raw if v != -2]
+
+
+class AccessedBySetProxy(MutableSet[Device | Host]):
+    """Live driver-backed view of ``set_accessed_by`` advice for a managed buffer.
+
+    Reads (``__contains__``, ``__iter__``, ``len(...)``) call
+    ``cuMemRangeGetAttribute``; writes (``add``, ``discard``) call
+    ``cuMemAdvise``. There is no in-memory mirror, so the view always
+    reflects the current driver state.
+
+    Note
+    ----
+    The driver returns integer device ordinals (``-1`` for host); host
+    NUMA distinctions applied via ``Host(numa_id=...)`` collapse to a
+    generic ``Host()`` when iterating this set.
+    """
+
+    __slots__ = ("_buf",)
+
+    def __init__(self, buf: ManagedBuffer):
+        self._buf = buf
+
+    # Operators such as &|^ produce a plain set, not another proxy.
+    @classmethod
+    def _from_iterable(cls, it: Iterable[Any]) -> set[Device | Host]:  # type: ignore[override]
+        return set(it)
+
+    # --- abstract methods required by MutableSet ---
+
+    def __contains__(self, location: object) -> bool:
+        if not isinstance(location, (Device, Host)):
+            return False
+        return location in _query_accessed_by(self._buf)
+
+    def __iter__(self) -> Iterator[Device | Host]:
+        return iter(_query_accessed_by(self._buf))
+
+    def __len__(self) -> int:
+        return len(_query_accessed_by(self._buf))
+
+    def add(self, location: Device | Host) -> None:
+        """Apply ``set_accessed_by`` advice for ``location``."""
+        if not isinstance(location, (Device, Host)):
+            raise TypeError(f"expected Device or Host, got {type(location).__name__}")
+        _advise_one(self._buf, _SET_ACCESSED_BY, location)
+
+    def discard(self, location: Device | Host) -> None:
+        """Apply ``unset_accessed_by`` advice for ``location``.
+
+        Per the ``MutableSet`` contract, ``discard`` is a no-op for elements
+        not in the set. ``set_accessed_by`` only accepts ``Device`` and the
+        generic ``Host()`` — NUMA-aware host variants (``Host(numa_id=...)``,
+        ``Host.numa_current()``) can never enter the set, so discarding them
+        is silently ignored rather than forwarded to the driver.
+        """
+        if not isinstance(location, (Device, Host)):
+            return
+        if isinstance(location, Host) and (location.numa_id is not None or location.is_numa_current):
+            return
+        _advise_one(self._buf, _UNSET_ACCESSED_BY, location)
+
+    def __repr__(self) -> str:
+        return f"AccessedBySetProxy({set(_query_accessed_by(self._buf))!r})"
+
+
+class ManagedBuffer(Buffer):
+    """Managed (unified) memory buffer with a property-style advice API.
+
+    Returned by :meth:`ManagedMemoryResource.allocate`, or wrap an
+    existing managed-memory pointer with :meth:`ManagedBuffer.from_handle`.
+
+    Examples
+    --------
+    >>> buf = mr.allocate(size)
+    >>> buf.read_mostly = True
+    >>> buf.preferred_location = Device(0)
+    >>> buf.accessed_by.add(Device(1))
+    >>> buf.prefetch(Device(0), stream=stream)
+
+    Note
+    ----
+    On CUDA 13 builds, ``preferred_location`` round-trips full NUMA
+    information. On CUDA 12 builds, ``Host(numa_id=...)`` and
+    ``Host.numa_current()`` are rejected with ``TypeError`` at the call
+    boundary — only ``Device(...)`` and the generic ``Host()`` are
+    accepted. Use ``Host()`` to target the host on CUDA 12.
+    """
+
+    @classmethod
+    def from_handle(
+        cls,
+        ptr,
+        size: int,
+        mr: MemoryResource | None = None,
+        owner: object | None = None,
+    ) -> Buffer:
+        """Wrap an existing managed-memory pointer in a :class:`ManagedBuffer`.
+
+        Use this when you have an externally-allocated managed pointer
+        and want the property-style advice API (:attr:`read_mostly`,
+        :attr:`preferred_location`, :attr:`accessed_by`).
+
+        Parameters
+        ----------
+        ptr : :obj:`~_memory.DevicePointerT`
+            Pointer to a managed allocation.
+        size : int
+            Allocation size in bytes.
+        mr : :obj:`~_memory.MemoryResource`, optional
+            Memory resource that owns ``ptr``. When provided, its
+            ``deallocate`` is called when the buffer is closed.
+        owner : object, optional
+            An object that keeps the underlying allocation alive.
+            ``owner`` and ``mr`` cannot both be specified.
+        """
+        return cls._init(ptr, size, mr=mr, owner=owner)
+
+    @property
+    def read_mostly(self) -> bool:
+        """Whether ``set_read_mostly`` advice is currently applied."""
+        return _get_int_attr(self, _ATTR_READ_MOSTLY) != 0
+
+    @read_mostly.setter
+    def read_mostly(self, value: bool) -> None:
+        _advise_one(self, _SET_READ_MOSTLY if value else _UNSET_READ_MOSTLY, None)
+
+    @property
+    def preferred_location(self) -> Device | Host | None:
+        """Currently applied ``set_preferred_location`` target, or ``None``.
+
+        On CUDA 13 builds, fully round-trips ``Host(numa_id=N)``. On CUDA 12
+        the legacy attribute carries only a device ordinal (or ``-1`` for
+        host), so ``Host(numa_id=N)`` set via the setter round-trips back
+        as ``Host()``.
+        """
+        # The v2 path uses CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_{TYPE,ID},
+        # both added in CUDA 13. Require both bindings and the runtime driver
+        # to be 13.0+; otherwise fall back to the legacy device-ordinal path.
+        # See PR #2054 / #2064 for prior bindings-only-check regressions.
+        if binding_version() >= (13, 0, 0) and driver_version() >= (13, 0, 0):
+            return _read_preferred_location_v2(self)
+        # CUDA 12 legacy path (no NUMA info available; also taken when
+        # bindings are 13.x but the runtime driver is still 12.x).
+        loc_id = _get_int_attr(self, _ATTR_PREFERRED)
+        if loc_id == -2:
+            return None
+        if loc_id == -1:
+            return Host()
+        return Device(loc_id)
+
+    @preferred_location.setter
+    def preferred_location(self, value: Device | Host | None) -> None:
+        if value is None:
+            _advise_one(self, _UNSET_PREFERRED, None)
+        else:
+            _advise_one(self, _SET_PREFERRED, value)
+
+    @property
+    def accessed_by(self) -> AccessedBySetProxy:
+        """Live set-like view of ``set_accessed_by`` locations."""
+        return AccessedBySetProxy(self)
+
+    @accessed_by.setter
+    def accessed_by(self, locations: Iterable[Device | Host]) -> None:
+        # Validate every target before issuing any cuMemAdvise so an invalid
+        # element can't leave accessed_by partially mutated.
+        target: set[Device | Host] = set()
+        for loc in locations:
+            if not isinstance(loc, (Device, Host)):
+                raise TypeError(f"accessed_by entries must be Device or Host, got {type(loc).__name__}")
+            target.add(loc)
+        current = set(_query_accessed_by(self))
+        for loc in current - target:
+            _advise_one(self, _UNSET_ACCESSED_BY, loc)
+        for loc in target - current:
+            _advise_one(self, _SET_ACCESSED_BY, loc)
+
+    def prefetch(self, location: Device | Host, *, stream: Stream | GraphBuilder) -> None:
+        """Prefetch this range to ``location`` on ``stream``."""
+        _do_single_prefetch_py(self, location, stream)
+
+    def discard(self, *, stream: Stream | GraphBuilder) -> None:
+        """Discard this range's resident pages on ``stream`` (CUDA 13+)."""
+        _do_single_discard_py(self, stream)
+
+    def discard_prefetch(self, location: Device | Host, *, stream: Stream | GraphBuilder) -> None:
+        """Discard this range and prefetch to ``location`` on ``stream`` (CUDA 13+)."""
+        _do_single_discard_prefetch_py(self, location, stream)

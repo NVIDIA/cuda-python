@@ -49,6 +49,29 @@ int main(int argc, char** argv) {
         });
     }
 
+    // --- pointer_get_attributes ---
+    {
+        unsigned int memory_type = 0;
+        CUdeviceptr dev_ptr_out = 0;
+        void* host_ptr_out = nullptr;
+        unsigned long long buffer_id = 0;
+
+        CUpointer_attribute attrs[4] = {
+            CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
+            CU_POINTER_ATTRIBUTE_DEVICE_POINTER,
+            CU_POINTER_ATTRIBUTE_HOST_POINTER,
+            CU_POINTER_ATTRIBUTE_BUFFER_ID,
+        };
+        void* data[4] = {&memory_type, &dev_ptr_out, &host_ptr_out, &buffer_id};
+
+        suite.run("pointer_attributes.pointer_get_attributes", [&]() {
+            check_cu(
+                cuPointerGetAttributes(4, attrs, data, ptr),
+                "cuPointerGetAttributes failed"
+            );
+        });
+    }
+
     // Cleanup
     check_cu(cuMemFree(ptr), "cuMemFree failed");
     check_cu(cuCtxDestroy(ctx), "cuCtxDestroy failed");

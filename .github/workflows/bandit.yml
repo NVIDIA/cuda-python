@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - "pull-request/[0-9]+"
+      - "ctk-next"
       - "main"
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
@@ -17,13 +18,15 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     permissions:
+      actions: read
+      contents: read
       security-events: write
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
       - name: Install uv
-        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57  # v8.0.0
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
         with:
           enable-cache: false
 
@@ -38,10 +41,10 @@ jobs:
 
           echo "codes=$(uvx toml2json ./ruff.toml | jq -r '.lint.ignore | map(select(test("^S\\d+"))) | join(",")')" >> "$GITHUB_OUTPUT"
       - name: Perform Bandit Analysis using Ruff
-        uses: astral-sh/ruff-action@4919ec5cf1f49eff0871dbcea0da843445b837e6  # v3.6.1
+        uses: astral-sh/ruff-action@0ce1b0bf8b818ef400413f810f8a11cdbda0034b  # v4.0.0
         with:
           args: "check --select S --ignore ${{ steps.ignore-codes.outputs.codes }} --output-format sarif --output-file results.sarif"
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v4.35.1
+        uses: github/codeql-action/upload-sarif@87557b9c84dde89fdd9b10e88954ac2f4248e463  # v4.36.1
         with:
           sarif_file: results.sarif

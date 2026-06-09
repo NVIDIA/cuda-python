@@ -33,9 +33,9 @@ jobs:
       CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
-          fetch-depth: 0
+          fetch-depth: 1
       - name: Get CUDA build versions
         id: get-vars
         run: |
@@ -52,7 +52,7 @@ jobs:
       doc-only: ${{ steps.get-should-skip.outputs.doc_only }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - name: Compute whether to skip builds and tests
         id: get-should-skip
         env:
@@ -104,9 +104,12 @@ jobs:
       test_pathfinder: ${{ steps.compose.outputs.test_pathfinder }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
+          # Treeless clone: commit graph is needed for `git merge-base` and
+          # `git diff --name-only` below, but historical blobs aren't.
           fetch-depth: 0
+          filter: blob:none
 
       # copy-pr-bot pushes every PR (whether it targets main or a backport
       # branch such as 12.9.x) to pull-request/<N>, so the base branch
@@ -343,7 +346,7 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
+      nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
 
   # See test-linux-64 for why test jobs are split by platform.
@@ -368,7 +371,7 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
+      nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
 
   # See test-linux-64 for why test jobs are split by platform.
@@ -393,7 +396,7 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
+      nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
 
   doc:

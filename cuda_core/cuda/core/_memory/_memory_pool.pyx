@@ -11,12 +11,13 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
 from cuda.core._memory cimport _ipc
-from cuda.core._stream cimport default_stream, Stream_accept, Stream
+from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._resource_handles cimport (
     MemoryPoolHandle,
     DevicePtrHandle,
     create_mempool_handle,
     deviceptr_alloc_from_pool,
+    get_last_error,
     as_cu,
     as_py,
 )
@@ -26,11 +27,18 @@ from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
+import uuid
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cuda.core.graph import GraphBuilder
+    from cuda.core.typing import DevicePointerType
+
 
 cdef class _MemPoolAttributes:
     """Provides access to memory pool attributes."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("_MemPoolAttributes cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @staticmethod
@@ -39,7 +47,7 @@ cdef class _MemPoolAttributes:
         self._h_pool = h_pool
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(%s)" % ", ".join(
             f"{attr}={getattr(self, attr)}" for attr in dir(self)
                                             if not attr.startswith("_")
@@ -51,56 +59,56 @@ cdef class _MemPoolAttributes:
         return 0
 
     @property
-    def reuse_follow_event_dependencies(self):
+    def reuse_follow_event_dependencies(self) -> bool:
         """Allow memory to be reused when there are event dependencies between streams."""
         cdef int value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES, &value)
         return bool(value)
 
     @property
-    def reuse_allow_opportunistic(self):
+    def reuse_allow_opportunistic(self) -> bool:
         """Allow reuse of completed frees without dependencies."""
         cdef int value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC, &value)
         return bool(value)
 
     @property
-    def reuse_allow_internal_dependencies(self):
+    def reuse_allow_internal_dependencies(self) -> bool:
         """Allow insertion of new stream dependencies for memory reuse."""
         cdef int value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES, &value)
         return bool(value)
 
     @property
-    def release_threshold(self):
+    def release_threshold(self) -> int:
         """Amount of reserved memory to hold before OS release."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &value)
         return int(value)
 
     @property
-    def reserved_mem_current(self):
+    def reserved_mem_current(self) -> int:
         """Current amount of backing memory allocated."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT, &value)
         return int(value)
 
     @property
-    def reserved_mem_high(self):
+    def reserved_mem_high(self) -> int:
         """High watermark of backing memory allocated."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH, &value)
         return int(value)
 
     @property
-    def used_mem_current(self):
+    def used_mem_current(self) -> int:
         """Current amount of memory in use."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_CURRENT, &value)
         return int(value)
 
     @property
-    def used_mem_high(self):
+    def used_mem_high(self) -> int:
         """High watermark of memory in use."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_HIGH, &value)
@@ -109,29 +117,30 @@ cdef class _MemPoolAttributes:
 
 cdef class _MemPool(MemoryResource):
 
-    def __cinit__(self):
+    def __cinit__(self) -> None:
         # Note: subclasses use MP_init_create_pool or MP_init_current_pool to initialize.
         self._mempool_owned = False
         self._ipc_data = None
         self._attributes = None
 
-    def close(self):
+    def close(self) -> None:
         """
         Close the memory resource and destroy the associated memory pool
         if owned.
         """
         _MP_close(self)
 
-    def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
-            The stream on which to perform the allocation asynchronously.
-            If None, an internal stream is used.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the allocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
 
         Returns
         -------
@@ -141,25 +150,31 @@ cdef class _MemPool(MemoryResource):
         """
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
-        stream = Stream_accept(stream) if stream is not None else default_stream()
-        return _MP_allocate(self, size, <Stream> stream)
+        cdef Stream s = Stream_accept(stream)
+        return _MP_allocate(self, size, s)
 
-    def deallocate(self, ptr: "DevicePointerT", size_t size, stream: Stream | GraphBuilder | None = None):
+    def deallocate(
+        self,
+        ptr: DevicePointerType,
+        size_t size,
+        *,
+        stream: Stream | GraphBuilder
+    ) -> None:
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
         ----------
-        ptr : :obj:`~_memory.DevicePointerT`
+        ptr : :obj:`~_memory.DevicePointerType`
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
-            The stream on which to perform the deallocation asynchronously.
-            If the buffer is deallocated without an explicit stream, the allocation stream
-            is used.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the deallocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
         """
-        stream = Stream_accept(stream) if stream is not None else default_stream()
-        _MP_deallocate(self, <uintptr_t>ptr, size, <Stream> stream)
+        cdef Stream s = Stream_accept(stream)
+        _MP_deallocate(self, <uintptr_t>ptr, size, s)
 
     @property
     def attributes(self) -> _MemPoolAttributes:
@@ -227,6 +242,14 @@ cdef int MP_init_create_pool(
 
     self._mempool_owned = True
     self._h_pool = create_mempool_handle(properties)
+    if not self._h_pool:
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError(
+            f"Failed to initialize {self.__class__.__name__}: "
+            "cuda-core returned an empty memory pool handle without recording a CUDA error. "
+            "This is an internal cuda-core error; please report it with your CUDA driver, "
+            "CUDA Toolkit, and cuda-python versions."
+        )
 
     if ipc_enabled:
         alloc_handle = _ipc.MP_export_mempool(self)
@@ -299,15 +322,21 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
                            "a capturing stream (consider using GraphMemoryResource).")
 
 
-cdef inline Buffer _MP_allocate(_MemPool self, size_t size, Stream stream):
+cdef Buffer _MP_allocate(_MemPool self, size_t size, Stream stream, type cls = Buffer):
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef DevicePtrHandle h_ptr
     with nogil:
         check_not_capturing(s)
         h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)
     if not h_ptr:
-        raise RuntimeError("Failed to allocate memory from pool")
-    return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError(
+            f"Failed to allocate {size} bytes from {self.__class__.__name__}: "
+            "cuda-core returned an empty allocation handle without recording a CUDA error. "
+            "This is an internal cuda-core error; please report it with your CUDA driver, "
+            "CUDA Toolkit, and cuda-python versions."
+        )
+    return Buffer_from_deviceptr_handle(h_ptr, size, self, None, cls)
 
 
 cdef inline void _MP_deallocate(

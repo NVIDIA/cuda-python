@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -176,11 +176,18 @@ cdef class _StridedLayout:
                 f"_StridedLayout(shape={self.shape}, strides={self.strides}, itemsize={self.itemsize}, _slice_offset={self.slice_offset})"
             )
 
-    def __eq__(self : _StridedLayout, other : _StridedLayout) -> bool:
-        return self.itemsize == other.itemsize and self.slice_offset == other.slice_offset and _base_layout_equal(self.base, other.base)
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, _StridedLayout):
+            return NotImplemented
+        cdef _StridedLayout _other = <_StridedLayout>other
+        return (
+            self.itemsize == _other.itemsize
+            and self.slice_offset == _other.slice_offset
+            and _base_layout_equal(self.base, _other.base)
+        )
 
     @property
-    def ndim(self : _StridedLayout):
+    def ndim(self : _StridedLayout) -> int:
         """
         The number of dimensions (length of the shape tuple).
 
@@ -189,7 +196,7 @@ cdef class _StridedLayout:
         return self.base.ndim
 
     @property
-    def shape(self : _StridedLayout):
+    def shape(self : _StridedLayout) -> tuple[int, ...]:
         """
         Shape of the tensor.
 
@@ -198,7 +205,7 @@ cdef class _StridedLayout:
         return self.get_shape_tuple()
 
     @property
-    def strides(self : _StridedLayout):
+    def strides(self : _StridedLayout) -> tuple[int, ...] | None:
         """
         Strides of the tensor (in **counts**, not bytes).
         If _StridedLayout was created with strides=None, the
@@ -209,7 +216,7 @@ cdef class _StridedLayout:
         return self.get_strides_tuple()
 
     @property
-    def strides_in_bytes(self : _StridedLayout):
+    def strides_in_bytes(self : _StridedLayout) -> tuple[int, ...] | None:
         """
         Strides of the tensor (in bytes).
 
@@ -218,7 +225,7 @@ cdef class _StridedLayout:
         return self.get_strides_in_bytes_tuple()
 
     @property
-    def stride_order(self : _StridedLayout):
+    def stride_order(self : _StridedLayout) -> tuple[int, ...]:
         """
         A permutation of ``tuple(range(ndim))`` describing the
         relative order of the strides.
@@ -238,7 +245,7 @@ cdef class _StridedLayout:
         return self.get_stride_order_tuple()
 
     @property
-    def volume(self : _StridedLayout):
+    def volume(self : _StridedLayout) -> int:
         """
         The number of elements in the tensor, i.e. the product of the shape tuple.
 
@@ -247,7 +254,7 @@ cdef class _StridedLayout:
         return self.get_volume()
 
     @property
-    def is_unique(self : _StridedLayout):
+    def is_unique(self : _StridedLayout) -> bool:
         """
         If True, each element of a tensor with this layout is mapped to
         a unique memory offset.
@@ -268,7 +275,7 @@ cdef class _StridedLayout:
         return self.get_is_unique()
 
     @property
-    def is_contiguous_c(self : _StridedLayout):
+    def is_contiguous_c(self : _StridedLayout) -> bool:
         """
         True iff the layout is contiguous in C-order, i.e.
         the rightmost stride is 1 and each subsequent
@@ -289,7 +296,7 @@ cdef class _StridedLayout:
         return self.get_is_contiguous_c()
 
     @property
-    def is_contiguous_f(self : _StridedLayout):
+    def is_contiguous_f(self : _StridedLayout) -> bool:
         """
         True iff the layout is contiguous in F-order, i.e.
         the leftmost stride is 1 and each subsequent
@@ -310,7 +317,7 @@ cdef class _StridedLayout:
         return self.get_is_contiguous_f()
 
     @property
-    def is_contiguous_any(self : _StridedLayout):
+    def is_contiguous_any(self : _StridedLayout) -> bool:
         """
         True iff the layout is contiguous in some axis order, i.e.
         there exists a permutation of axes such that the layout
@@ -350,7 +357,7 @@ cdef class _StridedLayout:
         return self.get_is_contiguous_any()
 
     @property
-    def is_dense(self : _StridedLayout):
+    def is_dense(self : _StridedLayout) -> bool:
         """
         A dense layout is contiguous (:attr:`is_contiguous_any` is True)
         and has no slice offset (:attr:`slice_offset_in_bytes` is 0).
@@ -363,7 +370,7 @@ cdef class _StridedLayout:
         return self.get_is_dense()
 
     @property
-    def offset_bounds(self : _StridedLayout):
+    def offset_bounds(self : _StridedLayout) -> tuple[int, int]:
         """
         The memory offset range ``[min_offset, max_offset]`` (in element counts, not bytes)
         that elements of a tensor with this layout are mapped to.
@@ -396,7 +403,7 @@ cdef class _StridedLayout:
         return min_offset, max_offset
 
     @property
-    def min_offset(self : _StridedLayout):
+    def min_offset(self : _StridedLayout) -> int:
         """
         See :attr:`offset_bounds` for details.
 
@@ -408,7 +415,7 @@ cdef class _StridedLayout:
         return min_offset
 
     @property
-    def max_offset(self : _StridedLayout):
+    def max_offset(self : _StridedLayout) -> int:
         """
         See :attr:`offset_bounds` for details.
 
@@ -420,7 +427,7 @@ cdef class _StridedLayout:
         return max_offset
 
     @property
-    def slice_offset_in_bytes(self : _StridedLayout):
+    def slice_offset_in_bytes(self : _StridedLayout) -> int:
         """
         The memory offset (as a number of bytes) of the element at index ``(0,) * ndim``.
         Equal to :attr:`itemsize` ``*`` :attr:`slice_offset`.
@@ -460,7 +467,7 @@ cdef class _StridedLayout:
                 required_size = layout.required_size_in_bytes()
                 # allocate the memory on the device
                 device.set_current()
-                mem = device.allocate(required_size)
+                mem = device.allocate(required_size, stream=device.default_stream)
                 # create a view on the newly allocated device memory
                 b_view = StridedMemoryView.from_buffer(mem, layout, a_view.dtype)
                 return b_view

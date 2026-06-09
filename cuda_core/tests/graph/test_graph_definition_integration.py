@@ -8,6 +8,7 @@ import ctypes
 import numpy as np
 import pytest
 
+from conftest import xfail_on_graph_mempool_oom
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import driver, handle_return
 from cuda.core.graph import GraphDefinition
@@ -204,7 +205,8 @@ def test_heat_diffusion(init_cuda):
     host_ptr = handle_return(driver.cuMemAllocHost(_HEAT_N * SIZEOF_FLOAT))
 
     try:
-        _run_heat_graph(dev, k_heat, k_countdown, host_ptr)
+        with xfail_on_graph_mempool_oom(dev):
+            _run_heat_graph(dev, k_heat, k_countdown, host_ptr)
     finally:
         handle_return(driver.cuMemFreeHost(host_ptr))
 
@@ -215,8 +217,8 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
     # Definitions
     g = GraphDefinition()
     condition = g.create_condition(default_value=1)
-    event_start = dev.create_event(EventOptions(enable_timing=True))
-    event_end = dev.create_event(EventOptions(enable_timing=True))
+    event_start = dev.create_event(EventOptions(timing_enabled=True))
+    event_end = dev.create_event(EventOptions(timing_enabled=True))
     results = {}
 
     def capture_result():
@@ -230,9 +232,9 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
 
     # fmt: off
     # Phase 1 — Allocate device memory
-    a_curr = g.alloc(_HEAT_N * SIZEOF_FLOAT)
-    a_next = g.alloc(_HEAT_N * SIZEOF_FLOAT)
-    a_ctr  = g.alloc(SIZEOF_INT)
+    a_curr = g.allocate(_HEAT_N * SIZEOF_FLOAT)
+    a_next = g.allocate(_HEAT_N * SIZEOF_FLOAT)
+    a_ctr  = g.allocate(SIZEOF_INT)
 
     # Phase 2 — Initialise buffers
     m_curr = a_curr.memset(a_curr.dptr, 0, _HEAT_N * SIZEOF_FLOAT)
@@ -247,23 +249,23 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
          .graph
     p = g.join(m_curr, m_next, m_ctr) \
          .embed(bc) \
-         .record_event(event_start)
+         .record(event_start)
 
     # Phase 4 — Iterate
     loop = p.while_loop(condition)
     loop.body.launch(heat_cfg, k_heat, a_next.dptr, a_curr.dptr,
                      np.int32(_HEAT_N), _HEAT_ALPHA) \
              .memcpy(a_curr.dptr, a_next.dptr, _HEAT_N * SIZEOF_FLOAT) \
-             .launch(tick_cfg, k_countdown, condition.handle, a_ctr.dptr)
+             .launch(tick_cfg, k_countdown, condition, a_ctr.dptr)
 
     # Phase 5 — After loop: timing end, readback, verify, free memory
-    loop.wait_event(event_start) \
-        .record_event(event_end) \
+    loop.wait(event_start) \
+        .record(event_end) \
         .memcpy(host_ptr, a_curr.dptr, _HEAT_N * SIZEOF_FLOAT) \
         .callback(capture_result) \
-        .free(a_curr.dptr) \
-        .free(a_next.dptr) \
-        .free(a_ctr.dptr)
+        .deallocate(a_curr.dptr) \
+        .deallocate(a_next.dptr) \
+        .deallocate(a_ctr.dptr)
     # fmt: on
 
     # Phase 6 — Instantiate, launch, verify
@@ -314,7 +316,8 @@ def test_bisection_root(init_cuda):
     host_ptr = handle_return(driver.cuMemAllocHost(SIZEOF_FLOAT))
 
     try:
-        _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_ptr)
+        with xfail_on_graph_mempool_oom(dev):
+            _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_ptr)
     finally:
         handle_return(driver.cuMemFreeHost(host_ptr))
 
@@ -332,9 +335,9 @@ def _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_
 
     # fmt: off
     # Allocate and initialise: a = 0.0, b = 2.0, counter = ITERS
-    a   = g.alloc(SIZEOF_FLOAT)
-    b   = g.alloc(SIZEOF_FLOAT)
-    ctr = g.alloc(SIZEOF_INT)
+    a   = g.allocate(SIZEOF_FLOAT)
+    b   = g.allocate(SIZEOF_FLOAT)
+    ctr = g.allocate(SIZEOF_INT)
 
     p = g.join(a.memset(a.dptr, np.float32(0.0), 1),
                b.memset(b.dptr, np.float32(2.0), 1),
@@ -345,23 +348,23 @@ def _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_
     ie_cond    = g.create_condition(default_value=0)
     loop = p.while_loop(while_cond)
 
-    ie = loop.body.launch(cfg, k_eval, a.dptr, b.dptr, ie_cond.handle) \
+    ie = loop.body.launch(cfg, k_eval, a.dptr, b.dptr, ie_cond) \
                   .if_else(ie_cond)
     ie.then.launch(cfg, k_hi, a.dptr, b.dptr)
     ie.else_.launch(cfg, k_lo, a.dptr, b.dptr)
-    ie.launch(cfg, k_cd, while_cond.handle, ctr.dptr)
+    ie.launch(cfg, k_cd, while_cond, ctr.dptr)
 
     # Post-loop: Newton refinement (IfNode), readback, free
     if_cond = g.create_condition(default_value=0)
-    if_node = loop.launch(cfg, k_check, a.dptr, b.dptr, if_cond.handle) \
-                  .if_cond(if_cond)
+    if_node = loop.launch(cfg, k_check, a.dptr, b.dptr, if_cond) \
+                  .if_then(if_cond)
     if_node.then.launch(cfg, k_newton, a.dptr, b.dptr)
 
     if_node.memcpy(host_ptr, a.dptr, SIZEOF_FLOAT) \
            .callback(capture_result) \
-           .free(a.dptr) \
-           .free(b.dptr) \
-           .free(ctr.dptr)
+           .deallocate(a.dptr) \
+           .deallocate(b.dptr) \
+           .deallocate(ctr.dptr)
     # fmt: on
 
     # Instantiate, launch, verify
@@ -416,7 +419,8 @@ def test_switch_dispatch(init_cuda, mode, expected):
     host_ptr = handle_return(driver.cuMemAllocHost(SIZEOF_INT))
 
     try:
-        _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr)
+        with xfail_on_graph_mempool_oom(dev):
+            _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr)
 
         result = ctypes.c_int.from_address(host_ptr).value
         assert result == expected
@@ -430,7 +434,7 @@ def _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr):
     cfg = LaunchConfig(grid=1, block=1)
 
     # fmt: off
-    x = g.alloc(SIZEOF_INT)
+    x = g.allocate(SIZEOF_INT)
     sw_cond = g.create_condition(default_value=mode)
     sw = x.memset(x.dptr, np.int32(_SWITCH_VALUE), 1) \
           .switch(sw_cond, 4)
@@ -441,7 +445,7 @@ def _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr):
     # branch 3: identity (no kernel — value unchanged)
 
     sw.memcpy(host_ptr, x.dptr, SIZEOF_INT) \
-      .free(x.dptr)
+      .deallocate(x.dptr)
     # fmt: on
 
     graph = g.instantiate()

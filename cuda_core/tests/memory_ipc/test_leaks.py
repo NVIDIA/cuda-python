@@ -13,8 +13,9 @@ except ImportError:
 else:
     HAVE_PSUTIL = True
 import pytest
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 USING_FDS = platform.system() == "Linux"
@@ -26,18 +27,20 @@ skip_if_unrunnable = pytest.mark.skipif(
 @pytest.mark.flaky(reruns=2)
 @skip_if_unrunnable
 def test_alloc_handle(ipc_memory_resource):
-    """Check for fd leaks in get_allocation_handle."""
+    """Check for fd leaks in allocation_handle."""
     mr = ipc_memory_resource
     with CheckFDLeaks():
-        [mr.get_allocation_handle() for _ in range(10)]
+        [mr.allocation_handle for _ in range(10)]
 
 
 def exec_success(obj, number=1):
-    """Succesfully run a child process."""
+    """Successfully run a child process."""
     for _ in range(number):
         process = mp.Process(target=child_main, args=(obj,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
 
@@ -47,13 +50,15 @@ def child_main(obj, *args):
 
 def exec_launch_failure(obj, number=1):
     """
-    Unsuccesfully try to launch a child process. This fails when
-    after the child starts.
+    Unsuccessfully try to launch a child process. This fails after
+    the child starts.
     """
     for _ in range(number):
         process = mp.Process(target=child_main_bad, args=(obj,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode != 0
 
 
@@ -63,7 +68,7 @@ def child_main_bad():
 
 def exec_reduce_failure(obj, number=1):
     """
-    Unsuccesfully try to launch a child process. This fails before
+    Unsuccessfully try to launch a child process. This fails before
     the child starts but after the resource-owning object is serialized.
     """
     for _ in range(number):
@@ -84,19 +89,19 @@ class Irreducible:
 @pytest.mark.parametrize(
     "getobject",
     [
-        lambda mr: mr.get_allocation_handle(),
-        lambda mr: mr,
-        lambda mr: mr.allocate(NBYTES),
-        lambda mr: mr.allocate(NBYTES).get_ipc_descriptor(),
+        lambda mr, _stream: mr.allocation_handle,
+        lambda mr, _stream: mr,
+        lambda mr, stream: mr.allocate(NBYTES, stream=stream),
+        lambda mr, stream: mr.allocate(NBYTES, stream=stream).ipc_descriptor,
     ],
     ids=["alloc_handle", "mr", "buffer", "buffer_desc"],
 )
 @pytest.mark.parametrize("launcher", [exec_success, exec_launch_failure, exec_reduce_failure])
-def test_pass_object(ipc_memory_resource, launcher, getobject):
+def test_pass_object(ipc_device, ipc_memory_resource, launcher, getobject):
     """Check for fd leaks when an object is sent as a subprocess argument."""
     mr = ipc_memory_resource
     with CheckFDLeaks():
-        obj = getobject(mr)
+        obj = getobject(mr, ipc_device.default_stream)
         try:
             launcher(obj, number=2)
         finally:
@@ -137,5 +142,7 @@ def prime():
         process = mp.Process()
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
         prime_was_run = True

@@ -22,7 +22,7 @@ jobs:
       CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - name: Get CUDA version
         id: get-vars
         run: |
@@ -64,9 +64,12 @@ jobs:
           apt-get install -y git
 
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
+          # Treeless clone: setuptools-scm needs the commit graph (`git describe`)
+          # but not historical blobs.
           fetch-depth: 0
+          filter: blob:none
 
       - name: Fix workspace ownership
         run: |
@@ -164,7 +167,7 @@ jobs:
           ls -lh $REPO_ROOT/.coverage.linux
 
       - name: Upload Linux coverage data
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: coverage-data-linux
           path: .coverage.linux
@@ -173,7 +176,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload cuda source code for coverage mapping
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: cuda-source-linux
           path: ${{ env.INSTALL_ROOT }}/cuda/
@@ -196,9 +199,12 @@ jobs:
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
+          # Treeless clone: setuptools-scm needs the commit graph (`git describe`)
+          # but not historical blobs.
           fetch-depth: 0
+          filter: blob:none
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
@@ -242,7 +248,7 @@ jobs:
           ls -lahR ./wheels/
 
       - name: Upload Windows wheel artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: coverage-windows-wheels
           path: ./wheels/*.whl
@@ -267,9 +273,9 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -373,7 +379,7 @@ jobs:
           ls -lh "$GITHUB_WORKSPACE/.coverage.windows"
 
       - name: Upload Windows coverage data
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: coverage-data-windows
           path: .coverage.windows
@@ -391,7 +397,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
@@ -475,7 +481,7 @@ jobs:
           echo "[SUCCESS] Coverage reports generated successfully"
 
       - name: Archive combined coverage results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: coverage-combined
           path: docs/coverage/
