@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=9afaef50"></script>
+    <script src="_static/documentation_options.js?v=5a4dbb0d"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev72';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -770,6 +770,27 @@ library are thread-safe. This is subject to change.</p></li>
 <h2>Development environment<a class="headerlink" href="#development-environment" title="Link to this heading">#</a></h2>
 <p>The sections above cover end-user installation. The section below focuses on
 a repeatable <em>development</em> workflow (editable installs and running tests).</p>
+<section id="installing-the-latest-nightly-top-of-tree-builds">
+<h3>Installing the latest nightly (top-of-tree builds)<a class="headerlink" href="#installing-the-latest-nightly-top-of-tree-builds" title="Link to this heading">#</a></h3>
+<p>These are useful for users looking to test new features or bug fixes prior to
+their inclusion in a release.</p>
+<p>CI publishes wheels as GitHub Actions artifacts on every push to <code class="docutils literal notranslate"><span class="pre">main</span></code>. To
+obtain the most recent build, use the following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="c1"># Find the latest successful CI run on main:</span>
+<span class="gp">$ </span><span class="nv">RUN_ID</span><span class="o">=</span><span class="k">$(</span>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-w<span class="w"> </span>ci.yml<span class="w"> </span>-b<span class="w"> </span>main<span class="w"> </span>-s<span class="w"> </span>success<span class="w"> </span>-L1<span class="w"> </span>--json<span class="w"> </span>databaseId<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;.[0].databaseId&#39;</span><span class="k">)</span>
+
+<span class="gp">$ </span><span class="c1"># Download the wheel (pick your Python version and platform):</span>
+<span class="gp">$ </span>gh<span class="w"> </span>run<span class="w"> </span>download<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$RUN_ID</span><span class="s2">&quot;</span><span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;cuda-core-python312-linux-64-*&quot;</span>
+
+<span class="gp">$ </span><span class="c1"># Install the downloaded wheel:</span>
+<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>cuda-core-python312-linux-64-*/cuda_core*.whl<span class="o">[</span>cu13<span class="o">]</span>
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">python312</span></code> with your Python version (e.g. <code class="docutils literal notranslate"><span class="pre">python310</span></code>, <code class="docutils literal notranslate"><span class="pre">python311</span></code>,
+<code class="docutils literal notranslate"><span class="pre">python313</span></code>, <code class="docutils literal notranslate"><span class="pre">python314</span></code>, <code class="docutils literal notranslate"><span class="pre">python314t</span></code>). For aarch64, replace <code class="docutils literal notranslate"><span class="pre">linux-64</span></code>
+with <code class="docutils literal notranslate"><span class="pre">linux-aarch64</span></code>; for Windows, use <code class="docutils literal notranslate"><span class="pre">win-64</span></code>. Replace <code class="docutils literal notranslate"><span class="pre">cu13</span></code> with
+<code class="docutils literal notranslate"><span class="pre">cu12</span></code> for CUDA 12.x environments.</p>
+</section>
 <section id="development-with-uv">
 <h3>Development with uv<a class="headerlink" href="#development-with-uv" title="Link to this heading">#</a></h3>
 <p><a class="reference external" href="https://docs.astral.sh/uv/">uv</a> is a fast Python package and project manager. For example, to work on
@@ -869,6 +890,7 @@ From the repository root:</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-pypi">Installing from PyPI</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-conda-conda-forge">Installing from Conda (conda-forge)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-environment">Development environment</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-the-latest-nightly-top-of-tree-builds">Installing the latest nightly (top-of-tree builds)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#development-with-uv">Development with uv</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#development-with-pixi">Development with pixi</a></li>
 </ul>

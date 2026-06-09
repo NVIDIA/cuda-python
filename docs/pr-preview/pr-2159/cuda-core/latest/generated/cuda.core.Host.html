@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=9afaef50"></script>
+    <script src="../_static/documentation_options.js?v=5a4dbb0d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev72';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -747,12 +747,14 @@ than a fixed one.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.Host.is_numa_current">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_numa_current</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.Host.is_numa_current" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this <code class="docutils literal notranslate"><span class="pre">Host</span></code> represents the calling thread’s NUMA node (constructed via <a class="reference internal" href="#cuda.core.Host.numa_current" title="cuda.core.Host.numa_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">numa_current()</span></code></a>).</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.Host.numa_id">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">numa_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><a class="headerlink" href="#cuda.core.Host.numa_id" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>NUMA node ID, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not pinned to a specific NUMA node.</p>
+</dd></dl>
 
 </dd></dl>
 

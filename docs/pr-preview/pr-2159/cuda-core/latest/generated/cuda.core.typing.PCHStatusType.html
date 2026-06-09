@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=9afaef50"></script>
+    <script src="../_static/documentation_options.js?v=5a4dbb0d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev72';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -720,10 +720,32 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.typing.PCHStatusType" title="Link to this definition">#</a></dt>
-<dd><p>PCHStatusType</p>
-<p><strong>CREATED</strong>: created</p>
-<p><strong>NOT_ATTEMPTED</strong>: not_attempted</p>
-<p><strong>FAILED</strong>: failed</p>
+<dd><p>Precompiled-header (PCH) outcome reported by <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CREATED</span></code> — PCH was successfully written.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NOT_ATTEMPTED</span></code> — PCH creation was skipped (backend does not support it or the option was not requested).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FAILED</span></code> — PCH creation was attempted but failed.</p></li>
+</ul>
+<dl class="simple">
+<dt><strong>CREATED</strong>: created</dt><dd><p>Precompiled-header (PCH) outcome reported by <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a>.
+
+    * <code class="docutils literal notranslate"><span class="pre">CREATED</span></code> — PCH was successfully written.
+    * <code class="docutils literal notranslate"><span class="pre">NOT_ATTEMPTED</span></code> — PCH creation was skipped (backend does not support it or the option was not requested).
+    * <code class="docutils literal notranslate"><span class="pre">FAILED</span></code> — PCH creation was attempted but failed.</p>
+</dd>
+<dt><strong>NOT_ATTEMPTED</strong>: not_attempted</dt><dd><p>Precompiled-header (PCH) outcome reported by <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a>.
+
+    * <code class="docutils literal notranslate"><span class="pre">CREATED</span></code> — PCH was successfully written.
+    * <code class="docutils literal notranslate"><span class="pre">NOT_ATTEMPTED</span></code> — PCH creation was skipped (backend does not support it or the option was not requested).
+    * <code class="docutils literal notranslate"><span class="pre">FAILED</span></code> — PCH creation was attempted but failed.</p>
+</dd>
+<dt><strong>FAILED</strong>: failed</dt><dd><p>Precompiled-header (PCH) outcome reported by <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a>.
+
+    * <code class="docutils literal notranslate"><span class="pre">CREATED</span></code> — PCH was successfully written.
+    * <code class="docutils literal notranslate"><span class="pre">NOT_ATTEMPTED</span></code> — PCH creation was skipped (backend does not support it or the option was not requested).
+    * <code class="docutils literal notranslate"><span class="pre">FAILED</span></code> — PCH creation was attempted but failed.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
