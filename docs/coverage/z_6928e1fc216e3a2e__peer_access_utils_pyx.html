@@ -75,7 +75,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__pinned_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-08 01:37 +0000
+            created at 2026-06-09 01:37 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -96,9 +96,9 @@
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">from __future__ import annotations</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from collections.abc import Callable, Iterable, MutableSet</span>&nbsp;</span><span class="r"><label for="ctxs7" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from collections.abc import Callable, Iterable, Iterator, MutableSet, Set</span>&nbsp;</span><span class="r"><label for="ctxs7" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">from dataclasses import dataclass</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">from typing import TYPE_CHECKING</span>&nbsp;</span><span class="r"><label for="ctxs9" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">from typing import TYPE_CHECKING, Any</span>&nbsp;</span><span class="r"><label for="ctxs9" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">from cuda.bindings cimport cydriver</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">from cuda.core._memory._device_memory_resource cimport DeviceMemoryResource</span>&nbsp;</span><span class="r"></span></p>
@@ -162,7 +162,7 @@
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">def _resolve_peer_device_id(value):</span>&nbsp;</span><span class="r"><label for="ctxs73" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">def _resolve_peer_device_id(value: Device | int | None) -> int:</span>&nbsp;</span><span class="r"><label for="ctxs73" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">    """Coerce ``Device | int`` into a device-ordinal int."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">    from cuda.core._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -214,7 +214,7 @@
     <p class="mis show_mis"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">    return flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">def _set_pool_access(mr, tuple to_add, tuple to_remove):</span>&nbsp;</span><span class="r"><label for="ctxs125" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">def _set_pool_access(mr: object, to_add: tuple[int, ...], to_remove: tuple[int, ...]) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs125" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">    """Issue one ``cuMemPoolSetAccess`` for the given add/remove deltas.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    The thin Python-callable layer that wraps the actual driver call: building</span>&nbsp;</span><span class="r"></span></p>
@@ -253,7 +253,7 @@
     <p class="mis show_mis"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">            PyMem_Free(access_desc)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">def _apply_peer_access_diff(mr, to_add, to_remove):</span>&nbsp;</span><span class="r"><label for="ctxs164" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">def _apply_peer_access_diff(mr: DeviceMemoryResource, to_add: Iterable[int], to_remove: Iterable[int]) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs164" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">    """Apply a peer-access diff in at most one driver call.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">    Every write path on :class:`PeerAccessibleBySetProxy` and the</span>&nbsp;</span><span class="r"></span></p>
@@ -268,7 +268,7 @@
     <p class="mis show_mis"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">    _set_pool_access(mr, add_tuple, remove_tuple)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">cpdef replace_peer_accessible_by(DeviceMemoryResource mr, devices):</span>&nbsp;</span><span class="r"><label for="ctxs179" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">cpdef void replace_peer_accessible_by(DeviceMemoryResource mr, object devices):</span>&nbsp;</span><span class="r"><label for="ctxs179" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">    """Replace the full peer-access set in a single batched driver call.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">    Backs the ``mr.peer_accessible_by = [...]`` setter. Uses the same planner</span>&nbsp;</span><span class="r"></span></p>
@@ -291,7 +291,7 @@
     <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt"># ---- Python MutableSet proxy ------------------------------------------------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">class PeerAccessibleBySetProxy(MutableSet):</span>&nbsp;</span><span class="r"><label for="ctxs202" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">class PeerAccessibleBySetProxy(MutableSet["Device"]):</span>&nbsp;</span><span class="r"><label for="ctxs202" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">    """Live driver-backed view of the peer devices granted access to a memory pool.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">    Reads (``__contains__``, ``__iter__``, ``len(...)``) call ``cuMemPoolGetAccess``;</span>&nbsp;</span><span class="r"></span></p>
@@ -312,11 +312,11 @@
     <p class="pln"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">    __slots__ = ("_mr",)</span>&nbsp;</span><span class="r"><label for="ctxs221" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">    def __init__(self, mr):</span>&nbsp;</span><span class="r"><label for="ctxs223" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">    def __init__(self, mr: DeviceMemoryResource) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs223" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">        self._mr = mr</span>&nbsp;</span><input type="checkbox" id="ctxs224"><span class="r"><label for="ctxs224" class="ctx">2 ctx</label></span><span class="ctxs">1ca</span></p>
     <p class="pln"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"><label for="ctxs226" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">    def _from_iterable(cls, it):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">    def _from_iterable(cls, it: Iterable[Device]) -> set[Device]:  # type: ignore[override]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">        # Binary set operators (&amp;, |, -, ^) collect their result through</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">        # _from_iterable. Returning a plain set lets the user reason about</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">        # the result independently of any pool's driver state.</span>&nbsp;</span><span class="r"></span></p>
@@ -324,7 +324,7 @@
     <p class="pln"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">    # --- abstract MutableSet methods ---</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    def __contains__(self, value) -> bool:</span>&nbsp;</span><span class="r"><label for="ctxs235" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    def __contains__(self, value: object) -> bool:</span>&nbsp;</span><span class="r"><label for="ctxs235" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">        try:</span>&nbsp;</span><input type="checkbox" id="ctxs236"><span class="r"><label for="ctxs236" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
     <p class="run"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">            dev_id = _resolve_peer_device_id(value)</span>&nbsp;</span><input type="checkbox" id="ctxs237"><span class="r"><label for="ctxs237" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">        except (TypeError, ValueError):</span>&nbsp;</span><span class="r"></span></p>
@@ -334,7 +334,7 @@
     <p class="run"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">            return False</span>&nbsp;</span><input type="checkbox" id="ctxs242"><span class="r"><label for="ctxs242" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">        return _peer_access_includes(mr, dev_id)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    def __iter__(self):</span>&nbsp;</span><span class="r"><label for="ctxs245" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    def __iter__(self) -> Iterator[Device]:</span>&nbsp;</span><span class="r"><label for="ctxs245" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">        from cuda.core._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs246"><span class="r"><label for="ctxs246" class="ctx">2 ctx</label></span><span class="ctxs">1ca</span></p>
     <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">        return iter(Device(dev_id) for dev_id in _query_peer_access_ids(self._mr))</span>&nbsp;</span><input type="checkbox" id="ctxs248"><span class="r"><label for="ctxs248" class="ctx">2 ctx</label></span><span class="ctxs">1ca</span></p>
@@ -342,7 +342,7 @@
     <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">    def __len__(self) -> int:</span>&nbsp;</span><span class="r"><label for="ctxs250" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">        return len(_query_peer_access_ids(self._mr))</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    def add(self, value) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs253" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    def add(self, value: Device | int) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs253" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">        """Grant peer access from ``value`` to allocations in this pool."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">        dev_id = _resolve_peer_device_id(value)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">        cdef DeviceMemoryResource mr = &lt;DeviceMemoryResource>self._mr</span>&nbsp;</span><span class="r"></span></p>
@@ -355,7 +355,7 @@
     <p class="mis show_mis"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">            raise ValueError(f"Device {mr._dev_id} cannot access peer: {dev_id}")</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t"><span class="txt">        _apply_peer_access_diff(mr, (dev_id,), ())</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">    def discard(self, value) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs266" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">    def discard(self, value: Device | int) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs266" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt">        """Revoke peer access from ``value`` to allocations in this pool."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">        try:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">            dev_id = _resolve_peer_device_id(value)</span>&nbsp;</span><span class="r"></span></p>
@@ -374,7 +374,7 @@
     <p class="pln"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">        """Revoke all peer access in a single driver call."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">        self._apply((), _query_peer_access_ids(self._mr))</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">    def update(self, *others) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs285" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">    def update(self, *others: Iterable[Device | int]) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs285" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">        """Grant peer access to every device in ``others`` in one driver call."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">        to_add = []</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">        for other in others:</span>&nbsp;</span><span class="r"></span></p>
@@ -382,7 +382,7 @@
     <p class="mis show_mis"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">        if to_add:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">            self._apply(to_add, ())</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">    def difference_update(self, *others) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs293" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">    def difference_update(self, *others: Iterable[Device | int]) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs293" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">        """Revoke peer access for every device in ``others`` in one driver call."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">        revoke_ids = set()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">        for other in others:</span>&nbsp;</span><span class="r"></span></p>
@@ -396,7 +396,7 @@
     <p class="mis show_mis"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">        if to_remove:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">            self._apply((), to_remove)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">    def intersection_update(self, *others) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs307" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">    def intersection_update(self, *others: Iterable[Device | int]) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs307" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">        """Restrict peer access to the intersection in a single driver call."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">        keep_ids = None</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">        for other in others:</span>&nbsp;</span><span class="r"></span></p>
@@ -414,7 +414,7 @@
     <p class="mis show_mis"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">        if to_remove:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">            self._apply((), to_remove)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">    def symmetric_difference_update(self, other) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs325" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">    def symmetric_difference_update(self, other: Iterable[Device | int]) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs325" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">        """Toggle peer access for every device in ``other`` in one driver call."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">        toggle_ids = set()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">        for value in other:</span>&nbsp;</span><span class="r"></span></p>
@@ -428,22 +428,22 @@
     <p class="mis show_mis"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">        if to_add or to_remove:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t"><span class="txt">            self._apply(to_add, to_remove)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">    def __ior__(self, other):</span>&nbsp;</span><span class="r"><label for="ctxs339" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">    def __ior__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:</span>&nbsp;</span><span class="r"><label for="ctxs339" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t"><span class="txt">        self.update(other)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">    def __iand__(self, other):</span>&nbsp;</span><span class="r"><label for="ctxs343" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">    def __iand__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:</span>&nbsp;</span><span class="r"><label for="ctxs343" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">        self.intersection_update(other)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">    def __isub__(self, other):</span>&nbsp;</span><span class="r"><label for="ctxs347" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">    def __isub__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:</span>&nbsp;</span><span class="r"><label for="ctxs347" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t"><span class="txt">        if other is self:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t"><span class="txt">            self.clear()</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">            self.difference_update(other)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">    def __ixor__(self, other):</span>&nbsp;</span><span class="r"><label for="ctxs354" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">    def __ixor__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:</span>&nbsp;</span><span class="r"><label for="ctxs354" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="txt">        self.symmetric_difference_update(other)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -505,7 +505,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__pinned_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-08 01:37 +0000
+            created at 2026-06-09 01:37 +0000
         </p>
     </div>
 </footer>

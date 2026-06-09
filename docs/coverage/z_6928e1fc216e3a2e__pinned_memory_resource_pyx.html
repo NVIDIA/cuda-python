@@ -149,7 +149,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__memoryview_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-08 01:37 +0000
+            created at 2026-06-09 01:37 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -254,10 +254,10 @@
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">    See :class:`DeviceMemoryResource` for more details on IPC usage patterns.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">    def __init__(self, options=None):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">    def __init__(self, options: PinnedMemoryResourceOptions | dict[str, object] | None = None) -> None:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">        _PMR_init(self, options)</span>&nbsp;</span><input type="checkbox" id="ctxs92"><span class="r"><label for="ctxs92" class="ctx">55 ctx</label></span><span class="ctxs">1defghijklmnopqrstuvwxyzABCD2PEQFRGSHTIUJVKWLXY30MabOcN1</span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">    def __reduce__(self):</span>&nbsp;</span><span class="r"><label for="ctxs94" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">    def __reduce__(self) -> tuple[object, ...]:</span>&nbsp;</span><span class="r"><label for="ctxs94" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        return PinnedMemoryResource.from_registry, (self.uuid,)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">    @staticmethod</span>&nbsp;</span><span class="r"><label for="ctxs97" class="ctx">(empty)</label></span></p>
@@ -403,7 +403,7 @@
     <p class="pln"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">def _deep_reduce_pinned_memory_resource(mr):</span>&nbsp;</span><span class="r"><label for="ctxs240" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:</span>&nbsp;</span><span class="r"><label for="ctxs240" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs241"><span class="r"><label for="ctxs241" class="ctx">19 ctx</label></span><span class="ctxs">1564789!#$%'()*+,-./</span></p>
     <p class="run"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">    alloc_handle = mr.allocation_handle</span>&nbsp;</span><input type="checkbox" id="ctxs242"><span class="r"><label for="ctxs242" class="ctx">19 ctx</label></span><span class="ctxs">1564789!#$%'()*+,-./</span></p>
     <p class="run"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">    return mr.from_allocation_handle, (alloc_handle,)</span>&nbsp;</span><input type="checkbox" id="ctxs243"><span class="r"><label for="ctxs243" class="ctx">19 ctx</label></span><span class="ctxs">1564789!#$%'()*+,-./</span></p>
@@ -419,7 +419,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__memoryview_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-08 01:37 +0000
+            created at 2026-06-09 01:37 +0000
         </p>
     </div>
 </footer>

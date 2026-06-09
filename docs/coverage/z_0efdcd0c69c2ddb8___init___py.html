@@ -70,7 +70,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__host_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-08 01:37 +0000
+            created at 2026-06-09 01:37 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -92,7 +92,7 @@
     <p class="run"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_version</span> <span class="key">import</span> <span class="nam">__version__</span>&nbsp;</span><span class="r"><label for="ctxs5" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">def</span> <span class="nam">_import_versioned_module</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">def</span> <span class="nam">_import_versioned_module</span><span class="op">(</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">    <span class="key">import</span> <span class="nam">importlib</span>&nbsp;</span><span class="r"><label for="ctxs9" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">    <span class="key">from</span> <span class="nam">cuda</span> <span class="key">import</span> <span class="nam">bindings</span>&nbsp;</span><span class="r"><label for="ctxs11" class="ctx">(empty)</label></span></p>
@@ -115,7 +115,7 @@
     <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="key">del</span> <span class="nam">_import_versioned_module</span>&nbsp;</span><span class="r"><label for="ctxs28" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="key">def</span> <span class="nam">_patch_rlcompleter_for_cython_properties</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs31" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="key">def</span> <span class="nam">_patch_rlcompleter_for_cython_properties</span><span class="op">(</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs31" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="com"># TODO: This can be removed when Python 3.13 is our minimum-supported version:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">    <span class="com">#   https://github.com/python/cpython/pull/149577</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -142,13 +142,13 @@
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">    <span class="com"># member_descriptor types, which are what Cython uses for properties on cdef</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t">    <span class="com"># classes.</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t">    <span class="key">class</span> <span class="nam">_PatchedPropMeta</span><span class="op">(</span><span class="nam">type</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs57" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t">        <span class="key">def</span> <span class="nam">__instancecheck__</span><span class="op">(</span><span class="nam">cls</span><span class="op">,</span> <span class="nam">inst</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs58" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t">        <span class="key">def</span> <span class="nam">__instancecheck__</span><span class="op">(</span><span class="nam">cls</span><span class="op">,</span> <span class="nam">inst</span><span class="op">:</span> <span class="nam">object</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs58" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t">            <span class="key">return</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">inst</span><span class="op">,</span> <span class="op">(</span><span class="nam">property</span><span class="op">,</span> <span class="nam">GetSetDescriptorType</span><span class="op">,</span> <span class="nam">MemberDescriptorType</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t">    <span class="key">class</span> <span class="nam">_PatchedProperty</span><span class="op">(</span><span class="nam">metaclass</span><span class="op">=</span><span class="nam">_PatchedPropMeta</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs61" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t">        <span class="key">pass</span>&nbsp;</span><span class="r"><label for="ctxs62" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t">    <span class="nam">rlcompleter</span><span class="op">.</span><span class="nam">property</span> <span class="op">=</span> <span class="nam">_PatchedProperty</span>&nbsp;</span><span class="r"><label for="ctxs64" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t">    <span class="nam">rlcompleter</span><span class="op">.</span><span class="nam">property</span> <span class="op">=</span> <span class="nam">_PatchedProperty</span>  <span class="com"># type: ignore[attr-defined]</span>&nbsp;</span><span class="r"><label for="ctxs64" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="nam">_patch_rlcompleter_for_cython_properties</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs67" class="ctx">(empty)</label></span></p>
@@ -211,7 +211,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__host_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-08 01:37 +0000
+            created at 2026-06-09 01:37 +0000
         </p>
     </div>
 </footer>
