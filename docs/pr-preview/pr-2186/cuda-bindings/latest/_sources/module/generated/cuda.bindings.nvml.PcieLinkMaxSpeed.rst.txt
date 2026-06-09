@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.PcieLinkMaxSpeed
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: PcieLinkMaxSpeed
