@@ -255,7 +255,7 @@ cdef object _get_aoti_dtype(int32_t dtype_code):
     return result
 
 
-def resolve_aoti_dtype(int32_t dtype_code):
+def resolve_aoti_dtype(int32_t dtype_code) -> numpy.dtype:
     """Python-callable wrapper around _get_aoti_dtype (for lazy resolution)."""
     return _get_aoti_dtype(dtype_code)
 
@@ -331,7 +331,11 @@ cpdef int sync_torch_stream(int32_t device_index,
 # Public API: construct StridedMemoryView from a torch.Tensor
 # ---------------------------------------------------------------------------
 
-def view_as_torch_tensor(object obj, object stream_ptr, view=None):
+def view_as_torch_tensor(
+    object obj,
+    object stream_ptr,
+    view: StridedMemoryView | None = None
+) -> StridedMemoryView:
     """Create/populate a :class:`StridedMemoryView` from a ``torch.Tensor``.
 
     This is a fast path that avoids DLPack/CAI protocol overhead by

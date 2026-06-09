@@ -1,13 +1,30 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+#
+# install_gpu_driver.ps1 -- install a specific NVIDIA driver version on a
+# Windows CI runner. Driver-mode selection and the post-install device
+# power-cycle are the responsibility of configure_driver_mode.ps1, which
+# the workflow runs immediately after this script (or by itself when
+# DRIVER is 'latest'/'earliest' and the runner already brings up the
+# right driver).
+#
+# Inputs (env):
+#   DRIVER    Driver version, e.g. "610.47". Must NOT be 'latest' or
+#             'earliest' -- those are runner-pre-installed and the
+#             workflow is expected to skip this script for them.
+#   GPU_TYPE  Lower-case GPU label from the matrix (e.g. "l4", "rtx4090").
+#             Selects the data-center vs desktop installer variant.
 
 # Install the driver
 function Install-Driver {
 
-    # Set the correct URL, filename, and arguments to the installer
-    # This driver is picked to support Windows 11 & CUDA 13.0
-    $version = '581.15'
+    # Driver version is plumbed from the matrix via the DRIVER env var.
+    $version = $env:DRIVER
+    if (-not $version -or $version -eq 'latest' -or $version -eq 'earliest') {
+        Write-Error "DRIVER env var must be a specific version string (e.g. '610.47'); got '$version'."
+        exit 1
+    }
 
     # Get GPU type from environment variable
     $gpu_type = $env:GPU_TYPE
@@ -54,33 +71,7 @@ function Install-Driver {
     # Install the file with the specified path from earlier
     Write-Output 'Running the driver installer...'
     Start-Process -FilePath $filepath -ArgumentList $install_args -Wait
-    Write-Output 'Done!'
-
-    # Handle driver mode configuration
-    # This assumes we have the prior knowledge on which GPU can use which mode.
-    $driver_mode = $env:DRIVER_MODE
-    if ($driver_mode -eq "WDDM") {
-        Write-Output "Setting driver mode to WDDM..."
-        nvidia-smi -fdm 0
-    } elseif ($driver_mode -eq "TCC") {
-        Write-Output "Setting driver mode to TCC..."
-        nvidia-smi -fdm 1
-    } elseif ($driver_mode -eq "MCDM") {
-        Write-Output "Setting driver mode to MCDM..."
-        nvidia-smi -fdm 2
-    } else {
-        Write-Output "Unknown driver mode: $driver_mode"
-        exit 1
-    }
-    # Only restart NVIDIA display adapters, not other display devices (e.g. QEMU VGA)
-    $nvidia_devices = Get-PnpDevice -Class Display -FriendlyName "NVIDIA*"
-    foreach ($device in $nvidia_devices) {
-        Write-Output "Restarting device: $($device.FriendlyName) ($($device.InstanceId))"
-        pnputil /disable-device "$($device.InstanceId)"
-        pnputil /enable-device "$($device.InstanceId)"
-    }
-    # Give it a minute to settle:
-    Start-Sleep -Seconds 5
+    Write-Output 'Install complete; driver mode + device cycle handled by configure_driver_mode.ps1.'
 }
 
 # Run the functions
