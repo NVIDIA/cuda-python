@@ -251,9 +251,8 @@ def _pattern_bytes(value) -> bytes:
 
 
 @pytest.fixture(params=["device", "unified", "pinned"])
-def fill_env(request):
-    device = Device()
-    device.set_current()
+def fill_env(request, init_cuda):
+    device = init_cuda
     if request.param == "device":
         mr = DummyDeviceMemoryResource(device)
     elif request.param == "unified":
@@ -1103,6 +1102,8 @@ def test_device_memory_resource_with_options(init_cuda):
     device.sync()
     dst_buffer.close()
     src_buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
 
 
 def test_pinned_memory_resource_with_options(init_cuda):
@@ -1149,6 +1150,8 @@ def test_pinned_memory_resource_with_options(init_cuda):
     device.sync()
     dst_buffer.close()
     src_buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
 
 
 def test_managed_memory_resource_with_options(init_cuda):
@@ -1365,6 +1368,8 @@ def test_mempool_ipc_errors(mempool_device):
         Buffer.from_ipc_descriptor(mr, handle, stream=device.default_stream)
 
     buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
 
 
 def test_pinned_mempool_ipc_basic():
@@ -1405,6 +1410,8 @@ def test_pinned_mempool_ipc_basic():
     assert ipc_desc.size == 1024
 
     buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
     mr.close()
 
 
@@ -1436,6 +1443,8 @@ def test_pinned_mempool_ipc_errors():
         Buffer.from_ipc_descriptor(mr, handle, stream=device.default_stream)
 
     buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
     mr.close()
 
 

@@ -92,6 +92,8 @@ class TestBufferPeerAccessAfterImport:
         assert process.exitcode == 0
 
         buffer.close()
+        # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+        dev1.sync()
         mr.close()
 
     def child_main(self, mr, buffer):
@@ -129,4 +131,6 @@ class TestBufferPeerAccessAfterImport:
             PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
 
         buffer.close()
+        # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+        dev1.sync()
         mr.close()
