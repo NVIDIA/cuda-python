@@ -50,7 +50,7 @@
 #
 #   STARTUP -- one-time mipmap build
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#   1. Allocate MipmappedArray (10 levels, float4 RGBA, surface_load_store=True).
+#   1. Allocate MipmappedArray (10 levels, float4 RGBA, is_surface_load_store=True).
 #   2. Level 0: launch `seed_base` kernel -> SurfaceObject -> high-frequency
 #      procedural pattern.
 #   3. For L = 1..num_levels-1: launch `downsample` kernel:
@@ -404,14 +404,14 @@ def main():
     dev, stream, kernels, _arch = setup_cuda()
 
     # --- Step 2: Allocate the mipmap pyramid and build every level ---
-    #     surface_load_store=True is required for kernel-side writes.
+    #     is_surface_load_store=True is required for kernel-side writes.
     num_levels = int(math.log2(BASE_SIZE)) + 1
     mip = MipmappedArray.from_descriptor(
         shape=(BASE_SIZE, BASE_SIZE),
         format=ArrayFormat.FLOAT32,
         num_channels=4,
         num_levels=num_levels,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
     build_mipmap_pyramid(mip, num_levels, stream, kernels)
 

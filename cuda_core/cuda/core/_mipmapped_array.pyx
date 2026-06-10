@@ -38,7 +38,7 @@ cdef class MipmappedArray:
 
     @classmethod
     def from_descriptor(
-        cls, *, shape, format, num_channels, num_levels, surface_load_store=False
+        cls, *, shape, format, num_channels, num_levels, is_surface_load_store=False
     ):
         """Allocate a new mipmapped CUDA array.
 
@@ -55,7 +55,7 @@ cdef class MipmappedArray:
             Number of mip levels to allocate; must be >= 1. The driver caps
             this at the log2 of the largest dimension; passing a larger value
             yields a driver error.
-        surface_load_store : bool
+        is_surface_load_store : bool
             If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so individual
             levels (obtained via :meth:`get_level`) can be bound as
             :class:`SurfaceObject` for kernel-side writes. Default False.
@@ -89,7 +89,7 @@ cdef class MipmappedArray:
         self._format = <cydriver.CUarray_format><int>format
         self._num_channels = num_channels
         self._num_levels = <unsigned int>levels
-        self._surface_load_store = bool(surface_load_store)
+        self._surface_load_store = bool(is_surface_load_store)
         self._context = _get_current_context_ptr()
         self._device_id = _get_current_device_id()
 
@@ -97,7 +97,7 @@ cdef class MipmappedArray:
         cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
         cdef int rank = len(shape_t)
         cdef unsigned int flags = (
-            cydriver.CUDA_ARRAY3D_SURFACE_LDST if surface_load_store else 0
+            cydriver.CUDA_ARRAY3D_SURFACE_LDST if is_surface_load_store else 0
         )
         cdef unsigned int c_levels = <unsigned int>levels
 

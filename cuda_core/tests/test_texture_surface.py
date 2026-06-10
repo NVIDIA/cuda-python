@@ -61,7 +61,7 @@ def test_array_3d_with_surface_flag(init_cuda):
         shape=(8, 8, 4),
         format=ArrayFormat.UINT8,
         num_channels=4,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
     try:
         assert arr.shape == (8, 8, 4)
@@ -162,7 +162,7 @@ def test_surface_object_create(init_cuda):
         shape=(8, 8),
         format=ArrayFormat.UINT8,
         num_channels=4,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
     try:
         surf = SurfaceObject.from_array(arr)
@@ -178,7 +178,7 @@ def test_surface_object_create(init_cuda):
 def test_surface_requires_ldst_flag(init_cuda):
     arr = CUDAArray.from_descriptor(shape=(8, 8), format=ArrayFormat.UINT8, num_channels=4)
     try:
-        with pytest.raises(ValueError, match="surface_load_store=True"):
+        with pytest.raises(ValueError, match="is_surface_load_store=True"):
             SurfaceObject.from_array(arr)
     finally:
         arr.close()
@@ -560,7 +560,7 @@ def test_surface_rejects_mipmapped_array(init_cuda):
         format=ArrayFormat.UINT8,
         num_channels=4,
         num_levels=2,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
     try:
         res = ResourceDescriptor.from_mipmapped_array(mip)
@@ -868,7 +868,7 @@ def test_surface_object_keeps_backing_array_alive(init_cuda):
         shape=(8, 8),
         format=ArrayFormat.UINT8,
         num_channels=4,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
     surf = SurfaceObject.from_array(arr)
     arr_id = id(arr)

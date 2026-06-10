@@ -15,7 +15,7 @@
 
 # What this example teaches
 # =========================
-# - How to allocate a CUDA CUDAArray with `surface_load_store=True` so the same
+# - How to allocate a CUDA CUDAArray with `is_surface_load_store=True` so the same
 #   memory can be bound as both a TextureObject (for sampled reads) and a
 #   SurfaceObject (for typed writes).
 # - How to use FilterMode.LINEAR + AddressMode.WRAP + normalized coordinates
@@ -351,13 +351,13 @@ def make_state_arrays():
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.FLOAT32,
         num_channels=2,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
     arr_b = CUDAArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.FLOAT32,
         num_channels=2,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
     return arr_a, arr_b
 
@@ -418,7 +418,7 @@ def main():
 
     # --- Step 6: Allocate the two ping-pong state Arrays ---
     #     Both are `float2` (channel 0 = U, channel 1 = V) with
-    #     surface_load_store=True so they can be bound as SurfaceObjects.
+    #     is_surface_load_store=True so they can be bound as SurfaceObjects.
     arr_a, arr_b = make_state_arrays()
 
     # --- Step 7: Pre-create the four bindless handles ---

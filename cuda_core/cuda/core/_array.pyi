@@ -41,7 +41,7 @@ class CUDAArray:
         ...
 
     @classmethod
-    def from_descriptor(cls, *, shape, format, num_channels, surface_load_store=False):
+    def from_descriptor(cls, *, shape, format, num_channels, is_surface_load_store=False):
         """Allocate a new CUDA array.
 
         Parameters
@@ -53,7 +53,7 @@ class CUDAArray:
             Element format.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
-        surface_load_store : bool
+        is_surface_load_store : bool
             If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so the array
             can be bound as a :class:`SurfaceObject` for kernel-side writes.
             Default False.

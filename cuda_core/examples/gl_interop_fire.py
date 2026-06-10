@@ -356,13 +356,13 @@ def make_heat_arrays():
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.UINT8,
         num_channels=1,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
     arr_b = CUDAArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.UINT8,
         num_channels=1,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
     return arr_a, arr_b
 

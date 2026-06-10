@@ -18,7 +18,7 @@
 # =========================
 # - How to drive a wide-radius convolution from a TextureObject configured for
 #   LINEAR + WRAP + normalized coordinates. The same CUDAArray is then bound as a
-#   SurfaceObject for the typed write back, requiring `surface_load_store=True`
+#   SurfaceObject for the typed write back, requiring `is_surface_load_store=True`
 #   at allocation time.
 # - How a single-channel `float` CUDAArray differs from the multi-channel layout
 #   used in the Gray-Scott example: `num_channels=1`, `tex2D<float>` reads, and
@@ -405,20 +405,20 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 def make_state_arrays():
     """Allocate the two single-channel `float` ping-pong arrays.
 
-    `surface_load_store=True` is what lets the same CUDAArray be bound as both a
+    `is_surface_load_store=True` is what lets the same CUDAArray be bound as both a
     TextureObject (sampled reads) and a SurfaceObject (typed writes).
     """
     arr_a = CUDAArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.FLOAT32,
         num_channels=1,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
     arr_b = CUDAArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.FLOAT32,
         num_channels=1,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
     return arr_a, arr_b
 
@@ -485,7 +485,7 @@ def main():
     resource = GraphicsResource.from_gl_buffer(pbo_id, flags="write_discard")
 
     # --- Step 6: Allocate the two ping-pong state Arrays ---
-    #     Both are single-channel `float` with `surface_load_store=True` so
+    #     Both are single-channel `float` with `is_surface_load_store=True` so
     #     they can be bound as SurfaceObjects.
     arr_a, arr_b = make_state_arrays()
 

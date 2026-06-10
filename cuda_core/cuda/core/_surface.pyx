@@ -25,7 +25,7 @@ cdef class SurfaceObject:
     kernels read and write through it using integer pixel coordinates.
 
     The backing :class:`CUDAArray` must have been created with
-    ``surface_load_store=True`` and is kept alive for the lifetime of this
+    ``is_surface_load_store=True`` and is kept alive for the lifetime of this
     object to prevent dangling handles.
 
     Construct via :meth:`from_array` or :meth:`from_descriptor`. Passes to
@@ -42,7 +42,7 @@ cdef class SurfaceObject:
     def from_array(cls, array):
         """Create a surface object directly from an :class:`CUDAArray`.
 
-        The array must have been created with ``surface_load_store=True``.
+        The array must have been created with ``is_surface_load_store=True``.
         """
         if not isinstance(array, CUDAArray):
             raise TypeError(f"array must be an CUDAArray, got {type(array).__name__}")
@@ -56,7 +56,7 @@ cdef class SurfaceObject:
         ----------
         resource : ResourceDescriptor
             Must wrap an :class:`CUDAArray` allocated with
-            ``surface_load_store=True``. Linear/pitch2d resources are not
+            ``is_surface_load_store=True``. Linear/pitch2d resources are not
             valid surface backings.
         """
         if not isinstance(resource, ResourceDescriptor):
@@ -73,7 +73,7 @@ cdef class SurfaceObject:
         cdef CUDAArray arr = <CUDAArray>resource.source
         if not arr.is_surface_load_store:
             raise ValueError(
-                "CUDAArray must be created with surface_load_store=True to be "
+                "CUDAArray must be created with is_surface_load_store=True to be "
                 "bound as a SurfaceObject"
             )
 

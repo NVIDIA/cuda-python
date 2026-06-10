@@ -217,7 +217,7 @@ cdef class CUDAArray:
         )
 
     @classmethod
-    def from_descriptor(cls, *, shape, format, num_channels, surface_load_store=False):
+    def from_descriptor(cls, *, shape, format, num_channels, is_surface_load_store=False):
         """Allocate a new CUDA array.
 
         Parameters
@@ -229,7 +229,7 @@ cdef class CUDAArray:
             Element format.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
-        surface_load_store : bool
+        is_surface_load_store : bool
             If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so the array
             can be bound as a :class:`SurfaceObject` for kernel-side writes.
             Default False.
@@ -258,7 +258,7 @@ cdef class CUDAArray:
         self._shape = shape_t
         self._format = <cydriver.CUarray_format><int>format
         self._num_channels = num_channels
-        self._surface_load_store = bool(surface_load_store)
+        self._surface_load_store = bool(is_surface_load_store)
         self._context = _get_current_context_ptr()
         self._device_id = _get_current_device_id()
         self._parent_ref = None
@@ -268,7 +268,7 @@ cdef class CUDAArray:
         cdef cydriver.CUDA_ARRAY_DESCRIPTOR desc2d
         cdef int rank = len(shape_t)
         cdef unsigned int flags = (
-            cydriver.CUDA_ARRAY3D_SURFACE_LDST if surface_load_store else 0
+            cydriver.CUDA_ARRAY3D_SURFACE_LDST if is_surface_load_store else 0
         )
 
         # cuArrayCreate (2D path) does not accept flags; use the 3D descriptor

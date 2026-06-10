@@ -44,7 +44,7 @@
 #
 #   STARTUP (one-shot bake)
 #   ~~~~~~~~~~~~~~~~~~~~~~~
-#   1. Allocate 3D CUDAArray (128^3, FLOAT32 x1, surface_load_store=True).
+#   1. Allocate 3D CUDAArray (128^3, FLOAT32 x1, is_surface_load_store=True).
 #   2. Bind it as a SurfaceObject.
 #   3. Launch `bake_sdf`: one thread per voxel writes the SDF via surf3Dwrite.
 #   4. Close the SurfaceObject; the CUDAArray stays alive.
@@ -161,7 +161,7 @@ def make_volume_array():
         shape=(VOLUME_SIZE, VOLUME_SIZE, VOLUME_SIZE),
         format=ArrayFormat.FLOAT32,
         num_channels=1,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
 
 
@@ -546,7 +546,7 @@ __device__ __forceinline__ float length3(float x, float y, float z) {
 //           into a single-channel float 3D CUDAArray via a SurfaceObject.
 //
 //   surf is bound to a (size^3, FLOAT32 x 1) CUDAArray allocated with
-//   surface_load_store=True.
+//   is_surface_load_store=True.
 //   surf3Dwrite's x coordinate is in BYTES (multiply by sizeof(float));
 //   y and z are in elements. Off-by-one on the byte conversion silently
 //   corrupts every other column, so it's worth flagging explicitly.

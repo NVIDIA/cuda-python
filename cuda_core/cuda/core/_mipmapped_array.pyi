@@ -27,7 +27,7 @@ class MipmappedArray:
         ...
 
     @classmethod
-    def from_descriptor(cls, *, shape, format, num_channels, num_levels, surface_load_store=False):
+    def from_descriptor(cls, *, shape, format, num_channels, num_levels, is_surface_load_store=False):
         """Allocate a new mipmapped CUDA array.
 
         Parameters
@@ -43,7 +43,7 @@ class MipmappedArray:
             Number of mip levels to allocate; must be >= 1. The driver caps
             this at the log2 of the largest dimension; passing a larger value
             yields a driver error.
-        surface_load_store : bool
+        is_surface_load_store : bool
             If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so individual
             levels (obtained via :meth:`get_level`) can be bound as
             :class:`SurfaceObject` for kernel-side writes. Default False.

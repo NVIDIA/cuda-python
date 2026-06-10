@@ -72,7 +72,7 @@ class ResourceDescriptor:
       Supports filtering and 2D addressing, but only 2D access.
 
     Linear and pitch2D resources cannot back a :class:`SurfaceObject` — those
-    require an :class:`CUDAArray` allocated with ``surface_load_store=True``.
+    require an :class:`CUDAArray` allocated with ``is_surface_load_store=True``.
     """
 
     __slots__ = (

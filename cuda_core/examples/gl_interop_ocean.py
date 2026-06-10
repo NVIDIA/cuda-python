@@ -346,7 +346,7 @@ def make_heightmap_array():
         shape=(GRID, GRID),
         format=ArrayFormat.FLOAT32,
         num_channels=1,
-        surface_load_store=True,
+        is_surface_load_store=True,
     )
 
 
