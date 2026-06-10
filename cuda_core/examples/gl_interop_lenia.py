@@ -112,8 +112,8 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    CUDAArray,
     ArrayFormat,
+    CUDAArray,
     Device,
     FilterMode,
     GraphicsResource,
@@ -595,10 +595,7 @@ def main():
         now = time.monotonic()
         if now - fps_time >= 1.0:
             fps = frame_count / (now - fps_time)
-            window.set_caption(
-                "cuda.core CUDAArray/Texture/Surface - Lenia"
-                f" ({WIDTH}x{HEIGHT}, R={R}, {fps:.0f} FPS)"
-            )
+            window.set_caption(f"cuda.core CUDAArray/Texture/Surface - Lenia ({WIDTH}x{HEIGHT}, R={R}, {fps:.0f} FPS)")
             frame_count = 0
             fps_time = now
 

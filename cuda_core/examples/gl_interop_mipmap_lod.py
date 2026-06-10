@@ -94,7 +94,6 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -134,8 +133,7 @@ def _check_compute_capability(dev):
     cc = dev.compute_capability
     if cc.major < 3:
         print(
-            f"This example requires compute capability >= 3.0, "
-            f"got sm_{cc.major}{cc.minor}.",
+            f"This example requires compute capability >= 3.0, got sm_{cc.major}{cc.minor}.",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -207,9 +205,9 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
     # at the end of their `with` blocks.
     src_tex_desc = TextureDescriptor(
         address_mode=AddressMode.CLAMP,
-        filter_mode=FilterMode.POINT,        # explicit per-texel reads
+        filter_mode=FilterMode.POINT,  # explicit per-texel reads
         read_mode=ReadMode.ELEMENT_TYPE,
-        normalized_coords=False,             # integer pixel coordinates
+        normalized_coords=False,  # integer pixel coordinates
     )
     for level in range(1, num_levels):
         parent_size = BASE_SIZE >> (level - 1)
@@ -220,9 +218,10 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
         src_arr = mip.get_level(level - 1)
         dst_arr = mip.get_level(level)
         src_res = ResourceDescriptor.from_array(src_arr)
-        with TextureObject.from_descriptor(
-            resource=src_res, texture_descriptor=src_tex_desc
-        ) as src_tex, SurfaceObject.from_array(dst_arr) as dst_surf:
+        with (
+            TextureObject.from_descriptor(resource=src_res, texture_descriptor=src_tex_desc) as src_tex,
+            SurfaceObject.from_array(dst_arr) as dst_surf,
+        ):
             block = (16, 16, 1)
             grid = (
                 (level_size + block[0] - 1) // block[0],
@@ -282,12 +281,30 @@ def create_display_resources(gl, width, height):
     quad_verts = np.array(
         [
             # x,  y,    s, t      (position + texture coordinate)
-            -1, -1, 0, 0,
-             1, -1, 1, 0,
-             1,  1, 1, 1,
-            -1, -1, 0, 0,
-             1,  1, 1, 1,
-            -1,  1, 0, 1,
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            -1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            1,
+            0,
+            1,
         ],
         dtype=np.float32,
     )
@@ -409,7 +426,7 @@ def main():
         filter_mode=FilterMode.LINEAR,
         read_mode=ReadMode.ELEMENT_TYPE,
         normalized_coords=True,
-        mipmap_filter_mode=FilterMode.LINEAR,    # trilinear
+        mipmap_filter_mode=FilterMode.LINEAR,  # trilinear
         mipmap_level_bias=0.0,
         min_mipmap_level_clamp=0.0,
         max_mipmap_level_clamp=float(num_levels - 1),
@@ -489,24 +506,20 @@ def main():
             fps_time[0] = now
 
     @window.event
-    def on_mouse_scroll(x, y, scroll_x, scroll_y):
+    def on_mouse_scroll(_x, _y, _scroll_x, scroll_y):
         # One wheel step changes zoom by ~12.5%. Clamped to keep LOD in range.
         if scroll_y == 0:
             return
-        factor = 1.125 ** scroll_y
+        factor = 1.125**scroll_y
         state["zoom"] = max(1.0 / 64.0, min(64.0, state["zoom"] * factor))
 
     @window.event
-    def on_key_press(symbol, modifiers):
+    def on_key_press(symbol, _modifiers):
         key = pyglet.window.key
         if symbol == key.BRACKETLEFT:
-            state["lod_bias"] = max(
-                -float(num_levels), state["lod_bias"] - LOD_BIAS_STEP
-            )
+            state["lod_bias"] = max(-float(num_levels), state["lod_bias"] - LOD_BIAS_STEP)
         elif symbol == key.BRACKETRIGHT:
-            state["lod_bias"] = min(
-                float(num_levels), state["lod_bias"] + LOD_BIAS_STEP
-            )
+            state["lod_bias"] = min(float(num_levels), state["lod_bias"] + LOD_BIAS_STEP)
         elif symbol == key.R:
             state["zoom"] = 1.0
             state["lod_bias"] = 0.0

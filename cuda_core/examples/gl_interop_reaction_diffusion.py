@@ -89,8 +89,8 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    CUDAArray,
     ArrayFormat,
+    CUDAArray,
     Device,
     FilterMode,
     GraphicsResource,
@@ -470,7 +470,7 @@ def main():
         nonlocal frame_count, fps_time
 
         window.clear()
-        F, k, _label = PRESETS[state["preset"]]
+        f, k, _label = PRESETS[state["preset"]]
 
         # (a) Run N_STEPS Gray-Scott iterations. Each step reads from one
         #     array via a TextureObject (LINEAR + WRAP gives wrapping +
@@ -487,7 +487,7 @@ def main():
                 np.int32(HEIGHT),
                 np.float32(DU),
                 np.float32(DV),
-                np.float32(F),
+                np.float32(f),
                 np.float32(k),
                 np.float32(DT),
             )

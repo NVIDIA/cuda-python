@@ -17,10 +17,10 @@ from cuda.core._utils.cuda_utils cimport (
     _get_current_device_id,
 )
 
-import enum
+from enum import IntEnum
 
 
-class ArrayFormat(enum.IntEnum):
+class ArrayFormat(IntEnum):
     """Element format for a :class:`CUDAArray` allocation.
 
     Mirrors ``CUarray_format`` from the CUDA driver API.

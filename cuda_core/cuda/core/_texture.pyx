@@ -19,8 +19,8 @@ from cuda.core._utils.cuda_utils cimport (
     _get_current_device_id,
 )
 
-import enum
 from dataclasses import dataclass
+from enum import IntEnum
 
 
 # Driver texture-descriptor flag bits (CU_TRSF_*).
@@ -31,7 +31,7 @@ _TRSF_DISABLE_TRILINEAR_OPTIMIZATION = 0x20
 _TRSF_SEAMLESS_CUBEMAP = 0x40
 
 
-class AddressMode(enum.IntEnum):
+class AddressMode(IntEnum):
     """Boundary behavior for out-of-range texture coordinates."""
     WRAP   = cydriver.CU_TR_ADDRESS_MODE_WRAP
     CLAMP  = cydriver.CU_TR_ADDRESS_MODE_CLAMP
@@ -39,13 +39,13 @@ class AddressMode(enum.IntEnum):
     BORDER = cydriver.CU_TR_ADDRESS_MODE_BORDER
 
 
-class FilterMode(enum.IntEnum):
+class FilterMode(IntEnum):
     """Texel sampling mode."""
     POINT  = cydriver.CU_TR_FILTER_MODE_POINT
     LINEAR = cydriver.CU_TR_FILTER_MODE_LINEAR
 
 
-class ReadMode(enum.IntEnum):
+class ReadMode(IntEnum):
     """How sampled values are returned to the kernel.
 
     - ``ELEMENT_TYPE``: return the raw element value (integer formats stay
@@ -349,7 +349,7 @@ class TextureDescriptor:
     mipmap_level_bias: float = 0.0
     min_mipmap_level_clamp: float = 0.0
     max_mipmap_level_clamp: float = 0.0
-    border_color: tuple | None = None
+    border_color: tuple[float, ...] | None = None
 
 
 def _normalize_address_modes(address_mode):

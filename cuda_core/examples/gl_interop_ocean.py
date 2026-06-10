@@ -88,8 +88,8 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    CUDAArray,
     ArrayFormat,
+    CUDAArray,
     Device,
     FilterMode,
     GraphicsResource,
@@ -123,10 +123,10 @@ PRESETS = {
 DEFAULT_PRESET = "2"
 
 # Initial camera (orbit-around-origin) parameters.
-INITIAL_YAW = 0.6        # radians around world-y
-INITIAL_PITCH = 0.35     # radians above the horizon (small positive = looking down)
-INITIAL_DISTANCE = 5.0   # camera distance from origin
-PITCH_LIMIT = 1.4        # clamp |pitch| to keep basis non-degenerate (< pi/2)
+INITIAL_YAW = 0.6  # radians around world-y
+INITIAL_PITCH = 0.35  # radians above the horizon (small positive = looking down)
+INITIAL_DISTANCE = 5.0  # camera distance from origin
+PITCH_LIMIT = 1.4  # clamp |pitch| to keep basis non-degenerate (< pi/2)
 ZOOM_MIN = 1.5
 ZOOM_MAX = 30.0
 
@@ -231,12 +231,30 @@ def create_display_resources(gl, width, height):
     # Fullscreen quad (two triangles covering the entire window).
     quad_verts = np.array(
         [
-            -1, -1, 0, 0,
-             1, -1, 1, 0,
-             1,  1, 1, 1,
-            -1, -1, 0, 0,
-             1,  1, 1, 1,
-            -1,  1, 0, 1,
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            -1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            1,
+            0,
+            1,
         ],
         dtype=np.float32,
     )
@@ -270,8 +288,15 @@ def create_display_resources(gl, width, height):
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
     gl.glTexImage2D(
-        gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, width, height, 0,
-        gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None,
+        gl.GL_TEXTURE_2D,
+        0,
+        gl.GL_RGBA8,
+        width,
+        height,
+        0,
+        gl.GL_RGBA,
+        gl.GL_UNSIGNED_BYTE,
+        None,
     )
     return shader_prog, vao.value, tex.value
 
@@ -292,8 +317,15 @@ def copy_pbo_to_texture(gl, pbo_id, tex_id, width, height):
     gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, pbo_id)
     gl.glBindTexture(gl.GL_TEXTURE_2D, tex_id)
     gl.glTexSubImage2D(
-        gl.GL_TEXTURE_2D, 0, 0, 0, width, height,
-        gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None,
+        gl.GL_TEXTURE_2D,
+        0,
+        0,
+        0,
+        width,
+        height,
+        gl.GL_RGBA,
+        gl.GL_UNSIGNED_BYTE,
+        None,
     )
     gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, 0)
 
@@ -425,9 +457,7 @@ def main():
         # (b) Render the scene: sample the heightmap through the texture,
         #     estimate normals via finite differences, shade with Phong +
         #     Fresnel sky reflection, write RGBA8 into the OpenGL PBO.
-        cam_x, cam_y, cam_z = orbit_camera_position(
-            state["yaw"], state["pitch"], state["distance"]
-        )
+        cam_x, cam_y, cam_z = orbit_camera_position(state["yaw"], state["pitch"], state["distance"])
         with resource.map(stream=stream) as buf:
             launch(
                 stream,
@@ -465,17 +495,17 @@ def main():
 
     # --- Mouse: drag to orbit, scroll to zoom ------------------------------
     @window.event
-    def on_mouse_press(x, y, button, modifiers):
+    def on_mouse_press(_x, _y, button, _modifiers):
         if button == pyglet.window.mouse.LEFT:
             state["drag"] = True
 
     @window.event
-    def on_mouse_release(x, y, button, modifiers):
+    def on_mouse_release(_x, _y, button, _modifiers):
         if button == pyglet.window.mouse.LEFT:
             state["drag"] = False
 
     @window.event
-    def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+    def on_mouse_drag(_x, _y, dx, dy, buttons, _modifiers):
         if not (buttons & pyglet.window.mouse.LEFT):
             return
         # Rotate yaw on horizontal drag, pitch on vertical drag. The yaw
@@ -490,7 +520,7 @@ def main():
             state["pitch"] = -PITCH_LIMIT
 
     @window.event
-    def on_mouse_scroll(x, y, scroll_x, scroll_y):
+    def on_mouse_scroll(_x, _y, _scroll_x, scroll_y):
         # Geometric zoom in camera distance; clamp to a sensible range.
         factor = 1.1 ** (-scroll_y)
         new_d = state["distance"] * factor
@@ -498,7 +528,7 @@ def main():
 
     # --- Keyboard: 1/2/3 weather presets, P pauses, Escape exits ----------
     @window.event
-    def on_key_press(symbol, modifiers):
+    def on_key_press(symbol, _modifiers):
         key = pyglet.window.key
         if symbol == key.ESCAPE:
             window.close()

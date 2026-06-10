@@ -55,7 +55,6 @@
 # ///
 
 import ctypes
-import math
 import sys
 import time
 
@@ -63,8 +62,8 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    CUDAArray,
     ArrayFormat,
+    CUDAArray,
     Device,
     FilterMode,
     GraphicsResource,
@@ -170,12 +169,30 @@ def create_display_resources(gl, width, height):
 
     quad_verts = np.array(
         [
-            -1, -1, 0, 0,
-             1, -1, 1, 0,
-             1,  1, 1, 1,
-            -1, -1, 0, 0,
-             1,  1, 1, 1,
-            -1,  1, 0, 1,
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            -1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            1,
+            0,
+            1,
         ],
         dtype=np.float32,
     )
@@ -209,8 +226,15 @@ def create_display_resources(gl, width, height):
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST)
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
     gl.glTexImage2D(
-        gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, width, height, 0,
-        gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None,
+        gl.GL_TEXTURE_2D,
+        0,
+        gl.GL_RGBA8,
+        width,
+        height,
+        0,
+        gl.GL_RGBA,
+        gl.GL_UNSIGNED_BYTE,
+        None,
     )
     return shader_prog, vao.value, tex.value
 
@@ -230,8 +254,15 @@ def copy_pbo_to_texture(gl, pbo_id, tex_id, width, height):
     gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, pbo_id)
     gl.glBindTexture(gl.GL_TEXTURE_2D, tex_id)
     gl.glTexSubImage2D(
-        gl.GL_TEXTURE_2D, 0, 0, 0, width, height,
-        gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None,
+        gl.GL_TEXTURE_2D,
+        0,
+        0,
+        0,
+        width,
+        height,
+        gl.GL_RGBA,
+        gl.GL_UNSIGNED_BYTE,
+        None,
     )
     gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, 0)
 
@@ -303,10 +334,7 @@ def main():
         elif symbol == key.F:
             # Filter mode is baked at TextureObject creation time. Swapping
             # it means closing the old one and building a new one.
-            state["filter"] = (
-                FilterMode.LINEAR if state["filter"] == FilterMode.POINT
-                else FilterMode.POINT
-            )
+            state["filter"] = FilterMode.LINEAR if state["filter"] == FilterMode.POINT else FilterMode.POINT
             tex.close()
             tex = make_texture(arr, state["filter"])
         elif symbol == key.R:

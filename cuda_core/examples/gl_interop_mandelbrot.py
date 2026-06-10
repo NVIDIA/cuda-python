@@ -105,8 +105,8 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    CUDAArray,
     ArrayFormat,
+    CUDAArray,
     Device,
     FilterMode,
     GraphicsResource,
@@ -527,7 +527,7 @@ def main():
                 config,
                 kernel,
                 np.uint64(palette_tex.handle),  # bindless texture handle
-                buf.handle,                     # output PBO (RGBA8)
+                buf.handle,  # output PBO (RGBA8)
                 np.int32(WIDTH),
                 np.int32(HEIGHT),
                 np.float64(view["cx"]),

@@ -23,8 +23,8 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    CUDAArray,
     ArrayFormat,
+    CUDAArray,
     Device,
     FilterMode,
     LaunchConfig,
@@ -61,8 +61,6 @@ def main():
     dev.set_current()
     stream = dev.create_stream()
 
-    coords_buf = None
-    out_buf = None
     pinned_mr = LegacyPinnedMemoryResource()
     try:
         # Allocate a 2D CUDAArray: shape=(W, H), single-channel float32.
@@ -94,12 +92,8 @@ def main():
                 read_mode=ReadMode.ELEMENT_TYPE,
                 normalized_coords=False,
             )
-            with TextureObject.from_descriptor(
-                resource=res_desc, texture_descriptor=tex_desc
-            ) as tex:
-                _run_kernel_and_verify(
-                    dev, stream, tex, pattern, width, height, pinned_mr
-                )
+            with TextureObject.from_descriptor(resource=res_desc, texture_descriptor=tex_desc) as tex:
+                _run_kernel_and_verify(dev, stream, tex, pattern, width, height, pinned_mr)
     finally:
         stream.close()
 

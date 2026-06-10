@@ -72,7 +72,6 @@
 # ///
 
 import ctypes
-import math
 import sys
 import time
 
@@ -80,8 +79,8 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    CUDAArray,
     ArrayFormat,
+    CUDAArray,
     Device,
     FilterMode,
     GraphicsResource,
@@ -101,13 +100,13 @@ from cuda.core import (
 # ---------------------------------------------------------------------------
 WIDTH = 800
 HEIGHT = 600
-VOLUME_SIZE = 128   # 128^3 voxels; bake cost is one-shot.
+VOLUME_SIZE = 128  # 128^3 voxels; bake cost is one-shot.
 
 # Camera defaults / clamps.
 RESET_YAW = 0.0
 RESET_PITCH = 0.3
 RESET_DIST = 2.5
-PITCH_MIN = -1.45    # stay inside (-pi/2, pi/2) so the up-vector stays sane.
+PITCH_MIN = -1.45  # stay inside (-pi/2, pi/2) so the up-vector stays sane.
 PITCH_MAX = 1.45
 DIST_MIN = 1.2
 DIST_MAX = 8.0
@@ -127,8 +126,7 @@ def _check_compute_capability(dev):
     cc = dev.compute_capability
     if cc.major < 3:
         print(
-            f"This example requires compute capability >= 3.0, "
-            f"got sm_{cc.major}{cc.minor}.",
+            f"This example requires compute capability >= 3.0, got sm_{cc.major}{cc.minor}.",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -249,12 +247,30 @@ def create_display_resources(gl, width, height):
     quad_verts = np.array(
         [
             # x,  y,    s, t      (position + texture coordinate)
-            -1, -1, 0, 0,
-             1, -1, 1, 0,
-             1,  1, 1, 1,
-            -1, -1, 0, 0,
-             1,  1, 1, 1,
-            -1,  1, 0, 1,
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            -1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            1,
+            0,
+            1,
         ],
         dtype=np.float32,
     )
@@ -436,15 +452,15 @@ def main():
             )
 
     @window.event
-    def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+    def on_mouse_drag(_x, _y, dx, dy, buttons, _modifiers):
         # Left-click drag orbits the camera. dx -> yaw (sign convention chosen
         # so that dragging right rotates the scene right); dy -> pitch (drag
         # up tilts the camera up).
         if not (buttons & pyglet.window.mouse.LEFT):
             return
-        ORBIT_SCALE = 0.005
-        cam["yaw"] += dx * ORBIT_SCALE
-        cam["pitch"] += dy * ORBIT_SCALE
+        orbit_scale = 0.005
+        cam["yaw"] += dx * orbit_scale
+        cam["pitch"] += dy * orbit_scale
         # Clamp pitch so the up-vector never flips (we use world-up (0,1,0)).
         if cam["pitch"] < PITCH_MIN:
             cam["pitch"] = PITCH_MIN
@@ -452,19 +468,19 @@ def main():
             cam["pitch"] = PITCH_MAX
 
     @window.event
-    def on_mouse_scroll(x, y, scroll_x, scroll_y):
+    def on_mouse_scroll(_x, _y, _scroll_x, scroll_y):
         # Scroll wheel zoom: geometric so each tick feels uniform regardless
         # of current distance. Positive scroll_y (wheel up) zooms in.
         if scroll_y == 0:
             return
-        cam["dist"] *= 0.9 ** scroll_y
+        cam["dist"] *= 0.9**scroll_y
         if cam["dist"] < DIST_MIN:
             cam["dist"] = DIST_MIN
         elif cam["dist"] > DIST_MAX:
             cam["dist"] = DIST_MAX
 
     @window.event
-    def on_key_press(symbol, modifiers):
+    def on_key_press(symbol, _modifiers):
         key = pyglet.window.key
         if symbol == key.ESCAPE:
             window.close()

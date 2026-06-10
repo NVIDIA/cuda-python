@@ -68,8 +68,8 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    CUDAArray,
     ArrayFormat,
+    CUDAArray,
     Device,
     FilterMode,
     GraphicsResource,
@@ -130,8 +130,8 @@ def make_pattern(width, height):
     img[..., 3] = 255
 
     # Two diagonal red lines.
-    diag1 = (xs == ys)
-    diag2 = (xs == (width - 1 - ys))
+    diag1 = xs == ys
+    diag2 = xs == (width - 1 - ys)
     red_mask = diag1 | diag2
     img[red_mask] = (255, 0, 0, 255)
 
@@ -141,8 +141,8 @@ def make_pattern(width, height):
     grad = np.linspace(0, 255, width, dtype=np.uint8)
     for row in range(g_y, min(g_y + g_h, height)):
         img[row, :, 0] = 0
-        img[row, :, 1] = grad             # G ramps up
-        img[row, :, 2] = 255 - grad       # B ramps down
+        img[row, :, 1] = grad  # G ramps up
+        img[row, :, 2] = 255 - grad  # B ramps down
         img[row, :, 3] = 255
 
     # Two "text-like" thin rectangles, alternating bright/dim.
@@ -151,8 +151,7 @@ def make_pattern(width, height):
 
     bar_y = (3 * height) // 4
     fill_rect(bar_y, bar_y + 4, width // 8, (width * 3) // 8, (255, 255, 0, 255))
-    fill_rect(bar_y + 8, bar_y + 12, (width * 5) // 8, (width * 7) // 8,
-              (0, 255, 255, 255))
+    fill_rect(bar_y + 8, bar_y + 12, (width * 5) // 8, (width * 7) // 8, (0, 255, 255, 255))
 
     return np.ascontiguousarray(img)
 
@@ -178,12 +177,8 @@ def make_textures(array, address_mode):
         read_mode=ReadMode.NORMALIZED_FLOAT,
         normalized_coords=False,
     )
-    tex_point = TextureObject.from_descriptor(
-        resource=res_desc, texture_descriptor=point_desc
-    )
-    tex_linear = TextureObject.from_descriptor(
-        resource=res_desc, texture_descriptor=linear_desc
-    )
+    tex_point = TextureObject.from_descriptor(resource=res_desc, texture_descriptor=point_desc)
+    tex_linear = TextureObject.from_descriptor(resource=res_desc, texture_descriptor=linear_desc)
     return tex_point, tex_linear
 
 
@@ -245,12 +240,30 @@ def create_display_resources(gl, width, height):
     # Fullscreen quad (two triangles).  Each vertex: x, y, s, t.
     quad_verts = np.array(
         [
-            -1, -1, 0, 0,
-             1, -1, 1, 0,
-             1,  1, 1, 1,
-            -1, -1, 0, 0,
-             1,  1, 1, 1,
-            -1,  1, 0, 1,
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            -1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            1,
+            0,
+            1,
         ],
         dtype=np.float32,
     )
@@ -316,8 +329,15 @@ def copy_pbo_to_texture(gl, pbo_id, tex_id, width, height):
     gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, pbo_id)
     gl.glBindTexture(gl.GL_TEXTURE_2D, tex_id)
     gl.glTexSubImage2D(
-        gl.GL_TEXTURE_2D, 0, 0, 0, width, height,
-        gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None,
+        gl.GL_TEXTURE_2D,
+        0,
+        0,
+        0,
+        width,
+        height,
+        gl.GL_RGBA,
+        gl.GL_UNSIGNED_BYTE,
+        None,
     )
     gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, 0)
 
@@ -373,9 +393,7 @@ def main():
     ) as arr:
         pattern = make_pattern(SRC_W, SRC_H)
         # Sanity: 256 * 256 * 4 bytes = 262144.
-        assert pattern.nbytes == arr.size_bytes, (
-            f"pattern bytes ({pattern.nbytes}) != array bytes ({arr.size_bytes})"
-        )
+        assert pattern.nbytes == arr.size_bytes, f"pattern bytes ({pattern.nbytes}) != array bytes ({arr.size_bytes})"
         arr.copy_from(pattern, stream=stream)
         stream.sync()  # upload must finish before kernel reads
 
@@ -472,17 +490,17 @@ def main():
 
         # --- Mouse: drag to pan, scroll to zoom ------------------------------
         @window.event
-        def on_mouse_press(x, y, button, modifiers):
+        def on_mouse_press(_x, _y, button, _modifiers):
             if button == pyglet.window.mouse.LEFT:
                 view["drag"] = True
 
         @window.event
-        def on_mouse_release(x, y, button, modifiers):
+        def on_mouse_release(_x, _y, button, _modifiers):
             if button == pyglet.window.mouse.LEFT:
                 view["drag"] = False
 
         @window.event
-        def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+        def on_mouse_drag(_x, _y, dx, dy, buttons, _modifiers):
             if not (buttons & pyglet.window.mouse.LEFT):
                 return
             # Pyglet dy is screen-up-positive; texture y is texel-down-positive.
@@ -491,15 +509,15 @@ def main():
             view["pan_y"] += dy / view["zoom"]
 
         @window.event
-        def on_mouse_scroll(x, y, scroll_x, scroll_y):
+        def on_mouse_scroll(_x, _y, _scroll_x, scroll_y):
             # Geometric zoom; clamp to a sensible range.
-            factor = 1.1 ** scroll_y
+            factor = 1.1**scroll_y
             new_zoom = view["zoom"] * factor
             view["zoom"] = max(0.1, min(32.0, new_zoom))
 
         # --- Keyboard: M cycles address mode, R resets view ------------------
         @window.event
-        def on_key_press(symbol, modifiers):
+        def on_key_press(symbol, _modifiers):
             key = pyglet.window.key
             if symbol == key.M:
                 tex_state["mode_idx"] = (tex_state["mode_idx"] + 1) % len(ADDRESS_MODES)

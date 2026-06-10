@@ -69,6 +69,7 @@ del _patch_rlcompleter_for_cython_properties
 
 
 from cuda.core import checkpoint, system, utils
+from cuda.core._array import ArrayFormat, CUDAArray
 from cuda.core._context import Context, ContextOptions
 from cuda.core._device import Device
 from cuda.core._device_resources import (
@@ -78,17 +79,6 @@ from cuda.core._device_resources import (
     WorkqueueResource,
     WorkqueueResourceOptions,
 )
-from cuda.core._array import CUDAArray, ArrayFormat
-from cuda.core._mipmapped_array import MipmappedArray
-from cuda.core._texture import (
-    AddressMode,
-    FilterMode,
-    ReadMode,
-    ResourceDescriptor,
-    TextureDescriptor,
-    TextureObject,
-)
-from cuda.core._surface import SurfaceObject
 from cuda.core._event import Event, EventOptions
 from cuda.core._graphics import GraphicsResource
 from cuda.core._host import Host
@@ -110,6 +100,7 @@ from cuda.core._memory import (
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
+from cuda.core._mipmapped_array import MipmappedArray
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
 from cuda.core._stream import (
@@ -118,7 +109,16 @@ from cuda.core._stream import (
     Stream,
     StreamOptions,
 )
+from cuda.core._surface import SurfaceObject
 from cuda.core._tensor_map import TensorMapDescriptor, TensorMapDescriptorOptions
+from cuda.core._texture import (
+    AddressMode,
+    FilterMode,
+    ReadMode,
+    ResourceDescriptor,
+    TextureDescriptor,
+    TextureObject,
+)
 
 # isort: split
 # Must come after the cuda.core._* extension imports above: loading graph
