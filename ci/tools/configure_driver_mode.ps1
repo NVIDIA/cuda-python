@@ -40,20 +40,11 @@ function Set-DriverMode {
         pnputil /enable-device "$($device.InstanceId)"
     }
 
-    # Restore the unconditional 5-sec settle that the pre-#2176
-    # install_gpu_driver.ps1 had after the cycle. With #2176, on
-    # DRIVER=latest rows we no longer run an install (which previously
-    # acted as additional warm-up), so the floor had effectively
-    # dropped to whatever the poll's first iteration was.
+    # Initial settle after the device cycle.
     Start-Sleep -Seconds 5
 
-    # Then poll nvidia-smi until NVML can initialize, or give up after
-    # ~60s. Require N consecutive successes where N == number of GPUs
-    # we just cycled: on multi-GPU rows (observed on 2x H100 MCDM)
-    # NVML briefly reports "ok" mid-init then flaps back to "Not
-    # Found", so a single success isn't enough. Scaling the
-    # consecutive-success requirement to the device count gives the
-    # settle window room to grow with the hardware.
+    # Poll nvidia-smi for N consecutive successes (N == cycled GPUs)
+    # so a mid-init "ok" flap doesn't fool the loop; bail after ~60s.
     Write-Output "Waiting for nvidia-smi/NVML to come back up after device cycle..."
     $deadline = (Get-Date).AddSeconds(60)
     $consecutive_ok = 0
