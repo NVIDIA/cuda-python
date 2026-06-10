@@ -172,6 +172,35 @@ def get_saxpy_fatbin(init_cuda):
     return bytes(fatbin), sym_map
 
 
+@pytest.fixture(scope="module")
+def get_saxpy_object():
+    """Read the pre-built saxpy.o.
+
+    In CI: produced by build stage into a test wheel file.
+    In local dev: auto-built on demand if nvcc is available; if you edit
+    saxpy.cu, remove the stale saxpy.o to force a rebuild.
+    """
+    import shutil
+    import subprocess
+    from pathlib import Path
+
+    binaries_dir = Path(__file__).parent / "test_binaries"
+    obj_path = binaries_dir / "saxpy.o"
+
+    if not obj_path.is_file():
+        if shutil.which("nvcc") is None:
+            pytest.skip(
+                f"saxpy.o not found at {obj_path} and nvcc is unavailable. "
+                "In CI this is downloaded from the build stage."
+            )
+        subprocess.run(  # noqa: S603
+            ["bash", str(binaries_dir / "build_test_binaries.sh")],  # noqa: S607
+            check=True,
+        )
+
+    return obj_path.read_bytes()
+
+
 def test_get_kernel(init_cuda):
     kernel = """extern "C" __global__ void ABC() { }"""
 
@@ -328,6 +357,26 @@ def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path, convert_p
     assert mod_obj.code == str(arg)
     assert mod_obj.code_type == "fatbin"
     mod_obj.get_kernel("saxpy<double>")  # force loading
+
+
+def test_object_code_load_object(get_saxpy_object):
+    obj = get_saxpy_object
+    assert isinstance(obj, bytes)
+    mod_obj = ObjectCode.from_object(obj)
+    assert mod_obj.code == obj
+    assert mod_obj.code_type == "object"
+    # object code is only valid as linker input; get_kernel is unsupported
+    with pytest.raises(RuntimeError, match=r'Unsupported code type "object"'):
+        mod_obj.get_kernel("saxpy<float>")
+
+
+def test_object_code_load_object_from_file(get_saxpy_object, tmp_path):
+    obj_file = tmp_path / "test.o"
+    obj_file.write_bytes(get_saxpy_object)
+    arg = str(obj_file)
+    mod_obj = ObjectCode.from_object(arg)
+    assert mod_obj.code == arg
+    assert mod_obj.code_type == "object"
 
 
 def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):

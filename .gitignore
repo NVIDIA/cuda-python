@@ -19,6 +19,9 @@ cache_driver
 cache_runtime
 cache_nvrtc
 
+# cuda.core test object fixtures built locally / downloaded as CI artifacts
+cuda_core/tests/test_binaries/*.o
+
 # CUDA Python specific (auto-generated)
 cuda_bindings/cuda/bindings/_bindings/cyruntime.pxd
 cuda_bindings/cuda/bindings/_bindings/cyruntime.pyx
