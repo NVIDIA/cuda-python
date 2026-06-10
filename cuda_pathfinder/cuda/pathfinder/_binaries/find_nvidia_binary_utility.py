@@ -3,7 +3,6 @@
 
 import functools
 import os
-import shutil
 
 from cuda.pathfinder._binaries import supported_nvidia_binaries
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
@@ -26,6 +25,41 @@ def _normalize_utility_name(utility_name: str) -> str:
     if IS_WINDOWS and not utility_name.lower().endswith((".exe", ".bat", ".cmd")):
         return f"{utility_name}.exe"
     return utility_name
+
+
+def _is_executable_file(path: str) -> bool:
+    """Return True if ``path`` is a file the OS would run as an executable.
+
+    On Windows executability is determined by the file extension (the
+    candidate name already carries one), so existence is sufficient. On POSIX
+    the execute permission bit must be set, matching ``shutil.which``.
+    """
+    if not os.path.isfile(path):
+        return False
+    if IS_WINDOWS:
+        return True
+    return os.access(path, os.X_OK)
+
+
+def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[str]) -> str | None:
+    """Resolve ``normalized_name`` against ``dirs`` only, in order.
+
+    Unlike ``shutil.which``, this never consults the current working directory
+    or the ambient ``PATH``. On Windows ``shutil.which`` prepends the process
+    CWD to the search even when an explicit ``path=`` is supplied, which lets a
+    binary sitting in an arbitrary CWD shadow the trusted CUDA / Conda / wheel
+    binary that pathfinder is contracted to discover. Searching the trusted
+    directories explicitly keeps the lookup deterministic and bounded.
+    """
+    seen: set[str] = set()
+    for directory in dirs:
+        if not directory or directory in seen:
+            continue
+        seen.add(directory)
+        candidate = os.path.join(directory, normalized_name)
+        if _is_executable_file(candidate):
+            return candidate
+    return None
 
 
 @functools.cache
@@ -73,6 +107,9 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         (``.exe``, ``.bat``, ``.cmd``). On Unix-like systems, executables
         are identified by the ``X_OK`` (execute) permission bit.
 
+        Lookup is restricted to the trusted directories listed above; the
+        process working directory and the ambient ``PATH`` are never consulted.
+
     Example:
         >>> from cuda.pathfinder import find_nvidia_binary_utility
         >>> nvdisasm = find_nvidia_binary_utility("nvdisasm")
@@ -104,4 +141,4 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         dirs.append(os.path.join(cuda_home, "bin"))
 
     normalized_name = _normalize_utility_name(utility_name)
-    return shutil.which(normalized_name, path=os.pathsep.join(dirs))
+    return _resolve_in_trusted_dirs(normalized_name, dirs)
