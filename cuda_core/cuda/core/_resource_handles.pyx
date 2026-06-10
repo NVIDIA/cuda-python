@@ -59,6 +59,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUstream stream) except+ nogil
     StreamHandle create_stream_handle_with_owner "cuda_core::create_stream_handle_with_owner" (
         cydriver.CUstream stream, object owner) except+ nogil
+    void py_object_user_object_destroy "cuda_core::py_object_user_object_destroy" (
+        void* py_object) noexcept nogil
     ContextHandle get_stream_context "cuda_core::get_stream_context" (
         const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::get_legacy_stream" () except+ nogil
