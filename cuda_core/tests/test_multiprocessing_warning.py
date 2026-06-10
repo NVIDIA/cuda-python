@@ -12,11 +12,16 @@ using fork, avoiding the need for subprocess isolation.
 import warnings
 from unittest.mock import patch
 
+import pytest
+
 from cuda.core import DeviceMemoryResource, DeviceMemoryResourceOptions, EventOptions
 from cuda.core._event import _reduce_event
 from cuda.core._memory._device_memory_resource import _deep_reduce_device_memory_resource
 from cuda.core._memory._ipc import _reduce_allocation_handle
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method, reset_fork_warning
+
+# We could move these to a (session) fixtures
+pytestmark = pytest.mark.thread_unsafe(reason="all tests use unittest.mock.patch")
 
 
 def test_warn_on_fork_method_device_memory_resource(ipc_device):
