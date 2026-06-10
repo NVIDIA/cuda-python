@@ -575,20 +575,6 @@ def node_spec(request, init_cuda):
 # =============================================================================
 
 
-@pytest.fixture
-def sample_graphdef(init_cuda):
-    """A sample GraphDefinition for standalone tests."""
-    return GraphDefinition()
-
-
-@pytest.fixture
-def dot_file(tmp_path):
-    """Temporary DOT file path, cleaned up after test."""
-    path = tmp_path / "graph.dot"
-    yield path
-    path.unlink(missing_ok=True)
-
-
 # =============================================================================
 # Topology tests (parameterized over graph specs)
 # =============================================================================
@@ -775,14 +761,16 @@ def test_registry_cleanup(init_cuda):
 # =============================================================================
 
 
-def test_graphdef_handle_valid(sample_graphdef):
+def test_graphdef_handle_valid(init_cuda):
     """GraphDefinition has a valid non-null handle."""
+    sample_graphdef = GraphDefinition()
     assert sample_graphdef.handle is not None
     assert int(sample_graphdef.handle) != 0
 
 
-def test_graphdef_entry_is_virtual(sample_graphdef):
+def test_graphdef_entry_is_virtual(init_cuda):
     """Internal entry node is virtual (no pred/succ, type is None)."""
+    sample_graphdef = GraphDefinition()
     entry = sample_graphdef._entry
     assert isinstance(entry, GraphNode)
     assert entry.pred == set()
@@ -795,8 +783,9 @@ def test_graphdef_entry_is_virtual(sample_graphdef):
 # =============================================================================
 
 
-def test_alloc_zero_size_fails(sample_graphdef):
+def test_alloc_zero_size_fails(init_cuda):
     """Alloc with zero size raises error (CUDA limitation)."""
+    sample_graphdef = GraphDefinition()
     _skip_if_no_mempool()
     from cuda.core._utils.cuda_utils import CUDAError
 
@@ -804,8 +793,9 @@ def test_alloc_zero_size_fails(sample_graphdef):
         sample_graphdef.allocate(0)
 
 
-def test_free_creates_dependency(sample_graphdef):
+def test_free_creates_dependency(init_cuda):
     """Free node depends on its predecessor."""
+    sample_graphdef = GraphDefinition()
     _skip_if_no_mempool()
     with xfail_on_graph_mempool_oom():
         alloc = sample_graphdef.allocate(ALLOC_SIZE)
@@ -813,8 +803,9 @@ def test_free_creates_dependency(sample_graphdef):
     assert alloc in free.pred
 
 
-def test_alloc_free_chain(sample_graphdef):
+def test_alloc_free_chain(init_cuda):
     """Alloc and free can be chained."""
+    sample_graphdef = GraphDefinition()
     _skip_if_no_mempool()
     with xfail_on_graph_mempool_oom():
         a1 = sample_graphdef.allocate(ALLOC_SIZE)
@@ -831,8 +822,9 @@ def test_alloc_free_chain(sample_graphdef):
 # =============================================================================
 
 
-def test_alloc_memory_type_invalid(sample_graphdef):
+def test_alloc_memory_type_invalid(init_cuda):
     """Invalid memory type raises ValueError."""
+    sample_graphdef = GraphDefinition()
     with pytest.raises(ValueError, match="Invalid memory_type"):
         sample_graphdef.allocate(ALLOC_SIZE, memory_type="invalid")
 
@@ -844,8 +836,9 @@ def test_alloc_memory_type_invalid(sample_graphdef):
         pytest.param(lambda d: d, id="Device_object"),
     ],
 )
-def test_alloc_device_option(sample_graphdef, device_spec):
+def test_alloc_device_option(init_cuda, device_spec):
     """Device can be specified as int or Device object."""
+    sample_graphdef = GraphDefinition()
     _skip_if_no_mempool()
     device = Device()
     with xfail_on_graph_mempool_oom(device):
@@ -868,8 +861,9 @@ def test_alloc_peer_access(mempool_device_x2):
 
 
 @pytest.mark.parametrize("num_branches", [2, 3, 5])
-def test_join_merges_branches(sample_graphdef, num_branches):
+def test_join_merges_branches(init_cuda, num_branches):
     """join() with multiple branches creates correct dependencies."""
+    sample_graphdef = GraphDefinition()
     _skip_if_no_mempool()
     with xfail_on_graph_mempool_oom():
         branches = [sample_graphdef.allocate(ALLOC_SIZE) for _ in range(num_branches)]
@@ -883,8 +877,9 @@ def test_join_merges_branches(sample_graphdef, num_branches):
 # =============================================================================
 
 
-def test_launch_creates_node(sample_graphdef):
+def test_launch_creates_node(init_cuda):
     """launch() creates a KernelNode."""
+    sample_graphdef = GraphDefinition()
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
@@ -892,8 +887,9 @@ def test_launch_creates_node(sample_graphdef):
     assert isinstance(node, KernelNode)
 
 
-def test_launch_chain_dependencies(sample_graphdef):
+def test_launch_chain_dependencies(init_cuda):
     """Chained launches create correct dependencies."""
+    sample_graphdef = GraphDefinition()
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
@@ -955,15 +951,17 @@ def _instantiate_and_upload(graph_definition, kwargs, stream):
 
 
 @pytest.mark.parametrize("inst_kwargs", _INSTANTIATE_ONLY_OPTIONS)
-def test_instantiate_empty_graph(sample_graphdef, inst_kwargs):
+def test_instantiate_empty_graph(init_cuda, inst_kwargs):
     """Empty graph can be instantiated."""
+    sample_graphdef = GraphDefinition()
     graph = _instantiate(sample_graphdef, inst_kwargs)
     assert graph is not None
 
 
 @pytest.mark.parametrize("inst_kwargs", _INSTANTIATE_ONLY_OPTIONS)
-def test_instantiate_with_nodes(sample_graphdef, inst_kwargs):
+def test_instantiate_with_nodes(init_cuda, inst_kwargs):
     """Graph with nodes can be instantiated."""
+    sample_graphdef = GraphDefinition()
     _skip_if_no_mempool()
     with xfail_on_graph_mempool_oom():
         sample_graphdef.allocate(ALLOC_SIZE)
@@ -973,8 +971,9 @@ def test_instantiate_with_nodes(sample_graphdef, inst_kwargs):
 
 
 @pytest.mark.skipif(not Device(0).properties.unified_addressing, reason="requires unified addressing")
-def test_instantiate_and_execute_kernel_device_launch(sample_graphdef):
+def test_instantiate_and_execute_kernel_device_launch(init_cuda):
     """Kernel-only graph can be instantiated with device_launch flag."""
+    sample_graphdef = GraphDefinition()
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
@@ -990,8 +989,9 @@ def test_instantiate_and_execute_kernel_device_launch(sample_graphdef):
 
 
 @pytest.mark.parametrize("inst_kwargs", _EXECUTE_OPTIONS)
-def test_instantiate_and_execute_kernel(sample_graphdef, inst_kwargs):
+def test_instantiate_and_execute_kernel(init_cuda, inst_kwargs):
     """Graph with kernel can be instantiated and executed."""
+    sample_graphdef = GraphDefinition()
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
@@ -1004,8 +1004,9 @@ def test_instantiate_and_execute_kernel(sample_graphdef, inst_kwargs):
 
 
 @pytest.mark.parametrize("inst_kwargs", _EXECUTE_OPTIONS)
-def test_instantiate_and_execute_alloc_free(sample_graphdef, inst_kwargs):
+def test_instantiate_and_execute_alloc_free(init_cuda, inst_kwargs):
     """Graph with alloc/free can be executed."""
+    sample_graphdef = GraphDefinition()
     _skip_if_no_mempool()
     with xfail_on_graph_mempool_oom():
         alloc = sample_graphdef.allocate(ALLOC_SIZE)
@@ -1018,8 +1019,9 @@ def test_instantiate_and_execute_alloc_free(sample_graphdef, inst_kwargs):
 
 
 @pytest.mark.parametrize("inst_kwargs", _EXECUTE_OPTIONS)
-def test_instantiate_and_execute_memset(sample_graphdef, inst_kwargs):
+def test_instantiate_and_execute_memset(init_cuda, inst_kwargs):
     """Graph with alloc/memset/free can be executed."""
+    sample_graphdef = GraphDefinition()
     _skip_if_no_mempool()
     with xfail_on_graph_mempool_oom():
         alloc = sample_graphdef.allocate(ALLOC_SIZE)
@@ -1033,8 +1035,9 @@ def test_instantiate_and_execute_memset(sample_graphdef, inst_kwargs):
 
 
 @pytest.mark.parametrize("inst_kwargs", _EXECUTE_OPTIONS)
-def test_instantiate_and_execute_memcpy(sample_graphdef, inst_kwargs):
+def test_instantiate_and_execute_memcpy(init_cuda, inst_kwargs):
     """Graph with alloc/memset/memcpy/free can be executed and data is copied."""
+    sample_graphdef = GraphDefinition()
     _skip_if_no_mempool()
     import ctypes
 
@@ -1058,8 +1061,9 @@ def test_instantiate_and_execute_memcpy(sample_graphdef, inst_kwargs):
     assert all(b == 0xAB for b in host_buf)
 
 
-def test_instantiate_and_execute_child_graph(sample_graphdef):
+def test_instantiate_and_execute_child_graph(init_cuda):
     """Graph with embedded child graph can be executed."""
+    sample_graphdef = GraphDefinition()
     child = GraphDefinition()
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
@@ -1075,8 +1079,9 @@ def test_instantiate_and_execute_child_graph(sample_graphdef):
     stream.sync()
 
 
-def test_instantiate_and_execute_host_callback(sample_graphdef):
+def test_instantiate_and_execute_host_callback(init_cuda):
     """Graph with host callback can be executed and callback is invoked."""
+    sample_graphdef = GraphDefinition()
     results = []
 
     def my_callback():
@@ -1093,8 +1098,9 @@ def test_instantiate_and_execute_host_callback(sample_graphdef):
     assert results == [42]
 
 
-def test_instantiate_and_execute_host_callback_cfunc(sample_graphdef):
+def test_instantiate_and_execute_host_callback_cfunc(init_cuda):
     """Graph with ctypes function pointer callback can be executed."""
+    sample_graphdef = GraphDefinition()
     import ctypes
 
     CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
@@ -1115,8 +1121,9 @@ def test_instantiate_and_execute_host_callback_cfunc(sample_graphdef):
     assert called[0]
 
 
-def test_host_callback_cfunc_with_user_data(sample_graphdef):
+def test_host_callback_cfunc_with_user_data(init_cuda):
     """Host callback with bytes user_data passes data to C function."""
+    sample_graphdef = GraphDefinition()
     import ctypes
 
     CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
@@ -1137,14 +1144,16 @@ def test_host_callback_cfunc_with_user_data(sample_graphdef):
     assert result[0] == 0xAB
 
 
-def test_host_callback_user_data_rejected_for_python_callable(sample_graphdef):
+def test_host_callback_user_data_rejected_for_python_callable(init_cuda):
     """user_data is rejected for Python callables."""
+    sample_graphdef = GraphDefinition()
     with pytest.raises(ValueError, match="user_data is only supported"):
         sample_graphdef.callback(lambda: None, user_data=b"hello")
 
 
-def test_instantiate_and_execute_event_record_wait(sample_graphdef):
+def test_instantiate_and_execute_event_record_wait(init_cuda):
     """Graph with event record and wait nodes can be executed."""
+    sample_graphdef = GraphDefinition()
     event = Device().create_event()
     rec = sample_graphdef.record(event)
     rec.wait(event)
@@ -1166,8 +1175,9 @@ def _skip_unless_cc_90():
         pytest.skip("Conditional node execution requires CC >= 9.0 (Hopper)")
 
 
-def test_instantiate_and_execute_if_then(sample_graphdef):
+def test_instantiate_and_execute_if_then(init_cuda):
     """If-conditional node: body executes only when condition is non-zero."""
+    sample_graphdef = GraphDefinition()
     _skip_unless_cc_90()
     _skip_if_no_mempool()
     import ctypes
@@ -1199,8 +1209,9 @@ def test_instantiate_and_execute_if_then(sample_graphdef):
     assert result[0] == 1
 
 
-def test_instantiate_and_execute_if_else(sample_graphdef):
+def test_instantiate_and_execute_if_else(init_cuda):
     """If-else node: then or else branch executes based on condition."""
+    sample_graphdef = GraphDefinition()
     _skip_unless_cc_90()
     _skip_if_no_mempool()
     import ctypes
@@ -1234,8 +1245,9 @@ def test_instantiate_and_execute_if_else(sample_graphdef):
     assert result[0] == 2
 
 
-def test_instantiate_and_execute_switch(sample_graphdef):
+def test_instantiate_and_execute_switch(init_cuda):
     """Switch node: selected branch executes based on condition value."""
+    sample_graphdef = GraphDefinition()
     _skip_unless_cc_90()
     _skip_if_no_mempool()
     import ctypes
@@ -1268,8 +1280,9 @@ def test_instantiate_and_execute_switch(sample_graphdef):
     assert result[0] == 1
 
 
-def test_conditional_node_type_preserved_by_nodes(sample_graphdef):
+def test_conditional_node_type_preserved_by_nodes(init_cuda):
     """Conditional nodes appear as ConditionalNode base when read back from graph."""
+    sample_graphdef = GraphDefinition()
     condition = try_create_condition(sample_graphdef)
     if_node = sample_graphdef.if_then(condition)
     assert isinstance(if_node, IfNode)
@@ -1285,8 +1298,10 @@ def test_conditional_node_type_preserved_by_nodes(sample_graphdef):
 # =============================================================================
 
 
-def test_debug_dot_print_creates_file(sample_graphdef, dot_file):
+def test_debug_dot_print_creates_file(init_cuda, tmp_path):
     """debug_dot_print writes a DOT file."""
+    sample_graphdef = GraphDefinition()
+    dot_file = tmp_path / "graph.dot"
     _skip_if_no_mempool()
     with xfail_on_graph_mempool_oom():
         sample_graphdef.allocate(ALLOC_SIZE)
@@ -1296,8 +1311,10 @@ def test_debug_dot_print_creates_file(sample_graphdef, dot_file):
     assert "digraph" in content
 
 
-def test_debug_dot_print_with_options(sample_graphdef, dot_file):
+def test_debug_dot_print_with_options(init_cuda, tmp_path):
     """debug_dot_print accepts GraphDebugPrintOptions."""
+    sample_graphdef = GraphDefinition()
+    dot_file = tmp_path / "graph.dot"
     _skip_if_no_mempool()
     with xfail_on_graph_mempool_oom():
         sample_graphdef.allocate(ALLOC_SIZE)
@@ -1306,8 +1323,10 @@ def test_debug_dot_print_with_options(sample_graphdef, dot_file):
     assert dot_file.exists()
 
 
-def test_debug_dot_print_invalid_options(sample_graphdef, dot_file):
+def test_debug_dot_print_invalid_options(init_cuda, tmp_path):
     """debug_dot_print rejects invalid options type."""
+    sample_graphdef = GraphDefinition()
+    dot_file = tmp_path / "graph.dot"
     _skip_if_no_mempool()
     with xfail_on_graph_mempool_oom():
         sample_graphdef.allocate(ALLOC_SIZE)
