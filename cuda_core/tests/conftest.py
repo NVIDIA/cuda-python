@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import functools
 import multiprocessing
 import os
 import pathlib
@@ -89,6 +90,68 @@ except PackageNotFoundError as exc:
     test_helpers_root = str(_test_helpers_root)
     if test_helpers_root not in sys.path:
         sys.path.insert(0, test_helpers_root)
+
+
+def pytest_configure(config):
+    if _parallel_threads_enabled(config):
+        config.pluginmanager.register(_CudaCoreParallelPlugin(), name="_cuda_core_parallel_plugin")
+
+
+def _parallel_threads_enabled(config):
+    parallel_threads = getattr(config.option, "parallel_threads", 0)
+    if parallel_threads == "auto":
+        return True
+
+    return parallel_threads is not None and int(parallel_threads) > 0
+
+
+@contextmanager
+def _init_cuda_context():
+    # TODO: rename this to e.g. init_context
+    device = Device(0)
+    device.set_current()
+
+    # Set option to avoid spin-waiting on synchronization.
+    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
+        handle_return(
+            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
+        )
+
+    try:
+        yield device
+    finally:
+        _ = _device_unset_current()
+
+
+def _wrap_worker_cuda_test(func):
+    if getattr(func, "_cuda_core_worker_cuda_wrapped", False):
+        return func
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        with _init_cuda_context() as device:
+            if "init_cuda" in kwargs:
+                kwargs["init_cuda"] = device
+            if "mempool_device_x2" in kwargs:
+                kwargs["mempool_device_x2"] = _mempool_device_impl(2)
+            if "mempool_device_x3" in kwargs:
+                kwargs["mempool_device_x3"] = _mempool_device_impl(3)
+            return func(*args, **kwargs)
+
+    wrapper._cuda_core_worker_cuda_wrapped = True
+    return wrapper
+
+
+def _item_uses_init_cuda(item):
+    return "init_cuda" in getattr(item, "fixturenames", ())
+
+
+class _CudaCoreParallelPlugin:
+    @pytest.hookimpl(tryfirst=True)
+    def pytest_collection_modifyitems(self, config, items):
+        for item in items:
+            if _item_uses_init_cuda(item):
+                item.obj = _wrap_worker_cuda_test(item.obj)
 
 
 def skip_if_pinned_memory_unsupported(device):
@@ -194,18 +257,8 @@ def session_setup():
 
 @pytest.fixture
 def init_cuda():
-    # TODO: rename this to e.g. init_context
-    device = Device(0)
-    device.set_current()
-
-    # Set option to avoid spin-waiting on synchronization.
-    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
-        handle_return(
-            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
-        )
-
-    yield device
-    _ = _device_unset_current()
+    with _init_cuda_context() as device:
+        yield device
 
 
 def _device_unset_current() -> bool:
@@ -247,7 +300,7 @@ def deinit_all_contexts_function():
 
 
 @pytest.fixture
-def ipc_device():
+def ipc_device(init_cuda):
     """Obtains a device suitable for IPC-enabled mempool tests, or skips.
 
     The fixture also tracks every ``multiprocessing.Process`` spawned during
@@ -257,8 +310,7 @@ def ipc_device():
     """
     from helpers.child_processes import track_child_processes
 
-    device = Device(0)
-    device.set_current()
+    device = init_cuda
 
     if not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
@@ -290,13 +342,15 @@ def ipc_memory_resource(request, ipc_device):
     assert mr.is_ipc_enabled
     yield mr
     mr.close()
+    # TODO(seberg): Make sure the `mr` and it's buffers are fully torn down.
+    # May be unnecessary as `mr.close()` is not parallel with other work.
+    ipc_device.sync()
 
 
 @pytest.fixture
-def mempool_device():
+def mempool_device(init_cuda):
     """Obtains a device suitable for mempool tests, or skips."""
-    device = Device(0)
-    device.set_current()
+    device = init_cuda
 
     if not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
@@ -323,13 +377,13 @@ def _mempool_device_impl(num):
 
 
 @pytest.fixture
-def mempool_device_x2():
+def mempool_device_x2(init_cuda):
     """Fixture that provides two devices if available, otherwise skips test."""
     return _mempool_device_impl(2)
 
 
 @pytest.fixture
-def mempool_device_x3():
+def mempool_device_x3(init_cuda):
     """Fixture that provides three devices if available, otherwise skips test."""
     return _mempool_device_impl(3)
 
