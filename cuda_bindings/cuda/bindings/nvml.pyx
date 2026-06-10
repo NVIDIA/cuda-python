@@ -1593,7 +1593,11 @@ class FieldId(_FastEnum):
 
     MAX = 289
 
-NVLINK_MAX_LINKS = 18
+
+if tuple(int(x) for x in system_get_nvml_version().split(".")) < (3, 13):
+    NVLINK_MAX_LINKS = 18
+else:
+    NVLINK_MAX_LINKS = 36
 
 
 class RUSD(_FastEnum):
