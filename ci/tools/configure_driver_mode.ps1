@@ -31,7 +31,6 @@ function Set-DriverMode {
     }
 
     # Only restart NVIDIA display adapters, not other display devices (e.g. QEMU VGA).
-    # @(...) forces an array even when there's a single device, so .Count works.
     $nvidia_devices = @(Get-PnpDevice -Class Display -FriendlyName "NVIDIA*")
     $gpu_count = $nvidia_devices.Count
     foreach ($device in $nvidia_devices) {
