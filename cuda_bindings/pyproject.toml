@@ -53,6 +53,7 @@ test = [
     "pytest==9.1.0",
     "pytest-benchmark==5.2.3",
     "pytest-repeat==0.9.4",
+    "pytest-run-parallel; python_version == '3.14t' or python_version == '3.15t'",
     "pytest-randomly==4.1.0",
     "pyglet==2.1.14",
 ]
