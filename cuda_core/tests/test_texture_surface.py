@@ -8,7 +8,7 @@ import pytest
 import cuda.core
 from cuda.core import (
     AddressMode,
-    Array,
+    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -22,8 +22,8 @@ from cuda.core import (
 
 
 def test_array_init_disabled():
-    with pytest.raises(RuntimeError, match=r"^Array cannot be instantiated directly"):
-        cuda.core._array.Array()
+    with pytest.raises(RuntimeError, match=r"^CUDAArray cannot be instantiated directly"):
+        cuda.core._array.CUDAArray()
 
 
 def test_texture_object_init_disabled():
@@ -42,7 +42,7 @@ def test_resource_descriptor_init_disabled():
 
 
 def test_array_2d_create_and_properties(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(32, 16), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -51,7 +51,7 @@ def test_array_2d_create_and_properties(init_cuda):
         assert arr.num_channels == 1
         assert arr.element_size == 4
         assert arr.size_bytes == 32 * 16 * 4
-        assert arr.surface_load_store is False
+        assert arr.is_surface_load_store is False
         assert arr.handle != 0
         assert isinstance(arr.device, Device)
     finally:
@@ -59,7 +59,7 @@ def test_array_2d_create_and_properties(init_cuda):
 
 
 def test_array_3d_with_surface_flag(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8, 4),
         format=ArrayFormat.UINT8,
         num_channels=4,
@@ -67,7 +67,7 @@ def test_array_3d_with_surface_flag(init_cuda):
     )
     try:
         assert arr.shape == (8, 8, 4)
-        assert arr.surface_load_store is True
+        assert arr.is_surface_load_store is True
         assert arr.element_size == 4
     finally:
         arr.close()
@@ -75,12 +75,12 @@ def test_array_3d_with_surface_flag(init_cuda):
 
 def test_array_rejects_bad_channels(init_cuda):
     with pytest.raises(ValueError, match="num_channels"):
-        Array.from_descriptor(shape=(8,), format=ArrayFormat.UINT8, num_channels=3)
+        CUDAArray.from_descriptor(shape=(8,), format=ArrayFormat.UINT8, num_channels=3)
 
 
 def test_array_rejects_bad_rank(init_cuda):
     with pytest.raises(ValueError, match="shape rank"):
-        Array.from_descriptor(
+        CUDAArray.from_descriptor(
             shape=(2, 2, 2, 2), format=ArrayFormat.UINT8, num_channels=1
         )
 
@@ -90,7 +90,7 @@ def test_array_roundtrip_copy(init_cuda):
 
     device = Device()
     stream = device.create_stream()
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(16,), format=ArrayFormat.UINT32, num_channels=1
     )
     try:
@@ -112,7 +112,7 @@ def test_array_copy_rejects_undersized_host_buffer(init_cuda):
 
     device = Device()
     stream = device.create_stream()
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(16,), format=ArrayFormat.UINT32, num_channels=1
     )
     try:
@@ -130,7 +130,7 @@ def test_array_copy_rejects_undersized_host_buffer(init_cuda):
 def test_array_copy_rejects_undersized_device_buffer(init_cuda):
     device = Device()
     stream = device.create_stream()
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(16,), format=ArrayFormat.UINT32, num_channels=1
     )
     # arr is 64 bytes; allocate a 32-byte device buffer.
@@ -147,7 +147,7 @@ def test_array_copy_rejects_undersized_device_buffer(init_cuda):
 
 
 def test_texture_object_create(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(32, 16), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -170,7 +170,7 @@ def test_texture_object_create(init_cuda):
 
 
 def test_surface_object_create(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8),
         format=ArrayFormat.UINT8,
         num_channels=4,
@@ -188,7 +188,7 @@ def test_surface_object_create(init_cuda):
 
 
 def test_surface_requires_ldst_flag(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.UINT8, num_channels=4
     )
     try:
@@ -214,7 +214,7 @@ def test_address_mode_normalization(init_cuda):
     ) == (AddressMode.WRAP, AddressMode.CLAMP, AddressMode.MIRROR)
 
     # Smoke test: a 2-entry tuple is also accepted end-to-end.
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8, 4), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -457,7 +457,7 @@ def test_mipmapped_array_from_descriptor_2d(init_cuda):
         assert mip.format == ArrayFormat.FLOAT32
         assert mip.num_channels == 1
         assert mip.num_levels == 4
-        assert mip.surface_load_store is False
+        assert mip.is_surface_load_store is False
         assert mip.handle != 0
         assert isinstance(mip.device, Device)
     finally:
@@ -475,7 +475,7 @@ def test_mipmapped_array_get_level_zero_matches_shape(init_cuda):
     try:
         lvl0 = mip.get_level(0)
         try:
-            assert isinstance(lvl0, Array)
+            assert isinstance(lvl0, CUDAArray)
             # Level 0 must match the base shape and rank.
             assert lvl0.shape == shape
             assert lvl0.format == ArrayFormat.UINT8
@@ -603,11 +603,11 @@ def test_surface_rejects_mipmapped_array(init_cuda):
 
 
 def test_mipmapped_array_level_keeps_parent_alive(init_cuda):
-    """Dropping the local parent reference must not invalidate the level Array;
+    """Dropping the local parent reference must not invalidate the level CUDAArray;
     the level holds an internal strong ref back to the MipmappedArray.
 
     cdef classes don't natively support weakref, so we verify the parent
-    reference by inspecting the level Array's gc referents.
+    reference by inspecting the level CUDAArray's gc referents.
     """
     mip = MipmappedArray.from_descriptor(
         shape=(16, 16),
@@ -618,7 +618,7 @@ def test_mipmapped_array_level_keeps_parent_alive(init_cuda):
     parent_id = id(mip)
     lvl = mip.get_level(1)
     # Drop our local reference and force GC; the parent must survive because
-    # the level Array holds a strong ref via the internal _parent_ref slot.
+    # the level CUDAArray holds a strong ref via the internal _parent_ref slot.
     del mip
     gc.collect()
 
@@ -627,11 +627,11 @@ def test_mipmapped_array_level_keeps_parent_alive(init_cuda):
     referents = gc.get_referents(lvl)
     parents = [r for r in referents if isinstance(r, MipmappedArray)]
     assert len(parents) == 1, (
-        f"level Array should reference exactly one MipmappedArray parent, got "
+        f"level CUDAArray should reference exactly one MipmappedArray parent, got "
         f"{parents!r}"
     )
     assert id(parents[0]) == parent_id, (
-        "level Array's parent ref is not the original MipmappedArray"
+        "level CUDAArray's parent ref is not the original MipmappedArray"
     )
     # Closing the level drops its parent ref. Don't access the parent past
     # this point; cuMipmappedArrayDestroy may then run.
@@ -642,23 +642,23 @@ def test_mipmapped_array_level_keeps_parent_alive(init_cuda):
 
 def test_array_from_descriptor_rejects_bad_format(init_cuda):
     with pytest.raises(TypeError, match="format must be an ArrayFormat"):
-        Array.from_descriptor(shape=(8,), format=0, num_channels=1)
+        CUDAArray.from_descriptor(shape=(8,), format=0, num_channels=1)
 
 
 def test_array_from_descriptor_rejects_non_iterable_shape(init_cuda):
     with pytest.raises(TypeError, match="shape must be a tuple"):
-        Array.from_descriptor(shape=8, format=ArrayFormat.UINT8, num_channels=1)
+        CUDAArray.from_descriptor(shape=8, format=ArrayFormat.UINT8, num_channels=1)
 
 
 def test_array_from_descriptor_rejects_zero_dim(init_cuda):
     with pytest.raises(ValueError, match=r"shape\[1\] must be >= 1"):
-        Array.from_descriptor(
+        CUDAArray.from_descriptor(
             shape=(8, 0), format=ArrayFormat.UINT8, num_channels=1
         )
 
 
 def test_array_copy_rejects_non_stream(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8,), format=ArrayFormat.UINT8, num_channels=1
     )
     try:
@@ -773,7 +773,7 @@ def test_texture_object_rejects_non_resource_descriptor(init_cuda):
 
 
 def test_texture_object_rejects_non_texture_descriptor(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -787,7 +787,7 @@ def test_texture_object_rejects_non_texture_descriptor(init_cuda):
 
 
 def test_texture_object_rejects_bad_filter_mode(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -800,7 +800,7 @@ def test_texture_object_rejects_bad_filter_mode(init_cuda):
 
 
 def test_texture_object_rejects_bad_read_mode(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -813,7 +813,7 @@ def test_texture_object_rejects_bad_read_mode(init_cuda):
 
 
 def test_texture_object_rejects_bad_mipmap_filter_mode(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -828,7 +828,7 @@ def test_texture_object_rejects_bad_mipmap_filter_mode(init_cuda):
 
 
 def test_texture_object_rejects_negative_anisotropy(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -841,7 +841,7 @@ def test_texture_object_rejects_negative_anisotropy(init_cuda):
 
 
 def test_texture_object_rejects_bad_border_color_length(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -854,7 +854,7 @@ def test_texture_object_rejects_bad_border_color_length(init_cuda):
 
 
 def test_address_mode_rejects_non_addressmode_scalar(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -867,7 +867,7 @@ def test_address_mode_rejects_non_addressmode_scalar(init_cuda):
 
 
 def test_address_mode_rejects_empty_tuple(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -880,7 +880,7 @@ def test_address_mode_rejects_empty_tuple(init_cuda):
 
 
 def test_address_mode_rejects_too_long_tuple(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -897,7 +897,7 @@ def test_address_mode_rejects_too_long_tuple(init_cuda):
 
 
 def test_address_mode_rejects_non_addressmode_entry(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1
     )
     try:
@@ -910,10 +910,10 @@ def test_address_mode_rejects_non_addressmode_entry(init_cuda):
 
 
 def test_texture_object_keeps_backing_array_alive(init_cuda):
-    """Dropping the local references to the backing Array and the
+    """Dropping the local references to the backing CUDAArray and the
     ResourceDescriptor must NOT invalidate an existing TextureObject. The
     TextureObject holds a strong ref through its _source_ref slot."""
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1
     )
     res = ResourceDescriptor.from_array(arr)
@@ -921,7 +921,7 @@ def test_texture_object_keeps_backing_array_alive(init_cuda):
         resource=res, texture_descriptor=TextureDescriptor()
     )
     # Verify the keepalive chain via gc referents: TextureObject -> _source_ref
-    # -> ResourceDescriptor -> _source -> Array. We can only walk one level
+    # -> ResourceDescriptor -> _source -> CUDAArray. We can only walk one level
     # at a time, so check tex's referents include the ResourceDescriptor.
     arr_id = id(arr)
     res_id = id(res)
@@ -936,7 +936,7 @@ def test_texture_object_keeps_backing_array_alive(init_cuda):
     )
     res_back = res_refs[0]
     arr_refs = [r for r in gc.get_referents(res_back) if id(r) == arr_id]
-    assert len(arr_refs) == 1, "ResourceDescriptor should still reference its Array"
+    assert len(arr_refs) == 1, "ResourceDescriptor should still reference its CUDAArray"
 
     # tex.handle should still be valid (non-zero).
     assert tex.handle != 0
@@ -944,7 +944,7 @@ def test_texture_object_keeps_backing_array_alive(init_cuda):
 
 
 def test_surface_object_keeps_backing_array_alive(init_cuda):
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(8, 8),
         format=ArrayFormat.UINT8,
         num_channels=4,
@@ -955,14 +955,14 @@ def test_surface_object_keeps_backing_array_alive(init_cuda):
     del arr
     gc.collect()
 
-    # The surface keeps the ResourceDescriptor alive, which keeps the Array
+    # The surface keeps the ResourceDescriptor alive, which keeps the CUDAArray
     # alive. We verify the chain end-to-end the same way as the texture case.
     referents = gc.get_referents(surf)
     res_objs = [r for r in referents if isinstance(r, ResourceDescriptor)]
     assert len(res_objs) == 1
     arr_refs = [r for r in gc.get_referents(res_objs[0]) if id(r) == arr_id]
     assert len(arr_refs) == 1, (
-        "SurfaceObject should still reference its backing Array via the ResourceDescriptor"
+        "SurfaceObject should still reference its backing CUDAArray via the ResourceDescriptor"
     )
     assert surf.handle != 0
     surf.close()

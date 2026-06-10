@@ -4,7 +4,7 @@
 
 # ################################################################################
 #
-# This example demonstrates building a 2D CUDA Array, binding it as a
+# This example demonstrates building a 2D CUDA CUDAArray, binding it as a
 # bindless TextureObject, and sampling it from a kernel with both POINT-exact
 # and LINEAR-interpolated coordinates.
 #
@@ -23,7 +23,7 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    Array,
+    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -65,12 +65,12 @@ def main():
     out_buf = None
     pinned_mr = LegacyPinnedMemoryResource()
     try:
-        # Allocate a 2D Array: shape=(W, H), single-channel float32.
-        # Note: Array.from_descriptor takes shape=(width, height), so the host
+        # Allocate a 2D CUDAArray: shape=(W, H), single-channel float32.
+        # Note: CUDAArray.from_descriptor takes shape=(width, height), so the host
         # buffer fed into copy_from must be laid out as H rows of W elements
         # (row-major), i.e. host_pattern.shape == (H, W).
         width, height = 16, 16
-        with Array.from_descriptor(
+        with CUDAArray.from_descriptor(
             shape=(width, height),
             format=ArrayFormat.FLOAT32,
             num_channels=1,

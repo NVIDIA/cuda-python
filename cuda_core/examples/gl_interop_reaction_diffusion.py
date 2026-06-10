@@ -4,7 +4,7 @@
 
 # ################################################################################
 #
-# This example demonstrates cuda.core.Array, TextureObject, and SurfaceObject
+# This example demonstrates cuda.core.CUDAArray, TextureObject, and SurfaceObject
 # in combination with GraphicsResource for CUDA/OpenGL interop. A Gray-Scott
 # reaction-diffusion simulation is ping-ponged between two CUDA arrays each
 # frame: a TextureObject provides smooth (LINEAR + WRAP) sampled reads, and a
@@ -15,12 +15,12 @@
 
 # What this example teaches
 # =========================
-# - How to allocate a CUDA Array with `surface_load_store=True` so the same
+# - How to allocate a CUDA CUDAArray with `surface_load_store=True` so the same
 #   memory can be bound as both a TextureObject (for sampled reads) and a
 #   SurfaceObject (for typed writes).
 # - How to use FilterMode.LINEAR + AddressMode.WRAP + normalized coordinates
 #   to get free hardware bilinear interpolation on a toroidal world.
-# - How to compose Array/TextureObject/SurfaceObject with GraphicsResource so
+# - How to compose CUDAArray/TextureObject/SurfaceObject with GraphicsResource so
 #   the entire simulation never leaves the GPU.
 #
 # How it works
@@ -33,7 +33,7 @@
 #
 # Different choices of F and k yield strikingly different patterns: coral,
 # mitosis, spots, and many more. We pack (U, V) into the two channels of a
-# `float2` Array.
+# `float2` CUDAArray.
 #
 #   PING-PONG (two arrays, swap each step)
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,7 +89,7 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    Array,
+    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -128,7 +128,7 @@ DEFAULT_PRESET = "1"
 # ============================= Helper functions =============================
 #
 # The functions below set up CUDA and OpenGL. If you're here to learn about
-# Array/TextureObject/SurfaceObject, skip ahead to main() -- the interesting
+# CUDAArray/TextureObject/SurfaceObject, skip ahead to main() -- the interesting
 # part is there. These helpers exist so that main() reads like a short story
 # instead of a wall of boilerplate.
 # ============================================================================
@@ -198,7 +198,7 @@ def create_window():
     window = pyglet.window.Window(
         WIDTH,
         HEIGHT,
-        caption="cuda.core Array/Texture/Surface - Gray-Scott Reaction Diffusion",
+        caption="cuda.core CUDAArray/Texture/Surface - Gray-Scott Reaction Diffusion",
         vsync=False,
     )
     return window, _gl, pyglet
@@ -347,13 +347,13 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 
 def make_state_arrays():
     """Allocate the two `float2` ping-pong arrays that hold the (U, V) state."""
-    arr_a = Array.from_descriptor(
+    arr_a = CUDAArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.FLOAT32,
         num_channels=2,
         surface_load_store=True,
     )
-    arr_b = Array.from_descriptor(
+    arr_b = CUDAArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.FLOAT32,
         num_channels=2,
@@ -520,7 +520,7 @@ def main():
             fps = frame_count / (now - fps_time)
             label = PRESETS[state["preset"]][2]
             window.set_caption(
-                "cuda.core Array/Texture/Surface - Gray-Scott"
+                "cuda.core CUDAArray/Texture/Surface - Gray-Scott"
                 f" [{label}] ({WIDTH}x{HEIGHT}, {fps:.0f} FPS,"
                 f" {N_STEPS} steps/frame)"
             )

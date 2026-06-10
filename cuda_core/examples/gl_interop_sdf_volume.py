@@ -4,7 +4,7 @@
 
 # ################################################################################
 #
-# This example demonstrates cuda.core's 3D Array + trilinear TextureObject by
+# This example demonstrates cuda.core's 3D CUDAArray + trilinear TextureObject by
 # baking a procedural Signed Distance Field (SDF) volume once at startup and
 # then ray-marching it every frame to render an orbitable 3D scene. The
 # SurfaceObject is used during the one-shot bake; the TextureObject (with
@@ -15,7 +15,7 @@
 
 # What this example teaches
 # =========================
-# - How to allocate a 3D cuda.core.Array (cuArray3DCreate under the hood) and
+# - How to allocate a 3D cuda.core.CUDAArray (cuArray3DCreate under the hood) and
 #   bind it as both a SurfaceObject (for one-shot kernel writes) and a
 #   TextureObject (for hardware-accelerated trilinear sampling).
 # - How to ray-march a baked SDF volume from a CUDA kernel, sampling via
@@ -44,10 +44,10 @@
 #
 #   STARTUP (one-shot bake)
 #   ~~~~~~~~~~~~~~~~~~~~~~~
-#   1. Allocate 3D Array (128^3, FLOAT32 x1, surface_load_store=True).
+#   1. Allocate 3D CUDAArray (128^3, FLOAT32 x1, surface_load_store=True).
 #   2. Bind it as a SurfaceObject.
 #   3. Launch `bake_sdf`: one thread per voxel writes the SDF via surf3Dwrite.
-#   4. Close the SurfaceObject; the Array stays alive.
+#   4. Close the SurfaceObject; the CUDAArray stays alive.
 #
 #   EACH FRAME
 #   ~~~~~~~~~~
@@ -80,7 +80,7 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    Array,
+    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -116,7 +116,7 @@ DIST_MAX = 8.0
 # ============================= Helper functions =============================
 #
 # The functions below set up CUDA and OpenGL. If you're here to learn about
-# 3D Array / TextureObject / SurfaceObject, skip ahead to main() -- the
+# 3D CUDAArray / TextureObject / SurfaceObject, skip ahead to main() -- the
 # interesting part is there. These helpers exist so that main() reads like a
 # short story instead of a wall of boilerplate.
 # ============================================================================
@@ -159,7 +159,7 @@ def setup_cuda():
 
 def make_volume_array():
     """Allocate the 3D SDF volume. Single-channel float, surface-capable."""
-    return Array.from_descriptor(
+    return CUDAArray.from_descriptor(
         shape=(VOLUME_SIZE, VOLUME_SIZE, VOLUME_SIZE),
         format=ArrayFormat.FLOAT32,
         num_channels=1,
@@ -191,7 +191,7 @@ def bake_volume(stream, kernels, arr):
     The SurfaceObject lives only for the duration of this call; once the bake
     is enqueued and the kernel has captured the bindless handle into its
     arguments, we sync the stream before letting the SurfaceObject close.
-    The Array itself outlives this scope -- it's the long-lived backing store
+    The CUDAArray itself outlives this scope -- it's the long-lived backing store
     for the render-loop TextureObject.
     """
     with SurfaceObject.from_array(arr) as bake_surf:
@@ -228,7 +228,7 @@ def create_window():
     window = pyglet.window.Window(
         WIDTH,
         HEIGHT,
-        caption="cuda.core 3D Array - SDF Volume Ray-Marcher",
+        caption="cuda.core 3D CUDAArray - SDF Volume Ray-Marcher",
         vsync=False,
     )
     return window, _gl, pyglet
@@ -354,9 +354,9 @@ def main():
     dev, stream, kernels = setup_cuda()
 
     # --- Step 2: Allocate the 3D SDF volume and bake it once ---
-    #     The Array is the long-lived backing store; it must outlive the
+    #     The CUDAArray is the long-lived backing store; it must outlive the
     #     render loop. The SurfaceObject is only needed for the one-shot bake
-    #     and is closed before we ever bind a TextureObject to the same Array.
+    #     and is closed before we ever bind a TextureObject to the same CUDAArray.
     arr = make_volume_array()
     bake_volume(stream, kernels, arr)
 
@@ -429,7 +429,7 @@ def main():
             frame_count[0] = 0
             fps_time[0] = now
             window.set_caption(
-                "cuda.core 3D Array - SDF Volume Ray-Marcher  "
+                "cuda.core 3D CUDAArray - SDF Volume Ray-Marcher  "
                 f"yaw={cam['yaw']:+.2f} pitch={cam['pitch']:+.2f} "
                 f"dist={cam['dist']:.2f}  "
                 f"{last_fps[0]:.0f} FPS  {last_frame_ms[0]:.2f} ms/frame"
@@ -527,9 +527,9 @@ __device__ __forceinline__ float length3(float x, float y, float z) {
 
 // --------------------------------------------------------------------------
 // bake_sdf: one thread per voxel writes the SDF of a gyroid-intersect-sphere
-//           into a single-channel float 3D Array via a SurfaceObject.
+//           into a single-channel float 3D CUDAArray via a SurfaceObject.
 //
-//   surf is bound to a (size^3, FLOAT32 x 1) Array allocated with
+//   surf is bound to a (size^3, FLOAT32 x 1) CUDAArray allocated with
 //   surface_load_store=True.
 //   surf3Dwrite's x coordinate is in BYTES (multiply by sizeof(float));
 //   y and z are in elements. Off-by-one on the byte conversion silently

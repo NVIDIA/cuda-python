@@ -45,7 +45,7 @@
 #         |      +---- one SurfaceObject per level, used at BUILD time only
 #         |            to let a kernel write pixels into that level.
 #         |
-#         +----------- get_level(L) returns a NON-OWNING Array view of level L;
+#         +----------- get_level(L) returns a NON-OWNING CUDAArray view of level L;
 #                      the storage belongs to the parent MipmappedArray.
 #
 #   STARTUP -- one-time mipmap build
@@ -94,7 +94,7 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    Array,
+    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -562,7 +562,7 @@ __device__ __forceinline__ float fracf(float v) {
 // --------------------------------------------------------------------------
 // seed_base: write a procedural high-frequency pattern to level 0.
 //
-// surf is a SurfaceObject bound to the level-0 Array (float4 RGBA). The
+// surf is a SurfaceObject bound to the level-0 CUDAArray (float4 RGBA). The
 // pattern is a colorful blend of concentric rings, a diagonal grid, and a
 // radial sweep, designed to have plenty of fine detail so the difference
 // between mip levels is visually obvious.

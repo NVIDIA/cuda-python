@@ -78,7 +78,7 @@ from cuda.core._device_resources import (
     WorkqueueResource,
     WorkqueueResourceOptions,
 )
-from cuda.core._array import Array, ArrayFormat
+from cuda.core._array import CUDAArray, ArrayFormat
 from cuda.core._mipmapped_array import MipmappedArray
 from cuda.core._texture import (
     AddressMode,

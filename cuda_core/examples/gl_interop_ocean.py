@@ -4,9 +4,9 @@
 
 # ################################################################################
 #
-# This example demonstrates cuda.core.Array, TextureObject, and SurfaceObject
+# This example demonstrates cuda.core.CUDAArray, TextureObject, and SurfaceObject
 # in combination with GraphicsResource for CUDA/OpenGL interop. A real-time
-# Gerstner-wave ocean is rebuilt every frame: a heightmap Array is rewritten
+# Gerstner-wave ocean is rebuilt every frame: a heightmap CUDAArray is rewritten
 # through a SurfaceObject, sampled through a TextureObject with LINEAR + WRAP
 # filtering for normal estimation, and shaded with Phong + Fresnel sky
 # reflection straight into an OpenGL PBO. Requires pyglet.
@@ -15,13 +15,13 @@
 
 # What this example teaches
 # =========================
-# - How to use a CUDA Array as a typed heightmap that is simultaneously
+# - How to use a CUDA CUDAArray as a typed heightmap that is simultaneously
 #   written by one kernel (via SurfaceObject) and sampled by another (via
 #   TextureObject) within the same frame.
 # - How LINEAR filtering + WRAP addressing + normalized coordinates gives
 #   essentially-free bilinear neighbor lookups for finite-difference normal
 #   estimation on a tiling heightmap.
-# - How to compose Array/TextureObject/SurfaceObject with GraphicsResource so
+# - How to compose CUDAArray/TextureObject/SurfaceObject with GraphicsResource so
 #   the entire render path never leaves the GPU.
 #
 # How it works
@@ -41,7 +41,7 @@
 #   ~~~~~~~~~~~~~~~~~~~~~~
 #   +-----------------+   surf2Dwrite   +--------------+
 #   |   update_height | --------------> |  heightmap   |
-#   |     kernel      |                 |    Array     |
+#   |     kernel      |                 |    CUDAArray     |
 #   +-----------------+                 |  (FLOAT32)   |
 #                                       +--------------+
 #                                              |
@@ -88,7 +88,7 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    Array,
+    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -134,7 +134,7 @@ ZOOM_MAX = 30.0
 # ============================= Helper functions =============================
 #
 # The functions below set up CUDA and OpenGL. If you're here to learn about
-# Array/TextureObject/SurfaceObject, skip ahead to main() -- the interesting
+# CUDAArray/TextureObject/SurfaceObject, skip ahead to main() -- the interesting
 # part is there. These helpers exist so that main() reads like a short story
 # instead of a wall of boilerplate.
 # ============================================================================
@@ -209,7 +209,7 @@ def create_window():
     window = pyglet.window.Window(
         WIDTH,
         HEIGHT,
-        caption="cuda.core Array/Texture/Surface - Gerstner Ocean",
+        caption="cuda.core CUDAArray/Texture/Surface - Gerstner Ocean",
         vsync=False,
     )
     return window, _gl, pyglet
@@ -309,8 +309,8 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 
 
 def make_heightmap_array():
-    """Allocate the single-channel float heightmap Array."""
-    return Array.from_descriptor(
+    """Allocate the single-channel float heightmap CUDAArray."""
+    return CUDAArray.from_descriptor(
         shape=(GRID, GRID),
         format=ArrayFormat.FLOAT32,
         num_channels=1,
@@ -367,7 +367,7 @@ def main():
     # --- Step 5: Register the PBO with CUDA ---
     resource = GraphicsResource.from_gl_buffer(pbo_id, flags="write_discard")
 
-    # --- Step 6: Allocate the heightmap Array and build its texture/surface ---
+    # --- Step 6: Allocate the heightmap CUDAArray and build its texture/surface ---
     #     We pre-create both the TextureObject (read path) and the
     #     SurfaceObject (write path) once and reuse them every frame. Creating
     #     them inside the per-frame loop would work but adds per-frame overhead
@@ -457,7 +457,7 @@ def main():
             label = PRESETS[state["preset"]][2]
             paused = " [paused]" if state["paused"] else ""
             window.set_caption(
-                "cuda.core Array/Texture/Surface - Gerstner Ocean"
+                "cuda.core CUDAArray/Texture/Surface - Gerstner Ocean"
                 f" [{label}]{paused} ({WIDTH}x{HEIGHT}, {fps:.0f} FPS)"
             )
             frame_count = 0

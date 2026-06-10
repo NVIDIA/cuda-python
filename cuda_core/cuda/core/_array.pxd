@@ -6,7 +6,7 @@ from libc.stdint cimport intptr_t
 from cuda.bindings cimport cydriver
 
 
-cdef class Array:
+cdef class CUDAArray:
 
     cdef:
         cydriver.CUarray _handle
@@ -18,8 +18,8 @@ cdef class Array:
         bint _owning
         bint _surface_load_store
         # Optional strong reference to a parent owner (e.g. a MipmappedArray
-        # whose level this Array views). When set, the parent must outlive
-        # this Array because the underlying CUarray belongs to the parent.
+        # whose level this CUDAArray views). When set, the parent must outlive
+        # this CUDAArray because the underlying CUarray belongs to the parent.
         object _parent_ref
 
     cpdef close(self)

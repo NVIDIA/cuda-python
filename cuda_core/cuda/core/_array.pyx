@@ -21,7 +21,7 @@ import enum
 
 
 class ArrayFormat(enum.IntEnum):
-    """Element format for a :class:`Array` allocation.
+    """Element format for a :class:`CUDAArray` allocation.
 
     Mirrors ``CUarray_format`` from the CUDA driver API.
     """
@@ -49,7 +49,7 @@ _FORMAT_ELEM_SIZE = {
 
 
 cdef void _fill_array_endpoint(
-    cydriver.CUDA_MEMCPY3D* p, Array arr, bint is_src
+    cydriver.CUDA_MEMCPY3D* p, CUDAArray arr, bint is_src
 ) noexcept:
     """Populate the src or dst array fields of a CUDA_MEMCPY3D struct."""
     if is_src:
@@ -156,7 +156,7 @@ cdef int _fill_linear_endpoint(
     )
 
 
-cdef _copy3d(Array arr, object other, object stream, bint to_array):
+cdef _copy3d(CUDAArray arr, object other, object stream, bint to_array):
     """Issue a full-array async 3D memcpy between ``arr`` and ``other``.
 
     Direction is determined by ``to_array``: True copies *into* arr, False
@@ -198,7 +198,7 @@ cdef _copy3d(Array arr, object other, object stream, bint to_array):
             cpython.PyBuffer_Release(&pybuf)
 
 
-cdef class Array:
+cdef class CUDAArray:
     """An opaque, hardware-laid-out GPU allocation for texture/surface access.
 
     Distinct from :class:`Buffer`: a ``CUarray`` has no exposed device pointer
@@ -213,7 +213,7 @@ cdef class Array:
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
-            "Array cannot be instantiated directly. Use Array.from_descriptor()."
+            "CUDAArray cannot be instantiated directly. Use CUDAArray.from_descriptor()."
         )
 
     @classmethod
@@ -236,7 +236,7 @@ cdef class Array:
 
         Returns
         -------
-        Array
+        CUDAArray
         """
         if not isinstance(format, ArrayFormat):
             raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
@@ -253,7 +253,7 @@ cdef class Array:
             if dim < 1:
                 raise ValueError(f"shape[{i}] must be >= 1, got {dim}")
 
-        cdef Array self = cls.__new__(cls)
+        cdef CUDAArray self = cls.__new__(cls)
         self._owning = True
         self._shape = shape_t
         self._format = <cydriver.CUarray_format><int>format
@@ -303,7 +303,7 @@ cdef class Array:
         :meth:`close` and ``__dealloc__`` will not free the handle. Shape,
         format, and channel count are queried from the driver.
         """
-        cdef Array self = cls.__new__(cls)
+        cdef CUDAArray self = cls.__new__(cls)
         self._handle = <cydriver.CUarray><void*>handle
         self._owning = owning
         self._context = _get_current_context_ptr()
@@ -357,7 +357,7 @@ cdef class Array:
         return Device(self._device_id)
 
     @property
-    def surface_load_store(self):
+    def is_surface_load_store(self):
         """True if this array was created with ``CUDA_ARRAY3D_SURFACE_LDST``
         and can be bound as a :class:`SurfaceObject`."""
         return self._surface_load_store
@@ -412,7 +412,7 @@ cdef class Array:
         cdef cydriver.CUarray h = self._handle
         cdef bint owning = self._owning
         self._handle = NULL
-        # Drop the parent reference (if any) so a non-owning level Array
+        # Drop the parent reference (if any) so a non-owning level CUDAArray
         # stops pinning its MipmappedArray after close().
         self._parent_ref = None
         if h != NULL and owning:
@@ -433,7 +433,7 @@ cdef class Array:
 
     def __repr__(self):
         return (
-            f"Array(shape={self._shape}, "
+            f"CUDAArray(shape={self._shape}, "
             f"format={ArrayFormat(self._format).name}, "
             f"num_channels={self._num_channels})"
         )

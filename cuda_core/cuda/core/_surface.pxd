@@ -10,7 +10,7 @@ cdef class SurfaceObject:
 
     cdef:
         cydriver.CUsurfObject _handle
-        object _source_ref      # keep backing Array alive
+        object _source_ref      # keep backing CUDAArray alive
         int _device_id
         intptr_t _context
 

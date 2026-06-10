@@ -4,7 +4,7 @@
 
 # ################################################################################
 #
-# This example demonstrates cuda.core.Array and TextureObject used as a *color
+# This example demonstrates cuda.core.CUDAArray and TextureObject used as a *color
 # lookup table* (palette LUT) for a real-time Mandelbrot deep-zoom explorer.
 # A CUDA kernel computes smooth iteration counts and uses tex1D<float4> with
 # LINEAR + CLAMP + NORMALIZED_FLOAT sampling to read a 256-entry RGBA palette,
@@ -15,7 +15,7 @@
 
 # What this example teaches
 # =========================
-# - How to use a 1D cuda.core.Array as a palette and bind it via a
+# - How to use a 1D cuda.core.CUDAArray as a palette and bind it via a
 #   TextureObject for hardware-filtered color lookups inside a kernel.
 # - How LINEAR + AddressMode.CLAMP + ReadMode.NORMALIZED_FLOAT + normalized
 #   coordinates give you a free `texture(palette, t)` style sampler that
@@ -29,7 +29,7 @@
 # z = 0; pixels are colored by how quickly z escapes the disk of radius 2.
 #
 #     +---------+   ResourceDescriptor.from_array
-#     |  Array  | --------------------------------+
+#     |  CUDAArray  | --------------------------------+
 #     | float4  |                                 v
 #     | size 256|                       +-------------------+
 #     +---------+                       |   TextureObject   |
@@ -105,7 +105,7 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    Array,
+    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -142,7 +142,7 @@ ITER_STEP = 64
 # ============================= Helper functions =============================
 #
 # The functions below set up CUDA and OpenGL. If you're here to learn about
-# Array/TextureObject as a palette LUT, skip ahead to main() -- the interesting
+# CUDAArray/TextureObject as a palette LUT, skip ahead to main() -- the interesting
 # part is there. These helpers exist so that main() reads like a short story
 # instead of a wall of boilerplate.
 # ============================================================================
@@ -198,7 +198,7 @@ def create_window():
     window = pyglet.window.Window(
         WIDTH,
         HEIGHT,
-        caption="cuda.core Array/Texture - Mandelbrot Deep Zoom",
+        caption="cuda.core CUDAArray/Texture - Mandelbrot Deep Zoom",
         vsync=False,
     )
     return window, _gl, pyglet
@@ -349,7 +349,7 @@ def build_palette():
     """Build a 256-entry RGBA float32 palette by lerping through color stops.
 
     Returns a flat numpy array of shape (PALETTE_SIZE * 4,) dtype=float32
-    suitable for Array.copy_from(). Each color channel is in [0, 1].
+    suitable for CUDAArray.copy_from(). Each color channel is in [0, 1].
     """
     # Hand-picked stops: deep blue -> cyan -> yellow -> orange -> red ->
     # magenta -> black (the final stop is used by points that hit max_iter
@@ -381,7 +381,7 @@ def build_palette():
         pal[i] = colors[j] + seg * (colors[j + 1] - colors[j])
 
     # Flatten to (PALETTE_SIZE * 4,) so the byte layout matches a
-    # float4 x PALETTE_SIZE 1D Array.
+    # float4 x PALETTE_SIZE 1D CUDAArray.
     return np.ascontiguousarray(pal.reshape(-1), dtype=np.float32)
 
 
@@ -423,12 +423,12 @@ def main():
     resource = GraphicsResource.from_gl_buffer(pbo_id, flags="write_discard")
 
     # --- Step 6: Build and upload the palette LUT ---
-    #     One 1D Array, 256 entries of float4 RGBA. The host-side palette is
+    #     One 1D CUDAArray, 256 entries of float4 RGBA. The host-side palette is
     #     a flat numpy float32 array; copy_from() does an async H2D copy, so
     #     we sync the stream once afterwards to make sure the data has landed
     #     before we start sampling from it in the render loop.
     host_palette = build_palette()
-    palette_arr = Array.from_descriptor(
+    palette_arr = CUDAArray.from_descriptor(
         shape=(PALETTE_SIZE,),
         format=ArrayFormat.FLOAT32,
         num_channels=4,
@@ -436,7 +436,7 @@ def main():
     palette_arr.copy_from(host_palette, stream=stream)
     stream.sync()
 
-    # --- Step 7: Bind the palette Array as a TextureObject (LUT) ---
+    # --- Step 7: Bind the palette CUDAArray as a TextureObject (LUT) ---
     palette_tex = make_palette_texture(palette_arr)
 
     # --- Step 8: Render loop ---
@@ -550,7 +550,7 @@ def main():
             fps = frame_count / (now - fps_time)
             zoom = 1.0 / view["scale"] if view["scale"] > 0 else 0.0
             window.set_caption(
-                "cuda.core Array/Texture - Mandelbrot"
+                "cuda.core CUDAArray/Texture - Mandelbrot"
                 f" | zoom {zoom:.3e}x"
                 f" | center ({view['cx']:.6f}, {view['cy']:.6f})"
                 f" | iter {view['max_iter']}"

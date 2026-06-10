@@ -6,13 +6,13 @@
 #
 # This example demonstrates cuda.core.TextureObject hardware filtering by
 # comparing FilterMode.POINT and FilterMode.LINEAR side by side on the same
-# source CUDA Array. Requires pyglet.
+# source CUDA CUDAArray. Requires pyglet.
 #
 # ################################################################################
 
 # What this example teaches
 # =========================
-# How to back two TextureObjects with the SAME CUDA Array and observe the
+# How to back two TextureObjects with the SAME CUDA CUDAArray and observe the
 # difference between POINT (nearest-texel) and LINEAR (bilinear) filtering
 # under user-controlled zoom and pan.  Also shows how the address mode
 # (WRAP / CLAMP / MIRROR / BORDER) is baked into the texture descriptor at
@@ -20,11 +20,11 @@
 #
 # How it works
 # ============
-# A single 256x256 RGBA8 Array holds a procedurally-generated test pattern
+# A single 256x256 RGBA8 CUDAArray holds a procedurally-generated test pattern
 # (high-contrast checkerboard, diagonals, gradient stripe).  Two
-# TextureObjects are built on top of that Array:
+# TextureObjects are built on top of that CUDAArray:
 #
-#       Array (256x256 RGBA UINT8)
+#       CUDAArray (256x256 RGBA UINT8)
 #       /                       \
 #   tex_point                  tex_linear
 #   FilterMode.POINT           FilterMode.LINEAR
@@ -68,7 +68,7 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    Array,
+    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -158,7 +158,7 @@ def make_pattern(width, height):
 
 
 def make_textures(array, address_mode):
-    """Build (tex_point, tex_linear) on the given Array with the given mode.
+    """Build (tex_point, tex_linear) on the given CUDAArray with the given mode.
 
     The address mode is baked into the descriptor at cuTexObjectCreate time, so
     we recreate both textures whenever the user cycles the mode.  Caller owns
@@ -362,11 +362,11 @@ def main():
     # --- Step 5: Register the PBO with CUDA ---
     resource = GraphicsResource.from_gl_buffer(pbo_id, flags="write_discard")
 
-    # --- Step 6: Allocate the source Array and upload the test pattern ---
-    #     The Array lives for the entire program, so we use a `with` block.
+    # --- Step 6: Allocate the source CUDAArray and upload the test pattern ---
+    #     The CUDAArray lives for the entire program, so we use a `with` block.
     #     Inside it we create / re-create two TextureObjects whenever the
     #     user cycles the address mode.
-    with Array.from_descriptor(
+    with CUDAArray.from_descriptor(
         shape=(SRC_W, SRC_H),
         format=ArrayFormat.UINT8,
         num_channels=4,
@@ -525,7 +525,7 @@ def main():
 
 # ======================== GPU code (CUDA + GLSL) ============================
 #
-# KERNEL_SOURCE samples the same source Array through two TextureObjects
+# KERNEL_SOURCE samples the same source CUDAArray through two TextureObjects
 # (POINT vs LINEAR) and writes RGBA8 pixels into the PBO.  ReadMode.
 # NORMALIZED_FLOAT means tex2D<float4>() returns each channel in [0, 1];
 # the kernel scales by 255 and writes unsigned bytes back out.

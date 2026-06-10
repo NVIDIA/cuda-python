@@ -6,7 +6,7 @@
 #
 # Minimal "Hello World" for the cuda.core texture/surface stack.
 #
-# Allocates a small `Array`, fills it with a procedural image once, binds it
+# Allocates a small `CUDAArray`, fills it with a procedural image once, binds it
 # as a `TextureObject`, and uses a single CUDA kernel to sample that texture
 # at every screen pixel (with a scale + rotation transform) and write the
 # result into an OpenGL PBO for display.
@@ -18,7 +18,7 @@
 #
 # What this example teaches
 # =========================
-# - Allocate an `Array` and upload data into it with `Array.copy_from`.
+# - Allocate an `CUDAArray` and upload data into it with `CUDAArray.copy_from`.
 # - Build a `TextureObject` from a `ResourceDescriptor` + `TextureDescriptor`.
 # - The visual difference between `FilterMode.POINT` and `FilterMode.LINEAR`
 #   (press F to toggle live).
@@ -29,7 +29,7 @@
 # ============
 #   Startup (once):
 #     +-------------------+   copy_from   +----------+
-#     | host numpy image  | ------------> |  Array   |  (UINT8 RGBA, 64x64)
+#     | host numpy image  | ------------> |  CUDAArray   |  (UINT8 RGBA, 64x64)
 #     +-------------------+               +----+-----+
 #                                              |
 #                                              v
@@ -63,7 +63,7 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    Array,
+    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -83,7 +83,7 @@ from cuda.core import (
 # ---------------------------------------------------------------------------
 WIDTH = 640
 HEIGHT = 480
-IMAGE_SIZE = 64  # the source Array is IMAGE_SIZE x IMAGE_SIZE RGBA8
+IMAGE_SIZE = 64  # the source CUDAArray is IMAGE_SIZE x IMAGE_SIZE RGBA8
 
 
 # ============================= Helper functions =============================
@@ -154,7 +154,7 @@ def create_window():
     window = pyglet.window.Window(
         WIDTH,
         HEIGHT,
-        caption="cuda.core Array + TextureObject - Image Show",
+        caption="cuda.core CUDAArray + TextureObject - Image Show",
         vsync=False,
     )
     return window, _gl, pyglet
@@ -280,8 +280,8 @@ def main():
     pbo_id = create_pixel_buffer(gl, WIDTH, HEIGHT)
     resource = GraphicsResource.from_gl_buffer(pbo_id, flags="write_discard")
 
-    # --- Step 5: Allocate the source `Array` and upload the test pattern ---
-    arr = Array.from_descriptor(
+    # --- Step 5: Allocate the source `CUDAArray` and upload the test pattern ---
+    arr = CUDAArray.from_descriptor(
         shape=(IMAGE_SIZE, IMAGE_SIZE),
         format=ArrayFormat.UINT8,
         num_channels=4,
@@ -290,7 +290,7 @@ def main():
     arr.copy_from(np.ascontiguousarray(host_image), stream=stream)
     stream.sync()
 
-    # --- Step 6: Bind the Array as a TextureObject (initially POINT) ---
+    # --- Step 6: Bind the CUDAArray as a TextureObject (initially POINT) ---
     state = {"filter": FilterMode.POINT, "rotate": False, "angle": 0.0}
     tex = make_texture(arr, state["filter"])
 
@@ -345,7 +345,7 @@ def main():
         if now - fps_time >= 1.0:
             fps = frame_count / (now - fps_time)
             window.set_caption(
-                f"cuda.core Array + TextureObject - Image Show "
+                f"cuda.core CUDAArray + TextureObject - Image Show "
                 f"(filter={state['filter'].name}, "
                 f"rotate={'on' if state['rotate'] else 'off'}, "
                 f"{fps:.0f} FPS)"

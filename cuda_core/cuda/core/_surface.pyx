@@ -8,7 +8,7 @@ from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._array cimport Array
+from cuda.core._array cimport CUDAArray
 from cuda.core._texture import ResourceDescriptor
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
@@ -24,7 +24,7 @@ cdef class SurfaceObject:
     has no sampling state (no filtering, no addressing modes, no normalization);
     kernels read and write through it using integer pixel coordinates.
 
-    The backing :class:`Array` must have been created with
+    The backing :class:`CUDAArray` must have been created with
     ``surface_load_store=True`` and is kept alive for the lifetime of this
     object to prevent dangling handles.
 
@@ -40,12 +40,12 @@ cdef class SurfaceObject:
 
     @classmethod
     def from_array(cls, array):
-        """Create a surface object directly from an :class:`Array`.
+        """Create a surface object directly from an :class:`CUDAArray`.
 
         The array must have been created with ``surface_load_store=True``.
         """
-        if not isinstance(array, Array):
-            raise TypeError(f"array must be an Array, got {type(array).__name__}")
+        if not isinstance(array, CUDAArray):
+            raise TypeError(f"array must be an CUDAArray, got {type(array).__name__}")
         return cls.from_descriptor(resource=ResourceDescriptor.from_array(array))
 
     @classmethod
@@ -55,7 +55,7 @@ cdef class SurfaceObject:
         Parameters
         ----------
         resource : ResourceDescriptor
-            Must wrap an :class:`Array` allocated with
+            Must wrap an :class:`CUDAArray` allocated with
             ``surface_load_store=True``. Linear/pitch2d resources are not
             valid surface backings.
         """
@@ -70,10 +70,10 @@ cdef class SurfaceObject:
                 f"got kind={resource.kind!r}"
             )
 
-        cdef Array arr = <Array>resource.source
-        if not arr.surface_load_store:
+        cdef CUDAArray arr = <CUDAArray>resource.source
+        if not arr.is_surface_load_store:
             raise ValueError(
-                "Array must be created with surface_load_store=True to be "
+                "CUDAArray must be created with surface_load_store=True to be "
                 "bound as a SurfaceObject"
             )
 

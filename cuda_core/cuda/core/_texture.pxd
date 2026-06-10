@@ -10,7 +10,7 @@ cdef class TextureObject:
 
     cdef:
         cydriver.CUtexObject _handle
-        object _source_ref      # keep backing Array (or other resource) alive
+        object _source_ref      # keep backing CUDAArray (or other resource) alive
         object _texture_desc    # original TextureDescriptor for introspection
         int _device_id
         intptr_t _context

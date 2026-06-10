@@ -8,7 +8,7 @@ from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._array cimport Array
+from cuda.core._array cimport CUDAArray
 from cuda.core._array import ArrayFormat
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
@@ -22,9 +22,9 @@ cdef class MipmappedArray:
 
     Wraps ``CUmipmappedArray``. Each mip level is a distinct, hardware-laid-out
     allocation accessible only via a :class:`TextureObject` (or by retrieving
-    the level's :class:`Array` and binding it as a :class:`SurfaceObject`).
+    the level's :class:`CUDAArray` and binding it as a :class:`SurfaceObject`).
     Destroying the :class:`MipmappedArray` destroys all level arrays
-    implicitly, so the :class:`Array` instances returned by :meth:`get_level`
+    implicitly, so the :class:`CUDAArray` instances returned by :meth:`get_level`
     are non-owning and hold a strong reference back to their parent.
 
     Construct via :meth:`from_descriptor`.
@@ -118,7 +118,7 @@ cdef class MipmappedArray:
         return self
 
     def get_level(self, level):
-        """Return a non-owning :class:`Array` view of the given mip level.
+        """Return a non-owning :class:`CUDAArray` view of the given mip level.
 
         Parameters
         ----------
@@ -127,10 +127,10 @@ cdef class MipmappedArray:
 
         Returns
         -------
-        Array
-            A non-owning :class:`Array` wrapping the level's ``CUarray``.
+        CUDAArray
+            A non-owning :class:`CUDAArray` wrapping the level's ``CUarray``.
             The :class:`MipmappedArray` is kept alive for the lifetime of the
-            returned :class:`Array`; the underlying storage is released only
+            returned :class:`CUDAArray`; the underlying storage is released only
             when this :class:`MipmappedArray` is destroyed.
         """
         lvl = int(level)
@@ -148,13 +148,13 @@ cdef class MipmappedArray:
                 cydriver.cuMipmappedArrayGetLevel(&level_handle, self._handle, c_level)
             )
 
-        # Wrap as a non-owning Array; the level's underlying CUarray belongs
+        # Wrap as a non-owning CUDAArray; the level's underlying CUarray belongs
         # to this MipmappedArray and must not be destroyed independently.
-        arr = Array._from_handle(
+        arr = CUDAArray._from_handle(
             <intptr_t>level_handle, False, device_id=self._device_id
         )
         # Strong ref back to the parent so the mipmap outlives the level view.
-        (<Array>arr)._parent_ref = self
+        (<CUDAArray>arr)._parent_ref = self
         return arr
 
     @property
@@ -183,7 +183,7 @@ cdef class MipmappedArray:
         return int(self._num_levels)
 
     @property
-    def surface_load_store(self):
+    def is_surface_load_store(self):
         """True if this mipmap (and each of its levels) was created with
         ``CUDA_ARRAY3D_SURFACE_LDST`` and can back a :class:`SurfaceObject`."""
         return self._surface_load_store
@@ -197,7 +197,7 @@ cdef class MipmappedArray:
     cpdef close(self):
         """Destroy the underlying ``CUmipmappedArray`` if owned.
 
-        After ``close()`` any level :class:`Array` returned by :meth:`get_level`
+        After ``close()`` any level :class:`CUDAArray` returned by :meth:`get_level`
         becomes invalid; callers must not access them.
         """
         cdef cydriver.CUmipmappedArray h = self._handle

@@ -8,7 +8,7 @@ from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._array cimport Array
+from cuda.core._array cimport CUDAArray
 from cuda.core._array import ArrayFormat, _FORMAT_ELEM_SIZE
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._mipmapped_array cimport MipmappedArray
@@ -63,7 +63,7 @@ class ResourceDescriptor:
 
     Construct via the ``from_*`` classmethods:
 
-    - :meth:`from_array` wraps a :class:`Array` (works for both
+    - :meth:`from_array` wraps a :class:`CUDAArray` (works for both
       :class:`TextureObject` and :class:`SurfaceObject`).
     - :meth:`from_linear` wraps a :class:`Buffer` as a typed 1D fetch. Texture
       objects built from a linear resource do not support filtering,
@@ -72,7 +72,7 @@ class ResourceDescriptor:
       Supports filtering and 2D addressing, but only 2D access.
 
     Linear and pitch2D resources cannot back a :class:`SurfaceObject` — those
-    require an :class:`Array` allocated with ``surface_load_store=True``.
+    require an :class:`CUDAArray` allocated with ``surface_load_store=True``.
     """
 
     __slots__ = (
@@ -90,9 +90,9 @@ class ResourceDescriptor:
 
     @classmethod
     def from_array(cls, array):
-        """Build a resource descriptor backed by a :class:`Array`."""
-        if not isinstance(array, Array):
-            raise TypeError(f"array must be an Array, got {type(array).__name__}")
+        """Build a resource descriptor backed by a :class:`CUDAArray`."""
+        if not isinstance(array, CUDAArray):
+            raise TypeError(f"array must be an CUDAArray, got {type(array).__name__}")
         self = cls.__new__(cls)
         self._kind = "array"
         self._source = array
@@ -110,7 +110,7 @@ class ResourceDescriptor:
 
         Suitable for binding to a :class:`TextureObject` for mipmapped
         sampling. Not valid as a :class:`SurfaceObject` backing: surfaces
-        require a single :class:`Array` level (obtain via
+        require a single :class:`CUDAArray` level (obtain via
         :meth:`MipmappedArray.get_level`).
         """
         if not isinstance(mipmapped_array, _PyMipmappedArray):
@@ -380,7 +380,7 @@ cdef class TextureObject:
     """A bindless texture handle for kernel-side sampled reads.
 
     Wraps ``cuTexObjectCreate``. The underlying memory resource (e.g. the
-    :class:`Array` referenced by the descriptor) is kept alive for the
+    :class:`CUDAArray` referenced by the descriptor) is kept alive for the
     lifetime of this object to prevent dangling handles.
 
     Construct via :meth:`from_descriptor`. Passes to kernels as a 64-bit
@@ -419,12 +419,12 @@ cdef class TextureObject:
         memset(&tex_desc, 0, sizeof(tex_desc))
 
         # --- Resource descriptor ---
-        cdef Array arr
+        cdef CUDAArray arr
         cdef MipmappedArray mip
         cdef Buffer buf
         cdef intptr_t devptr
         if resource.kind == "array":
-            arr = <Array>resource.source
+            arr = <CUDAArray>resource.source
             res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
             res_desc.res.array.hArray = arr._handle
         elif resource.kind == "mipmapped_array":

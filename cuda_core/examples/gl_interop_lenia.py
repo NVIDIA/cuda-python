@@ -4,7 +4,7 @@
 
 # ################################################################################
 #
-# This example demonstrates cuda.core.Array, TextureObject, and SurfaceObject
+# This example demonstrates cuda.core.CUDAArray, TextureObject, and SurfaceObject
 # in combination with GraphicsResource for CUDA/OpenGL interop. A Lenia
 # continuous cellular automaton is ping-ponged between two CUDA arrays each
 # frame: a TextureObject provides smooth (LINEAR + WRAP) sampled reads through
@@ -17,10 +17,10 @@
 # What this example teaches
 # =========================
 # - How to drive a wide-radius convolution from a TextureObject configured for
-#   LINEAR + WRAP + normalized coordinates. The same Array is then bound as a
+#   LINEAR + WRAP + normalized coordinates. The same CUDAArray is then bound as a
 #   SurfaceObject for the typed write back, requiring `surface_load_store=True`
 #   at allocation time.
-# - How a single-channel `float` Array differs from the multi-channel layout
+# - How a single-channel `float` CUDAArray differs from the multi-channel layout
 #   used in the Gray-Scott example: `num_channels=1`, `tex2D<float>` reads, and
 #   a 4-byte x-stride in `surf2Dwrite`.
 # - How to host-precompute a normalization constant for a stencil with a
@@ -112,7 +112,7 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    Array,
+    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -162,7 +162,7 @@ SEED_MODE_BLOB = 1
 # ============================= Helper functions =============================
 #
 # The functions below set up CUDA and OpenGL. If you're here to learn about
-# Array/TextureObject/SurfaceObject, skip ahead to main() -- the interesting
+# CUDAArray/TextureObject/SurfaceObject, skip ahead to main() -- the interesting
 # part is there. These helpers exist so that main() reads like a short story
 # instead of a wall of boilerplate.
 # ============================================================================
@@ -255,7 +255,7 @@ def create_window():
     window = pyglet.window.Window(
         WIDTH,
         HEIGHT,
-        caption="cuda.core Array/Texture/Surface - Lenia",
+        caption="cuda.core CUDAArray/Texture/Surface - Lenia",
         vsync=False,
     )
     return window, _gl, pyglet
@@ -405,16 +405,16 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 def make_state_arrays():
     """Allocate the two single-channel `float` ping-pong arrays.
 
-    `surface_load_store=True` is what lets the same Array be bound as both a
+    `surface_load_store=True` is what lets the same CUDAArray be bound as both a
     TextureObject (sampled reads) and a SurfaceObject (typed writes).
     """
-    arr_a = Array.from_descriptor(
+    arr_a = CUDAArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.FLOAT32,
         num_channels=1,
         surface_load_store=True,
     )
-    arr_b = Array.from_descriptor(
+    arr_b = CUDAArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.FLOAT32,
         num_channels=1,
@@ -596,7 +596,7 @@ def main():
         if now - fps_time >= 1.0:
             fps = frame_count / (now - fps_time)
             window.set_caption(
-                "cuda.core Array/Texture/Surface - Lenia"
+                "cuda.core CUDAArray/Texture/Surface - Lenia"
                 f" ({WIDTH}x{HEIGHT}, R={R}, {fps:.0f} FPS)"
             )
             frame_count = 0

@@ -4,10 +4,10 @@
 
 # ################################################################################
 #
-# This example demonstrates cuda.core.Array, TextureObject, and SurfaceObject
+# This example demonstrates cuda.core.CUDAArray, TextureObject, and SurfaceObject
 # in combination with GraphicsResource for CUDA/OpenGL interop: a classic
 # "Doom-style" procedural fire effect. A scalar heat field lives on a
-# ping-ponged float CUDA Array; each frame the field is advected upward with a
+# ping-ponged float CUDA CUDAArray; each frame the field is advected upward with a
 # horizontal jitter and a small decay, then colorized through a 1D fire-palette
 # TextureObject straight into an OpenGL PBO. Requires pyglet.
 #
@@ -15,9 +15,9 @@
 
 # What this example teaches
 # =========================
-# - How to combine a 2D float Array (the heat field) and a 1D RGBA8 Array (the
+# - How to combine a 2D float CUDAArray (the heat field) and a 1D RGBA8 CUDAArray (the
 #   color palette) under the same texture/surface API.
-# - How to ping-pong a scalar field via Array + SurfaceObject writes and
+# - How to ping-pong a scalar field via CUDAArray + SurfaceObject writes and
 #   TextureObject reads, similar to the reaction-diffusion example but with a
 #   single channel.
 # - How to use TextureObject(NORMALIZED_FLOAT) on a UINT8 palette so a
@@ -89,7 +89,7 @@ import numpy as np
 
 from cuda.core import (
     AddressMode,
-    Array,
+    CUDAArray,
     ArrayFormat,
     Device,
     FilterMode,
@@ -132,7 +132,7 @@ TORCH_RADIUS = 12  # pixel radius of the mouse-painted hot disc (sim space)
 # ============================= Helper functions =============================
 #
 # The functions below set up CUDA and OpenGL. If you're here to learn about
-# Array/TextureObject/SurfaceObject, skip ahead to main() -- the interesting
+# CUDAArray/TextureObject/SurfaceObject, skip ahead to main() -- the interesting
 # part is there. These helpers exist so that main() reads like a short story
 # instead of a wall of boilerplate.
 # ============================================================================
@@ -198,7 +198,7 @@ def create_window():
     window = pyglet.window.Window(
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
-        caption="cuda.core Array/Texture/Surface - Doom Fire",
+        caption="cuda.core CUDAArray/Texture/Surface - Doom Fire",
         vsync=False,
     )
     return window, _gl, pyglet
@@ -334,13 +334,13 @@ def make_heat_arrays():
     Intensity is an integer in [0, 36] indexing the canonical Doom palette.
     UINT8 is exactly one byte per texel -- surf2Dwrite x-coord = x * 1.
     """
-    arr_a = Array.from_descriptor(
+    arr_a = CUDAArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.UINT8,
         num_channels=1,
         surface_load_store=True,
     )
-    arr_b = Array.from_descriptor(
+    arr_b = CUDAArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.UINT8,
         num_channels=1,
@@ -400,18 +400,18 @@ def build_fire_palette():
 
 
 def make_palette_array_and_texture(stream):
-    """Allocate the 1D RGBA8 palette Array, upload, and bind as a texture.
+    """Allocate the 1D RGBA8 palette CUDAArray, upload, and bind as a texture.
 
     Returns (palette_array, palette_texture). Both must be closed by the
     caller (or used inside `with` blocks).
     """
     palette = build_fire_palette()  # shape (PALETTE_SIZE, 4), uint8
-    arr = Array.from_descriptor(
+    arr = CUDAArray.from_descriptor(
         shape=(PALETTE_SIZE,),
         format=ArrayFormat.UINT8,
         num_channels=4,
     )
-    # 1D Array bytes match a flat (PALETTE_SIZE * 4) uint8 buffer.
+    # 1D CUDAArray bytes match a flat (PALETTE_SIZE * 4) uint8 buffer.
     arr.copy_from(np.ascontiguousarray(palette), stream=stream)
 
     res_desc = ResourceDescriptor.from_array(arr)
@@ -453,7 +453,7 @@ def main():
     # --- Step 5: Register the PBO with CUDA ---
     resource = GraphicsResource.from_gl_buffer(pbo_id, flags="write_discard")
 
-    # --- Step 6: Allocate heat-field Arrays, palette Array, and the four
+    # --- Step 6: Allocate heat-field Arrays, palette CUDAArray, and the four
     #             bindless handles (textures + surfaces). We hold them open
     #             for the lifetime of the window and release in on_close(),
     #             matching the reaction-diffusion example. (Using `with`
@@ -466,7 +466,7 @@ def main():
     surf_a = SurfaceObject.from_array(arr_a)
     surf_b = SurfaceObject.from_array(arr_b)
 
-    # The heat field is born zeroed by Array.from_descriptor. No seed pass.
+    # The heat field is born zeroed by CUDAArray.from_descriptor. No seed pass.
     state = {
         "current": "a",            # which array holds the latest heat field
         "frame_index": 0,           # passed into the step kernel as `t`
@@ -484,7 +484,7 @@ def main():
     def clear_field():
         """Zero both heat arrays and seed the bottom row at full intensity.
 
-        Array.copy_from is the simplest reset path -- a dedicated clear
+        CUDAArray.copy_from is the simplest reset path -- a dedicated clear
         kernel would be faster but is unnecessary for an interactive demo.
         The bottom row is set to MAX_INTENSITY so the very first frame
         already has a fire source to advect from.
@@ -591,7 +591,7 @@ def main():
             fps = frame_count / (now - fps_time)
             ambient_label = "on" if state["ambient"] else "off"
             window.set_caption(
-                "cuda.core Array/Texture/Surface - Doom Fire"
+                "cuda.core CUDAArray/Texture/Surface - Doom Fire"
                 f" ({WIDTH}x{HEIGHT}, {fps:.0f} FPS,"
                 f" ambient {ambient_label})"
             )
