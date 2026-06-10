@@ -268,6 +268,7 @@ def test_unpack_bitmask_single_value():
         _device._unpack_bitmask(1)
 
 
+@pytest.mark.parallel_threads_limit(4)  # timeouts are slow
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Events not supported on WSL or Windows")
 def test_register_events():
     # This is not the world's greatest test.  All of the events are pretty

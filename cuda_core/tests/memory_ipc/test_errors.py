@@ -16,6 +16,10 @@ NBYTES = 64
 POOL_SIZE = 2097152
 
 
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
+
+
 def test_outer_timeout_marker_is_applied(request):
     """Verify that memory_ipc/conftest.py applies the outer pytest-timeout marker.
 

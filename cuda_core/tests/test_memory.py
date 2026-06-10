@@ -1323,6 +1323,7 @@ def test_managed_memory_resource_preferred_location_validation(init_cuda):
         )
 
 
+@pytest.mark.thread_unsafe(reason="Uses mock.")
 def test_managed_memory_resource_host_numa_auto_resolve_failure(init_cuda):
     """host_numa with None raises RuntimeError when NUMA ID cannot be determined."""
     from unittest.mock import MagicMock, patch
