@@ -442,7 +442,7 @@ cdef const char* _nvrtcGetErrorString(nvrtcResult result) except?NULL nogil:
         result)
 
 
-cdef nvrtcResult _nvrtcVersion(int* major, int* minor) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcVersion
     _check_or_init_nvrtc()
     if __nvrtcVersion == NULL:
@@ -452,7 +452,7 @@ cdef nvrtcResult _nvrtcVersion(int* major, int* minor) except?<nvrtcResult>_NVRT
         major, minor)
 
 
-cdef nvrtcResult _nvrtcGetNumSupportedArchs(int* numArchs) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetNumSupportedArchs
     _check_or_init_nvrtc()
     if __nvrtcGetNumSupportedArchs == NULL:
@@ -462,7 +462,7 @@ cdef nvrtcResult _nvrtcGetNumSupportedArchs(int* numArchs) except?<nvrtcResult>_
         numArchs)
 
 
-cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetSupportedArchs
     _check_or_init_nvrtc()
     if __nvrtcGetSupportedArchs == NULL:
@@ -472,7 +472,7 @@ cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) except?<nvrtcResul
         supportedArchs)
 
 
-cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcCreateProgram
     _check_or_init_nvrtc()
     if __nvrtcCreateProgram == NULL:
@@ -482,7 +482,7 @@ cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const 
         prog, src, name, numHeaders, headers, includeNames)
 
 
-cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcDestroyProgram
     _check_or_init_nvrtc()
     if __nvrtcDestroyProgram == NULL:
@@ -492,7 +492,7 @@ cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) except?<nvrtcResult>_N
         prog)
 
 
-cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcCompileProgram
     _check_or_init_nvrtc()
     if __nvrtcCompileProgram == NULL:
@@ -502,7 +502,7 @@ cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const c
         prog, numOptions, options)
 
 
-cdef nvrtcResult _nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPTXSize
     _check_or_init_nvrtc()
     if __nvrtcGetPTXSize == NULL:
@@ -512,7 +512,7 @@ cdef nvrtcResult _nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except?
         prog, ptxSizeRet)
 
 
-cdef nvrtcResult _nvrtcGetPTX(nvrtcProgram prog, char* ptx) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPTX
     _check_or_init_nvrtc()
     if __nvrtcGetPTX == NULL:
@@ -522,7 +522,7 @@ cdef nvrtcResult _nvrtcGetPTX(nvrtcProgram prog, char* ptx) except?<nvrtcResult>
         prog, ptx)
 
 
-cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetCUBINSize
     _check_or_init_nvrtc()
     if __nvrtcGetCUBINSize == NULL:
@@ -532,7 +532,7 @@ cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) exc
         prog, cubinSizeRet)
 
 
-cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetCUBIN
     _check_or_init_nvrtc()
     if __nvrtcGetCUBIN == NULL:
@@ -542,7 +542,7 @@ cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except?<nvrtcRes
         prog, cubin)
 
 
-cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetLTOIRSize
     _check_or_init_nvrtc()
     if __nvrtcGetLTOIRSize == NULL:
@@ -552,7 +552,7 @@ cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) exc
         prog, LTOIRSizeRet)
 
 
-cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetLTOIR
     _check_or_init_nvrtc()
     if __nvrtcGetLTOIR == NULL:
@@ -562,7 +562,7 @@ cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except?<nvrtcRes
         prog, LTOIR)
 
 
-cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetOptiXIRSize
     _check_or_init_nvrtc()
     if __nvrtcGetOptiXIRSize == NULL:
@@ -572,7 +572,7 @@ cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet)
         prog, optixirSizeRet)
 
 
-cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetOptiXIR
     _check_or_init_nvrtc()
     if __nvrtcGetOptiXIR == NULL:
@@ -582,7 +582,7 @@ cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except?<nvrt
         prog, optixir)
 
 
-cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetProgramLogSize
     _check_or_init_nvrtc()
     if __nvrtcGetProgramLogSize == NULL:
@@ -592,7 +592,7 @@ cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) 
         prog, logSizeRet)
 
 
-cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetProgramLog
     _check_or_init_nvrtc()
     if __nvrtcGetProgramLog == NULL:
@@ -602,7 +602,7 @@ cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) except?<nvrtc
         prog, log)
 
 
-cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcAddNameExpression
     _check_or_init_nvrtc()
     if __nvrtcAddNameExpression == NULL:
@@ -612,7 +612,7 @@ cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_exp
         prog, name_expression)
 
 
-cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetLoweredName
     _check_or_init_nvrtc()
     if __nvrtcGetLoweredName == NULL:
@@ -622,7 +622,7 @@ cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expres
         prog, name_expression, lowered_name)
 
 
-cdef nvrtcResult _nvrtcGetPCHHeapSize(size_t* ret) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPCHHeapSize
     _check_or_init_nvrtc()
     if __nvrtcGetPCHHeapSize == NULL:
@@ -632,7 +632,7 @@ cdef nvrtcResult _nvrtcGetPCHHeapSize(size_t* ret) except?<nvrtcResult>_NVRTCRES
         ret)
 
 
-cdef nvrtcResult _nvrtcSetPCHHeapSize(size_t size) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcSetPCHHeapSize
     _check_or_init_nvrtc()
     if __nvrtcSetPCHHeapSize == NULL:
@@ -642,7 +642,7 @@ cdef nvrtcResult _nvrtcSetPCHHeapSize(size_t size) except?<nvrtcResult>_NVRTCRES
         size)
 
 
-cdef nvrtcResult _nvrtcGetPCHCreateStatus(nvrtcProgram prog) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPCHCreateStatus
     _check_or_init_nvrtc()
     if __nvrtcGetPCHCreateStatus == NULL:
@@ -652,7 +652,7 @@ cdef nvrtcResult _nvrtcGetPCHCreateStatus(nvrtcProgram prog) except?<nvrtcResult
         prog)
 
 
-cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPCHHeapSizeRequired
     _check_or_init_nvrtc()
     if __nvrtcGetPCHHeapSizeRequired == NULL:
@@ -662,7 +662,7 @@ cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) e
         prog, size)
 
 
-cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcSetFlowCallback
     _check_or_init_nvrtc()
     if __nvrtcSetFlowCallback == NULL:
@@ -672,7 +672,7 @@ cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void*
         prog, callback, payload)
 
 
-cdef nvrtcResult _nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetTileIRSize
     _check_or_init_nvrtc()
     if __nvrtcGetTileIRSize == NULL:
@@ -682,7 +682,7 @@ cdef nvrtcResult _nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) e
         prog, TileIRSizeRet)
 
 
-cdef nvrtcResult _nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetTileIR
     _check_or_init_nvrtc()
     if __nvrtcGetTileIR == NULL:
@@ -692,7 +692,7 @@ cdef nvrtcResult _nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except?<nvrtcR
         prog, TileIR)
 
 
-cdef nvrtcResult _nvrtcInstallBundledHeaders(const char* installPath, unsigned int flags, const char** errorLog) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcInstallBundledHeaders(const char* installPath, unsigned int flags, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcInstallBundledHeaders
     _check_or_init_nvrtc()
     if __nvrtcInstallBundledHeaders == NULL:
@@ -702,7 +702,7 @@ cdef nvrtcResult _nvrtcInstallBundledHeaders(const char* installPath, unsigned i
         installPath, flags, errorLog)
 
 
-cdef nvrtcResult _nvrtcGetBundledHeadersInfo(nvrtcBundledHeadersInfo* info, const char** errorLog) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetBundledHeadersInfo(nvrtcBundledHeadersInfo* info, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetBundledHeadersInfo
     _check_or_init_nvrtc()
     if __nvrtcGetBundledHeadersInfo == NULL:
@@ -712,7 +712,7 @@ cdef nvrtcResult _nvrtcGetBundledHeadersInfo(nvrtcBundledHeadersInfo* info, cons
         info, errorLog)
 
 
-cdef nvrtcResult _nvrtcRemoveBundledHeaders(const char* installPath, const char** errorLog) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcRemoveBundledHeaders(const char* installPath, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcRemoveBundledHeaders
     _check_or_init_nvrtc()
     if __nvrtcRemoveBundledHeaders == NULL:
