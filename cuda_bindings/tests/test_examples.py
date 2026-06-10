@@ -20,6 +20,7 @@ def test_example(example):
 
     env = os.environ.copy()
     env["CUDA_BINDINGS_SKIP_EXAMPLE"] = "100"
+    env["MPLBACKEND"] = "Agg"  # avoid plt.show() from blocking
 
     process = subprocess.run([sys.executable, example], capture_output=True, env=env)  # noqa: S603
     # returncode is a special value used in the examples to indicate that system requirements are not met.
