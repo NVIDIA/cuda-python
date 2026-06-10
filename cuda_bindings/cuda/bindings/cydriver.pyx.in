@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1711+g875fec45. Do not modify it directly.
 cimport cuda.bindings._bindings.cydriver as cydriver
 
 {{if 'cuGetErrorString' in found_functions}}
@@ -1228,6 +1228,78 @@ cdef CUresult cuMulticastGetGranularity(size_t* granularity, const CUmulticastOb
     return cydriver._cuMulticastGetGranularity(granularity, prop, option)
 {{endif}}
 
+{{if 'cuLogicalEndpointIdReserve' in found_functions}}
+
+cdef CUresult cuLogicalEndpointIdReserve(CUlogicalEndpointId* baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointIdReserve(baseLeId, count)
+{{endif}}
+
+{{if 'cuLogicalEndpointIdRelease' in found_functions}}
+
+cdef CUresult cuLogicalEndpointIdRelease(CUlogicalEndpointId baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointIdRelease(baseLeId, count)
+{{endif}}
+
+{{if 'cuLogicalEndpointCreate' in found_functions}}
+
+cdef CUresult cuLogicalEndpointCreate(CUlogicalEndpointId leId, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointCreate(leId, prop)
+{{endif}}
+
+{{if 'cuLogicalEndpointAddDevice' in found_functions}}
+
+cdef CUresult cuLogicalEndpointAddDevice(CUlogicalEndpointId leId, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointAddDevice(leId, dev)
+{{endif}}
+
+{{if 'cuLogicalEndpointDestroy' in found_functions}}
+
+cdef CUresult cuLogicalEndpointDestroy(CUlogicalEndpointId leId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointDestroy(leId)
+{{endif}}
+
+{{if 'cuLogicalEndpointBindAddr' in found_functions}}
+
+cdef CUresult cuLogicalEndpointBindAddr(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, void* ptr, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointBindAddr(leId, dev, offset, ptr, size, flags)
+{{endif}}
+
+{{if 'cuLogicalEndpointBindMem' in found_functions}}
+
+cdef CUresult cuLogicalEndpointBindMem(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, CUmemGenericAllocationHandle memHandle, cuuint64_t memOffset, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointBindMem(leId, dev, offset, memHandle, memOffset, size, flags)
+{{endif}}
+
+{{if 'cuLogicalEndpointUnbind' in found_functions}}
+
+cdef CUresult cuLogicalEndpointUnbind(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, cuuint64_t size) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointUnbind(leId, dev, offset, size)
+{{endif}}
+
+{{if 'cuLogicalEndpointExport' in found_functions}}
+
+cdef CUresult cuLogicalEndpointExport(void* handle, CUlogicalEndpointId leId, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointExport(handle, leId, handleType)
+{{endif}}
+
+{{if 'cuLogicalEndpointImport' in found_functions}}
+
+cdef CUresult cuLogicalEndpointImport(CUlogicalEndpointId leId, const void* handle, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointImport(leId, handle, handleType)
+{{endif}}
+
+{{if 'cuLogicalEndpointGetLimits' in found_functions}}
+
+cdef CUresult cuLogicalEndpointGetLimits(cuuint64_t* bindAlignment, cuuint64_t* maxSize, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointGetLimits(bindAlignment, maxSize, prop)
+{{endif}}
+
+{{if 'cuLogicalEndpointQuery' in found_functions}}
+
+cdef CUresult cuLogicalEndpointQuery(CUlogicalEndpointId leId, cuuint32_t count, int* queryStatus) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogicalEndpointQuery(leId, count, queryStatus)
+{{endif}}
+
 {{if 'cuPointerGetAttribute' in found_functions}}
 
 cdef CUresult cuPointerGetAttribute(void* data, CUpointer_attribute attribute, CUdeviceptr ptr) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -1364,6 +1436,12 @@ cdef CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, v
 
 cdef CUresult cuStreamBeginCapture(CUstream hStream, CUstreamCaptureMode mode) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuStreamBeginCapture_v2(hStream, mode)
+{{endif}}
+
+{{if 'cuStreamBeginRecaptureToGraph' in found_functions}}
+
+cdef CUresult cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMode mode, CUgraph hGraph, CUgraphRecaptureCallback callbackFunc, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuStreamBeginRecaptureToGraph(hStream, mode, hGraph, callbackFunc, userData)
 {{endif}}
 
 {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
@@ -1636,12 +1714,6 @@ cdef CUresult cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDimX, uns
     return cydriver._cuLaunchCooperativeKernel(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, kernelParams)
 {{endif}}
 
-{{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
-
-cdef CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuLaunchCooperativeKernelMultiDevice(launchParamsList, numDevices, flags)
-{{endif}}
-
 {{if 'cuLaunchHostFunc' in found_functions}}
 
 cdef CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -1706,6 +1778,12 @@ cdef CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) except
 
 cdef CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuLaunchGridAsync(f, grid_width, grid_height, hStream)
+{{endif}}
+
+{{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
+
+cdef CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLaunchCooperativeKernelMultiDevice(launchParamsList, numDevices, flags)
 {{endif}}
 
 {{if 'cuParamSetTexRef' in found_functions}}

@@ -15,6 +15,7 @@ from fetch_ctk_redistrib import (
     get_component_relative_path,
     host_platform_to_subdir,
     main,
+    resolve_component_name,
     validate_metadata_url,
 )
 
@@ -39,6 +40,16 @@ def _sample_metadata() -> dict[str, dict[str, dict[str, str]]]:
             "linux-x86_64": {"relative_path": "linux-x86_64/cuda_crt.tar.xz"},
             "linux-sbsa": {"relative_path": "linux-sbsa/cuda_crt.tar.xz"},
             "windows-x86_64": {"relative_path": "windows-x86_64/cuda_crt.zip"},
+        },
+        "cuda_cccl": {
+            "linux-x86_64": {"relative_path": "linux-x86_64/cuda_cccl.tar.xz"},
+            "linux-sbsa": {"relative_path": "linux-sbsa/cuda_cccl.tar.xz"},
+            "windows-x86_64": {"relative_path": "windows-x86_64/cuda_cccl.zip"},
+        },
+        "cccl": {
+            "linux-x86_64": {"relative_path": "linux-x86_64/cccl.tar.xz"},
+            "linux-sbsa": {"relative_path": "linux-sbsa/cccl.tar.xz"},
+            "windows-x86_64": {"relative_path": "windows-x86_64/cccl.zip"},
         },
         "libnvvm": {
             "linux-x86_64": {"relative_path": "linux-x86_64/libnvvm.tar.xz"},
@@ -82,6 +93,19 @@ class TestValidateMetadataUrl:
             validate_metadata_url("file:///tmp/redistrib.json")
 
 
+class TestResolveComponentName:
+    def test_preserves_existing_component_name(self):
+        metadata = _sample_metadata()
+
+        assert resolve_component_name(metadata, "cuda_cccl") == "cuda_cccl"
+
+    def test_uses_alias_when_component_was_renamed(self):
+        metadata = _sample_metadata()
+        del metadata["cuda_cccl"]
+
+        assert resolve_component_name(metadata, "cuda_cccl") == "cccl"
+
+
 class TestFilterComponents:
     def test_applies_static_version_and_platform_filters(self):
         filtered, skipped = filter_components(
@@ -105,6 +129,20 @@ class TestFilterComponents:
         assert filtered == ["cuda_nvcc", "libnvfatbin"]
         assert skipped == ["libcudla"]
 
+    def test_uses_renamed_cccl_component_when_legacy_name_is_missing(self):
+        metadata = _sample_metadata()
+        del metadata["cuda_cccl"]
+
+        filtered, skipped = filter_components(
+            metadata,
+            host_platform="linux-64",
+            cuda_version="13.3.0",
+            components="cuda_nvcc,cuda_cccl,libnvfatbin",
+        )
+
+        assert filtered == ["cuda_nvcc", "cccl", "libnvfatbin"]
+        assert skipped == []
+
 
 class TestGetComponentRelativePath:
     def test_returns_relative_path_for_selected_platform(self):
@@ -115,6 +153,19 @@ class TestGetComponentRelativePath:
                 component="libnvfatbin",
             )
             == "windows-x86_64/libnvfatbin.zip"
+        )
+
+    def test_uses_renamed_cccl_component_for_relative_path(self):
+        metadata = _sample_metadata()
+        del metadata["cuda_cccl"]
+
+        assert (
+            get_component_relative_path(
+                metadata,
+                host_platform="win-64",
+                component="cuda_cccl",
+            )
+            == "windows-x86_64/cccl.zip"
         )
 
     def test_raises_when_component_is_missing_for_subdir(self):

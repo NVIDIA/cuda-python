@@ -13,6 +13,7 @@ from cuda.core._memory._ipc cimport IPCAllocationHandle
 from cuda.core._resource_handles cimport (
     as_cu,
     get_device_mempool,
+    get_last_error,
 )
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
@@ -25,6 +26,11 @@ import uuid
 
 from cuda.core._memory._peer_access_utils import PeerAccessibleBySetProxy, replace_peer_accessible_by
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cuda.core._device import Device
 
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
 
@@ -127,13 +133,17 @@ cdef class DeviceMemoryResource(_MemPool):
     associated MMR.
     """
 
-    def __cinit__(self, *args, **kwargs):
+    def __cinit__(self, *args, **kwargs) -> None:
         self._dev_id = cydriver.CU_DEVICE_INVALID
 
-    def __init__(self, device_id: Device | int, options=None):
+    def __init__(
+        self,
+        device_id: Device | int,
+        options: DeviceMemoryResourceOptions | dict[str, object] | None = None
+    ) -> None:
         _DMR_init(self, device_id, options)
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
         return DeviceMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
@@ -207,7 +217,7 @@ cdef class DeviceMemoryResource(_MemPool):
         return self._dev_id
 
     @property
-    def peer_accessible_by(self):
+    def peer_accessible_by(self) -> PeerAccessibleBySetProxy:
         """
         Get or set the devices that can access allocations from this memory
         pool. Access can be modified at any time and affects all allocations
@@ -228,7 +238,7 @@ cdef class DeviceMemoryResource(_MemPool):
         return PeerAccessibleBySetProxy(self)
 
     @peer_accessible_by.setter
-    def peer_accessible_by(self, devices):
+    def peer_accessible_by(self, devices) -> None:
         replace_peer_accessible_by(self, devices)
 
     @property
@@ -262,6 +272,14 @@ cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):
 
     if opts is None:
         self._h_pool = get_device_mempool(dev_id)
+        if not self._h_pool:
+            HANDLE_RETURN(get_last_error())
+            raise RuntimeError(
+                f"Failed to initialize DeviceMemoryResource for device {dev_id}: "
+                "cuda-core returned an empty memory pool handle without recording a CUDA error. "
+                "This is an internal cuda-core error; please report it with your CUDA driver, "
+                "CUDA Toolkit, and cuda-python versions."
+            )
         self._mempool_owned = False
         MP_raise_release_threshold(self)
     else:
@@ -276,7 +294,7 @@ cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):
 
 
 # Note: this is referenced in instructions to debug nvbug 5698116.
-cpdef DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
+cpdef str DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
     """
     Probes peer access from the given device using cuMemPoolGetAccess.
 
@@ -310,7 +328,7 @@ cpdef DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
         return ""
 
 
-def _deep_reduce_device_memory_resource(mr):
+def _deep_reduce_device_memory_resource(mr) -> tuple[object, ...]:
     check_multiprocessing_start_method()
     from .._device import Device
     device = Device(mr.device_id)

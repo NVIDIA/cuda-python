@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1711+g875fec45. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -635,7 +635,13 @@ cdef extern from "cuda.h":
         CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED = 146
         CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED = 147
         CU_DEVICE_ATTRIBUTE_ATOMIC_REDUCTION_SUPPORTED = 148
-        CU_DEVICE_ATTRIBUTE_MAX = 149
+        CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED = 151
+        CU_DEVICE_ATTRIBUTE_DMA_BUF_MMAP_SUPPORTED = 152
+        CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_SUPPORTED = 153
+        CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_MULTICAST_SUPPORTED = 154
+        CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_COUNTED_OPS_SUPPORTED = 155
+        CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED = 156
+        CU_DEVICE_ATTRIBUTE_MAX = 157
 
     ctypedef CUdevice_attribute_enum CUdevice_attribute
 
@@ -697,7 +703,8 @@ cdef extern from "cuda.h":
         CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH = 13
         CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED = 14
         CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE = 15
-        CU_FUNC_ATTRIBUTE_MAX = 16
+        CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED = 16
+        CU_FUNC_ATTRIBUTE_MAX = 17
 
     ctypedef CUfunction_attribute_enum CUfunction_attribute
 
@@ -1051,6 +1058,7 @@ cdef extern from "cuda.h":
         CU_GRAPH_NODE_TYPE_MEM_FREE = 11
         CU_GRAPH_NODE_TYPE_BATCH_MEM_OP = 12
         CU_GRAPH_NODE_TYPE_CONDITIONAL = 13
+        CU_GRAPH_NODE_TYPE_RESERVED_16 = 16
 
     ctypedef CUgraphNodeType_enum CUgraphNodeType
 
@@ -1430,6 +1438,7 @@ cdef extern from "cuda.h":
         CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION = 915
         CUDA_ERROR_KEY_ROTATION = 916
         CUDA_ERROR_STREAM_DETACHED = 917
+        CUDA_ERROR_GRAPH_RECAPTURE_FAILURE = 918
         CUDA_ERROR_UNKNOWN = 999
 
     ctypedef cudaError_enum CUresult
@@ -2349,6 +2358,7 @@ cdef extern from "cuda.h":
         CUDA_MEM_FREE_NODE_PARAMS free
         CUDA_BATCH_MEM_OP_NODE_PARAMS_v2 memOp
         CUDA_CONDITIONAL_NODE_PARAMS conditional
+        char asBytes[232]
         long long reserved2
 
     ctypedef CUgraphNodeParams_st CUgraphNodeParams
@@ -2448,10 +2458,21 @@ cdef extern from "cuda.h":
     ctypedef CUcheckpointGpuPair_st CUcheckpointGpuPair
 
     cdef struct CUcheckpointRestoreArgs_st:
+        {{if 'CUcheckpointRestoreArgs_st.gpuPairs' in found_struct}}
         CUcheckpointGpuPair* gpuPairs
+        {{endif}}
+        {{if 'CUcheckpointRestoreArgs_st.gpuPairsCount' in found_struct}}
         unsigned int gpuPairsCount
-        char reserved[44]
+        {{endif}}
+        {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'char'}}
+        char reserved[{{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}]
+        {{endif}}
+        {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'cuuint64_t'}}
+        cuuint64_t reserved[{{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}]
+        {{endif}}
+        {{if 'CUcheckpointRestoreArgs_st.reserved1' in found_struct}}
         cuuint64_t reserved1
+        {{endif}}
 
     ctypedef CUcheckpointRestoreArgs_st CUcheckpointRestoreArgs
 
@@ -2485,6 +2506,57 @@ cdef extern from "cuda.h":
 
     ctypedef CUmemDecompressParams_st CUmemDecompressParams
 
+    ctypedef cuuint32_t CUlogicalEndpointId
+
+    cdef enum CUlogicalEndpointIpcHandleType_enum:
+        CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE = 0
+        CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC = 1
+
+    ctypedef CUlogicalEndpointIpcHandleType_enum CUlogicalEndpointIpcHandleType
+
+    cdef struct CUlogicalEndpointFabricHandle_st:
+        unsigned char data[64]
+
+    ctypedef CUlogicalEndpointFabricHandle_st CUlogicalEndpointFabricHandle
+
+    cdef enum CUlogicalEndpointType_enum:
+        CU_LOGICAL_ENDPOINT_TYPE_INVALID = 0
+        CU_LOGICAL_ENDPOINT_TYPE_UNICAST = 1
+        CU_LOGICAL_ENDPOINT_TYPE_MULTICAST = 2
+
+    ctypedef CUlogicalEndpointType_enum CUlogicalEndpointType
+
+    cdef enum CUlogicalEndpointFlag_enum:
+        CU_LOGICAL_ENDPOINT_FLAG_NONE = 0
+        CU_LOGICAL_ENDPOINT_FLAG_COUNTED_OPS = 1
+
+    ctypedef CUlogicalEndpointFlag_enum CUlogicalEndpointFlag
+
+    cdef struct anon_struct25:
+        CUdevice device
+
+    cdef struct anon_struct26:
+        unsigned int numDevices
+
+    cdef struct CUlogicalEndpointProp_struct:
+        CUlogicalEndpointType type
+        anon_struct25 unicast
+        anon_struct26 multicast
+        unsigned long long size
+        unsigned int ipcHandleTypes
+        unsigned int flags
+
+    ctypedef CUlogicalEndpointProp_struct CUlogicalEndpointProp
+
+    cdef enum CUgraphRecaptureStatus_enum:
+        CU_GRAPH_RECAPTURE_ELIGIBLE_FOR_UPDATE = 0
+        CU_GRAPH_RECAPTURE_INELIGIBLE_FOR_UPDATE = 1
+        CU_GRAPH_RECAPTURE_ERROR = 2
+
+    ctypedef CUgraphRecaptureStatus_enum CUgraphRecaptureStatus
+
+    ctypedef CUresult (*CUgraphRecaptureCallback)(void* data, CUgraphNode node, const CUgraphNodeParams* originalParams, const CUgraphNodeParams* recaptureParams, CUgraphRecaptureStatus status)
+
     cdef enum CUfunctionLoadingState_enum:
         CU_FUNCTION_LOADING_STATE_UNLOADED = 0
         CU_FUNCTION_LOADING_STATE_LOADED = 1
@@ -2514,6 +2586,9 @@ cdef extern from "cuda.h":
         CU_COREDUMP_SKIP_CONSTBANK_MEMORY = 32
         CU_COREDUMP_LIGHTWEIGHT_FLAGS = 47
         CU_COREDUMP_GZIP_COMPRESS = 64
+        CU_COREDUMP_FAULTED_CONTEXTS_ONLY = 128
+        CU_COREDUMP_NO_ERRBAR_AT_EXIT = 1073741824
+        CU_COREDUMP_LOG_ONLY = 2147483648
 
     cdef struct CUcoredumpCallbackEntry_st:
         pass
@@ -2526,6 +2601,7 @@ cdef extern from "cuda.h":
     ctypedef CUdevResourceDesc_st* CUdevResourceDesc
 
     ctypedef enum CUgreenCtxCreate_flags:
+        CU_GREEN_CTX_NONE = 0
         CU_GREEN_CTX_DEFAULT_STREAM = 1
 
     ctypedef enum CUdevSmResourceGroup_flags:
@@ -2744,12 +2820,12 @@ cdef enum CUeglColorFormat_enum:
 
 ctypedef CUeglColorFormat_enum CUeglColorFormat
 
-cdef union anon_union16:
+cdef union anon_union17:
     CUarray pArray[3]
     void* pPitch[3]
 
 cdef struct CUeglFrame_st:
-    anon_union16 frame
+    anon_union17 frame
     unsigned int width
     unsigned int height
     unsigned int depth
@@ -3832,6 +3908,66 @@ cdef CUresult cuMulticastUnbind(CUmemGenericAllocationHandle mcHandle, CUdevice 
 cdef CUresult cuMulticastGetGranularity(size_t* granularity, const CUmulticastObjectProp* prop, CUmulticastGranularity_flags option) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuLogicalEndpointIdReserve' in found_functions}}
+
+cdef CUresult cuLogicalEndpointIdReserve(CUlogicalEndpointId* baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointIdRelease' in found_functions}}
+
+cdef CUresult cuLogicalEndpointIdRelease(CUlogicalEndpointId baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointCreate' in found_functions}}
+
+cdef CUresult cuLogicalEndpointCreate(CUlogicalEndpointId leId, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointAddDevice' in found_functions}}
+
+cdef CUresult cuLogicalEndpointAddDevice(CUlogicalEndpointId leId, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointDestroy' in found_functions}}
+
+cdef CUresult cuLogicalEndpointDestroy(CUlogicalEndpointId leId) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointBindAddr' in found_functions}}
+
+cdef CUresult cuLogicalEndpointBindAddr(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, void* ptr, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointBindMem' in found_functions}}
+
+cdef CUresult cuLogicalEndpointBindMem(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, CUmemGenericAllocationHandle memHandle, cuuint64_t memOffset, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointUnbind' in found_functions}}
+
+cdef CUresult cuLogicalEndpointUnbind(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, cuuint64_t size) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointExport' in found_functions}}
+
+cdef CUresult cuLogicalEndpointExport(void* handle, CUlogicalEndpointId leId, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointImport' in found_functions}}
+
+cdef CUresult cuLogicalEndpointImport(CUlogicalEndpointId leId, const void* handle, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointGetLimits' in found_functions}}
+
+cdef CUresult cuLogicalEndpointGetLimits(cuuint64_t* bindAlignment, cuuint64_t* maxSize, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogicalEndpointQuery' in found_functions}}
+
+cdef CUresult cuLogicalEndpointQuery(CUlogicalEndpointId leId, cuuint32_t count, int* queryStatus) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuPointerGetAttribute' in found_functions}}
 
 cdef CUresult cuPointerGetAttribute(void* data, CUpointer_attribute attribute, CUdeviceptr ptr) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -3945,6 +4081,11 @@ cdef CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, v
 {{if 'cuStreamBeginCapture_v2' in found_functions}}
 
 cdef CUresult cuStreamBeginCapture(CUstream hStream, CUstreamCaptureMode mode) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuStreamBeginRecaptureToGraph' in found_functions}}
+
+cdef CUresult cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMode mode, CUgraph hGraph, CUgraphRecaptureCallback callbackFunc, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
@@ -4172,11 +4313,6 @@ cdef CUresult cuLaunchKernelEx(const CUlaunchConfig* config, CUfunction f, void*
 cdef CUresult cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void** kernelParams) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
-{{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
-
-cdef CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
-{{endif}}
-
 {{if 'cuLaunchHostFunc' in found_functions}}
 
 cdef CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -4230,6 +4366,11 @@ cdef CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) except
 {{if 'cuLaunchGridAsync' in found_functions}}
 
 cdef CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
+
+cdef CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuParamSetTexRef' in found_functions}}
@@ -5267,7 +5408,7 @@ cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResou
 cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
-cdef enum: CUDA_VERSION = 13020
+cdef enum: CUDA_VERSION = 13030
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 

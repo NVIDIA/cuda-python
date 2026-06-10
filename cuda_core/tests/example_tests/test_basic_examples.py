@@ -13,6 +13,7 @@ import warnings
 import pytest
 
 from cuda.core import Device, ManagedMemoryResource, system
+from cuda.core._program import _can_load_generated_ptx
 
 try:
     from cuda.bindings._test_helpers.pep723 import has_package_requirements_or_skip
@@ -91,6 +92,7 @@ SYSTEM_REQUIREMENTS = {
     "gl_interop_reaction_diffusion.py": has_display,
     "gl_interop_sdf_volume.py": has_display,
     "gl_interop_texture_filter.py": has_display,
+    "jit_lto_fractal.py": _can_load_generated_ptx,
     "pytorch_example.py": lambda: (
         has_compute_capability_9_or_higher() and is_x86_64()
     ),  # PyTorch only provides CUDA support for x86_64

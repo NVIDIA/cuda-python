@@ -10,14 +10,17 @@ import warnings
 from collections import namedtuple
 from collections.abc import Sequence
 from contextlib import ExitStack
-from typing import Callable
+from typing import Any, Callable
 
-try:
-    from cuda.bindings import driver, nvrtc, runtime
-except ImportError:
-    from cuda import cuda as driver
-    from cuda import cudart as runtime
-    from cuda import nvrtc
+from cuda.bindings import driver as driver, nvrtc as nvrtc, runtime as runtime
+
+# Module-level annotations that reference `driver`, `nvrtc`, and `runtime` so
+# that stubgen-pyx keeps these imports in the generated `.pyi` (it would
+# otherwise trim them as unused). These names are not assigned, so they only
+# affect __annotations__ and have no runtime cost.
+_keep_driver_in_stub: 'driver.CUresult'
+_keep_nvrtc_in_stub: 'nvrtc.nvrtcResult'
+_keep_runtime_in_stub: 'runtime.cudaError_t'
 
 from cuda.bindings.nvvm import nvvmError
 from cuda.bindings.nvjitlink import nvJitLinkError
@@ -42,7 +45,7 @@ class NVRTCError(CUDAError):
 ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
 
 
-def cast_to_3_tuple(label, cfg):
+def cast_to_3_tuple(label: str, cfg: int | tuple[int, ...]) -> tuple[int, int, int]:
     cfg_orig = cfg
     if isinstance(cfg, int):
         cfg = (cfg,)
@@ -228,7 +231,7 @@ cdef inline int _check_error(error, handle=None) except?-1:
         raise RuntimeError(f"Unknown error type: {error}")
 
 
-def handle_return(tuple result, handle=None):
+def handle_return(result: tuple[Any, ...], handle: object = None) -> Any:
     _check_error(result[0], handle=handle)
     cdef int out_len = len(result)
     if out_len == 1:
@@ -239,7 +242,7 @@ def handle_return(tuple result, handle=None):
         return result[1:]
 
 
-cpdef check_or_create_options(type cls, options, str options_description="", bint keep_none=False):
+cpdef object check_or_create_options(type cls, object options, str options_description="", bint keep_none=False):
     """
     Create the specified options dataclass from a dictionary of options or None.
     """
@@ -266,7 +269,7 @@ def _handle_boolean_option(option: bool) -> str:
     return "true" if bool(option) else "false"
 
 
-def precondition(checker: Callable[..., None], str what="") -> Callable:
+def precondition(checker: Callable[..., None], str what="") -> Callable[..., Any]:
     """
     A decorator that adds checks to ensure any preconditions are met.
 
@@ -279,13 +282,13 @@ def precondition(checker: Callable[..., None], str what="") -> Callable:
         Callable: A decorator that creates the wrapping.
     """
 
-    def outer(wrapped_function):
+    def outer(wrapped_function: Callable) -> Callable:
         """
         A decorator that actually wraps the function for checking preconditions.
         """
 
         @functools.wraps(wrapped_function)
-        def inner(*args, **kwargs):
+        def inner(*args, **kwargs) -> Any:
             """
             Check preconditions and if they are met, call the wrapped function.
             """
@@ -299,14 +302,14 @@ def precondition(checker: Callable[..., None], str what="") -> Callable:
     return outer
 
 
-def is_sequence(obj):
+def is_sequence(obj: object) -> bool:
     """
     Check if the given object is a sequence (list or tuple).
     """
     return isinstance(obj, Sequence)
 
 
-def is_nested_sequence(obj):
+def is_nested_sequence(obj: object) -> bool:
     """
     Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
     """
@@ -332,7 +335,7 @@ class Transaction:
         append(fn, *args, **kwargs): Register an undo action to be called on rollback.
         commit(): Disarm all undo actions; nothing will be rolled back on exit.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self._stack = ExitStack()
         self._entered = False
 
@@ -346,7 +349,7 @@ class Transaction:
         self._entered = False
         return self._stack.__exit__(exc_type, exc, tb)
 
-    def append(self, fn, /, *args, **kwargs):
+    def append(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
         """
         Register an undo action (runs if the with-block exits without commit()).
         Values are bound now via partial so late mutations don't bite you.
@@ -355,7 +358,7 @@ class Transaction:
             raise RuntimeError("Transaction must be entered before append()")
         self._stack.callback(partial(fn, *args, **kwargs))
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Disarm all undo actions. After this, exiting the with-block does nothing.
         """
@@ -367,7 +370,7 @@ class Transaction:
 _fork_warning_checked = False
 
 
-def reset_fork_warning():
+def reset_fork_warning() -> None:
     """Reset the fork warning check flag for testing purposes.
 
     This function is intended for use in tests to allow multiple test runs
@@ -435,7 +438,7 @@ cpdef tuple _parse_fill_value(value):
         PyBuffer_Release(&buf)
 
 
-def check_multiprocessing_start_method():
+def check_multiprocessing_start_method() -> None:
     """Check if multiprocessing start method is 'fork' and warn if so."""
     global _fork_warning_checked
     if _fork_warning_checked:

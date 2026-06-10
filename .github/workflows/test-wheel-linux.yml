@@ -29,6 +29,24 @@ on:
       skip-bindings-test:
         type: boolean
         default: false
+      run-id:
+        description: >
+          Workflow run ID to download artifacts from.
+          Defaults to the current run when empty.
+        type: string
+        default: ''
+      test-mode:
+        description: >
+          Test mode: 'standard' (default), 'nightly-pytorch', or
+          'nightly-numba-cuda'.
+        type: string
+        default: 'standard'
+      sha:
+        description: >
+          Commit SHA used to construct artifact names.
+          Defaults to github.sha (current run) when empty.
+        type: string
+        default: ''
 
 defaults:
   run:
@@ -46,7 +64,7 @@ jobs:
       OLD_BRANCH: ${{ steps.compute-matrix.outputs.OLD_BRANCH }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
       - name: Validate Test Type
         run: |
@@ -67,8 +85,13 @@ jobs:
           # Read base matrix from YAML file for the specific architecture
           TEST_MATRIX=$(yq -o json ".linux[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
-          # Apply matrix filter and wrap in include structure
-          MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
+          # Apply matrix filter; reject custom DRIVER + FLAVOR=wsl (the
+          # in-container driver swap doesn't work under WSL); add a
+          # RUNNER_DRIVER field that maps any custom version back to
+          # 'latest' (the install script swaps the driver itself, so we
+          # need to land on the runner that ships with the most recent
+          # pre-installed driver); wrap in include structure.
+          MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | if any(.[]; .DRIVER != "latest" and .DRIVER != "earliest" and .FLAVOR == "wsl") then "Error: custom DRIVER is not supported with FLAVOR=wsl\n" | halt_error(1) else . end | map(. + {RUNNER_DRIVER: (if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)}) | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
 
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
@@ -77,28 +100,31 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> "$GITHUB_OUTPUT"
 
   test:
-    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format('(x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}
+    name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.TORCH_VER && format(', {0}', matrix.TORCH_VER) || '' }}${{ matrix.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
+    timeout-minutes: 60
     needs: compute-matrix
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
-    runs-on: "${{ matrix.FLAVOR || 'linux' }}-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-${{ matrix.GPU_COUNT }}"
+    runs-on: "${{ matrix.FLAVOR || 'linux' }}-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.RUNNER_DRIVER }}-${{ matrix.GPU_COUNT }}"
+    # TODO: remove continue-on-error once 3.15 is officially supported
+    continue-on-error: ${{ startsWith(matrix.PY_VER, '3.15') }}
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
-      options: -u root --security-opt seccomp=unconfined --shm-size 16g
+      # Custom-DRIVER rows need --privileged --pid=host so install_gpu_driver.sh
+      # can nsenter to the host for the install + refresh the toolkit bind mounts
+      # back inside the container. Stock options for latest/earliest rows.
+      options: ${{ ((matrix.DRIVER == 'latest' || matrix.DRIVER == 'earliest') && '-u root --security-opt seccomp=unconfined --shm-size 16g') || '-u root --security-opt seccomp=unconfined --shm-size 16g --privileged --pid=host' }}
       image: ubuntu:22.04
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
         PIP_CACHE_DIR: "/tmp/pip-cache"
     steps:
-      - name: Ensure GPU is working
-        run: nvidia-smi
-
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -108,9 +134,21 @@ jobs:
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
         with:
-          # for artifact fetching, graphics libs, g++ required for cffi in example
-          dependencies: "jq wget libgl1 libegl1 g++"
+          # for artifact fetching, graphics libs, g++ required for cffi in
+          # example; util-linux for `nsenter` (custom-DRIVER rows re-exec
+          # install_gpu_driver.sh onto the host through nsenter)
+          dependencies: "jq wget libgl1 libegl1 g++ util-linux"
           dependent_exes: "jq wget"
+
+      - name: Install GPU driver
+        if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
+        env:
+          DRIVER: ${{ matrix.DRIVER }}
+          GPU_TYPE: ${{ matrix.GPU }}
+        run: ./ci/tools/install_gpu_driver.sh
+
+      - name: Ensure GPU is working
+        run: nvidia-smi
 
       - name: Set environment variables
         env:
@@ -119,7 +157,7 @@ jobs:
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
           PY_VER: ${{ matrix.PY_VER }}
-          SHA: ${{ github.sha }}
+          SHA: ${{ inputs.sha || github.sha }}
           SKIP_BINDINGS_TEST_OVERRIDE: ${{ inputs.skip-bindings-test && '1' || '0' }}
         run: ./ci/tools/env-vars test
 
@@ -128,6 +166,8 @@ jobs:
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python build artifacts
         if: ${{ env.BINDINGS_SOURCE == 'main' }}
@@ -135,6 +175,8 @@ jobs:
         with:
           name: cuda-python-wheel
           path: .
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda.bindings build artifacts
         if: ${{ env.BINDINGS_SOURCE == 'main' }}
@@ -142,6 +184,8 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
         if: ${{ env.BINDINGS_SOURCE == 'backport' }}
@@ -160,11 +204,7 @@ jobs:
 
           OLD_BRANCH=${{ needs.compute-matrix.outputs.OLD_BRANCH }}
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s success -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
-          if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
-            echo "LATEST_PRIOR_RUN_ID not found!"
-            exit 1
-          fi
+          LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id --branch "${OLD_BRANCH}" NVIDIA/cuda-python "CI")
 
           gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
           rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
@@ -179,9 +219,10 @@ jobs:
           rmdir cuda-python-wheel
 
       - name: Display structure of downloaded cuda-python artifacts
+        if: ${{ env.BINDINGS_SOURCE != 'published' }}
         run: |
           pwd
-          ls -lahR .
+          ls -lah cuda_python*.whl cuda_pathfinder/
 
       - name: Display structure of downloaded cuda.bindings artifacts
         if: ${{ env.BINDINGS_SOURCE != 'published' }}
@@ -195,6 +236,8 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.bindings Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
@@ -207,6 +250,8 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core build artifacts
         run: |
@@ -219,6 +264,8 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
@@ -230,6 +277,8 @@ jobs:
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: ${{ matrix.PY_VER }}
+          # TODO: remove allow-prereleases once 3.15 is officially supported
+          allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
         env:
           # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
@@ -241,6 +290,18 @@ jobs:
         with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
+
+      # TODO: remove the numpy wheel steps once 3.15 is officially supported
+      - name: Download numpy wheel (pre-release Python)
+        if: ${{ startsWith(matrix.PY_VER, '3.15') }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: numpy-python${{ env.PYTHON_VERSION_FORMATTED }}-${{ inputs.host-platform }}
+          path: numpy-wheel
+
+      - name: Install numpy wheel (pre-release Python)
+        if: ${{ startsWith(matrix.PY_VER, '3.15') }}
+        run: pip install numpy-wheel/*.whl
 
       - name: Set up latest cuda_sanitizer_api
         if: ${{ env.SETUP_SANITIZER == '1' }}
@@ -257,7 +318,9 @@ jobs:
       - name: Set up test repetition on nightly runs
         run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
+      # ── Standard test steps (skipped for nightly modes) ──
       - name: Run cuda.pathfinder tests with see_what_works
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
@@ -265,14 +328,14 @@ jobs:
         run: run-tests pathfinder
 
       - name: Run cuda.bindings tests
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ inputs.test-mode == 'standard' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests bindings
 
       - name: Run cuda.bindings benchmarks (smoke test)
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ inputs.test-mode == 'standard' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
           pip install pyperf
           pushd benchmarks/cuda_bindings
@@ -280,13 +343,14 @@ jobs:
           popd
 
       - name: Run cuda.core tests
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests core
 
       - name: Ensure cuda-python installable
-        if: ${{ env.BINDINGS_SOURCE == 'main' }}
+        if: ${{ inputs.test-mode == 'standard' && env.BINDINGS_SOURCE == 'main' }}
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
             pip install --only-binary=:all: cuda_python*.whl
@@ -295,6 +359,7 @@ jobs:
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
+        if: ${{ inputs.test-mode == 'standard' }}
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
@@ -303,8 +368,38 @@ jobs:
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
         run: run-tests pathfinder
+
+      # ── Nightly: install wheels + optional dep together ──
+      - name: Install cuda-python wheels + PyTorch
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          TORCH_VER: ${{ matrix.TORCH_VER }}
+          TORCH_CUDA: ${{ matrix.TORCH_CUDA }}
+        run: run-tests nightly-pytorch
+
+      - name: Install cuda-python wheels + numba-cuda
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests nightly-numba-cuda
+
+      # ── Nightly: run tests ──
+      - name: Run PyTorch interop tests
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        run: |
+          pushd cuda_core
+          pytest -rxXs -v --durations=0 tests/test_utils.py tests/example_tests/
+          popd
+
+      - name: Run numba-cuda tests
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        run: python -m numba.runtests numba.cuda.tests

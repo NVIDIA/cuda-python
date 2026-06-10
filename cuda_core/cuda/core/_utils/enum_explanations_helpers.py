@@ -35,10 +35,13 @@ _ExplanationTableLoader = Callable[[], _ExplanationTable]
 def _binding_version() -> tuple[int, int, int]:
     """Return the installed ``cuda-bindings`` version, or a conservative old value."""
     try:
-        parts = importlib.metadata.version("cuda-bindings").split(".")[:3]
+        version = importlib.metadata.version("cuda-bindings")
     except importlib.metadata.PackageNotFoundError:
         return (0, 0, 0)  # For very old versions of cuda-python
-    return tuple(int(v) for v in parts)
+
+    parts = version.partition("+")[0].split(".")[:3]
+    parts_int = ([int(v) for v in parts] + [0, 0, 0])[:3]
+    return (parts_int[0], parts_int[1], parts_int[2])
 
 
 def _binding_version_has_usable_enum_docstrings(version: tuple[int, int, int]) -> bool:

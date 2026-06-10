@@ -6,13 +6,29 @@ import pickle
 import re
 
 import pytest
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._utils.cuda_utils import CUDAError
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 POOL_SIZE = 2097152
+
+
+def test_outer_timeout_marker_is_applied(request):
+    """Verify that memory_ipc/conftest.py applies the outer pytest-timeout marker.
+
+    If this test fails, the per-directory conftest is not being loaded, or its
+    pytest_collection_modifyitems hook is not adding the marker. Without this
+    marker, the only thing protecting the GHA runner from a wedged IPC test is
+    the in-test cleanup -- which we want to keep as defense in depth, not as
+    the sole guard.
+    """
+    expected = child_timeout_sec() + 30
+    marker = request.node.get_closest_marker("timeout")
+    assert marker is not None, "memory_ipc/conftest.py did not apply a timeout marker"
+    assert marker.args == (expected,), f"unexpected timeout value: {marker.args!r}"
 
 
 class ChildErrorHarness:
@@ -43,6 +59,8 @@ class ChildErrorHarness:
 
             # Wait for the child process.
             process.join(timeout=CHILD_TIMEOUT_SEC)
+            survivors = kill_subprocesses(process)
+            assert not survivors, "child did not exit within timeout"
             assert process.exitcode == 0
         finally:
             for mr in self._extra_mrs:

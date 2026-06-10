@@ -2,13 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import sys
-
-if sys.version_info >= (3, 11):
-    from enum import StrEnum
-else:
-    from backports.strenum import StrEnum
-
+from cuda.core._utils.pycompat import StrEnum
 
 __all__ = [
     "AddressingMode",
@@ -364,4 +358,4 @@ except ImportError:
     pass
 
 
-del StrEnum, sys
+del StrEnum

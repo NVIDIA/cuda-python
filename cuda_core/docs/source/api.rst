@@ -19,6 +19,7 @@ Devices and execution
    :toctree: generated/
 
    Device
+   Host
    launch
 
    :template: autosummary/cyclass.rst
@@ -60,6 +61,7 @@ Memory management
    :template: autosummary/cyclass.rst
 
    Buffer
+   ManagedBuffer
    MemoryResource
    DeviceMemoryResource
    GraphMemoryResource
@@ -301,6 +303,9 @@ Utility functions
    :toctree: generated/
 
    utils.args_viewable_as_strided_memory
+   utils.prefetch_batch
+   utils.discard_batch
+   utils.discard_prefetch_batch
 
    :template: autosummary/cyclass.rst
 

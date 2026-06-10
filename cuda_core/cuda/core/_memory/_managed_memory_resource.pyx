@@ -6,17 +6,23 @@ from __future__ import annotations
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._memory._memory_pool cimport _MemPool
+from cuda.core._memory._memory_pool cimport _MemPool, _MP_allocate
 from cuda.core._memory._memory_pool cimport MP_init_create_pool, MP_init_current_pool  # no-cython-lint
+from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils cimport check_or_create_options  # no-cython-lint
 from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
 from dataclasses import dataclass
 import threading
+from typing import TYPE_CHECKING
 import warnings
 
+from cuda.core._memory._managed_buffer import ManagedBuffer
 from cuda.core.typing import ManagedMemoryLocationType
+
+if TYPE_CHECKING:
+    from cuda.core.graph import GraphBuilder
 
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
 
@@ -88,8 +94,35 @@ cdef class ManagedMemoryResource(_MemPool):
     memory pools.
     """
 
-    def __init__(self, options=None):
+    def __init__(self, options: ManagedMemoryResourceOptions | dict[str, object] | None = None) -> None:
         _MMR_init(self, options)
+
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> ManagedBuffer:
+        """Allocate a managed-memory buffer of the requested size.
+
+        Parameters
+        ----------
+        size : int
+            The size of the buffer to allocate, in bytes.
+        stream : :obj:`~_stream.Stream`
+            Keyword-only. The stream on which to perform the allocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
+
+        Returns
+        -------
+        ManagedBuffer
+            A :class:`ManagedBuffer` (a :class:`Buffer` subclass) that
+            exposes the property-style advice API
+            (``read_mostly``, ``preferred_location``, ``accessed_by``)
+            and instance methods (``prefetch``, ``discard``,
+            ``discard_prefetch``).
+        """
+        assert isinstance(stream, Stream), "Only Stream is supported for managed memory allocations"
+        if self.is_mapped:
+            raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
+        cdef Stream s = Stream_accept(stream)
+        return _MP_allocate(self, size, s, ManagedBuffer)
 
     @property
     def device_id(self) -> int:
@@ -305,7 +338,7 @@ cdef inline _check_concurrent_managed_access():
         _concurrent_access_warned = True
 
 
-def reset_concurrent_access_warning():
+def reset_concurrent_access_warning() -> None:
     """Reset the concurrent access warning flag for testing purposes."""
     global _concurrent_access_warned
     _concurrent_access_warned = False

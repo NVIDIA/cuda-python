@@ -46,7 +46,8 @@ cu13 = [
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",
 ]
 host = [
-    "nvidia-cutlass",
+    # TODO: remove the Python 3.15 guard once 3.15 is officially supported
+    "nvidia-cutlass; python_version < '3.15'",
     "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 
@@ -103,6 +104,8 @@ git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--ma
 addopts = "--showlocals"
 
 [tool.mypy]
+# Try to keep the mypy configuration similar between the subprojects
+
 # Basic settings
 python_version = "3.10"
 explicit_package_bases = true

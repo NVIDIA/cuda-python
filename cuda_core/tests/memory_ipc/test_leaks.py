@@ -13,8 +13,9 @@ except ImportError:
 else:
     HAVE_PSUTIL = True
 import pytest
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 USING_FDS = platform.system() == "Linux"
@@ -33,11 +34,13 @@ def test_alloc_handle(ipc_memory_resource):
 
 
 def exec_success(obj, number=1):
-    """Succesfully run a child process."""
+    """Successfully run a child process."""
     for _ in range(number):
         process = mp.Process(target=child_main, args=(obj,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
 
@@ -47,13 +50,15 @@ def child_main(obj, *args):
 
 def exec_launch_failure(obj, number=1):
     """
-    Unsuccesfully try to launch a child process. This fails when
-    after the child starts.
+    Unsuccessfully try to launch a child process. This fails after
+    the child starts.
     """
     for _ in range(number):
         process = mp.Process(target=child_main_bad, args=(obj,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode != 0
 
 
@@ -63,7 +68,7 @@ def child_main_bad():
 
 def exec_reduce_failure(obj, number=1):
     """
-    Unsuccesfully try to launch a child process. This fails before
+    Unsuccessfully try to launch a child process. This fails before
     the child starts but after the resource-owning object is serialized.
     """
     for _ in range(number):
@@ -137,5 +142,7 @@ def prime():
         process = mp.Process()
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
         prime_was_run = True

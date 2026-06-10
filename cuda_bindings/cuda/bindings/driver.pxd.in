@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1711+g875fec45. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -565,6 +565,21 @@ cdef class CUoccupancyB2DSize:
     """
     cdef cydriver.CUoccupancyB2DSize  _pvt_val
     cdef cydriver.CUoccupancyB2DSize* _pvt_ptr
+{{endif}}
+
+{{if 'CUgraphRecaptureCallback' in found_types}}
+
+cdef class CUgraphRecaptureCallback:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef cydriver.CUgraphRecaptureCallback  _pvt_val
+    cdef cydriver.CUgraphRecaptureCallback* _pvt_ptr
 {{endif}}
 
 {{if 'CUcoredumpStatusCallback' in found_types}}
@@ -4348,7 +4363,9 @@ cdef class CUmemLocation_st:
     {{endif}}
     {{if 'CUmemLocation_st.id' in found_struct}}
     id : int
-
+        Identifier for CUmemLocationType::CU_MEM_LOCATION_TYPE_DEVICE,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST_NUMA.
     {{endif}}
 
     Methods
@@ -5163,6 +5180,10 @@ cdef class CUgraphNodeParams_st:
     conditional : CUDA_CONDITIONAL_NODE_PARAMS
         Conditional node parameters.
     {{endif}}
+    {{if 'CUgraphNodeParams_st.asBytes' in found_struct}}
+    asBytes : bytes
+        Padding as bytes
+    {{endif}}
     {{if 'CUgraphNodeParams_st.reserved2' in found_struct}}
     reserved2 : long long
         Reserved bytes. Must be zero.
@@ -5314,8 +5335,12 @@ cdef class CUcheckpointRestoreArgs_st:
     gpuPairsCount : unsigned int
         Number of gpu pairs to remap
     {{endif}}
-    {{if 'CUcheckpointRestoreArgs_st.reserved' in found_struct}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'char'}}
     reserved : bytes
+        Reserved for future use, must be zeroed
+    {{endif}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'cuuint64_t'}}
+    reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
     {{endif}}
     {{if 'CUcheckpointRestoreArgs_st.reserved1' in found_struct}}
@@ -5418,6 +5443,114 @@ cdef class CUmemDecompressParams_st:
     {{endif}}
     {{if 'CUmemDecompressParams_st.dst' in found_struct}}
     cdef _HelperInputVoidPtr _cydst
+    {{endif}}
+{{endif}}
+{{if 'CUlogicalEndpointFabricHandle_st' in found_struct}}
+
+cdef class CUlogicalEndpointFabricHandle_st:
+    """
+    Fabric handle for a logical endpoint
+
+    Attributes
+    ----------
+    {{if 'CUlogicalEndpointFabricHandle_st.data' in found_struct}}
+    data : bytes
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUlogicalEndpointFabricHandle_st _pvt_val
+    cdef cydriver.CUlogicalEndpointFabricHandle_st* _pvt_ptr
+{{endif}}
+{{if 'CUlogicalEndpointProp_struct.unicast' in found_struct}}
+
+cdef class anon_struct25:
+    """
+    Attributes
+    ----------
+    {{if 'CUlogicalEndpointProp_struct.unicast.device' in found_struct}}
+    device : CUdevice
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUlogicalEndpointProp_struct* _pvt_ptr
+    {{if 'CUlogicalEndpointProp_struct.unicast.device' in found_struct}}
+    cdef CUdevice _device
+    {{endif}}
+{{endif}}
+{{if 'CUlogicalEndpointProp_struct.multicast' in found_struct}}
+
+cdef class anon_struct26:
+    """
+    Attributes
+    ----------
+    {{if 'CUlogicalEndpointProp_struct.multicast.numDevices' in found_struct}}
+    numDevices : unsigned int
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUlogicalEndpointProp_struct* _pvt_ptr
+{{endif}}
+{{if 'CUlogicalEndpointProp_struct' in found_struct}}
+
+cdef class CUlogicalEndpointProp_struct:
+    """
+    Properties of a logical endpoint construction
+
+    Attributes
+    ----------
+    {{if 'CUlogicalEndpointProp_struct.type' in found_struct}}
+    type : CUlogicalEndpointType
+        Type of the logical endpoint defined in CUlogicalEndpointType
+    {{endif}}
+    {{if 'CUlogicalEndpointProp_struct.unicast' in found_struct}}
+    unicast : anon_struct25
+
+    {{endif}}
+    {{if 'CUlogicalEndpointProp_struct.multicast' in found_struct}}
+    multicast : anon_struct26
+
+    {{endif}}
+    {{if 'CUlogicalEndpointProp_struct.size' in found_struct}}
+    size : unsigned long long
+        Size of the logical endpoint
+    {{endif}}
+    {{if 'CUlogicalEndpointProp_struct.ipcHandleTypes' in found_struct}}
+    ipcHandleTypes : unsigned int
+        A bitmask of IPC handle types defined in
+        CUlogicalEndpointIpcHandleType
+    {{endif}}
+    {{if 'CUlogicalEndpointProp_struct.flags' in found_struct}}
+    flags : unsigned int
+        A bitmask of flags defined in CUlogicalEndpointFlag
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUlogicalEndpointProp_struct* _val_ptr
+    cdef cydriver.CUlogicalEndpointProp_struct* _pvt_ptr
+    {{if 'CUlogicalEndpointProp_struct.unicast' in found_struct}}
+    cdef anon_struct25 _unicast
+    {{endif}}
+    {{if 'CUlogicalEndpointProp_struct.multicast' in found_struct}}
+    cdef anon_struct26 _multicast
     {{endif}}
 {{endif}}
 {{if 'CUdevSmResource_st' in found_struct}}
@@ -5603,7 +5736,7 @@ cdef class CUdevResource_st:
 {{endif}}
 {{if True}}
 
-cdef class anon_union16:
+cdef class anon_union17:
     """
     Attributes
     ----------
@@ -5634,7 +5767,7 @@ cdef class CUeglFrame_st:
     Attributes
     ----------
     {{if True}}
-    frame : anon_union16
+    frame : anon_union17
 
     {{endif}}
     {{if True}}
@@ -5682,7 +5815,7 @@ cdef class CUeglFrame_st:
     cdef cydriver.CUeglFrame_st* _val_ptr
     cdef cydriver.CUeglFrame_st* _pvt_ptr
     {{if True}}
-    cdef anon_union16 _frame
+    cdef anon_union17 _frame
     {{endif}}
 {{endif}}
 {{if 'CUdeviceptr' in found_types}}
@@ -9978,7 +10111,9 @@ cdef class CUmemLocation_v1(CUmemLocation_st):
     {{endif}}
     {{if 'CUmemLocation_st.id' in found_struct}}
     id : int
-
+        Identifier for CUmemLocationType::CU_MEM_LOCATION_TYPE_DEVICE,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST_NUMA.
     {{endif}}
 
     Methods
@@ -10002,7 +10137,9 @@ cdef class CUmemLocation(CUmemLocation_v1):
     {{endif}}
     {{if 'CUmemLocation_st.id' in found_struct}}
     id : int
-
+        Identifier for CUmemLocationType::CU_MEM_LOCATION_TYPE_DEVICE,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST,
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST_NUMA.
     {{endif}}
 
     Methods
@@ -10994,6 +11131,10 @@ cdef class CUgraphNodeParams(CUgraphNodeParams_st):
     conditional : CUDA_CONDITIONAL_NODE_PARAMS
         Conditional node parameters.
     {{endif}}
+    {{if 'CUgraphNodeParams_st.asBytes' in found_struct}}
+    asBytes : bytes
+        Padding as bytes
+    {{endif}}
     {{if 'CUgraphNodeParams_st.reserved2' in found_struct}}
     reserved2 : long long
         Reserved bytes. Must be zero.
@@ -11096,8 +11237,12 @@ cdef class CUcheckpointRestoreArgs(CUcheckpointRestoreArgs_st):
     gpuPairsCount : unsigned int
         Number of gpu pairs to remap
     {{endif}}
-    {{if 'CUcheckpointRestoreArgs_st.reserved' in found_struct}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'char'}}
     reserved : bytes
+        Reserved for future use, must be zeroed
+    {{endif}}
+    {{if struct_field_types.get('CUcheckpointRestoreArgs_st.reserved') == 'cuuint64_t'}}
+    reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
     {{endif}}
     {{if 'CUcheckpointRestoreArgs_st.reserved1' in found_struct}}
@@ -11177,6 +11322,81 @@ cdef class CUmemDecompressParams(CUmemDecompressParams_st):
     {{if 'CUmemDecompressParams_st.padding' in found_struct}}
     padding : bytes
 
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUlogicalEndpointId' in found_types}}
+
+cdef class CUlogicalEndpointId:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef cydriver.CUlogicalEndpointId  _pvt_val
+    cdef cydriver.CUlogicalEndpointId* _pvt_ptr
+{{endif}}
+{{if 'CUlogicalEndpointFabricHandle' in found_types}}
+
+cdef class CUlogicalEndpointFabricHandle(CUlogicalEndpointFabricHandle_st):
+    """
+    Fabric handle for a logical endpoint
+
+    Attributes
+    ----------
+    {{if 'CUlogicalEndpointFabricHandle_st.data' in found_struct}}
+    data : bytes
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUlogicalEndpointProp' in found_types}}
+
+cdef class CUlogicalEndpointProp(CUlogicalEndpointProp_struct):
+    """
+    Properties of a logical endpoint construction
+
+    Attributes
+    ----------
+    {{if 'CUlogicalEndpointProp_struct.type' in found_struct}}
+    type : CUlogicalEndpointType
+        Type of the logical endpoint defined in CUlogicalEndpointType
+    {{endif}}
+    {{if 'CUlogicalEndpointProp_struct.unicast' in found_struct}}
+    unicast : anon_struct25
+
+    {{endif}}
+    {{if 'CUlogicalEndpointProp_struct.multicast' in found_struct}}
+    multicast : anon_struct26
+
+    {{endif}}
+    {{if 'CUlogicalEndpointProp_struct.size' in found_struct}}
+    size : unsigned long long
+        Size of the logical endpoint
+    {{endif}}
+    {{if 'CUlogicalEndpointProp_struct.ipcHandleTypes' in found_struct}}
+    ipcHandleTypes : unsigned int
+        A bitmask of IPC handle types defined in
+        CUlogicalEndpointIpcHandleType
+    {{endif}}
+    {{if 'CUlogicalEndpointProp_struct.flags' in found_struct}}
+    flags : unsigned int
+        A bitmask of flags defined in CUlogicalEndpointFlag
     {{endif}}
 
     Methods
@@ -11401,7 +11621,7 @@ cdef class CUeglFrame_v1(CUeglFrame_st):
     Attributes
     ----------
     {{if True}}
-    frame : anon_union16
+    frame : anon_union17
 
     {{endif}}
     {{if True}}
@@ -11459,7 +11679,7 @@ cdef class CUeglFrame(CUeglFrame_v1):
     Attributes
     ----------
     {{if True}}
-    frame : anon_union16
+    frame : anon_union17
 
     {{endif}}
     {{if True}}

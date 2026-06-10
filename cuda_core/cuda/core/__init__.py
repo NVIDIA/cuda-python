@@ -5,7 +5,7 @@
 from cuda.core._version import __version__
 
 
-def _import_versioned_module():
+def _import_versioned_module() -> None:
     import importlib
 
     from cuda import bindings
@@ -28,7 +28,7 @@ _import_versioned_module()
 del _import_versioned_module
 
 
-def _patch_rlcompleter_for_cython_properties():
+def _patch_rlcompleter_for_cython_properties() -> None:
     # TODO: This can be removed when Python 3.13 is our minimum-supported version:
     #   https://github.com/python/cpython/pull/149577
 
@@ -55,13 +55,13 @@ def _patch_rlcompleter_for_cython_properties():
     # member_descriptor types, which are what Cython uses for properties on cdef
     # classes.
     class _PatchedPropMeta(type):
-        def __instancecheck__(cls, inst):
+        def __instancecheck__(cls, inst: object) -> bool:
             return isinstance(inst, (property, GetSetDescriptorType, MemberDescriptorType))
 
     class _PatchedProperty(metaclass=_PatchedPropMeta):
         pass
 
-    rlcompleter.property = _PatchedProperty
+    rlcompleter.property = _PatchedProperty  # type: ignore[attr-defined]
 
 
 _patch_rlcompleter_for_cython_properties()
@@ -91,6 +91,7 @@ from cuda.core._texture import (
 from cuda.core._surface import SurfaceObject
 from cuda.core._event import Event, EventOptions
 from cuda.core._graphics import GraphicsResource
+from cuda.core._host import Host
 from cuda.core._launch_config import LaunchConfig
 from cuda.core._launcher import launch
 from cuda.core._linker import Linker, LinkerOptions
@@ -100,6 +101,7 @@ from cuda.core._memory import (
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
     LegacyPinnedMemoryResource,
+    ManagedBuffer,
     ManagedMemoryResource,
     ManagedMemoryResourceOptions,
     MemoryResource,
