@@ -15,6 +15,7 @@ test = [
     "pytest>=6.2.4",
     "pytest-mock",
     "pytest-repeat",
+    "pytest-run-parallel; python_version == '3.14t' or python_version == '3.15t'",
     "pytest-randomly",
 ]
 # Internal organization of test dependencies.
@@ -102,6 +103,7 @@ git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--ma
 
 [tool.pytest.ini_options]
 addopts = "--showlocals"
+thread_unsafe_fixtures = ['mocker']
 
 [tool.mypy]
 # Try to keep the mypy configuration similar between the subprojects

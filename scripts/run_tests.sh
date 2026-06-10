@@ -7,7 +7,7 @@ set -euo pipefail
 
 # Simple, dependency-free orchestrator to run tests for all packages.
 # Usage:
-#   scripts/run_tests.sh [ -v|--verbose ] [ --install | --no-install ] [ --with-cython | --skip-cython ] [ --with-examples | --skip-examples ] [ --with-ptds ]
+#   scripts/run_tests.sh [ -v|--verbose ] [ --install | --no-install ] [ --with-cython | --skip-cython ] [ --with-examples | --skip-examples ] [ --with-ptds ] [ --parallel-threads=N ]
 #   scripts/run_tests.sh [ flags ]                   # pathfinder -> bindings -> core
 #   scripts/run_tests.sh [ flags ] core              # only core
 #   scripts/run_tests.sh [ flags ] bindings          # only bindings
@@ -38,6 +38,9 @@ Options:
       --with-examples Run examples where applicable (e.g., cuda_bindings/examples)
       --skip-examples Skip running examples (default)
       --with-ptds     Re-run cuda_bindings tests with PTDS (CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM=1)
+      --parallel-threads=N
+                     Run pytest with --parallel-threads=N. Defaults to 4 when
+                     pytest-run-parallel is installed, otherwise 0 (disabled).
   -h, --help          Show this help and exit
 
 Examples:
@@ -54,6 +57,11 @@ RUN_CYTHON=0
 RUN_EXAMPLES=1
 RUN_PTDS=1
 INSTALL_MODE=auto  # auto|force|skip
+DEFAULT_PARALLEL_THREADS=0
+if python -mpip show pytest-run-parallel >/dev/null 2>&1; then
+  DEFAULT_PARALLEL_THREADS=4
+fi
+PARALLEL_THREADS=${DEFAULT_PARALLEL_THREADS}
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -h|--help)
@@ -92,6 +100,18 @@ while [[ $# -gt 0 ]]; do
       RUN_PTDS=1
       shift
       ;;
+    --parallel-threads=*)
+      PARALLEL_THREADS="${1#*=}"
+      shift
+      ;;
+    --parallel-threads)
+      if [[ $# -lt 2 ]]; then
+        echo "Missing value for --parallel-threads" >&2
+        exit 1
+      fi
+      PARALLEL_THREADS="$2"
+      shift 2
+      ;;
     *)
       break
       ;;
@@ -100,11 +120,20 @@ done
 
 target=${1:-all}
 
+if ! [[ "${PARALLEL_THREADS}" =~ ^[0-9]+$ ]]; then
+  echo "--parallel-threads must be a non-negative integer, got: ${PARALLEL_THREADS}" >&2
+  exit 1
+fi
+
 if [[ ${VERBOSE} -eq 1 ]]; then
   PYTEST_FLAGS=( -ra -s -v )
 else
   # Very quiet: show failures/errors summary only
   PYTEST_FLAGS=( -qq )
+fi
+PYTEST_PARALLEL_FLAGS=()
+if [[ "${PARALLEL_THREADS}" -gt 0 ]]; then
+  PYTEST_PARALLEL_FLAGS=( "--parallel-threads=${PARALLEL_THREADS}" )
 fi
 
 declare -A RESULTS
@@ -133,7 +162,7 @@ status_from_rc() {
 run_pytest() {
   # Run pytest safely under set -e and return its exit code
   set +e
-  CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM=0 python -m pytest "${PYTEST_FLAGS[@]}" "$@"
+  CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM=0 python -m pytest "${PYTEST_FLAGS[@]}" "${PYTEST_PARALLEL_FLAGS[@]}" "$@"
   local rc=$?
   set -e
   return ${rc}
@@ -142,7 +171,7 @@ run_pytest() {
 run_pytest_ptds() {
   # Run pytest with PTDS env set; safely return its exit code
   set +e
-  CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM=1 python -m pytest "${PYTEST_FLAGS[@]}" "$@"
+  CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM=1 python -m pytest "${PYTEST_FLAGS[@]}" "${PYTEST_PARALLEL_FLAGS[@]}" "$@"
   local rc=$?
   set -e
   return ${rc}
