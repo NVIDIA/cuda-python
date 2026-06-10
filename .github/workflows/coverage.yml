@@ -281,13 +281,15 @@ jobs:
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
 
-      - name: Update driver
+      # DRIVER above is 'latest' so install_gpu_driver.ps1 is intentionally
+      # skipped (it errors on latest/earliest); configure_driver_mode.ps1
+      # still runs to put the pre-installed driver into TCC mode.
+      - name: Configure driver mode
         shell: powershell
         env:
           DRIVER_MODE: "TCC"
-          GPU_TYPE: "a100"
         run: |
-          ci/tools/install_gpu_driver.ps1
+          ci/tools/configure_driver_mode.ps1
 
       - name: Ensure GPU is working
         run: |

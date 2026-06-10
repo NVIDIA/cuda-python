@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 Installation
@@ -99,7 +99,7 @@ Source builds require that the provided CUDA headers are of the same major.minor
 
    $ export CUDA_PATH=/usr/local/cuda
 
-See `Environment Variables <environment_variables.rst>`_ for a description of other build-time environment variables.
+See :doc:`Environment Variables <environment_variables>` for a description of other build-time environment variables.
 
 .. note::
 
