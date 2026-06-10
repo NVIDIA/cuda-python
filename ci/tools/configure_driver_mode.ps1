@@ -30,8 +30,10 @@ function Set-DriverMode {
         exit 1
     }
 
-    # Only restart NVIDIA display adapters, not other display devices (e.g. QEMU VGA)
-    $nvidia_devices = Get-PnpDevice -Class Display -FriendlyName "NVIDIA*"
+    # Only restart NVIDIA display adapters, not other display devices (e.g. QEMU VGA).
+    # @(...) forces an array even when there's a single device, so .Count works.
+    $nvidia_devices = @(Get-PnpDevice -Class Display -FriendlyName "NVIDIA*")
+    $gpu_count = $nvidia_devices.Count
     foreach ($device in $nvidia_devices) {
         Write-Output "Restarting device: $($device.FriendlyName) ($($device.InstanceId))"
         pnputil /disable-device "$($device.InstanceId)"
@@ -39,17 +41,22 @@ function Set-DriverMode {
     }
 
     # Poll nvidia-smi until NVML can initialize, or give up after ~60s.
-    # A fixed sleep is not enough on slower-coming-back-up multi-GPU rows
-    # (e.g. 2x H100 MCDM) where pnputil enable returns before NVML is
-    # ready. Pattern borrowed from the runner-team `nvgha-driver.ps1`.
+    # Require N consecutive successes where N == number of GPUs we just
+    # cycled: on multi-GPU rows (observed on 2x H100 MCDM), NVML briefly
+    # reports "ok" mid-init then flaps back to "Not Found", so a single
+    # success isn't enough. Scaling the consecutive-success requirement
+    # to the device count gives the settle window room to grow with the
+    # hardware.
     Write-Output "Waiting for nvidia-smi/NVML to come back up after device cycle..."
     $deadline = (Get-Date).AddSeconds(60)
+    $consecutive_ok = 0
     do {
-        Start-Sleep -Seconds 2
+        Start-Sleep -Seconds 3
         & nvidia-smi.exe 2>&1 | Out-Null
-    } while ($LASTEXITCODE -ne 0 -and (Get-Date) -lt $deadline)
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "nvidia-smi did not return cleanly within 60s of the device cycle"
+        if ($LASTEXITCODE -eq 0) { $consecutive_ok++ } else { $consecutive_ok = 0 }
+    } while ($consecutive_ok -lt $gpu_count -and (Get-Date) -lt $deadline)
+    if ($consecutive_ok -lt $gpu_count) {
+        Write-Error "nvidia-smi did not return cleanly $gpu_count times in a row within 60s of the device cycle"
         exit 1
     }
 }
