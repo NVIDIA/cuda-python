@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.2.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -3643,7 +3643,7 @@ cpdef _inspect_function_pointer(str name):
 # Wrapper functions
 ###############################################################################
 
-cdef CUresult _cuGetErrorString(CUresult error, const char** pStr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGetErrorString(CUresult error, const char** pStr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGetErrorString
     _check_or_init_driver()
     if __cuGetErrorString == NULL:
@@ -3653,7 +3653,7 @@ cdef CUresult _cuGetErrorString(CUresult error, const char** pStr) except?<CUres
         error, pStr)
 
 
-cdef CUresult _cuGetErrorName(CUresult error, const char** pStr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGetErrorName(CUresult error, const char** pStr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGetErrorName
     _check_or_init_driver()
     if __cuGetErrorName == NULL:
@@ -3663,7 +3663,7 @@ cdef CUresult _cuGetErrorName(CUresult error, const char** pStr) except?<CUresul
         error, pStr)
 
 
-cdef CUresult _cuInit(unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuInit(unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuInit
     _check_or_init_driver()
     if __cuInit == NULL:
@@ -3673,7 +3673,7 @@ cdef CUresult _cuInit(unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LO
         Flags)
 
 
-cdef CUresult _cuDriverGetVersion(int* driverVersion) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDriverGetVersion(int* driverVersion) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDriverGetVersion
     _check_or_init_driver()
     if __cuDriverGetVersion == NULL:
@@ -3683,7 +3683,7 @@ cdef CUresult _cuDriverGetVersion(int* driverVersion) except?<CUresult>_CURESULT
         driverVersion)
 
 
-cdef CUresult _cuDeviceGet(CUdevice* device, int ordinal) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGet(CUdevice* device, int ordinal) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGet
     _check_or_init_driver()
     if __cuDeviceGet == NULL:
@@ -3693,7 +3693,7 @@ cdef CUresult _cuDeviceGet(CUdevice* device, int ordinal) except?<CUresult>_CURE
         device, ordinal)
 
 
-cdef CUresult _cuDeviceGetCount(int* count) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetCount(int* count) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetCount
     _check_or_init_driver()
     if __cuDeviceGetCount == NULL:
@@ -3703,7 +3703,7 @@ cdef CUresult _cuDeviceGetCount(int* count) except?<CUresult>_CURESULT_INTERNAL_
         count)
 
 
-cdef CUresult _cuDeviceGetName(char* name, int len, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetName(char* name, int len, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetName
     _check_or_init_driver()
     if __cuDeviceGetName == NULL:
@@ -3713,7 +3713,7 @@ cdef CUresult _cuDeviceGetName(char* name, int len, CUdevice dev) except?<CUresu
         name, len, dev)
 
 
-cdef CUresult _cuDeviceGetUuid_v2(CUuuid* uuid, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetUuid_v2(CUuuid* uuid, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetUuid_v2
     _check_or_init_driver()
     if __cuDeviceGetUuid_v2 == NULL:
@@ -3723,7 +3723,7 @@ cdef CUresult _cuDeviceGetUuid_v2(CUuuid* uuid, CUdevice dev) except?<CUresult>_
         uuid, dev)
 
 
-cdef CUresult _cuDeviceGetLuid(char* luid, unsigned int* deviceNodeMask, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetLuid(char* luid, unsigned int* deviceNodeMask, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetLuid
     _check_or_init_driver()
     if __cuDeviceGetLuid == NULL:
@@ -3733,7 +3733,7 @@ cdef CUresult _cuDeviceGetLuid(char* luid, unsigned int* deviceNodeMask, CUdevic
         luid, deviceNodeMask, dev)
 
 
-cdef CUresult _cuDeviceTotalMem_v2(size_t* bytes, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceTotalMem_v2(size_t* bytes, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceTotalMem_v2
     _check_or_init_driver()
     if __cuDeviceTotalMem_v2 == NULL:
@@ -3743,7 +3743,7 @@ cdef CUresult _cuDeviceTotalMem_v2(size_t* bytes, CUdevice dev) except?<CUresult
         bytes, dev)
 
 
-cdef CUresult _cuDeviceGetTexture1DLinearMaxWidth(size_t* maxWidthInElements, CUarray_format format, unsigned numChannels, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetTexture1DLinearMaxWidth(size_t* maxWidthInElements, CUarray_format format, unsigned numChannels, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetTexture1DLinearMaxWidth
     _check_or_init_driver()
     if __cuDeviceGetTexture1DLinearMaxWidth == NULL:
@@ -3753,7 +3753,7 @@ cdef CUresult _cuDeviceGetTexture1DLinearMaxWidth(size_t* maxWidthInElements, CU
         maxWidthInElements, format, numChannels, dev)
 
 
-cdef CUresult _cuDeviceGetAttribute(int* pi, CUdevice_attribute attrib, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetAttribute(int* pi, CUdevice_attribute attrib, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetAttribute
     _check_or_init_driver()
     if __cuDeviceGetAttribute == NULL:
@@ -3763,7 +3763,7 @@ cdef CUresult _cuDeviceGetAttribute(int* pi, CUdevice_attribute attrib, CUdevice
         pi, attrib, dev)
 
 
-cdef CUresult _cuDeviceGetNvSciSyncAttributes(void* nvSciSyncAttrList, CUdevice dev, int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetNvSciSyncAttributes(void* nvSciSyncAttrList, CUdevice dev, int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetNvSciSyncAttributes
     _check_or_init_driver()
     if __cuDeviceGetNvSciSyncAttributes == NULL:
@@ -3773,7 +3773,7 @@ cdef CUresult _cuDeviceGetNvSciSyncAttributes(void* nvSciSyncAttrList, CUdevice 
         nvSciSyncAttrList, dev, flags)
 
 
-cdef CUresult _cuDeviceSetMemPool(CUdevice dev, CUmemoryPool pool) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceSetMemPool(CUdevice dev, CUmemoryPool pool) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceSetMemPool
     _check_or_init_driver()
     if __cuDeviceSetMemPool == NULL:
@@ -3783,7 +3783,7 @@ cdef CUresult _cuDeviceSetMemPool(CUdevice dev, CUmemoryPool pool) except?<CUres
         dev, pool)
 
 
-cdef CUresult _cuDeviceGetMemPool(CUmemoryPool* pool, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetMemPool(CUmemoryPool* pool, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetMemPool
     _check_or_init_driver()
     if __cuDeviceGetMemPool == NULL:
@@ -3793,7 +3793,7 @@ cdef CUresult _cuDeviceGetMemPool(CUmemoryPool* pool, CUdevice dev) except?<CUre
         pool, dev)
 
 
-cdef CUresult _cuDeviceGetDefaultMemPool(CUmemoryPool* pool_out, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetDefaultMemPool(CUmemoryPool* pool_out, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetDefaultMemPool
     _check_or_init_driver()
     if __cuDeviceGetDefaultMemPool == NULL:
@@ -3803,7 +3803,7 @@ cdef CUresult _cuDeviceGetDefaultMemPool(CUmemoryPool* pool_out, CUdevice dev) e
         pool_out, dev)
 
 
-cdef CUresult _cuDeviceGetExecAffinitySupport(int* pi, CUexecAffinityType type, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetExecAffinitySupport(int* pi, CUexecAffinityType type, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetExecAffinitySupport
     _check_or_init_driver()
     if __cuDeviceGetExecAffinitySupport == NULL:
@@ -3813,7 +3813,7 @@ cdef CUresult _cuDeviceGetExecAffinitySupport(int* pi, CUexecAffinityType type, 
         pi, type, dev)
 
 
-cdef CUresult _cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFlushGPUDirectRDMAWrites
     _check_or_init_driver()
     if __cuFlushGPUDirectRDMAWrites == NULL:
@@ -3823,7 +3823,7 @@ cdef CUresult _cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget targe
         target, scope)
 
 
-cdef CUresult _cuDeviceGetProperties(CUdevprop* prop, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetProperties(CUdevprop* prop, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetProperties
     _check_or_init_driver()
     if __cuDeviceGetProperties == NULL:
@@ -3833,7 +3833,7 @@ cdef CUresult _cuDeviceGetProperties(CUdevprop* prop, CUdevice dev) except?<CUre
         prop, dev)
 
 
-cdef CUresult _cuDeviceComputeCapability(int* major, int* minor, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceComputeCapability(int* major, int* minor, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceComputeCapability
     _check_or_init_driver()
     if __cuDeviceComputeCapability == NULL:
@@ -3843,7 +3843,7 @@ cdef CUresult _cuDeviceComputeCapability(int* major, int* minor, CUdevice dev) e
         major, minor, dev)
 
 
-cdef CUresult _cuDevicePrimaryCtxRetain(CUcontext* pctx, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDevicePrimaryCtxRetain(CUcontext* pctx, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDevicePrimaryCtxRetain
     _check_or_init_driver()
     if __cuDevicePrimaryCtxRetain == NULL:
@@ -3853,7 +3853,7 @@ cdef CUresult _cuDevicePrimaryCtxRetain(CUcontext* pctx, CUdevice dev) except?<C
         pctx, dev)
 
 
-cdef CUresult _cuDevicePrimaryCtxRelease_v2(CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDevicePrimaryCtxRelease_v2(CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDevicePrimaryCtxRelease_v2
     _check_or_init_driver()
     if __cuDevicePrimaryCtxRelease_v2 == NULL:
@@ -3863,7 +3863,7 @@ cdef CUresult _cuDevicePrimaryCtxRelease_v2(CUdevice dev) except?<CUresult>_CURE
         dev)
 
 
-cdef CUresult _cuDevicePrimaryCtxSetFlags_v2(CUdevice dev, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDevicePrimaryCtxSetFlags_v2(CUdevice dev, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDevicePrimaryCtxSetFlags_v2
     _check_or_init_driver()
     if __cuDevicePrimaryCtxSetFlags_v2 == NULL:
@@ -3873,7 +3873,7 @@ cdef CUresult _cuDevicePrimaryCtxSetFlags_v2(CUdevice dev, unsigned int flags) e
         dev, flags)
 
 
-cdef CUresult _cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags, int* active) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags, int* active) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDevicePrimaryCtxGetState
     _check_or_init_driver()
     if __cuDevicePrimaryCtxGetState == NULL:
@@ -3883,7 +3883,7 @@ cdef CUresult _cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags, int
         dev, flags, active)
 
 
-cdef CUresult _cuDevicePrimaryCtxReset_v2(CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDevicePrimaryCtxReset_v2(CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDevicePrimaryCtxReset_v2
     _check_or_init_driver()
     if __cuDevicePrimaryCtxReset_v2 == NULL:
@@ -3893,7 +3893,7 @@ cdef CUresult _cuDevicePrimaryCtxReset_v2(CUdevice dev) except?<CUresult>_CURESU
         dev)
 
 
-cdef CUresult _cuCtxCreate_v4(CUcontext* pctx, CUctxCreateParams* ctxCreateParams, unsigned int flags, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxCreate_v4(CUcontext* pctx, CUctxCreateParams* ctxCreateParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxCreate_v4
     _check_or_init_driver()
     if __cuCtxCreate_v4 == NULL:
@@ -3903,7 +3903,7 @@ cdef CUresult _cuCtxCreate_v4(CUcontext* pctx, CUctxCreateParams* ctxCreateParam
         pctx, ctxCreateParams, flags, dev)
 
 
-cdef CUresult _cuCtxDestroy_v2(CUcontext ctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxDestroy_v2(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxDestroy_v2
     _check_or_init_driver()
     if __cuCtxDestroy_v2 == NULL:
@@ -3913,7 +3913,7 @@ cdef CUresult _cuCtxDestroy_v2(CUcontext ctx) except?<CUresult>_CURESULT_INTERNA
         ctx)
 
 
-cdef CUresult _cuCtxPushCurrent_v2(CUcontext ctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxPushCurrent_v2(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxPushCurrent_v2
     _check_or_init_driver()
     if __cuCtxPushCurrent_v2 == NULL:
@@ -3923,7 +3923,7 @@ cdef CUresult _cuCtxPushCurrent_v2(CUcontext ctx) except?<CUresult>_CURESULT_INT
         ctx)
 
 
-cdef CUresult _cuCtxPopCurrent_v2(CUcontext* pctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxPopCurrent_v2(CUcontext* pctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxPopCurrent_v2
     _check_or_init_driver()
     if __cuCtxPopCurrent_v2 == NULL:
@@ -3933,7 +3933,7 @@ cdef CUresult _cuCtxPopCurrent_v2(CUcontext* pctx) except?<CUresult>_CURESULT_IN
         pctx)
 
 
-cdef CUresult _cuCtxSetCurrent(CUcontext ctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxSetCurrent(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxSetCurrent
     _check_or_init_driver()
     if __cuCtxSetCurrent == NULL:
@@ -3943,7 +3943,7 @@ cdef CUresult _cuCtxSetCurrent(CUcontext ctx) except?<CUresult>_CURESULT_INTERNA
         ctx)
 
 
-cdef CUresult _cuCtxGetCurrent(CUcontext* pctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetCurrent(CUcontext* pctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetCurrent
     _check_or_init_driver()
     if __cuCtxGetCurrent == NULL:
@@ -3953,7 +3953,7 @@ cdef CUresult _cuCtxGetCurrent(CUcontext* pctx) except?<CUresult>_CURESULT_INTER
         pctx)
 
 
-cdef CUresult _cuCtxGetDevice(CUdevice* device) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetDevice(CUdevice* device) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetDevice
     _check_or_init_driver()
     if __cuCtxGetDevice == NULL:
@@ -3963,7 +3963,7 @@ cdef CUresult _cuCtxGetDevice(CUdevice* device) except?<CUresult>_CURESULT_INTER
         device)
 
 
-cdef CUresult _cuCtxGetFlags(unsigned int* flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetFlags(unsigned int* flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetFlags
     _check_or_init_driver()
     if __cuCtxGetFlags == NULL:
@@ -3973,7 +3973,7 @@ cdef CUresult _cuCtxGetFlags(unsigned int* flags) except?<CUresult>_CURESULT_INT
         flags)
 
 
-cdef CUresult _cuCtxSetFlags(unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxSetFlags(unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxSetFlags
     _check_or_init_driver()
     if __cuCtxSetFlags == NULL:
@@ -3983,7 +3983,7 @@ cdef CUresult _cuCtxSetFlags(unsigned int flags) except?<CUresult>_CURESULT_INTE
         flags)
 
 
-cdef CUresult _cuCtxGetId(CUcontext ctx, unsigned long long* ctxId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetId(CUcontext ctx, unsigned long long* ctxId) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetId
     _check_or_init_driver()
     if __cuCtxGetId == NULL:
@@ -3993,7 +3993,7 @@ cdef CUresult _cuCtxGetId(CUcontext ctx, unsigned long long* ctxId) except?<CUre
         ctx, ctxId)
 
 
-cdef CUresult _cuCtxSynchronize() except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxSynchronize() except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxSynchronize
     _check_or_init_driver()
     if __cuCtxSynchronize == NULL:
@@ -4003,7 +4003,7 @@ cdef CUresult _cuCtxSynchronize() except?<CUresult>_CURESULT_INTERNAL_LOADING_ER
         )
 
 
-cdef CUresult _cuCtxSetLimit(CUlimit limit, size_t value) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxSetLimit(CUlimit limit, size_t value) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxSetLimit
     _check_or_init_driver()
     if __cuCtxSetLimit == NULL:
@@ -4013,7 +4013,7 @@ cdef CUresult _cuCtxSetLimit(CUlimit limit, size_t value) except?<CUresult>_CURE
         limit, value)
 
 
-cdef CUresult _cuCtxGetLimit(size_t* pvalue, CUlimit limit) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetLimit(size_t* pvalue, CUlimit limit) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetLimit
     _check_or_init_driver()
     if __cuCtxGetLimit == NULL:
@@ -4023,7 +4023,7 @@ cdef CUresult _cuCtxGetLimit(size_t* pvalue, CUlimit limit) except?<CUresult>_CU
         pvalue, limit)
 
 
-cdef CUresult _cuCtxGetCacheConfig(CUfunc_cache* pconfig) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetCacheConfig(CUfunc_cache* pconfig) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetCacheConfig
     _check_or_init_driver()
     if __cuCtxGetCacheConfig == NULL:
@@ -4033,7 +4033,7 @@ cdef CUresult _cuCtxGetCacheConfig(CUfunc_cache* pconfig) except?<CUresult>_CURE
         pconfig)
 
 
-cdef CUresult _cuCtxSetCacheConfig(CUfunc_cache config) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxSetCacheConfig(CUfunc_cache config) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxSetCacheConfig
     _check_or_init_driver()
     if __cuCtxSetCacheConfig == NULL:
@@ -4043,7 +4043,7 @@ cdef CUresult _cuCtxSetCacheConfig(CUfunc_cache config) except?<CUresult>_CURESU
         config)
 
 
-cdef CUresult _cuCtxGetApiVersion(CUcontext ctx, unsigned int* version) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetApiVersion(CUcontext ctx, unsigned int* version) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetApiVersion
     _check_or_init_driver()
     if __cuCtxGetApiVersion == NULL:
@@ -4053,7 +4053,7 @@ cdef CUresult _cuCtxGetApiVersion(CUcontext ctx, unsigned int* version) except?<
         ctx, version)
 
 
-cdef CUresult _cuCtxGetStreamPriorityRange(int* leastPriority, int* greatestPriority) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetStreamPriorityRange(int* leastPriority, int* greatestPriority) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetStreamPriorityRange
     _check_or_init_driver()
     if __cuCtxGetStreamPriorityRange == NULL:
@@ -4063,7 +4063,7 @@ cdef CUresult _cuCtxGetStreamPriorityRange(int* leastPriority, int* greatestPrio
         leastPriority, greatestPriority)
 
 
-cdef CUresult _cuCtxResetPersistingL2Cache() except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxResetPersistingL2Cache() except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxResetPersistingL2Cache
     _check_or_init_driver()
     if __cuCtxResetPersistingL2Cache == NULL:
@@ -4073,7 +4073,7 @@ cdef CUresult _cuCtxResetPersistingL2Cache() except?<CUresult>_CURESULT_INTERNAL
         )
 
 
-cdef CUresult _cuCtxGetExecAffinity(CUexecAffinityParam* pExecAffinity, CUexecAffinityType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetExecAffinity(CUexecAffinityParam* pExecAffinity, CUexecAffinityType type) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetExecAffinity
     _check_or_init_driver()
     if __cuCtxGetExecAffinity == NULL:
@@ -4083,7 +4083,7 @@ cdef CUresult _cuCtxGetExecAffinity(CUexecAffinityParam* pExecAffinity, CUexecAf
         pExecAffinity, type)
 
 
-cdef CUresult _cuCtxRecordEvent(CUcontext hCtx, CUevent hEvent) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxRecordEvent(CUcontext hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxRecordEvent
     _check_or_init_driver()
     if __cuCtxRecordEvent == NULL:
@@ -4093,7 +4093,7 @@ cdef CUresult _cuCtxRecordEvent(CUcontext hCtx, CUevent hEvent) except?<CUresult
         hCtx, hEvent)
 
 
-cdef CUresult _cuCtxWaitEvent(CUcontext hCtx, CUevent hEvent) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxWaitEvent(CUcontext hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxWaitEvent
     _check_or_init_driver()
     if __cuCtxWaitEvent == NULL:
@@ -4103,7 +4103,7 @@ cdef CUresult _cuCtxWaitEvent(CUcontext hCtx, CUevent hEvent) except?<CUresult>_
         hCtx, hEvent)
 
 
-cdef CUresult _cuCtxAttach(CUcontext* pctx, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxAttach(CUcontext* pctx, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxAttach
     _check_or_init_driver()
     if __cuCtxAttach == NULL:
@@ -4113,7 +4113,7 @@ cdef CUresult _cuCtxAttach(CUcontext* pctx, unsigned int flags) except?<CUresult
         pctx, flags)
 
 
-cdef CUresult _cuCtxDetach(CUcontext ctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxDetach(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxDetach
     _check_or_init_driver()
     if __cuCtxDetach == NULL:
@@ -4123,7 +4123,7 @@ cdef CUresult _cuCtxDetach(CUcontext ctx) except?<CUresult>_CURESULT_INTERNAL_LO
         ctx)
 
 
-cdef CUresult _cuCtxGetSharedMemConfig(CUsharedconfig* pConfig) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetSharedMemConfig(CUsharedconfig* pConfig) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetSharedMemConfig
     _check_or_init_driver()
     if __cuCtxGetSharedMemConfig == NULL:
@@ -4133,7 +4133,7 @@ cdef CUresult _cuCtxGetSharedMemConfig(CUsharedconfig* pConfig) except?<CUresult
         pConfig)
 
 
-cdef CUresult _cuCtxSetSharedMemConfig(CUsharedconfig config) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxSetSharedMemConfig(CUsharedconfig config) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxSetSharedMemConfig
     _check_or_init_driver()
     if __cuCtxSetSharedMemConfig == NULL:
@@ -4143,7 +4143,7 @@ cdef CUresult _cuCtxSetSharedMemConfig(CUsharedconfig config) except?<CUresult>_
         config)
 
 
-cdef CUresult _cuModuleLoad(CUmodule* module, const char* fname) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleLoad(CUmodule* module, const char* fname) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleLoad
     _check_or_init_driver()
     if __cuModuleLoad == NULL:
@@ -4153,7 +4153,7 @@ cdef CUresult _cuModuleLoad(CUmodule* module, const char* fname) except?<CUresul
         module, fname)
 
 
-cdef CUresult _cuModuleLoadData(CUmodule* module, const void* image) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleLoadData(CUmodule* module, const void* image) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleLoadData
     _check_or_init_driver()
     if __cuModuleLoadData == NULL:
@@ -4163,7 +4163,7 @@ cdef CUresult _cuModuleLoadData(CUmodule* module, const void* image) except?<CUr
         module, image)
 
 
-cdef CUresult _cuModuleLoadDataEx(CUmodule* module, const void* image, unsigned int numOptions, CUjit_option* options, void** optionValues) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleLoadDataEx(CUmodule* module, const void* image, unsigned int numOptions, CUjit_option* options, void** optionValues) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleLoadDataEx
     _check_or_init_driver()
     if __cuModuleLoadDataEx == NULL:
@@ -4173,7 +4173,7 @@ cdef CUresult _cuModuleLoadDataEx(CUmodule* module, const void* image, unsigned 
         module, image, numOptions, options, optionValues)
 
 
-cdef CUresult _cuModuleLoadFatBinary(CUmodule* module, const void* fatCubin) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleLoadFatBinary(CUmodule* module, const void* fatCubin) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleLoadFatBinary
     _check_or_init_driver()
     if __cuModuleLoadFatBinary == NULL:
@@ -4183,7 +4183,7 @@ cdef CUresult _cuModuleLoadFatBinary(CUmodule* module, const void* fatCubin) exc
         module, fatCubin)
 
 
-cdef CUresult _cuModuleUnload(CUmodule hmod) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleUnload(CUmodule hmod) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleUnload
     _check_or_init_driver()
     if __cuModuleUnload == NULL:
@@ -4193,7 +4193,7 @@ cdef CUresult _cuModuleUnload(CUmodule hmod) except?<CUresult>_CURESULT_INTERNAL
         hmod)
 
 
-cdef CUresult _cuModuleGetLoadingMode(CUmoduleLoadingMode* mode) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleGetLoadingMode(CUmoduleLoadingMode* mode) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleGetLoadingMode
     _check_or_init_driver()
     if __cuModuleGetLoadingMode == NULL:
@@ -4203,7 +4203,7 @@ cdef CUresult _cuModuleGetLoadingMode(CUmoduleLoadingMode* mode) except?<CUresul
         mode)
 
 
-cdef CUresult _cuModuleGetFunction(CUfunction* hfunc, CUmodule hmod, const char* name) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleGetFunction(CUfunction* hfunc, CUmodule hmod, const char* name) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleGetFunction
     _check_or_init_driver()
     if __cuModuleGetFunction == NULL:
@@ -4213,7 +4213,7 @@ cdef CUresult _cuModuleGetFunction(CUfunction* hfunc, CUmodule hmod, const char*
         hfunc, hmod, name)
 
 
-cdef CUresult _cuModuleGetFunctionCount(unsigned int* count, CUmodule mod) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleGetFunctionCount(unsigned int* count, CUmodule mod) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleGetFunctionCount
     _check_or_init_driver()
     if __cuModuleGetFunctionCount == NULL:
@@ -4223,7 +4223,7 @@ cdef CUresult _cuModuleGetFunctionCount(unsigned int* count, CUmodule mod) excep
         count, mod)
 
 
-cdef CUresult _cuModuleEnumerateFunctions(CUfunction* functions, unsigned int numFunctions, CUmodule mod) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleEnumerateFunctions(CUfunction* functions, unsigned int numFunctions, CUmodule mod) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleEnumerateFunctions
     _check_or_init_driver()
     if __cuModuleEnumerateFunctions == NULL:
@@ -4233,7 +4233,7 @@ cdef CUresult _cuModuleEnumerateFunctions(CUfunction* functions, unsigned int nu
         functions, numFunctions, mod)
 
 
-cdef CUresult _cuModuleGetGlobal_v2(CUdeviceptr* dptr, size_t* bytes, CUmodule hmod, const char* name) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleGetGlobal_v2(CUdeviceptr* dptr, size_t* bytes, CUmodule hmod, const char* name) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleGetGlobal_v2
     _check_or_init_driver()
     if __cuModuleGetGlobal_v2 == NULL:
@@ -4243,7 +4243,7 @@ cdef CUresult _cuModuleGetGlobal_v2(CUdeviceptr* dptr, size_t* bytes, CUmodule h
         dptr, bytes, hmod, name)
 
 
-cdef CUresult _cuLinkCreate_v2(unsigned int numOptions, CUjit_option* options, void** optionValues, CUlinkState* stateOut) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLinkCreate_v2(unsigned int numOptions, CUjit_option* options, void** optionValues, CUlinkState* stateOut) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLinkCreate_v2
     _check_or_init_driver()
     if __cuLinkCreate_v2 == NULL:
@@ -4253,7 +4253,7 @@ cdef CUresult _cuLinkCreate_v2(unsigned int numOptions, CUjit_option* options, v
         numOptions, options, optionValues, stateOut)
 
 
-cdef CUresult _cuLinkAddData_v2(CUlinkState state, CUjitInputType type, void* data, size_t size, const char* name, unsigned int numOptions, CUjit_option* options, void** optionValues) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLinkAddData_v2(CUlinkState state, CUjitInputType type, void* data, size_t size, const char* name, unsigned int numOptions, CUjit_option* options, void** optionValues) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLinkAddData_v2
     _check_or_init_driver()
     if __cuLinkAddData_v2 == NULL:
@@ -4263,7 +4263,7 @@ cdef CUresult _cuLinkAddData_v2(CUlinkState state, CUjitInputType type, void* da
         state, type, data, size, name, numOptions, options, optionValues)
 
 
-cdef CUresult _cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, const char* path, unsigned int numOptions, CUjit_option* options, void** optionValues) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, const char* path, unsigned int numOptions, CUjit_option* options, void** optionValues) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLinkAddFile_v2
     _check_or_init_driver()
     if __cuLinkAddFile_v2 == NULL:
@@ -4273,7 +4273,7 @@ cdef CUresult _cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, const ch
         state, type, path, numOptions, options, optionValues)
 
 
-cdef CUresult _cuLinkComplete(CUlinkState state, void** cubinOut, size_t* sizeOut) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLinkComplete(CUlinkState state, void** cubinOut, size_t* sizeOut) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLinkComplete
     _check_or_init_driver()
     if __cuLinkComplete == NULL:
@@ -4283,7 +4283,7 @@ cdef CUresult _cuLinkComplete(CUlinkState state, void** cubinOut, size_t* sizeOu
         state, cubinOut, sizeOut)
 
 
-cdef CUresult _cuLinkDestroy(CUlinkState state) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLinkDestroy(CUlinkState state) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLinkDestroy
     _check_or_init_driver()
     if __cuLinkDestroy == NULL:
@@ -4293,7 +4293,7 @@ cdef CUresult _cuLinkDestroy(CUlinkState state) except?<CUresult>_CURESULT_INTER
         state)
 
 
-cdef CUresult _cuModuleGetTexRef(CUtexref* pTexRef, CUmodule hmod, const char* name) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleGetTexRef(CUtexref* pTexRef, CUmodule hmod, const char* name) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleGetTexRef
     _check_or_init_driver()
     if __cuModuleGetTexRef == NULL:
@@ -4303,7 +4303,7 @@ cdef CUresult _cuModuleGetTexRef(CUtexref* pTexRef, CUmodule hmod, const char* n
         pTexRef, hmod, name)
 
 
-cdef CUresult _cuModuleGetSurfRef(CUsurfref* pSurfRef, CUmodule hmod, const char* name) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuModuleGetSurfRef(CUsurfref* pSurfRef, CUmodule hmod, const char* name) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuModuleGetSurfRef
     _check_or_init_driver()
     if __cuModuleGetSurfRef == NULL:
@@ -4313,7 +4313,7 @@ cdef CUresult _cuModuleGetSurfRef(CUsurfref* pSurfRef, CUmodule hmod, const char
         pSurfRef, hmod, name)
 
 
-cdef CUresult _cuLibraryLoadData(CUlibrary* library, const void* code, CUjit_option* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, CUlibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLibraryLoadData(CUlibrary* library, const void* code, CUjit_option* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, CUlibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLibraryLoadData
     _check_or_init_driver()
     if __cuLibraryLoadData == NULL:
@@ -4323,7 +4323,7 @@ cdef CUresult _cuLibraryLoadData(CUlibrary* library, const void* code, CUjit_opt
         library, code, jitOptions, jitOptionsValues, numJitOptions, libraryOptions, libraryOptionValues, numLibraryOptions)
 
 
-cdef CUresult _cuLibraryLoadFromFile(CUlibrary* library, const char* fileName, CUjit_option* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, CUlibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLibraryLoadFromFile(CUlibrary* library, const char* fileName, CUjit_option* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, CUlibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLibraryLoadFromFile
     _check_or_init_driver()
     if __cuLibraryLoadFromFile == NULL:
@@ -4333,7 +4333,7 @@ cdef CUresult _cuLibraryLoadFromFile(CUlibrary* library, const char* fileName, C
         library, fileName, jitOptions, jitOptionsValues, numJitOptions, libraryOptions, libraryOptionValues, numLibraryOptions)
 
 
-cdef CUresult _cuLibraryUnload(CUlibrary library) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLibraryUnload(CUlibrary library) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLibraryUnload
     _check_or_init_driver()
     if __cuLibraryUnload == NULL:
@@ -4343,7 +4343,7 @@ cdef CUresult _cuLibraryUnload(CUlibrary library) except?<CUresult>_CURESULT_INT
         library)
 
 
-cdef CUresult _cuLibraryGetKernel(CUkernel* pKernel, CUlibrary library, const char* name) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLibraryGetKernel(CUkernel* pKernel, CUlibrary library, const char* name) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLibraryGetKernel
     _check_or_init_driver()
     if __cuLibraryGetKernel == NULL:
@@ -4353,7 +4353,7 @@ cdef CUresult _cuLibraryGetKernel(CUkernel* pKernel, CUlibrary library, const ch
         pKernel, library, name)
 
 
-cdef CUresult _cuLibraryGetKernelCount(unsigned int* count, CUlibrary lib) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLibraryGetKernelCount(unsigned int* count, CUlibrary lib) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLibraryGetKernelCount
     _check_or_init_driver()
     if __cuLibraryGetKernelCount == NULL:
@@ -4363,7 +4363,7 @@ cdef CUresult _cuLibraryGetKernelCount(unsigned int* count, CUlibrary lib) excep
         count, lib)
 
 
-cdef CUresult _cuLibraryEnumerateKernels(CUkernel* kernels, unsigned int numKernels, CUlibrary lib) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLibraryEnumerateKernels(CUkernel* kernels, unsigned int numKernels, CUlibrary lib) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLibraryEnumerateKernels
     _check_or_init_driver()
     if __cuLibraryEnumerateKernels == NULL:
@@ -4373,7 +4373,7 @@ cdef CUresult _cuLibraryEnumerateKernels(CUkernel* kernels, unsigned int numKern
         kernels, numKernels, lib)
 
 
-cdef CUresult _cuLibraryGetModule(CUmodule* pMod, CUlibrary library) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLibraryGetModule(CUmodule* pMod, CUlibrary library) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLibraryGetModule
     _check_or_init_driver()
     if __cuLibraryGetModule == NULL:
@@ -4383,7 +4383,7 @@ cdef CUresult _cuLibraryGetModule(CUmodule* pMod, CUlibrary library) except?<CUr
         pMod, library)
 
 
-cdef CUresult _cuKernelGetFunction(CUfunction* pFunc, CUkernel kernel) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuKernelGetFunction(CUfunction* pFunc, CUkernel kernel) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuKernelGetFunction
     _check_or_init_driver()
     if __cuKernelGetFunction == NULL:
@@ -4393,7 +4393,7 @@ cdef CUresult _cuKernelGetFunction(CUfunction* pFunc, CUkernel kernel) except?<C
         pFunc, kernel)
 
 
-cdef CUresult _cuKernelGetLibrary(CUlibrary* pLib, CUkernel kernel) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuKernelGetLibrary(CUlibrary* pLib, CUkernel kernel) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuKernelGetLibrary
     _check_or_init_driver()
     if __cuKernelGetLibrary == NULL:
@@ -4403,7 +4403,7 @@ cdef CUresult _cuKernelGetLibrary(CUlibrary* pLib, CUkernel kernel) except?<CUre
         pLib, kernel)
 
 
-cdef CUresult _cuLibraryGetGlobal(CUdeviceptr* dptr, size_t* bytes, CUlibrary library, const char* name) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLibraryGetGlobal(CUdeviceptr* dptr, size_t* bytes, CUlibrary library, const char* name) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLibraryGetGlobal
     _check_or_init_driver()
     if __cuLibraryGetGlobal == NULL:
@@ -4413,7 +4413,7 @@ cdef CUresult _cuLibraryGetGlobal(CUdeviceptr* dptr, size_t* bytes, CUlibrary li
         dptr, bytes, library, name)
 
 
-cdef CUresult _cuLibraryGetManaged(CUdeviceptr* dptr, size_t* bytes, CUlibrary library, const char* name) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLibraryGetManaged(CUdeviceptr* dptr, size_t* bytes, CUlibrary library, const char* name) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLibraryGetManaged
     _check_or_init_driver()
     if __cuLibraryGetManaged == NULL:
@@ -4423,7 +4423,7 @@ cdef CUresult _cuLibraryGetManaged(CUdeviceptr* dptr, size_t* bytes, CUlibrary l
         dptr, bytes, library, name)
 
 
-cdef CUresult _cuLibraryGetUnifiedFunction(void** fptr, CUlibrary library, const char* symbol) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLibraryGetUnifiedFunction(void** fptr, CUlibrary library, const char* symbol) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLibraryGetUnifiedFunction
     _check_or_init_driver()
     if __cuLibraryGetUnifiedFunction == NULL:
@@ -4433,7 +4433,7 @@ cdef CUresult _cuLibraryGetUnifiedFunction(void** fptr, CUlibrary library, const
         fptr, library, symbol)
 
 
-cdef CUresult _cuKernelGetAttribute(int* pi, CUfunction_attribute attrib, CUkernel kernel, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuKernelGetAttribute(int* pi, CUfunction_attribute attrib, CUkernel kernel, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuKernelGetAttribute
     _check_or_init_driver()
     if __cuKernelGetAttribute == NULL:
@@ -4443,7 +4443,7 @@ cdef CUresult _cuKernelGetAttribute(int* pi, CUfunction_attribute attrib, CUkern
         pi, attrib, kernel, dev)
 
 
-cdef CUresult _cuKernelSetAttribute(CUfunction_attribute attrib, int val, CUkernel kernel, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuKernelSetAttribute(CUfunction_attribute attrib, int val, CUkernel kernel, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuKernelSetAttribute
     _check_or_init_driver()
     if __cuKernelSetAttribute == NULL:
@@ -4453,7 +4453,7 @@ cdef CUresult _cuKernelSetAttribute(CUfunction_attribute attrib, int val, CUkern
         attrib, val, kernel, dev)
 
 
-cdef CUresult _cuKernelSetCacheConfig(CUkernel kernel, CUfunc_cache config, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuKernelSetCacheConfig(CUkernel kernel, CUfunc_cache config, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuKernelSetCacheConfig
     _check_or_init_driver()
     if __cuKernelSetCacheConfig == NULL:
@@ -4463,7 +4463,7 @@ cdef CUresult _cuKernelSetCacheConfig(CUkernel kernel, CUfunc_cache config, CUde
         kernel, config, dev)
 
 
-cdef CUresult _cuKernelGetName(const char** name, CUkernel hfunc) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuKernelGetName(const char** name, CUkernel hfunc) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuKernelGetName
     _check_or_init_driver()
     if __cuKernelGetName == NULL:
@@ -4473,7 +4473,7 @@ cdef CUresult _cuKernelGetName(const char** name, CUkernel hfunc) except?<CUresu
         name, hfunc)
 
 
-cdef CUresult _cuKernelGetParamInfo(CUkernel kernel, size_t paramIndex, size_t* paramOffset, size_t* paramSize) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuKernelGetParamInfo(CUkernel kernel, size_t paramIndex, size_t* paramOffset, size_t* paramSize) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuKernelGetParamInfo
     _check_or_init_driver()
     if __cuKernelGetParamInfo == NULL:
@@ -4483,7 +4483,7 @@ cdef CUresult _cuKernelGetParamInfo(CUkernel kernel, size_t paramIndex, size_t* 
         kernel, paramIndex, paramOffset, paramSize)
 
 
-cdef CUresult _cuMemGetInfo_v2(size_t* free, size_t* total) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemGetInfo_v2(size_t* free, size_t* total) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemGetInfo_v2
     _check_or_init_driver()
     if __cuMemGetInfo_v2 == NULL:
@@ -4493,7 +4493,7 @@ cdef CUresult _cuMemGetInfo_v2(size_t* free, size_t* total) except?<CUresult>_CU
         free, total)
 
 
-cdef CUresult _cuMemAlloc_v2(CUdeviceptr* dptr, size_t bytesize) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemAlloc_v2(CUdeviceptr* dptr, size_t bytesize) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemAlloc_v2
     _check_or_init_driver()
     if __cuMemAlloc_v2 == NULL:
@@ -4503,7 +4503,7 @@ cdef CUresult _cuMemAlloc_v2(CUdeviceptr* dptr, size_t bytesize) except?<CUresul
         dptr, bytesize)
 
 
-cdef CUresult _cuMemAllocPitch_v2(CUdeviceptr* dptr, size_t* pPitch, size_t WidthInBytes, size_t Height, unsigned int ElementSizeBytes) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemAllocPitch_v2(CUdeviceptr* dptr, size_t* pPitch, size_t WidthInBytes, size_t Height, unsigned int ElementSizeBytes) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemAllocPitch_v2
     _check_or_init_driver()
     if __cuMemAllocPitch_v2 == NULL:
@@ -4513,7 +4513,7 @@ cdef CUresult _cuMemAllocPitch_v2(CUdeviceptr* dptr, size_t* pPitch, size_t Widt
         dptr, pPitch, WidthInBytes, Height, ElementSizeBytes)
 
 
-cdef CUresult _cuMemFree_v2(CUdeviceptr dptr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemFree_v2(CUdeviceptr dptr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemFree_v2
     _check_or_init_driver()
     if __cuMemFree_v2 == NULL:
@@ -4523,7 +4523,7 @@ cdef CUresult _cuMemFree_v2(CUdeviceptr dptr) except?<CUresult>_CURESULT_INTERNA
         dptr)
 
 
-cdef CUresult _cuMemGetAddressRange_v2(CUdeviceptr* pbase, size_t* psize, CUdeviceptr dptr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemGetAddressRange_v2(CUdeviceptr* pbase, size_t* psize, CUdeviceptr dptr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemGetAddressRange_v2
     _check_or_init_driver()
     if __cuMemGetAddressRange_v2 == NULL:
@@ -4533,7 +4533,7 @@ cdef CUresult _cuMemGetAddressRange_v2(CUdeviceptr* pbase, size_t* psize, CUdevi
         pbase, psize, dptr)
 
 
-cdef CUresult _cuMemAllocHost_v2(void** pp, size_t bytesize) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemAllocHost_v2(void** pp, size_t bytesize) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemAllocHost_v2
     _check_or_init_driver()
     if __cuMemAllocHost_v2 == NULL:
@@ -4543,7 +4543,7 @@ cdef CUresult _cuMemAllocHost_v2(void** pp, size_t bytesize) except?<CUresult>_C
         pp, bytesize)
 
 
-cdef CUresult _cuMemFreeHost(void* p) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemFreeHost(void* p) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemFreeHost
     _check_or_init_driver()
     if __cuMemFreeHost == NULL:
@@ -4553,7 +4553,7 @@ cdef CUresult _cuMemFreeHost(void* p) except?<CUresult>_CURESULT_INTERNAL_LOADIN
         p)
 
 
-cdef CUresult _cuMemHostAlloc(void** pp, size_t bytesize, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemHostAlloc(void** pp, size_t bytesize, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemHostAlloc
     _check_or_init_driver()
     if __cuMemHostAlloc == NULL:
@@ -4563,7 +4563,7 @@ cdef CUresult _cuMemHostAlloc(void** pp, size_t bytesize, unsigned int Flags) ex
         pp, bytesize, Flags)
 
 
-cdef CUresult _cuMemHostGetDevicePointer_v2(CUdeviceptr* pdptr, void* p, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemHostGetDevicePointer_v2(CUdeviceptr* pdptr, void* p, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemHostGetDevicePointer_v2
     _check_or_init_driver()
     if __cuMemHostGetDevicePointer_v2 == NULL:
@@ -4573,7 +4573,7 @@ cdef CUresult _cuMemHostGetDevicePointer_v2(CUdeviceptr* pdptr, void* p, unsigne
         pdptr, p, Flags)
 
 
-cdef CUresult _cuMemHostGetFlags(unsigned int* pFlags, void* p) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemHostGetFlags(unsigned int* pFlags, void* p) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemHostGetFlags
     _check_or_init_driver()
     if __cuMemHostGetFlags == NULL:
@@ -4583,7 +4583,7 @@ cdef CUresult _cuMemHostGetFlags(unsigned int* pFlags, void* p) except?<CUresult
         pFlags, p)
 
 
-cdef CUresult _cuMemAllocManaged(CUdeviceptr* dptr, size_t bytesize, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemAllocManaged(CUdeviceptr* dptr, size_t bytesize, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemAllocManaged
     _check_or_init_driver()
     if __cuMemAllocManaged == NULL:
@@ -4593,7 +4593,7 @@ cdef CUresult _cuMemAllocManaged(CUdeviceptr* dptr, size_t bytesize, unsigned in
         dptr, bytesize, flags)
 
 
-cdef CUresult _cuDeviceRegisterAsyncNotification(CUdevice device, CUasyncCallback callbackFunc, void* userData, CUasyncCallbackHandle* callback) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceRegisterAsyncNotification(CUdevice device, CUasyncCallback callbackFunc, void* userData, CUasyncCallbackHandle* callback) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceRegisterAsyncNotification
     _check_or_init_driver()
     if __cuDeviceRegisterAsyncNotification == NULL:
@@ -4603,7 +4603,7 @@ cdef CUresult _cuDeviceRegisterAsyncNotification(CUdevice device, CUasyncCallbac
         device, callbackFunc, userData, callback)
 
 
-cdef CUresult _cuDeviceUnregisterAsyncNotification(CUdevice device, CUasyncCallbackHandle callback) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceUnregisterAsyncNotification(CUdevice device, CUasyncCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceUnregisterAsyncNotification
     _check_or_init_driver()
     if __cuDeviceUnregisterAsyncNotification == NULL:
@@ -4613,7 +4613,7 @@ cdef CUresult _cuDeviceUnregisterAsyncNotification(CUdevice device, CUasyncCallb
         device, callback)
 
 
-cdef CUresult _cuDeviceGetByPCIBusId(CUdevice* dev, const char* pciBusId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetByPCIBusId(CUdevice* dev, const char* pciBusId) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetByPCIBusId
     _check_or_init_driver()
     if __cuDeviceGetByPCIBusId == NULL:
@@ -4623,7 +4623,7 @@ cdef CUresult _cuDeviceGetByPCIBusId(CUdevice* dev, const char* pciBusId) except
         dev, pciBusId)
 
 
-cdef CUresult _cuDeviceGetPCIBusId(char* pciBusId, int len, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetPCIBusId(char* pciBusId, int len, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetPCIBusId
     _check_or_init_driver()
     if __cuDeviceGetPCIBusId == NULL:
@@ -4633,7 +4633,7 @@ cdef CUresult _cuDeviceGetPCIBusId(char* pciBusId, int len, CUdevice dev) except
         pciBusId, len, dev)
 
 
-cdef CUresult _cuIpcGetEventHandle(CUipcEventHandle* pHandle, CUevent event) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuIpcGetEventHandle(CUipcEventHandle* pHandle, CUevent event) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuIpcGetEventHandle
     _check_or_init_driver()
     if __cuIpcGetEventHandle == NULL:
@@ -4643,7 +4643,7 @@ cdef CUresult _cuIpcGetEventHandle(CUipcEventHandle* pHandle, CUevent event) exc
         pHandle, event)
 
 
-cdef CUresult _cuIpcOpenEventHandle(CUevent* phEvent, CUipcEventHandle handle) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuIpcOpenEventHandle(CUevent* phEvent, CUipcEventHandle handle) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuIpcOpenEventHandle
     _check_or_init_driver()
     if __cuIpcOpenEventHandle == NULL:
@@ -4653,7 +4653,7 @@ cdef CUresult _cuIpcOpenEventHandle(CUevent* phEvent, CUipcEventHandle handle) e
         phEvent, handle)
 
 
-cdef CUresult _cuIpcGetMemHandle(CUipcMemHandle* pHandle, CUdeviceptr dptr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuIpcGetMemHandle(CUipcMemHandle* pHandle, CUdeviceptr dptr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuIpcGetMemHandle
     _check_or_init_driver()
     if __cuIpcGetMemHandle == NULL:
@@ -4663,7 +4663,7 @@ cdef CUresult _cuIpcGetMemHandle(CUipcMemHandle* pHandle, CUdeviceptr dptr) exce
         pHandle, dptr)
 
 
-cdef CUresult _cuIpcOpenMemHandle_v2(CUdeviceptr* pdptr, CUipcMemHandle handle, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuIpcOpenMemHandle_v2(CUdeviceptr* pdptr, CUipcMemHandle handle, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuIpcOpenMemHandle_v2
     _check_or_init_driver()
     if __cuIpcOpenMemHandle_v2 == NULL:
@@ -4673,7 +4673,7 @@ cdef CUresult _cuIpcOpenMemHandle_v2(CUdeviceptr* pdptr, CUipcMemHandle handle, 
         pdptr, handle, Flags)
 
 
-cdef CUresult _cuIpcCloseMemHandle(CUdeviceptr dptr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuIpcCloseMemHandle(CUdeviceptr dptr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuIpcCloseMemHandle
     _check_or_init_driver()
     if __cuIpcCloseMemHandle == NULL:
@@ -4683,7 +4683,7 @@ cdef CUresult _cuIpcCloseMemHandle(CUdeviceptr dptr) except?<CUresult>_CURESULT_
         dptr)
 
 
-cdef CUresult _cuMemHostRegister_v2(void* p, size_t bytesize, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemHostRegister_v2(void* p, size_t bytesize, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemHostRegister_v2
     _check_or_init_driver()
     if __cuMemHostRegister_v2 == NULL:
@@ -4693,7 +4693,7 @@ cdef CUresult _cuMemHostRegister_v2(void* p, size_t bytesize, unsigned int Flags
         p, bytesize, Flags)
 
 
-cdef CUresult _cuMemHostUnregister(void* p) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemHostUnregister(void* p) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemHostUnregister
     _check_or_init_driver()
     if __cuMemHostUnregister == NULL:
@@ -4703,7 +4703,7 @@ cdef CUresult _cuMemHostUnregister(void* p) except?<CUresult>_CURESULT_INTERNAL_
         p)
 
 
-cdef CUresult _cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpy
     _check_or_init_driver()
     if __cuMemcpy == NULL:
@@ -4713,7 +4713,7 @@ cdef CUresult _cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount) exce
         dst, src, ByteCount)
 
 
-cdef CUresult _cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CUdeviceptr srcDevice, CUcontext srcContext, size_t ByteCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CUdeviceptr srcDevice, CUcontext srcContext, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyPeer
     _check_or_init_driver()
     if __cuMemcpyPeer == NULL:
@@ -4723,7 +4723,7 @@ cdef CUresult _cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CUdevic
         dstDevice, dstContext, srcDevice, srcContext, ByteCount)
 
 
-cdef CUresult _cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void* srcHost, size_t ByteCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void* srcHost, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyHtoD_v2
     _check_or_init_driver()
     if __cuMemcpyHtoD_v2 == NULL:
@@ -4733,7 +4733,7 @@ cdef CUresult _cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void* srcHost, size_
         dstDevice, srcHost, ByteCount)
 
 
-cdef CUresult _cuMemcpyDtoH_v2(void* dstHost, CUdeviceptr srcDevice, size_t ByteCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyDtoH_v2(void* dstHost, CUdeviceptr srcDevice, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyDtoH_v2
     _check_or_init_driver()
     if __cuMemcpyDtoH_v2 == NULL:
@@ -4743,7 +4743,7 @@ cdef CUresult _cuMemcpyDtoH_v2(void* dstHost, CUdeviceptr srcDevice, size_t Byte
         dstHost, srcDevice, ByteCount)
 
 
-cdef CUresult _cuMemcpyDtoD_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size_t ByteCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyDtoD_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyDtoD_v2
     _check_or_init_driver()
     if __cuMemcpyDtoD_v2 == NULL:
@@ -4753,7 +4753,7 @@ cdef CUresult _cuMemcpyDtoD_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice, siz
         dstDevice, srcDevice, ByteCount)
 
 
-cdef CUresult _cuMemcpyDtoA_v2(CUarray dstArray, size_t dstOffset, CUdeviceptr srcDevice, size_t ByteCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyDtoA_v2(CUarray dstArray, size_t dstOffset, CUdeviceptr srcDevice, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyDtoA_v2
     _check_or_init_driver()
     if __cuMemcpyDtoA_v2 == NULL:
@@ -4763,7 +4763,7 @@ cdef CUresult _cuMemcpyDtoA_v2(CUarray dstArray, size_t dstOffset, CUdeviceptr s
         dstArray, dstOffset, srcDevice, ByteCount)
 
 
-cdef CUresult _cuMemcpyAtoD_v2(CUdeviceptr dstDevice, CUarray srcArray, size_t srcOffset, size_t ByteCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyAtoD_v2(CUdeviceptr dstDevice, CUarray srcArray, size_t srcOffset, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyAtoD_v2
     _check_or_init_driver()
     if __cuMemcpyAtoD_v2 == NULL:
@@ -4773,7 +4773,7 @@ cdef CUresult _cuMemcpyAtoD_v2(CUdeviceptr dstDevice, CUarray srcArray, size_t s
         dstDevice, srcArray, srcOffset, ByteCount)
 
 
-cdef CUresult _cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const void* srcHost, size_t ByteCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const void* srcHost, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyHtoA_v2
     _check_or_init_driver()
     if __cuMemcpyHtoA_v2 == NULL:
@@ -4783,7 +4783,7 @@ cdef CUresult _cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const void* s
         dstArray, dstOffset, srcHost, ByteCount)
 
 
-cdef CUresult _cuMemcpyAtoH_v2(void* dstHost, CUarray srcArray, size_t srcOffset, size_t ByteCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyAtoH_v2(void* dstHost, CUarray srcArray, size_t srcOffset, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyAtoH_v2
     _check_or_init_driver()
     if __cuMemcpyAtoH_v2 == NULL:
@@ -4793,7 +4793,7 @@ cdef CUresult _cuMemcpyAtoH_v2(void* dstHost, CUarray srcArray, size_t srcOffset
         dstHost, srcArray, srcOffset, ByteCount)
 
 
-cdef CUresult _cuMemcpyAtoA_v2(CUarray dstArray, size_t dstOffset, CUarray srcArray, size_t srcOffset, size_t ByteCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyAtoA_v2(CUarray dstArray, size_t dstOffset, CUarray srcArray, size_t srcOffset, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyAtoA_v2
     _check_or_init_driver()
     if __cuMemcpyAtoA_v2 == NULL:
@@ -4803,7 +4803,7 @@ cdef CUresult _cuMemcpyAtoA_v2(CUarray dstArray, size_t dstOffset, CUarray srcAr
         dstArray, dstOffset, srcArray, srcOffset, ByteCount)
 
 
-cdef CUresult _cuMemcpy2D_v2(const CUDA_MEMCPY2D* pCopy) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpy2D_v2(const CUDA_MEMCPY2D* pCopy) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpy2D_v2
     _check_or_init_driver()
     if __cuMemcpy2D_v2 == NULL:
@@ -4813,7 +4813,7 @@ cdef CUresult _cuMemcpy2D_v2(const CUDA_MEMCPY2D* pCopy) except?<CUresult>_CURES
         pCopy)
 
 
-cdef CUresult _cuMemcpy2DUnaligned_v2(const CUDA_MEMCPY2D* pCopy) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpy2DUnaligned_v2(const CUDA_MEMCPY2D* pCopy) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpy2DUnaligned_v2
     _check_or_init_driver()
     if __cuMemcpy2DUnaligned_v2 == NULL:
@@ -4823,7 +4823,7 @@ cdef CUresult _cuMemcpy2DUnaligned_v2(const CUDA_MEMCPY2D* pCopy) except?<CUresu
         pCopy)
 
 
-cdef CUresult _cuMemcpy3D_v2(const CUDA_MEMCPY3D* pCopy) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpy3D_v2(const CUDA_MEMCPY3D* pCopy) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpy3D_v2
     _check_or_init_driver()
     if __cuMemcpy3D_v2 == NULL:
@@ -4833,7 +4833,7 @@ cdef CUresult _cuMemcpy3D_v2(const CUDA_MEMCPY3D* pCopy) except?<CUresult>_CURES
         pCopy)
 
 
-cdef CUresult _cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER* pCopy) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER* pCopy) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpy3DPeer
     _check_or_init_driver()
     if __cuMemcpy3DPeer == NULL:
@@ -4843,7 +4843,7 @@ cdef CUresult _cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER* pCopy) except?<CUresult>
         pCopy)
 
 
-cdef CUresult _cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyAsync
     _check_or_init_driver()
     if __cuMemcpyAsync == NULL:
@@ -4853,7 +4853,7 @@ cdef CUresult _cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount,
         dst, src, ByteCount, hStream)
 
 
-cdef CUresult _cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContext, CUdeviceptr srcDevice, CUcontext srcContext, size_t ByteCount, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContext, CUdeviceptr srcDevice, CUcontext srcContext, size_t ByteCount, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyPeerAsync
     _check_or_init_driver()
     if __cuMemcpyPeerAsync == NULL:
@@ -4863,7 +4863,7 @@ cdef CUresult _cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContext, CU
         dstDevice, dstContext, srcDevice, srcContext, ByteCount, hStream)
 
 
-cdef CUresult _cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void* srcHost, size_t ByteCount, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void* srcHost, size_t ByteCount, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyHtoDAsync_v2
     _check_or_init_driver()
     if __cuMemcpyHtoDAsync_v2 == NULL:
@@ -4873,7 +4873,7 @@ cdef CUresult _cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void* srcHost, 
         dstDevice, srcHost, ByteCount, hStream)
 
 
-cdef CUresult _cuMemcpyDtoHAsync_v2(void* dstHost, CUdeviceptr srcDevice, size_t ByteCount, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyDtoHAsync_v2(void* dstHost, CUdeviceptr srcDevice, size_t ByteCount, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyDtoHAsync_v2
     _check_or_init_driver()
     if __cuMemcpyDtoHAsync_v2 == NULL:
@@ -4883,7 +4883,7 @@ cdef CUresult _cuMemcpyDtoHAsync_v2(void* dstHost, CUdeviceptr srcDevice, size_t
         dstHost, srcDevice, ByteCount, hStream)
 
 
-cdef CUresult _cuMemcpyDtoDAsync_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size_t ByteCount, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyDtoDAsync_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size_t ByteCount, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyDtoDAsync_v2
     _check_or_init_driver()
     if __cuMemcpyDtoDAsync_v2 == NULL:
@@ -4893,7 +4893,7 @@ cdef CUresult _cuMemcpyDtoDAsync_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice
         dstDevice, srcDevice, ByteCount, hStream)
 
 
-cdef CUresult _cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, const void* srcHost, size_t ByteCount, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, const void* srcHost, size_t ByteCount, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyHtoAAsync_v2
     _check_or_init_driver()
     if __cuMemcpyHtoAAsync_v2 == NULL:
@@ -4903,7 +4903,7 @@ cdef CUresult _cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, const vo
         dstArray, dstOffset, srcHost, ByteCount, hStream)
 
 
-cdef CUresult _cuMemcpyAtoHAsync_v2(void* dstHost, CUarray srcArray, size_t srcOffset, size_t ByteCount, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyAtoHAsync_v2(void* dstHost, CUarray srcArray, size_t srcOffset, size_t ByteCount, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyAtoHAsync_v2
     _check_or_init_driver()
     if __cuMemcpyAtoHAsync_v2 == NULL:
@@ -4913,7 +4913,7 @@ cdef CUresult _cuMemcpyAtoHAsync_v2(void* dstHost, CUarray srcArray, size_t srcO
         dstHost, srcArray, srcOffset, ByteCount, hStream)
 
 
-cdef CUresult _cuMemcpy2DAsync_v2(const CUDA_MEMCPY2D* pCopy, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpy2DAsync_v2(const CUDA_MEMCPY2D* pCopy, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpy2DAsync_v2
     _check_or_init_driver()
     if __cuMemcpy2DAsync_v2 == NULL:
@@ -4923,7 +4923,7 @@ cdef CUresult _cuMemcpy2DAsync_v2(const CUDA_MEMCPY2D* pCopy, CUstream hStream) 
         pCopy, hStream)
 
 
-cdef CUresult _cuMemcpy3DAsync_v2(const CUDA_MEMCPY3D* pCopy, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpy3DAsync_v2(const CUDA_MEMCPY3D* pCopy, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpy3DAsync_v2
     _check_or_init_driver()
     if __cuMemcpy3DAsync_v2 == NULL:
@@ -4933,7 +4933,7 @@ cdef CUresult _cuMemcpy3DAsync_v2(const CUDA_MEMCPY3D* pCopy, CUstream hStream) 
         pCopy, hStream)
 
 
-cdef CUresult _cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER* pCopy, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER* pCopy, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpy3DPeerAsync
     _check_or_init_driver()
     if __cuMemcpy3DPeerAsync == NULL:
@@ -4943,7 +4943,7 @@ cdef CUresult _cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER* pCopy, CUstream hSt
         pCopy, hStream)
 
 
-cdef CUresult _cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_t N) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_t N) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD8_v2
     _check_or_init_driver()
     if __cuMemsetD8_v2 == NULL:
@@ -4953,7 +4953,7 @@ cdef CUresult _cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_t N) 
         dstDevice, uc, N)
 
 
-cdef CUresult _cuMemsetD16_v2(CUdeviceptr dstDevice, unsigned short us, size_t N) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD16_v2(CUdeviceptr dstDevice, unsigned short us, size_t N) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD16_v2
     _check_or_init_driver()
     if __cuMemsetD16_v2 == NULL:
@@ -4963,7 +4963,7 @@ cdef CUresult _cuMemsetD16_v2(CUdeviceptr dstDevice, unsigned short us, size_t N
         dstDevice, us, N)
 
 
-cdef CUresult _cuMemsetD32_v2(CUdeviceptr dstDevice, unsigned int ui, size_t N) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD32_v2(CUdeviceptr dstDevice, unsigned int ui, size_t N) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD32_v2
     _check_or_init_driver()
     if __cuMemsetD32_v2 == NULL:
@@ -4973,7 +4973,7 @@ cdef CUresult _cuMemsetD32_v2(CUdeviceptr dstDevice, unsigned int ui, size_t N) 
         dstDevice, ui, N)
 
 
-cdef CUresult _cuMemsetD2D8_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned char uc, size_t Width, size_t Height) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD2D8_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned char uc, size_t Width, size_t Height) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD2D8_v2
     _check_or_init_driver()
     if __cuMemsetD2D8_v2 == NULL:
@@ -4983,7 +4983,7 @@ cdef CUresult _cuMemsetD2D8_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned 
         dstDevice, dstPitch, uc, Width, Height)
 
 
-cdef CUresult _cuMemsetD2D16_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned short us, size_t Width, size_t Height) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD2D16_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned short us, size_t Width, size_t Height) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD2D16_v2
     _check_or_init_driver()
     if __cuMemsetD2D16_v2 == NULL:
@@ -4993,7 +4993,7 @@ cdef CUresult _cuMemsetD2D16_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned
         dstDevice, dstPitch, us, Width, Height)
 
 
-cdef CUresult _cuMemsetD2D32_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned int ui, size_t Width, size_t Height) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD2D32_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned int ui, size_t Width, size_t Height) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD2D32_v2
     _check_or_init_driver()
     if __cuMemsetD2D32_v2 == NULL:
@@ -5003,7 +5003,7 @@ cdef CUresult _cuMemsetD2D32_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned
         dstDevice, dstPitch, ui, Width, Height)
 
 
-cdef CUresult _cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, size_t N, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, size_t N, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD8Async
     _check_or_init_driver()
     if __cuMemsetD8Async == NULL:
@@ -5013,7 +5013,7 @@ cdef CUresult _cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, size_t N
         dstDevice, uc, N, hStream)
 
 
-cdef CUresult _cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, size_t N, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, size_t N, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD16Async
     _check_or_init_driver()
     if __cuMemsetD16Async == NULL:
@@ -5023,7 +5023,7 @@ cdef CUresult _cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, size_t
         dstDevice, us, N, hStream)
 
 
-cdef CUresult _cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, size_t N, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, size_t N, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD32Async
     _check_or_init_driver()
     if __cuMemsetD32Async == NULL:
@@ -5033,7 +5033,7 @@ cdef CUresult _cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, size_t N
         dstDevice, ui, N, hStream)
 
 
-cdef CUresult _cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned char uc, size_t Width, size_t Height, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned char uc, size_t Width, size_t Height, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD2D8Async
     _check_or_init_driver()
     if __cuMemsetD2D8Async == NULL:
@@ -5043,7 +5043,7 @@ cdef CUresult _cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, unsigne
         dstDevice, dstPitch, uc, Width, Height, hStream)
 
 
-cdef CUresult _cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned short us, size_t Width, size_t Height, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned short us, size_t Width, size_t Height, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD2D16Async
     _check_or_init_driver()
     if __cuMemsetD2D16Async == NULL:
@@ -5053,7 +5053,7 @@ cdef CUresult _cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, unsign
         dstDevice, dstPitch, us, Width, Height, hStream)
 
 
-cdef CUresult _cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned int ui, size_t Width, size_t Height, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned int ui, size_t Width, size_t Height, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD2D32Async
     _check_or_init_driver()
     if __cuMemsetD2D32Async == NULL:
@@ -5063,7 +5063,7 @@ cdef CUresult _cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, unsign
         dstDevice, dstPitch, ui, Width, Height, hStream)
 
 
-cdef CUresult _cuArrayCreate_v2(CUarray* pHandle, const CUDA_ARRAY_DESCRIPTOR* pAllocateArray) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuArrayCreate_v2(CUarray* pHandle, const CUDA_ARRAY_DESCRIPTOR* pAllocateArray) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuArrayCreate_v2
     _check_or_init_driver()
     if __cuArrayCreate_v2 == NULL:
@@ -5073,7 +5073,7 @@ cdef CUresult _cuArrayCreate_v2(CUarray* pHandle, const CUDA_ARRAY_DESCRIPTOR* p
         pHandle, pAllocateArray)
 
 
-cdef CUresult _cuArrayGetDescriptor_v2(CUDA_ARRAY_DESCRIPTOR* pArrayDescriptor, CUarray hArray) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuArrayGetDescriptor_v2(CUDA_ARRAY_DESCRIPTOR* pArrayDescriptor, CUarray hArray) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuArrayGetDescriptor_v2
     _check_or_init_driver()
     if __cuArrayGetDescriptor_v2 == NULL:
@@ -5083,7 +5083,7 @@ cdef CUresult _cuArrayGetDescriptor_v2(CUDA_ARRAY_DESCRIPTOR* pArrayDescriptor, 
         pArrayDescriptor, hArray)
 
 
-cdef CUresult _cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES* sparseProperties, CUarray array) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES* sparseProperties, CUarray array) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuArrayGetSparseProperties
     _check_or_init_driver()
     if __cuArrayGetSparseProperties == NULL:
@@ -5093,7 +5093,7 @@ cdef CUresult _cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES* sparsePr
         sparseProperties, array)
 
 
-cdef CUresult _cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES* sparseProperties, CUmipmappedArray mipmap) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES* sparseProperties, CUmipmappedArray mipmap) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMipmappedArrayGetSparseProperties
     _check_or_init_driver()
     if __cuMipmappedArrayGetSparseProperties == NULL:
@@ -5103,7 +5103,7 @@ cdef CUresult _cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES*
         sparseProperties, mipmap)
 
 
-cdef CUresult _cuArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUarray array, CUdevice device) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUarray array, CUdevice device) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuArrayGetMemoryRequirements
     _check_or_init_driver()
     if __cuArrayGetMemoryRequirements == NULL:
@@ -5113,7 +5113,7 @@ cdef CUresult _cuArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memo
         memoryRequirements, array, device)
 
 
-cdef CUresult _cuMipmappedArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUmipmappedArray mipmap, CUdevice device) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMipmappedArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUmipmappedArray mipmap, CUdevice device) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMipmappedArrayGetMemoryRequirements
     _check_or_init_driver()
     if __cuMipmappedArrayGetMemoryRequirements == NULL:
@@ -5123,7 +5123,7 @@ cdef CUresult _cuMipmappedArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREME
         memoryRequirements, mipmap, device)
 
 
-cdef CUresult _cuArrayGetPlane(CUarray* pPlaneArray, CUarray hArray, unsigned int planeIdx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuArrayGetPlane(CUarray* pPlaneArray, CUarray hArray, unsigned int planeIdx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuArrayGetPlane
     _check_or_init_driver()
     if __cuArrayGetPlane == NULL:
@@ -5133,7 +5133,7 @@ cdef CUresult _cuArrayGetPlane(CUarray* pPlaneArray, CUarray hArray, unsigned in
         pPlaneArray, hArray, planeIdx)
 
 
-cdef CUresult _cuArrayDestroy(CUarray hArray) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuArrayDestroy(CUarray hArray) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuArrayDestroy
     _check_or_init_driver()
     if __cuArrayDestroy == NULL:
@@ -5143,7 +5143,7 @@ cdef CUresult _cuArrayDestroy(CUarray hArray) except?<CUresult>_CURESULT_INTERNA
         hArray)
 
 
-cdef CUresult _cuArray3DCreate_v2(CUarray* pHandle, const CUDA_ARRAY3D_DESCRIPTOR* pAllocateArray) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuArray3DCreate_v2(CUarray* pHandle, const CUDA_ARRAY3D_DESCRIPTOR* pAllocateArray) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuArray3DCreate_v2
     _check_or_init_driver()
     if __cuArray3DCreate_v2 == NULL:
@@ -5153,7 +5153,7 @@ cdef CUresult _cuArray3DCreate_v2(CUarray* pHandle, const CUDA_ARRAY3D_DESCRIPTO
         pHandle, pAllocateArray)
 
 
-cdef CUresult _cuArray3DGetDescriptor_v2(CUDA_ARRAY3D_DESCRIPTOR* pArrayDescriptor, CUarray hArray) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuArray3DGetDescriptor_v2(CUDA_ARRAY3D_DESCRIPTOR* pArrayDescriptor, CUarray hArray) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuArray3DGetDescriptor_v2
     _check_or_init_driver()
     if __cuArray3DGetDescriptor_v2 == NULL:
@@ -5163,7 +5163,7 @@ cdef CUresult _cuArray3DGetDescriptor_v2(CUDA_ARRAY3D_DESCRIPTOR* pArrayDescript
         pArrayDescriptor, hArray)
 
 
-cdef CUresult _cuMipmappedArrayCreate(CUmipmappedArray* pHandle, const CUDA_ARRAY3D_DESCRIPTOR* pMipmappedArrayDesc, unsigned int numMipmapLevels) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMipmappedArrayCreate(CUmipmappedArray* pHandle, const CUDA_ARRAY3D_DESCRIPTOR* pMipmappedArrayDesc, unsigned int numMipmapLevels) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMipmappedArrayCreate
     _check_or_init_driver()
     if __cuMipmappedArrayCreate == NULL:
@@ -5173,7 +5173,7 @@ cdef CUresult _cuMipmappedArrayCreate(CUmipmappedArray* pHandle, const CUDA_ARRA
         pHandle, pMipmappedArrayDesc, numMipmapLevels)
 
 
-cdef CUresult _cuMipmappedArrayGetLevel(CUarray* pLevelArray, CUmipmappedArray hMipmappedArray, unsigned int level) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMipmappedArrayGetLevel(CUarray* pLevelArray, CUmipmappedArray hMipmappedArray, unsigned int level) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMipmappedArrayGetLevel
     _check_or_init_driver()
     if __cuMipmappedArrayGetLevel == NULL:
@@ -5183,7 +5183,7 @@ cdef CUresult _cuMipmappedArrayGetLevel(CUarray* pLevelArray, CUmipmappedArray h
         pLevelArray, hMipmappedArray, level)
 
 
-cdef CUresult _cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMipmappedArrayDestroy
     _check_or_init_driver()
     if __cuMipmappedArrayDestroy == NULL:
@@ -5193,7 +5193,7 @@ cdef CUresult _cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray) except?
         hMipmappedArray)
 
 
-cdef CUresult _cuMemGetHandleForAddressRange(void* handle, CUdeviceptr dptr, size_t size, CUmemRangeHandleType handleType, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemGetHandleForAddressRange(void* handle, CUdeviceptr dptr, size_t size, CUmemRangeHandleType handleType, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemGetHandleForAddressRange
     _check_or_init_driver()
     if __cuMemGetHandleForAddressRange == NULL:
@@ -5203,7 +5203,7 @@ cdef CUresult _cuMemGetHandleForAddressRange(void* handle, CUdeviceptr dptr, siz
         handle, dptr, size, handleType, flags)
 
 
-cdef CUresult _cuMemBatchDecompressAsync(CUmemDecompressParams* paramsArray, size_t count, unsigned int flags, size_t* errorIndex, CUstream stream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemBatchDecompressAsync(CUmemDecompressParams* paramsArray, size_t count, unsigned int flags, size_t* errorIndex, CUstream stream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemBatchDecompressAsync
     _check_or_init_driver()
     if __cuMemBatchDecompressAsync == NULL:
@@ -5213,7 +5213,7 @@ cdef CUresult _cuMemBatchDecompressAsync(CUmemDecompressParams* paramsArray, siz
         paramsArray, count, flags, errorIndex, stream)
 
 
-cdef CUresult _cuMemAddressReserve(CUdeviceptr* ptr, size_t size, size_t alignment, CUdeviceptr addr, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemAddressReserve(CUdeviceptr* ptr, size_t size, size_t alignment, CUdeviceptr addr, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemAddressReserve
     _check_or_init_driver()
     if __cuMemAddressReserve == NULL:
@@ -5223,7 +5223,7 @@ cdef CUresult _cuMemAddressReserve(CUdeviceptr* ptr, size_t size, size_t alignme
         ptr, size, alignment, addr, flags)
 
 
-cdef CUresult _cuMemAddressFree(CUdeviceptr ptr, size_t size) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemAddressFree(CUdeviceptr ptr, size_t size) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemAddressFree
     _check_or_init_driver()
     if __cuMemAddressFree == NULL:
@@ -5233,7 +5233,7 @@ cdef CUresult _cuMemAddressFree(CUdeviceptr ptr, size_t size) except?<CUresult>_
         ptr, size)
 
 
-cdef CUresult _cuMemCreate(CUmemGenericAllocationHandle* handle, size_t size, const CUmemAllocationProp* prop, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemCreate(CUmemGenericAllocationHandle* handle, size_t size, const CUmemAllocationProp* prop, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemCreate
     _check_or_init_driver()
     if __cuMemCreate == NULL:
@@ -5243,7 +5243,7 @@ cdef CUresult _cuMemCreate(CUmemGenericAllocationHandle* handle, size_t size, co
         handle, size, prop, flags)
 
 
-cdef CUresult _cuMemRelease(CUmemGenericAllocationHandle handle) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemRelease(CUmemGenericAllocationHandle handle) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemRelease
     _check_or_init_driver()
     if __cuMemRelease == NULL:
@@ -5253,7 +5253,7 @@ cdef CUresult _cuMemRelease(CUmemGenericAllocationHandle handle) except?<CUresul
         handle)
 
 
-cdef CUresult _cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemGenericAllocationHandle handle, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemGenericAllocationHandle handle, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemMap
     _check_or_init_driver()
     if __cuMemMap == NULL:
@@ -5263,7 +5263,7 @@ cdef CUresult _cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemGeneri
         ptr, size, offset, handle, flags)
 
 
-cdef CUresult _cuMemMapArrayAsync(CUarrayMapInfo* mapInfoList, unsigned int count, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemMapArrayAsync(CUarrayMapInfo* mapInfoList, unsigned int count, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemMapArrayAsync
     _check_or_init_driver()
     if __cuMemMapArrayAsync == NULL:
@@ -5273,7 +5273,7 @@ cdef CUresult _cuMemMapArrayAsync(CUarrayMapInfo* mapInfoList, unsigned int coun
         mapInfoList, count, hStream)
 
 
-cdef CUresult _cuMemUnmap(CUdeviceptr ptr, size_t size) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemUnmap(CUdeviceptr ptr, size_t size) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemUnmap
     _check_or_init_driver()
     if __cuMemUnmap == NULL:
@@ -5283,7 +5283,7 @@ cdef CUresult _cuMemUnmap(CUdeviceptr ptr, size_t size) except?<CUresult>_CURESU
         ptr, size)
 
 
-cdef CUresult _cuMemSetAccess(CUdeviceptr ptr, size_t size, const CUmemAccessDesc* desc, size_t count) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemSetAccess(CUdeviceptr ptr, size_t size, const CUmemAccessDesc* desc, size_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemSetAccess
     _check_or_init_driver()
     if __cuMemSetAccess == NULL:
@@ -5293,7 +5293,7 @@ cdef CUresult _cuMemSetAccess(CUdeviceptr ptr, size_t size, const CUmemAccessDes
         ptr, size, desc, count)
 
 
-cdef CUresult _cuMemGetAccess(unsigned long long* flags, const CUmemLocation* location, CUdeviceptr ptr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemGetAccess(unsigned long long* flags, const CUmemLocation* location, CUdeviceptr ptr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemGetAccess
     _check_or_init_driver()
     if __cuMemGetAccess == NULL:
@@ -5303,7 +5303,7 @@ cdef CUresult _cuMemGetAccess(unsigned long long* flags, const CUmemLocation* lo
         flags, location, ptr)
 
 
-cdef CUresult _cuMemExportToShareableHandle(void* shareableHandle, CUmemGenericAllocationHandle handle, CUmemAllocationHandleType handleType, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemExportToShareableHandle(void* shareableHandle, CUmemGenericAllocationHandle handle, CUmemAllocationHandleType handleType, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemExportToShareableHandle
     _check_or_init_driver()
     if __cuMemExportToShareableHandle == NULL:
@@ -5313,7 +5313,7 @@ cdef CUresult _cuMemExportToShareableHandle(void* shareableHandle, CUmemGenericA
         shareableHandle, handle, handleType, flags)
 
 
-cdef CUresult _cuMemImportFromShareableHandle(CUmemGenericAllocationHandle* handle, void* osHandle, CUmemAllocationHandleType shHandleType) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemImportFromShareableHandle(CUmemGenericAllocationHandle* handle, void* osHandle, CUmemAllocationHandleType shHandleType) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemImportFromShareableHandle
     _check_or_init_driver()
     if __cuMemImportFromShareableHandle == NULL:
@@ -5323,7 +5323,7 @@ cdef CUresult _cuMemImportFromShareableHandle(CUmemGenericAllocationHandle* hand
         handle, osHandle, shHandleType)
 
 
-cdef CUresult _cuMemGetAllocationGranularity(size_t* granularity, const CUmemAllocationProp* prop, CUmemAllocationGranularity_flags option) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemGetAllocationGranularity(size_t* granularity, const CUmemAllocationProp* prop, CUmemAllocationGranularity_flags option) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemGetAllocationGranularity
     _check_or_init_driver()
     if __cuMemGetAllocationGranularity == NULL:
@@ -5333,7 +5333,7 @@ cdef CUresult _cuMemGetAllocationGranularity(size_t* granularity, const CUmemAll
         granularity, prop, option)
 
 
-cdef CUresult _cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp* prop, CUmemGenericAllocationHandle handle) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp* prop, CUmemGenericAllocationHandle handle) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemGetAllocationPropertiesFromHandle
     _check_or_init_driver()
     if __cuMemGetAllocationPropertiesFromHandle == NULL:
@@ -5343,7 +5343,7 @@ cdef CUresult _cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp* prop,
         prop, handle)
 
 
-cdef CUresult _cuMemRetainAllocationHandle(CUmemGenericAllocationHandle* handle, void* addr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemRetainAllocationHandle(CUmemGenericAllocationHandle* handle, void* addr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemRetainAllocationHandle
     _check_or_init_driver()
     if __cuMemRetainAllocationHandle == NULL:
@@ -5353,7 +5353,7 @@ cdef CUresult _cuMemRetainAllocationHandle(CUmemGenericAllocationHandle* handle,
         handle, addr)
 
 
-cdef CUresult _cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemFreeAsync
     _check_or_init_driver()
     if __cuMemFreeAsync == NULL:
@@ -5363,7 +5363,7 @@ cdef CUresult _cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) except?<CUresu
         dptr, hStream)
 
 
-cdef CUresult _cuMemAllocAsync(CUdeviceptr* dptr, size_t bytesize, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemAllocAsync(CUdeviceptr* dptr, size_t bytesize, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemAllocAsync
     _check_or_init_driver()
     if __cuMemAllocAsync == NULL:
@@ -5373,7 +5373,7 @@ cdef CUresult _cuMemAllocAsync(CUdeviceptr* dptr, size_t bytesize, CUstream hStr
         dptr, bytesize, hStream)
 
 
-cdef CUresult _cuMemPoolTrimTo(CUmemoryPool pool, size_t minBytesToKeep) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPoolTrimTo(CUmemoryPool pool, size_t minBytesToKeep) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPoolTrimTo
     _check_or_init_driver()
     if __cuMemPoolTrimTo == NULL:
@@ -5383,7 +5383,7 @@ cdef CUresult _cuMemPoolTrimTo(CUmemoryPool pool, size_t minBytesToKeep) except?
         pool, minBytesToKeep)
 
 
-cdef CUresult _cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, void* value) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, void* value) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPoolSetAttribute
     _check_or_init_driver()
     if __cuMemPoolSetAttribute == NULL:
@@ -5393,7 +5393,7 @@ cdef CUresult _cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute attr
         pool, attr, value)
 
 
-cdef CUresult _cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, void* value) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, void* value) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPoolGetAttribute
     _check_or_init_driver()
     if __cuMemPoolGetAttribute == NULL:
@@ -5403,7 +5403,7 @@ cdef CUresult _cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute attr
         pool, attr, value)
 
 
-cdef CUresult _cuMemPoolSetAccess(CUmemoryPool pool, const CUmemAccessDesc* map, size_t count) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPoolSetAccess(CUmemoryPool pool, const CUmemAccessDesc* map, size_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPoolSetAccess
     _check_or_init_driver()
     if __cuMemPoolSetAccess == NULL:
@@ -5413,7 +5413,7 @@ cdef CUresult _cuMemPoolSetAccess(CUmemoryPool pool, const CUmemAccessDesc* map,
         pool, map, count)
 
 
-cdef CUresult _cuMemPoolGetAccess(CUmemAccess_flags* flags, CUmemoryPool memPool, CUmemLocation* location) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPoolGetAccess(CUmemAccess_flags* flags, CUmemoryPool memPool, CUmemLocation* location) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPoolGetAccess
     _check_or_init_driver()
     if __cuMemPoolGetAccess == NULL:
@@ -5423,7 +5423,7 @@ cdef CUresult _cuMemPoolGetAccess(CUmemAccess_flags* flags, CUmemoryPool memPool
         flags, memPool, location)
 
 
-cdef CUresult _cuMemPoolCreate(CUmemoryPool* pool, const CUmemPoolProps* poolProps) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPoolCreate(CUmemoryPool* pool, const CUmemPoolProps* poolProps) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPoolCreate
     _check_or_init_driver()
     if __cuMemPoolCreate == NULL:
@@ -5433,7 +5433,7 @@ cdef CUresult _cuMemPoolCreate(CUmemoryPool* pool, const CUmemPoolProps* poolPro
         pool, poolProps)
 
 
-cdef CUresult _cuMemPoolDestroy(CUmemoryPool pool) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPoolDestroy(CUmemoryPool pool) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPoolDestroy
     _check_or_init_driver()
     if __cuMemPoolDestroy == NULL:
@@ -5443,7 +5443,7 @@ cdef CUresult _cuMemPoolDestroy(CUmemoryPool pool) except?<CUresult>_CURESULT_IN
         pool)
 
 
-cdef CUresult _cuMemAllocFromPoolAsync(CUdeviceptr* dptr, size_t bytesize, CUmemoryPool pool, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemAllocFromPoolAsync(CUdeviceptr* dptr, size_t bytesize, CUmemoryPool pool, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemAllocFromPoolAsync
     _check_or_init_driver()
     if __cuMemAllocFromPoolAsync == NULL:
@@ -5453,7 +5453,7 @@ cdef CUresult _cuMemAllocFromPoolAsync(CUdeviceptr* dptr, size_t bytesize, CUmem
         dptr, bytesize, pool, hStream)
 
 
-cdef CUresult _cuMemPoolExportToShareableHandle(void* handle_out, CUmemoryPool pool, CUmemAllocationHandleType handleType, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPoolExportToShareableHandle(void* handle_out, CUmemoryPool pool, CUmemAllocationHandleType handleType, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPoolExportToShareableHandle
     _check_or_init_driver()
     if __cuMemPoolExportToShareableHandle == NULL:
@@ -5463,7 +5463,7 @@ cdef CUresult _cuMemPoolExportToShareableHandle(void* handle_out, CUmemoryPool p
         handle_out, pool, handleType, flags)
 
 
-cdef CUresult _cuMemPoolImportFromShareableHandle(CUmemoryPool* pool_out, void* handle, CUmemAllocationHandleType handleType, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPoolImportFromShareableHandle(CUmemoryPool* pool_out, void* handle, CUmemAllocationHandleType handleType, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPoolImportFromShareableHandle
     _check_or_init_driver()
     if __cuMemPoolImportFromShareableHandle == NULL:
@@ -5473,7 +5473,7 @@ cdef CUresult _cuMemPoolImportFromShareableHandle(CUmemoryPool* pool_out, void* 
         pool_out, handle, handleType, flags)
 
 
-cdef CUresult _cuMemPoolExportPointer(CUmemPoolPtrExportData* shareData_out, CUdeviceptr ptr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPoolExportPointer(CUmemPoolPtrExportData* shareData_out, CUdeviceptr ptr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPoolExportPointer
     _check_or_init_driver()
     if __cuMemPoolExportPointer == NULL:
@@ -5483,7 +5483,7 @@ cdef CUresult _cuMemPoolExportPointer(CUmemPoolPtrExportData* shareData_out, CUd
         shareData_out, ptr)
 
 
-cdef CUresult _cuMemPoolImportPointer(CUdeviceptr* ptr_out, CUmemoryPool pool, CUmemPoolPtrExportData* shareData) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPoolImportPointer(CUdeviceptr* ptr_out, CUmemoryPool pool, CUmemPoolPtrExportData* shareData) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPoolImportPointer
     _check_or_init_driver()
     if __cuMemPoolImportPointer == NULL:
@@ -5493,7 +5493,7 @@ cdef CUresult _cuMemPoolImportPointer(CUdeviceptr* ptr_out, CUmemoryPool pool, C
         ptr_out, pool, shareData)
 
 
-cdef CUresult _cuMulticastCreate(CUmemGenericAllocationHandle* mcHandle, const CUmulticastObjectProp* prop) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMulticastCreate(CUmemGenericAllocationHandle* mcHandle, const CUmulticastObjectProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMulticastCreate
     _check_or_init_driver()
     if __cuMulticastCreate == NULL:
@@ -5503,7 +5503,7 @@ cdef CUresult _cuMulticastCreate(CUmemGenericAllocationHandle* mcHandle, const C
         mcHandle, prop)
 
 
-cdef CUresult _cuMulticastAddDevice(CUmemGenericAllocationHandle mcHandle, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMulticastAddDevice(CUmemGenericAllocationHandle mcHandle, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMulticastAddDevice
     _check_or_init_driver()
     if __cuMulticastAddDevice == NULL:
@@ -5513,7 +5513,7 @@ cdef CUresult _cuMulticastAddDevice(CUmemGenericAllocationHandle mcHandle, CUdev
         mcHandle, dev)
 
 
-cdef CUresult _cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMulticastBindMem
     _check_or_init_driver()
     if __cuMulticastBindMem == NULL:
@@ -5523,7 +5523,7 @@ cdef CUresult _cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t 
         mcHandle, mcOffset, memHandle, memOffset, size, flags)
 
 
-cdef CUresult _cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMulticastBindAddr
     _check_or_init_driver()
     if __cuMulticastBindAddr == NULL:
@@ -5533,7 +5533,7 @@ cdef CUresult _cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t
         mcHandle, mcOffset, memptr, size, flags)
 
 
-cdef CUresult _cuMulticastUnbind(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, size_t size) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMulticastUnbind(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, size_t size) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMulticastUnbind
     _check_or_init_driver()
     if __cuMulticastUnbind == NULL:
@@ -5543,7 +5543,7 @@ cdef CUresult _cuMulticastUnbind(CUmemGenericAllocationHandle mcHandle, CUdevice
         mcHandle, dev, mcOffset, size)
 
 
-cdef CUresult _cuMulticastGetGranularity(size_t* granularity, const CUmulticastObjectProp* prop, CUmulticastGranularity_flags option) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMulticastGetGranularity(size_t* granularity, const CUmulticastObjectProp* prop, CUmulticastGranularity_flags option) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMulticastGetGranularity
     _check_or_init_driver()
     if __cuMulticastGetGranularity == NULL:
@@ -5553,7 +5553,7 @@ cdef CUresult _cuMulticastGetGranularity(size_t* granularity, const CUmulticastO
         granularity, prop, option)
 
 
-cdef CUresult _cuPointerGetAttribute(void* data, CUpointer_attribute attribute, CUdeviceptr ptr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuPointerGetAttribute(void* data, CUpointer_attribute attribute, CUdeviceptr ptr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuPointerGetAttribute
     _check_or_init_driver()
     if __cuPointerGetAttribute == NULL:
@@ -5563,7 +5563,7 @@ cdef CUresult _cuPointerGetAttribute(void* data, CUpointer_attribute attribute, 
         data, attribute, ptr)
 
 
-cdef CUresult _cuMemPrefetchAsync_v2(CUdeviceptr devPtr, size_t count, CUmemLocation location, unsigned int flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPrefetchAsync_v2(CUdeviceptr devPtr, size_t count, CUmemLocation location, unsigned int flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPrefetchAsync_v2
     _check_or_init_driver()
     if __cuMemPrefetchAsync_v2 == NULL:
@@ -5573,7 +5573,7 @@ cdef CUresult _cuMemPrefetchAsync_v2(CUdeviceptr devPtr, size_t count, CUmemLoca
         devPtr, count, location, flags, hStream)
 
 
-cdef CUresult _cuMemAdvise_v2(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUmemLocation location) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemAdvise_v2(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUmemLocation location) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemAdvise_v2
     _check_or_init_driver()
     if __cuMemAdvise_v2 == NULL:
@@ -5583,7 +5583,7 @@ cdef CUresult _cuMemAdvise_v2(CUdeviceptr devPtr, size_t count, CUmem_advise adv
         devPtr, count, advice, location)
 
 
-cdef CUresult _cuMemRangeGetAttribute(void* data, size_t dataSize, CUmem_range_attribute attribute, CUdeviceptr devPtr, size_t count) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemRangeGetAttribute(void* data, size_t dataSize, CUmem_range_attribute attribute, CUdeviceptr devPtr, size_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemRangeGetAttribute
     _check_or_init_driver()
     if __cuMemRangeGetAttribute == NULL:
@@ -5593,7 +5593,7 @@ cdef CUresult _cuMemRangeGetAttribute(void* data, size_t dataSize, CUmem_range_a
         data, dataSize, attribute, devPtr, count)
 
 
-cdef CUresult _cuMemRangeGetAttributes(void** data, size_t* dataSizes, CUmem_range_attribute* attributes, size_t numAttributes, CUdeviceptr devPtr, size_t count) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemRangeGetAttributes(void** data, size_t* dataSizes, CUmem_range_attribute* attributes, size_t numAttributes, CUdeviceptr devPtr, size_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemRangeGetAttributes
     _check_or_init_driver()
     if __cuMemRangeGetAttributes == NULL:
@@ -5603,7 +5603,7 @@ cdef CUresult _cuMemRangeGetAttributes(void** data, size_t* dataSizes, CUmem_ran
         data, dataSizes, attributes, numAttributes, devPtr, count)
 
 
-cdef CUresult _cuPointerSetAttribute(const void* value, CUpointer_attribute attribute, CUdeviceptr ptr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuPointerSetAttribute(const void* value, CUpointer_attribute attribute, CUdeviceptr ptr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuPointerSetAttribute
     _check_or_init_driver()
     if __cuPointerSetAttribute == NULL:
@@ -5613,7 +5613,7 @@ cdef CUresult _cuPointerSetAttribute(const void* value, CUpointer_attribute attr
         value, attribute, ptr)
 
 
-cdef CUresult _cuPointerGetAttributes(unsigned int numAttributes, CUpointer_attribute* attributes, void** data, CUdeviceptr ptr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuPointerGetAttributes(unsigned int numAttributes, CUpointer_attribute* attributes, void** data, CUdeviceptr ptr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuPointerGetAttributes
     _check_or_init_driver()
     if __cuPointerGetAttributes == NULL:
@@ -5623,7 +5623,7 @@ cdef CUresult _cuPointerGetAttributes(unsigned int numAttributes, CUpointer_attr
         numAttributes, attributes, data, ptr)
 
 
-cdef CUresult _cuStreamCreate(CUstream* phStream, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamCreate(CUstream* phStream, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamCreate
     _check_or_init_driver()
     if __cuStreamCreate == NULL:
@@ -5633,7 +5633,7 @@ cdef CUresult _cuStreamCreate(CUstream* phStream, unsigned int Flags) except?<CU
         phStream, Flags)
 
 
-cdef CUresult _cuStreamCreateWithPriority(CUstream* phStream, unsigned int flags, int priority) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamCreateWithPriority(CUstream* phStream, unsigned int flags, int priority) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamCreateWithPriority
     _check_or_init_driver()
     if __cuStreamCreateWithPriority == NULL:
@@ -5643,7 +5643,7 @@ cdef CUresult _cuStreamCreateWithPriority(CUstream* phStream, unsigned int flags
         phStream, flags, priority)
 
 
-cdef CUresult _cuStreamGetPriority(CUstream hStream, int* priority) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamGetPriority(CUstream hStream, int* priority) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamGetPriority
     _check_or_init_driver()
     if __cuStreamGetPriority == NULL:
@@ -5653,7 +5653,7 @@ cdef CUresult _cuStreamGetPriority(CUstream hStream, int* priority) except?<CUre
         hStream, priority)
 
 
-cdef CUresult _cuStreamGetDevice(CUstream hStream, CUdevice* device) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamGetDevice(CUstream hStream, CUdevice* device) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamGetDevice
     _check_or_init_driver()
     if __cuStreamGetDevice == NULL:
@@ -5663,7 +5663,7 @@ cdef CUresult _cuStreamGetDevice(CUstream hStream, CUdevice* device) except?<CUr
         hStream, device)
 
 
-cdef CUresult _cuStreamGetFlags(CUstream hStream, unsigned int* flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamGetFlags(CUstream hStream, unsigned int* flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamGetFlags
     _check_or_init_driver()
     if __cuStreamGetFlags == NULL:
@@ -5673,7 +5673,7 @@ cdef CUresult _cuStreamGetFlags(CUstream hStream, unsigned int* flags) except?<C
         hStream, flags)
 
 
-cdef CUresult _cuStreamGetId(CUstream hStream, unsigned long long* streamId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamGetId(CUstream hStream, unsigned long long* streamId) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamGetId
     _check_or_init_driver()
     if __cuStreamGetId == NULL:
@@ -5683,7 +5683,7 @@ cdef CUresult _cuStreamGetId(CUstream hStream, unsigned long long* streamId) exc
         hStream, streamId)
 
 
-cdef CUresult _cuStreamGetCtx(CUstream hStream, CUcontext* pctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamGetCtx(CUstream hStream, CUcontext* pctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamGetCtx
     _check_or_init_driver()
     if __cuStreamGetCtx == NULL:
@@ -5693,7 +5693,7 @@ cdef CUresult _cuStreamGetCtx(CUstream hStream, CUcontext* pctx) except?<CUresul
         hStream, pctx)
 
 
-cdef CUresult _cuStreamGetCtx_v2(CUstream hStream, CUcontext* pCtx, CUgreenCtx* pGreenCtx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamGetCtx_v2(CUstream hStream, CUcontext* pCtx, CUgreenCtx* pGreenCtx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamGetCtx_v2
     _check_or_init_driver()
     if __cuStreamGetCtx_v2 == NULL:
@@ -5703,7 +5703,7 @@ cdef CUresult _cuStreamGetCtx_v2(CUstream hStream, CUcontext* pCtx, CUgreenCtx* 
         hStream, pCtx, pGreenCtx)
 
 
-cdef CUresult _cuStreamWaitEvent(CUstream hStream, CUevent hEvent, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamWaitEvent(CUstream hStream, CUevent hEvent, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamWaitEvent
     _check_or_init_driver()
     if __cuStreamWaitEvent == NULL:
@@ -5713,7 +5713,7 @@ cdef CUresult _cuStreamWaitEvent(CUstream hStream, CUevent hEvent, unsigned int 
         hStream, hEvent, Flags)
 
 
-cdef CUresult _cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, void* userData, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, void* userData, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamAddCallback
     _check_or_init_driver()
     if __cuStreamAddCallback == NULL:
@@ -5723,7 +5723,7 @@ cdef CUresult _cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, 
         hStream, callback, userData, flags)
 
 
-cdef CUresult _cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMode mode) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMode mode) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamBeginCapture_v2
     _check_or_init_driver()
     if __cuStreamBeginCapture_v2 == NULL:
@@ -5733,7 +5733,7 @@ cdef CUresult _cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMode mod
         hStream, mode)
 
 
-cdef CUresult _cuStreamBeginCaptureToGraph(CUstream hStream, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUstreamCaptureMode mode) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamBeginCaptureToGraph(CUstream hStream, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUstreamCaptureMode mode) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamBeginCaptureToGraph
     _check_or_init_driver()
     if __cuStreamBeginCaptureToGraph == NULL:
@@ -5743,7 +5743,7 @@ cdef CUresult _cuStreamBeginCaptureToGraph(CUstream hStream, CUgraph hGraph, con
         hStream, hGraph, dependencies, dependencyData, numDependencies, mode)
 
 
-cdef CUresult _cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode* mode) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode* mode) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuThreadExchangeStreamCaptureMode
     _check_or_init_driver()
     if __cuThreadExchangeStreamCaptureMode == NULL:
@@ -5753,7 +5753,7 @@ cdef CUresult _cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode* mode) exce
         mode)
 
 
-cdef CUresult _cuStreamEndCapture(CUstream hStream, CUgraph* phGraph) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamEndCapture(CUstream hStream, CUgraph* phGraph) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamEndCapture
     _check_or_init_driver()
     if __cuStreamEndCapture == NULL:
@@ -5763,7 +5763,7 @@ cdef CUresult _cuStreamEndCapture(CUstream hStream, CUgraph* phGraph) except?<CU
         hStream, phGraph)
 
 
-cdef CUresult _cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* captureStatus) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* captureStatus) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamIsCapturing
     _check_or_init_driver()
     if __cuStreamIsCapturing == NULL:
@@ -5773,7 +5773,7 @@ cdef CUresult _cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* capt
         hStream, captureStatus)
 
 
-cdef CUresult _cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamGetCaptureInfo_v3
     _check_or_init_driver()
     if __cuStreamGetCaptureInfo_v3 == NULL:
@@ -5783,7 +5783,7 @@ cdef CUresult _cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus
         hStream, captureStatus_out, id_out, graph_out, dependencies_out, edgeData_out, numDependencies_out)
 
 
-cdef CUresult _cuStreamUpdateCaptureDependencies_v2(CUstream hStream, CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamUpdateCaptureDependencies_v2(CUstream hStream, CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamUpdateCaptureDependencies_v2
     _check_or_init_driver()
     if __cuStreamUpdateCaptureDependencies_v2 == NULL:
@@ -5793,7 +5793,7 @@ cdef CUresult _cuStreamUpdateCaptureDependencies_v2(CUstream hStream, CUgraphNod
         hStream, dependencies, dependencyData, numDependencies, flags)
 
 
-cdef CUresult _cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, size_t length, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, size_t length, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamAttachMemAsync
     _check_or_init_driver()
     if __cuStreamAttachMemAsync == NULL:
@@ -5803,7 +5803,7 @@ cdef CUresult _cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, size_t
         hStream, dptr, length, flags)
 
 
-cdef CUresult _cuStreamQuery(CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamQuery(CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamQuery
     _check_or_init_driver()
     if __cuStreamQuery == NULL:
@@ -5813,7 +5813,7 @@ cdef CUresult _cuStreamQuery(CUstream hStream) except?<CUresult>_CURESULT_INTERN
         hStream)
 
 
-cdef CUresult _cuStreamSynchronize(CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamSynchronize(CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamSynchronize
     _check_or_init_driver()
     if __cuStreamSynchronize == NULL:
@@ -5823,7 +5823,7 @@ cdef CUresult _cuStreamSynchronize(CUstream hStream) except?<CUresult>_CURESULT_
         hStream)
 
 
-cdef CUresult _cuStreamDestroy_v2(CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamDestroy_v2(CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamDestroy_v2
     _check_or_init_driver()
     if __cuStreamDestroy_v2 == NULL:
@@ -5833,7 +5833,7 @@ cdef CUresult _cuStreamDestroy_v2(CUstream hStream) except?<CUresult>_CURESULT_I
         hStream)
 
 
-cdef CUresult _cuStreamCopyAttributes(CUstream dst, CUstream src) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamCopyAttributes(CUstream dst, CUstream src) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamCopyAttributes
     _check_or_init_driver()
     if __cuStreamCopyAttributes == NULL:
@@ -5843,7 +5843,7 @@ cdef CUresult _cuStreamCopyAttributes(CUstream dst, CUstream src) except?<CUresu
         dst, src)
 
 
-cdef CUresult _cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, CUstreamAttrValue* value_out) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, CUstreamAttrValue* value_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamGetAttribute
     _check_or_init_driver()
     if __cuStreamGetAttribute == NULL:
@@ -5853,7 +5853,7 @@ cdef CUresult _cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, CUstr
         hStream, attr, value_out)
 
 
-cdef CUresult _cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, const CUstreamAttrValue* value) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, const CUstreamAttrValue* value) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamSetAttribute
     _check_or_init_driver()
     if __cuStreamSetAttribute == NULL:
@@ -5863,7 +5863,7 @@ cdef CUresult _cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, const
         hStream, attr, value)
 
 
-cdef CUresult _cuEventCreate(CUevent* phEvent, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEventCreate(CUevent* phEvent, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEventCreate
     _check_or_init_driver()
     if __cuEventCreate == NULL:
@@ -5873,7 +5873,7 @@ cdef CUresult _cuEventCreate(CUevent* phEvent, unsigned int Flags) except?<CUres
         phEvent, Flags)
 
 
-cdef CUresult _cuEventRecord(CUevent hEvent, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEventRecord(CUevent hEvent, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEventRecord
     _check_or_init_driver()
     if __cuEventRecord == NULL:
@@ -5883,7 +5883,7 @@ cdef CUresult _cuEventRecord(CUevent hEvent, CUstream hStream) except?<CUresult>
         hEvent, hStream)
 
 
-cdef CUresult _cuEventRecordWithFlags(CUevent hEvent, CUstream hStream, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEventRecordWithFlags(CUevent hEvent, CUstream hStream, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEventRecordWithFlags
     _check_or_init_driver()
     if __cuEventRecordWithFlags == NULL:
@@ -5893,7 +5893,7 @@ cdef CUresult _cuEventRecordWithFlags(CUevent hEvent, CUstream hStream, unsigned
         hEvent, hStream, flags)
 
 
-cdef CUresult _cuEventQuery(CUevent hEvent) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEventQuery(CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEventQuery
     _check_or_init_driver()
     if __cuEventQuery == NULL:
@@ -5903,7 +5903,7 @@ cdef CUresult _cuEventQuery(CUevent hEvent) except?<CUresult>_CURESULT_INTERNAL_
         hEvent)
 
 
-cdef CUresult _cuEventSynchronize(CUevent hEvent) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEventSynchronize(CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEventSynchronize
     _check_or_init_driver()
     if __cuEventSynchronize == NULL:
@@ -5913,7 +5913,7 @@ cdef CUresult _cuEventSynchronize(CUevent hEvent) except?<CUresult>_CURESULT_INT
         hEvent)
 
 
-cdef CUresult _cuEventDestroy_v2(CUevent hEvent) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEventDestroy_v2(CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEventDestroy_v2
     _check_or_init_driver()
     if __cuEventDestroy_v2 == NULL:
@@ -5923,7 +5923,7 @@ cdef CUresult _cuEventDestroy_v2(CUevent hEvent) except?<CUresult>_CURESULT_INTE
         hEvent)
 
 
-cdef CUresult _cuEventElapsedTime_v2(float* pMilliseconds, CUevent hStart, CUevent hEnd) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEventElapsedTime_v2(float* pMilliseconds, CUevent hStart, CUevent hEnd) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEventElapsedTime_v2
     _check_or_init_driver()
     if __cuEventElapsedTime_v2 == NULL:
@@ -5933,7 +5933,7 @@ cdef CUresult _cuEventElapsedTime_v2(float* pMilliseconds, CUevent hStart, CUeve
         pMilliseconds, hStart, hEnd)
 
 
-cdef CUresult _cuImportExternalMemory(CUexternalMemory* extMem_out, const CUDA_EXTERNAL_MEMORY_HANDLE_DESC* memHandleDesc) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuImportExternalMemory(CUexternalMemory* extMem_out, const CUDA_EXTERNAL_MEMORY_HANDLE_DESC* memHandleDesc) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuImportExternalMemory
     _check_or_init_driver()
     if __cuImportExternalMemory == NULL:
@@ -5943,7 +5943,7 @@ cdef CUresult _cuImportExternalMemory(CUexternalMemory* extMem_out, const CUDA_E
         extMem_out, memHandleDesc)
 
 
-cdef CUresult _cuExternalMemoryGetMappedBuffer(CUdeviceptr* devPtr, CUexternalMemory extMem, const CUDA_EXTERNAL_MEMORY_BUFFER_DESC* bufferDesc) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuExternalMemoryGetMappedBuffer(CUdeviceptr* devPtr, CUexternalMemory extMem, const CUDA_EXTERNAL_MEMORY_BUFFER_DESC* bufferDesc) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuExternalMemoryGetMappedBuffer
     _check_or_init_driver()
     if __cuExternalMemoryGetMappedBuffer == NULL:
@@ -5953,7 +5953,7 @@ cdef CUresult _cuExternalMemoryGetMappedBuffer(CUdeviceptr* devPtr, CUexternalMe
         devPtr, extMem, bufferDesc)
 
 
-cdef CUresult _cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray* mipmap, CUexternalMemory extMem, const CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC* mipmapDesc) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray* mipmap, CUexternalMemory extMem, const CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC* mipmapDesc) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuExternalMemoryGetMappedMipmappedArray
     _check_or_init_driver()
     if __cuExternalMemoryGetMappedMipmappedArray == NULL:
@@ -5963,7 +5963,7 @@ cdef CUresult _cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray* mipmap,
         mipmap, extMem, mipmapDesc)
 
 
-cdef CUresult _cuDestroyExternalMemory(CUexternalMemory extMem) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDestroyExternalMemory(CUexternalMemory extMem) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDestroyExternalMemory
     _check_or_init_driver()
     if __cuDestroyExternalMemory == NULL:
@@ -5973,7 +5973,7 @@ cdef CUresult _cuDestroyExternalMemory(CUexternalMemory extMem) except?<CUresult
         extMem)
 
 
-cdef CUresult _cuImportExternalSemaphore(CUexternalSemaphore* extSem_out, const CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC* semHandleDesc) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuImportExternalSemaphore(CUexternalSemaphore* extSem_out, const CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC* semHandleDesc) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuImportExternalSemaphore
     _check_or_init_driver()
     if __cuImportExternalSemaphore == NULL:
@@ -5983,7 +5983,7 @@ cdef CUresult _cuImportExternalSemaphore(CUexternalSemaphore* extSem_out, const 
         extSem_out, semHandleDesc)
 
 
-cdef CUresult _cuSignalExternalSemaphoresAsync(const CUexternalSemaphore* extSemArray, const CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* paramsArray, unsigned int numExtSems, CUstream stream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuSignalExternalSemaphoresAsync(const CUexternalSemaphore* extSemArray, const CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* paramsArray, unsigned int numExtSems, CUstream stream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuSignalExternalSemaphoresAsync
     _check_or_init_driver()
     if __cuSignalExternalSemaphoresAsync == NULL:
@@ -5993,7 +5993,7 @@ cdef CUresult _cuSignalExternalSemaphoresAsync(const CUexternalSemaphore* extSem
         extSemArray, paramsArray, numExtSems, stream)
 
 
-cdef CUresult _cuWaitExternalSemaphoresAsync(const CUexternalSemaphore* extSemArray, const CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* paramsArray, unsigned int numExtSems, CUstream stream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuWaitExternalSemaphoresAsync(const CUexternalSemaphore* extSemArray, const CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* paramsArray, unsigned int numExtSems, CUstream stream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuWaitExternalSemaphoresAsync
     _check_or_init_driver()
     if __cuWaitExternalSemaphoresAsync == NULL:
@@ -6003,7 +6003,7 @@ cdef CUresult _cuWaitExternalSemaphoresAsync(const CUexternalSemaphore* extSemAr
         extSemArray, paramsArray, numExtSems, stream)
 
 
-cdef CUresult _cuDestroyExternalSemaphore(CUexternalSemaphore extSem) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDestroyExternalSemaphore(CUexternalSemaphore extSem) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDestroyExternalSemaphore
     _check_or_init_driver()
     if __cuDestroyExternalSemaphore == NULL:
@@ -6013,7 +6013,7 @@ cdef CUresult _cuDestroyExternalSemaphore(CUexternalSemaphore extSem) except?<CU
         extSem)
 
 
-cdef CUresult _cuStreamWaitValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamWaitValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamWaitValue32_v2
     _check_or_init_driver()
     if __cuStreamWaitValue32_v2 == NULL:
@@ -6023,7 +6023,7 @@ cdef CUresult _cuStreamWaitValue32_v2(CUstream stream, CUdeviceptr addr, cuuint3
         stream, addr, value, flags)
 
 
-cdef CUresult _cuStreamWaitValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamWaitValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamWaitValue64_v2
     _check_or_init_driver()
     if __cuStreamWaitValue64_v2 == NULL:
@@ -6033,7 +6033,7 @@ cdef CUresult _cuStreamWaitValue64_v2(CUstream stream, CUdeviceptr addr, cuuint6
         stream, addr, value, flags)
 
 
-cdef CUresult _cuStreamWriteValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamWriteValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamWriteValue32_v2
     _check_or_init_driver()
     if __cuStreamWriteValue32_v2 == NULL:
@@ -6043,7 +6043,7 @@ cdef CUresult _cuStreamWriteValue32_v2(CUstream stream, CUdeviceptr addr, cuuint
         stream, addr, value, flags)
 
 
-cdef CUresult _cuStreamWriteValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamWriteValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamWriteValue64_v2
     _check_or_init_driver()
     if __cuStreamWriteValue64_v2 == NULL:
@@ -6053,7 +6053,7 @@ cdef CUresult _cuStreamWriteValue64_v2(CUstream stream, CUdeviceptr addr, cuuint
         stream, addr, value, flags)
 
 
-cdef CUresult _cuStreamBatchMemOp_v2(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamBatchMemOp_v2(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamBatchMemOp_v2
     _check_or_init_driver()
     if __cuStreamBatchMemOp_v2 == NULL:
@@ -6063,7 +6063,7 @@ cdef CUresult _cuStreamBatchMemOp_v2(CUstream stream, unsigned int count, CUstre
         stream, count, paramArray, flags)
 
 
-cdef CUresult _cuFuncGetAttribute(int* pi, CUfunction_attribute attrib, CUfunction hfunc) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncGetAttribute(int* pi, CUfunction_attribute attrib, CUfunction hfunc) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncGetAttribute
     _check_or_init_driver()
     if __cuFuncGetAttribute == NULL:
@@ -6073,7 +6073,7 @@ cdef CUresult _cuFuncGetAttribute(int* pi, CUfunction_attribute attrib, CUfuncti
         pi, attrib, hfunc)
 
 
-cdef CUresult _cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib, int value) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib, int value) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncSetAttribute
     _check_or_init_driver()
     if __cuFuncSetAttribute == NULL:
@@ -6083,7 +6083,7 @@ cdef CUresult _cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib,
         hfunc, attrib, value)
 
 
-cdef CUresult _cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncSetCacheConfig
     _check_or_init_driver()
     if __cuFuncSetCacheConfig == NULL:
@@ -6093,7 +6093,7 @@ cdef CUresult _cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) excep
         hfunc, config)
 
 
-cdef CUresult _cuFuncGetModule(CUmodule* hmod, CUfunction hfunc) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncGetModule(CUmodule* hmod, CUfunction hfunc) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncGetModule
     _check_or_init_driver()
     if __cuFuncGetModule == NULL:
@@ -6103,7 +6103,7 @@ cdef CUresult _cuFuncGetModule(CUmodule* hmod, CUfunction hfunc) except?<CUresul
         hmod, hfunc)
 
 
-cdef CUresult _cuFuncGetName(const char** name, CUfunction hfunc) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncGetName(const char** name, CUfunction hfunc) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncGetName
     _check_or_init_driver()
     if __cuFuncGetName == NULL:
@@ -6113,7 +6113,7 @@ cdef CUresult _cuFuncGetName(const char** name, CUfunction hfunc) except?<CUresu
         name, hfunc)
 
 
-cdef CUresult _cuFuncGetParamInfo(CUfunction func, size_t paramIndex, size_t* paramOffset, size_t* paramSize) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncGetParamInfo(CUfunction func, size_t paramIndex, size_t* paramOffset, size_t* paramSize) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncGetParamInfo
     _check_or_init_driver()
     if __cuFuncGetParamInfo == NULL:
@@ -6123,7 +6123,7 @@ cdef CUresult _cuFuncGetParamInfo(CUfunction func, size_t paramIndex, size_t* pa
         func, paramIndex, paramOffset, paramSize)
 
 
-cdef CUresult _cuFuncIsLoaded(CUfunctionLoadingState* state, CUfunction function) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncIsLoaded(CUfunctionLoadingState* state, CUfunction function) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncIsLoaded
     _check_or_init_driver()
     if __cuFuncIsLoaded == NULL:
@@ -6133,7 +6133,7 @@ cdef CUresult _cuFuncIsLoaded(CUfunctionLoadingState* state, CUfunction function
         state, function)
 
 
-cdef CUresult _cuFuncLoad(CUfunction function) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncLoad(CUfunction function) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncLoad
     _check_or_init_driver()
     if __cuFuncLoad == NULL:
@@ -6143,7 +6143,7 @@ cdef CUresult _cuFuncLoad(CUfunction function) except?<CUresult>_CURESULT_INTERN
         function)
 
 
-cdef CUresult _cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void** kernelParams, void** extra) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void** kernelParams, void** extra) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLaunchKernel
     _check_or_init_driver()
     if __cuLaunchKernel == NULL:
@@ -6153,7 +6153,7 @@ cdef CUresult _cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int 
         f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, kernelParams, extra)
 
 
-cdef CUresult _cuLaunchKernelEx(const CUlaunchConfig* config, CUfunction f, void** kernelParams, void** extra) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLaunchKernelEx(const CUlaunchConfig* config, CUfunction f, void** kernelParams, void** extra) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLaunchKernelEx
     _check_or_init_driver()
     if __cuLaunchKernelEx == NULL:
@@ -6163,7 +6163,7 @@ cdef CUresult _cuLaunchKernelEx(const CUlaunchConfig* config, CUfunction f, void
         config, f, kernelParams, extra)
 
 
-cdef CUresult _cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void** kernelParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void** kernelParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLaunchCooperativeKernel
     _check_or_init_driver()
     if __cuLaunchCooperativeKernel == NULL:
@@ -6173,7 +6173,7 @@ cdef CUresult _cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDimX, un
         f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, kernelParams)
 
 
-cdef CUresult _cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLaunchCooperativeKernelMultiDevice
     _check_or_init_driver()
     if __cuLaunchCooperativeKernelMultiDevice == NULL:
@@ -6183,7 +6183,7 @@ cdef CUresult _cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchPa
         launchParamsList, numDevices, flags)
 
 
-cdef CUresult _cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void* userData) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLaunchHostFunc
     _check_or_init_driver()
     if __cuLaunchHostFunc == NULL:
@@ -6193,7 +6193,7 @@ cdef CUresult _cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void* userData) e
         hStream, fn, userData)
 
 
-cdef CUresult _cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncSetBlockShape
     _check_or_init_driver()
     if __cuFuncSetBlockShape == NULL:
@@ -6203,7 +6203,7 @@ cdef CUresult _cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) except
         hfunc, x, y, z)
 
 
-cdef CUresult _cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncSetSharedSize
     _check_or_init_driver()
     if __cuFuncSetSharedSize == NULL:
@@ -6213,7 +6213,7 @@ cdef CUresult _cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes) except?
         hfunc, bytes)
 
 
-cdef CUresult _cuParamSetSize(CUfunction hfunc, unsigned int numbytes) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuParamSetSize(CUfunction hfunc, unsigned int numbytes) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuParamSetSize
     _check_or_init_driver()
     if __cuParamSetSize == NULL:
@@ -6223,7 +6223,7 @@ cdef CUresult _cuParamSetSize(CUfunction hfunc, unsigned int numbytes) except?<C
         hfunc, numbytes)
 
 
-cdef CUresult _cuParamSeti(CUfunction hfunc, int offset, unsigned int value) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuParamSeti(CUfunction hfunc, int offset, unsigned int value) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuParamSeti
     _check_or_init_driver()
     if __cuParamSeti == NULL:
@@ -6233,7 +6233,7 @@ cdef CUresult _cuParamSeti(CUfunction hfunc, int offset, unsigned int value) exc
         hfunc, offset, value)
 
 
-cdef CUresult _cuParamSetf(CUfunction hfunc, int offset, float value) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuParamSetf(CUfunction hfunc, int offset, float value) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuParamSetf
     _check_or_init_driver()
     if __cuParamSetf == NULL:
@@ -6243,7 +6243,7 @@ cdef CUresult _cuParamSetf(CUfunction hfunc, int offset, float value) except?<CU
         hfunc, offset, value)
 
 
-cdef CUresult _cuParamSetv(CUfunction hfunc, int offset, void* ptr, unsigned int numbytes) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuParamSetv(CUfunction hfunc, int offset, void* ptr, unsigned int numbytes) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuParamSetv
     _check_or_init_driver()
     if __cuParamSetv == NULL:
@@ -6253,7 +6253,7 @@ cdef CUresult _cuParamSetv(CUfunction hfunc, int offset, void* ptr, unsigned int
         hfunc, offset, ptr, numbytes)
 
 
-cdef CUresult _cuLaunch(CUfunction f) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLaunch(CUfunction f) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLaunch
     _check_or_init_driver()
     if __cuLaunch == NULL:
@@ -6263,7 +6263,7 @@ cdef CUresult _cuLaunch(CUfunction f) except?<CUresult>_CURESULT_INTERNAL_LOADIN
         f)
 
 
-cdef CUresult _cuLaunchGrid(CUfunction f, int grid_width, int grid_height) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLaunchGrid(CUfunction f, int grid_width, int grid_height) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLaunchGrid
     _check_or_init_driver()
     if __cuLaunchGrid == NULL:
@@ -6273,7 +6273,7 @@ cdef CUresult _cuLaunchGrid(CUfunction f, int grid_width, int grid_height) excep
         f, grid_width, grid_height)
 
 
-cdef CUresult _cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLaunchGridAsync
     _check_or_init_driver()
     if __cuLaunchGridAsync == NULL:
@@ -6283,7 +6283,7 @@ cdef CUresult _cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, 
         f, grid_width, grid_height, hStream)
 
 
-cdef CUresult _cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuParamSetTexRef
     _check_or_init_driver()
     if __cuParamSetTexRef == NULL:
@@ -6293,7 +6293,7 @@ cdef CUresult _cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef)
         hfunc, texunit, hTexRef)
 
 
-cdef CUresult _cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncSetSharedMemConfig
     _check_or_init_driver()
     if __cuFuncSetSharedMemConfig == NULL:
@@ -6303,7 +6303,7 @@ cdef CUresult _cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config)
         hfunc, config)
 
 
-cdef CUresult _cuGraphCreate(CUgraph* phGraph, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphCreate(CUgraph* phGraph, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphCreate
     _check_or_init_driver()
     if __cuGraphCreate == NULL:
@@ -6313,7 +6313,7 @@ cdef CUresult _cuGraphCreate(CUgraph* phGraph, unsigned int flags) except?<CUres
         phGraph, flags)
 
 
-cdef CUresult _cuGraphAddKernelNode_v2(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_KERNEL_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddKernelNode_v2(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_KERNEL_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddKernelNode_v2
     _check_or_init_driver()
     if __cuGraphAddKernelNode_v2 == NULL:
@@ -6323,7 +6323,7 @@ cdef CUresult _cuGraphAddKernelNode_v2(CUgraphNode* phGraphNode, CUgraph hGraph,
         phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
 
 
-cdef CUresult _cuGraphKernelNodeGetParams_v2(CUgraphNode hNode, CUDA_KERNEL_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphKernelNodeGetParams_v2(CUgraphNode hNode, CUDA_KERNEL_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphKernelNodeGetParams_v2
     _check_or_init_driver()
     if __cuGraphKernelNodeGetParams_v2 == NULL:
@@ -6333,7 +6333,7 @@ cdef CUresult _cuGraphKernelNodeGetParams_v2(CUgraphNode hNode, CUDA_KERNEL_NODE
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphKernelNodeSetParams_v2(CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphKernelNodeSetParams_v2(CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphKernelNodeSetParams_v2
     _check_or_init_driver()
     if __cuGraphKernelNodeSetParams_v2 == NULL:
@@ -6343,7 +6343,7 @@ cdef CUresult _cuGraphKernelNodeSetParams_v2(CUgraphNode hNode, const CUDA_KERNE
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphAddMemcpyNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_MEMCPY3D* copyParams, CUcontext ctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddMemcpyNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_MEMCPY3D* copyParams, CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddMemcpyNode
     _check_or_init_driver()
     if __cuGraphAddMemcpyNode == NULL:
@@ -6353,7 +6353,7 @@ cdef CUresult _cuGraphAddMemcpyNode(CUgraphNode* phGraphNode, CUgraph hGraph, co
         phGraphNode, hGraph, dependencies, numDependencies, copyParams, ctx)
 
 
-cdef CUresult _cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphMemcpyNodeGetParams
     _check_or_init_driver()
     if __cuGraphMemcpyNodeGetParams == NULL:
@@ -6363,7 +6363,7 @@ cdef CUresult _cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D* node
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEMCPY3D* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEMCPY3D* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphMemcpyNodeSetParams
     _check_or_init_driver()
     if __cuGraphMemcpyNodeSetParams == NULL:
@@ -6373,7 +6373,7 @@ cdef CUresult _cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEMCPY3D
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphAddMemsetNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_MEMSET_NODE_PARAMS* memsetParams, CUcontext ctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddMemsetNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_MEMSET_NODE_PARAMS* memsetParams, CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddMemsetNode
     _check_or_init_driver()
     if __cuGraphAddMemsetNode == NULL:
@@ -6383,7 +6383,7 @@ cdef CUresult _cuGraphAddMemsetNode(CUgraphNode* phGraphNode, CUgraph hGraph, co
         phGraphNode, hGraph, dependencies, numDependencies, memsetParams, ctx)
 
 
-cdef CUresult _cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphMemsetNodeGetParams
     _check_or_init_driver()
     if __cuGraphMemsetNodeGetParams == NULL:
@@ -6393,7 +6393,7 @@ cdef CUresult _cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NODE_PA
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEMSET_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEMSET_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphMemsetNodeSetParams
     _check_or_init_driver()
     if __cuGraphMemsetNodeSetParams == NULL:
@@ -6403,7 +6403,7 @@ cdef CUresult _cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEMSET_N
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphAddHostNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_HOST_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddHostNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_HOST_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddHostNode
     _check_or_init_driver()
     if __cuGraphAddHostNode == NULL:
@@ -6413,7 +6413,7 @@ cdef CUresult _cuGraphAddHostNode(CUgraphNode* phGraphNode, CUgraph hGraph, cons
         phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
 
 
-cdef CUresult _cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphHostNodeGetParams
     _check_or_init_driver()
     if __cuGraphHostNodeGetParams == NULL:
@@ -6423,7 +6423,7 @@ cdef CUresult _cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_PARAMS
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphHostNodeSetParams
     _check_or_init_driver()
     if __cuGraphHostNodeSetParams == NULL:
@@ -6433,7 +6433,7 @@ cdef CUresult _cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_NODE_
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphAddChildGraphNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUgraph childGraph) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddChildGraphNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUgraph childGraph) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddChildGraphNode
     _check_or_init_driver()
     if __cuGraphAddChildGraphNode == NULL:
@@ -6443,7 +6443,7 @@ cdef CUresult _cuGraphAddChildGraphNode(CUgraphNode* phGraphNode, CUgraph hGraph
         phGraphNode, hGraph, dependencies, numDependencies, childGraph)
 
 
-cdef CUresult _cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph* phGraph) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph* phGraph) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphChildGraphNodeGetGraph
     _check_or_init_driver()
     if __cuGraphChildGraphNodeGetGraph == NULL:
@@ -6453,7 +6453,7 @@ cdef CUresult _cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph* phGraph
         hNode, phGraph)
 
 
-cdef CUresult _cuGraphAddEmptyNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddEmptyNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddEmptyNode
     _check_or_init_driver()
     if __cuGraphAddEmptyNode == NULL:
@@ -6463,7 +6463,7 @@ cdef CUresult _cuGraphAddEmptyNode(CUgraphNode* phGraphNode, CUgraph hGraph, con
         phGraphNode, hGraph, dependencies, numDependencies)
 
 
-cdef CUresult _cuGraphAddEventRecordNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUevent event) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddEventRecordNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUevent event) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddEventRecordNode
     _check_or_init_driver()
     if __cuGraphAddEventRecordNode == NULL:
@@ -6473,7 +6473,7 @@ cdef CUresult _cuGraphAddEventRecordNode(CUgraphNode* phGraphNode, CUgraph hGrap
         phGraphNode, hGraph, dependencies, numDependencies, event)
 
 
-cdef CUresult _cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, CUevent* event_out) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, CUevent* event_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphEventRecordNodeGetEvent
     _check_or_init_driver()
     if __cuGraphEventRecordNodeGetEvent == NULL:
@@ -6483,7 +6483,7 @@ cdef CUresult _cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, CUevent* event_
         hNode, event_out)
 
 
-cdef CUresult _cuGraphEventRecordNodeSetEvent(CUgraphNode hNode, CUevent event) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphEventRecordNodeSetEvent(CUgraphNode hNode, CUevent event) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphEventRecordNodeSetEvent
     _check_or_init_driver()
     if __cuGraphEventRecordNodeSetEvent == NULL:
@@ -6493,7 +6493,7 @@ cdef CUresult _cuGraphEventRecordNodeSetEvent(CUgraphNode hNode, CUevent event) 
         hNode, event)
 
 
-cdef CUresult _cuGraphAddEventWaitNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUevent event) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddEventWaitNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUevent event) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddEventWaitNode
     _check_or_init_driver()
     if __cuGraphAddEventWaitNode == NULL:
@@ -6503,7 +6503,7 @@ cdef CUresult _cuGraphAddEventWaitNode(CUgraphNode* phGraphNode, CUgraph hGraph,
         phGraphNode, hGraph, dependencies, numDependencies, event)
 
 
-cdef CUresult _cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, CUevent* event_out) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, CUevent* event_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphEventWaitNodeGetEvent
     _check_or_init_driver()
     if __cuGraphEventWaitNodeGetEvent == NULL:
@@ -6513,7 +6513,7 @@ cdef CUresult _cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, CUevent* event_ou
         hNode, event_out)
 
 
-cdef CUresult _cuGraphEventWaitNodeSetEvent(CUgraphNode hNode, CUevent event) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphEventWaitNodeSetEvent(CUgraphNode hNode, CUevent event) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphEventWaitNodeSetEvent
     _check_or_init_driver()
     if __cuGraphEventWaitNodeSetEvent == NULL:
@@ -6523,7 +6523,7 @@ cdef CUresult _cuGraphEventWaitNodeSetEvent(CUgraphNode hNode, CUevent event) ex
         hNode, event)
 
 
-cdef CUresult _cuGraphAddExternalSemaphoresSignalNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddExternalSemaphoresSignalNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddExternalSemaphoresSignalNode
     _check_or_init_driver()
     if __cuGraphAddExternalSemaphoresSignalNode == NULL:
@@ -6533,7 +6533,7 @@ cdef CUresult _cuGraphAddExternalSemaphoresSignalNode(CUgraphNode* phGraphNode, 
         phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
 
 
-cdef CUresult _cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNode, CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* params_out) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNode, CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* params_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExternalSemaphoresSignalNodeGetParams
     _check_or_init_driver()
     if __cuGraphExternalSemaphoresSignalNodeGetParams == NULL:
@@ -6543,7 +6543,7 @@ cdef CUresult _cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNode, C
         hNode, params_out)
 
 
-cdef CUresult _cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNode, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNode, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExternalSemaphoresSignalNodeSetParams
     _check_or_init_driver()
     if __cuGraphExternalSemaphoresSignalNodeSetParams == NULL:
@@ -6553,7 +6553,7 @@ cdef CUresult _cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNode, c
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphAddExternalSemaphoresWaitNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddExternalSemaphoresWaitNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddExternalSemaphoresWaitNode
     _check_or_init_driver()
     if __cuGraphAddExternalSemaphoresWaitNode == NULL:
@@ -6563,7 +6563,7 @@ cdef CUresult _cuGraphAddExternalSemaphoresWaitNode(CUgraphNode* phGraphNode, CU
         phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
 
 
-cdef CUresult _cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode, CUDA_EXT_SEM_WAIT_NODE_PARAMS* params_out) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode, CUDA_EXT_SEM_WAIT_NODE_PARAMS* params_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExternalSemaphoresWaitNodeGetParams
     _check_or_init_driver()
     if __cuGraphExternalSemaphoresWaitNodeGetParams == NULL:
@@ -6573,7 +6573,7 @@ cdef CUresult _cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode, CUD
         hNode, params_out)
 
 
-cdef CUresult _cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExternalSemaphoresWaitNodeSetParams
     _check_or_init_driver()
     if __cuGraphExternalSemaphoresWaitNodeSetParams == NULL:
@@ -6583,7 +6583,7 @@ cdef CUresult _cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode, con
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphAddBatchMemOpNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddBatchMemOpNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddBatchMemOpNode
     _check_or_init_driver()
     if __cuGraphAddBatchMemOpNode == NULL:
@@ -6593,7 +6593,7 @@ cdef CUresult _cuGraphAddBatchMemOpNode(CUgraphNode* phGraphNode, CUgraph hGraph
         phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
 
 
-cdef CUresult _cuGraphBatchMemOpNodeGetParams(CUgraphNode hNode, CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams_out) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphBatchMemOpNodeGetParams(CUgraphNode hNode, CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphBatchMemOpNodeGetParams
     _check_or_init_driver()
     if __cuGraphBatchMemOpNodeGetParams == NULL:
@@ -6603,7 +6603,7 @@ cdef CUresult _cuGraphBatchMemOpNodeGetParams(CUgraphNode hNode, CUDA_BATCH_MEM_
         hNode, nodeParams_out)
 
 
-cdef CUresult _cuGraphBatchMemOpNodeSetParams(CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphBatchMemOpNodeSetParams(CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphBatchMemOpNodeSetParams
     _check_or_init_driver()
     if __cuGraphBatchMemOpNodeSetParams == NULL:
@@ -6613,7 +6613,7 @@ cdef CUresult _cuGraphBatchMemOpNodeSetParams(CUgraphNode hNode, const CUDA_BATC
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphExecBatchMemOpNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecBatchMemOpNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecBatchMemOpNodeSetParams
     _check_or_init_driver()
     if __cuGraphExecBatchMemOpNodeSetParams == NULL:
@@ -6623,7 +6623,7 @@ cdef CUresult _cuGraphExecBatchMemOpNodeSetParams(CUgraphExec hGraphExec, CUgrap
         hGraphExec, hNode, nodeParams)
 
 
-cdef CUresult _cuGraphAddMemAllocNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUDA_MEM_ALLOC_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddMemAllocNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUDA_MEM_ALLOC_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddMemAllocNode
     _check_or_init_driver()
     if __cuGraphAddMemAllocNode == NULL:
@@ -6633,7 +6633,7 @@ cdef CUresult _cuGraphAddMemAllocNode(CUgraphNode* phGraphNode, CUgraph hGraph, 
         phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
 
 
-cdef CUresult _cuGraphMemAllocNodeGetParams(CUgraphNode hNode, CUDA_MEM_ALLOC_NODE_PARAMS* params_out) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphMemAllocNodeGetParams(CUgraphNode hNode, CUDA_MEM_ALLOC_NODE_PARAMS* params_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphMemAllocNodeGetParams
     _check_or_init_driver()
     if __cuGraphMemAllocNodeGetParams == NULL:
@@ -6643,7 +6643,7 @@ cdef CUresult _cuGraphMemAllocNodeGetParams(CUgraphNode hNode, CUDA_MEM_ALLOC_NO
         hNode, params_out)
 
 
-cdef CUresult _cuGraphAddMemFreeNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUdeviceptr dptr) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddMemFreeNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUdeviceptr dptr) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddMemFreeNode
     _check_or_init_driver()
     if __cuGraphAddMemFreeNode == NULL:
@@ -6653,7 +6653,7 @@ cdef CUresult _cuGraphAddMemFreeNode(CUgraphNode* phGraphNode, CUgraph hGraph, c
         phGraphNode, hGraph, dependencies, numDependencies, dptr)
 
 
-cdef CUresult _cuGraphMemFreeNodeGetParams(CUgraphNode hNode, CUdeviceptr* dptr_out) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphMemFreeNodeGetParams(CUgraphNode hNode, CUdeviceptr* dptr_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphMemFreeNodeGetParams
     _check_or_init_driver()
     if __cuGraphMemFreeNodeGetParams == NULL:
@@ -6663,7 +6663,7 @@ cdef CUresult _cuGraphMemFreeNodeGetParams(CUgraphNode hNode, CUdeviceptr* dptr_
         hNode, dptr_out)
 
 
-cdef CUresult _cuDeviceGraphMemTrim(CUdevice device) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGraphMemTrim(CUdevice device) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGraphMemTrim
     _check_or_init_driver()
     if __cuDeviceGraphMemTrim == NULL:
@@ -6673,7 +6673,7 @@ cdef CUresult _cuDeviceGraphMemTrim(CUdevice device) except?<CUresult>_CURESULT_
         device)
 
 
-cdef CUresult _cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_attribute attr, void* value) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_attribute attr, void* value) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetGraphMemAttribute
     _check_or_init_driver()
     if __cuDeviceGetGraphMemAttribute == NULL:
@@ -6683,7 +6683,7 @@ cdef CUresult _cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_attribut
         device, attr, value)
 
 
-cdef CUresult _cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_attribute attr, void* value) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_attribute attr, void* value) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceSetGraphMemAttribute
     _check_or_init_driver()
     if __cuDeviceSetGraphMemAttribute == NULL:
@@ -6693,7 +6693,7 @@ cdef CUresult _cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_attribut
         device, attr, value)
 
 
-cdef CUresult _cuGraphClone(CUgraph* phGraphClone, CUgraph originalGraph) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphClone(CUgraph* phGraphClone, CUgraph originalGraph) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphClone
     _check_or_init_driver()
     if __cuGraphClone == NULL:
@@ -6703,7 +6703,7 @@ cdef CUresult _cuGraphClone(CUgraph* phGraphClone, CUgraph originalGraph) except
         phGraphClone, originalGraph)
 
 
-cdef CUresult _cuGraphNodeFindInClone(CUgraphNode* phNode, CUgraphNode hOriginalNode, CUgraph hClonedGraph) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphNodeFindInClone(CUgraphNode* phNode, CUgraphNode hOriginalNode, CUgraph hClonedGraph) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeFindInClone
     _check_or_init_driver()
     if __cuGraphNodeFindInClone == NULL:
@@ -6713,7 +6713,7 @@ cdef CUresult _cuGraphNodeFindInClone(CUgraphNode* phNode, CUgraphNode hOriginal
         phNode, hOriginalNode, hClonedGraph)
 
 
-cdef CUresult _cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType* type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType* type) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeGetType
     _check_or_init_driver()
     if __cuGraphNodeGetType == NULL:
@@ -6723,7 +6723,7 @@ cdef CUresult _cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType* type) exce
         hNode, type)
 
 
-cdef CUresult _cuGraphGetNodes(CUgraph hGraph, CUgraphNode* nodes, size_t* numNodes) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphGetNodes(CUgraph hGraph, CUgraphNode* nodes, size_t* numNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphGetNodes
     _check_or_init_driver()
     if __cuGraphGetNodes == NULL:
@@ -6733,7 +6733,7 @@ cdef CUresult _cuGraphGetNodes(CUgraph hGraph, CUgraphNode* nodes, size_t* numNo
         hGraph, nodes, numNodes)
 
 
-cdef CUresult _cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode* rootNodes, size_t* numRootNodes) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode* rootNodes, size_t* numRootNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphGetRootNodes
     _check_or_init_driver()
     if __cuGraphGetRootNodes == NULL:
@@ -6743,7 +6743,7 @@ cdef CUresult _cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode* rootNodes, size_
         hGraph, rootNodes, numRootNodes)
 
 
-cdef CUresult _cuGraphGetEdges_v2(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, CUgraphEdgeData* edgeData, size_t* numEdges) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphGetEdges_v2(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, CUgraphEdgeData* edgeData, size_t* numEdges) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphGetEdges_v2
     _check_or_init_driver()
     if __cuGraphGetEdges_v2 == NULL:
@@ -6753,7 +6753,7 @@ cdef CUresult _cuGraphGetEdges_v2(CUgraph hGraph, CUgraphNode* from_, CUgraphNod
         hGraph, from_, to, edgeData, numEdges)
 
 
-cdef CUresult _cuGraphNodeGetDependencies_v2(CUgraphNode hNode, CUgraphNode* dependencies, CUgraphEdgeData* edgeData, size_t* numDependencies) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphNodeGetDependencies_v2(CUgraphNode hNode, CUgraphNode* dependencies, CUgraphEdgeData* edgeData, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeGetDependencies_v2
     _check_or_init_driver()
     if __cuGraphNodeGetDependencies_v2 == NULL:
@@ -6763,7 +6763,7 @@ cdef CUresult _cuGraphNodeGetDependencies_v2(CUgraphNode hNode, CUgraphNode* dep
         hNode, dependencies, edgeData, numDependencies)
 
 
-cdef CUresult _cuGraphNodeGetDependentNodes_v2(CUgraphNode hNode, CUgraphNode* dependentNodes, CUgraphEdgeData* edgeData, size_t* numDependentNodes) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphNodeGetDependentNodes_v2(CUgraphNode hNode, CUgraphNode* dependentNodes, CUgraphEdgeData* edgeData, size_t* numDependentNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeGetDependentNodes_v2
     _check_or_init_driver()
     if __cuGraphNodeGetDependentNodes_v2 == NULL:
@@ -6773,7 +6773,7 @@ cdef CUresult _cuGraphNodeGetDependentNodes_v2(CUgraphNode hNode, CUgraphNode* d
         hNode, dependentNodes, edgeData, numDependentNodes)
 
 
-cdef CUresult _cuGraphAddDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddDependencies_v2
     _check_or_init_driver()
     if __cuGraphAddDependencies_v2 == NULL:
@@ -6783,7 +6783,7 @@ cdef CUresult _cuGraphAddDependencies_v2(CUgraph hGraph, const CUgraphNode* from
         hGraph, from_, to, edgeData, numDependencies)
 
 
-cdef CUresult _cuGraphRemoveDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphRemoveDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphRemoveDependencies_v2
     _check_or_init_driver()
     if __cuGraphRemoveDependencies_v2 == NULL:
@@ -6793,7 +6793,7 @@ cdef CUresult _cuGraphRemoveDependencies_v2(CUgraph hGraph, const CUgraphNode* f
         hGraph, from_, to, edgeData, numDependencies)
 
 
-cdef CUresult _cuGraphDestroyNode(CUgraphNode hNode) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphDestroyNode(CUgraphNode hNode) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphDestroyNode
     _check_or_init_driver()
     if __cuGraphDestroyNode == NULL:
@@ -6803,7 +6803,7 @@ cdef CUresult _cuGraphDestroyNode(CUgraphNode hNode) except?<CUresult>_CURESULT_
         hNode)
 
 
-cdef CUresult _cuGraphInstantiateWithFlags(CUgraphExec* phGraphExec, CUgraph hGraph, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphInstantiateWithFlags(CUgraphExec* phGraphExec, CUgraph hGraph, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphInstantiateWithFlags
     _check_or_init_driver()
     if __cuGraphInstantiateWithFlags == NULL:
@@ -6813,7 +6813,7 @@ cdef CUresult _cuGraphInstantiateWithFlags(CUgraphExec* phGraphExec, CUgraph hGr
         phGraphExec, hGraph, flags)
 
 
-cdef CUresult _cuGraphInstantiateWithParams(CUgraphExec* phGraphExec, CUgraph hGraph, CUDA_GRAPH_INSTANTIATE_PARAMS* instantiateParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphInstantiateWithParams(CUgraphExec* phGraphExec, CUgraph hGraph, CUDA_GRAPH_INSTANTIATE_PARAMS* instantiateParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphInstantiateWithParams
     _check_or_init_driver()
     if __cuGraphInstantiateWithParams == NULL:
@@ -6823,7 +6823,7 @@ cdef CUresult _cuGraphInstantiateWithParams(CUgraphExec* phGraphExec, CUgraph hG
         phGraphExec, hGraph, instantiateParams)
 
 
-cdef CUresult _cuGraphExecGetFlags(CUgraphExec hGraphExec, cuuint64_t* flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecGetFlags(CUgraphExec hGraphExec, cuuint64_t* flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecGetFlags
     _check_or_init_driver()
     if __cuGraphExecGetFlags == NULL:
@@ -6833,7 +6833,7 @@ cdef CUresult _cuGraphExecGetFlags(CUgraphExec hGraphExec, cuuint64_t* flags) ex
         hGraphExec, flags)
 
 
-cdef CUresult _cuGraphExecKernelNodeSetParams_v2(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecKernelNodeSetParams_v2(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecKernelNodeSetParams_v2
     _check_or_init_driver()
     if __cuGraphExecKernelNodeSetParams_v2 == NULL:
@@ -6843,7 +6843,7 @@ cdef CUresult _cuGraphExecKernelNodeSetParams_v2(CUgraphExec hGraphExec, CUgraph
         hGraphExec, hNode, nodeParams)
 
 
-cdef CUresult _cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_MEMCPY3D* copyParams, CUcontext ctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_MEMCPY3D* copyParams, CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecMemcpyNodeSetParams
     _check_or_init_driver()
     if __cuGraphExecMemcpyNodeSetParams == NULL:
@@ -6853,7 +6853,7 @@ cdef CUresult _cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgraphNod
         hGraphExec, hNode, copyParams, ctx)
 
 
-cdef CUresult _cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_MEMSET_NODE_PARAMS* memsetParams, CUcontext ctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_MEMSET_NODE_PARAMS* memsetParams, CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecMemsetNodeSetParams
     _check_or_init_driver()
     if __cuGraphExecMemsetNodeSetParams == NULL:
@@ -6863,7 +6863,7 @@ cdef CUresult _cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgraphNod
         hGraphExec, hNode, memsetParams, ctx)
 
 
-cdef CUresult _cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_HOST_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_HOST_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecHostNodeSetParams
     _check_or_init_driver()
     if __cuGraphExecHostNodeSetParams == NULL:
@@ -6873,7 +6873,7 @@ cdef CUresult _cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraphNode 
         hGraphExec, hNode, nodeParams)
 
 
-cdef CUresult _cuGraphExecChildGraphNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CUgraph childGraph) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecChildGraphNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CUgraph childGraph) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecChildGraphNodeSetParams
     _check_or_init_driver()
     if __cuGraphExecChildGraphNodeSetParams == NULL:
@@ -6883,7 +6883,7 @@ cdef CUresult _cuGraphExecChildGraphNodeSetParams(CUgraphExec hGraphExec, CUgrap
         hGraphExec, hNode, childGraph)
 
 
-cdef CUresult _cuGraphExecEventRecordNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecEventRecordNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecEventRecordNodeSetEvent
     _check_or_init_driver()
     if __cuGraphExecEventRecordNodeSetEvent == NULL:
@@ -6893,7 +6893,7 @@ cdef CUresult _cuGraphExecEventRecordNodeSetEvent(CUgraphExec hGraphExec, CUgrap
         hGraphExec, hNode, event)
 
 
-cdef CUresult _cuGraphExecEventWaitNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecEventWaitNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecEventWaitNodeSetEvent
     _check_or_init_driver()
     if __cuGraphExecEventWaitNodeSetEvent == NULL:
@@ -6903,7 +6903,7 @@ cdef CUresult _cuGraphExecEventWaitNodeSetEvent(CUgraphExec hGraphExec, CUgraphN
         hGraphExec, hNode, event)
 
 
-cdef CUresult _cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecExternalSemaphoresSignalNodeSetParams
     _check_or_init_driver()
     if __cuGraphExecExternalSemaphoresSignalNodeSetParams == NULL:
@@ -6913,7 +6913,7 @@ cdef CUresult _cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec hGra
         hGraphExec, hNode, nodeParams)
 
 
-cdef CUresult _cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecExternalSemaphoresWaitNodeSetParams
     _check_or_init_driver()
     if __cuGraphExecExternalSemaphoresWaitNodeSetParams == NULL:
@@ -6923,7 +6923,7 @@ cdef CUresult _cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec hGraph
         hGraphExec, hNode, nodeParams)
 
 
-cdef CUresult _cuGraphNodeSetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int isEnabled) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphNodeSetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int isEnabled) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeSetEnabled
     _check_or_init_driver()
     if __cuGraphNodeSetEnabled == NULL:
@@ -6933,7 +6933,7 @@ cdef CUresult _cuGraphNodeSetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, 
         hGraphExec, hNode, isEnabled)
 
 
-cdef CUresult _cuGraphNodeGetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int* isEnabled) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphNodeGetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int* isEnabled) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeGetEnabled
     _check_or_init_driver()
     if __cuGraphNodeGetEnabled == NULL:
@@ -6943,7 +6943,7 @@ cdef CUresult _cuGraphNodeGetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, 
         hGraphExec, hNode, isEnabled)
 
 
-cdef CUresult _cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphUpload
     _check_or_init_driver()
     if __cuGraphUpload == NULL:
@@ -6953,7 +6953,7 @@ cdef CUresult _cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) except?<C
         hGraphExec, hStream)
 
 
-cdef CUresult _cuGraphLaunch(CUgraphExec hGraphExec, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphLaunch(CUgraphExec hGraphExec, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphLaunch
     _check_or_init_driver()
     if __cuGraphLaunch == NULL:
@@ -6963,7 +6963,7 @@ cdef CUresult _cuGraphLaunch(CUgraphExec hGraphExec, CUstream hStream) except?<C
         hGraphExec, hStream)
 
 
-cdef CUresult _cuGraphExecDestroy(CUgraphExec hGraphExec) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecDestroy(CUgraphExec hGraphExec) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecDestroy
     _check_or_init_driver()
     if __cuGraphExecDestroy == NULL:
@@ -6973,7 +6973,7 @@ cdef CUresult _cuGraphExecDestroy(CUgraphExec hGraphExec) except?<CUresult>_CURE
         hGraphExec)
 
 
-cdef CUresult _cuGraphDestroy(CUgraph hGraph) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphDestroy(CUgraph hGraph) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphDestroy
     _check_or_init_driver()
     if __cuGraphDestroy == NULL:
@@ -6983,7 +6983,7 @@ cdef CUresult _cuGraphDestroy(CUgraph hGraph) except?<CUresult>_CURESULT_INTERNA
         hGraph)
 
 
-cdef CUresult _cuGraphExecUpdate_v2(CUgraphExec hGraphExec, CUgraph hGraph, CUgraphExecUpdateResultInfo* resultInfo) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecUpdate_v2(CUgraphExec hGraphExec, CUgraph hGraph, CUgraphExecUpdateResultInfo* resultInfo) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecUpdate_v2
     _check_or_init_driver()
     if __cuGraphExecUpdate_v2 == NULL:
@@ -6993,7 +6993,7 @@ cdef CUresult _cuGraphExecUpdate_v2(CUgraphExec hGraphExec, CUgraph hGraph, CUgr
         hGraphExec, hGraph, resultInfo)
 
 
-cdef CUresult _cuGraphKernelNodeCopyAttributes(CUgraphNode dst, CUgraphNode src) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphKernelNodeCopyAttributes(CUgraphNode dst, CUgraphNode src) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphKernelNodeCopyAttributes
     _check_or_init_driver()
     if __cuGraphKernelNodeCopyAttributes == NULL:
@@ -7003,7 +7003,7 @@ cdef CUresult _cuGraphKernelNodeCopyAttributes(CUgraphNode dst, CUgraphNode src)
         dst, src)
 
 
-cdef CUresult _cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNodeAttrID attr, CUkernelNodeAttrValue* value_out) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNodeAttrID attr, CUkernelNodeAttrValue* value_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphKernelNodeGetAttribute
     _check_or_init_driver()
     if __cuGraphKernelNodeGetAttribute == NULL:
@@ -7013,7 +7013,7 @@ cdef CUresult _cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNodeAttr
         hNode, attr, value_out)
 
 
-cdef CUresult _cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNodeAttrID attr, const CUkernelNodeAttrValue* value) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNodeAttrID attr, const CUkernelNodeAttrValue* value) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphKernelNodeSetAttribute
     _check_or_init_driver()
     if __cuGraphKernelNodeSetAttribute == NULL:
@@ -7023,7 +7023,7 @@ cdef CUresult _cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNodeAttr
         hNode, attr, value)
 
 
-cdef CUresult _cuGraphDebugDotPrint(CUgraph hGraph, const char* path, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphDebugDotPrint(CUgraph hGraph, const char* path, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphDebugDotPrint
     _check_or_init_driver()
     if __cuGraphDebugDotPrint == NULL:
@@ -7033,7 +7033,7 @@ cdef CUresult _cuGraphDebugDotPrint(CUgraph hGraph, const char* path, unsigned i
         hGraph, path, flags)
 
 
-cdef CUresult _cuUserObjectCreate(CUuserObject* object_out, void* ptr, CUhostFn destroy, unsigned int initialRefcount, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuUserObjectCreate(CUuserObject* object_out, void* ptr, CUhostFn destroy, unsigned int initialRefcount, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuUserObjectCreate
     _check_or_init_driver()
     if __cuUserObjectCreate == NULL:
@@ -7043,7 +7043,7 @@ cdef CUresult _cuUserObjectCreate(CUuserObject* object_out, void* ptr, CUhostFn 
         object_out, ptr, destroy, initialRefcount, flags)
 
 
-cdef CUresult _cuUserObjectRetain(CUuserObject object, unsigned int count) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuUserObjectRetain(CUuserObject object, unsigned int count) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuUserObjectRetain
     _check_or_init_driver()
     if __cuUserObjectRetain == NULL:
@@ -7053,7 +7053,7 @@ cdef CUresult _cuUserObjectRetain(CUuserObject object, unsigned int count) excep
         object, count)
 
 
-cdef CUresult _cuUserObjectRelease(CUuserObject object, unsigned int count) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuUserObjectRelease(CUuserObject object, unsigned int count) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuUserObjectRelease
     _check_or_init_driver()
     if __cuUserObjectRelease == NULL:
@@ -7063,7 +7063,7 @@ cdef CUresult _cuUserObjectRelease(CUuserObject object, unsigned int count) exce
         object, count)
 
 
-cdef CUresult _cuGraphRetainUserObject(CUgraph graph, CUuserObject object, unsigned int count, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphRetainUserObject(CUgraph graph, CUuserObject object, unsigned int count, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphRetainUserObject
     _check_or_init_driver()
     if __cuGraphRetainUserObject == NULL:
@@ -7073,7 +7073,7 @@ cdef CUresult _cuGraphRetainUserObject(CUgraph graph, CUuserObject object, unsig
         graph, object, count, flags)
 
 
-cdef CUresult _cuGraphReleaseUserObject(CUgraph graph, CUuserObject object, unsigned int count) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphReleaseUserObject(CUgraph graph, CUuserObject object, unsigned int count) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphReleaseUserObject
     _check_or_init_driver()
     if __cuGraphReleaseUserObject == NULL:
@@ -7083,7 +7083,7 @@ cdef CUresult _cuGraphReleaseUserObject(CUgraph graph, CUuserObject object, unsi
         graph, object, count)
 
 
-cdef CUresult _cuGraphAddNode_v2(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphAddNode_v2(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddNode_v2
     _check_or_init_driver()
     if __cuGraphAddNode_v2 == NULL:
@@ -7093,7 +7093,7 @@ cdef CUresult _cuGraphAddNode_v2(CUgraphNode* phGraphNode, CUgraph hGraph, const
         phGraphNode, hGraph, dependencies, dependencyData, numDependencies, nodeParams)
 
 
-cdef CUresult _cuGraphNodeSetParams(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphNodeSetParams(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeSetParams
     _check_or_init_driver()
     if __cuGraphNodeSetParams == NULL:
@@ -7103,7 +7103,7 @@ cdef CUresult _cuGraphNodeSetParams(CUgraphNode hNode, CUgraphNodeParams* nodePa
         hNode, nodeParams)
 
 
-cdef CUresult _cuGraphExecNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CUgraphNodeParams* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecNodeSetParams
     _check_or_init_driver()
     if __cuGraphExecNodeSetParams == NULL:
@@ -7113,7 +7113,7 @@ cdef CUresult _cuGraphExecNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNod
         hGraphExec, hNode, nodeParams)
 
 
-cdef CUresult _cuGraphConditionalHandleCreate(CUgraphConditionalHandle* pHandle_out, CUgraph hGraph, CUcontext ctx, unsigned int defaultLaunchValue, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphConditionalHandleCreate(CUgraphConditionalHandle* pHandle_out, CUgraph hGraph, CUcontext ctx, unsigned int defaultLaunchValue, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphConditionalHandleCreate
     _check_or_init_driver()
     if __cuGraphConditionalHandleCreate == NULL:
@@ -7123,7 +7123,7 @@ cdef CUresult _cuGraphConditionalHandleCreate(CUgraphConditionalHandle* pHandle_
         pHandle_out, hGraph, ctx, defaultLaunchValue, flags)
 
 
-cdef CUresult _cuOccupancyMaxActiveBlocksPerMultiprocessor(int* numBlocks, CUfunction func, int blockSize, size_t dynamicSMemSize) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuOccupancyMaxActiveBlocksPerMultiprocessor(int* numBlocks, CUfunction func, int blockSize, size_t dynamicSMemSize) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuOccupancyMaxActiveBlocksPerMultiprocessor
     _check_or_init_driver()
     if __cuOccupancyMaxActiveBlocksPerMultiprocessor == NULL:
@@ -7133,7 +7133,7 @@ cdef CUresult _cuOccupancyMaxActiveBlocksPerMultiprocessor(int* numBlocks, CUfun
         numBlocks, func, blockSize, dynamicSMemSize)
 
 
-cdef CUresult _cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int* numBlocks, CUfunction func, int blockSize, size_t dynamicSMemSize, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int* numBlocks, CUfunction func, int blockSize, size_t dynamicSMemSize, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
     _check_or_init_driver()
     if __cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags == NULL:
@@ -7143,7 +7143,7 @@ cdef CUresult _cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int* numBloc
         numBlocks, func, blockSize, dynamicSMemSize, flags)
 
 
-cdef CUresult _cuOccupancyMaxPotentialBlockSize(int* minGridSize, int* blockSize, CUfunction func, CUoccupancyB2DSize blockSizeToDynamicSMemSize, size_t dynamicSMemSize, int blockSizeLimit) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuOccupancyMaxPotentialBlockSize(int* minGridSize, int* blockSize, CUfunction func, CUoccupancyB2DSize blockSizeToDynamicSMemSize, size_t dynamicSMemSize, int blockSizeLimit) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuOccupancyMaxPotentialBlockSize
     _check_or_init_driver()
     if __cuOccupancyMaxPotentialBlockSize == NULL:
@@ -7153,7 +7153,7 @@ cdef CUresult _cuOccupancyMaxPotentialBlockSize(int* minGridSize, int* blockSize
         minGridSize, blockSize, func, blockSizeToDynamicSMemSize, dynamicSMemSize, blockSizeLimit)
 
 
-cdef CUresult _cuOccupancyMaxPotentialBlockSizeWithFlags(int* minGridSize, int* blockSize, CUfunction func, CUoccupancyB2DSize blockSizeToDynamicSMemSize, size_t dynamicSMemSize, int blockSizeLimit, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuOccupancyMaxPotentialBlockSizeWithFlags(int* minGridSize, int* blockSize, CUfunction func, CUoccupancyB2DSize blockSizeToDynamicSMemSize, size_t dynamicSMemSize, int blockSizeLimit, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuOccupancyMaxPotentialBlockSizeWithFlags
     _check_or_init_driver()
     if __cuOccupancyMaxPotentialBlockSizeWithFlags == NULL:
@@ -7163,7 +7163,7 @@ cdef CUresult _cuOccupancyMaxPotentialBlockSizeWithFlags(int* minGridSize, int* 
         minGridSize, blockSize, func, blockSizeToDynamicSMemSize, dynamicSMemSize, blockSizeLimit, flags)
 
 
-cdef CUresult _cuOccupancyAvailableDynamicSMemPerBlock(size_t* dynamicSmemSize, CUfunction func, int numBlocks, int blockSize) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuOccupancyAvailableDynamicSMemPerBlock(size_t* dynamicSmemSize, CUfunction func, int numBlocks, int blockSize) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuOccupancyAvailableDynamicSMemPerBlock
     _check_or_init_driver()
     if __cuOccupancyAvailableDynamicSMemPerBlock == NULL:
@@ -7173,7 +7173,7 @@ cdef CUresult _cuOccupancyAvailableDynamicSMemPerBlock(size_t* dynamicSmemSize, 
         dynamicSmemSize, func, numBlocks, blockSize)
 
 
-cdef CUresult _cuOccupancyMaxPotentialClusterSize(int* clusterSize, CUfunction func, const CUlaunchConfig* config) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuOccupancyMaxPotentialClusterSize(int* clusterSize, CUfunction func, const CUlaunchConfig* config) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuOccupancyMaxPotentialClusterSize
     _check_or_init_driver()
     if __cuOccupancyMaxPotentialClusterSize == NULL:
@@ -7183,7 +7183,7 @@ cdef CUresult _cuOccupancyMaxPotentialClusterSize(int* clusterSize, CUfunction f
         clusterSize, func, config)
 
 
-cdef CUresult _cuOccupancyMaxActiveClusters(int* numClusters, CUfunction func, const CUlaunchConfig* config) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuOccupancyMaxActiveClusters(int* numClusters, CUfunction func, const CUlaunchConfig* config) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuOccupancyMaxActiveClusters
     _check_or_init_driver()
     if __cuOccupancyMaxActiveClusters == NULL:
@@ -7193,7 +7193,7 @@ cdef CUresult _cuOccupancyMaxActiveClusters(int* numClusters, CUfunction func, c
         numClusters, func, config)
 
 
-cdef CUresult _cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetArray
     _check_or_init_driver()
     if __cuTexRefSetArray == NULL:
@@ -7203,7 +7203,7 @@ cdef CUresult _cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned int F
         hTexRef, hArray, Flags)
 
 
-cdef CUresult _cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray hMipmappedArray, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray hMipmappedArray, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetMipmappedArray
     _check_or_init_driver()
     if __cuTexRefSetMipmappedArray == NULL:
@@ -7213,7 +7213,7 @@ cdef CUresult _cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray hMip
         hTexRef, hMipmappedArray, Flags)
 
 
-cdef CUresult _cuTexRefSetAddress_v2(size_t* ByteOffset, CUtexref hTexRef, CUdeviceptr dptr, size_t bytes) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetAddress_v2(size_t* ByteOffset, CUtexref hTexRef, CUdeviceptr dptr, size_t bytes) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetAddress_v2
     _check_or_init_driver()
     if __cuTexRefSetAddress_v2 == NULL:
@@ -7223,7 +7223,7 @@ cdef CUresult _cuTexRefSetAddress_v2(size_t* ByteOffset, CUtexref hTexRef, CUdev
         ByteOffset, hTexRef, dptr, bytes)
 
 
-cdef CUresult _cuTexRefSetAddress2D_v3(CUtexref hTexRef, const CUDA_ARRAY_DESCRIPTOR* desc, CUdeviceptr dptr, size_t Pitch) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetAddress2D_v3(CUtexref hTexRef, const CUDA_ARRAY_DESCRIPTOR* desc, CUdeviceptr dptr, size_t Pitch) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetAddress2D_v3
     _check_or_init_driver()
     if __cuTexRefSetAddress2D_v3 == NULL:
@@ -7233,7 +7233,7 @@ cdef CUresult _cuTexRefSetAddress2D_v3(CUtexref hTexRef, const CUDA_ARRAY_DESCRI
         hTexRef, desc, dptr, Pitch)
 
 
-cdef CUresult _cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt, int NumPackedComponents) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt, int NumPackedComponents) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetFormat
     _check_or_init_driver()
     if __cuTexRefSetFormat == NULL:
@@ -7243,7 +7243,7 @@ cdef CUresult _cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt, int NumPa
         hTexRef, fmt, NumPackedComponents)
 
 
-cdef CUresult _cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_mode am) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_mode am) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetAddressMode
     _check_or_init_driver()
     if __cuTexRefSetAddressMode == NULL:
@@ -7253,7 +7253,7 @@ cdef CUresult _cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_mode 
         hTexRef, dim, am)
 
 
-cdef CUresult _cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetFilterMode
     _check_or_init_driver()
     if __cuTexRefSetFilterMode == NULL:
@@ -7263,7 +7263,7 @@ cdef CUresult _cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm) except?
         hTexRef, fm)
 
 
-cdef CUresult _cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUfilter_mode fm) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUfilter_mode fm) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetMipmapFilterMode
     _check_or_init_driver()
     if __cuTexRefSetMipmapFilterMode == NULL:
@@ -7273,7 +7273,7 @@ cdef CUresult _cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUfilter_mode fm) e
         hTexRef, fm)
 
 
-cdef CUresult _cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetMipmapLevelBias
     _check_or_init_driver()
     if __cuTexRefSetMipmapLevelBias == NULL:
@@ -7283,7 +7283,7 @@ cdef CUresult _cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias) except?<
         hTexRef, bias)
 
 
-cdef CUresult _cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipmapLevelClamp, float maxMipmapLevelClamp) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipmapLevelClamp, float maxMipmapLevelClamp) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetMipmapLevelClamp
     _check_or_init_driver()
     if __cuTexRefSetMipmapLevelClamp == NULL:
@@ -7293,7 +7293,7 @@ cdef CUresult _cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipmapLeve
         hTexRef, minMipmapLevelClamp, maxMipmapLevelClamp)
 
 
-cdef CUresult _cuTexRefSetMaxAnisotropy(CUtexref hTexRef, unsigned int maxAniso) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetMaxAnisotropy(CUtexref hTexRef, unsigned int maxAniso) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetMaxAnisotropy
     _check_or_init_driver()
     if __cuTexRefSetMaxAnisotropy == NULL:
@@ -7303,7 +7303,7 @@ cdef CUresult _cuTexRefSetMaxAnisotropy(CUtexref hTexRef, unsigned int maxAniso)
         hTexRef, maxAniso)
 
 
-cdef CUresult _cuTexRefSetBorderColor(CUtexref hTexRef, float* pBorderColor) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetBorderColor(CUtexref hTexRef, float* pBorderColor) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetBorderColor
     _check_or_init_driver()
     if __cuTexRefSetBorderColor == NULL:
@@ -7313,7 +7313,7 @@ cdef CUresult _cuTexRefSetBorderColor(CUtexref hTexRef, float* pBorderColor) exc
         hTexRef, pBorderColor)
 
 
-cdef CUresult _cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefSetFlags
     _check_or_init_driver()
     if __cuTexRefSetFlags == NULL:
@@ -7323,7 +7323,7 @@ cdef CUresult _cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags) except?<CU
         hTexRef, Flags)
 
 
-cdef CUresult _cuTexRefGetAddress_v2(CUdeviceptr* pdptr, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetAddress_v2(CUdeviceptr* pdptr, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetAddress_v2
     _check_or_init_driver()
     if __cuTexRefGetAddress_v2 == NULL:
@@ -7333,7 +7333,7 @@ cdef CUresult _cuTexRefGetAddress_v2(CUdeviceptr* pdptr, CUtexref hTexRef) excep
         pdptr, hTexRef)
 
 
-cdef CUresult _cuTexRefGetArray(CUarray* phArray, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetArray(CUarray* phArray, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetArray
     _check_or_init_driver()
     if __cuTexRefGetArray == NULL:
@@ -7343,7 +7343,7 @@ cdef CUresult _cuTexRefGetArray(CUarray* phArray, CUtexref hTexRef) except?<CUre
         phArray, hTexRef)
 
 
-cdef CUresult _cuTexRefGetMipmappedArray(CUmipmappedArray* phMipmappedArray, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetMipmappedArray(CUmipmappedArray* phMipmappedArray, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetMipmappedArray
     _check_or_init_driver()
     if __cuTexRefGetMipmappedArray == NULL:
@@ -7353,7 +7353,7 @@ cdef CUresult _cuTexRefGetMipmappedArray(CUmipmappedArray* phMipmappedArray, CUt
         phMipmappedArray, hTexRef)
 
 
-cdef CUresult _cuTexRefGetAddressMode(CUaddress_mode* pam, CUtexref hTexRef, int dim) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetAddressMode(CUaddress_mode* pam, CUtexref hTexRef, int dim) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetAddressMode
     _check_or_init_driver()
     if __cuTexRefGetAddressMode == NULL:
@@ -7363,7 +7363,7 @@ cdef CUresult _cuTexRefGetAddressMode(CUaddress_mode* pam, CUtexref hTexRef, int
         pam, hTexRef, dim)
 
 
-cdef CUresult _cuTexRefGetFilterMode(CUfilter_mode* pfm, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetFilterMode(CUfilter_mode* pfm, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetFilterMode
     _check_or_init_driver()
     if __cuTexRefGetFilterMode == NULL:
@@ -7373,7 +7373,7 @@ cdef CUresult _cuTexRefGetFilterMode(CUfilter_mode* pfm, CUtexref hTexRef) excep
         pfm, hTexRef)
 
 
-cdef CUresult _cuTexRefGetFormat(CUarray_format* pFormat, int* pNumChannels, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetFormat(CUarray_format* pFormat, int* pNumChannels, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetFormat
     _check_or_init_driver()
     if __cuTexRefGetFormat == NULL:
@@ -7383,7 +7383,7 @@ cdef CUresult _cuTexRefGetFormat(CUarray_format* pFormat, int* pNumChannels, CUt
         pFormat, pNumChannels, hTexRef)
 
 
-cdef CUresult _cuTexRefGetMipmapFilterMode(CUfilter_mode* pfm, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetMipmapFilterMode(CUfilter_mode* pfm, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetMipmapFilterMode
     _check_or_init_driver()
     if __cuTexRefGetMipmapFilterMode == NULL:
@@ -7393,7 +7393,7 @@ cdef CUresult _cuTexRefGetMipmapFilterMode(CUfilter_mode* pfm, CUtexref hTexRef)
         pfm, hTexRef)
 
 
-cdef CUresult _cuTexRefGetMipmapLevelBias(float* pbias, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetMipmapLevelBias(float* pbias, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetMipmapLevelBias
     _check_or_init_driver()
     if __cuTexRefGetMipmapLevelBias == NULL:
@@ -7403,7 +7403,7 @@ cdef CUresult _cuTexRefGetMipmapLevelBias(float* pbias, CUtexref hTexRef) except
         pbias, hTexRef)
 
 
-cdef CUresult _cuTexRefGetMipmapLevelClamp(float* pminMipmapLevelClamp, float* pmaxMipmapLevelClamp, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetMipmapLevelClamp(float* pminMipmapLevelClamp, float* pmaxMipmapLevelClamp, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetMipmapLevelClamp
     _check_or_init_driver()
     if __cuTexRefGetMipmapLevelClamp == NULL:
@@ -7413,7 +7413,7 @@ cdef CUresult _cuTexRefGetMipmapLevelClamp(float* pminMipmapLevelClamp, float* p
         pminMipmapLevelClamp, pmaxMipmapLevelClamp, hTexRef)
 
 
-cdef CUresult _cuTexRefGetMaxAnisotropy(int* pmaxAniso, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetMaxAnisotropy(int* pmaxAniso, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetMaxAnisotropy
     _check_or_init_driver()
     if __cuTexRefGetMaxAnisotropy == NULL:
@@ -7423,7 +7423,7 @@ cdef CUresult _cuTexRefGetMaxAnisotropy(int* pmaxAniso, CUtexref hTexRef) except
         pmaxAniso, hTexRef)
 
 
-cdef CUresult _cuTexRefGetBorderColor(float* pBorderColor, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetBorderColor(float* pBorderColor, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetBorderColor
     _check_or_init_driver()
     if __cuTexRefGetBorderColor == NULL:
@@ -7433,7 +7433,7 @@ cdef CUresult _cuTexRefGetBorderColor(float* pBorderColor, CUtexref hTexRef) exc
         pBorderColor, hTexRef)
 
 
-cdef CUresult _cuTexRefGetFlags(unsigned int* pFlags, CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefGetFlags(unsigned int* pFlags, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefGetFlags
     _check_or_init_driver()
     if __cuTexRefGetFlags == NULL:
@@ -7443,7 +7443,7 @@ cdef CUresult _cuTexRefGetFlags(unsigned int* pFlags, CUtexref hTexRef) except?<
         pFlags, hTexRef)
 
 
-cdef CUresult _cuTexRefCreate(CUtexref* pTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefCreate(CUtexref* pTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefCreate
     _check_or_init_driver()
     if __cuTexRefCreate == NULL:
@@ -7453,7 +7453,7 @@ cdef CUresult _cuTexRefCreate(CUtexref* pTexRef) except?<CUresult>_CURESULT_INTE
         pTexRef)
 
 
-cdef CUresult _cuTexRefDestroy(CUtexref hTexRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexRefDestroy(CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexRefDestroy
     _check_or_init_driver()
     if __cuTexRefDestroy == NULL:
@@ -7463,7 +7463,7 @@ cdef CUresult _cuTexRefDestroy(CUtexref hTexRef) except?<CUresult>_CURESULT_INTE
         hTexRef)
 
 
-cdef CUresult _cuSurfRefSetArray(CUsurfref hSurfRef, CUarray hArray, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuSurfRefSetArray(CUsurfref hSurfRef, CUarray hArray, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuSurfRefSetArray
     _check_or_init_driver()
     if __cuSurfRefSetArray == NULL:
@@ -7473,7 +7473,7 @@ cdef CUresult _cuSurfRefSetArray(CUsurfref hSurfRef, CUarray hArray, unsigned in
         hSurfRef, hArray, Flags)
 
 
-cdef CUresult _cuSurfRefGetArray(CUarray* phArray, CUsurfref hSurfRef) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuSurfRefGetArray(CUarray* phArray, CUsurfref hSurfRef) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuSurfRefGetArray
     _check_or_init_driver()
     if __cuSurfRefGetArray == NULL:
@@ -7483,7 +7483,7 @@ cdef CUresult _cuSurfRefGetArray(CUarray* phArray, CUsurfref hSurfRef) except?<C
         phArray, hSurfRef)
 
 
-cdef CUresult _cuTexObjectCreate(CUtexObject* pTexObject, const CUDA_RESOURCE_DESC* pResDesc, const CUDA_TEXTURE_DESC* pTexDesc, const CUDA_RESOURCE_VIEW_DESC* pResViewDesc) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexObjectCreate(CUtexObject* pTexObject, const CUDA_RESOURCE_DESC* pResDesc, const CUDA_TEXTURE_DESC* pTexDesc, const CUDA_RESOURCE_VIEW_DESC* pResViewDesc) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexObjectCreate
     _check_or_init_driver()
     if __cuTexObjectCreate == NULL:
@@ -7493,7 +7493,7 @@ cdef CUresult _cuTexObjectCreate(CUtexObject* pTexObject, const CUDA_RESOURCE_DE
         pTexObject, pResDesc, pTexDesc, pResViewDesc)
 
 
-cdef CUresult _cuTexObjectDestroy(CUtexObject texObject) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexObjectDestroy(CUtexObject texObject) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexObjectDestroy
     _check_or_init_driver()
     if __cuTexObjectDestroy == NULL:
@@ -7503,7 +7503,7 @@ cdef CUresult _cuTexObjectDestroy(CUtexObject texObject) except?<CUresult>_CURES
         texObject)
 
 
-cdef CUresult _cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC* pResDesc, CUtexObject texObject) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC* pResDesc, CUtexObject texObject) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexObjectGetResourceDesc
     _check_or_init_driver()
     if __cuTexObjectGetResourceDesc == NULL:
@@ -7513,7 +7513,7 @@ cdef CUresult _cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC* pResDesc, CUtexObj
         pResDesc, texObject)
 
 
-cdef CUresult _cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC* pTexDesc, CUtexObject texObject) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC* pTexDesc, CUtexObject texObject) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexObjectGetTextureDesc
     _check_or_init_driver()
     if __cuTexObjectGetTextureDesc == NULL:
@@ -7523,7 +7523,7 @@ cdef CUresult _cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC* pTexDesc, CUtexObjec
         pTexDesc, texObject)
 
 
-cdef CUresult _cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC* pResViewDesc, CUtexObject texObject) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC* pResViewDesc, CUtexObject texObject) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTexObjectGetResourceViewDesc
     _check_or_init_driver()
     if __cuTexObjectGetResourceViewDesc == NULL:
@@ -7533,7 +7533,7 @@ cdef CUresult _cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC* pResViewD
         pResViewDesc, texObject)
 
 
-cdef CUresult _cuSurfObjectCreate(CUsurfObject* pSurfObject, const CUDA_RESOURCE_DESC* pResDesc) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuSurfObjectCreate(CUsurfObject* pSurfObject, const CUDA_RESOURCE_DESC* pResDesc) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuSurfObjectCreate
     _check_or_init_driver()
     if __cuSurfObjectCreate == NULL:
@@ -7543,7 +7543,7 @@ cdef CUresult _cuSurfObjectCreate(CUsurfObject* pSurfObject, const CUDA_RESOURCE
         pSurfObject, pResDesc)
 
 
-cdef CUresult _cuSurfObjectDestroy(CUsurfObject surfObject) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuSurfObjectDestroy(CUsurfObject surfObject) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuSurfObjectDestroy
     _check_or_init_driver()
     if __cuSurfObjectDestroy == NULL:
@@ -7553,7 +7553,7 @@ cdef CUresult _cuSurfObjectDestroy(CUsurfObject surfObject) except?<CUresult>_CU
         surfObject)
 
 
-cdef CUresult _cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC* pResDesc, CUsurfObject surfObject) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC* pResDesc, CUsurfObject surfObject) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuSurfObjectGetResourceDesc
     _check_or_init_driver()
     if __cuSurfObjectGetResourceDesc == NULL:
@@ -7563,7 +7563,7 @@ cdef CUresult _cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC* pResDesc, CUsurfO
         pResDesc, surfObject)
 
 
-cdef CUresult _cuTensorMapEncodeTiled(CUtensorMap* tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void* globalAddress, const cuuint64_t* globalDim, const cuuint64_t* globalStrides, const cuuint32_t* boxDim, const cuuint32_t* elementStrides, CUtensorMapInterleave interleave, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTensorMapEncodeTiled(CUtensorMap* tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void* globalAddress, const cuuint64_t* globalDim, const cuuint64_t* globalStrides, const cuuint32_t* boxDim, const cuuint32_t* elementStrides, CUtensorMapInterleave interleave, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTensorMapEncodeTiled
     _check_or_init_driver()
     if __cuTensorMapEncodeTiled == NULL:
@@ -7573,7 +7573,7 @@ cdef CUresult _cuTensorMapEncodeTiled(CUtensorMap* tensorMap, CUtensorMapDataTyp
         tensorMap, tensorDataType, tensorRank, globalAddress, globalDim, globalStrides, boxDim, elementStrides, interleave, swizzle, l2Promotion, oobFill)
 
 
-cdef CUresult _cuTensorMapEncodeIm2col(CUtensorMap* tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void* globalAddress, const cuuint64_t* globalDim, const cuuint64_t* globalStrides, const int* pixelBoxLowerCorner, const int* pixelBoxUpperCorner, cuuint32_t channelsPerPixel, cuuint32_t pixelsPerColumn, const cuuint32_t* elementStrides, CUtensorMapInterleave interleave, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTensorMapEncodeIm2col(CUtensorMap* tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void* globalAddress, const cuuint64_t* globalDim, const cuuint64_t* globalStrides, const int* pixelBoxLowerCorner, const int* pixelBoxUpperCorner, cuuint32_t channelsPerPixel, cuuint32_t pixelsPerColumn, const cuuint32_t* elementStrides, CUtensorMapInterleave interleave, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTensorMapEncodeIm2col
     _check_or_init_driver()
     if __cuTensorMapEncodeIm2col == NULL:
@@ -7583,7 +7583,7 @@ cdef CUresult _cuTensorMapEncodeIm2col(CUtensorMap* tensorMap, CUtensorMapDataTy
         tensorMap, tensorDataType, tensorRank, globalAddress, globalDim, globalStrides, pixelBoxLowerCorner, pixelBoxUpperCorner, channelsPerPixel, pixelsPerColumn, elementStrides, interleave, swizzle, l2Promotion, oobFill)
 
 
-cdef CUresult _cuTensorMapEncodeIm2colWide(CUtensorMap* tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void* globalAddress, const cuuint64_t* globalDim, const cuuint64_t* globalStrides, int pixelBoxLowerCornerWidth, int pixelBoxUpperCornerWidth, cuuint32_t channelsPerPixel, cuuint32_t pixelsPerColumn, const cuuint32_t* elementStrides, CUtensorMapInterleave interleave, CUtensorMapIm2ColWideMode mode, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTensorMapEncodeIm2colWide(CUtensorMap* tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void* globalAddress, const cuuint64_t* globalDim, const cuuint64_t* globalStrides, int pixelBoxLowerCornerWidth, int pixelBoxUpperCornerWidth, cuuint32_t channelsPerPixel, cuuint32_t pixelsPerColumn, const cuuint32_t* elementStrides, CUtensorMapInterleave interleave, CUtensorMapIm2ColWideMode mode, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTensorMapEncodeIm2colWide
     _check_or_init_driver()
     if __cuTensorMapEncodeIm2colWide == NULL:
@@ -7593,7 +7593,7 @@ cdef CUresult _cuTensorMapEncodeIm2colWide(CUtensorMap* tensorMap, CUtensorMapDa
         tensorMap, tensorDataType, tensorRank, globalAddress, globalDim, globalStrides, pixelBoxLowerCornerWidth, pixelBoxUpperCornerWidth, channelsPerPixel, pixelsPerColumn, elementStrides, interleave, mode, swizzle, l2Promotion, oobFill)
 
 
-cdef CUresult _cuTensorMapReplaceAddress(CUtensorMap* tensorMap, void* globalAddress) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuTensorMapReplaceAddress(CUtensorMap* tensorMap, void* globalAddress) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuTensorMapReplaceAddress
     _check_or_init_driver()
     if __cuTensorMapReplaceAddress == NULL:
@@ -7603,7 +7603,7 @@ cdef CUresult _cuTensorMapReplaceAddress(CUtensorMap* tensorMap, void* globalAdd
         tensorMap, globalAddress)
 
 
-cdef CUresult _cuDeviceCanAccessPeer(int* canAccessPeer, CUdevice dev, CUdevice peerDev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceCanAccessPeer(int* canAccessPeer, CUdevice dev, CUdevice peerDev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceCanAccessPeer
     _check_or_init_driver()
     if __cuDeviceCanAccessPeer == NULL:
@@ -7613,7 +7613,7 @@ cdef CUresult _cuDeviceCanAccessPeer(int* canAccessPeer, CUdevice dev, CUdevice 
         canAccessPeer, dev, peerDev)
 
 
-cdef CUresult _cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxEnablePeerAccess
     _check_or_init_driver()
     if __cuCtxEnablePeerAccess == NULL:
@@ -7623,7 +7623,7 @@ cdef CUresult _cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int Flags) 
         peerContext, Flags)
 
 
-cdef CUresult _cuCtxDisablePeerAccess(CUcontext peerContext) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxDisablePeerAccess(CUcontext peerContext) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxDisablePeerAccess
     _check_or_init_driver()
     if __cuCtxDisablePeerAccess == NULL:
@@ -7633,7 +7633,7 @@ cdef CUresult _cuCtxDisablePeerAccess(CUcontext peerContext) except?<CUresult>_C
         peerContext)
 
 
-cdef CUresult _cuDeviceGetP2PAttribute(int* value, CUdevice_P2PAttribute attrib, CUdevice srcDevice, CUdevice dstDevice) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetP2PAttribute(int* value, CUdevice_P2PAttribute attrib, CUdevice srcDevice, CUdevice dstDevice) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetP2PAttribute
     _check_or_init_driver()
     if __cuDeviceGetP2PAttribute == NULL:
@@ -7643,7 +7643,7 @@ cdef CUresult _cuDeviceGetP2PAttribute(int* value, CUdevice_P2PAttribute attrib,
         value, attrib, srcDevice, dstDevice)
 
 
-cdef CUresult _cuGraphicsUnregisterResource(CUgraphicsResource resource) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsUnregisterResource(CUgraphicsResource resource) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsUnregisterResource
     _check_or_init_driver()
     if __cuGraphicsUnregisterResource == NULL:
@@ -7653,7 +7653,7 @@ cdef CUresult _cuGraphicsUnregisterResource(CUgraphicsResource resource) except?
         resource)
 
 
-cdef CUresult _cuGraphicsSubResourceGetMappedArray(CUarray* pArray, CUgraphicsResource resource, unsigned int arrayIndex, unsigned int mipLevel) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsSubResourceGetMappedArray(CUarray* pArray, CUgraphicsResource resource, unsigned int arrayIndex, unsigned int mipLevel) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsSubResourceGetMappedArray
     _check_or_init_driver()
     if __cuGraphicsSubResourceGetMappedArray == NULL:
@@ -7663,7 +7663,7 @@ cdef CUresult _cuGraphicsSubResourceGetMappedArray(CUarray* pArray, CUgraphicsRe
         pArray, resource, arrayIndex, mipLevel)
 
 
-cdef CUresult _cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray* pMipmappedArray, CUgraphicsResource resource) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray* pMipmappedArray, CUgraphicsResource resource) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsResourceGetMappedMipmappedArray
     _check_or_init_driver()
     if __cuGraphicsResourceGetMappedMipmappedArray == NULL:
@@ -7673,7 +7673,7 @@ cdef CUresult _cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray* pMipm
         pMipmappedArray, resource)
 
 
-cdef CUresult _cuGraphicsResourceGetMappedPointer_v2(CUdeviceptr* pDevPtr, size_t* pSize, CUgraphicsResource resource) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsResourceGetMappedPointer_v2(CUdeviceptr* pDevPtr, size_t* pSize, CUgraphicsResource resource) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsResourceGetMappedPointer_v2
     _check_or_init_driver()
     if __cuGraphicsResourceGetMappedPointer_v2 == NULL:
@@ -7683,7 +7683,7 @@ cdef CUresult _cuGraphicsResourceGetMappedPointer_v2(CUdeviceptr* pDevPtr, size_
         pDevPtr, pSize, resource)
 
 
-cdef CUresult _cuGraphicsResourceSetMapFlags_v2(CUgraphicsResource resource, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsResourceSetMapFlags_v2(CUgraphicsResource resource, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsResourceSetMapFlags_v2
     _check_or_init_driver()
     if __cuGraphicsResourceSetMapFlags_v2 == NULL:
@@ -7693,7 +7693,7 @@ cdef CUresult _cuGraphicsResourceSetMapFlags_v2(CUgraphicsResource resource, uns
         resource, flags)
 
 
-cdef CUresult _cuGraphicsMapResources(unsigned int count, CUgraphicsResource* resources, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsMapResources(unsigned int count, CUgraphicsResource* resources, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsMapResources
     _check_or_init_driver()
     if __cuGraphicsMapResources == NULL:
@@ -7703,7 +7703,7 @@ cdef CUresult _cuGraphicsMapResources(unsigned int count, CUgraphicsResource* re
         count, resources, hStream)
 
 
-cdef CUresult _cuGraphicsUnmapResources(unsigned int count, CUgraphicsResource* resources, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsUnmapResources(unsigned int count, CUgraphicsResource* resources, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsUnmapResources
     _check_or_init_driver()
     if __cuGraphicsUnmapResources == NULL:
@@ -7713,7 +7713,7 @@ cdef CUresult _cuGraphicsUnmapResources(unsigned int count, CUgraphicsResource* 
         count, resources, hStream)
 
 
-cdef CUresult _cuGetProcAddress_v2(const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags, CUdriverProcAddressQueryResult* symbolStatus) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGetProcAddress_v2(const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags, CUdriverProcAddressQueryResult* symbolStatus) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGetProcAddress_v2
     _check_or_init_driver()
     if __cuGetProcAddress_v2 == NULL:
@@ -7723,7 +7723,7 @@ cdef CUresult _cuGetProcAddress_v2(const char* symbol, void** pfn, int cudaVersi
         symbol, pfn, cudaVersion, flags, symbolStatus)
 
 
-cdef CUresult _cuCoredumpGetAttribute(CUcoredumpSettings attrib, void* value, size_t* size) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCoredumpGetAttribute(CUcoredumpSettings attrib, void* value, size_t* size) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCoredumpGetAttribute
     _check_or_init_driver()
     if __cuCoredumpGetAttribute == NULL:
@@ -7733,7 +7733,7 @@ cdef CUresult _cuCoredumpGetAttribute(CUcoredumpSettings attrib, void* value, si
         attrib, value, size)
 
 
-cdef CUresult _cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, void* value, size_t* size) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, void* value, size_t* size) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCoredumpGetAttributeGlobal
     _check_or_init_driver()
     if __cuCoredumpGetAttributeGlobal == NULL:
@@ -7743,7 +7743,7 @@ cdef CUresult _cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, void* val
         attrib, value, size)
 
 
-cdef CUresult _cuCoredumpSetAttribute(CUcoredumpSettings attrib, void* value, size_t* size) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCoredumpSetAttribute(CUcoredumpSettings attrib, void* value, size_t* size) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCoredumpSetAttribute
     _check_or_init_driver()
     if __cuCoredumpSetAttribute == NULL:
@@ -7753,7 +7753,7 @@ cdef CUresult _cuCoredumpSetAttribute(CUcoredumpSettings attrib, void* value, si
         attrib, value, size)
 
 
-cdef CUresult _cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, void* value, size_t* size) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, void* value, size_t* size) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCoredumpSetAttributeGlobal
     _check_or_init_driver()
     if __cuCoredumpSetAttributeGlobal == NULL:
@@ -7763,7 +7763,7 @@ cdef CUresult _cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, void* val
         attrib, value, size)
 
 
-cdef CUresult _cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGetExportTable
     _check_or_init_driver()
     if __cuGetExportTable == NULL:
@@ -7773,7 +7773,7 @@ cdef CUresult _cuGetExportTable(const void** ppExportTable, const CUuuid* pExpor
         ppExportTable, pExportTableId)
 
 
-cdef CUresult _cuGreenCtxCreate(CUgreenCtx* phCtx, CUdevResourceDesc desc, CUdevice dev, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGreenCtxCreate(CUgreenCtx* phCtx, CUdevResourceDesc desc, CUdevice dev, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGreenCtxCreate
     _check_or_init_driver()
     if __cuGreenCtxCreate == NULL:
@@ -7783,7 +7783,7 @@ cdef CUresult _cuGreenCtxCreate(CUgreenCtx* phCtx, CUdevResourceDesc desc, CUdev
         phCtx, desc, dev, flags)
 
 
-cdef CUresult _cuGreenCtxDestroy(CUgreenCtx hCtx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGreenCtxDestroy(CUgreenCtx hCtx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGreenCtxDestroy
     _check_or_init_driver()
     if __cuGreenCtxDestroy == NULL:
@@ -7793,7 +7793,7 @@ cdef CUresult _cuGreenCtxDestroy(CUgreenCtx hCtx) except?<CUresult>_CURESULT_INT
         hCtx)
 
 
-cdef CUresult _cuCtxFromGreenCtx(CUcontext* pContext, CUgreenCtx hCtx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxFromGreenCtx(CUcontext* pContext, CUgreenCtx hCtx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxFromGreenCtx
     _check_or_init_driver()
     if __cuCtxFromGreenCtx == NULL:
@@ -7803,7 +7803,7 @@ cdef CUresult _cuCtxFromGreenCtx(CUcontext* pContext, CUgreenCtx hCtx) except?<C
         pContext, hCtx)
 
 
-cdef CUresult _cuDeviceGetDevResource(CUdevice device, CUdevResource* resource, CUdevResourceType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetDevResource(CUdevice device, CUdevResource* resource, CUdevResourceType type) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetDevResource
     _check_or_init_driver()
     if __cuDeviceGetDevResource == NULL:
@@ -7813,7 +7813,7 @@ cdef CUresult _cuDeviceGetDevResource(CUdevice device, CUdevResource* resource, 
         device, resource, type)
 
 
-cdef CUresult _cuCtxGetDevResource(CUcontext hCtx, CUdevResource* resource, CUdevResourceType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetDevResource(CUcontext hCtx, CUdevResource* resource, CUdevResourceType type) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetDevResource
     _check_or_init_driver()
     if __cuCtxGetDevResource == NULL:
@@ -7823,7 +7823,7 @@ cdef CUresult _cuCtxGetDevResource(CUcontext hCtx, CUdevResource* resource, CUde
         hCtx, resource, type)
 
 
-cdef CUresult _cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource, CUdevResourceType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource, CUdevResourceType type) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGreenCtxGetDevResource
     _check_or_init_driver()
     if __cuGreenCtxGetDevResource == NULL:
@@ -7833,7 +7833,7 @@ cdef CUresult _cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource
         hCtx, resource, type)
 
 
-cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, unsigned int minCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDevSmResourceSplitByCount
     _check_or_init_driver()
     if __cuDevSmResourceSplitByCount == NULL:
@@ -7843,7 +7843,7 @@ cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* 
         result, nbGroups, input, remainder, flags, minCount)
 
 
-cdef CUresult _cuDevResourceGenerateDesc(CUdevResourceDesc* phDesc, CUdevResource* resources, unsigned int nbResources) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDevResourceGenerateDesc(CUdevResourceDesc* phDesc, CUdevResource* resources, unsigned int nbResources) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDevResourceGenerateDesc
     _check_or_init_driver()
     if __cuDevResourceGenerateDesc == NULL:
@@ -7853,7 +7853,7 @@ cdef CUresult _cuDevResourceGenerateDesc(CUdevResourceDesc* phDesc, CUdevResourc
         phDesc, resources, nbResources)
 
 
-cdef CUresult _cuGreenCtxRecordEvent(CUgreenCtx hCtx, CUevent hEvent) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGreenCtxRecordEvent(CUgreenCtx hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGreenCtxRecordEvent
     _check_or_init_driver()
     if __cuGreenCtxRecordEvent == NULL:
@@ -7863,7 +7863,7 @@ cdef CUresult _cuGreenCtxRecordEvent(CUgreenCtx hCtx, CUevent hEvent) except?<CU
         hCtx, hEvent)
 
 
-cdef CUresult _cuGreenCtxWaitEvent(CUgreenCtx hCtx, CUevent hEvent) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGreenCtxWaitEvent(CUgreenCtx hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGreenCtxWaitEvent
     _check_or_init_driver()
     if __cuGreenCtxWaitEvent == NULL:
@@ -7873,7 +7873,7 @@ cdef CUresult _cuGreenCtxWaitEvent(CUgreenCtx hCtx, CUevent hEvent) except?<CUre
         hCtx, hEvent)
 
 
-cdef CUresult _cuStreamGetGreenCtx(CUstream hStream, CUgreenCtx* phCtx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamGetGreenCtx(CUstream hStream, CUgreenCtx* phCtx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamGetGreenCtx
     _check_or_init_driver()
     if __cuStreamGetGreenCtx == NULL:
@@ -7883,7 +7883,7 @@ cdef CUresult _cuStreamGetGreenCtx(CUstream hStream, CUgreenCtx* phCtx) except?<
         hStream, phCtx)
 
 
-cdef CUresult _cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, unsigned int flags, int priority) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, unsigned int flags, int priority) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGreenCtxStreamCreate
     _check_or_init_driver()
     if __cuGreenCtxStreamCreate == NULL:
@@ -7893,7 +7893,7 @@ cdef CUresult _cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, u
         phStream, greenCtx, flags, priority)
 
 
-cdef CUresult _cuLogsRegisterCallback(CUlogsCallback callbackFunc, void* userData, CUlogsCallbackHandle* callback_out) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLogsRegisterCallback(CUlogsCallback callbackFunc, void* userData, CUlogsCallbackHandle* callback_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLogsRegisterCallback
     _check_or_init_driver()
     if __cuLogsRegisterCallback == NULL:
@@ -7903,7 +7903,7 @@ cdef CUresult _cuLogsRegisterCallback(CUlogsCallback callbackFunc, void* userDat
         callbackFunc, userData, callback_out)
 
 
-cdef CUresult _cuLogsUnregisterCallback(CUlogsCallbackHandle callback) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLogsUnregisterCallback(CUlogsCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLogsUnregisterCallback
     _check_or_init_driver()
     if __cuLogsUnregisterCallback == NULL:
@@ -7913,7 +7913,7 @@ cdef CUresult _cuLogsUnregisterCallback(CUlogsCallbackHandle callback) except?<C
         callback)
 
 
-cdef CUresult _cuLogsCurrent(CUlogIterator* iterator_out, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLogsCurrent(CUlogIterator* iterator_out, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLogsCurrent
     _check_or_init_driver()
     if __cuLogsCurrent == NULL:
@@ -7923,7 +7923,7 @@ cdef CUresult _cuLogsCurrent(CUlogIterator* iterator_out, unsigned int flags) ex
         iterator_out, flags)
 
 
-cdef CUresult _cuLogsDumpToFile(CUlogIterator* iterator, const char* pathToFile, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLogsDumpToFile(CUlogIterator* iterator, const char* pathToFile, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLogsDumpToFile
     _check_or_init_driver()
     if __cuLogsDumpToFile == NULL:
@@ -7933,7 +7933,7 @@ cdef CUresult _cuLogsDumpToFile(CUlogIterator* iterator, const char* pathToFile,
         iterator, pathToFile, flags)
 
 
-cdef CUresult _cuLogsDumpToMemory(CUlogIterator* iterator, char* buffer, size_t* size, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLogsDumpToMemory(CUlogIterator* iterator, char* buffer, size_t* size, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLogsDumpToMemory
     _check_or_init_driver()
     if __cuLogsDumpToMemory == NULL:
@@ -7943,7 +7943,7 @@ cdef CUresult _cuLogsDumpToMemory(CUlogIterator* iterator, char* buffer, size_t*
         iterator, buffer, size, flags)
 
 
-cdef CUresult _cuCheckpointProcessGetRestoreThreadId(int pid, int* tid) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCheckpointProcessGetRestoreThreadId(int pid, int* tid) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCheckpointProcessGetRestoreThreadId
     _check_or_init_driver()
     if __cuCheckpointProcessGetRestoreThreadId == NULL:
@@ -7953,7 +7953,7 @@ cdef CUresult _cuCheckpointProcessGetRestoreThreadId(int pid, int* tid) except?<
         pid, tid)
 
 
-cdef CUresult _cuCheckpointProcessGetState(int pid, CUprocessState* state) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCheckpointProcessGetState(int pid, CUprocessState* state) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCheckpointProcessGetState
     _check_or_init_driver()
     if __cuCheckpointProcessGetState == NULL:
@@ -7963,7 +7963,7 @@ cdef CUresult _cuCheckpointProcessGetState(int pid, CUprocessState* state) excep
         pid, state)
 
 
-cdef CUresult _cuCheckpointProcessLock(int pid, CUcheckpointLockArgs* args) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCheckpointProcessLock(int pid, CUcheckpointLockArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCheckpointProcessLock
     _check_or_init_driver()
     if __cuCheckpointProcessLock == NULL:
@@ -7973,7 +7973,7 @@ cdef CUresult _cuCheckpointProcessLock(int pid, CUcheckpointLockArgs* args) exce
         pid, args)
 
 
-cdef CUresult _cuCheckpointProcessCheckpoint(int pid, CUcheckpointCheckpointArgs* args) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCheckpointProcessCheckpoint(int pid, CUcheckpointCheckpointArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCheckpointProcessCheckpoint
     _check_or_init_driver()
     if __cuCheckpointProcessCheckpoint == NULL:
@@ -7983,7 +7983,7 @@ cdef CUresult _cuCheckpointProcessCheckpoint(int pid, CUcheckpointCheckpointArgs
         pid, args)
 
 
-cdef CUresult _cuCheckpointProcessRestore(int pid, CUcheckpointRestoreArgs* args) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCheckpointProcessRestore(int pid, CUcheckpointRestoreArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCheckpointProcessRestore
     _check_or_init_driver()
     if __cuCheckpointProcessRestore == NULL:
@@ -7993,7 +7993,7 @@ cdef CUresult _cuCheckpointProcessRestore(int pid, CUcheckpointRestoreArgs* args
         pid, args)
 
 
-cdef CUresult _cuCheckpointProcessUnlock(int pid, CUcheckpointUnlockArgs* args) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCheckpointProcessUnlock(int pid, CUcheckpointUnlockArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCheckpointProcessUnlock
     _check_or_init_driver()
     if __cuCheckpointProcessUnlock == NULL:
@@ -8003,7 +8003,7 @@ cdef CUresult _cuCheckpointProcessUnlock(int pid, CUcheckpointUnlockArgs* args) 
         pid, args)
 
 
-cdef CUresult _cuGraphicsEGLRegisterImage(CUgraphicsResource* pCudaResource, EGLImageKHR image, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsEGLRegisterImage(CUgraphicsResource* pCudaResource, EGLImageKHR image, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsEGLRegisterImage
     _check_or_init_driver()
     if __cuGraphicsEGLRegisterImage == NULL:
@@ -8013,7 +8013,7 @@ cdef CUresult _cuGraphicsEGLRegisterImage(CUgraphicsResource* pCudaResource, EGL
         pCudaResource, image, flags)
 
 
-cdef CUresult _cuEGLStreamConsumerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEGLStreamConsumerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEGLStreamConsumerConnect
     _check_or_init_driver()
     if __cuEGLStreamConsumerConnect == NULL:
@@ -8023,7 +8023,7 @@ cdef CUresult _cuEGLStreamConsumerConnect(CUeglStreamConnection* conn, EGLStream
         conn, stream)
 
 
-cdef CUresult _cuEGLStreamConsumerConnectWithFlags(CUeglStreamConnection* conn, EGLStreamKHR stream, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEGLStreamConsumerConnectWithFlags(CUeglStreamConnection* conn, EGLStreamKHR stream, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEGLStreamConsumerConnectWithFlags
     _check_or_init_driver()
     if __cuEGLStreamConsumerConnectWithFlags == NULL:
@@ -8033,7 +8033,7 @@ cdef CUresult _cuEGLStreamConsumerConnectWithFlags(CUeglStreamConnection* conn, 
         conn, stream, flags)
 
 
-cdef CUresult _cuEGLStreamConsumerDisconnect(CUeglStreamConnection* conn) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEGLStreamConsumerDisconnect(CUeglStreamConnection* conn) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEGLStreamConsumerDisconnect
     _check_or_init_driver()
     if __cuEGLStreamConsumerDisconnect == NULL:
@@ -8043,7 +8043,7 @@ cdef CUresult _cuEGLStreamConsumerDisconnect(CUeglStreamConnection* conn) except
         conn)
 
 
-cdef CUresult _cuEGLStreamConsumerAcquireFrame(CUeglStreamConnection* conn, CUgraphicsResource* pCudaResource, CUstream* pStream, unsigned int timeout) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEGLStreamConsumerAcquireFrame(CUeglStreamConnection* conn, CUgraphicsResource* pCudaResource, CUstream* pStream, unsigned int timeout) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEGLStreamConsumerAcquireFrame
     _check_or_init_driver()
     if __cuEGLStreamConsumerAcquireFrame == NULL:
@@ -8053,7 +8053,7 @@ cdef CUresult _cuEGLStreamConsumerAcquireFrame(CUeglStreamConnection* conn, CUgr
         conn, pCudaResource, pStream, timeout)
 
 
-cdef CUresult _cuEGLStreamConsumerReleaseFrame(CUeglStreamConnection* conn, CUgraphicsResource pCudaResource, CUstream* pStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEGLStreamConsumerReleaseFrame(CUeglStreamConnection* conn, CUgraphicsResource pCudaResource, CUstream* pStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEGLStreamConsumerReleaseFrame
     _check_or_init_driver()
     if __cuEGLStreamConsumerReleaseFrame == NULL:
@@ -8063,7 +8063,7 @@ cdef CUresult _cuEGLStreamConsumerReleaseFrame(CUeglStreamConnection* conn, CUgr
         conn, pCudaResource, pStream)
 
 
-cdef CUresult _cuEGLStreamProducerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream, EGLint width, EGLint height) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEGLStreamProducerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream, EGLint width, EGLint height) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEGLStreamProducerConnect
     _check_or_init_driver()
     if __cuEGLStreamProducerConnect == NULL:
@@ -8073,7 +8073,7 @@ cdef CUresult _cuEGLStreamProducerConnect(CUeglStreamConnection* conn, EGLStream
         conn, stream, width, height)
 
 
-cdef CUresult _cuEGLStreamProducerDisconnect(CUeglStreamConnection* conn) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEGLStreamProducerDisconnect(CUeglStreamConnection* conn) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEGLStreamProducerDisconnect
     _check_or_init_driver()
     if __cuEGLStreamProducerDisconnect == NULL:
@@ -8083,7 +8083,7 @@ cdef CUresult _cuEGLStreamProducerDisconnect(CUeglStreamConnection* conn) except
         conn)
 
 
-cdef CUresult _cuEGLStreamProducerPresentFrame(CUeglStreamConnection* conn, CUeglFrame eglframe, CUstream* pStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEGLStreamProducerPresentFrame(CUeglStreamConnection* conn, CUeglFrame eglframe, CUstream* pStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEGLStreamProducerPresentFrame
     _check_or_init_driver()
     if __cuEGLStreamProducerPresentFrame == NULL:
@@ -8093,7 +8093,7 @@ cdef CUresult _cuEGLStreamProducerPresentFrame(CUeglStreamConnection* conn, CUeg
         conn, eglframe, pStream)
 
 
-cdef CUresult _cuEGLStreamProducerReturnFrame(CUeglStreamConnection* conn, CUeglFrame* eglframe, CUstream* pStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEGLStreamProducerReturnFrame(CUeglStreamConnection* conn, CUeglFrame* eglframe, CUstream* pStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEGLStreamProducerReturnFrame
     _check_or_init_driver()
     if __cuEGLStreamProducerReturnFrame == NULL:
@@ -8103,7 +8103,7 @@ cdef CUresult _cuEGLStreamProducerReturnFrame(CUeglStreamConnection* conn, CUegl
         conn, eglframe, pStream)
 
 
-cdef CUresult _cuGraphicsResourceGetMappedEglFrame(CUeglFrame* eglFrame, CUgraphicsResource resource, unsigned int index, unsigned int mipLevel) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsResourceGetMappedEglFrame(CUeglFrame* eglFrame, CUgraphicsResource resource, unsigned int index, unsigned int mipLevel) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsResourceGetMappedEglFrame
     _check_or_init_driver()
     if __cuGraphicsResourceGetMappedEglFrame == NULL:
@@ -8113,7 +8113,7 @@ cdef CUresult _cuGraphicsResourceGetMappedEglFrame(CUeglFrame* eglFrame, CUgraph
         eglFrame, resource, index, mipLevel)
 
 
-cdef CUresult _cuEventCreateFromEGLSync(CUevent* phEvent, EGLSyncKHR eglSync, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuEventCreateFromEGLSync(CUevent* phEvent, EGLSyncKHR eglSync, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuEventCreateFromEGLSync
     _check_or_init_driver()
     if __cuEventCreateFromEGLSync == NULL:
@@ -8123,7 +8123,7 @@ cdef CUresult _cuEventCreateFromEGLSync(CUevent* phEvent, EGLSyncKHR eglSync, un
         phEvent, eglSync, flags)
 
 
-cdef CUresult _cuGraphicsGLRegisterBuffer(CUgraphicsResource* pCudaResource, GLuint buffer, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsGLRegisterBuffer(CUgraphicsResource* pCudaResource, GLuint buffer, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsGLRegisterBuffer
     _check_or_init_driver()
     if __cuGraphicsGLRegisterBuffer == NULL:
@@ -8133,7 +8133,7 @@ cdef CUresult _cuGraphicsGLRegisterBuffer(CUgraphicsResource* pCudaResource, GLu
         pCudaResource, buffer, Flags)
 
 
-cdef CUresult _cuGraphicsGLRegisterImage(CUgraphicsResource* pCudaResource, GLuint image, GLenum target, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsGLRegisterImage(CUgraphicsResource* pCudaResource, GLuint image, GLenum target, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsGLRegisterImage
     _check_or_init_driver()
     if __cuGraphicsGLRegisterImage == NULL:
@@ -8143,7 +8143,7 @@ cdef CUresult _cuGraphicsGLRegisterImage(CUgraphicsResource* pCudaResource, GLui
         pCudaResource, image, target, Flags)
 
 
-cdef CUresult _cuGLGetDevices_v2(unsigned int* pCudaDeviceCount, CUdevice* pCudaDevices, unsigned int cudaDeviceCount, CUGLDeviceList deviceList) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGLGetDevices_v2(unsigned int* pCudaDeviceCount, CUdevice* pCudaDevices, unsigned int cudaDeviceCount, CUGLDeviceList deviceList) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGLGetDevices_v2
     _check_or_init_driver()
     if __cuGLGetDevices_v2 == NULL:
@@ -8153,7 +8153,7 @@ cdef CUresult _cuGLGetDevices_v2(unsigned int* pCudaDeviceCount, CUdevice* pCuda
         pCudaDeviceCount, pCudaDevices, cudaDeviceCount, deviceList)
 
 
-cdef CUresult _cuGLCtxCreate_v2(CUcontext* pCtx, unsigned int Flags, CUdevice device) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGLCtxCreate_v2(CUcontext* pCtx, unsigned int Flags, CUdevice device) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGLCtxCreate_v2
     _check_or_init_driver()
     if __cuGLCtxCreate_v2 == NULL:
@@ -8163,7 +8163,7 @@ cdef CUresult _cuGLCtxCreate_v2(CUcontext* pCtx, unsigned int Flags, CUdevice de
         pCtx, Flags, device)
 
 
-cdef CUresult _cuGLInit() except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGLInit() except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGLInit
     _check_or_init_driver()
     if __cuGLInit == NULL:
@@ -8173,7 +8173,7 @@ cdef CUresult _cuGLInit() except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogi
         )
 
 
-cdef CUresult _cuGLRegisterBufferObject(GLuint buffer) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGLRegisterBufferObject(GLuint buffer) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGLRegisterBufferObject
     _check_or_init_driver()
     if __cuGLRegisterBufferObject == NULL:
@@ -8183,7 +8183,7 @@ cdef CUresult _cuGLRegisterBufferObject(GLuint buffer) except?<CUresult>_CURESUL
         buffer)
 
 
-cdef CUresult _cuGLMapBufferObject_v2(CUdeviceptr* dptr, size_t* size, GLuint buffer) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGLMapBufferObject_v2(CUdeviceptr* dptr, size_t* size, GLuint buffer) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGLMapBufferObject_v2
     _check_or_init_driver()
     if __cuGLMapBufferObject_v2 == NULL:
@@ -8193,7 +8193,7 @@ cdef CUresult _cuGLMapBufferObject_v2(CUdeviceptr* dptr, size_t* size, GLuint bu
         dptr, size, buffer)
 
 
-cdef CUresult _cuGLUnmapBufferObject(GLuint buffer) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGLUnmapBufferObject(GLuint buffer) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGLUnmapBufferObject
     _check_or_init_driver()
     if __cuGLUnmapBufferObject == NULL:
@@ -8203,7 +8203,7 @@ cdef CUresult _cuGLUnmapBufferObject(GLuint buffer) except?<CUresult>_CURESULT_I
         buffer)
 
 
-cdef CUresult _cuGLUnregisterBufferObject(GLuint buffer) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGLUnregisterBufferObject(GLuint buffer) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGLUnregisterBufferObject
     _check_or_init_driver()
     if __cuGLUnregisterBufferObject == NULL:
@@ -8213,7 +8213,7 @@ cdef CUresult _cuGLUnregisterBufferObject(GLuint buffer) except?<CUresult>_CURES
         buffer)
 
 
-cdef CUresult _cuGLSetBufferObjectMapFlags(GLuint buffer, unsigned int Flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGLSetBufferObjectMapFlags(GLuint buffer, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGLSetBufferObjectMapFlags
     _check_or_init_driver()
     if __cuGLSetBufferObjectMapFlags == NULL:
@@ -8223,7 +8223,7 @@ cdef CUresult _cuGLSetBufferObjectMapFlags(GLuint buffer, unsigned int Flags) ex
         buffer, Flags)
 
 
-cdef CUresult _cuGLMapBufferObjectAsync_v2(CUdeviceptr* dptr, size_t* size, GLuint buffer, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGLMapBufferObjectAsync_v2(CUdeviceptr* dptr, size_t* size, GLuint buffer, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGLMapBufferObjectAsync_v2
     _check_or_init_driver()
     if __cuGLMapBufferObjectAsync_v2 == NULL:
@@ -8233,7 +8233,7 @@ cdef CUresult _cuGLMapBufferObjectAsync_v2(CUdeviceptr* dptr, size_t* size, GLui
         dptr, size, buffer, hStream)
 
 
-cdef CUresult _cuGLUnmapBufferObjectAsync(GLuint buffer, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGLUnmapBufferObjectAsync(GLuint buffer, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGLUnmapBufferObjectAsync
     _check_or_init_driver()
     if __cuGLUnmapBufferObjectAsync == NULL:
@@ -8243,7 +8243,7 @@ cdef CUresult _cuGLUnmapBufferObjectAsync(GLuint buffer, CUstream hStream) excep
         buffer, hStream)
 
 
-cdef CUresult _cuProfilerInitialize(const char* configFile, const char* outputFile, CUoutput_mode outputMode) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuProfilerInitialize(const char* configFile, const char* outputFile, CUoutput_mode outputMode) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuProfilerInitialize
     _check_or_init_driver()
     if __cuProfilerInitialize == NULL:
@@ -8253,7 +8253,7 @@ cdef CUresult _cuProfilerInitialize(const char* configFile, const char* outputFi
         configFile, outputFile, outputMode)
 
 
-cdef CUresult _cuProfilerStart() except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuProfilerStart() except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuProfilerStart
     _check_or_init_driver()
     if __cuProfilerStart == NULL:
@@ -8263,7 +8263,7 @@ cdef CUresult _cuProfilerStart() except?<CUresult>_CURESULT_INTERNAL_LOADING_ERR
         )
 
 
-cdef CUresult _cuProfilerStop() except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuProfilerStop() except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuProfilerStop
     _check_or_init_driver()
     if __cuProfilerStop == NULL:
@@ -8273,7 +8273,7 @@ cdef CUresult _cuProfilerStop() except?<CUresult>_CURESULT_INTERNAL_LOADING_ERRO
         )
 
 
-cdef CUresult _cuVDPAUGetDevice(CUdevice* pDevice, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuVDPAUGetDevice(CUdevice* pDevice, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuVDPAUGetDevice
     _check_or_init_driver()
     if __cuVDPAUGetDevice == NULL:
@@ -8283,7 +8283,7 @@ cdef CUresult _cuVDPAUGetDevice(CUdevice* pDevice, VdpDevice vdpDevice, VdpGetPr
         pDevice, vdpDevice, vdpGetProcAddress)
 
 
-cdef CUresult _cuVDPAUCtxCreate_v2(CUcontext* pCtx, unsigned int flags, CUdevice device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuVDPAUCtxCreate_v2(CUcontext* pCtx, unsigned int flags, CUdevice device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuVDPAUCtxCreate_v2
     _check_or_init_driver()
     if __cuVDPAUCtxCreate_v2 == NULL:
@@ -8293,7 +8293,7 @@ cdef CUresult _cuVDPAUCtxCreate_v2(CUcontext* pCtx, unsigned int flags, CUdevice
         pCtx, flags, device, vdpDevice, vdpGetProcAddress)
 
 
-cdef CUresult _cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResource, VdpVideoSurface vdpSurface, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResource, VdpVideoSurface vdpSurface, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsVDPAURegisterVideoSurface
     _check_or_init_driver()
     if __cuGraphicsVDPAURegisterVideoSurface == NULL:
@@ -8303,7 +8303,7 @@ cdef CUresult _cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaReso
         pCudaResource, vdpSurface, flags)
 
 
-cdef CUresult _cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphicsVDPAURegisterOutputSurface
     _check_or_init_driver()
     if __cuGraphicsVDPAURegisterOutputSurface == NULL:
@@ -8313,7 +8313,7 @@ cdef CUresult _cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaRes
         pCudaResource, vdpSurface, flags)
 
 
-cdef CUresult _cuDeviceGetHostAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice dev) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetHostAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetHostAtomicCapabilities
     _check_or_init_driver()
     if __cuDeviceGetHostAtomicCapabilities == NULL:
@@ -8323,7 +8323,7 @@ cdef CUresult _cuDeviceGetHostAtomicCapabilities(unsigned int* capabilities, con
         capabilities, operations, count, dev)
 
 
-cdef CUresult _cuCtxGetDevice_v2(CUdevice* device, CUcontext ctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxGetDevice_v2(CUdevice* device, CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxGetDevice_v2
     _check_or_init_driver()
     if __cuCtxGetDevice_v2 == NULL:
@@ -8333,7 +8333,7 @@ cdef CUresult _cuCtxGetDevice_v2(CUdevice* device, CUcontext ctx) except?<CUresu
         device, ctx)
 
 
-cdef CUresult _cuCtxSynchronize_v2(CUcontext ctx) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCtxSynchronize_v2(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCtxSynchronize_v2
     _check_or_init_driver()
     if __cuCtxSynchronize_v2 == NULL:
@@ -8343,7 +8343,7 @@ cdef CUresult _cuCtxSynchronize_v2(CUcontext ctx) except?<CUresult>_CURESULT_INT
         ctx)
 
 
-cdef CUresult _cuMemcpyBatchAsync_v2(CUdeviceptr* dsts, CUdeviceptr* srcs, size_t* sizes, size_t count, CUmemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyBatchAsync_v2(CUdeviceptr* dsts, CUdeviceptr* srcs, size_t* sizes, size_t count, CUmemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyBatchAsync_v2
     _check_or_init_driver()
     if __cuMemcpyBatchAsync_v2 == NULL:
@@ -8353,7 +8353,7 @@ cdef CUresult _cuMemcpyBatchAsync_v2(CUdeviceptr* dsts, CUdeviceptr* srcs, size_
         dsts, srcs, sizes, count, attrs, attrsIdxs, numAttrs, hStream)
 
 
-cdef CUresult _cuMemcpy3DBatchAsync_v2(size_t numOps, CUDA_MEMCPY3D_BATCH_OP* opList, unsigned long long flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpy3DBatchAsync_v2(size_t numOps, CUDA_MEMCPY3D_BATCH_OP* opList, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpy3DBatchAsync_v2
     _check_or_init_driver()
     if __cuMemcpy3DBatchAsync_v2 == NULL:
@@ -8363,7 +8363,7 @@ cdef CUresult _cuMemcpy3DBatchAsync_v2(size_t numOps, CUDA_MEMCPY3D_BATCH_OP* op
         numOps, opList, flags, hStream)
 
 
-cdef CUresult _cuMemGetDefaultMemPool(CUmemoryPool* pool_out, CUmemLocation* location, CUmemAllocationType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemGetDefaultMemPool(CUmemoryPool* pool_out, CUmemLocation* location, CUmemAllocationType type) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemGetDefaultMemPool
     _check_or_init_driver()
     if __cuMemGetDefaultMemPool == NULL:
@@ -8373,7 +8373,7 @@ cdef CUresult _cuMemGetDefaultMemPool(CUmemoryPool* pool_out, CUmemLocation* loc
         pool_out, location, type)
 
 
-cdef CUresult _cuMemGetMemPool(CUmemoryPool* pool, CUmemLocation* location, CUmemAllocationType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemGetMemPool(CUmemoryPool* pool, CUmemLocation* location, CUmemAllocationType type) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemGetMemPool
     _check_or_init_driver()
     if __cuMemGetMemPool == NULL:
@@ -8383,7 +8383,7 @@ cdef CUresult _cuMemGetMemPool(CUmemoryPool* pool, CUmemLocation* location, CUme
         pool, location, type)
 
 
-cdef CUresult _cuMemSetMemPool(CUmemLocation* location, CUmemAllocationType type, CUmemoryPool pool) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemSetMemPool(CUmemLocation* location, CUmemAllocationType type, CUmemoryPool pool) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemSetMemPool
     _check_or_init_driver()
     if __cuMemSetMemPool == NULL:
@@ -8393,7 +8393,7 @@ cdef CUresult _cuMemSetMemPool(CUmemLocation* location, CUmemAllocationType type
         location, type, pool)
 
 
-cdef CUresult _cuMemPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPrefetchBatchAsync
     _check_or_init_driver()
     if __cuMemPrefetchBatchAsync == NULL:
@@ -8403,7 +8403,7 @@ cdef CUresult _cuMemPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t
         dptrs, sizes, count, prefetchLocs, prefetchLocIdxs, numPrefetchLocs, flags, hStream)
 
 
-cdef CUresult _cuMemDiscardBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, unsigned long long flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemDiscardBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemDiscardBatchAsync
     _check_or_init_driver()
     if __cuMemDiscardBatchAsync == NULL:
@@ -8413,7 +8413,7 @@ cdef CUresult _cuMemDiscardBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t 
         dptrs, sizes, count, flags, hStream)
 
 
-cdef CUresult _cuMemDiscardAndPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemDiscardAndPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemDiscardAndPrefetchBatchAsync
     _check_or_init_driver()
     if __cuMemDiscardAndPrefetchBatchAsync == NULL:
@@ -8423,7 +8423,7 @@ cdef CUresult _cuMemDiscardAndPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* siz
         dptrs, sizes, count, prefetchLocs, prefetchLocIdxs, numPrefetchLocs, flags, hStream)
 
 
-cdef CUresult _cuDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice srcDevice, CUdevice dstDevice) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice srcDevice, CUdevice dstDevice) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDeviceGetP2PAtomicCapabilities
     _check_or_init_driver()
     if __cuDeviceGetP2PAtomicCapabilities == NULL:
@@ -8433,7 +8433,7 @@ cdef CUresult _cuDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, cons
         capabilities, operations, count, srcDevice, dstDevice)
 
 
-cdef CUresult _cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGreenCtxGetId
     _check_or_init_driver()
     if __cuGreenCtxGetId == NULL:
@@ -8443,7 +8443,7 @@ cdef CUresult _cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtx
         greenCtx, greenCtxId)
 
 
-cdef CUresult _cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMulticastBindMem_v2
     _check_or_init_driver()
     if __cuMulticastBindMem_v2 == NULL:
@@ -8453,7 +8453,7 @@ cdef CUresult _cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUde
         mcHandle, dev, mcOffset, memHandle, memOffset, size, flags)
 
 
-cdef CUresult _cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMulticastBindAddr_v2
     _check_or_init_driver()
     if __cuMulticastBindAddr_v2 == NULL:
@@ -8463,7 +8463,7 @@ cdef CUresult _cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUd
         mcHandle, dev, mcOffset, memptr, size, flags)
 
 
-cdef CUresult _cuGraphNodeGetContainingGraph(CUgraphNode hNode, CUgraph* phGraph) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphNodeGetContainingGraph(CUgraphNode hNode, CUgraph* phGraph) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeGetContainingGraph
     _check_or_init_driver()
     if __cuGraphNodeGetContainingGraph == NULL:
@@ -8473,7 +8473,7 @@ cdef CUresult _cuGraphNodeGetContainingGraph(CUgraphNode hNode, CUgraph* phGraph
         hNode, phGraph)
 
 
-cdef CUresult _cuGraphNodeGetLocalId(CUgraphNode hNode, unsigned int* nodeId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphNodeGetLocalId(CUgraphNode hNode, unsigned int* nodeId) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeGetLocalId
     _check_or_init_driver()
     if __cuGraphNodeGetLocalId == NULL:
@@ -8483,7 +8483,7 @@ cdef CUresult _cuGraphNodeGetLocalId(CUgraphNode hNode, unsigned int* nodeId) ex
         hNode, nodeId)
 
 
-cdef CUresult _cuGraphNodeGetToolsId(CUgraphNode hNode, unsigned long long* toolsNodeId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphNodeGetToolsId(CUgraphNode hNode, unsigned long long* toolsNodeId) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeGetToolsId
     _check_or_init_driver()
     if __cuGraphNodeGetToolsId == NULL:
@@ -8493,7 +8493,7 @@ cdef CUresult _cuGraphNodeGetToolsId(CUgraphNode hNode, unsigned long long* tool
         hNode, toolsNodeId)
 
 
-cdef CUresult _cuGraphGetId(CUgraph hGraph, unsigned int* graphId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphGetId(CUgraph hGraph, unsigned int* graphId) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphGetId
     _check_or_init_driver()
     if __cuGraphGetId == NULL:
@@ -8503,7 +8503,7 @@ cdef CUresult _cuGraphGetId(CUgraph hGraph, unsigned int* graphId) except?<CUres
         hGraph, graphId)
 
 
-cdef CUresult _cuGraphExecGetId(CUgraphExec hGraphExec, unsigned int* graphId) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphExecGetId(CUgraphExec hGraphExec, unsigned int* graphId) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphExecGetId
     _check_or_init_driver()
     if __cuGraphExecGetId == NULL:
@@ -8513,7 +8513,7 @@ cdef CUresult _cuGraphExecGetId(CUgraphExec hGraphExec, unsigned int* graphId) e
         hGraphExec, graphId)
 
 
-cdef CUresult _cuDevSmResourceSplit(CUdevResource* result, unsigned int nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, CU_DEV_SM_RESOURCE_GROUP_PARAMS* groupParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuDevSmResourceSplit(CUdevResource* result, unsigned int nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, CU_DEV_SM_RESOURCE_GROUP_PARAMS* groupParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDevSmResourceSplit
     _check_or_init_driver()
     if __cuDevSmResourceSplit == NULL:
@@ -8523,7 +8523,7 @@ cdef CUresult _cuDevSmResourceSplit(CUdevResource* result, unsigned int nbGroups
         result, nbGroups, input, remainder, flags, groupParams)
 
 
-cdef CUresult _cuStreamGetDevResource(CUstream hStream, CUdevResource* resource, CUdevResourceType type) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamGetDevResource(CUstream hStream, CUdevResource* resource, CUdevResourceType type) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamGetDevResource
     _check_or_init_driver()
     if __cuStreamGetDevResource == NULL:
@@ -8533,7 +8533,7 @@ cdef CUresult _cuStreamGetDevResource(CUstream hStream, CUdevResource* resource,
         hStream, resource, type)
 
 
-cdef CUresult _cuKernelGetParamCount(CUkernel kernel, size_t* paramCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuKernelGetParamCount(CUkernel kernel, size_t* paramCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuKernelGetParamCount
     _check_or_init_driver()
     if __cuKernelGetParamCount == NULL:
@@ -8543,7 +8543,7 @@ cdef CUresult _cuKernelGetParamCount(CUkernel kernel, size_t* paramCount) except
         kernel, paramCount)
 
 
-cdef CUresult _cuMemcpyWithAttributesAsync(CUdeviceptr dst, CUdeviceptr src, size_t size, CUmemcpyAttributes* attr, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpyWithAttributesAsync(CUdeviceptr dst, CUdeviceptr src, size_t size, CUmemcpyAttributes* attr, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpyWithAttributesAsync
     _check_or_init_driver()
     if __cuMemcpyWithAttributesAsync == NULL:
@@ -8553,7 +8553,7 @@ cdef CUresult _cuMemcpyWithAttributesAsync(CUdeviceptr dst, CUdeviceptr src, siz
         dst, src, size, attr, hStream)
 
 
-cdef CUresult _cuMemcpy3DWithAttributesAsync(CUDA_MEMCPY3D_BATCH_OP* op, unsigned long long flags, CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuMemcpy3DWithAttributesAsync(CUDA_MEMCPY3D_BATCH_OP* op, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemcpy3DWithAttributesAsync
     _check_or_init_driver()
     if __cuMemcpy3DWithAttributesAsync == NULL:
@@ -8563,7 +8563,7 @@ cdef CUresult _cuMemcpy3DWithAttributesAsync(CUDA_MEMCPY3D_BATCH_OP* op, unsigne
         op, flags, hStream)
 
 
-cdef CUresult _cuStreamBeginCaptureToCig(CUstream hStream, CUstreamCigCaptureParams* streamCigCaptureParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamBeginCaptureToCig(CUstream hStream, CUstreamCigCaptureParams* streamCigCaptureParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamBeginCaptureToCig
     _check_or_init_driver()
     if __cuStreamBeginCaptureToCig == NULL:
@@ -8573,7 +8573,7 @@ cdef CUresult _cuStreamBeginCaptureToCig(CUstream hStream, CUstreamCigCapturePar
         hStream, streamCigCaptureParams)
 
 
-cdef CUresult _cuStreamEndCaptureToCig(CUstream hStream) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuStreamEndCaptureToCig(CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamEndCaptureToCig
     _check_or_init_driver()
     if __cuStreamEndCaptureToCig == NULL:
@@ -8583,7 +8583,7 @@ cdef CUresult _cuStreamEndCaptureToCig(CUstream hStream) except?<CUresult>_CURES
         hStream)
 
 
-cdef CUresult _cuFuncGetParamCount(CUfunction func, size_t* paramCount) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuFuncGetParamCount(CUfunction func, size_t* paramCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuFuncGetParamCount
     _check_or_init_driver()
     if __cuFuncGetParamCount == NULL:
@@ -8593,7 +8593,7 @@ cdef CUresult _cuFuncGetParamCount(CUfunction func, size_t* paramCount) except?<
         func, paramCount)
 
 
-cdef CUresult _cuLaunchHostFunc_v2(CUstream hStream, CUhostFn fn, void* userData, unsigned int syncMode) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuLaunchHostFunc_v2(CUstream hStream, CUhostFn fn, void* userData, unsigned int syncMode) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuLaunchHostFunc_v2
     _check_or_init_driver()
     if __cuLaunchHostFunc_v2 == NULL:
@@ -8603,7 +8603,7 @@ cdef CUresult _cuLaunchHostFunc_v2(CUstream hStream, CUhostFn fn, void* userData
         hStream, fn, userData, syncMode)
 
 
-cdef CUresult _cuGraphNodeGetParams(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuGraphNodeGetParams(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeGetParams
     _check_or_init_driver()
     if __cuGraphNodeGetParams == NULL:
@@ -8613,7 +8613,7 @@ cdef CUresult _cuGraphNodeGetParams(CUgraphNode hNode, CUgraphNodeParams* nodePa
         hNode, nodeParams)
 
 
-cdef CUresult _cuCoredumpRegisterStartCallback(CUcoredumpStatusCallback callback, void* userData, CUcoredumpCallbackHandle* callbackOut) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCoredumpRegisterStartCallback(CUcoredumpStatusCallback callback, void* userData, CUcoredumpCallbackHandle* callbackOut) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCoredumpRegisterStartCallback
     _check_or_init_driver()
     if __cuCoredumpRegisterStartCallback == NULL:
@@ -8623,7 +8623,7 @@ cdef CUresult _cuCoredumpRegisterStartCallback(CUcoredumpStatusCallback callback
         callback, userData, callbackOut)
 
 
-cdef CUresult _cuCoredumpRegisterCompleteCallback(CUcoredumpStatusCallback callback, void* userData, CUcoredumpCallbackHandle* callbackOut) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCoredumpRegisterCompleteCallback(CUcoredumpStatusCallback callback, void* userData, CUcoredumpCallbackHandle* callbackOut) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCoredumpRegisterCompleteCallback
     _check_or_init_driver()
     if __cuCoredumpRegisterCompleteCallback == NULL:
@@ -8633,7 +8633,7 @@ cdef CUresult _cuCoredumpRegisterCompleteCallback(CUcoredumpStatusCallback callb
         callback, userData, callbackOut)
 
 
-cdef CUresult _cuCoredumpDeregisterStartCallback(CUcoredumpCallbackHandle callback) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCoredumpDeregisterStartCallback(CUcoredumpCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCoredumpDeregisterStartCallback
     _check_or_init_driver()
     if __cuCoredumpDeregisterStartCallback == NULL:
@@ -8643,7 +8643,7 @@ cdef CUresult _cuCoredumpDeregisterStartCallback(CUcoredumpCallbackHandle callba
         callback)
 
 
-cdef CUresult _cuCoredumpDeregisterCompleteCallback(CUcoredumpCallbackHandle callback) except?<CUresult>_CURESULT_INTERNAL_LOADING_ERROR nogil:
+cdef CUresult _cuCoredumpDeregisterCompleteCallback(CUcoredumpCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuCoredumpDeregisterCompleteCallback
     _check_or_init_driver()
     if __cuCoredumpDeregisterCompleteCallback == NULL:
