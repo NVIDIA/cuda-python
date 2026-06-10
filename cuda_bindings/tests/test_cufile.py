@@ -1,8 +1,7 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import ctypes
-import errno
 import logging
 import os
 import pathlib
@@ -145,7 +144,7 @@ def ctx():
     (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    yield
+    yield ctx
 
     cuda.cuDevicePrimaryCtxRelease(device)
 
@@ -205,10 +204,10 @@ def driver(ctx):
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
 @xfail_handle_register
-def test_handle_register():
+def test_handle_register(tmpdir):
     """Test file handle registration with cuFile."""
     # Create test file
-    file_path = "test_handle_register.bin"
+    file_path = tmpdir / "test_handle_register.bin"
 
     # Create file with POSIX operations
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR, 0o600)
@@ -242,8 +241,6 @@ def test_handle_register():
 
     finally:
         os.close(fd)
-        with suppress(OSError):
-            os.unlink(file_path)
 
 
 @pytest.mark.usefixtures("driver")
@@ -398,10 +395,10 @@ def test_buf_register_already_registered():
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
 @xfail_handle_register
-def test_cufile_read_write():
+def test_cufile_read_write(tmpdir):
     """Test cuFile read and write operations."""
     # Create test file
-    file_path = "test_cufile_rw.bin"
+    file_path = tmpdir / "test_cufile_rw.bin"
 
     # Allocate CUDA memory for write and read
     write_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
@@ -478,21 +475,15 @@ def test_cufile_read_write():
         # Free CUDA memory
         cuda.cuMemFree(write_buf)
         cuda.cuMemFree(read_buf)
-        # Clean up test file
-        try:
-            os.unlink(file_path)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
 @xfail_handle_register
-def test_cufile_read_write_host_memory():
+def test_cufile_read_write_host_memory(tmpdir):
     """Test cuFile read and write operations using host memory."""
     # Create test file
-    file_path = "test_cufile_rw_host.bin"
+    file_path = tmpdir / "test_cufile_rw_host.bin"
 
     # Allocate host memory for write and read
     write_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
@@ -565,21 +556,15 @@ def test_cufile_read_write_host_memory():
         # Free host memory
         cuda.cuMemFreeHost(write_buf)
         cuda.cuMemFreeHost(read_buf)
-        # Clean up test file
-        try:
-            os.unlink(file_path)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
 @xfail_handle_register
-def test_cufile_read_write_large():
+def test_cufile_read_write_large(tmpdir):
     """Test cuFile read and write operations with large data."""
     # Create test file
-    file_path = "test_cufile_rw_large.bin"
+    file_path = tmpdir / "test_cufile_rw_large.bin"
 
     # Allocate large CUDA memory (1MB, aligned to 4096 bytes)
     write_size = 1024 * 1024  # 1MB, aligned to 4096 bytes (1048576 % 4096 == 0)
@@ -659,21 +644,15 @@ def test_cufile_read_write_large():
         # Free CUDA memory
         cuda.cuMemFree(write_buf)
         cuda.cuMemFree(read_buf)
-        # Clean up test file
-        try:
-            os.unlink(file_path)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
 @xfail_handle_register
-def test_cufile_write_async():
+def test_cufile_write_async(tmpdir):
     """Test cuFile asynchronous write operations."""
     # Create test file
-    file_path = "test_cufile_write_async.bin"
+    file_path = tmpdir / "test_cufile_write_async.bin"
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
     try:
@@ -741,17 +720,15 @@ def test_cufile_write_async():
 
     finally:
         os.close(fd)
-        with suppress(OSError):
-            os.unlink(file_path)
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
 @xfail_handle_register
-def test_cufile_read_async():
+def test_cufile_read_async(tmpdir):
     """Test cuFile asynchronous read operations."""
     # Create test file
-    file_path = "test_cufile_read_async.bin"
+    file_path = tmpdir / "test_cufile_read_async.bin"
 
     # First create and write test data without O_DIRECT
     fd_temp = os.open(file_path, os.O_CREAT | os.O_RDWR, 0o600)
@@ -832,17 +809,15 @@ def test_cufile_read_async():
 
     finally:
         os.close(fd)
-        with suppress(OSError):
-            os.unlink(file_path)
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @xfail_handle_register
 @pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
-def test_cufile_async_read_write():
+def test_cufile_async_read_write(tmpdir):
     """Test cuFile asynchronous read and write operations in sequence."""
     # Create test file
-    file_path = "test_cufile_async_rw.bin"
+    file_path = tmpdir / "test_cufile_async_rw.bin"
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
     try:
@@ -946,17 +921,15 @@ def test_cufile_async_read_write():
 
     finally:
         os.close(fd)
-        with suppress(OSError):
-            os.unlink(file_path)
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
 @xfail_handle_register
-def test_batch_io_basic():
+def test_batch_io_basic(tmpdir):
     """Test basic batch IO operations with multiple read/write operations."""
     # Create test file
-    file_path = "test_batch_io.bin"
+    file_path = tmpdir / "test_batch_io.bin"
 
     # Allocate CUDA memory for multiple operations
     buf_size = 65536  # 64KB
@@ -1145,21 +1118,15 @@ def test_batch_io_basic():
         # Free CUDA memory
         for buf in buffers + read_buffers:
             cuda.cuMemFree(buf)
-        # Clean up test file
-        try:
-            os.unlink(file_path)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
 @xfail_handle_register
-def test_batch_io_cancel():
+def test_batch_io_cancel(tmpdir):
     """Test batch IO cancellation."""
     # Create test file
-    file_path = "test_batch_cancel.bin"
+    file_path = tmpdir / "test_batch_cancel.bin"
 
     # Allocate CUDA memory
     buf_size = 4096  # 4KB, aligned to 4096 bytes
@@ -1229,21 +1196,15 @@ def test_batch_io_cancel():
         # Free CUDA memory
         for buf in buffers:
             cuda.cuMemFree(buf)
-        # Clean up test file
-        try:
-            os.unlink(file_path)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
 @xfail_handle_register
-def test_batch_io_large_operations():
+def test_batch_io_large_operations(tmpdir):
     """Test batch IO with large buffer operations."""
     # Create test file
-    file_path = "test_batch_large.bin"
+    file_path = tmpdir / "test_batch_large.bin"
 
     # Allocate large CUDA memory (1MB, aligned to 4096 bytes)
     buf_size = 1024 * 1024  # 1MB, aligned to 4096 bytes
@@ -1421,12 +1382,6 @@ def test_batch_io_large_operations():
         # Free CUDA memory
         for buf in all_buffers:
             cuda.cuMemFree(buf)
-        # Clean up test file
-        try:
-            os.unlink(file_path)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
 
 
 @pytest.mark.skipif(
@@ -1648,10 +1603,11 @@ def test_stats_start_stop():
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("stats")
 @xfail_handle_register
-def test_get_stats_l1():
+@pytest.mark.thread_unsafe(reason="cuFile stats counters and collection state are process-global")
+def test_get_stats_l1(tmpdir):
     """Test cuFile L1 statistics retrieval with file operations."""
     # Create test file directly with O_DIRECT
-    file_path = "test_stats_l1.bin"
+    file_path = tmpdir / "test_stats_l1.bin"
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
     try:
@@ -1718,8 +1674,6 @@ def test_get_stats_l1():
 
     finally:
         os.close(fd)
-        with suppress(OSError):
-            os.unlink(file_path)
 
 
 @pytest.mark.skipif(
@@ -1728,10 +1682,11 @@ def test_get_stats_l1():
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("stats")
 @xfail_handle_register
-def test_get_stats_l2():
+@pytest.mark.thread_unsafe(reason="cuFile stats counters and collection state are process-global")
+def test_get_stats_l2(tmpdir):
     """Test cuFile L2 statistics retrieval with file operations."""
     # Create test file directly with O_DIRECT
-    file_path = "test_stats_l2.bin"
+    file_path = tmpdir / "test_stats_l2.bin"
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
     try:
@@ -1802,8 +1757,6 @@ def test_get_stats_l2():
 
     finally:
         os.close(fd)
-        with suppress(OSError):
-            os.unlink(file_path)
 
 
 @pytest.mark.skipif(
@@ -1812,10 +1765,11 @@ def test_get_stats_l2():
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("stats")
 @xfail_handle_register
-def test_get_stats_l3():
+@pytest.mark.thread_unsafe(reason="cuFile stats counters and collection state are process-global")
+def test_get_stats_l3(tmpdir):
     """Test cuFile L3 statistics retrieval with file operations."""
     # Create test file directly with O_DIRECT
-    file_path = "test_stats_l3.bin"
+    file_path = tmpdir / "test_stats_l3.bin"
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
     try:
@@ -1896,8 +1850,6 @@ def test_get_stats_l3():
 
     finally:
         os.close(fd)
-        with suppress(OSError):
-            os.unlink(file_path)
 
 
 @pytest.mark.skipif(
