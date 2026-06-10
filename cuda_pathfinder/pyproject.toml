@@ -16,6 +16,7 @@ test = [
     "pytest-mock==3.15.1",
     "pytest-repeat==0.9.4",
     "pytest-randomly==4.1.0",
+    "pytest-run-parallel; python_version == '3.14t' or python_version == '3.15t'",
 ]
 # Internal organization of test dependencies.
 cu12 = [
