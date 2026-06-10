@@ -183,6 +183,76 @@ def test_to_native_launch_config_cooperative(monkeypatch):
     assert attr.value.cooperative == 1, f"Expected cooperative=1, got {attr.value.cooperative}"
 
 
+def test_launch_config_cluster_accepts_hopper_cc(monkeypatch):
+    """LaunchConfig accepts ``cluster`` when the device reports compute
+    capability >= 9.0. Device is mocked so the cluster-cast branch runs on any
+    GPU (real cluster support otherwise requires Hopper+)."""
+    from cuda.core import _launch_config as _lc_mod
+
+    class _FakeDev:
+        compute_capability = (9, 0)
+
+    # looked_up confirms the mock took effect.
+    looked_up = []
+    monkeypatch.setattr(_lc_mod, "Device", lambda: looked_up.append(1) or _FakeDev())
+
+    config = LaunchConfig(grid=(2, 3), cluster=(2, 2), block=32)
+    assert looked_up, "Device was not looked up via the module global; mock did not take effect"
+    assert config.cluster == (2, 2, 1)
+    assert config.grid == (2, 3, 1)
+
+
+def test_launch_config_cluster_rejects_pre_hopper_cc(monkeypatch):
+    """LaunchConfig(cluster=...) raises on a device with compute capability < 9.0."""
+    from cuda.core import _launch_config as _lc_mod
+
+    class _FakeDev:
+        compute_capability = (8, 6)
+
+    # looked_up confirms the mock took effect.
+    looked_up = []
+    monkeypatch.setattr(_lc_mod, "Device", lambda: looked_up.append(1) or _FakeDev())
+
+    with pytest.raises(CUDAError, match="thread block clusters are not supported"):
+        LaunchConfig(grid=2, cluster=2, block=32)
+    assert looked_up, "Device was not looked up via the module global; mock did not take effect"
+
+
+def test_to_native_launch_config_cluster_branch():
+    """Covers the cluster branch of ``_to_native_launch_config`` (grid is
+    converted from cluster units to block units, plus the cluster-dimension
+    attribute) without requiring Hopper.
+
+    The cc gate lives in ``LaunchConfig.__init__``; ``cluster`` itself is a
+    public attribute, so setting it on a cluster-free config yields the exact
+    object ``__init__`` would build on Hopper and lets the conversion run on
+    any GPU.
+
+    Note: this exercises the standalone ``cpdef _to_native_launch_config``
+    function (a duplicate of the ``LaunchConfig._to_native_launch_config``
+    cdef method, slated for removal once all modules are cythonized), not the
+    cdef method that ``launch`` / ``Module`` actually call in production.
+    """
+    from cuda.bindings import driver
+    from cuda.core._launch_config import _to_native_launch_config
+
+    config = LaunchConfig(grid=(2, 3, 4), block=(5, 6, 7))
+    config.cluster = (2, 2, 2)
+    native = _to_native_launch_config(config)
+
+    # grid (in cluster units) * cluster -> block units
+    assert native.gridDimX == 4
+    assert native.gridDimY == 6
+    assert native.gridDimZ == 8
+    assert native.blockDimX == 5
+    assert native.blockDimY == 6
+    assert native.blockDimZ == 7
+    assert native.numAttrs == 1
+    attr = native.attrs[0]
+    assert attr.id == driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+    assert (attr.value.clusterDim.x, attr.value.clusterDim.y, attr.value.clusterDim.z) == (2, 2, 2)
+
+
 def test_launch_invalid_values(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, SourceCodeType.CXX)

@@ -8,6 +8,7 @@ __pycache__/
 
 # CUDA Python specific
 .cache/
+.lycheecache
 .pytest_cache/
 .benchmarks/
 *.cpp
