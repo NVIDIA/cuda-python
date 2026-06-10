@@ -364,6 +364,7 @@ class TestManagedBuffer:
         finally:
             plain.close()
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_read_mostly_roundtrip(self, external_managed_buffer):
         buf = external_managed_buffer
         assert buf.read_mostly is False
@@ -372,6 +373,7 @@ class TestManagedBuffer:
         buf.read_mostly = False
         assert buf.read_mostly is False
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_preferred_location_roundtrip(self, location_ops_device, external_managed_buffer):
         device = location_ops_device
         buf = external_managed_buffer
@@ -386,6 +388,7 @@ class TestManagedBuffer:
         buf.preferred_location = None
         assert buf.preferred_location is None
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_preferred_location_roundtrip_host_numa(self, location_ops_device):
         """Host(numa_id=N) round-trips correctly on CUDA 13 builds."""
         from cuda.core._utils.version import binding_version
@@ -406,6 +409,7 @@ class TestManagedBuffer:
         finally:
             plain.close()
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_accessed_by_add_discard(self, location_ops_device, external_managed_buffer):
         device = location_ops_device
         buf = external_managed_buffer
@@ -417,6 +421,7 @@ class TestManagedBuffer:
         buf.accessed_by.discard(device)
         assert device not in buf.accessed_by
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_accessed_by_mutable_set_interface(self, location_ops_device, external_managed_buffer):
         """Full MutableSet conformance pass on AccessedBySetProxy.
 
@@ -436,6 +441,7 @@ class TestManagedBuffer:
             non_member=Host(numa_id=0),
         )
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_accessed_by_set_assignment(self, location_ops_device, external_managed_buffer):
         device = location_ops_device
         buf = external_managed_buffer
