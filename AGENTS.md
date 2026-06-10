@@ -14,6 +14,14 @@ guide for package-specific conventions and workflows.
 
 # Pull requests
 
+**Never push branches or commits to the upstream fork (github.com/NVIDIA/cuda-python).
+Treat it as read-only.** All branch creation and pushes must go to the contributor's
+personal fork. Before pushing, confirm which remote points to the contributor's
+personal fork (not `upstream`) by running `git remote -v`, then push there
+(`git push <personal-fork-remote> <branch>`). Open the PR from that fork with
+`gh pr create`. Do not use `git push upstream` or any command that writes to
+the `upstream` remote.
+
 When creating pull requests with `gh pr create`, always assign at least one
 label and a milestone. CI enforces this via the `pr-metadata-check` workflow
 and will block PRs that are missing labels or a milestone. Use `--label` and
