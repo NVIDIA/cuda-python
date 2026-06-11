@@ -296,6 +296,7 @@ def test_find_bitcode_lib_invalid_name():
 @pytest.mark.parametrize(
     "sm_arch",
     [
+        "",
         "../sm90",
         "compute90",
         "sm_90",

@@ -75,8 +75,8 @@ def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str]
         attachments.append(f'  Directory does not exist: "{dir_path}"')
 
 
-def _filename_with_sm_arch(filename: str, sm_arch: str) -> str:
-    if not sm_arch:
+def _filename_with_sm_arch(filename: str, sm_arch: str | None) -> str:
+    if sm_arch is None:
         return filename
 
     if not re.match(r"^sm[0-9]+[a-z]?$", sm_arch):
@@ -87,7 +87,7 @@ def _filename_with_sm_arch(filename: str, sm_arch: str) -> str:
 
 
 class _FindBitcodeLib:
-    def __init__(self, name: str, sm_arch: str = "") -> None:
+    def __init__(self, name: str, sm_arch: str | None = None) -> None:
         if name not in _SUPPORTED_BITCODE_LIBS_INFO:  # Updated reference
             raise ValueError(f"Unknown bitcode library: '{name}'. Supported: {', '.join(SUPPORTED_BITCODE_LIBS)}")
         self.name: str = name
@@ -142,20 +142,22 @@ class _FindBitcodeLib:
         raise BitcodeLibNotFoundError(f'Failure finding "{self.filename}": {err}\n{att}')
 
 
-def locate_bitcode_lib(name: str, *, sm_arch: str = "") -> LocatedBitcodeLib:
+def locate_bitcode_lib(name: str, *, sm_arch: str | None = None) -> LocatedBitcodeLib:
     """Locate a bitcode library by name.
 
-    When ``sm_arch`` is set, locate the architecture-specific bitcode filename
-    with ``_{sm_arch}`` inserted before the ``.bc`` suffix.
+    When ``sm_arch`` is not ``None``, locate the architecture-specific bitcode
+    filename with ``_{sm_arch}`` inserted before the ``.bc`` suffix.
 
     Args:
         name: Name of the supported bitcode library to locate.
         sm_arch: Optional SM architecture suffix, such as ``"sm90"`` or
-            ``"sm90a"``. If set, it must match ``sm[0-9]+[a-z]?``.
+            ``"sm90a"``. If not ``None``, it must match
+            ``sm[0-9]+[a-z]?``.
 
     Raises:
         ValueError: If ``name`` is not a supported bitcode library, or if
-            ``sm_arch`` is set but does not match ``sm[0-9]+[a-z]?``.
+            ``sm_arch`` is not ``None`` and does not match
+            ``sm[0-9]+[a-z]?``.
         BitcodeLibNotFoundError: If the bitcode library cannot be found.
     """
     finder = _FindBitcodeLib(name, sm_arch)
@@ -191,20 +193,22 @@ def locate_bitcode_lib(name: str, *, sm_arch: str = "") -> LocatedBitcodeLib:
 
 
 @functools.cache
-def find_bitcode_lib(name: str, sm_arch: str = "") -> str:
+def find_bitcode_lib(name: str, sm_arch: str | None = None) -> str:
     """Find the absolute path to a bitcode library.
 
-    When ``sm_arch`` is set, find the architecture-specific bitcode filename
-    with ``_{sm_arch}`` inserted before the ``.bc`` suffix.
+    When ``sm_arch`` is not ``None``, find the architecture-specific bitcode
+    filename with ``_{sm_arch}`` inserted before the ``.bc`` suffix.
 
     Args:
         name: Name of the supported bitcode library to find.
         sm_arch: Optional SM architecture suffix, such as ``"sm90"`` or
-            ``"sm90a"``. If set, it must match ``sm[0-9]+[a-z]?``.
+            ``"sm90a"``. If not ``None``, it must match
+            ``sm[0-9]+[a-z]?``.
 
     Raises:
         ValueError: If ``name`` is not a supported bitcode library, or if
-            ``sm_arch`` is set but does not match ``sm[0-9]+[a-z]?``.
+            ``sm_arch`` is not ``None`` and does not match
+            ``sm[0-9]+[a-z]?``.
         BitcodeLibNotFoundError: If the bitcode library cannot be found.
     """
-    return locate_bitcode_lib(name, sm_arch).abs_path
+    return locate_bitcode_lib(name, sm_arch=sm_arch).abs_path
