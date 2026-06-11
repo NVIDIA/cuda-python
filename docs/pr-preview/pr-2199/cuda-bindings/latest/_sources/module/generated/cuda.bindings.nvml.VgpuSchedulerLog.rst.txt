@@ -1,0 +1,37 @@
+﻿cuda.bindings.nvml.VgpuSchedulerLog
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuSchedulerLog
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuSchedulerLog.__init__
+      ~VgpuSchedulerLog.from_buffer
+      ~VgpuSchedulerLog.from_data
+      ~VgpuSchedulerLog.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuSchedulerLog.arr_mode
+      ~VgpuSchedulerLog.engine_id
+      ~VgpuSchedulerLog.entries_count
+      ~VgpuSchedulerLog.log_entries
+      ~VgpuSchedulerLog.ptr
+      ~VgpuSchedulerLog.scheduler_params
+      ~VgpuSchedulerLog.scheduler_policy
+   
+   
