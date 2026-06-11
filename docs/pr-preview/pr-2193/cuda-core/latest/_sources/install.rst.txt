@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 Installation
@@ -147,7 +147,7 @@ Use ``-e cu12`` to test against CUDA 12 instead.
 .. _pixi: https://pixi.sh/
 
 Installing from Source
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: console
 
