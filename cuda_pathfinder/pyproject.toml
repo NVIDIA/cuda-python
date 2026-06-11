@@ -15,7 +15,6 @@ test = [
     "pytest>=6.2.4",
     "pytest-mock",
     "pytest-repeat",
-    "pytest-run-parallel; python_version == '3.14t' or python_version == '3.15t'",
     "pytest-randomly",
 ]
 # Internal organization of test dependencies.
