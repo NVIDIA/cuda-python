@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1738+g1060a290f. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -938,112 +938,112 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuMemHostUnregister', <void **>&__cuMemHostUnregister, 4000, ptds_mode, NULL)
 
         global __cuMemcpy
-        _F_cuGetProcAddress_v2('cuMemcpy', <void **>&__cuMemcpy, 4000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpy', <void **>&__cuMemcpy, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 4000, ptds_mode, NULL)
 
         global __cuMemcpyPeer
-        _F_cuGetProcAddress_v2('cuMemcpyPeer', <void **>&__cuMemcpyPeer, 4000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyPeer', <void **>&__cuMemcpyPeer, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 4000, ptds_mode, NULL)
 
         global __cuMemcpyHtoD_v2
-        _F_cuGetProcAddress_v2('cuMemcpyHtoD', <void **>&__cuMemcpyHtoD_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyHtoD', <void **>&__cuMemcpyHtoD_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpyDtoH_v2
-        _F_cuGetProcAddress_v2('cuMemcpyDtoH', <void **>&__cuMemcpyDtoH_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyDtoH', <void **>&__cuMemcpyDtoH_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpyDtoD_v2
-        _F_cuGetProcAddress_v2('cuMemcpyDtoD', <void **>&__cuMemcpyDtoD_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyDtoD', <void **>&__cuMemcpyDtoD_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpyDtoA_v2
-        _F_cuGetProcAddress_v2('cuMemcpyDtoA', <void **>&__cuMemcpyDtoA_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyDtoA', <void **>&__cuMemcpyDtoA_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpyAtoD_v2
-        _F_cuGetProcAddress_v2('cuMemcpyAtoD', <void **>&__cuMemcpyAtoD_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyAtoD', <void **>&__cuMemcpyAtoD_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpyHtoA_v2
-        _F_cuGetProcAddress_v2('cuMemcpyHtoA', <void **>&__cuMemcpyHtoA_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyHtoA', <void **>&__cuMemcpyHtoA_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpyAtoH_v2
-        _F_cuGetProcAddress_v2('cuMemcpyAtoH', <void **>&__cuMemcpyAtoH_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyAtoH', <void **>&__cuMemcpyAtoH_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpyAtoA_v2
-        _F_cuGetProcAddress_v2('cuMemcpyAtoA', <void **>&__cuMemcpyAtoA_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyAtoA', <void **>&__cuMemcpyAtoA_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpy2D_v2
-        _F_cuGetProcAddress_v2('cuMemcpy2D', <void **>&__cuMemcpy2D_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpy2D', <void **>&__cuMemcpy2D_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpy2DUnaligned_v2
-        _F_cuGetProcAddress_v2('cuMemcpy2DUnaligned', <void **>&__cuMemcpy2DUnaligned_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpy2DUnaligned', <void **>&__cuMemcpy2DUnaligned_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpy3D_v2
-        _F_cuGetProcAddress_v2('cuMemcpy3D', <void **>&__cuMemcpy3D_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpy3D', <void **>&__cuMemcpy3D_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpy3DPeer
-        _F_cuGetProcAddress_v2('cuMemcpy3DPeer', <void **>&__cuMemcpy3DPeer, 4000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpy3DPeer', <void **>&__cuMemcpy3DPeer, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 4000, ptds_mode, NULL)
 
         global __cuMemcpyAsync
-        _F_cuGetProcAddress_v2('cuMemcpyAsync', <void **>&__cuMemcpyAsync, 4000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyAsync', <void **>&__cuMemcpyAsync, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 4000, ptds_mode, NULL)
 
         global __cuMemcpyPeerAsync
-        _F_cuGetProcAddress_v2('cuMemcpyPeerAsync', <void **>&__cuMemcpyPeerAsync, 4000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyPeerAsync', <void **>&__cuMemcpyPeerAsync, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 4000, ptds_mode, NULL)
 
         global __cuMemcpyHtoDAsync_v2
-        _F_cuGetProcAddress_v2('cuMemcpyHtoDAsync', <void **>&__cuMemcpyHtoDAsync_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyHtoDAsync', <void **>&__cuMemcpyHtoDAsync_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpyDtoHAsync_v2
-        _F_cuGetProcAddress_v2('cuMemcpyDtoHAsync', <void **>&__cuMemcpyDtoHAsync_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyDtoHAsync', <void **>&__cuMemcpyDtoHAsync_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpyDtoDAsync_v2
-        _F_cuGetProcAddress_v2('cuMemcpyDtoDAsync', <void **>&__cuMemcpyDtoDAsync_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyDtoDAsync', <void **>&__cuMemcpyDtoDAsync_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpyHtoAAsync_v2
-        _F_cuGetProcAddress_v2('cuMemcpyHtoAAsync', <void **>&__cuMemcpyHtoAAsync_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyHtoAAsync', <void **>&__cuMemcpyHtoAAsync_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpyAtoHAsync_v2
-        _F_cuGetProcAddress_v2('cuMemcpyAtoHAsync', <void **>&__cuMemcpyAtoHAsync_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpyAtoHAsync', <void **>&__cuMemcpyAtoHAsync_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpy2DAsync_v2
-        _F_cuGetProcAddress_v2('cuMemcpy2DAsync', <void **>&__cuMemcpy2DAsync_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpy2DAsync', <void **>&__cuMemcpy2DAsync_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpy3DAsync_v2
-        _F_cuGetProcAddress_v2('cuMemcpy3DAsync', <void **>&__cuMemcpy3DAsync_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpy3DAsync', <void **>&__cuMemcpy3DAsync_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemcpy3DPeerAsync
-        _F_cuGetProcAddress_v2('cuMemcpy3DPeerAsync', <void **>&__cuMemcpy3DPeerAsync, 4000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemcpy3DPeerAsync', <void **>&__cuMemcpy3DPeerAsync, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 4000, ptds_mode, NULL)
 
         global __cuMemsetD8_v2
-        _F_cuGetProcAddress_v2('cuMemsetD8', <void **>&__cuMemsetD8_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD8', <void **>&__cuMemsetD8_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemsetD16_v2
-        _F_cuGetProcAddress_v2('cuMemsetD16', <void **>&__cuMemsetD16_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD16', <void **>&__cuMemsetD16_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemsetD32_v2
-        _F_cuGetProcAddress_v2('cuMemsetD32', <void **>&__cuMemsetD32_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD32', <void **>&__cuMemsetD32_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D8_v2
-        _F_cuGetProcAddress_v2('cuMemsetD2D8', <void **>&__cuMemsetD2D8_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD2D8', <void **>&__cuMemsetD2D8_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D16_v2
-        _F_cuGetProcAddress_v2('cuMemsetD2D16', <void **>&__cuMemsetD2D16_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD2D16', <void **>&__cuMemsetD2D16_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D32_v2
-        _F_cuGetProcAddress_v2('cuMemsetD2D32', <void **>&__cuMemsetD2D32_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD2D32', <void **>&__cuMemsetD2D32_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemsetD8Async
-        _F_cuGetProcAddress_v2('cuMemsetD8Async', <void **>&__cuMemsetD8Async, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD8Async', <void **>&__cuMemsetD8Async, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemsetD16Async
-        _F_cuGetProcAddress_v2('cuMemsetD16Async', <void **>&__cuMemsetD16Async, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD16Async', <void **>&__cuMemsetD16Async, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemsetD32Async
-        _F_cuGetProcAddress_v2('cuMemsetD32Async', <void **>&__cuMemsetD32Async, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD32Async', <void **>&__cuMemsetD32Async, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D8Async
-        _F_cuGetProcAddress_v2('cuMemsetD2D8Async', <void **>&__cuMemsetD2D8Async, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD2D8Async', <void **>&__cuMemsetD2D8Async, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D16Async
-        _F_cuGetProcAddress_v2('cuMemsetD2D16Async', <void **>&__cuMemsetD2D16Async, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD2D16Async', <void **>&__cuMemsetD2D16Async, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuMemsetD2D32Async
-        _F_cuGetProcAddress_v2('cuMemsetD2D32Async', <void **>&__cuMemsetD2D32Async, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMemsetD2D32Async', <void **>&__cuMemsetD2D32Async, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuArrayCreate_v2
         _F_cuGetProcAddress_v2('cuArrayCreate', <void **>&__cuArrayCreate_v2, 3020, ptds_mode, NULL)
@@ -1220,13 +1220,13 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuStreamCreateWithPriority', <void **>&__cuStreamCreateWithPriority, 5050, ptds_mode, NULL)
 
         global __cuStreamGetPriority
-        _F_cuGetProcAddress_v2('cuStreamGetPriority', <void **>&__cuStreamGetPriority, 5050, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuStreamGetPriority', <void **>&__cuStreamGetPriority, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 5050, ptds_mode, NULL)
 
         global __cuStreamGetDevice
         _F_cuGetProcAddress_v2('cuStreamGetDevice', <void **>&__cuStreamGetDevice, 12080, ptds_mode, NULL)
 
         global __cuStreamGetFlags
-        _F_cuGetProcAddress_v2('cuStreamGetFlags', <void **>&__cuStreamGetFlags, 5050, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuStreamGetFlags', <void **>&__cuStreamGetFlags, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 5050, ptds_mode, NULL)
 
         global __cuStreamGetId
         _F_cuGetProcAddress_v2('cuStreamGetId', <void **>&__cuStreamGetId, 12000, ptds_mode, NULL)
@@ -1235,13 +1235,13 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuStreamGetCtx', <void **>&__cuStreamGetCtx, 9020, ptds_mode, NULL)
 
         global __cuStreamGetCtx_v2
-        _F_cuGetProcAddress_v2('cuStreamGetCtx_v2', <void **>&__cuStreamGetCtx_v2, 12050, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuStreamGetCtx', <void **>&__cuStreamGetCtx_v2, 12050, ptds_mode, NULL)
 
         global __cuStreamWaitEvent
-        _F_cuGetProcAddress_v2('cuStreamWaitEvent', <void **>&__cuStreamWaitEvent, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuStreamWaitEvent', <void **>&__cuStreamWaitEvent, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuStreamAddCallback
-        _F_cuGetProcAddress_v2('cuStreamAddCallback', <void **>&__cuStreamAddCallback, 5000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuStreamAddCallback', <void **>&__cuStreamAddCallback, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 5000, ptds_mode, NULL)
 
         global __cuStreamBeginCapture_v2
         _F_cuGetProcAddress_v2('cuStreamBeginCapture', <void **>&__cuStreamBeginCapture_v2, 10010, ptds_mode, NULL)
@@ -1265,13 +1265,13 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuStreamUpdateCaptureDependencies', <void **>&__cuStreamUpdateCaptureDependencies_v2, 12030, ptds_mode, NULL)
 
         global __cuStreamAttachMemAsync
-        _F_cuGetProcAddress_v2('cuStreamAttachMemAsync', <void **>&__cuStreamAttachMemAsync, 6000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuStreamAttachMemAsync', <void **>&__cuStreamAttachMemAsync, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 6000, ptds_mode, NULL)
 
         global __cuStreamQuery
-        _F_cuGetProcAddress_v2('cuStreamQuery', <void **>&__cuStreamQuery, 2000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuStreamQuery', <void **>&__cuStreamQuery, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 2000, ptds_mode, NULL)
 
         global __cuStreamSynchronize
-        _F_cuGetProcAddress_v2('cuStreamSynchronize', <void **>&__cuStreamSynchronize, 2000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuStreamSynchronize', <void **>&__cuStreamSynchronize, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 2000, ptds_mode, NULL)
 
         global __cuStreamDestroy_v2
         _F_cuGetProcAddress_v2('cuStreamDestroy', <void **>&__cuStreamDestroy_v2, 4000, ptds_mode, NULL)
@@ -1289,7 +1289,7 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuEventCreate', <void **>&__cuEventCreate, 2000, ptds_mode, NULL)
 
         global __cuEventRecord
-        _F_cuGetProcAddress_v2('cuEventRecord', <void **>&__cuEventRecord, 2000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuEventRecord', <void **>&__cuEventRecord, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 2000, ptds_mode, NULL)
 
         global __cuEventRecordWithFlags
         _F_cuGetProcAddress_v2('cuEventRecordWithFlags', <void **>&__cuEventRecordWithFlags, 11010, ptds_mode, NULL)
@@ -1370,7 +1370,7 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuFuncLoad', <void **>&__cuFuncLoad, 12040, ptds_mode, NULL)
 
         global __cuLaunchKernel
-        _F_cuGetProcAddress_v2('cuLaunchKernel', <void **>&__cuLaunchKernel, 4000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuLaunchKernel', <void **>&__cuLaunchKernel, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 4000, ptds_mode, NULL)
 
         global __cuLaunchKernelEx
         _F_cuGetProcAddress_v2('cuLaunchKernelEx', <void **>&__cuLaunchKernelEx, 11060, ptds_mode, NULL)
@@ -1835,10 +1835,10 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuGraphicsResourceSetMapFlags', <void **>&__cuGraphicsResourceSetMapFlags_v2, 6050, ptds_mode, NULL)
 
         global __cuGraphicsMapResources
-        _F_cuGetProcAddress_v2('cuGraphicsMapResources', <void **>&__cuGraphicsMapResources, 3000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuGraphicsMapResources', <void **>&__cuGraphicsMapResources, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3000, ptds_mode, NULL)
 
         global __cuGraphicsUnmapResources
-        _F_cuGetProcAddress_v2('cuGraphicsUnmapResources', <void **>&__cuGraphicsUnmapResources, 3000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuGraphicsUnmapResources', <void **>&__cuGraphicsUnmapResources, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3000, ptds_mode, NULL)
 
         global __cuGetProcAddress_v2
         _F_cuGetProcAddress_v2('cuGetProcAddress', <void **>&__cuGetProcAddress_v2, 12000, ptds_mode, NULL)
@@ -1982,7 +1982,7 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuGLRegisterBufferObject', <void **>&__cuGLRegisterBufferObject, 2000, ptds_mode, NULL)
 
         global __cuGLMapBufferObject_v2
-        _F_cuGetProcAddress_v2('cuGLMapBufferObject', <void **>&__cuGLMapBufferObject_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuGLMapBufferObject', <void **>&__cuGLMapBufferObject_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuGLUnmapBufferObject
         _F_cuGetProcAddress_v2('cuGLUnmapBufferObject', <void **>&__cuGLUnmapBufferObject, 2000, ptds_mode, NULL)
@@ -1994,7 +1994,7 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuGLSetBufferObjectMapFlags', <void **>&__cuGLSetBufferObjectMapFlags, 2030, ptds_mode, NULL)
 
         global __cuGLMapBufferObjectAsync_v2
-        _F_cuGetProcAddress_v2('cuGLMapBufferObjectAsync', <void **>&__cuGLMapBufferObjectAsync_v2, 3020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuGLMapBufferObjectAsync', <void **>&__cuGLMapBufferObjectAsync_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
         global __cuGLUnmapBufferObjectAsync
         _F_cuGetProcAddress_v2('cuGLUnmapBufferObjectAsync', <void **>&__cuGLUnmapBufferObjectAsync, 2030, ptds_mode, NULL)
@@ -2024,10 +2024,10 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuDeviceGetHostAtomicCapabilities', <void **>&__cuDeviceGetHostAtomicCapabilities, 13000, ptds_mode, NULL)
 
         global __cuCtxGetDevice_v2
-        _F_cuGetProcAddress_v2('cuCtxGetDevice_v2', <void **>&__cuCtxGetDevice_v2, 13000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuCtxGetDevice', <void **>&__cuCtxGetDevice_v2, 13000, ptds_mode, NULL)
 
         global __cuCtxSynchronize_v2
-        _F_cuGetProcAddress_v2('cuCtxSynchronize_v2', <void **>&__cuCtxSynchronize_v2, 13000, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuCtxSynchronize', <void **>&__cuCtxSynchronize_v2, 13000, ptds_mode, NULL)
 
         global __cuMemcpyBatchAsync_v2
         _F_cuGetProcAddress_v2('cuMemcpyBatchAsync', <void **>&__cuMemcpyBatchAsync_v2, 13000, ptds_mode, NULL)
@@ -2060,10 +2060,10 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuGreenCtxGetId', <void **>&__cuGreenCtxGetId, 13000, ptds_mode, NULL)
 
         global __cuMulticastBindMem_v2
-        _F_cuGetProcAddress_v2('cuMulticastBindMem_v2', <void **>&__cuMulticastBindMem_v2, 13010, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMulticastBindMem', <void **>&__cuMulticastBindMem_v2, 13010, ptds_mode, NULL)
 
         global __cuMulticastBindAddr_v2
-        _F_cuGetProcAddress_v2('cuMulticastBindAddr_v2', <void **>&__cuMulticastBindAddr_v2, 13010, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuMulticastBindAddr', <void **>&__cuMulticastBindAddr_v2, 13010, ptds_mode, NULL)
 
         global __cuGraphNodeGetContainingGraph
         _F_cuGetProcAddress_v2('cuGraphNodeGetContainingGraph', <void **>&__cuGraphNodeGetContainingGraph, 13010, ptds_mode, NULL)
@@ -2105,7 +2105,7 @@ cdef int _init_driver() except -1 nogil:
         _F_cuGetProcAddress_v2('cuFuncGetParamCount', <void **>&__cuFuncGetParamCount, 13020, ptds_mode, NULL)
 
         global __cuLaunchHostFunc_v2
-        _F_cuGetProcAddress_v2('cuLaunchHostFunc_v2', <void **>&__cuLaunchHostFunc_v2, 13020, ptds_mode, NULL)
+        _F_cuGetProcAddress_v2('cuLaunchHostFunc', <void **>&__cuLaunchHostFunc_v2, 13020, ptds_mode, NULL)
 
         global __cuGraphNodeGetParams
         _F_cuGetProcAddress_v2('cuGraphNodeGetParams', <void **>&__cuGraphNodeGetParams, 13020, ptds_mode, NULL)
