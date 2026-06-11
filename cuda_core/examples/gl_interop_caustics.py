@@ -5,13 +5,13 @@
 # ################################################################################
 #
 # This example demonstrates cuda.core.CUDAArray, TextureObject, and
-# GraphicsResource for CUDA/OpenGL interop. A vivid procedural background image
-# is uploaded once into a 2D CUDAArray and bound as a TextureObject sampled with
+# GraphicsResource for CUDA/OpenGL interop. A tiled pool-floor image is uploaded
+# once into a 2D CUDAArray and bound as a TextureObject sampled with
 # FilterMode.LINEAR + AddressMode.MIRROR + normalized coordinates. Each frame a
 # `render_water` kernel evaluates an animated water surface analytically, refracts
-# the view ray through it to perturb the background lookup UVs, adds shimmering
-# caustic highlights, and writes RGBA8 straight into an OpenGL PBO. The effect is
-# "looking through a sunlit pool". Requires pyglet.
+# the background lookup UVs through it, and overlays a bright caustic network
+# computed from where the refraction focuses, writing RGBA8 straight into an
+# OpenGL PBO. The effect is "looking down at a sunlit pool". Requires pyglet.
 #
 # ################################################################################
 
@@ -58,10 +58,10 @@
 #        surface gradient) -- a cheap 2D approximation of bending the view ray.
 #     3. Sample the background TextureObject at the perturbed UV (LINEAR +
 #        MIRROR keeps it smooth and well-defined outside [0, 1]).
-#     4. Caustics: brightness focuses where wavefronts converge. Approximate
-#        with a sharpened power of the surface curvature (Laplacian), adding
-#        bright cyan/white highlights. Add a depth tint (deeper = bluer) and a
-#        specular sparkle from the normal versus a fixed light direction.
+#     4. Caustics: the refraction map (u,v)->(su,sv) focuses light where its
+#        Jacobian determinant approaches zero. We light a thin band around that
+#        det->0 curve to draw the bright, interconnected caustic network, then
+#        add a depth tint (deeper = bluer) and faint specular glints.
 #     5. Tonemap and write RGBA8 into the OpenGL PBO. No PCIe traffic per frame.
 #
 # Why MIRROR (not WRAP or CLAMP)?
@@ -74,11 +74,11 @@
 #
 # What you should see
 # ===================
-# A colorful tiled background rippling as if seen through moving water, with
-# bright caustic highlights skittering across it. Press +/- to change the
-# refraction/ripple strength, click anywhere to spawn an expanding circular
+# A tiled aqua pool floor seen through gently moving water, overlaid with a
+# bright, shifting network of caustic light filaments. Press +/- to change the
+# water/refraction strength, click anywhere to spawn an expanding circular
 # ripple at the cursor, and Escape to exit. The title shows FPS and the current
-# ripple strength.
+# strength.
 #
 
 # /// script
@@ -138,47 +138,42 @@ MAX_STRENGTH = 3.0
 
 
 def make_background_image(size):
-    """Build a (size, size, 4) uint8 RGBA background designed to show refraction.
+    """Build a (size, size, 4) uint8 RGBA swimming-pool floor: aqua tiles + grout.
 
     Layout convention: CUDAArray.from_descriptor takes shape=(WIDTH, HEIGHT), so
     the host buffer fed to copy_from must be H rows of W elements (row-major),
     i.e. host.shape == (HEIGHT, WIDTH, 4). Here the image is square so the two
     agree, but the (y, x) indexing below is the load-bearing part.
 
-    The pattern is deliberately vivid and high-frequency -- a grid of saturated
-    hues with concentric rings -- so even small refraction offsets are obvious.
+    A calm tiled pool floor (low-saturation aqua tiles with slightly darker
+    grout and gentle per-tile variation) is the right backdrop for caustics: it
+    gives the refraction something legible to warp without itself looking busy,
+    so the bright caustic network drawn on top reads as light on water rather
+    than a clash of colors.
     """
     ys, xs = np.mgrid[0:size, 0:size].astype(np.float32)
     u = xs / size
     v = ys / size
 
-    # Saturated, smoothly varying hues across the plane (a cheap HSV-ish wheel).
-    r = 0.5 + 0.5 * np.sin(u * 6.2831853 * 2.0 + 0.0)
-    g = 0.5 + 0.5 * np.sin(v * 6.2831853 * 2.0 + 2.0944)
-    b = 0.5 + 0.5 * np.sin((u + v) * 6.2831853 * 2.0 + 4.1888)
+    cells = 6.0
+    # Distance from each tile's edge (0 at center, 1 at the grout line).
+    ex = np.abs(((u * cells) % 1.0) - 0.5) * 2.0
+    ey = np.abs(((v * cells) % 1.0) - 0.5) * 2.0
+    edge = np.maximum(ex, ey)
+    grout = np.clip((edge - 0.82) / 0.18, 0.0, 1.0)  # smooth grout band
 
-    # Bright grid lines so the warp is legible.
-    cells = 8.0
-    gx = np.abs(((u * cells) % 1.0) - 0.5)
-    gy = np.abs(((v * cells) % 1.0) - 0.5)
-    grid = np.maximum(gx, gy)
-    grid_line = (grid > 0.42).astype(np.float32)
-    r = r * (1.0 - grid_line) + 1.0 * grid_line
-    g = g * (1.0 - grid_line) + 1.0 * grid_line
-    b = b * (1.0 - grid_line) + 1.0 * grid_line
+    # Subtle per-tile brightness variation (cheap hash on the tile index).
+    ti = np.floor(u * cells) + np.floor(v * cells) * 31.0
+    var = (np.sin(ti * 12.9898) * 43758.5453) % 1.0
+    shade = 0.92 + 0.08 * var
 
-    # A couple of concentric rings centered on the image to add curvature cues.
-    cx, cy = 0.5, 0.5
-    dist = np.sqrt((u - cx) ** 2 + (v - cy) ** 2)
-    rings = 0.5 + 0.5 * np.sin(dist * 6.2831853 * 10.0)
-    r = np.clip(r * 0.75 + rings * 0.25, 0.0, 1.0)
-    g = np.clip(g * 0.75 + rings * 0.20, 0.0, 1.0)
-    b = np.clip(b * 0.85 + rings * 0.15, 0.0, 1.0)
-
+    # Aqua tile body and a darker teal grout, blended by the grout band.
+    tile = np.array([0.30, 0.66, 0.74], dtype=np.float32)
+    mortar = np.array([0.12, 0.34, 0.42], dtype=np.float32)
     img = np.zeros((size, size, 4), dtype=np.uint8)
-    img[:, :, 0] = (r * 255.0).astype(np.uint8)
-    img[:, :, 1] = (g * 255.0).astype(np.uint8)
-    img[:, :, 2] = (b * 255.0).astype(np.uint8)
+    for c in range(3):
+        col = (tile[c] * shade) * (1.0 - grout) + mortar[c] * grout
+        img[:, :, c] = (np.clip(col, 0.0, 1.0) * 255.0).astype(np.uint8)
     img[:, :, 3] = 255
     return img
 
@@ -610,93 +605,83 @@ void render_water(cudaTextureObject_t bg,
     float u = (x + 0.5f) / (float)width;
     float v = 1.0f - (y + 0.5f) / (float)height;
 
-    // Sample the water height field on a small stencil to get the surface
-    // gradient (slope -> refraction) and Laplacian (curvature -> caustics).
+    // Sample the water height field on a 3x3 stencil to get the surface
+    // gradient (slope -> refraction) and the full Hessian (the second
+    // derivatives that drive the caustic network).
     const float eps = 1.5f / (float)width;
     float hc = water_height(u, v, t, rip_x, rip_y, rip_age, ripple_lifetime);
     float hl = water_height(u - eps, v, t, rip_x, rip_y, rip_age, ripple_lifetime);
     float hr = water_height(u + eps, v, t, rip_x, rip_y, rip_age, ripple_lifetime);
     float hd = water_height(u, v - eps, t, rip_x, rip_y, rip_age, ripple_lifetime);
     float hu = water_height(u, v + eps, t, rip_x, rip_y, rip_age, ripple_lifetime);
+    float hlu = water_height(u - eps, v + eps, t, rip_x, rip_y, rip_age, ripple_lifetime);
+    float hru = water_height(u + eps, v + eps, t, rip_x, rip_y, rip_age, ripple_lifetime);
+    float hld = water_height(u - eps, v - eps, t, rip_x, rip_y, rip_age, ripple_lifetime);
+    float hrd = water_height(u + eps, v - eps, t, rip_x, rip_y, rip_age, ripple_lifetime);
 
-    float gx = (hr - hl) / (2.0f * eps);   // d(height)/du
-    float gy = (hu - hd) / (2.0f * eps);   // d(height)/dv
-    // Discrete Laplacian (curvature). Divide by eps^2 so it is a true second
-    // derivative -- without this the finite-difference sum is ~Laplacian*eps^2
-    // (tiny), and the caustic term below would collapse to zero.
-    float lap = (hl + hr + hd + hu - 4.0f * hc) / (eps * eps);
+    float inv2e = 1.0f / (2.0f * eps);
+    float inve2 = 1.0f / (eps * eps);
+    float gx = (hr - hl) * inv2e;            // d(height)/du
+    float gy = (hu - hd) * inv2e;            // d(height)/dv
+    float hxx = (hr - 2.0f * hc + hl) * inve2;
+    float hyy = (hu - 2.0f * hc + hd) * inve2;
+    float hxy = (hru - hrd - hlu + hld) * (0.25f * inve2);
 
-    // 2D refraction approximation: bend the background lookup by the surface
-    // slope, scaled by the user `strength`. Small factor keeps it gentle.
-    float refract = 0.015f * strength;
+    // 2D refraction: bend the background lookup by the surface slope, kept
+    // small so the pool floor warps gently instead of tearing apart. Because
+    // the texture was bound with srgb=True the sample is already in LINEAR
+    // light, so the lighting/tonemap below is physically sensible and we only
+    // re-encode to sRGB at the very end. MIRROR keeps (su, sv) outside [0,1]
+    // smooth instead of a clamped streak or a wrap seam.
+    float refract = 0.010f * strength;
     float su = u - refract * gx;
     float sv = v - refract * gy;
+    float4 base = tex2D<float4>(bg, su, sv);
 
-    // Sample the background. LINEAR + MIRROR + normalized coords means the
-    // perturbed (su, sv) can leave [0, 1] and still return a smooth, mirrored
-    // pixel rather than a clamped streak or a hard seam. Because the texture was
-    // bound with srgb=True, each channel is already decoded to LINEAR light
-    // here -- so all the lighting/tonemap math below is physically sensible and
-    // we only re-encode to sRGB at the very end.
-    //
-    // Chromatic dispersion: water bends short (blue) wavelengths more than long
-    // (red) ones, so we sample R/G/B at slightly different refraction offsets.
-    // This gives caustic edges and warped grid lines faint rainbow fringes.
-    float disp = 0.30f * refract;                // dispersion spread, in UV
-    float base_r = tex2D<float4>(bg, su - disp * gx, sv - disp * gy).x;
-    float base_b = tex2D<float4>(bg, su + disp * gx, sv + disp * gy).z;
-    float4 base = tex2D<float4>(bg, su, sv);   // green keeps the unsplit UV
-    base.x = base_r;
-    base.z = base_b;
+    // Caustics from the refraction map's area compression. The displacement
+    // (u,v) -> (su,sv) has Jacobian J = [[1 - r*hxx, -r*hxy], [-r*hxy,
+    // 1 - r*hyy]]. Where det(J) -> 0 neighbouring rays converge onto the same
+    // spot and light piles up; 1/|det| is the brightness of that focus. This
+    // is what produces the real, interconnected, animated caustic web -- not a
+    // generic glow. `rs` is a small lens strength tuned to the wave curvature.
+    float rs = 0.012f * (0.5f + 0.5f * strength);
+    float a = 1.0f - rs * hxx;
+    float dd = 1.0f - rs * hyy;
+    float bxy = rs * hxy;
+    float det = a * dd - bxy * bxy;
+    // The caustic is the thin CURVE where det -> 0 (rays focus to a line). We
+    // light up only a narrow band around it and square the ramp so the result
+    // is crisp bright filaments over the visible tiles, not broad foggy blobs.
+    // Two bands -- a tight bright core plus a fainter halo -- give the lines a
+    // little glow without fattening them.
+    float ad = fabsf(det);
+    float core = 1.0f - fminf(ad / 0.06f, 1.0f);
+    float halo = 1.0f - fminf(ad / 0.30f, 1.0f);
+    float caustic = core * core * 1.7f + halo * halo * 0.25f;
+    if (caustic > 2.0f) caustic = 2.0f;
 
-    // Surface normal from the gradient (z component points out of the water).
-    float nx = -gx;
-    float ny = -gy;
-    float nz = 1.0f;
+    // Surface normal from the gradient (z points out of the water).
+    float nx = -gx, ny = -gy, nz = 1.0f;
     float ninv = rsqrtf(nx * nx + ny * ny + nz * nz);
     nx *= ninv; ny *= ninv; nz *= ninv;
 
-    // Caustics: light focuses where the wavefront converges (negative
-    // curvature). Raise a sharpened function of the curvature to a power to get
-    // tight bright filaments, then add as a cyan/white highlight.
-    // The wave-sum Laplacian peaks around O(150-200), so this factor lands
-    // `focus` near O(1) at a converging wavefront.
-    float focus = -lap * 0.005f;
-    if (focus < 0.0f) focus = 0.0f;
-    float caustic = focus * focus * focus;       // sharpen into thin filaments
-    caustic *= (0.6f + 0.8f * strength);
-    if (caustic > 1.5f) caustic = 1.5f;
-
-    // Specular sparkle: normal vs a fixed light direction.
-    float lx = 0.4f, ly = 0.5f, lz = 0.768f;     // normalized-ish light dir
+    // Faint specular glints off the wavelets.
+    float lx = 0.3f, ly = 0.4f, lz = 0.866f;
     float spec = nx * lx + ny * ly + nz * lz;
     if (spec < 0.0f) spec = 0.0f;
-    spec = powf(spec, 48.0f);
+    spec = powf(spec, 60.0f) * 0.5f;
 
-    // Animated light shafts / god-rays: angled bright bands that drift and
-    // breathe over time, as if sunlight were cutting down through the water.
-    // Built purely from (u, v, t) -- no extra launch args. The shafts are
-    // gated by the surface slope so they ripple with the waves and the water
-    // curvature concentrates them into bright filaments where the wavefront
-    // focuses, reinforcing the caustics.
-    float shaft_dir = u * 7.5f + v * 3.0f;       // angled across the screen
-    float shafts = 0.5f + 0.5f * sinf(shaft_dir + t * 0.7f + 1.5f * gx);
-    shafts *= 0.5f + 0.5f * sinf(shaft_dir * 0.37f - t * 0.4f);
-    shafts = powf(shafts, 3.0f);                 // crush into thin shafts
-    float godray = shafts * (0.18f + 0.45f * focus);
+    // Water tint: a gentle blue-green cast, slightly deeper in the troughs.
+    float depth = 0.5f + 0.5f * hc;
+    float tint_r = 0.80f + 0.08f * depth;
+    float tint_g = 0.98f + 0.04f * depth;
+    float tint_b = 1.10f - 0.06f * depth;
 
-    // Depth tint: deeper troughs read bluer/darker, crests slightly brighter.
-    float depth = 0.5f + 0.5f * hc;              // ~[0, 1]
-    float tint_r = 0.85f + 0.15f * depth;
-    float tint_g = 0.92f + 0.08f * depth;
-    float tint_b = 1.05f - 0.10f * depth;
-
-    // Composite in LINEAR light. Caustics get a faint warm/cool split and the
-    // god-rays a sunlit warm bias so the bright filaments read as light, not
-    // just blown-out white.
-    float cr = base.x * tint_r + caustic * 0.95f + spec * 0.9f + godray * 1.10f;
-    float cg = base.y * tint_g + caustic * 1.00f + spec * 0.9f + godray * 1.00f;
-    float cb = base.z * tint_b + caustic * 1.05f + spec * 1.0f + godray * 0.80f;
+    // Composite in LINEAR light: tinted pool floor + the white caustic web
+    // (a touch cooler in blue so it reads as sunlight through water) + glints.
+    float cr = base.x * tint_r + caustic * 0.90f + spec;
+    float cg = base.y * tint_g + caustic * 0.97f + spec;
+    float cb = base.z * tint_b + caustic * 1.00f + spec;
 
     // Simple Reinhard tonemap so highlights roll off instead of clipping hard.
     cr = cr / (1.0f + cr);
