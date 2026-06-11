@@ -306,5 +306,7 @@ def test_find_bitcode_lib_invalid_name():
     ],
 )
 def test_find_bitcode_lib_invalid_sm_arch(sm_arch):
-    with pytest.raises(ValueError, match="must match"):
+    expected_pattern = find_bitcode_lib_module._SM_ARCH_PATTERN.pattern
+    with pytest.raises(ValueError) as exc_info:
         find_bitcode_lib_module.locate_bitcode_lib("device", sm_arch=sm_arch)
+    assert f"must match {expected_pattern!r}" in str(exc_info.value)

@@ -63,6 +63,7 @@ SUPPORTED_BITCODE_LIBS: tuple[str, ...] = tuple(
         name for name, info in _SUPPORTED_BITCODE_LIBS_INFO.items() if not IS_WINDOWS or info["available_on_windows"]
     )
 )
+_SM_ARCH_PATTERN = re.compile(r"sm[0-9]+[a-z]?")
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
@@ -79,8 +80,8 @@ def _filename_with_sm_arch(filename: str, sm_arch: str | None) -> str:
     if sm_arch is None:
         return filename
 
-    if not re.match(r"^sm[0-9]+[a-z]?$", sm_arch):
-        raise ValueError(f"Invalid sm_arch: '{sm_arch}' must match 'sm[0-9]+[a-z]?'")
+    if not _SM_ARCH_PATTERN.fullmatch(sm_arch):
+        raise ValueError(f"Invalid sm_arch: {sm_arch!r} must match {_SM_ARCH_PATTERN.pattern!r}")
 
     stem, ext = os.path.splitext(filename)
     return f"{stem}_{sm_arch}{ext}"
