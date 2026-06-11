@@ -148,7 +148,8 @@ def resolve_ctk_root_via_canary(canary_libname: str) -> str | None:
     canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess(canary_libname)
     if canary_abs_path is None:
         return None
-    return derive_ctk_root(canary_abs_path)
+    ctk_root: str | None = derive_ctk_root(canary_abs_path)
+    return ctk_root
 
 
 def _try_ctk_root_canary(ctx: SearchContext) -> str | None:

@@ -72,7 +72,8 @@ def _resolve_ctk_root_via_canary() -> str | None:
     """
     from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import resolve_ctk_root_via_canary
 
-    return resolve_ctk_root_via_canary(_CTK_ROOT_CANARY_ANCHOR_LIBNAME)
+    ctk_root: str | None = resolve_ctk_root_via_canary(_CTK_ROOT_CANARY_ANCHOR_LIBNAME)
+    return ctk_root
 
 
 def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[str]) -> str | None:
