@@ -303,6 +303,10 @@ jobs:
           # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
+      - name: Install pytest-run-parallel for free-threaded Python
+        if: endsWith(matrix.PY_VER, 't')
+        run: pip install pytest-run-parallel
+
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
