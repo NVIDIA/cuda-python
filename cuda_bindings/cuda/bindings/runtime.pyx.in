@@ -42117,15 +42117,18 @@ def cudaGraphicsVDPAURegisterOutputSurface(vdpSurface, unsigned int flags):
 
 @cython.embedsignature(True)
 def getLocalRuntimeVersion():
-    """ Returns the CUDA Runtime version of local shared library.
+    """ Returns the CUDA Runtime version of the locally installed shared library.
 
-    Returns in `*runtimeVersion` the version number of the current CUDA
-    Runtime instance. The version is returned as (1000 * major + 10 *
-    minor). For example, CUDA 9.2 would be represented by 9020.
+    Locates the CUDA Runtime (``cudart``) shared library on the host using
+    :py:obj:`cuda.pathfinder.load_nvidia_dynamic_lib`, then calls
+    ``cudaRuntimeGetVersion`` from that dynamically loaded library. The
+    returned value reflects the CUDA Toolkit version of the locally
+    discovered ``cudart``, which may differ from the version that
+    :py:obj:`cuda.bindings` was built against (as reported by
+    :py:obj:`~.cudaRuntimeGetVersion`).
 
-    As of CUDA 12.0, this function no longer initializes CUDA. The purpose
-    of this API is solely to return a compile-time constant stating the
-    CUDA Toolkit version in the above format.
+    The version is returned as (1000 * major + 10 * minor). For example,
+    CUDA 9.2 would be represented by 9020.
 
     This function automatically returns :py:obj:`~.cudaErrorInvalidValue`
     if the `runtimeVersion` argument is NULL.
@@ -42139,7 +42142,7 @@ def getLocalRuntimeVersion():
 
     See Also
     --------
-    :py:obj:`~.cudaDriverGetVersion`, :py:obj:`~.cuDriverGetVersion`
+    :py:obj:`~.cudaRuntimeGetVersion`, :py:obj:`~.cudaDriverGetVersion`, :py:obj:`~.cuDriverGetVersion`
     """
     cdef int runtimeVersion = 0
     err = cyruntime.getLocalRuntimeVersion(&runtimeVersion)
