@@ -194,7 +194,7 @@ def locate_bitcode_lib(name: str, *, sm_arch: str | None = None) -> LocatedBitco
 
 
 @functools.cache
-def find_bitcode_lib(name: str, sm_arch: str | None = None) -> str:
+def find_bitcode_lib(name: str, *, sm_arch: str | None = None) -> str:
     """Find the absolute path to a bitcode library.
 
     When ``sm_arch`` is not ``None``, find the architecture-specific bitcode
