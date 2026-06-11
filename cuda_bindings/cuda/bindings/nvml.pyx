@@ -1593,6 +1593,9 @@ class FieldId(_FastEnum):
 
     MAX = 289
 
+# This value changed in CTK 13.3.  We need to build a binary that works across
+# all versions, so the only way to support this is to check the version at
+# runtime and set the value accordingly.
 
 if tuple(int(x) for x in system_get_nvml_version().split(".")) < (3, 13):
     NVLINK_MAX_LINKS = 18
