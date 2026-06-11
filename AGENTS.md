@@ -14,7 +14,7 @@ guide for package-specific conventions and workflows.
 
 # Pull requests
 
-**Never push branches or commits to the upstream fork (github.com/NVIDIA/cuda-python).
+**Never push branches or commits to the upstream repo (github.com/NVIDIA/cuda-python).
 Treat it as read-only.** All branch creation and pushes must go to the contributor's
 personal fork. Before pushing, confirm which remote points to the contributor's
 personal fork (not `upstream`) by running `git remote -v`, then push there
