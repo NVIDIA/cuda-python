@@ -13,7 +13,6 @@ from cuda.core._memory._buffer cimport Buffer
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
-    _get_current_context_ptr,
     _get_current_device_id,
 )
 
@@ -271,7 +270,6 @@ cdef class CUDAArray:
         self._format = <cydriver.CUarray_format><int>format
         self._num_channels = num_channels
         self._surface_load_store = bool(is_surface_load_store)
-        self._context = _get_current_context_ptr()
         self._device_id = _get_current_device_id()
         self._parent_ref = None
 
@@ -318,7 +316,6 @@ cdef class CUDAArray:
         cdef CUDAArray self = cls.__new__(cls)
         self._handle = <cydriver.CUarray><void*>handle
         self._owning = owning
-        self._context = _get_current_context_ptr()
         self._device_id = _get_current_device_id() if device_id is None else int(device_id)
         self._parent_ref = None
 

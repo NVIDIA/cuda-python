@@ -69,19 +69,6 @@ cdef int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil:
     return 0
 
 
-cdef intptr_t _get_current_context_ptr() except? 0:
-    """Return the current thread's bound CUcontext as an intptr_t.
-
-    Raises ``RuntimeError`` if no context is current.
-    """
-    cdef cydriver.CUcontext ctx
-    with nogil:
-        HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-    if ctx == NULL:
-        raise RuntimeError("an active CUDA context is required")
-    return <intptr_t>ctx
-
-
 cdef int _get_current_device_id() except? -1:
     """Return the current thread's bound CUdevice ordinal."""
     cdef cydriver.CUdevice dev

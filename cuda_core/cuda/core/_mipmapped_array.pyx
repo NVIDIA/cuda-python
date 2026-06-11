@@ -12,7 +12,6 @@ from cuda.core._array cimport CUDAArray
 from cuda.core._array import ArrayFormat, _validate_array_shape, _validate_format_channels
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
-    _get_current_context_ptr,
     _get_current_device_id,
 )
 
@@ -78,7 +77,6 @@ cdef class MipmappedArray:
         self._num_channels = num_channels
         self._num_levels = <unsigned int>levels
         self._surface_load_store = bool(is_surface_load_store)
-        self._context = _get_current_context_ptr()
         self._device_id = _get_current_device_id()
 
         cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format><int>format

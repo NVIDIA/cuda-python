@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from libc.stdint cimport intptr_t
 from cuda.bindings cimport cydriver
 
 
@@ -15,7 +14,6 @@ cdef class MipmappedArray:
         unsigned int _num_channels   # 1, 2, or 4
         unsigned int _num_levels
         int _device_id
-        intptr_t _context
         bint _owning
         bint _surface_load_store
 
