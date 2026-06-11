@@ -1,7 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import threading
 
 import pytest
 
@@ -20,9 +21,15 @@ class LatchKernel:
     Manages a kernel that blocks stream progress until released.
     """
 
-    def __init__(self, device, timeout_sec=60):
-        if helpers.CUDA_INCLUDE_PATH is None:
-            pytest.skip("need CUDA header")
+    _latch_kernel_lock = threading.Lock()
+    _latch_kernels = {}
+
+    @classmethod
+    def _get_kernel(cls, device):
+        kernel = cls._latch_kernels.get(device.uuid)
+        if kernel is not None:
+            return kernel
+
         code = """
                #include <cuda/atomic>
 
@@ -41,6 +48,7 @@ class LatchKernel:
 
                        // Check for timeout
                        if (clock64() - start >= timeout_cycles) {
+                           signal.store(-1, cuda::memory_order_relaxed);
                            break;  // Timeout reached
                        }
 
@@ -56,13 +64,24 @@ class LatchKernel:
         )
         prog = Program(code, code_type="c++", options=program_options)
         mod = prog.compile(target_type="cubin")
-        self.kernel = mod.get_kernel("latch")
+        kernel = mod.get_kernel("latch")
+
+        return cls._latch_kernels.setdefault(device.uuid, kernel)
+
+    def __init__(self, device, timeout_sec=60):
+        if helpers.CUDA_INCLUDE_PATH is None:
+            pytest.skip("need CUDA header")
+
+        with self._latch_kernel_lock:
+            self.kernel = self._get_kernel(device)
 
         mr = LegacyPinnedMemoryResource()
         self.buffer = mr.allocate(4)
-        self.busy_wait_flag[0] = 0
+        self.busy_wait_flag[0] = 1
         clock_rate_hz = device.properties.clock_rate * 1000
         self.timeout_cycles = int(timeout_sec * clock_rate_hz)
+
+        self.busy_wait_flag[0] = 0
 
     def launch(self, stream):
         """Launch the latch kernel, blocking stream progress via busy waiting."""
