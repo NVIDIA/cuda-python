@@ -293,6 +293,11 @@ def test_find_bitcode_lib_invalid_name():
         find_bitcode_lib_module.locate_bitcode_lib("invalid")
 
 
+def test_find_bitcode_lib_sm_arch_is_keyword_only():
+    with pytest.raises(TypeError):
+        find_bitcode_lib("nvshmem_device", "sm90")
+
+
 @pytest.mark.parametrize(
     "sm_arch",
     [
