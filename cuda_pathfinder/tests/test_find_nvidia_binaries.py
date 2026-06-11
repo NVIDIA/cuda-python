@@ -76,6 +76,7 @@ def test_find_binary_search_path_includes_site_packages_conda_cuda(monkeypatch, 
     )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
+    mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
     expected_dirs = [
         site_dir,
         os.path.join(conda_prefix, "bin"),
@@ -109,6 +110,7 @@ def test_find_binary_windows_extension_and_search_dirs(monkeypatch, mocker):
     )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
+    mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
     expected_dirs = [
         site_dir,
         os.path.join(conda_prefix, "Library", "bin"),
@@ -142,6 +144,7 @@ def test_find_binary_first_matching_dir_wins(monkeypatch, mocker):
     mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir])
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
+    mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
     conda_nvcc = os.path.join(conda_prefix, "bin", "nvcc")
     cuda_nvcc = os.path.join(cuda_home, "bin", "nvcc")
     checked = _patch_exec_probe(mocker, existing=[conda_nvcc, cuda_nvcc])
@@ -151,6 +154,72 @@ def test_find_binary_first_matching_dir_wins(monkeypatch, mocker):
     # Conda comes before CUDA_HOME, so the Conda hit wins and CUDA_HOME is never probed.
     assert result == conda_nvcc
     assert checked == [os.path.join(site_dir, "nvcc"), conda_nvcc]
+
+
+@pytest.mark.usefixtures("clear_find_binary_cache")
+def test_find_binary_ctk_root_canary_fallback(monkeypatch, mocker):
+    # When the explicit trusted dirs (wheels, conda, CUDA_HOME/PATH) all miss,
+    # the cudart-canary-derived CTK root is searched last.
+    ctk_root = os.path.join(os.sep, "opt", "cuda")
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
+    canary_mock = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=ctk_root)
+    ctk_nvcc = os.path.join(ctk_root, "bin", "nvcc")
+    checked = _patch_exec_probe(mocker, existing=[ctk_nvcc])
+
+    result = find_nvidia_binary_utility("nvcc")
+
+    assert result == ctk_nvcc
+    canary_mock.assert_called_once_with()
+    # No earlier trusted dirs existed, so the only probe is the canary bin dir.
+    assert checked == [ctk_nvcc]
+
+
+@pytest.mark.usefixtures("clear_find_binary_cache")
+def test_find_binary_canary_windows_bin_layout(monkeypatch, mocker):
+    ctk_root = os.path.join("C:", os.sep, "cuda")
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
+    mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=ctk_root)
+    expected_dirs = [
+        os.path.join(ctk_root, "bin", "x64"),
+        os.path.join(ctk_root, "bin", "x86_64"),
+        os.path.join(ctk_root, "bin"),
+    ]
+    checked = _patch_exec_probe(mocker)
+
+    result = find_nvidia_binary_utility("nvcc")
+
+    assert result is None
+    assert checked == [os.path.join(d, "nvcc.exe") for d in expected_dirs]
+
+
+@pytest.mark.usefixtures("clear_find_binary_cache")
+def test_find_binary_canary_not_consulted_when_found_earlier(monkeypatch, mocker):
+    # An earlier trusted dir hit must short-circuit before the canary subprocess.
+    conda_prefix = os.path.join(os.sep, "conda")
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
+    canary_mock = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
+    conda_nvcc = os.path.join(conda_prefix, "bin", "nvcc")
+    _patch_exec_probe(mocker, existing=[conda_nvcc])
+
+    result = find_nvidia_binary_utility("nvcc")
+
+    assert result == conda_nvcc
+    canary_mock.assert_not_called()
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
@@ -166,6 +235,7 @@ def test_find_binary_returns_none_with_no_candidates(monkeypatch, mocker):
     find_sub_dirs_mock = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
+    mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
     checked = _patch_exec_probe(mocker)
 
     result = find_nvidia_binary_utility("nvcc")
@@ -186,6 +256,7 @@ def test_find_binary_without_site_packages_entry(monkeypatch, mocker):
     find_sub_dirs_mock = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
+    mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
     expected_dirs = [
         os.path.join(conda_prefix, "bin"),
         os.path.join(cuda_home, "bin"),
@@ -206,6 +277,7 @@ def test_find_binary_cache_negative_result(monkeypatch, mocker):
     mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     cuda_home_mock = mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
+    canary_mock = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
     _patch_exec_probe(mocker)
 
     first = find_nvidia_binary_utility("nvcc")
@@ -213,8 +285,10 @@ def test_find_binary_cache_negative_result(monkeypatch, mocker):
 
     assert first is None
     assert second is None
-    # The second call is served from @functools.cache, so the body runs only once.
+    # The second call is served from @functools.cache, so the body runs only
+    # once, including the canary fallback.
     cuda_home_mock.assert_called_once_with()
+    canary_mock.assert_called_once_with()
 
 
 class TestResolveInTrustedDirs:

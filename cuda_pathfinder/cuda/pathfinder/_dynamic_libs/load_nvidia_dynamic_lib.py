@@ -136,13 +136,25 @@ def _loadable_via_canary_subprocess(libname: str, *, timeout: float = _CANARY_PR
     return _resolve_system_loaded_abs_path_in_subprocess(libname, timeout=timeout) is not None
 
 
+def resolve_ctk_root_via_canary(canary_libname: str) -> str | None:
+    """Resolve the CUDA Toolkit root from a system-loadable canary library.
+
+    The canary library's absolute path is resolved by the OS dynamic loader in
+    an isolated subprocess, which honors ``LD_LIBRARY_PATH`` on Linux and the
+    native DLL search on Windows. The toolkit root is then derived from that
+    path. Returns ``None`` if the canary cannot be resolved or no root can be
+    derived. The ambient ``PATH`` is never consulted.
+    """
+    canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess(canary_libname)
+    if canary_abs_path is None:
+        return None
+    return derive_ctk_root(canary_abs_path)
+
+
 def _try_ctk_root_canary(ctx: SearchContext) -> str | None:
     """Try CTK-root canary fallback for descriptor-configured libraries."""
     for canary_libname in ctx.desc.ctk_root_canary_anchor_libnames:
-        canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess(canary_libname)
-        if canary_abs_path is None:
-            continue
-        ctk_root = derive_ctk_root(canary_abs_path)
+        ctk_root = resolve_ctk_root_via_canary(canary_libname)
         if ctk_root is None:
             continue
         find = find_via_ctk_root(ctx, ctk_root)
