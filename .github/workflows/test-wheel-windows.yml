@@ -283,10 +283,6 @@ jobs:
           freethreaded: ${{ endsWith(matrix.PY_VER, 't') }}
           allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
 
-      - name: Install pytest-run-parallel for free-threaded Python
-        if: endsWith(matrix.PY_VER, 't')
-        run: pip install pytest-run-parallel
-
       - name: Verify LongPathsEnabled
         run: |
           $val = (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled').LongPathsEnabled
