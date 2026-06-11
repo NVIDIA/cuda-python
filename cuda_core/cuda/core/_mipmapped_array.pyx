@@ -9,7 +9,7 @@ from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
 from cuda.core._array cimport CUDAArray
-from cuda.core._array import ArrayFormat
+from cuda.core._array import ArrayFormat, _validate_array_shape, _validate_format_channels
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
     _get_current_context_ptr,
@@ -64,20 +64,8 @@ cdef class MipmappedArray:
         -------
         MipmappedArray
         """
-        if not isinstance(format, ArrayFormat):
-            raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
-        if isinstance(num_channels, bool) or num_channels not in (1, 2, 4):
-            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels!r}")
-
-        try:
-            shape_t = tuple(int(s) for s in shape)
-        except TypeError as e:
-            raise TypeError(f"shape must be a tuple of ints, got {type(shape).__name__}") from e
-        if not 1 <= len(shape_t) <= 3:
-            raise ValueError(f"shape rank must be 1, 2, or 3, got {len(shape_t)}")
-        for i, dim in enumerate(shape_t):
-            if dim < 1:
-                raise ValueError(f"shape[{i}] must be >= 1, got {dim}")
+        _validate_format_channels(format, num_channels)
+        shape_t = _validate_array_shape(shape)
 
         levels = int(num_levels)
         if levels < 1:

@@ -48,6 +48,30 @@ _FORMAT_ELEM_SIZE = {
 }
 
 
+def _validate_format_channels(format, num_channels):
+    """Validate the ``(format, num_channels)`` pair shared by the array,
+    mipmap, and texture factories. Raises on an invalid combination."""
+    if not isinstance(format, ArrayFormat):
+        raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
+    if isinstance(num_channels, bool) or num_channels not in (1, 2, 4):
+        raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels!r}")
+
+
+def _validate_array_shape(shape):
+    """Coerce ``shape`` to a tuple of ints and validate rank (1-3) and that
+    every extent is >= 1. Returns the normalized tuple."""
+    try:
+        shape_t = tuple(int(s) for s in shape)
+    except TypeError as e:
+        raise TypeError(f"shape must be a tuple of ints, got {type(shape).__name__}") from e
+    if not 1 <= len(shape_t) <= 3:
+        raise ValueError(f"shape rank must be 1, 2, or 3, got {len(shape_t)}")
+    for i, dim in enumerate(shape_t):
+        if dim < 1:
+            raise ValueError(f"shape[{i}] must be >= 1, got {dim}")
+    return shape_t
+
+
 cdef void _fill_array_endpoint(
     cydriver.CUDA_MEMCPY3D* p, CUDAArray arr, bint is_src
 ) noexcept:
@@ -238,20 +262,8 @@ cdef class CUDAArray:
         -------
         CUDAArray
         """
-        if not isinstance(format, ArrayFormat):
-            raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
-        if isinstance(num_channels, bool) or num_channels not in (1, 2, 4):
-            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels!r}")
-
-        try:
-            shape_t = tuple(int(s) for s in shape)
-        except TypeError as e:
-            raise TypeError(f"shape must be a tuple of ints, got {type(shape).__name__}") from e
-        if not 1 <= len(shape_t) <= 3:
-            raise ValueError(f"shape rank must be 1, 2, or 3, got {len(shape_t)}")
-        for i, dim in enumerate(shape_t):
-            if dim < 1:
-                raise ValueError(f"shape[{i}] must be >= 1, got {dim}")
+        _validate_format_channels(format, num_channels)
+        shape_t = _validate_array_shape(shape)
 
         cdef CUDAArray self = cls.__new__(cls)
         self._owning = True

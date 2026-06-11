@@ -146,3 +146,11 @@ class CUDAArray:
     def __repr__(self):
         ...
 _FORMAT_ELEM_SIZE = {int(ArrayFormat.UINT8): 1, int(ArrayFormat.INT8): 1, int(ArrayFormat.UINT16): 2, int(ArrayFormat.INT16): 2, int(ArrayFormat.FLOAT16): 2, int(ArrayFormat.UINT32): 4, int(ArrayFormat.INT32): 4, int(ArrayFormat.FLOAT32): 4}
+
+def _validate_format_channels(format, num_channels):
+    """Validate the ``(format, num_channels)`` pair shared by the array,
+    mipmap, and texture factories. Raises on an invalid combination."""
+
+def _validate_array_shape(shape):
+    """Coerce ``shape`` to a tuple of ints and validate rank (1-3) and that
+    every extent is >= 1. Returns the normalized tuple."""

@@ -39,6 +39,8 @@ class ResourceDescriptor:
 
     - :meth:`from_array` wraps a :class:`CUDAArray` (works for both
       :class:`TextureObject` and :class:`SurfaceObject`).
+    - :meth:`from_mipmapped_array` wraps a :class:`MipmappedArray` for mipmapped
+      sampling (texture only, not surface).
     - :meth:`from_linear` wraps a :class:`Buffer` as a typed 1D fetch. Texture
       objects built from a linear resource do not support filtering,
       normalized coordinates, or addressing modes.
@@ -181,7 +183,7 @@ class TextureDescriptor:
         4-tuple used when ``address_mode`` includes ``BORDER``; ``None`` means
         zero.
     """
-    address_mode: object = AddressMode.CLAMP
+    address_mode: AddressMode | tuple[AddressMode, ...] = AddressMode.CLAMP
     filter_mode: FilterMode = FilterMode.POINT
     read_mode: ReadMode = ReadMode.ELEMENT_TYPE
     normalized_coords: bool = False

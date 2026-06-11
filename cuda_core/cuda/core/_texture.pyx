@@ -9,7 +9,7 @@ from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
 from cuda.core._array cimport CUDAArray
-from cuda.core._array import ArrayFormat, _FORMAT_ELEM_SIZE
+from cuda.core._array import ArrayFormat, _FORMAT_ELEM_SIZE, _validate_format_channels
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._mipmapped_array cimport MipmappedArray
 from cuda.core._mipmapped_array import MipmappedArray as _PyMipmappedArray
@@ -65,6 +65,8 @@ class ResourceDescriptor:
 
     - :meth:`from_array` wraps a :class:`CUDAArray` (works for both
       :class:`TextureObject` and :class:`SurfaceObject`).
+    - :meth:`from_mipmapped_array` wraps a :class:`MipmappedArray` for mipmapped
+      sampling (texture only, not surface).
     - :meth:`from_linear` wraps a :class:`Buffer` as a typed 1D fetch. Texture
       objects built from a linear resource do not support filtering,
       normalized coordinates, or addressing modes.
@@ -154,10 +156,7 @@ class ResourceDescriptor:
         """
         if not isinstance(buffer, Buffer):
             raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
-        if not isinstance(format, ArrayFormat):
-            raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
-        if isinstance(num_channels, bool) or num_channels not in (1, 2, 4):
-            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels!r}")
+        _validate_format_channels(format, num_channels)
 
         buf_size = int(buffer.size)
         elem = _FORMAT_ELEM_SIZE[int(format)] * int(num_channels)
@@ -216,10 +215,7 @@ class ResourceDescriptor:
         """
         if not isinstance(buffer, Buffer):
             raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
-        if not isinstance(format, ArrayFormat):
-            raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
-        if isinstance(num_channels, bool) or num_channels not in (1, 2, 4):
-            raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels!r}")
+        _validate_format_channels(format, num_channels)
 
         w = int(width)
         h = int(height)
@@ -337,7 +333,7 @@ class TextureDescriptor:
         zero.
     """
 
-    address_mode: object = AddressMode.CLAMP
+    address_mode: AddressMode | tuple[AddressMode, ...] = AddressMode.CLAMP
     filter_mode: FilterMode = FilterMode.POINT
     read_mode: ReadMode = ReadMode.ELEMENT_TYPE
     normalized_coords: bool = False
