@@ -234,14 +234,21 @@ def _as_cuuuid(driver: Any, value: Any, buffers: list[Any]) -> Any:
     the ``"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"`` format returned by
     :attr:`Device.uuid`.
     """
+    if isinstance(value, driver.CUuuid):
+        return value
     if isinstance(value, str):
-        raw = bytes.fromhex(value.replace("-", ""))
+        try:
+            raw = bytes.fromhex(value.replace("-", ""))
+        except ValueError:
+            raise ValueError(
+                f"GPU UUID string must be 32 hex characters (with optional hyphens), got {value!r}"
+            ) from None
         if len(raw) != 16:
             raise ValueError(f"GPU UUID string must be 32 hex characters (with optional hyphens), got {value!r}")
         buf = _ctypes.create_string_buffer(raw, 16)
         buffers.append(buf)
         return driver.CUuuid(_ctypes.addressof(buf))
-    return value
+    raise TypeError("GPU UUID values must be CUDA UUID objects or UUID strings")
 
 
 __all__ = [
