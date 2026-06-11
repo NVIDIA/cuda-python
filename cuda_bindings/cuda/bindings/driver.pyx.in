@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1711+g875fec45. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1740+g3731b17a1. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -52,16 +52,16 @@ CU_IPC_HANDLE_SIZE = cydriver.CU_IPC_HANDLE_SIZE
 
 #: Legacy stream handle
 #:
-#: Stream handle that can be passed as a CUstream to use an implicit stream
-#: with legacy synchronization behavior.
+#: Stream handle that can be passed as a :py:obj:`~.CUstream` to use an
+#: implicit stream with legacy synchronization behavior.
 #:
 #: See details of the \link_sync_behavior
 CU_STREAM_LEGACY = cydriver.CU_STREAM_LEGACY
 
 #: Per-thread stream handle
 #:
-#: Stream handle that can be passed as a CUstream to use an implicit stream
-#: with per-thread synchronization behavior.
+#: Stream handle that can be passed as a :py:obj:`~.CUstream` to use an
+#: implicit stream with per-thread synchronization behavior.
 #:
 #: See details of the \link_sync_behavior
 CU_STREAM_PER_THREAD = cydriver.CU_STREAM_PER_THREAD
@@ -229,8 +229,8 @@ CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_POST_LAUNCH_SYNC = cydriver.CUDA_COOPERA
 
 #: If set, the CUDA array is a collection of layers, where each layer is
 #: either a 1D or a 2D array and the Depth member of
-#: CUDA_ARRAY3D_DESCRIPTOR specifies the number of layers, not the depth of
-#: a 3D array.
+#: :py:obj:`~.CUDA_ARRAY3D_DESCRIPTOR` specifies the number of layers, not
+#: the depth of a 3D array.
 CUDA_ARRAY3D_LAYERED = cydriver.CUDA_ARRAY3D_LAYERED
 
 #: Deprecated, use CUDA_ARRAY3D_LAYERED
@@ -421,7 +421,8 @@ class CUctx_flags(_FastEnum):
 
     CU_CTX_BLOCKING_SYNC = (
         cydriver.CUctx_flags_enum.CU_CTX_BLOCKING_SYNC,
-        'Set blocking synchronization as default scheduling [Deprecated]\n'
+        'Set blocking synchronization as default scheduling\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'CU_CTX_SCHED_MASK' in found_values}}
     CU_CTX_SCHED_MASK = cydriver.CUctx_flags_enum.CU_CTX_SCHED_MASK{{endif}}
@@ -2746,7 +2747,7 @@ class CUfunction_attribute(_FastEnum):
     CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE = (
         cydriver.CUfunction_attribute_enum.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE,
         'The block scheduling policy of a function. The value type is\n'
-        'CUclusterSchedulingPolicy / cudaClusterSchedulingPolicy. See\n'
+        ':py:obj:`~.CUclusterSchedulingPolicy` / cudaClusterSchedulingPolicy. See\n'
         ':py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
     ){{endif}}
     {{if 'CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED' in found_values}}
@@ -4793,7 +4794,8 @@ class CUresult(_FastEnum):
     CUDA_ERROR_CONTEXT_ALREADY_CURRENT = (
         cydriver.cudaError_enum.CUDA_ERROR_CONTEXT_ALREADY_CURRENT,
         'This indicated that the context being supplied as a parameter to the API\n'
-        'call was already the active context. [Deprecated]\n'
+        'call was already the active context.\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'CUDA_ERROR_MAP_FAILED' in found_values}}
 
@@ -6028,7 +6030,8 @@ class CUmemAllocationHandleType(_FastEnum):
 
     CU_MEM_HANDLE_TYPE_FABRIC = (
         cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_FABRIC,
-        'Allows a fabric handle to be used for exporting. (CUmemFabricHandle)\n'
+        'Allows a fabric handle to be used for exporting.\n'
+        '(:py:obj:`~.CUmemFabricHandle`)\n'
     ){{endif}}
     {{if 'CU_MEM_HANDLE_TYPE_MAX' in found_values}}
     CU_MEM_HANDLE_TYPE_MAX = cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_MAX{{endif}}
@@ -6360,54 +6363,55 @@ class CUmemPool_attribute(_FastEnum):
 
     CU_MEMPOOL_ATTR_RELEASE_THRESHOLD = (
         cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
-        '(value type = cuuint64_t) Amount of reserved memory in bytes to hold onto\n'
-        'before trying to release memory back to the OS. When more than the release\n'
-        'threshold bytes of memory are held by the memory pool, the allocator will\n'
-        'try to release memory back to the OS on the next call to stream, event or\n'
-        'context synchronize. (default 0)\n'
+        '(value type = :py:obj:`~.cuuint64_t`) Amount of reserved memory in bytes to\n'
+        'hold onto before trying to release memory back to the OS. When more than\n'
+        'the release threshold bytes of memory are held by the memory pool, the\n'
+        'allocator will try to release memory back to the OS on the next call to\n'
+        'stream, event or context synchronize. (default 0)\n'
     ){{endif}}
     {{if 'CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT' in found_values}}
 
     CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT = (
         cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT,
-        '(value type = cuuint64_t) Amount of backing memory currently allocated for\n'
-        'the mempool.\n'
+        '(value type = :py:obj:`~.cuuint64_t`) Amount of backing memory currently\n'
+        'allocated for the mempool.\n'
     ){{endif}}
     {{if 'CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH' in found_values}}
 
     CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH = (
         cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH,
-        '(value type = cuuint64_t) High watermark of backing memory allocated for\n'
-        'the mempool since the last time it was reset. High watermark can only be\n'
-        'reset to zero.\n'
+        '(value type = :py:obj:`~.cuuint64_t`) High watermark of backing memory\n'
+        'allocated for the mempool since the last time it was reset. High watermark\n'
+        'can only be reset to zero.\n'
     ){{endif}}
     {{if 'CU_MEMPOOL_ATTR_USED_MEM_CURRENT' in found_values}}
 
     CU_MEMPOOL_ATTR_USED_MEM_CURRENT = (
         cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_CURRENT,
-        '(value type = cuuint64_t) Amount of memory from the pool that is currently\n'
-        'in use by the application.\n'
+        '(value type = :py:obj:`~.cuuint64_t`) Amount of memory from the pool that\n'
+        'is currently in use by the application.\n'
     ){{endif}}
     {{if 'CU_MEMPOOL_ATTR_USED_MEM_HIGH' in found_values}}
 
     CU_MEMPOOL_ATTR_USED_MEM_HIGH = (
         cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_HIGH,
-        '(value type = cuuint64_t) High watermark of the amount of memory from the\n'
-        'pool that was in use by the application since the last time it was reset.\n'
-        'High watermark can only be reset to zero.\n'
+        '(value type = :py:obj:`~.cuuint64_t`) High watermark of the amount of\n'
+        'memory from the pool that was in use by the application since the last time\n'
+        'it was reset. High watermark can only be reset to zero.\n'
     ){{endif}}
     {{if 'CU_MEMPOOL_ATTR_ALLOCATION_TYPE' in found_values}}
 
     CU_MEMPOOL_ATTR_ALLOCATION_TYPE = (
         cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_ALLOCATION_TYPE,
-        '(value type = CUmemAllocationType) The allocation type of the mempool\n'
+        '(value type = :py:obj:`~.CUmemAllocationType`) The allocation type of the\n'
+        'mempool\n'
     ){{endif}}
     {{if 'CU_MEMPOOL_ATTR_EXPORT_HANDLE_TYPES' in found_values}}
 
     CU_MEMPOOL_ATTR_EXPORT_HANDLE_TYPES = (
         cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_EXPORT_HANDLE_TYPES,
-        '(value type = CUmemAllocationHandleType) Available export handle types for\n'
-        'the mempool. For imported pools this value is always\n'
+        '(value type = :py:obj:`~.CUmemAllocationHandleType`) Available export\n'
+        'handle types for the mempool. For imported pools this value is always\n'
         'CU_MEM_HANDLE_TYPE_NONE as an imported pool cannot be re-exported\n'
     ){{endif}}
     {{if 'CU_MEMPOOL_ATTR_LOCATION_ID' in found_values}}
@@ -6422,18 +6426,18 @@ class CUmemPool_attribute(_FastEnum):
 
     CU_MEMPOOL_ATTR_LOCATION_TYPE = (
         cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_LOCATION_TYPE,
-        '(value type = CUmemLocationType) The location type for the mempool. For\n'
-        'imported memory pools where the device is not directly visible to the\n'
-        'importing process or pools imported via fabric handles across nodes this\n'
-        'will be CU_MEM_LOCATION_TYPE_INVISIBLE.\n'
+        '(value type = :py:obj:`~.CUmemLocationType`) The location type for the\n'
+        'mempool. For imported memory pools where the device is not directly visible\n'
+        'to the importing process or pools imported via fabric handles across nodes\n'
+        'this will be CU_MEM_LOCATION_TYPE_INVISIBLE.\n'
     ){{endif}}
     {{if 'CU_MEMPOOL_ATTR_MAX_POOL_SIZE' in found_values}}
 
     CU_MEMPOOL_ATTR_MAX_POOL_SIZE = (
         cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_MAX_POOL_SIZE,
-        '(value type = cuuint64_t) Maximum size of the pool in bytes, this value may\n'
-        'be higher than what was initially passed to cuMemPoolCreate due to\n'
-        'alignment requirements. A value of 0 indicates no maximum size. For\n'
+        '(value type = :py:obj:`~.cuuint64_t`) Maximum size of the pool in bytes,\n'
+        'this value may be higher than what was initially passed to cuMemPoolCreate\n'
+        'due to alignment requirements. A value of 0 indicates no maximum size. For\n'
         'CU_MEM_ALLOCATION_TYPE_MANAGED and IPC imported pools this value will be\n'
         'system dependent.\n'
     ){{endif}}
@@ -6529,7 +6533,7 @@ class CUmemcpy3DOperandType(_FastEnum):
 
     CU_MEMCPY_OPERAND_TYPE_ARRAY = (
         cydriver.CUmemcpy3DOperandType_enum.CU_MEMCPY_OPERAND_TYPE_ARRAY,
-        'Memcpy operand is a CUarray.\n'
+        'Memcpy operand is a :py:obj:`~.CUarray`.\n'
     ){{endif}}
     {{if 'CU_MEMCPY_OPERAND_TYPE_MAX' in found_values}}
     CU_MEMCPY_OPERAND_TYPE_MAX = cydriver.CUmemcpy3DOperandType_enum.CU_MEMCPY_OPERAND_TYPE_MAX{{endif}}
@@ -6545,30 +6549,30 @@ class CUgraphMem_attribute(_FastEnum):
 
     CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT = (
         cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT,
-        '(value type = cuuint64_t) Amount of memory, in bytes, currently associated\n'
-        'with graphs\n'
+        '(value type = :py:obj:`~.cuuint64_t`) Amount of memory, in bytes, currently\n'
+        'associated with graphs\n'
     ){{endif}}
     {{if 'CU_GRAPH_MEM_ATTR_USED_MEM_HIGH' in found_values}}
 
     CU_GRAPH_MEM_ATTR_USED_MEM_HIGH = (
         cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH,
-        '(value type = cuuint64_t) High watermark of memory, in bytes, associated\n'
-        'with graphs since the last time it was reset. High watermark can only be\n'
-        'reset to zero.\n'
+        '(value type = :py:obj:`~.cuuint64_t`) High watermark of memory, in bytes,\n'
+        'associated with graphs since the last time it was reset. High watermark can\n'
+        'only be reset to zero.\n'
     ){{endif}}
     {{if 'CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT' in found_values}}
 
     CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT = (
         cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT,
-        '(value type = cuuint64_t) Amount of memory, in bytes, currently allocated\n'
-        'for use by the CUDA graphs asynchronous allocator.\n'
+        '(value type = :py:obj:`~.cuuint64_t`) Amount of memory, in bytes, currently\n'
+        'allocated for use by the CUDA graphs asynchronous allocator.\n'
     ){{endif}}
     {{if 'CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH' in found_values}}
 
     CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH = (
         cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH,
-        '(value type = cuuint64_t) High watermark of memory, in bytes, currently\n'
-        'allocated for use by the CUDA graphs asynchronous allocator.\n'
+        '(value type = :py:obj:`~.cuuint64_t`) High watermark of memory, in bytes,\n'
+        'currently allocated for use by the CUDA graphs asynchronous allocator.\n'
     ){{endif}}
 
 {{endif}}
@@ -6718,49 +6722,49 @@ class CUgraphDebugDot_flags(_FastEnum):
 
     CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_PARAMS = (
         cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_PARAMS,
-        'Adds CUDA_KERNEL_NODE_PARAMS values to output\n'
+        'Adds :py:obj:`~.CUDA_KERNEL_NODE_PARAMS` values to output\n'
     ){{endif}}
     {{if 'CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_NODE_PARAMS' in found_values}}
 
     CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_NODE_PARAMS = (
         cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_NODE_PARAMS,
-        'Adds CUDA_MEMCPY3D values to output\n'
+        'Adds :py:obj:`~.CUDA_MEMCPY3D` values to output\n'
     ){{endif}}
     {{if 'CU_GRAPH_DEBUG_DOT_FLAGS_MEMSET_NODE_PARAMS' in found_values}}
 
     CU_GRAPH_DEBUG_DOT_FLAGS_MEMSET_NODE_PARAMS = (
         cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_MEMSET_NODE_PARAMS,
-        'Adds CUDA_MEMSET_NODE_PARAMS values to output\n'
+        'Adds :py:obj:`~.CUDA_MEMSET_NODE_PARAMS` values to output\n'
     ){{endif}}
     {{if 'CU_GRAPH_DEBUG_DOT_FLAGS_HOST_NODE_PARAMS' in found_values}}
 
     CU_GRAPH_DEBUG_DOT_FLAGS_HOST_NODE_PARAMS = (
         cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_HOST_NODE_PARAMS,
-        'Adds CUDA_HOST_NODE_PARAMS values to output\n'
+        'Adds :py:obj:`~.CUDA_HOST_NODE_PARAMS` values to output\n'
     ){{endif}}
     {{if 'CU_GRAPH_DEBUG_DOT_FLAGS_EVENT_NODE_PARAMS' in found_values}}
 
     CU_GRAPH_DEBUG_DOT_FLAGS_EVENT_NODE_PARAMS = (
         cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_EVENT_NODE_PARAMS,
-        'Adds CUevent handle from record and wait nodes to output\n'
+        'Adds :py:obj:`~.CUevent` handle from record and wait nodes to output\n'
     ){{endif}}
     {{if 'CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_SIGNAL_NODE_PARAMS' in found_values}}
 
     CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_SIGNAL_NODE_PARAMS = (
         cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_SIGNAL_NODE_PARAMS,
-        'Adds CUDA_EXT_SEM_SIGNAL_NODE_PARAMS values to output\n'
+        'Adds :py:obj:`~.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS` values to output\n'
     ){{endif}}
     {{if 'CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_WAIT_NODE_PARAMS' in found_values}}
 
     CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_WAIT_NODE_PARAMS = (
         cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_WAIT_NODE_PARAMS,
-        'Adds CUDA_EXT_SEM_WAIT_NODE_PARAMS values to output\n'
+        'Adds :py:obj:`~.CUDA_EXT_SEM_WAIT_NODE_PARAMS` values to output\n'
     ){{endif}}
     {{if 'CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_ATTRIBUTES' in found_values}}
 
     CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_ATTRIBUTES = (
         cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_ATTRIBUTES,
-        'Adds CUkernelNodeAttrValue values to output\n'
+        'Adds :py:obj:`~.CUkernelNodeAttrValue` values to output\n'
     ){{endif}}
     {{if 'CU_GRAPH_DEBUG_DOT_FLAGS_HANDLES' in found_values}}
 
@@ -14307,8 +14311,8 @@ cdef class CUlaunchAttributeValue_union:
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - `CUeventCUevent` event - Event to fire
+        when all blocks trigger it.    - `Event` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
         - `triggerAtBlockStart` - If this is set to non-0, each block
         launch will automatically trigger the event.
@@ -14317,8 +14321,8 @@ cdef class CUlaunchAttributeValue_union:
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - `CUeventCUevent` event - Event to fire when the last
+        block launches    - `int` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -14357,8 +14361,8 @@ cdef class CUlaunchAttributeValue_union:
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
         following fields: - `int` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        `CUgraphDeviceNodeCUgraphDeviceNode` devNode - Returns a handle to
+        pass to the various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
@@ -29765,17 +29769,17 @@ def cuModuleGetGlobal(hmod, char* name):
 def cuLinkCreate(unsigned int numOptions, options : Optional[tuple[CUjit_option] | list[CUjit_option]], optionValues : Optional[tuple[Any] | list[Any]]):
     """ Creates a pending JIT linker invocation.
 
-    If the call is successful, the caller owns the returned CUlinkState,
-    which should eventually be destroyed with :py:obj:`~.cuLinkDestroy`.
-    The device code machine size (32 or 64 bit) will match the calling
-    application.
+    If the call is successful, the caller owns the returned
+    :py:obj:`~.CUlinkState`, which should eventually be destroyed with
+    :py:obj:`~.cuLinkDestroy`. The device code machine size (32 or 64 bit)
+    will match the calling application.
 
     Both linker and compiler options may be specified. Compiler options
     will be applied to inputs to this linker action which must be compiled
     from PTX. The options :py:obj:`~.CU_JIT_WALL_TIME`,
     :py:obj:`~.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES`, and
     :py:obj:`~.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES` will accumulate data
-    until the CUlinkState is destroyed.
+    until the :py:obj:`~.CUlinkState` is destroyed.
 
     The data passed in via :py:obj:`~.cuLinkAddData` and
     :py:obj:`~.cuLinkAddFile` will be treated as relocatable (-rdc=true to
@@ -29783,9 +29787,9 @@ def cuLinkCreate(unsigned int numOptions, options : Optional[tuple[CUjit_option]
     and will have similar consequences as offline relocatable device code
     linking.
 
-    `optionValues` must remain valid for the life of the CUlinkState if
-    output options are used. No other references to inputs are maintained
-    after this call returns.
+    `optionValues` must remain valid for the life of the
+    :py:obj:`~.CUlinkState` if output options are used. No other references
+    to inputs are maintained after this call returns.
 
     Parameters
     ----------
@@ -29801,8 +29805,8 @@ def cuLinkCreate(unsigned int numOptions, options : Optional[tuple[CUjit_option]
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_JIT_COMPILER_NOT_FOUND`
     stateOut : :py:obj:`~.CUlinkState`
-        On success, this will contain a CUlinkState to specify and complete
-        this action
+        On success, this will contain a :py:obj:`~.CUlinkState` to specify
+        and complete this action
 
     See Also
     --------
@@ -30875,7 +30879,7 @@ def cuKernelGetAttribute(attrib not None : CUfunction_attribute, kernel, dev):
 
     - :py:obj:`~.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE`:
       The block scheduling policy of a function. The value type is
-      CUclusterSchedulingPolicy.
+      :py:obj:`~.CUclusterSchedulingPolicy`.
 
     Parameters
     ----------
@@ -30993,7 +30997,7 @@ def cuKernelSetAttribute(attrib not None : CUfunction_attribute, int val, kernel
 
     - :py:obj:`~.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE`:
       The block scheduling policy of a function. The value type is
-      CUclusterSchedulingPolicy.
+      :py:obj:`~.CUclusterSchedulingPolicy`.
 
     Parameters
     ----------
@@ -32197,8 +32201,8 @@ def cuIpcGetEventHandle(event):
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_MAP_FAILED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
     pHandle : :py:obj:`~.CUipcEventHandle`
-        Pointer to a user allocated CUipcEventHandle in which to return the
-        opaque event handle
+        Pointer to a user allocated :py:obj:`~.CUipcEventHandle` in which
+        to return the opaque event handle
 
     See Also
     --------
@@ -37302,11 +37306,11 @@ def cuMemPoolSetAttribute(pool, attr not None : CUmemPool_attribute, value):
     Supported attributes are:
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD`: (value type =
-      cuuint64_t) Amount of reserved memory in bytes to hold onto before
-      trying to release memory back to the OS. When more than the release
-      threshold bytes of memory are held by the memory pool, the allocator
-      will try to release memory back to the OS on the next call to stream,
-      event or context synchronize. (default 0)
+      :py:obj:`~.cuuint64_t`) Amount of reserved memory in bytes to hold
+      onto before trying to release memory back to the OS. When more than
+      the release threshold bytes of memory are held by the memory pool,
+      the allocator will try to release memory back to the OS on the next
+      call to stream, event or context synchronize. (default 0)
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES`: (value
       type = int) Allow :py:obj:`~.cuMemAllocAsync` to use memory
@@ -37326,13 +37330,13 @@ def cuMemPoolSetAttribute(pool, attr not None : CUmemPool_attribute, value):
       (default enabled).
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH`: (value type =
-      cuuint64_t) Reset the high watermark that tracks the amount of
-      backing memory that was allocated for the memory pool. It is illegal
-      to set this attribute to a non-zero value.
+      :py:obj:`~.cuuint64_t`) Reset the high watermark that tracks the
+      amount of backing memory that was allocated for the memory pool. It
+      is illegal to set this attribute to a non-zero value.
 
-    - :py:obj:`~.CU_MEMPOOL_ATTR_USED_MEM_HIGH`: (value type = cuuint64_t)
-      Reset the high watermark that tracks the amount of used memory that
-      was allocated for the memory pool.
+    - :py:obj:`~.CU_MEMPOOL_ATTR_USED_MEM_HIGH`: (value type =
+      :py:obj:`~.cuuint64_t`) Reset the high watermark that tracks the
+      amount of used memory that was allocated for the memory pool.
 
     Parameters
     ----------
@@ -37377,11 +37381,11 @@ def cuMemPoolGetAttribute(pool, attr not None : CUmemPool_attribute):
     Supported attributes are:
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD`: (value type =
-      cuuint64_t) Amount of reserved memory in bytes to hold onto before
-      trying to release memory back to the OS. When more than the release
-      threshold bytes of memory are held by the memory pool, the allocator
-      will try to release memory back to the OS on the next call to stream,
-      event or context synchronize. (default 0)
+      :py:obj:`~.cuuint64_t`) Amount of reserved memory in bytes to hold
+      onto before trying to release memory back to the OS. When more than
+      the release threshold bytes of memory are held by the memory pool,
+      the allocator will try to release memory back to the OS on the next
+      call to stream, event or context synchronize. (default 0)
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES`: (value
       type = int) Allow :py:obj:`~.cuMemAllocAsync` to use memory
@@ -37401,30 +37405,30 @@ def cuMemPoolGetAttribute(pool, attr not None : CUmemPool_attribute):
       (default enabled).
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT`: (value type =
-      cuuint64_t) Amount of backing memory currently allocated for the
-      mempool
+      :py:obj:`~.cuuint64_t`) Amount of backing memory currently allocated
+      for the mempool
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH`: (value type =
-      cuuint64_t) High watermark of backing memory allocated for the
-      mempool since the last time it was reset.
+      :py:obj:`~.cuuint64_t`) High watermark of backing memory allocated
+      for the mempool since the last time it was reset.
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_USED_MEM_CURRENT`: (value type =
-      cuuint64_t) Amount of memory from the pool that is currently in use
-      by the application.
+      :py:obj:`~.cuuint64_t`) Amount of memory from the pool that is
+      currently in use by the application.
 
-    - :py:obj:`~.CU_MEMPOOL_ATTR_USED_MEM_HIGH`: (value type = cuuint64_t)
-      High watermark of the amount of memory from the pool that was in use
-      by the application.
+    - :py:obj:`~.CU_MEMPOOL_ATTR_USED_MEM_HIGH`: (value type =
+      :py:obj:`~.cuuint64_t`) High watermark of the amount of memory from
+      the pool that was in use by the application.
 
     The following properties can be also be queried on imported and default
     pools:
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_ALLOCATION_TYPE`: (value type =
-      CUmemAllocationType) The allocation type of the mempool
+      :py:obj:`~.CUmemAllocationType`) The allocation type of the mempool
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_EXPORT_HANDLE_TYPES`: (value type =
-      CUmemAllocationHandleType) Available export handle types for the
-      mempool. For imported pools this value is always
+      :py:obj:`~.CUmemAllocationHandleType`) Available export handle types
+      for the mempool. For imported pools this value is always
       CU_MEM_HANDLE_TYPE_NONE as an imported pool cannot be re-exported
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_LOCATION_ID`: (value type = int) The
@@ -37432,16 +37436,16 @@ def cuMemPoolGetAttribute(pool, attr not None : CUmemPool_attribute):
       CU_MEM_LOCATION_TYPE_INVISIBLE then ID will be CU_DEVICE_INVALID.
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_LOCATION_TYPE`: (value type =
-      CUmemLocationType) The location type for the mempool. For imported
-      memory pools where the device is not directly visible to the
+      :py:obj:`~.CUmemLocationType`) The location type for the mempool. For
+      imported memory pools where the device is not directly visible to the
       importing process or pools imported via fabric handles across nodes
       this will be CU_MEM_LOCATION_TYPE_INVISIBLE.
 
-    - :py:obj:`~.CU_MEMPOOL_ATTR_MAX_POOL_SIZE`: (value type = cuuint64_t)
-      Maximum size of the pool in bytes, this value may be higher than what
-      was initially passed to cuMemPoolCreate due to alignment
-      requirements. A value of 0 indicates no maximum size. For
-      CU__MEM_ALLOCATION_TYPE_MANAGED and IPC imported pools this value
+    - :py:obj:`~.CU_MEMPOOL_ATTR_MAX_POOL_SIZE`: (value type =
+      :py:obj:`~.cuuint64_t`) Maximum size of the pool in bytes, this value
+      may be higher than what was initially passed to cuMemPoolCreate due
+      to alignment requirements. A value of 0 indicates no maximum size.
+      For CU__MEM_ALLOCATION_TYPE_MANAGED and IPC imported pools this value
       will be system dependent.
 
     - :py:obj:`~.CU_MEMPOOL_ATTR_HW_DECOMPRESS_ENABLED`: (value type = int)
@@ -37984,7 +37988,7 @@ def cuMemPoolExportToShareableHandle(pool, handleType not None : CUmemAllocation
 
     Notes
     -----
-    : To create an IPC capable mempool, create a mempool with a CUmemAllocationHandleType other than CU_MEM_HANDLE_TYPE_NONE.
+    : To create an IPC capable mempool, create a mempool with a :py:obj:`~.CUmemAllocationHandleType` other than CU_MEM_HANDLE_TYPE_NONE.
     """
     cdef cydriver.CUmemoryPool cypool
     if pool is None:
@@ -38908,7 +38912,7 @@ def cuLogicalEndpointAddDevice(leId, dev):
     Associates a device to a logical endpoint. The type of the logical
     endpoint must be :py:obj:`~.CU_LOGICAL_ENDPOINT_TYPE_MULTICAST`. The
     added device will be a part of the multicast team of size specified by
-    CUlogicalEndpointProp::multicast::numDevices during
+    :py:obj:`~.CUlogicalEndpointProp.multicast.numDevices` during
     :py:obj:`~.cuLogicalEndpointCreate`. The association of the device to
     the multicast logical endpoint is permanent during the life time of the
     multicast logical endpoint. All devices must be added to the multicast
@@ -39559,7 +39563,7 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
 
     - Returns in `*data` the device pointer value through which `ptr` may
       be accessed by kernels running in the current :py:obj:`~.CUcontext`.
-      The type of `data` must be CUdeviceptr *.
+      The type of `data` must be :py:obj:`~.CUdeviceptr` *.
 
     - If there exists no device pointer value through which kernels running
       in the current :py:obj:`~.CUcontext` may access `ptr` then
@@ -39586,7 +39590,7 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
 
     - Returns in `*data` two tokens for use with the nv-p2p.h Linux kernel
       interface. `data` must be a struct of type
-      CUDA_POINTER_ATTRIBUTE_P2P_TOKENS.
+      :py:obj:`~.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS`.
 
     - `ptr` must be a pointer to memory obtained from
       :py:obj:`~.py`:obj:`~.cuMemAlloc()`. Note that p2pToken and
@@ -44148,7 +44152,7 @@ def cuFuncGetAttribute(attrib not None : CUfunction_attribute, hfunc):
 
     - :py:obj:`~.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE`:
       The block scheduling policy of a function. The value type is
-      CUclusterSchedulingPolicy.
+      :py:obj:`~.CUclusterSchedulingPolicy`.
 
     With a few execeptions, function attributes may also be queried on
     unloaded function handles returned from
@@ -44261,7 +44265,7 @@ def cuFuncSetAttribute(hfunc, attrib not None : CUfunction_attribute, int value)
 
     - :py:obj:`~.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE`:
       The block scheduling policy of a function. The value type is
-      CUclusterSchedulingPolicy.
+      :py:obj:`~.CUclusterSchedulingPolicy`.
 
     Parameters
     ----------
@@ -45718,7 +45722,7 @@ def cuLaunchGridAsync(f, int grid_width, int grid_height, hStream):
 
     Notes
     -----
-    In certain cases where cubins are created with no ABI (i.e., using `ptxas`  `no`), this function may serialize kernel launches. The CUDA driver retains asynchronous behavior by growing the per-thread stack as needed per launch and not shrinking it afterwards.
+    In certain cases where cubins are created with no ABI (i.e., using `ptxas` `--abi-compile` `no`), this function may serialize kernel launches. The CUDA driver retains asynchronous behavior by growing the per-thread stack as needed per launch and not shrinking it afterwards.
     """
     cdef cydriver.CUstream cyhStream
     if hStream is None:
@@ -46082,7 +46086,7 @@ def cuGraphAddKernelNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
     root of the graph. `dependencies` may not have any duplicate entries. A
     handle to the new node will be returned in `phGraphNode`.
 
-    The CUDA_KERNEL_NODE_PARAMS structure is defined as:
+    The :py:obj:`~.CUDA_KERNEL_NODE_PARAMS` structure is defined as:
 
     **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -50764,8 +50768,8 @@ def cuGraphDebugDotPrint(hGraph, char* path, unsigned int flags):
     path : bytes
         The path to write the DOT file to
     flags : unsigned int
-        Flags from CUgraphDebugDot_flags for specifying which additional
-        node information to write
+        Flags from :py:obj:`~.CUgraphDebugDot_flags` for specifying which
+        additional node information to write
 
     Returns
     -------
@@ -53310,8 +53314,8 @@ def cuTexObjectCreate(pResDesc : Optional[CUDA_RESOURCE_DESC], pTexDesc : Option
       supported address mode is :py:obj:`~.CU_TR_ADDRESS_MODE_CLAMP`.
 
     - :py:obj:`~.CUDA_TEXTURE_DESC.filterMode` specifies the filtering mode
-      to be used when fetching from the texture. CUfilter_mode is defined
-      as:
+      to be used when fetching from the texture. :py:obj:`~.CUfilter_mode`
+      is defined as:
 
     - **View CUDA Toolkit Documentation for a C++ code example**
 
@@ -56374,12 +56378,12 @@ def cuGreenCtxCreate(desc, dev, unsigned int flags):
 
     The API does not set the green context current. In order to set it
     current, you need to explicitly set it current by first converting the
-    green context to a CUcontext using :py:obj:`~.cuCtxFromGreenCtx` and
-    subsequently calling :py:obj:`~.cuCtxSetCurrent` /
-    :py:obj:`~.cuCtxPushCurrent`. It should be noted that a green context
-    can be current to only one thread at a time. There is no internal
-    synchronization to make API calls accessing the same green context from
-    multiple threads work.
+    green context to a :py:obj:`~.CUcontext` using
+    :py:obj:`~.cuCtxFromGreenCtx` and subsequently calling
+    :py:obj:`~.cuCtxSetCurrent` / :py:obj:`~.cuCtxPushCurrent`. It should
+    be noted that a green context can be current to only one thread at a
+    time. There is no internal synchronization to make API calls accessing
+    the same green context from multiple threads work.
 
     Note: The API is not supported on 32-bit platforms.
 
@@ -57989,7 +57993,7 @@ def cuEGLStreamConsumerConnectWithFlags(stream, unsigned int flags):
     """ Connect CUDA to EGLStream as a consumer with given flags.
 
     Connect CUDA as a consumer to EGLStreamKHR specified by `stream` with
-    specified `flags` defined by CUeglResourceLocationFlags.
+    specified `flags` defined by :py:obj:`~.CUeglResourceLocationFlags`.
 
     The flags specify whether the consumer wants to access frames from
     system memory or video memory. Default is

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1740+g3731b17a1. Do not modify it directly.
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -1624,7 +1624,7 @@ cdef class cudaMemAllocNodeParams:
     {{endif}}
     {{if 'cudaMemAllocNodeParams.accessDescCount' in found_struct}}
     accessDescCount : size_t
-        in: Number of `accessDescs`s
+        in: Number of `accessDescsaccessDescs`s
     {{endif}}
     {{if 'cudaMemAllocNodeParams.bytesize' in found_struct}}
     bytesize : size_t
@@ -1675,7 +1675,7 @@ cdef class cudaMemAllocNodeParamsV2:
     {{endif}}
     {{if 'cudaMemAllocNodeParamsV2.accessDescCount' in found_struct}}
     accessDescCount : size_t
-        in: Number of `accessDescs`s
+        in: Number of `accessDescsaccessDescs`s
     {{endif}}
     {{if 'cudaMemAllocNodeParamsV2.bytesize' in found_struct}}
     bytesize : size_t
@@ -3134,8 +3134,9 @@ cdef class cudaDevSmResourceGroupParams_st:
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
     flags : unsigned int
-        Combination of `cudaDevSmResourceGroup_flags` values to indicate
-        this this group is created.
+        Combination of
+        `cudaDevSmResourceGroup_flagscudaDevSmResourceGroup_flags` values
+        to indicate this this group is created.
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
     reserved : list[unsigned int]
@@ -4245,11 +4246,12 @@ cdef class cudaLaunchAttributeValue:
     {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct18
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
-        the following fields: - `cudaEvent_t` event - Event to fire when
-        all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        the following fields: - `cudaEvent_tcudaEvent_t` event - Event to
+        fire when all blocks trigger it.    - `int` flags; - Event record
+        flags, see cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
+        is set to non-0, each block launch will automatically trigger the
+        event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -4284,9 +4286,9 @@ cdef class cudaLaunchAttributeValue:
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
-        with the following fields: - `cudaEvent_t` event - Event to fire
-        when the last block launches.    - `int` flags - Event record
-        flags, see cudaEventRecordWithFlags. Does not accept
+        with the following fields: - `cudaEvent_tcudaEvent_t` event - Event
+        to fire when the last block launches.    - `int` flags - Event
+        record flags, see cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
@@ -4295,8 +4297,8 @@ cdef class cudaLaunchAttributeValue:
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
         fields: - `int` deviceUpdatable - Whether or not the resulting
         kernel node should be device-updatable.    -
-        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        `cudaGraphDeviceNode_tcudaGraphDeviceNode_t` devNode - Returns a
+        handle to pass to the various device-side update functions.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
@@ -4781,8 +4783,9 @@ cdef class cudaDevSmResourceGroupParams(cudaDevSmResourceGroupParams_st):
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
     flags : unsigned int
-        Combination of `cudaDevSmResourceGroup_flags` values to indicate
-        this this group is created.
+        Combination of
+        `cudaDevSmResourceGroup_flagscudaDevSmResourceGroup_flags` values
+        to indicate this this group is created.
     {{endif}}
     {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
     reserved : list[unsigned int]
@@ -5098,11 +5101,12 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct18
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
-        the following fields: - `cudaEvent_t` event - Event to fire when
-        all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        the following fields: - `cudaEvent_tcudaEvent_t` event - Event to
+        fire when all blocks trigger it.    - `int` flags; - Event record
+        flags, see cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
+        is set to non-0, each block launch will automatically trigger the
+        event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -5137,9 +5141,9 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
-        with the following fields: - `cudaEvent_t` event - Event to fire
-        when the last block launches.    - `int` flags - Event record
-        flags, see cudaEventRecordWithFlags. Does not accept
+        with the following fields: - `cudaEvent_tcudaEvent_t` event - Event
+        to fire when the last block launches.    - `int` flags - Event
+        record flags, see cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
@@ -5148,8 +5152,8 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
         fields: - `int` deviceUpdatable - Whether or not the resulting
         kernel node should be device-updatable.    -
-        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        `cudaGraphDeviceNode_tcudaGraphDeviceNode_t` devNode - Returns a
+        handle to pass to the various device-side update functions.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
@@ -5229,11 +5233,12 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct18
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
-        the following fields: - `cudaEvent_t` event - Event to fire when
-        all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        the following fields: - `cudaEvent_tcudaEvent_t` event - Event to
+        fire when all blocks trigger it.    - `int` flags; - Event record
+        flags, see cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
+        is set to non-0, each block launch will automatically trigger the
+        event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -5268,9 +5273,9 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
-        with the following fields: - `cudaEvent_t` event - Event to fire
-        when the last block launches.    - `int` flags - Event record
-        flags, see cudaEventRecordWithFlags. Does not accept
+        with the following fields: - `cudaEvent_tcudaEvent_t` event - Event
+        to fire when the last block launches.    - `int` flags - Event
+        record flags, see cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
@@ -5279,8 +5284,8 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
         fields: - `int` deviceUpdatable - Whether or not the resulting
         kernel node should be device-updatable.    -
-        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        `cudaGraphDeviceNode_tcudaGraphDeviceNode_t` devNode - Returns a
+        handle to pass to the various device-side update functions.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int

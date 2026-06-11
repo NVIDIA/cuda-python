@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1711+g875fec45. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1740+g3731b17a1. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -1968,8 +1968,8 @@ cdef class CUlaunchAttributeValue_union:
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - `CUeventCUevent` event - Event to fire
+        when all blocks trigger it.    - `Event` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
         - `triggerAtBlockStart` - If this is set to non-0, each block
         launch will automatically trigger the event.
@@ -1978,8 +1978,8 @@ cdef class CUlaunchAttributeValue_union:
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - `CUeventCUevent` event - Event to fire when the last
+        block launches    - `int` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -2018,8 +2018,8 @@ cdef class CUlaunchAttributeValue_union:
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
         following fields: - `int` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        `CUgraphDeviceNodeCUgraphDeviceNode` devNode - Returns a handle to
+        pass to the various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
@@ -7083,8 +7083,8 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - `CUeventCUevent` event - Event to fire
+        when all blocks trigger it.    - `Event` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
         - `triggerAtBlockStart` - If this is set to non-0, each block
         launch will automatically trigger the event.
@@ -7093,8 +7093,8 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - `CUeventCUevent` event - Event to fire when the last
+        block launches    - `int` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -7133,8 +7133,8 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
         following fields: - `int` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        `CUgraphDeviceNodeCUgraphDeviceNode` devNode - Returns a handle to
+        pass to the various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
@@ -7294,8 +7294,8 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - `CUeventCUevent` event - Event to fire
+        when all blocks trigger it.    - `Event` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
         - `triggerAtBlockStart` - If this is set to non-0, each block
         launch will automatically trigger the event.
@@ -7304,8 +7304,8 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - `CUeventCUevent` event - Event to fire when the last
+        block launches    - `int` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -7344,8 +7344,8 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
         following fields: - `int` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        `CUgraphDeviceNodeCUgraphDeviceNode` devNode - Returns a handle to
+        pass to the various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
@@ -7425,8 +7425,8 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - `CUeventCUevent` event - Event to fire
+        when all blocks trigger it.    - `Event` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
         - `triggerAtBlockStart` - If this is set to non-0, each block
         launch will automatically trigger the event.
@@ -7435,8 +7435,8 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - `CUeventCUevent` event - Event to fire when the last
+        block launches    - `int` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -7475,8 +7475,8 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
         following fields: - `int` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        `CUgraphDeviceNodeCUgraphDeviceNode` devNode - Returns a handle to
+        pass to the various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
@@ -7556,8 +7556,8 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - `CUeventCUevent` event - Event to fire
+        when all blocks trigger it.    - `Event` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
         - `triggerAtBlockStart` - If this is set to non-0, each block
         launch will automatically trigger the event.
@@ -7566,8 +7566,8 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - `CUeventCUevent` event - Event to fire when the last
+        block launches    - `int` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -7606,8 +7606,8 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
         following fields: - `int` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        `CUgraphDeviceNodeCUgraphDeviceNode` devNode - Returns a handle to
+        pass to the various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
@@ -7687,8 +7687,8 @@ cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
     {{if 'CUlaunchAttributeValue_union.programmaticEvent' in found_struct}}
     programmaticEvent : anon_struct2
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        with the following fields: - `CUevent` event - Event to fire when
-        all blocks trigger it.    - `Event` record flags, see
+        with the following fields: - `CUeventCUevent` event - Event to fire
+        when all blocks trigger it.    - `Event` record flags, see
         cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
         - `triggerAtBlockStart` - If this is set to non-0, each block
         launch will automatically trigger the event.
@@ -7697,8 +7697,8 @@ cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
     launchCompletionEvent : anon_struct3
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
-        fields: - `CUevent` event - Event to fire when the last block
-        launches    - `int` flags; - Event record flags, see
+        fields: - `CUeventCUevent` event - Event to fire when the last
+        block launches    - `int` flags; - Event record flags, see
         cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.priority' in found_struct}}
@@ -7737,8 +7737,8 @@ cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
         following fields: - `int` deviceUpdatable - Whether or not the
         resulting kernel node should be device-updatable.    -
-        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
-        various device-side update functions.
+        `CUgraphDeviceNodeCUgraphDeviceNode` devNode - Returns a handle to
+        pass to the various device-side update functions.
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.sharedMemCarveout' in found_struct}}
     sharedMemCarveout : unsigned int
