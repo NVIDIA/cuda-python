@@ -142,7 +142,7 @@ class _FindBitcodeLib:
         raise BitcodeLibNotFoundError(f'Failure finding "{self.filename}": {err}\n{att}')
 
 
-def locate_bitcode_lib(name: str, sm_arch: str = "") -> LocatedBitcodeLib:
+def locate_bitcode_lib(name: str, *, sm_arch: str = "") -> LocatedBitcodeLib:
     """Locate a bitcode library by name.
 
     When ``sm_arch`` is set, locate the architecture-specific bitcode filename
