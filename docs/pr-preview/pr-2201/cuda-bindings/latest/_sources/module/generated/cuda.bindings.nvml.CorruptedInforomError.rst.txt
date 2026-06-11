@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.CorruptedInforomError
+========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: CorruptedInforomError
