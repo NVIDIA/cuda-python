@@ -57,11 +57,7 @@ RUN_CYTHON=0
 RUN_EXAMPLES=1
 RUN_PTDS=1
 INSTALL_MODE=auto  # auto|force|skip
-DEFAULT_PARALLEL_THREADS=0
-if python -mpip show pytest-run-parallel >/dev/null 2>&1; then
-  DEFAULT_PARALLEL_THREADS=4
-fi
-PARALLEL_THREADS=${DEFAULT_PARALLEL_THREADS}
+PARALLEL_THREADS=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -h|--help)
