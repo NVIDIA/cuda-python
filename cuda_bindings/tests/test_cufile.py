@@ -117,12 +117,6 @@ pytestmark = [
     ),
 ]
 
-xfail_handle_register = pytest.mark.xfail(
-    condition=isSupportedFilesystem() and os.environ.get("CI") is not None,
-    raises=cufile.cuFileError,
-    reason="handle_register call fails in CI for unknown reasons",
-)
-
 
 def test_cufile_success_defined():
     """Check if CUFILE_SUCCESS is defined in OpError enum."""
@@ -203,7 +197,6 @@ def driver(ctx):
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
-@xfail_handle_register
 def test_handle_register(tmpdir):
     """Test file handle registration with cuFile."""
     # Create test file
@@ -394,7 +387,6 @@ def test_buf_register_already_registered():
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
-@xfail_handle_register
 def test_cufile_read_write(tmpdir):
     """Test cuFile read and write operations."""
     # Create test file
@@ -479,7 +471,6 @@ def test_cufile_read_write(tmpdir):
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
-@xfail_handle_register
 def test_cufile_read_write_host_memory(tmpdir):
     """Test cuFile read and write operations using host memory."""
     # Create test file
@@ -560,7 +551,6 @@ def test_cufile_read_write_host_memory(tmpdir):
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
-@xfail_handle_register
 def test_cufile_read_write_large(tmpdir):
     """Test cuFile read and write operations with large data."""
     # Create test file
@@ -648,7 +638,6 @@ def test_cufile_read_write_large(tmpdir):
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
-@xfail_handle_register
 def test_cufile_write_async(tmpdir):
     """Test cuFile asynchronous write operations."""
     # Create test file
@@ -724,7 +713,6 @@ def test_cufile_write_async(tmpdir):
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
-@xfail_handle_register
 def test_cufile_read_async(tmpdir):
     """Test cuFile asynchronous read operations."""
     # Create test file
@@ -812,7 +800,6 @@ def test_cufile_read_async(tmpdir):
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@xfail_handle_register
 @pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
 def test_cufile_async_read_write(tmpdir):
     """Test cuFile asynchronous read and write operations in sequence."""
@@ -925,7 +912,6 @@ def test_cufile_async_read_write(tmpdir):
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
-@xfail_handle_register
 def test_batch_io_basic(tmpdir):
     """Test basic batch IO operations with multiple read/write operations."""
     # Create test file
@@ -1122,7 +1108,6 @@ def test_batch_io_basic(tmpdir):
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
-@xfail_handle_register
 def test_batch_io_cancel(tmpdir):
     """Test batch IO cancellation."""
     # Create test file
@@ -1200,7 +1185,6 @@ def test_batch_io_cancel(tmpdir):
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("driver")
-@xfail_handle_register
 def test_batch_io_large_operations(tmpdir):
     """Test batch IO with large buffer operations."""
     # Create test file
@@ -1602,7 +1586,6 @@ def test_stats_start_stop():
 )
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("stats")
-@xfail_handle_register
 @pytest.mark.thread_unsafe(reason="cuFile stats counters and collection state are process-global")
 def test_get_stats_l1(tmpdir):
     """Test cuFile L1 statistics retrieval with file operations."""
@@ -1681,7 +1664,6 @@ def test_get_stats_l1(tmpdir):
 )
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("stats")
-@xfail_handle_register
 @pytest.mark.thread_unsafe(reason="cuFile stats counters and collection state are process-global")
 def test_get_stats_l2(tmpdir):
     """Test cuFile L2 statistics retrieval with file operations."""
@@ -1764,7 +1746,6 @@ def test_get_stats_l2(tmpdir):
 )
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 @pytest.mark.usefixtures("stats")
-@xfail_handle_register
 @pytest.mark.thread_unsafe(reason="cuFile stats counters and collection state are process-global")
 def test_get_stats_l3(tmpdir):
     """Test cuFile L3 statistics retrieval with file operations."""
