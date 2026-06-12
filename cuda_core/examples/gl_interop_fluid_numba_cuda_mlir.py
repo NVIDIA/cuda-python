@@ -105,8 +105,11 @@ def _bilinear_setup(px, py, w, h):
     # indices, fractional weights). px/py are in pixel space where an integer
     # value addresses a texel center, matching the (i + 0.5)/N convention the
     # C++ version feeds to tex2D.
-    x0 = int(math.floor(px))
-    y0 = int(math.floor(py))
+    # Keep the explicit int(): stock numba.cuda's math.floor returns a float
+    # (unlike CPython), and a float can't index an array. RUF046 only sees the
+    # CPython return type, so it is a false positive here.
+    x0 = int(math.floor(px))  # noqa: RUF046
+    y0 = int(math.floor(py))  # noqa: RUF046
     fx = px - x0
     fy = py - y0
     x0c = _clampi(x0, w)
@@ -133,14 +136,8 @@ def sample_vec(fld, px, py, w, h):
     x0c, x1c, y0c, y1c, fx, fy = _bilinear_setup(px, py, w, h)
     g = 1.0 - fx
     h0 = 1.0 - fy
-    vx = (
-        (fld[y0c, x0c, 0] * g + fld[y0c, x1c, 0] * fx) * h0
-        + (fld[y1c, x0c, 0] * g + fld[y1c, x1c, 0] * fx) * fy
-    )
-    vy = (
-        (fld[y0c, x0c, 1] * g + fld[y0c, x1c, 1] * fx) * h0
-        + (fld[y1c, x0c, 1] * g + fld[y1c, x1c, 1] * fx) * fy
-    )
+    vx = (fld[y0c, x0c, 0] * g + fld[y0c, x1c, 0] * fx) * h0 + (fld[y1c, x0c, 0] * g + fld[y1c, x1c, 0] * fx) * fy
+    vy = (fld[y0c, x0c, 1] * g + fld[y0c, x1c, 1] * fx) * h0 + (fld[y1c, x0c, 1] * g + fld[y1c, x1c, 1] * fx) * fy
     return vx, vy
 
 
@@ -150,18 +147,10 @@ def sample_color(fld, px, py, w, h):
     x0c, x1c, y0c, y1c, fx, fy = _bilinear_setup(px, py, w, h)
     g = 1.0 - fx
     h0 = 1.0 - fy
-    out0 = (fld[y0c, x0c, 0] * g + fld[y0c, x1c, 0] * fx) * h0 + (
-        fld[y1c, x0c, 0] * g + fld[y1c, x1c, 0] * fx
-    ) * fy
-    out1 = (fld[y0c, x0c, 1] * g + fld[y0c, x1c, 1] * fx) * h0 + (
-        fld[y1c, x0c, 1] * g + fld[y1c, x1c, 1] * fx
-    ) * fy
-    out2 = (fld[y0c, x0c, 2] * g + fld[y0c, x1c, 2] * fx) * h0 + (
-        fld[y1c, x0c, 2] * g + fld[y1c, x1c, 2] * fx
-    ) * fy
-    out3 = (fld[y0c, x0c, 3] * g + fld[y0c, x1c, 3] * fx) * h0 + (
-        fld[y1c, x0c, 3] * g + fld[y1c, x1c, 3] * fx
-    ) * fy
+    out0 = (fld[y0c, x0c, 0] * g + fld[y0c, x1c, 0] * fx) * h0 + (fld[y1c, x0c, 0] * g + fld[y1c, x1c, 0] * fx) * fy
+    out1 = (fld[y0c, x0c, 1] * g + fld[y0c, x1c, 1] * fx) * h0 + (fld[y1c, x0c, 1] * g + fld[y1c, x1c, 1] * fx) * fy
+    out2 = (fld[y0c, x0c, 2] * g + fld[y0c, x1c, 2] * fx) * h0 + (fld[y1c, x0c, 2] * g + fld[y1c, x1c, 2] * fx) * fy
+    out3 = (fld[y0c, x0c, 3] * g + fld[y0c, x1c, 3] * fx) * h0 + (fld[y1c, x0c, 3] * g + fld[y1c, x1c, 3] * fx) * fy
     return out0, out1, out2, out3
 
 
@@ -381,18 +370,14 @@ def create_window():
     except ImportError:
         print("This example requires pyglet >= 2.0:  pip install pyglet", file=sys.stderr)
         sys.exit(1)
-    window = pyglet.window.Window(
-        WIDTH, HEIGHT, caption="numba-cuda - Stable Fluids", vsync=False
-    )
+    window = pyglet.window.Window(WIDTH, HEIGHT, caption="numba-cuda - Stable Fluids", vsync=False)
     return window, _gl, pyglet
 
 
 def create_display_resources(gl):
     from pyglet.graphics.shader import Shader, ShaderProgram
 
-    shader_prog = ShaderProgram(
-        Shader(VERTEX_SHADER_SOURCE, "vertex"), Shader(FRAGMENT_SHADER_SOURCE, "fragment")
-    )
+    shader_prog = ShaderProgram(Shader(VERTEX_SHADER_SOURCE, "vertex"), Shader(FRAGMENT_SHADER_SOURCE, "fragment"))
     quad = np.array(
         [-1, -1, 0, 0, 1, -1, 1, 0, 1, 1, 1, 1, -1, -1, 0, 0, 1, 1, 1, 1, -1, 1, 0, 1],
         dtype=np.float32,
@@ -418,16 +403,21 @@ def create_display_resources(gl):
     gl.glBindTexture(gl.GL_TEXTURE_2D, tex.value)
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
-    gl.glTexImage2D(
-        gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, WIDTH, HEIGHT, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None
-    )
+    gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, WIDTH, HEIGHT, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
     return shader_prog, vao.value, tex.value
 
 
 def upload_and_draw(gl, shader_prog, vao_id, tex_id, host_rgba):
     gl.glBindTexture(gl.GL_TEXTURE_2D, tex_id)
     gl.glTexSubImage2D(
-        gl.GL_TEXTURE_2D, 0, 0, 0, WIDTH, HEIGHT, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE,
+        gl.GL_TEXTURE_2D,
+        0,
+        0,
+        0,
+        WIDTH,
+        HEIGHT,
+        gl.GL_RGBA,
+        gl.GL_UNSIGNED_BYTE,
         host_rgba.ctypes.data_as(ctypes.c_void_p),
     )
     gl.glUseProgram(shader_prog.id)
@@ -532,9 +522,19 @@ def main():
         inject = 1 if mouse["down"] else 0
         mr, mg, mb = colorsys.hsv_to_rgb((elapsed * 0.15) % 1.0, 0.85, 1.0)
         splat[grid, block, stream](
-            vel[0], dye[0], WIDTH, HEIGHT, mouse["x"], mouse["y"],
-            mouse["dx"] * SPLAT_FORCE, mouse["dy"] * SPLAT_FORCE, SPLAT_RADIUS,
-            mr * SPLAT_DYE, mg * SPLAT_DYE, mb * SPLAT_DYE, inject,
+            vel[0],
+            dye[0],
+            WIDTH,
+            HEIGHT,
+            mouse["x"],
+            mouse["y"],
+            mouse["dx"] * SPLAT_FORCE,
+            mouse["dy"] * SPLAT_FORCE,
+            SPLAT_RADIUS,
+            mr * SPLAT_DYE,
+            mg * SPLAT_DYE,
+            mb * SPLAT_DYE,
+            inject,
         )
 
         # (b2) auto-bursts when idle
@@ -546,9 +546,19 @@ def main():
                 ang = random.uniform(0.0, 2.0 * math.pi)
                 br, bg, bb = colorsys.hsv_to_rgb(random.random(), 0.9, 1.0)
                 splat[grid, block, stream](
-                    vel[0], dye[0], WIDTH, HEIGHT, bx, by,
-                    math.cos(ang) * BURST_FORCE, math.sin(ang) * BURST_FORCE, BURST_RADIUS,
-                    br * BURST_DYE, bg * BURST_DYE, bb * BURST_DYE, 1,
+                    vel[0],
+                    dye[0],
+                    WIDTH,
+                    HEIGHT,
+                    bx,
+                    by,
+                    math.cos(ang) * BURST_FORCE,
+                    math.sin(ang) * BURST_FORCE,
+                    BURST_RADIUS,
+                    br * BURST_DYE,
+                    bg * BURST_DYE,
+                    bb * BURST_DYE,
+                    1,
                 )
 
         # (b3) vorticity confinement (ping-pong: reads neighbors)
