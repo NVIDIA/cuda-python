@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1588+g61faef43a. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -3851,10 +3851,9 @@ cdef class cudaLaunchAttributeValue:
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
-        ::cudaEventRecordWithFlags. Does not accept
-        cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
-        is set to non-0, each block launch will automatically trigger the
-        event.
+        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
+        - `int` triggerAtBlockStart - If this is set to non-0, each block
+        launch will automatically trigger the event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -3891,7 +3890,7 @@ cdef class cudaLaunchAttributeValue:
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
-        flags, see ::cudaEventRecordWithFlags. Does not accept
+        flags, see cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
@@ -4560,10 +4559,9 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
-        ::cudaEventRecordWithFlags. Does not accept
-        cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
-        is set to non-0, each block launch will automatically trigger the
-        event.
+        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
+        - `int` triggerAtBlockStart - If this is set to non-0, each block
+        launch will automatically trigger the event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -4600,7 +4598,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
-        flags, see ::cudaEventRecordWithFlags. Does not accept
+        flags, see cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
@@ -4677,10 +4675,9 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
-        ::cudaEventRecordWithFlags. Does not accept
-        cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
-        is set to non-0, each block launch will automatically trigger the
-        event.
+        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
+        - `int` triggerAtBlockStart - If this is set to non-0, each block
+        launch will automatically trigger the event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -4717,7 +4714,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
-        flags, see ::cudaEventRecordWithFlags. Does not accept
+        flags, see cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
