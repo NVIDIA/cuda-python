@@ -456,6 +456,17 @@ jobs:
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
           if-no-files-found: error
 
+      # Restart sccache before the second cuda.core build. For py3.15t, the
+      # preceding numpy-from-source build can take 10+ minutes during which
+      # the sccache daemon may become unhealthy (crashed or lost its GHA
+      # cache connection). A clean restart avoids the "Timed out waiting for
+      # server startup" failure in the second cibuildwheel run.
+      - name: Restart sccache server
+        if: ${{ startsWith(inputs.host-platform, 'linux') }}
+        run: |
+          ${{ env.SCCACHE_PATH }} --stop-server || true
+          ${{ env.SCCACHE_PATH }} --start-server
+
       # Note: This overwrites CUDA_PATH etc
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
