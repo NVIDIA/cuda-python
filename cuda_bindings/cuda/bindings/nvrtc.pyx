@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1738+g1060a290f. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -58,8 +58,9 @@ NVRTC_INSTALL_HEADERS_NO_WAIT = cynvrtc.NVRTC_INSTALL_HEADERS_NO_WAIT
 
 class nvrtcResult(_FastEnum):
     """
-    The enumerated type nvrtcResult defines API call result codes.
-    NVRTC API functions return nvrtcResult to indicate the call result.
+    The enumerated type :py:obj:`~.nvrtcResult` defines API call result
+    codes. NVRTC API functions return :py:obj:`~.nvrtcResult` to
+    indicate the call result.
     """
 
     NVRTC_SUCCESS = cynvrtc.nvrtcResult.NVRTC_SUCCESS
@@ -316,7 +317,7 @@ cdef class nvrtcBundledHeadersInfo(anon_struct0):
 
 @cython.embedsignature(True)
 def nvrtcGetErrorString(result not None : nvrtcResult):
-    """ nvrtcGetErrorString is a helper function that returns a string describing the given nvrtcResult code, e.g., NVRTC_SUCCESS to `"NVRTC_SUCCESS"`. For unrecognized enumeration values, it returns `"NVRTC_ERROR unknown"`.
+    """ nvrtcGetErrorString is a helper function that returns a string describing the given :py:obj:`~.nvrtcResult` code, e.g., NVRTC_SUCCESS to `"NVRTC_SUCCESS"`. For unrecognized enumeration values, it returns `"NVRTC_ERROR unknown"`.
 
     Parameters
     ----------
@@ -404,7 +405,7 @@ def nvrtcGetSupportedArchs():
 
 @cython.embedsignature(True)
 def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional[tuple[bytes] | list[bytes]], includeNames : Optional[tuple[bytes] | list[bytes]]):
-    """ nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter `prog` with it.
+    """ nvrtcCreateProgram creates an instance of :py:obj:`~.nvrtcProgram` with the given input parameters, and sets the output parameter `prog` with it.
 
     Parameters
     ----------
