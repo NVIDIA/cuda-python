@@ -37262,6 +37262,749 @@ def cuMulticastGetGranularity(prop : Optional[CUmulticastObjectProp], option not
     return (_CUresult_SUCCESS, granularity)
 
 @cython.embedsignature(True)
+def cuLogicalEndpointIdReserve(count):
+    """ Reserves a range of logical endpoint ids.
+
+    Reserves a range of logical endpoint ids starting at `*baseLeId` and
+    extending for `count`. The reserved ids can be used to create or import
+    logical endpoints via :py:obj:`~.cuLogicalEndpointCreate` or
+    :py:obj:`~.cuLogicalEndpointImport` respectively.
+
+    Parameters
+    ----------
+    count : Any
+        The number of logical endpoint ids to reserve.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`,
+    baseLeId : :py:obj:`~.CUlogicalEndpointId`
+        If :py:obj:`~.cuLogicalEndpointIdReserve` returns CUDA_SUCCESS,
+        *baseLeId contains the base logical endpoint id of the reserved
+        logical endpoint id range.
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+    """
+    cdef cydriver.cuuint32_t cycount
+    if count is None:
+        pcount = 0
+    elif isinstance(count, (cuuint32_t,)):
+        pcount = int(count)
+    else:
+        pcount = int(cuuint32_t(count))
+    cycount = <cydriver.cuuint32_t><void_ptr>pcount
+    cdef CUlogicalEndpointId baseLeId = CUlogicalEndpointId()
+    with nogil:
+        err = cydriver.cuLogicalEndpointIdReserve(<cydriver.CUlogicalEndpointId*>baseLeId._pvt_ptr, cycount)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, baseLeId)
+
+@cython.embedsignature(True)
+def cuLogicalEndpointIdRelease(baseLeId, count):
+    """ Releases a range of logical endpoint ids.
+
+    Releases up to `count` logical endpoint ids starting at `baseLeId`. The
+    range of ids represented by [`baseLeId`, `baseLeId` + `count`) must all
+    be previously reserved. All logical endpoints in the range must be
+    destroyed before they can be released.
+
+    Parameters
+    ----------
+    baseLeId : :py:obj:`~.CUlogicalEndpointId`
+        First logical endpoint id to be released back to the system.
+    count : Any
+        Number of logical endpoint ids to release back to the system.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`,
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+    """
+    cdef cydriver.cuuint32_t cycount
+    if count is None:
+        pcount = 0
+    elif isinstance(count, (cuuint32_t,)):
+        pcount = int(count)
+    else:
+        pcount = int(cuuint32_t(count))
+    cycount = <cydriver.cuuint32_t><void_ptr>pcount
+    cdef cydriver.CUlogicalEndpointId cybaseLeId
+    if baseLeId is None:
+        pbaseLeId = 0
+    elif isinstance(baseLeId, (CUlogicalEndpointId,)):
+        pbaseLeId = int(baseLeId)
+    else:
+        pbaseLeId = int(CUlogicalEndpointId(baseLeId))
+    cybaseLeId = <cydriver.CUlogicalEndpointId><void_ptr>pbaseLeId
+    with nogil:
+        err = cydriver.cuLogicalEndpointIdRelease(cybaseLeId, cycount)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuLogicalEndpointCreate(leId, prop : Optional[CUlogicalEndpointProp]):
+    """ Creates a logical endpoint with the requested properties and associates it with the logical endpoint id.
+
+    This creates a logical endpoint as described by `prop`. The number of
+    participating devices is determined by the
+    :py:obj:`~.CUlogicalEndpointProp.type`. If the type is
+    :py:obj:`~.CU_LOGICAL_ENDPOINT_TYPE_UNICAST` then
+    :py:obj:`~.CUlogicalEndpointProp.unicast.device` specifies the owner
+    device of the unicast logical endpoint. If the type is
+    :py:obj:`~.CU_LOGICAL_ENDPOINT_TYPE_MULTICAST` then
+    :py:obj:`~.CUlogicalEndpointProp.multicast.numDevices` specifies the
+    number of devices in the multicast logical endpoint team.
+
+    Devices can be added to a multicast logical endpoint via
+    :py:obj:`~.cuLogicalEndpointAddDevice`. After all the participating
+    devices have been added, a call to :py:obj:`~.cuLogicalEndpointQuery`
+    must be made to ensure that the logical endpoint is ready for memory
+    binding and access.
+
+    A unicast logical endpoint does not have a notion of adding devices via
+    :py:obj:`~.cuLogicalEndpointAddDevice`. However, a call to
+    :py:obj:`~.cuLogicalEndpointQuery` must still be made to ensure that
+    the logical endpoint is ready for memory binding and access.
+
+    Memory is bound to the logical endpoint via either
+    :py:obj:`~.cuLogicalEndpointBindAddr` or
+    :py:obj:`~.cuLogicalEndpointBindMem`, and can be unbound via
+    :py:obj:`~.cuLogicalEndpointUnbind`. The total amount of memory that
+    can be bound per device is specified by
+    :py:obj:`~.CUlogicalEndpointProp.size`. This size must be a multiple of
+    the value for `bindAlignment` as returned by
+    :py:obj:`~.cuLogicalEndpointGetLimits`. The maximum size for the
+    logical endpoint cannot exceed the value for `maxSize` as returned by
+    :py:obj:`~.cuLogicalEndpointGetLimits`. The bind alignment and maximum
+    size depend on the properties of the logical endpoint.
+
+    Parameters
+    ----------
+    leId : :py:obj:`~.CUlogicalEndpointId`
+        Logical endpoint id that will be associated with the newly created
+        logical endpoint.
+    prop : :py:obj:`~.CUlogicalEndpointProp`
+        Properties of the logical endpoint to create.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`,
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+    """
+    cdef cydriver.CUlogicalEndpointId cyleId
+    if leId is None:
+        pleId = 0
+    elif isinstance(leId, (CUlogicalEndpointId,)):
+        pleId = int(leId)
+    else:
+        pleId = int(CUlogicalEndpointId(leId))
+    cyleId = <cydriver.CUlogicalEndpointId><void_ptr>pleId
+    cdef cydriver.CUlogicalEndpointProp* cyprop_ptr = <cydriver.CUlogicalEndpointProp*>prop._pvt_ptr if prop is not None else NULL
+    with nogil:
+        err = cydriver.cuLogicalEndpointCreate(cyleId, cyprop_ptr)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuLogicalEndpointAddDevice(leId, dev):
+    """ Associates a device to a multicast logical endpoint.
+
+    Associates a device to a logical endpoint. The type of the logical
+    endpoint must be :py:obj:`~.CU_LOGICAL_ENDPOINT_TYPE_MULTICAST`. The
+    added device will be a part of the multicast team of size specified by
+    :py:obj:`~.CUlogicalEndpointProp.multicast.numDevices` during
+    :py:obj:`~.cuLogicalEndpointCreate`. The association of the device to
+    the multicast logical endpoint is permanent during the life time of the
+    multicast logical endpoint. All devices must be added to the multicast
+    logical endpoint before any memory can be bound to any device in the
+    team. A multicast logical endpoint will not be ready for use until all
+    devices have been added. User can query whether the logical endpoint is
+    ready for use via :py:obj:`~.cuLogicalEndpointQuery`.
+
+    Parameters
+    ----------
+    leId : :py:obj:`~.CUlogicalEndpointId`
+        Logical endpoint id representing a multicast logical endpoint.
+    dev : :py:obj:`~.CUdevice`
+        Device that will be associated with the multicast logical endpoint.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`,
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+    """
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    cdef cydriver.CUlogicalEndpointId cyleId
+    if leId is None:
+        pleId = 0
+    elif isinstance(leId, (CUlogicalEndpointId,)):
+        pleId = int(leId)
+    else:
+        pleId = int(CUlogicalEndpointId(leId))
+    cyleId = <cydriver.CUlogicalEndpointId><void_ptr>pleId
+    with nogil:
+        err = cydriver.cuLogicalEndpointAddDevice(cyleId, cydev)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuLogicalEndpointDestroy(leId):
+    """ Removes the association of the logical endpoint from the logical endpoint id.
+
+    Removes the association between the logical endpoint id and the logical
+    endpoint resources. Any memory bound by this process to any device
+    associated with the logical endpoint will be unbound. If this was the
+    last reference to the logical endpoint, all associated resources will
+    be destroyed.
+
+    Parameters
+    ----------
+    leId : :py:obj:`~.CUlogicalEndpointId`
+        Logical endpoint id of the logical endpoint to be destroyed.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`,
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+    """
+    cdef cydriver.CUlogicalEndpointId cyleId
+    if leId is None:
+        pleId = 0
+    elif isinstance(leId, (CUlogicalEndpointId,)):
+        pleId = int(leId)
+    else:
+        pleId = int(CUlogicalEndpointId(leId))
+    cyleId = <cydriver.CUlogicalEndpointId><void_ptr>pleId
+    with nogil:
+        err = cydriver.cuLogicalEndpointDestroy(cyleId)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuLogicalEndpointBindAddr(leId, dev, offset, ptr, size, unsigned long long flags):
+    """ Bind a memory allocation represented by a virtual address to a logical endpoint.
+
+    Binds the memory allocation specified by its mapped address `ptr` to a
+    logical endpoint represented by `leId` at the offset `offset`. The
+    memory must have been allocated via :py:obj:`~.cuMemCreate` or
+    :py:obj:`~.cudaMallocAsync`. The intended `size` of the bind, the
+    `offset` in the logical endpoint range and `ptr` must be multiples of
+    the value for `bindAlignment` as returned by
+    :py:obj:`~.cuLogicalEndpointGetLimits`.
+
+    The `size` cannot be larger than the size of the allocated memory.
+    Similarly the `size` + `offset` cannot be larger than the total size of
+    the logical endpoint.
+
+    For device memory, i.e., type :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
+    the memory allocation must have been created on the device specified by
+    `dev`. For host NUMA memory, i.e., type
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`, the memory allocation must
+    have been created on the CPU NUMA node closest to `dev`. That is, the
+    value returned when querying
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID` for `dev`, must be the CPU
+    NUMA node where the memory was allocated.
+
+    For multicast endpoints, the device named by `dev` must have been added
+    to the multicast team via :py:obj:`~.cuLogicalEndpointAddDevice`.
+
+    For unicast endpoints the device named by `dev` must be the owner
+    device specified during :py:obj:`~.cuLogicalEndpointCreate` via
+    :py:obj:`~.CUlogicalEndpointProp.unicast.device`.
+
+    Externally shareable as well as imported multicast endpoints can be
+    bound only to externally shareable memory. Imported unicast endpoints
+    cannot be bound to any memory.
+
+    This call will return :py:obj:`~.CUDA_ERROR_INVALID_VALUE` if
+    :py:obj:`~.cuLogicalEndpointQuery` has not been called for the logical
+    endpoint to ensure that the endpoint is ready for memory binding.
+
+    Note that this call will return :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY` if
+    there are insufficient resources required to perform the bind. This
+    call may also return :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY` if the
+    necessary system software is not initialized or running. This call may
+    return :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` if the system configuration
+    is in an illegal state. In such cases, to continue using logical
+    endpoints, verify that the system configuration is in a valid state and
+    all required driver daemons are running properly.
+
+    Parameters
+    ----------
+    leId : :py:obj:`~.CUlogicalEndpointId`
+        Logical endpoint to which memory will be associated.
+    dev : :py:obj:`~.CUdevice`
+        Device on which the memory will be bound to the logical endpoint
+    offset : Any
+        Offset into the logical endpoint space.
+    ptr : Any
+        Virtual address of the memory allocation.
+    size : Any
+        Size of memory that will be bound to the logical endpoint.
+    flags : unsigned long long
+        Flags for future use, must be zero for now.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+    """
+    cdef cydriver.cuuint64_t cysize
+    if size is None:
+        psize = 0
+    elif isinstance(size, (cuuint64_t,)):
+        psize = int(size)
+    else:
+        psize = int(cuuint64_t(size))
+    cysize = <cydriver.cuuint64_t><void_ptr>psize
+    cdef cydriver.cuuint64_t cyoffset
+    if offset is None:
+        poffset = 0
+    elif isinstance(offset, (cuuint64_t,)):
+        poffset = int(offset)
+    else:
+        poffset = int(cuuint64_t(offset))
+    cyoffset = <cydriver.cuuint64_t><void_ptr>poffset
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    cdef cydriver.CUlogicalEndpointId cyleId
+    if leId is None:
+        pleId = 0
+    elif isinstance(leId, (CUlogicalEndpointId,)):
+        pleId = int(leId)
+    else:
+        pleId = int(CUlogicalEndpointId(leId))
+    cyleId = <cydriver.CUlogicalEndpointId><void_ptr>pleId
+    cdef _HelperInputVoidPtrStruct cyptrHelper
+    cdef void* cyptr = _helper_input_void_ptr(ptr, &cyptrHelper)
+    with nogil:
+        err = cydriver.cuLogicalEndpointBindAddr(cyleId, cydev, cyoffset, cyptr, cysize, flags)
+    _helper_input_void_ptr_free(&cyptrHelper)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuLogicalEndpointBindMem(leId, dev, offset, memHandle, memOffset, size, unsigned long long flags):
+    """ Binds memory object represented by a handle to the logical endpoint.
+
+    Binds the memory allocation specified by `memHandle` to a logical
+    endpoint represented by `leId` at the offset `offset`. The memory must
+    have been allocated via :py:obj:`~.cuMemCreate`. The intended `size` of
+    the bind, the offset in the logical endpoint range `offset` and the
+    offset in the memory handle `memOffset` must be multiples of the value
+    for `bindAlignment` as returned by
+    :py:obj:`~.cuLogicalEndpointGetLimits`.
+
+    The `size` + `memOffset` cannot be larger than the size of the
+    allocated memory. Similarly the `size` + `offset` cannot be larger than
+    the total size of the logical endpoint.
+
+    For device memory, i.e., type :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
+    the memory allocation must have been created on the device specified by
+    `dev`. For host NUMA memory, i.e., type
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`, the memory allocation must
+    have been created on the CPU NUMA node closest to `dev`. That is, the
+    value returned when querying
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID` for `dev`, must be the CPU
+    NUMA node where the memory was allocated.
+
+    For multicast endpoints, the device named by `dev` must have been added
+    to the multicast team via :py:obj:`~.cuLogicalEndpointAddDevice`.
+
+    For unicast endpoints the device named by `dev` must be the owner
+    device specified during :py:obj:`~.cuLogicalEndpointCreate` via
+    :py:obj:`~.CUlogicalEndpointProp.unicast.device`.
+
+    Externally shareable as well as imported multicast endpoints can be
+    bound only to externally shareable memory. Imported unicast endpoints
+    cannot be bound to any memory.
+
+    This call will return :py:obj:`~.CUDA_ERROR_INVALID_VALUE` if
+    :py:obj:`~.cuLogicalEndpointQuery` has not been called for the logical
+    endpoint to ensure that the endpoint is ready for memory binding.
+
+    Note that this call will return :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY` if
+    there are insufficient resources required to perform the bind. This
+    call may also return :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY` if the
+    necessary system software is not initialized or running. This call may
+    return :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` if the system configuration
+    is in an illegal state. In such cases, to continue using logical
+    endpoints, verify that the system configuration is in a valid state and
+    all required driver daemons are running properly.
+
+    Parameters
+    ----------
+    leId : :py:obj:`~.CUlogicalEndpointId`
+        Logical endpoint to which memory will be associated.
+    dev : :py:obj:`~.CUdevice`
+        Device on which the memory will be bound to the logical endpoint
+    offset : Any
+        Offset into the logical endpoint space.
+    memHandle : :py:obj:`~.CUmemGenericAllocationHandle`
+        Handle representing a memory allocation.
+    memOffset : Any
+        Offset into the memory for the attachment
+    size : Any
+        Size of memory that will be bound to the logical endpoint.
+    flags : unsigned long long
+        Flags for future use, must be zero for now.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+    """
+    cdef cydriver.cuuint64_t cysize
+    if size is None:
+        psize = 0
+    elif isinstance(size, (cuuint64_t,)):
+        psize = int(size)
+    else:
+        psize = int(cuuint64_t(size))
+    cysize = <cydriver.cuuint64_t><void_ptr>psize
+    cdef cydriver.cuuint64_t cymemOffset
+    if memOffset is None:
+        pmemOffset = 0
+    elif isinstance(memOffset, (cuuint64_t,)):
+        pmemOffset = int(memOffset)
+    else:
+        pmemOffset = int(cuuint64_t(memOffset))
+    cymemOffset = <cydriver.cuuint64_t><void_ptr>pmemOffset
+    cdef cydriver.CUmemGenericAllocationHandle cymemHandle
+    if memHandle is None:
+        pmemHandle = 0
+    elif isinstance(memHandle, (CUmemGenericAllocationHandle,)):
+        pmemHandle = int(memHandle)
+    else:
+        pmemHandle = int(CUmemGenericAllocationHandle(memHandle))
+    cymemHandle = <cydriver.CUmemGenericAllocationHandle><void_ptr>pmemHandle
+    cdef cydriver.cuuint64_t cyoffset
+    if offset is None:
+        poffset = 0
+    elif isinstance(offset, (cuuint64_t,)):
+        poffset = int(offset)
+    else:
+        poffset = int(cuuint64_t(offset))
+    cyoffset = <cydriver.cuuint64_t><void_ptr>poffset
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    cdef cydriver.CUlogicalEndpointId cyleId
+    if leId is None:
+        pleId = 0
+    elif isinstance(leId, (CUlogicalEndpointId,)):
+        pleId = int(leId)
+    else:
+        pleId = int(CUlogicalEndpointId(leId))
+    cyleId = <cydriver.CUlogicalEndpointId><void_ptr>pleId
+    with nogil:
+        err = cydriver.cuLogicalEndpointBindMem(cyleId, cydev, cyoffset, cymemHandle, cymemOffset, cysize, flags)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuLogicalEndpointUnbind(leId, dev, offset, size):
+    """ Unbinds any binding at offset from the logical endpoint.
+
+    Unbinds any memory allocations bound to the logical endpoint on `dev`
+    at `offset` and up to the given `size`. The intended `size` of the
+    unbind and the offset in the logical endpoint range `offset` must be
+    multiples of the value for `bindAlignment` as returned by
+    :py:obj:`~.cuLogicalEndpointGetLimits`.
+
+    Parameters
+    ----------
+    leId : :py:obj:`~.CUlogicalEndpointId`
+        Logical endpoint id representing a logical endpoint.
+    dev : :py:obj:`~.CUdevice`
+        Device on which the memory is bound to the logical endpoint
+    offset : Any
+        Offset into the logical endpoint.
+    size : Any
+        Desired size to unbind.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+
+    Notes
+    -----
+    The `offset` must correspond to a value specified during a bind call. The `size` must either match the bind call of the offset or be the combined `size` of multiple bind calls. The `size` + `offset` must fully enclose all bindings that are covered.
+    """
+    cdef cydriver.cuuint64_t cysize
+    if size is None:
+        psize = 0
+    elif isinstance(size, (cuuint64_t,)):
+        psize = int(size)
+    else:
+        psize = int(cuuint64_t(size))
+    cysize = <cydriver.cuuint64_t><void_ptr>psize
+    cdef cydriver.cuuint64_t cyoffset
+    if offset is None:
+        poffset = 0
+    elif isinstance(offset, (cuuint64_t,)):
+        poffset = int(offset)
+    else:
+        poffset = int(cuuint64_t(offset))
+    cyoffset = <cydriver.cuuint64_t><void_ptr>poffset
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    cdef cydriver.CUlogicalEndpointId cyleId
+    if leId is None:
+        pleId = 0
+    elif isinstance(leId, (CUlogicalEndpointId,)):
+        pleId = int(leId)
+    else:
+        pleId = int(CUlogicalEndpointId(leId))
+    cyleId = <cydriver.CUlogicalEndpointId><void_ptr>pleId
+    with nogil:
+        err = cydriver.cuLogicalEndpointUnbind(cyleId, cydev, cyoffset, cysize)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuLogicalEndpointExport(leId, handleType not None : CUlogicalEndpointIpcHandleType):
+    """ Exports a logical endpoint associated with leId to an IPC handle.
+
+    Given a logical endpoint id `leId`, create a shareable handle `handle`
+    that can be used to share the logical endpoint with other processes.
+    The recipient process can convert the shareable handle back into a
+    logical endpoint id using :py:obj:`~.cuLogicalEndpointImport`. The
+    implementation of what this `handle` is and how it can be transfered is
+    defined by the requested handle type in `handletype`.
+
+    Parameters
+    ----------
+    leId : :py:obj:`~.CUlogicalEndpointId`
+        Logical endpoint id of logical endpoint.
+    handleType : :py:obj:`~.CUlogicalEndpointIpcHandleType`
+        Type of shareable handle requested. Defines type and size of the
+        handle output parameter.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`,
+    handle : Any
+        Pointer to the location in which to store the requested handle
+        type.
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+    """
+    cdef cydriver.CUlogicalEndpointId cyleId
+    if leId is None:
+        pleId = 0
+    elif isinstance(leId, (CUlogicalEndpointId,)):
+        pleId = int(leId)
+    else:
+        pleId = int(CUlogicalEndpointId(leId))
+    cyleId = <cydriver.CUlogicalEndpointId><void_ptr>pleId
+    cdef CUlogicalEndpointFabricHandle handle = CUlogicalEndpointFabricHandle()
+    cdef cydriver.CUlogicalEndpointIpcHandleType cyhandleType = int(handleType)
+    with nogil:
+        err = cydriver.cuLogicalEndpointExport(<void*><cydriver.CUlogicalEndpointFabricHandle*>handle._pvt_ptr, cyleId, cyhandleType)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, handle)
+
+@cython.embedsignature(True)
+def cuLogicalEndpointImport(leId, handle, handleType not None : CUlogicalEndpointIpcHandleType):
+    """ Imports a logical endpoint from the given IPC handle and associates it with a logical endpoint id.
+
+    Imports a logical endpoint from the given IPC `handle` and associates
+    it with the logical endpoint id specified by `leId`.
+
+    If the current process cannot support the logical endpoint described by
+    the shareable handle, this API will error as
+    :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`. If `handle` is of type
+    :py:obj:`~.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC` and the importer
+    process does not have access permissions, then
+    :py:obj:`~.CUDA_ERROR_NOT_PERMITTED` will be returned
+
+    Parameters
+    ----------
+    leId : :py:obj:`~.CUlogicalEndpointId`
+        Logical endpoint id that will be used to access the exported
+        logical endpoint.
+    handle : Any
+        Shareable handle representing the logical endpoint that is to be
+        imported.
+    handleType : :py:obj:`~.CUlogicalEndpointIpcHandleType`
+        Handle type of the exported handle
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`,
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointGetLimits`, :py:obj:`~.cuLogicalEndpointQuery`
+    """
+    cdef cydriver.CUlogicalEndpointId cyleId
+    if leId is None:
+        pleId = 0
+    elif isinstance(leId, (CUlogicalEndpointId,)):
+        pleId = int(leId)
+    else:
+        pleId = int(CUlogicalEndpointId(leId))
+    cyleId = <cydriver.CUlogicalEndpointId><void_ptr>pleId
+    cdef _HelperInputVoidPtrStruct cyhandleHelper
+    cdef void* cyhandle = _helper_input_void_ptr(handle, &cyhandleHelper)
+    cdef cydriver.CUlogicalEndpointIpcHandleType cyhandleType = int(handleType)
+    with nogil:
+        err = cydriver.cuLogicalEndpointImport(cyleId, cyhandle, cyhandleType)
+    _helper_input_void_ptr_free(&cyhandleHelper)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuLogicalEndpointGetLimits(prop : Optional[CUlogicalEndpointProp]):
+    """ Calculates the minimum alignment and the maximum size for the given logical endpoint properties.
+
+    The `bindAlignment` can be used as a multiple for size and bind offset
+    values. The `maxSize` is the maximum size of the logical endpoint. If
+    `maxSize` is less than :py:obj:`~.CUlogicalEndpointProp`:size the user
+    must adjust the request to the smaller value.
+
+    Parameters
+    ----------
+    prop : :py:obj:`~.CUlogicalEndpointProp`
+        Properties of the logical endpoint.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+    bindAlignment : :py:obj:`~.cuuint64_t`
+        Minimum alignment granularity of the proposed logical endpoint.
+    maxSize : :py:obj:`~.cuuint64_t`
+        Maximum size of the logical endpoint.
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointQuery`
+    """
+    cdef cuuint64_t bindAlignment = cuuint64_t()
+    cdef cuuint64_t maxSize = cuuint64_t()
+    cdef cydriver.CUlogicalEndpointProp* cyprop_ptr = <cydriver.CUlogicalEndpointProp*>prop._pvt_ptr if prop is not None else NULL
+    with nogil:
+        err = cydriver.cuLogicalEndpointGetLimits(<cydriver.cuuint64_t*>bindAlignment._pvt_ptr, <cydriver.cuuint64_t*>maxSize._pvt_ptr, cyprop_ptr)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None, None)
+    return (_CUresult_SUCCESS, bindAlignment, maxSize)
+
+@cython.embedsignature(True)
+def cuLogicalEndpointQuery(leId, count):
+    """ Determines if all logical endpoints in the range have been successfully constructed.
+
+    Queries the driver to determine if all logical endpoints in the given
+    range starting at `leId` and extending for `count` have been
+    successfully constructed.
+
+    Provides a mechanism to ensure that it is safe to begin using a logical
+    endpoint ID. Using a logical endpoint ID before verifying that it is
+    fully constructed can result in undefined behavior.
+
+    This is not a blocking API, it returns immediately with a `queryStatus`
+    of 0 if any logical endpoint ID in the given range is not fully
+    constructed, and a non-zero value otherwise.
+
+    Parameters
+    ----------
+    leId : :py:obj:`~.CUlogicalEndpointId`
+        First logical endpoint ID to be queried.
+    count : Any
+        Number of logical endpoints IDs to be queried.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+    queryStatus : int
+        Status of the logical endpoints. Returns 0 if any logical endpoint
+        in the given range is not fully constructed, and non-zero if all
+        logical endpoints in the given range are fully constructed.
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointIdReserve`, :py:obj:`~.cuLogicalEndpointIdRelease`, :py:obj:`~.cuLogicalEndpointAddDevice`, :py:obj:`~.cuLogicalEndpointDestroy`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`, :py:obj:`~.cuLogicalEndpointUnbind`, :py:obj:`~.cuLogicalEndpointExport`, :py:obj:`~.cuLogicalEndpointImport`, :py:obj:`~.cuLogicalEndpointGetLimits`
+    """
+    cdef cydriver.cuuint32_t cycount
+    if count is None:
+        pcount = 0
+    elif isinstance(count, (cuuint32_t,)):
+        pcount = int(count)
+    else:
+        pcount = int(cuuint32_t(count))
+    cycount = <cydriver.cuuint32_t><void_ptr>pcount
+    cdef cydriver.CUlogicalEndpointId cyleId
+    if leId is None:
+        pleId = 0
+    elif isinstance(leId, (CUlogicalEndpointId,)):
+        pleId = int(leId)
+    else:
+        pleId = int(CUlogicalEndpointId(leId))
+    cyleId = <cydriver.CUlogicalEndpointId><void_ptr>pleId
+    cdef int queryStatus = 0
+    with nogil:
+        err = cydriver.cuLogicalEndpointQuery(cyleId, cycount, &queryStatus)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, queryStatus)
+
+@cython.embedsignature(True)
 def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
     """ Returns information about a pointer.
 
@@ -39259,6 +40002,92 @@ def cuStreamBeginCapture(hStream, mode not None : CUstreamCaptureMode):
     cdef cydriver.CUstreamCaptureMode cymode = int(mode)
     with nogil:
         err = cydriver.cuStreamBeginCapture(cyhStream, cymode)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuStreamBeginRecaptureToGraph(hStream, mode not None : CUstreamCaptureMode, hGraph, callbackFunc, userData):
+    """ Begin graph capture on a stream to an existing graph.
+
+    Begin graph capture on `hStream` to the existing `hGraph`. The node
+    creation order while recapturing the graph must be identical to the
+    original graph. The recapture will fail immediately for:
+
+    - Topology mismatches between the existing graph and the recaptured
+      graph
+
+    - Parameter mismatches for memory allocation or free nodes
+
+    Any other node parameter mismatches during recapture can be configured
+    to call the function provided in `callbackFunc`. The recapture will
+    fail immediately if the callback returns anything other than
+    CUDA_SUCCESS.
+
+    If the recapture fails for any reason, the `graph` will be in an
+    undefined state and should be destroyed.
+
+    See cuStreamBeginCapture for additional detail on beginning the
+    capture.
+
+    Parameters
+    ----------
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Stream in which to initiate capture
+    mode : :py:obj:`~.CUstreamCaptureMode`
+        Controls the interaction of this capture sequence with other API
+        calls that are potentially unsafe. For more details see
+        :py:obj:`~.cuThreadExchangeStreamCaptureMode`.
+    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Existing CUDA graph to be captured into
+    callbackFunc : :py:obj:`~.CUgraphRecaptureCallback`
+        Function that will be called for all parameter mismatches from the
+        original graph
+    userData : Any
+        A generic pointer to user data that is passed into the callback
+        function
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`,
+
+    See Also
+    --------
+    :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuStreamBeginCapture`, :py:obj:`~.cuStreamIsCapturing`, :py:obj:`~.cuStreamEndCapture`, :py:obj:`~.cuThreadExchangeStreamCaptureMode`
+
+    Notes
+    -----
+    Any user objects associated with `graph` will be released prior to the recapture.
+    """
+    cdef cydriver.CUgraphRecaptureCallback cycallbackFunc
+    if callbackFunc is None:
+        pcallbackFunc = 0
+    elif isinstance(callbackFunc, (CUgraphRecaptureCallback,)):
+        pcallbackFunc = int(callbackFunc)
+    else:
+        pcallbackFunc = int(CUgraphRecaptureCallback(callbackFunc))
+    cycallbackFunc = <cydriver.CUgraphRecaptureCallback><void_ptr>pcallbackFunc
+    cdef cydriver.CUgraph cyhGraph
+    if hGraph is None:
+        phGraph = 0
+    elif isinstance(hGraph, (CUgraph,)):
+        phGraph = int(hGraph)
+    else:
+        phGraph = int(CUgraph(hGraph))
+    cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
+    cdef cydriver.CUstream cyhStream
+    if hStream is None:
+        phStream = 0
+    elif isinstance(hStream, (CUstream,)):
+        phStream = int(hStream)
+    else:
+        phStream = int(CUstream(hStream))
+    cyhStream = <cydriver.CUstream><void_ptr>phStream
+    cdef cydriver.CUstreamCaptureMode cymode = int(mode)
+    cdef _HelperInputVoidPtrStruct cyuserDataHelper
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
+    with nogil:
+        err = cydriver.cuStreamBeginRecaptureToGraph(cyhStream, cymode, cyhGraph, cycallbackFunc, cyuserData)
+    _helper_input_void_ptr_free(&cyuserDataHelper)
     return (_CUresult(err),)
 
 @cython.embedsignature(True)

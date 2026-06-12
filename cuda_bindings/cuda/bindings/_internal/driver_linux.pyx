@@ -561,6 +561,19 @@ cdef void* __cuCoredumpRegisterStartCallback = NULL
 cdef void* __cuCoredumpRegisterCompleteCallback = NULL
 cdef void* __cuCoredumpDeregisterStartCallback = NULL
 cdef void* __cuCoredumpDeregisterCompleteCallback = NULL
+cdef void* __cuLogicalEndpointIdReserve = NULL
+cdef void* __cuLogicalEndpointIdRelease = NULL
+cdef void* __cuLogicalEndpointCreate = NULL
+cdef void* __cuLogicalEndpointAddDevice = NULL
+cdef void* __cuLogicalEndpointDestroy = NULL
+cdef void* __cuLogicalEndpointBindAddr = NULL
+cdef void* __cuLogicalEndpointBindMem = NULL
+cdef void* __cuLogicalEndpointUnbind = NULL
+cdef void* __cuLogicalEndpointExport = NULL
+cdef void* __cuLogicalEndpointImport = NULL
+cdef void* __cuLogicalEndpointGetLimits = NULL
+cdef void* __cuLogicalEndpointQuery = NULL
+cdef void* __cuStreamBeginRecaptureToGraph = NULL
 
 
 
@@ -2104,6 +2117,45 @@ cdef int _init_driver() except -1 nogil:
         global __cuCoredumpDeregisterCompleteCallback
         _F_cuGetProcAddress_v2('cuCoredumpDeregisterCompleteCallback', <void **>&__cuCoredumpDeregisterCompleteCallback, 13020, ptds_mode, NULL)
 
+        global __cuLogicalEndpointIdReserve
+        _F_cuGetProcAddress_v2('cuLogicalEndpointIdReserve', <void **>&__cuLogicalEndpointIdReserve, 13030, ptds_mode, NULL)
+
+        global __cuLogicalEndpointIdRelease
+        _F_cuGetProcAddress_v2('cuLogicalEndpointIdRelease', <void **>&__cuLogicalEndpointIdRelease, 13030, ptds_mode, NULL)
+
+        global __cuLogicalEndpointCreate
+        _F_cuGetProcAddress_v2('cuLogicalEndpointCreate', <void **>&__cuLogicalEndpointCreate, 13030, ptds_mode, NULL)
+
+        global __cuLogicalEndpointAddDevice
+        _F_cuGetProcAddress_v2('cuLogicalEndpointAddDevice', <void **>&__cuLogicalEndpointAddDevice, 13030, ptds_mode, NULL)
+
+        global __cuLogicalEndpointDestroy
+        _F_cuGetProcAddress_v2('cuLogicalEndpointDestroy', <void **>&__cuLogicalEndpointDestroy, 13030, ptds_mode, NULL)
+
+        global __cuLogicalEndpointBindAddr
+        _F_cuGetProcAddress_v2('cuLogicalEndpointBindAddr', <void **>&__cuLogicalEndpointBindAddr, 13030, ptds_mode, NULL)
+
+        global __cuLogicalEndpointBindMem
+        _F_cuGetProcAddress_v2('cuLogicalEndpointBindMem', <void **>&__cuLogicalEndpointBindMem, 13030, ptds_mode, NULL)
+
+        global __cuLogicalEndpointUnbind
+        _F_cuGetProcAddress_v2('cuLogicalEndpointUnbind', <void **>&__cuLogicalEndpointUnbind, 13030, ptds_mode, NULL)
+
+        global __cuLogicalEndpointExport
+        _F_cuGetProcAddress_v2('cuLogicalEndpointExport', <void **>&__cuLogicalEndpointExport, 13030, ptds_mode, NULL)
+
+        global __cuLogicalEndpointImport
+        _F_cuGetProcAddress_v2('cuLogicalEndpointImport', <void **>&__cuLogicalEndpointImport, 13030, ptds_mode, NULL)
+
+        global __cuLogicalEndpointGetLimits
+        _F_cuGetProcAddress_v2('cuLogicalEndpointGetLimits', <void **>&__cuLogicalEndpointGetLimits, 13030, ptds_mode, NULL)
+
+        global __cuLogicalEndpointQuery
+        _F_cuGetProcAddress_v2('cuLogicalEndpointQuery', <void **>&__cuLogicalEndpointQuery, 13030, ptds_mode, NULL)
+
+        global __cuStreamBeginRecaptureToGraph
+        _F_cuGetProcAddress_v2('cuStreamBeginRecaptureToGraph', <void **>&__cuStreamBeginRecaptureToGraph, 13030, ptds_mode, NULL)
+
         __py_driver_init = True
         return 0
 
@@ -3627,6 +3679,45 @@ cpdef dict _inspect_function_pointers():
 
     global __cuCoredumpDeregisterCompleteCallback
     data["__cuCoredumpDeregisterCompleteCallback"] = <intptr_t>__cuCoredumpDeregisterCompleteCallback
+
+    global __cuLogicalEndpointIdReserve
+    data["__cuLogicalEndpointIdReserve"] = <intptr_t>__cuLogicalEndpointIdReserve
+
+    global __cuLogicalEndpointIdRelease
+    data["__cuLogicalEndpointIdRelease"] = <intptr_t>__cuLogicalEndpointIdRelease
+
+    global __cuLogicalEndpointCreate
+    data["__cuLogicalEndpointCreate"] = <intptr_t>__cuLogicalEndpointCreate
+
+    global __cuLogicalEndpointAddDevice
+    data["__cuLogicalEndpointAddDevice"] = <intptr_t>__cuLogicalEndpointAddDevice
+
+    global __cuLogicalEndpointDestroy
+    data["__cuLogicalEndpointDestroy"] = <intptr_t>__cuLogicalEndpointDestroy
+
+    global __cuLogicalEndpointBindAddr
+    data["__cuLogicalEndpointBindAddr"] = <intptr_t>__cuLogicalEndpointBindAddr
+
+    global __cuLogicalEndpointBindMem
+    data["__cuLogicalEndpointBindMem"] = <intptr_t>__cuLogicalEndpointBindMem
+
+    global __cuLogicalEndpointUnbind
+    data["__cuLogicalEndpointUnbind"] = <intptr_t>__cuLogicalEndpointUnbind
+
+    global __cuLogicalEndpointExport
+    data["__cuLogicalEndpointExport"] = <intptr_t>__cuLogicalEndpointExport
+
+    global __cuLogicalEndpointImport
+    data["__cuLogicalEndpointImport"] = <intptr_t>__cuLogicalEndpointImport
+
+    global __cuLogicalEndpointGetLimits
+    data["__cuLogicalEndpointGetLimits"] = <intptr_t>__cuLogicalEndpointGetLimits
+
+    global __cuLogicalEndpointQuery
+    data["__cuLogicalEndpointQuery"] = <intptr_t>__cuLogicalEndpointQuery
+
+    global __cuStreamBeginRecaptureToGraph
+    data["__cuStreamBeginRecaptureToGraph"] = <intptr_t>__cuStreamBeginRecaptureToGraph
 
     func_ptrs = data
     return data
@@ -8651,3 +8742,133 @@ cdef CUresult _cuCoredumpDeregisterCompleteCallback(CUcoredumpCallbackHandle cal
             raise FunctionNotFoundError("function cuCoredumpDeregisterCompleteCallback is not found")
     return (<CUresult (*)(CUcoredumpCallbackHandle) noexcept nogil>__cuCoredumpDeregisterCompleteCallback)(
         callback)
+
+
+cdef CUresult _cuLogicalEndpointIdReserve(CUlogicalEndpointId* baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointIdReserve
+    _check_or_init_driver()
+    if __cuLogicalEndpointIdReserve == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointIdReserve is not found")
+    return (<CUresult (*)(CUlogicalEndpointId*, cuuint32_t) noexcept nogil>__cuLogicalEndpointIdReserve)(
+        baseLeId, count)
+
+
+cdef CUresult _cuLogicalEndpointIdRelease(CUlogicalEndpointId baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointIdRelease
+    _check_or_init_driver()
+    if __cuLogicalEndpointIdRelease == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointIdRelease is not found")
+    return (<CUresult (*)(CUlogicalEndpointId, cuuint32_t) noexcept nogil>__cuLogicalEndpointIdRelease)(
+        baseLeId, count)
+
+
+cdef CUresult _cuLogicalEndpointCreate(CUlogicalEndpointId leId, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointCreate
+    _check_or_init_driver()
+    if __cuLogicalEndpointCreate == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointCreate is not found")
+    return (<CUresult (*)(CUlogicalEndpointId, const CUlogicalEndpointProp*) noexcept nogil>__cuLogicalEndpointCreate)(
+        leId, prop)
+
+
+cdef CUresult _cuLogicalEndpointAddDevice(CUlogicalEndpointId leId, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointAddDevice
+    _check_or_init_driver()
+    if __cuLogicalEndpointAddDevice == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointAddDevice is not found")
+    return (<CUresult (*)(CUlogicalEndpointId, CUdevice) noexcept nogil>__cuLogicalEndpointAddDevice)(
+        leId, dev)
+
+
+cdef CUresult _cuLogicalEndpointDestroy(CUlogicalEndpointId leId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointDestroy
+    _check_or_init_driver()
+    if __cuLogicalEndpointDestroy == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointDestroy is not found")
+    return (<CUresult (*)(CUlogicalEndpointId) noexcept nogil>__cuLogicalEndpointDestroy)(
+        leId)
+
+
+cdef CUresult _cuLogicalEndpointBindAddr(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, void* ptr, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointBindAddr
+    _check_or_init_driver()
+    if __cuLogicalEndpointBindAddr == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointBindAddr is not found")
+    return (<CUresult (*)(CUlogicalEndpointId, CUdevice, cuuint64_t, void*, cuuint64_t, unsigned long long) noexcept nogil>__cuLogicalEndpointBindAddr)(
+        leId, dev, offset, ptr, size, flags)
+
+
+cdef CUresult _cuLogicalEndpointBindMem(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, CUmemGenericAllocationHandle memHandle, cuuint64_t memOffset, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointBindMem
+    _check_or_init_driver()
+    if __cuLogicalEndpointBindMem == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointBindMem is not found")
+    return (<CUresult (*)(CUlogicalEndpointId, CUdevice, cuuint64_t, CUmemGenericAllocationHandle, cuuint64_t, cuuint64_t, unsigned long long) noexcept nogil>__cuLogicalEndpointBindMem)(
+        leId, dev, offset, memHandle, memOffset, size, flags)
+
+
+cdef CUresult _cuLogicalEndpointUnbind(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, cuuint64_t size) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointUnbind
+    _check_or_init_driver()
+    if __cuLogicalEndpointUnbind == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointUnbind is not found")
+    return (<CUresult (*)(CUlogicalEndpointId, CUdevice, cuuint64_t, cuuint64_t) noexcept nogil>__cuLogicalEndpointUnbind)(
+        leId, dev, offset, size)
+
+
+cdef CUresult _cuLogicalEndpointExport(void* handle, CUlogicalEndpointId leId, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointExport
+    _check_or_init_driver()
+    if __cuLogicalEndpointExport == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointExport is not found")
+    return (<CUresult (*)(void*, CUlogicalEndpointId, CUlogicalEndpointIpcHandleType) noexcept nogil>__cuLogicalEndpointExport)(
+        handle, leId, handleType)
+
+
+cdef CUresult _cuLogicalEndpointImport(CUlogicalEndpointId leId, const void* handle, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointImport
+    _check_or_init_driver()
+    if __cuLogicalEndpointImport == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointImport is not found")
+    return (<CUresult (*)(CUlogicalEndpointId, const void*, CUlogicalEndpointIpcHandleType) noexcept nogil>__cuLogicalEndpointImport)(
+        leId, handle, handleType)
+
+
+cdef CUresult _cuLogicalEndpointGetLimits(cuuint64_t* bindAlignment, cuuint64_t* maxSize, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointGetLimits
+    _check_or_init_driver()
+    if __cuLogicalEndpointGetLimits == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointGetLimits is not found")
+    return (<CUresult (*)(cuuint64_t*, cuuint64_t*, const CUlogicalEndpointProp*) noexcept nogil>__cuLogicalEndpointGetLimits)(
+        bindAlignment, maxSize, prop)
+
+
+cdef CUresult _cuLogicalEndpointQuery(CUlogicalEndpointId leId, cuuint32_t count, int* queryStatus) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogicalEndpointQuery
+    _check_or_init_driver()
+    if __cuLogicalEndpointQuery == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuLogicalEndpointQuery is not found")
+    return (<CUresult (*)(CUlogicalEndpointId, cuuint32_t, int*) noexcept nogil>__cuLogicalEndpointQuery)(
+        leId, count, queryStatus)
+
+
+cdef CUresult _cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMode mode, CUgraph hGraph, CUgraphRecaptureCallback callbackFunc, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuStreamBeginRecaptureToGraph
+    _check_or_init_driver()
+    if __cuStreamBeginRecaptureToGraph == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuStreamBeginRecaptureToGraph is not found")
+    return (<CUresult (*)(CUstream, CUstreamCaptureMode, CUgraph, CUgraphRecaptureCallback, void*) noexcept nogil>__cuStreamBeginRecaptureToGraph)(
+        hStream, mode, hGraph, callbackFunc, userData)
