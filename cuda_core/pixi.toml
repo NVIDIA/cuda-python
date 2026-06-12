@@ -24,6 +24,18 @@ cloudpickle = "*"
 psutil = "*"
 pyglet = "*"
 
+# MLIR-based numba-cuda backend used by examples/gl_interop_fluid_numba_cuda_mlir.py.
+# It tracks
+# the current cuda.bindings / cuda.core API, whereas classic `numba-cuda` lags
+# the editable dev tip (e.g. cuda.core.GraphBuilder relocation, property-style
+# kernel attributes). Linux-only: upstream ships manylinux wheels (cp311-cp314,
+# x86_64 + aarch64) and no win-64 wheel, so it is gated to the linux targets.
+[feature.test.target.linux-64.pypi-dependencies]
+numba-cuda-mlir = "*"
+
+[feature.test.target.linux-aarch64.pypi-dependencies]
+numba-cuda-mlir = "*"
+
 [feature.examples.dependencies]
 cuda-core = { path = "." }
 cffi = "*"
