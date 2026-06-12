@@ -10,19 +10,12 @@ from libc.string cimport memcpy as c_memcpy
 
 from cuda.bindings cimport cydriver
 
+from cuda.core._resource_handles cimport py_object_user_object_destroy
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-
-
-cdef extern from "Python.h":
-    void _py_decref "Py_DECREF" (void*)
 
 
 cdef void _py_host_trampoline(void* data) noexcept with gil:
     (<object>data)()
-
-
-cdef void _py_host_destructor(void* data) noexcept with gil:
-    _py_decref(data)
 
 
 cdef bint _is_py_host_trampoline(cydriver.CUhostFn fn) noexcept nogil:
@@ -73,7 +66,7 @@ cdef void _attach_host_callback_to_graph(
         fn_pyobj = <void*>fn
         _attach_user_object(
             graph, fn_pyobj,
-            <cydriver.CUhostFn>_py_host_destructor)
+            <cydriver.CUhostFn>py_object_user_object_destroy)
         out_fn[0] = <cydriver.CUhostFn><uintptr_t>ct.cast(
             fn, ct.c_void_p).value
 
@@ -103,4 +96,4 @@ cdef void _attach_host_callback_to_graph(
         out_user_data[0] = fn_pyobj
         _attach_user_object(
             graph, fn_pyobj,
-            <cydriver.CUhostFn>_py_host_destructor)
+            <cydriver.CUhostFn>py_object_user_object_destroy)
