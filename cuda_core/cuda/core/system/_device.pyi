@@ -787,11 +787,16 @@ class MigInfo:
             A list of all MIG devices corresponding to this GPU.
         """
 
-class NvlinkInfo:
+class _NvlinkInfoMeta(type):
+
+    @property
+    def max_links(cls):
+        ...
+
+class _NvlinkInfo:
     """
     Nvlink information for a device.
     """
-    max_links = nvml.NVLINK_MAX_LINKS
 
     def __init__(self, device: Device, link: int):
         ...
@@ -823,6 +828,9 @@ class NvlinkInfo:
         bool
             `True` if the Nvlink is active.
         """
+
+class NvlinkInfo(_NvlinkInfo, metaclass=_NvlinkInfoMeta):
+    ...
 
 class PciInfo:
     """
