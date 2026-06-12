@@ -10,13 +10,15 @@ from cuda.bindings cimport cydriver
 cdef class LaunchConfig:
     """Customizable launch options."""
     cdef:
-        public tuple grid
-        public tuple cluster
-        public tuple block
-        public int shmem_size
-        public bint is_cooperative
+        readonly tuple grid
+        readonly tuple cluster
+        readonly tuple block
+        readonly int shmem_size
+        readonly bint is_cooperative
 
         vector[cydriver.CUlaunchAttribute] _attrs
+        cydriver.CUlaunchConfig _cached_drv_cfg
+        readonly bint _cache_valid
         object __weakref__
 
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self)
