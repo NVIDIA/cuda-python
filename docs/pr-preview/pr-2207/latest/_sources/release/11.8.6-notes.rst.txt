@@ -1,0 +1,20 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+CUDA Python 11.8.6 Release notes
+================================
+
+Released on January 24, 2025.
+
+Included components
+-------------------
+
+* `cuda.bindings 11.8.6 <https://nvidia.github.io/cuda-python/cuda-bindings/12.8.0/release/11.8.6-notes.html>`_
+
+Highlights
+----------
+
+- Support Python 3.13
+- Add optional dependencies on the CUDA NVRTC wheel
+- Enable discovery and loading of shared libraries from CUDA wheels
+- ``cuda-python`` is now a meta package, currently depending only on ``cuda-bindings`` (`see RFC <https://github.com/NVIDIA/cuda-python/issues/105>`_)
