@@ -18,7 +18,13 @@ if _NVLINK_VERSION_6_0 is not None:
     _NVLINK_VERSION_MAPPING[_NVLINK_VERSION_6_0] = (6, 0)
 
 
-cdef class NvlinkInfo:
+cdef class _NvlinkInfoMeta(type):
+    @property
+    def max_links(cls):
+        return nvml.NVLINK_MAX_LINKS
+
+
+cdef class _NvlinkInfo:
     """
     Nvlink information for a device.
     """
@@ -67,4 +73,6 @@ cdef class NvlinkInfo:
             nvml.device_get_nvlink_state(self._device._handle, self._link) == nvml.EnableState.FEATURE_ENABLED
         )
 
-    max_links = nvml.NVLINK_MAX_LINKS
+
+class NvlinkInfo(_NvlinkInfo, metaclass=_NvlinkInfoMeta):
+    pass
