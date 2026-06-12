@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1622+g48467ab08.d20260421. Do not modify it directly.
 
 from ._internal cimport driver as _driver
 
@@ -2008,3 +2008,55 @@ cdef CUresult cuCoredumpDeregisterStartCallback(CUcoredumpCallbackHandle callbac
 
 cdef CUresult cuCoredumpDeregisterCompleteCallback(CUcoredumpCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
     return _driver._cuCoredumpDeregisterCompleteCallback(callback)
+
+
+cdef CUresult cuLogicalEndpointIdReserve(CUlogicalEndpointId* baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointIdReserve(baseLeId, count)
+
+
+cdef CUresult cuLogicalEndpointIdRelease(CUlogicalEndpointId baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointIdRelease(baseLeId, count)
+
+
+cdef CUresult cuLogicalEndpointCreate(CUlogicalEndpointId leId, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointCreate(leId, prop)
+
+
+cdef CUresult cuLogicalEndpointAddDevice(CUlogicalEndpointId leId, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointAddDevice(leId, dev)
+
+
+cdef CUresult cuLogicalEndpointDestroy(CUlogicalEndpointId leId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointDestroy(leId)
+
+
+cdef CUresult cuLogicalEndpointBindAddr(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, void* ptr, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointBindAddr(leId, dev, offset, ptr, size, flags)
+
+
+cdef CUresult cuLogicalEndpointBindMem(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, CUmemGenericAllocationHandle memHandle, cuuint64_t memOffset, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointBindMem(leId, dev, offset, memHandle, memOffset, size, flags)
+
+
+cdef CUresult cuLogicalEndpointUnbind(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, cuuint64_t size) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointUnbind(leId, dev, offset, size)
+
+
+cdef CUresult cuLogicalEndpointExport(void* handle, CUlogicalEndpointId leId, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointExport(handle, leId, handleType)
+
+
+cdef CUresult cuLogicalEndpointImport(CUlogicalEndpointId leId, const void* handle, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointImport(leId, handle, handleType)
+
+
+cdef CUresult cuLogicalEndpointGetLimits(cuuint64_t* bindAlignment, cuuint64_t* maxSize, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointGetLimits(bindAlignment, maxSize, prop)
+
+
+cdef CUresult cuLogicalEndpointQuery(CUlogicalEndpointId leId, cuuint32_t count, int* queryStatus) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuLogicalEndpointQuery(leId, count, queryStatus)
+
+
+cdef CUresult cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMode mode, CUgraph hGraph, CUgraphRecaptureCallback callbackFunc, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuStreamBeginRecaptureToGraph(hStream, mode, hGraph, callbackFunc, userData)
