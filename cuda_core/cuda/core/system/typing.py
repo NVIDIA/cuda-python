@@ -96,6 +96,8 @@ class ClocksEventReasons(StrEnum):
     HW_THERMAL_SLOWDOWN = "hw_thermal_slowdown"
     HW_POWER_BRAKE_SLOWDOWN = "hw_power_brake_slowdown"
     DISPLAY_CLOCK_SETTING = "display_clock_setting"
+    BOARD_LIMIT = "board_limit"
+    RELIABILITY = "reliability"
 
 
 class ClockType(StrEnum):

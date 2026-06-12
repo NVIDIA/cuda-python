@@ -20,6 +20,8 @@ _CLOCKS_EVENT_REASONS_MAPPING = {
     nvml.ClocksEventReasons.THROTTLE_REASON_HW_THERMAL_SLOWDOWN: ClocksEventReasons.HW_THERMAL_SLOWDOWN,
     nvml.ClocksEventReasons.THROTTLE_REASON_HW_POWER_BRAKE_SLOWDOWN: ClocksEventReasons.HW_POWER_BRAKE_SLOWDOWN,
     nvml.ClocksEventReasons.EVENT_REASON_DISPLAY_CLOCK_SETTING: ClocksEventReasons.DISPLAY_CLOCK_SETTING,
+    nvml.ClocksEventReasons.EVENT_REASON_BOARD_LIMIT: ClocksEventReasons.BOARD_LIMIT,
+    nvml.ClocksEventReasons.EVENT_REASON_RELIABILITY: ClocksEventReasons.RELIABILITY,
 }
 
 
