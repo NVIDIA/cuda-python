@@ -1982,6 +1982,18 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUlogicalEndpointId"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointId</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUlogicalEndpointFabricHandle"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointFabricHandle</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUlogicalEndpointProp"><code class="docutils literal notranslate"><span class="pre">CUlogicalEndpointProp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointIdReserve"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointIdReserve()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointIdRelease"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointIdRelease()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointCreate"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointCreate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointAddDevice"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointAddDevice()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointDestroy"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointDestroy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointBindAddr"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointBindAddr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointBindMem"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointBindMem()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointUnbind"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointUnbind()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointExport"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointExport()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointImport"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointImport()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointGetLimits"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointGetLimits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointQuery"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointQuery()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/driver.html#unified-addressing">Unified Addressing</a><ul>
@@ -2013,6 +2025,7 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuStreamWaitEvent"><code class="docutils literal notranslate"><span class="pre">cuStreamWaitEvent()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuStreamAddCallback"><code class="docutils literal notranslate"><span class="pre">cuStreamAddCallback()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuStreamBeginCapture"><code class="docutils literal notranslate"><span class="pre">cuStreamBeginCapture()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuStreamBeginRecaptureToGraph"><code class="docutils literal notranslate"><span class="pre">cuStreamBeginRecaptureToGraph()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuStreamBeginCaptureToGraph"><code class="docutils literal notranslate"><span class="pre">cuStreamBeginCaptureToGraph()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuThreadExchangeStreamCaptureMode"><code class="docutils literal notranslate"><span class="pre">cuThreadExchangeStreamCaptureMode()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuStreamEndCapture"><code class="docutils literal notranslate"><span class="pre">cuStreamEndCapture()</span></code></a></li>
@@ -2251,10 +2264,10 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUdevResourceType"><code class="docutils literal notranslate"><span class="pre">CUdevResourceType</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigScope"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueConfigScope</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUdevResourceDesc"><code class="docutils literal notranslate"><span class="pre">CUdevResourceDesc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#id87"><code class="docutils literal notranslate"><span class="pre">CUdevSmResource</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#id90"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueConfigResource</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#id93"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#id96"><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#id89"><code class="docutils literal notranslate"><span class="pre">CUdevSmResource</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#id92"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueConfigResource</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#id95"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#id98"><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGreenCtxCreate"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxCreate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGreenCtxDestroy"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxDestroy()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuCtxFromGreenCtx"><code class="docutils literal notranslate"><span class="pre">cuCtxFromGreenCtx()</span></code></a></li>
