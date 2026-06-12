@@ -10,7 +10,7 @@ preview = ["pixi-build"]
 [workspace.build-variants]
 python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 # Keep source-package metadata aligned with the consuming environment's CUDA major.
-cuda-version = ["12.*", "13.2.*"]
+cuda-version = ["12.*", "13.3.*"]
 
 [feature.test.dependencies]
 cuda-core = { path = "." }
@@ -86,7 +86,7 @@ CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
 CUDA_HOME = "$CONDA_PREFIX/Library"
 
 [feature.cu13.dependencies]
-cuda-version = "13.2.*"
+cuda-version = "13.3.*"
 
 [feature.cu12.dependencies]
 cuda-version = "12.*"

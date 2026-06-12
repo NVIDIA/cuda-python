@@ -18,9 +18,19 @@ from cuda.core._utils.cuda_utils cimport (
 from cuda.core._module import Kernel
 from cuda.core._stream import Stream
 from math import prod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cuda.core.graph import GraphBuilder
+    from cuda.core.typing import IsStreamType
 
 
-def launch(stream: Stream | GraphBuilder | IsStreamType, config: LaunchConfig, kernel: Kernel, *kernel_args):
+def launch(
+    stream: Stream | GraphBuilder | IsStreamType,
+    config: LaunchConfig,
+    kernel: Kernel,
+    *kernel_args
+) -> None:
     """Launches a :obj:`~_module.Kernel`
     object with launch-time configuration.
 

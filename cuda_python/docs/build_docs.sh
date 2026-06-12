@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 set -ex
@@ -23,6 +23,10 @@ if [[ -z "${SPHINX_CUDA_PYTHON_VER}" ]]; then
                                                ver = '.'.join(str(version('cuda-python')).split('.')[:3]); \
                                                print(ver)" \
                                     | awk -F'+' '{print $1}')
+fi
+
+if [[ "${LATEST_ONLY}" == "1" && -z "${BUILD_PREVIEW:-}" && -z "${BUILD_LATEST:-}" ]]; then
+    export BUILD_LATEST=1
 fi
 
 # build the docs (in parallel)

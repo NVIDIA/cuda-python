@@ -40,7 +40,8 @@ def _binding_version() -> tuple[int, int, int]:
         return (0, 0, 0)  # For very old versions of cuda-python
 
     parts = version.partition("+")[0].split(".")[:3]
-    return tuple(int(v) for v in parts)
+    parts_int = ([int(v) for v in parts] + [0, 0, 0])[:3]
+    return (parts_int[0], parts_int[1], parts_int[2])
 
 
 def _binding_version_has_usable_enum_docstrings(version: tuple[int, int, int]) -> bool:
