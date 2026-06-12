@@ -149,6 +149,13 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: ./ci/tools/env-vars test
 
+      - name: Apply extra matrix environment variables
+        if: ${{ matrix.ENV }}
+        env:
+          MATRIX_ENV: ${{ toJSON(matrix.ENV) }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: echo "$MATRIX_ENV" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> "$GITHUB_ENV"
+
       - name: Download cuda-pathfinder build artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
