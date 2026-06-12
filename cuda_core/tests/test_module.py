@@ -180,15 +180,16 @@ def get_saxpy_object():
     In local dev: auto-built on demand if nvcc is available; if you edit
     saxpy.cu, remove the stale saxpy.o to force a rebuild.
     """
-    import shutil
     import subprocess
     from pathlib import Path
+
+    from cuda.pathfinder import find_nvidia_binary_utility
 
     binaries_dir = Path(__file__).parent / "test_binaries"
     obj_path = binaries_dir / "saxpy.o"
 
     if not obj_path.is_file():
-        if shutil.which("nvcc") is None:
+        if find_nvidia_binary_utility("nvcc") is None:
             pytest.skip(
                 f"saxpy.o not found at {obj_path} and nvcc is unavailable. "
                 "In CI this is downloaded from the build stage."
