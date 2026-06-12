@@ -770,7 +770,7 @@ def test_nvlink():
         max_links = _device.NvlinkInfo.max_links
         assert isinstance(max_links, int)
         assert max_links > 0
-        if nvml_version >= (3, 13) and cuda_bindings_version > (13, 3, 1):
+        if nvml_version >= (13, 3) and cuda_bindings_version > (13, 3, 1):
             assert max_links == 36
         else:
             assert max_links == 18
