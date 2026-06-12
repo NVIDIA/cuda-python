@@ -85,9 +85,12 @@ cdef class DeviceProperties:
 
     cdef inline int _get_cached_attribute(self, attr, default=0) except? -2:
         """Retrieve the attribute value, using cache if applicable."""
-        if attr not in self._cache:
-            self._cache[attr] = self._get_attribute(attr, default)
-        return self._cache[attr]
+        cached = self._cache.get(attr)
+        if cached is not None:
+            return cached
+        cdef int value = self._get_attribute(attr, default)
+        self._cache[attr] = value  # setdefault not needed for ints
+        return value
 
     @property
     def max_threads_per_block(self) -> int:
@@ -1131,11 +1134,11 @@ class Device:
     def compute_capability(self) -> ComputeCapability:
         """Return a named tuple with 2 fields: major and minor."""
         cdef DeviceProperties prop = self.properties
-        if "compute_capability" in prop._cache:
-            return prop._cache["compute_capability"]
+        cached = prop._cache.get("compute_capability")
+        if cached is not None:
+            return cached
         cc = ComputeCapability(prop.compute_capability_major, prop.compute_capability_minor)
-        prop._cache["compute_capability"] = cc
-        return cc
+        return prop._cache.setdefault("compute_capability", cc)
 
     @property
     def arch(self) -> str:

@@ -78,8 +78,7 @@ _node_registry: weakref.WeakValueDictionary[int, GraphNode] = weakref.WeakValueD
 
 
 cdef inline GraphNode _registered(GraphNode n):
-    _node_registry[<uintptr_t>n._h_node.get()] = n
-    return n
+    return _node_registry.setdefault(<uintptr_t>n._h_node.get(), n)
 
 
 cdef class GraphNode:
@@ -162,10 +161,11 @@ cdef class GraphNode:
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         if node == NULL:
             return
-        with nogil:
-            HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
+
         _node_registry.pop(<uintptr_t>self._h_node.get(), None)
         invalidate_graph_node(self._h_node)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
 
     @property
     def pred(self) -> AdjacencySetProxy:
