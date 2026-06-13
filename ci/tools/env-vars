@@ -15,6 +15,14 @@ if [[ ${#} -ne 1 ]]; then
   exit 1
 fi
 
+# [demo] Intentional failure to reproduce gating-check bug.
+# See https://github.com/NVIDIA/cuda-python/issues/2208
+# DO NOT MERGE. This block must be removed before merge.
+if [[ "${1}" == "build" ]]; then
+  echo "::error::INTENTIONAL FAILURE for CI gating-check bug demo. See https://github.com/NVIDIA/cuda-python/issues/2208" >&2
+  exit 7
+fi
+
 PYTHON_VERSION_FORMATTED=$(echo "${PY_VER}" | tr -d '.')
 
 if [[ "${HOST_PLATFORM}" == linux* ]]; then
