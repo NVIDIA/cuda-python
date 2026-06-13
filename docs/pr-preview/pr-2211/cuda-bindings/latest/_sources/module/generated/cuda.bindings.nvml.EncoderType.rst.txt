@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.EncoderType
+==============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: EncoderType
