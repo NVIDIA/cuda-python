@@ -8,6 +8,27 @@ name: "CI: Release"
 # for the given tag, or uses an existing draft, then publishes the selected wheels
 # to TestPyPI followed by PyPI. The dry-run mode validates the release path
 # without publishing to external release surfaces.
+#
+# Maintenance note: non-trivial changes to this workflow should be validated
+# with dry-run workflow_dispatch runs before merging. Suggested focused matrix:
+# - mainline:
+#   component=cuda-bindings
+#   git-tag=<latest cuda-bindings release tag>
+#   backport-git-tag=not planned
+#   run-id=<blank>
+#   dry-run-docs-branch=gh-pages-dry-run
+# - backport sequence:
+#   1. component=cuda-bindings
+#      git-tag=<latest cuda-bindings backport release tag>
+#      backport-git-tag=<blank>
+#   2. component=cuda-python
+#      git-tag=<matching cuda-python backport release tag>
+#      backport-git-tag=<blank>
+#   run-id=<blank>
+#   dry-run-docs-branch=gh-pages-dry-run
+# Leave run-id blank so determine-run-id is exercised. For exhaustive coverage,
+# add a mainline cuda-python dry-run when changes could affect metapackage
+# artifact validation, docs routing, or component-specific release behavior.
 
 on:
   workflow_dispatch:
