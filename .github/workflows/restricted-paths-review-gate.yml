@@ -1,0 +1,81 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Restricted Paths Review Gate"
+
+on:
+  # Keep this separate from pr-metadata-check.yml so only the
+  # Needs-Restricted-Paths-Review policy becomes merge-blocking.
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - labeled
+      - unlabeled
+
+jobs:
+  restricted-paths-review-gate:
+    name: Restricted paths review gate
+    if: github.repository_owner == 'NVIDIA'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Check for merge-blocking restricted-paths label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          REPO: ${{ github.repository }}
+          REVIEW_LABEL: Needs-Restricted-Paths-Review
+        run: |
+          set -euo pipefail
+
+          if ! LIVE_LABELS=$(
+            gh pr view "${PR_NUMBER}" --repo "${REPO}" \
+              --json labels \
+              --jq '[.labels[].name]'
+          ); then
+            echo "::error::Failed to inspect the current PR labels."
+            {
+              echo "## Restricted Paths Review Gate Failed"
+              echo ""
+              echo "- **Error**: Failed to inspect the current PR labels."
+              echo ""
+              echo "Please update the PR at: $PR_URL"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          CURRENT_LABELS=$(jq -r '
+            if length == 0 then
+              "(none)"
+            else
+              join(", ")
+            end
+          ' <<<"$LIVE_LABELS")
+
+          if jq -e --arg label "$REVIEW_LABEL" '.[] == $label' <<<"$LIVE_LABELS" >/dev/null; then
+            echo "::error::The $REVIEW_LABEL label is present. Remove it after restricted-paths review is complete."
+            {
+              echo "## Restricted Paths Review Gate Failed"
+              echo ""
+              echo "- **Blocking label**: \`$REVIEW_LABEL\`"
+              echo "- **Current labels**: $CURRENT_LABELS"
+              echo "- **Why this failed**: This label means the PR touched \`cuda_bindings/\` or \`cuda_python/\` without a trusted author signal."
+              echo "- **How to unblock merge**: A maintainer must review the restricted-paths policy decision and remove \`$REVIEW_LABEL\` manually when the PR is allowed to merge."
+              echo ""
+              echo "Please update the PR at: $PR_URL"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          {
+            echo "## Restricted Paths Review Gate Passed"
+            echo ""
+            echo "- **Blocking label absent**: \`$REVIEW_LABEL\`"
+            echo "- **Current labels**: $CURRENT_LABELS"
+            echo "- **Result**: This gate does not block merging."
+          } >> "$GITHUB_STEP_SUMMARY"
