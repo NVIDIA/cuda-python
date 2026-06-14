@@ -883,7 +883,7 @@ def test_cuCheckpoint_required_bindings_present():
 
 
 def test_private_function_pointer_inspector():
-    from cuda.bindings._bindings.cydriver import _inspect_function_pointer
+    from cuda.bindings._internal.driver import _inspect_function_pointer
 
     assert _inspect_function_pointer("__cuGetErrorString") != 0
 

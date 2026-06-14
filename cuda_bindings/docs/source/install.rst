@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 Installation
@@ -80,11 +80,43 @@ For example:
 
    Tegra users can install the cuDLA conda package from conda-forge through ``conda install -c conda-forge libcudla cuda-version=13``, if it does not already exist on the system.
 
+Development environment
+-----------------------
+
+The sections above cover end-user installation. The section below focuses on
+a repeatable *development* workflow (editable installs and running tests).
+
+Installing the latest nightly (top-of-tree builds)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These are useful for users looking to test new features or bug fixes prior to
+their inclusion in a release.
+
+CI publishes wheels as GitHub Actions artifacts on every push to ``main``. To
+obtain the most recent build, use the following commands:
+
+.. code-block:: console
+
+   $ # Find the latest successful CI run on main:
+   $ RUN_ID=$(gh run list -R NVIDIA/cuda-python -w ci.yml -b main -s success -L1 --json databaseId -q '.[0].databaseId')
+
+   $ # Download the wheel (pick your Python version and platform):
+   $ gh run download "$RUN_ID" -R NVIDIA/cuda-python -p "cuda-bindings-python312-cuda13*-linux-64-*"
+
+   $ # Install the downloaded wheel:
+   $ pip install cuda-bindings-python312-cuda13*-linux-64-*/cuda_bindings*.whl[all]
+
+Replace ``python312`` with your Python version (e.g. ``python310``, ``python311``,
+``python313``, ``python314``, ``python314t``). For aarch64, replace ``linux-64``
+with ``linux-aarch64``; for Windows, use ``win-64``. Only the current CUDA
+major version is built on ``main``; wheels for the prior CUDA major are
+published from the corresponding backport branch.
+
 Installing from Source
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 Requirements
-~~~~~~~~~~~~
+^^^^^^^^^^^^
 
 * CUDA Toolkit headers[^1]
 * CUDA Runtime static library[^2]
@@ -99,14 +131,14 @@ Source builds require that the provided CUDA headers are of the same major.minor
 
    $ export CUDA_PATH=/usr/local/cuda
 
-See `Environment Variables <environment_variables.rst>`_ for a description of other build-time environment variables.
+See :doc:`Environment Variables <environment_variables>` for a description of other build-time environment variables.
 
 .. note::
 
    Only ``cydriver``, ``cyruntime`` and ``cynvrtc`` are impacted by the header requirement.
 
 Editable Install
-~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^
 
 You can use:
 

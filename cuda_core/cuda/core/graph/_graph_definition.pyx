@@ -23,9 +23,38 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
+from typing import TYPE_CHECKING
+
 from cuda.core._utils.cuda_utils import driver
 
 from cuda.core.typing import GraphMemoryType
+
+if TYPE_CHECKING:
+    from cuda.core._device import Device
+    from cuda.core._event import Event
+    from cuda.core._launch_config import LaunchConfig
+    from cuda.core._module import Kernel
+    from cuda.core.graph._graph_builder import (
+        Graph,
+        GraphCompleteOptions,
+        GraphDebugPrintOptions,
+    )
+    from cuda.core.graph._subclasses import (
+        AllocNode,
+        ChildGraphNode,
+        EmptyNode,
+        EventRecordNode,
+        EventWaitNode,
+        FreeNode,
+        HostCallbackNode,
+        IfElseNode,
+        IfNode,
+        KernelNode,
+        MemcpyNode,
+        MemsetNode,
+        SwitchNode,
+        WhileNode,
+    )
 
 __all__ = ['GraphCondition', 'GraphDefinition']
 
@@ -55,7 +84,7 @@ cdef class GraphCondition:
     def __repr__(self) -> str:
         return f"<GraphCondition handle=0x{<unsigned long long>self._c_handle:x}>"
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, GraphCondition):
             return NotImplemented
         return self._c_handle == (<GraphCondition>other)._c_handle
@@ -94,7 +123,7 @@ cdef class GraphDefinition:
     def __repr__(self) -> str:
         return f"<GraphDefinition handle=0x{as_intptr(self._h_graph):x}>"
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, GraphDefinition):
             return NotImplemented
         return as_intptr(self._h_graph) == as_intptr((<GraphDefinition>other)._h_graph)
@@ -103,43 +132,50 @@ cdef class GraphDefinition:
         return hash(as_intptr(self._h_graph))
 
     @property
-    def _entry(self) -> "GraphNode":
+    def _entry(self) -> GraphNode:
         """Return the internal entry-point GraphNode (no dependencies)."""
         cdef GraphNode n = GraphNode.__new__(GraphNode)
         n._h_node = create_graph_node_handle(<cydriver.CUgraphNode>NULL, self._h_graph)
         return n
 
-    def allocate(self, size_t size, *, device: "Device" | int | None = None,
+    def allocate(self, size_t size, *, device: Device | int | None = None,
                  memory_type: GraphMemoryType = GraphMemoryType.DEVICE,
-                 peer_access: list["Device" | int] | None = None) -> "AllocNode":
+                 peer_access: list[Device | int] | None = None) -> AllocNode:
         """Add an entry-point memory allocation node (no dependencies).
 
         See :meth:`GraphNode.allocate` for full documentation.
         """
         return self._entry.allocate(size, device=device, memory_type=memory_type, peer_access=peer_access)
 
-    def deallocate(self, dptr) -> "FreeNode":
+    def deallocate(self, dptr: int) -> FreeNode:
         """Add an entry-point memory free node (no dependencies).
 
         See :meth:`GraphNode.deallocate` for full documentation.
         """
         return self._entry.deallocate(dptr)
 
-    def memset(self, dst, value, size_t width, size_t height=1, size_t pitch=0) -> "MemsetNode":
+    def memset(
+        self,
+        dst: int,
+        value,
+        size_t width,
+        size_t height=1,
+        size_t pitch=0
+    ) -> MemsetNode:
         """Add an entry-point memset node (no dependencies).
 
         See :meth:`GraphNode.memset` for full documentation.
         """
         return self._entry.memset(dst, value, width, height, pitch)
 
-    def launch(self, config, kernel, *args) -> "KernelNode":
+    def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add an entry-point kernel launch node (no dependencies).
 
         See :meth:`GraphNode.launch` for full documentation.
         """
         return self._entry.launch(config, kernel, *args)
 
-    def empty(self) -> "EmptyNode":
+    def empty(self) -> EmptyNode:
         """Add an entry-point empty node (no dependencies).
 
         Returns
@@ -149,7 +185,7 @@ cdef class GraphDefinition:
         """
         return self._entry.join()
 
-    def join(self, *nodes) -> "EmptyNode":
+    def join(self, *nodes: GraphNode) -> EmptyNode:
         """Create an empty node that depends on all given nodes.
 
         Parameters
@@ -164,35 +200,35 @@ cdef class GraphDefinition:
         """
         return self._entry.join(*nodes)
 
-    def memcpy(self, dst, src, size_t size) -> "MemcpyNode":
+    def memcpy(self, dst: int, src: int, size_t size) -> MemcpyNode:
         """Add an entry-point memcpy node (no dependencies).
 
         See :meth:`GraphNode.memcpy` for full documentation.
         """
         return self._entry.memcpy(dst, src, size)
 
-    def embed(self, child: GraphDefinition) -> "ChildGraphNode":
+    def embed(self, child: GraphDefinition) -> ChildGraphNode:
         """Add an entry-point child graph node (no dependencies).
 
         See :meth:`GraphNode.embed` for full documentation.
         """
         return self._entry.embed(child)
 
-    def record(self, event) -> "EventRecordNode":
+    def record(self, event: Event) -> EventRecordNode:
         """Add an entry-point event record node (no dependencies).
 
         See :meth:`GraphNode.record` for full documentation.
         """
         return self._entry.record(event)
 
-    def wait(self, event) -> "EventWaitNode":
+    def wait(self, event: Event) -> EventWaitNode:
         """Add an entry-point event wait node (no dependencies).
 
         See :meth:`GraphNode.wait` for full documentation.
         """
         return self._entry.wait(event)
 
-    def callback(self, fn, *, user_data=None) -> "HostCallbackNode":
+    def callback(self, fn, *, user_data=None) -> HostCallbackNode:
         """Add an entry-point host callback node (no dependencies).
 
         See :meth:`GraphNode.callback` for full documentation.
@@ -233,35 +269,35 @@ cdef class GraphDefinition:
 
         return GraphCondition._from_handle(c_handle)
 
-    def if_then(self, condition: GraphCondition) -> "IfNode":
+    def if_then(self, condition: GraphCondition) -> IfNode:
         """Add an entry-point if-conditional node (no dependencies).
 
         See :meth:`GraphNode.if_then` for full documentation.
         """
         return self._entry.if_then(condition)
 
-    def if_else(self, condition: GraphCondition) -> "IfElseNode":
+    def if_else(self, condition: GraphCondition) -> IfElseNode:
         """Add an entry-point if-else conditional node (no dependencies).
 
         See :meth:`GraphNode.if_else` for full documentation.
         """
         return self._entry.if_else(condition)
 
-    def while_loop(self, condition: GraphCondition) -> "WhileNode":
+    def while_loop(self, condition: GraphCondition) -> WhileNode:
         """Add an entry-point while-loop conditional node (no dependencies).
 
         See :meth:`GraphNode.while_loop` for full documentation.
         """
         return self._entry.while_loop(condition)
 
-    def switch(self, condition: GraphCondition, unsigned int count) -> "SwitchNode":
+    def switch(self, condition: GraphCondition, unsigned int count) -> SwitchNode:
         """Add an entry-point switch conditional node (no dependencies).
 
         See :meth:`GraphNode.switch` for full documentation.
         """
         return self._entry.switch(condition, count)
 
-    def instantiate(self, options=None):
+    def instantiate(self, options: GraphCompleteOptions | None = None) -> Graph:
         """Instantiate the graph definition into an executable Graph.
 
         Parameters
@@ -279,7 +315,7 @@ cdef class GraphDefinition:
         return _instantiate_graph(
             driver.CUgraph(as_intptr(self._h_graph)), options)
 
-    def debug_dot_print(self, path: str, options=None) -> None:
+    def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None = None) -> None:
         """Write a GraphViz DOT representation of the graph to a file.
 
         Parameters
@@ -302,7 +338,7 @@ cdef class GraphDefinition:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDebugDotPrint(as_cu(self._h_graph), c_path, flags))
 
-    def nodes(self) -> set:
+    def nodes(self) -> set[GraphNode]:
         """Return all nodes in the graph.
 
         Returns
@@ -327,7 +363,7 @@ cdef class GraphDefinition:
 
         return {GraphNode._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes)}
 
-    def edges(self) -> set:
+    def edges(self) -> set[tuple[GraphNode, GraphNode]]:
         """Return all edges in the graph as (from_node, to_node) pairs.
 
         Returns

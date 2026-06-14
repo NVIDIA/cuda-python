@@ -131,12 +131,12 @@ cdef class KernelNode(GraphNode):
                 f" kernel=0x{as_intptr(self._h_kernel):x}>")
 
     @property
-    def grid(self) -> tuple:
+    def grid(self) -> tuple[int, int, int]:
         """Grid dimensions as a 3-tuple (gridDimX, gridDimY, gridDimZ)."""
         return self._grid
 
     @property
-    def block(self) -> tuple:
+    def block(self) -> tuple[int, int, int]:
         """Block dimensions as a 3-tuple (blockDimX, blockDimY, blockDimZ)."""
         return self._block
 
@@ -249,7 +249,7 @@ cdef class AllocNode(GraphNode):
         return self._memory_type
 
     @property
-    def peer_access(self) -> tuple:
+    def peer_access(self) -> tuple[int, ...]:
         """Device IDs with read-write access to this allocation."""
         return self._peer_access
 
@@ -478,7 +478,7 @@ cdef class ChildGraphNode(GraphNode):
                 f" child=0x{as_intptr(self._h_child_graph):x}>")
 
     @property
-    def child_graph(self) -> "GraphDefinition":
+    def child_graph(self) -> GraphDefinition:
         """The embedded graph definition (non-owning wrapper)."""
         return GraphDefinition._from_handle(self._h_child_graph)
 
@@ -705,7 +705,7 @@ cdef class ConditionalNode(GraphNode):
             return GraphConditionalType("switch")
 
     @property
-    def branches(self) -> tuple:
+    def branches(self) -> tuple[GraphDefinition, ...]:
         """The body graphs for each branch as a tuple of GraphDefinition.
 
         Returns an empty tuple when reconstructed from the driver
@@ -722,7 +722,7 @@ cdef class IfNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def then(self) -> "GraphDefinition":
+    def then(self) -> GraphDefinition:
         """The 'then' branch graph."""
         return self._branches[0]
 
@@ -735,12 +735,12 @@ cdef class IfElseNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def then(self) -> "GraphDefinition":
+    def then(self) -> GraphDefinition:
         """The ``then`` branch graph (executed when condition is non-zero)."""
         return self._branches[0]
 
     @property
-    def else_(self) -> "GraphDefinition":
+    def else_(self) -> GraphDefinition:
         """The ``else`` branch graph (executed when condition is zero)."""
         return self._branches[1]
 
@@ -753,7 +753,7 @@ cdef class WhileNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def body(self) -> "GraphDefinition":
+    def body(self) -> GraphDefinition:
         """The loop body graph."""
         return self._branches[0]
 

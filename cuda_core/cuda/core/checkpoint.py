@@ -3,19 +3,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes as _ctypes
-from collections.abc import Mapping as _Mapping
-from typing import Any as _Any
+from collections.abc import Mapping
+from typing import Any
 
+from cuda.bindings import driver as _driver
 from cuda.core._utils.cuda_utils import handle_return as _handle_cuda_return
 from cuda.core._utils.version import binding_version as _binding_version
 from cuda.core._utils.version import driver_version as _driver_version
 from cuda.core.typing import ProcessStateType as _ProcessStateType
-
-try:
-    from cuda.bindings import driver as _driver
-except ImportError:
-    from cuda import cuda as _driver
-
 
 _PROCESS_STATE_NAME_ATTRS: tuple[tuple[str, _ProcessStateType], ...] = (
     ("CU_PROCESS_STATE_RUNNING", "running"),
@@ -82,7 +77,7 @@ class Process:
         CUDA restore thread ID for this process.
         """
         driver = _get_driver()
-        return _call_driver(driver, driver.cuCheckpointProcessGetRestoreThreadId, self._pid)
+        return int(_call_driver(driver, driver.cuCheckpointProcessGetRestoreThreadId, self._pid))
 
     def lock(self, timeout_ms: int = 0) -> None:
         """
@@ -105,7 +100,7 @@ class Process:
         driver = _get_driver()
         _call_driver(driver, driver.cuCheckpointProcessCheckpoint, self._pid, None)
 
-    def restore(self, gpu_mapping: _Mapping[_Any, _Any] | None = None) -> None:
+    def restore(self, gpu_mapping: Mapping[Any, Any] | None = None) -> None:
         """
         Restore this checkpointed process.
 
@@ -130,7 +125,7 @@ class Process:
         _call_driver(driver, driver.cuCheckpointProcessUnlock, self._pid, None)
 
 
-def _get_driver():
+def _get_driver() -> Any:
     global _driver_capability_checked
     if _driver_capability_checked:
         return _driver
@@ -159,16 +154,16 @@ def _get_driver():
     return _driver
 
 
-def _binding_version_supports_checkpoint(version) -> bool:
+def _binding_version_supports_checkpoint(version: tuple[int, ...]) -> bool:
     major, minor, patch = version[:3]
     return (major == 12 and (minor, patch) >= (8, 0)) or (major == 13 and (minor, patch) >= (0, 2)) or major > 13
 
 
-def _get_process_state_names(driver) -> dict[_Any, _ProcessStateType]:
+def _get_process_state_names(driver: Any) -> dict[Any, _ProcessStateType]:
     return {getattr(driver.CUprocessState, attr): state_name for attr, state_name in _PROCESS_STATE_NAME_ATTRS}
 
 
-def _call_driver(driver, func, *args):
+def _call_driver(driver: Any, func: Any, *args: Any) -> Any:
     try:
         result = func(*args)
     except RuntimeError as e:
@@ -209,10 +204,10 @@ def _check_timeout_ms(timeout_ms: int) -> int:
     return timeout_ms
 
 
-def _make_restore_args(driver, gpu_mapping: _Mapping[_Any, _Any] | None):
+def _make_restore_args(driver: Any, gpu_mapping: Mapping[Any, Any] | None) -> Any:
     if gpu_mapping is None:
         return None
-    if not isinstance(gpu_mapping, _Mapping):
+    if not isinstance(gpu_mapping, Mapping):
         raise TypeError("gpu_mapping must be a mapping from checkpointed GPU UUID to restore GPU UUID")
 
     if not gpu_mapping:
@@ -222,7 +217,7 @@ def _make_restore_args(driver, gpu_mapping: _Mapping[_Any, _Any] | None):
     _require_gpu_mapping_bindings(driver)
     for old_uuid, new_uuid in gpu_mapping.items():
         pair = driver.CUcheckpointGpuPair()
-        buffers = []
+        buffers: list[Any] = []  # holds ctypes string-buffer keepalives for the call below
         pair.oldUuid = _as_cuuuid(driver, old_uuid, buffers)
         pair.newUuid = _as_cuuuid(driver, new_uuid, buffers)
         pairs.append(pair)
@@ -242,21 +237,28 @@ def _require_gpu_mapping_bindings(driver) -> None:
         )
 
 
-def _as_cuuuid(driver, value, buffers):
+def _as_cuuuid(driver: Any, value: Any, buffers: list[Any]) -> Any:
     """Convert *value* to a ``CUuuid``.
 
     Accepts a ``CUuuid`` instance (returned as-is) or a UUID string in
     the ``"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"`` format returned by
     :attr:`Device.uuid`.
     """
+    if isinstance(value, driver.CUuuid):
+        return value
     if isinstance(value, str):
-        raw = bytes.fromhex(value.replace("-", ""))
+        try:
+            raw = bytes.fromhex(value.replace("-", ""))
+        except ValueError:
+            raise ValueError(
+                f"GPU UUID string must be 32 hex characters (with optional hyphens), got {value!r}"
+            ) from None
         if len(raw) != 16:
             raise ValueError(f"GPU UUID string must be 32 hex characters (with optional hyphens), got {value!r}")
         buf = _ctypes.create_string_buffer(raw, 16)
         buffers.append(buf)
         return driver.CUuuid(_ctypes.addressof(buf))
-    return value
+    raise TypeError("GPU UUID values must be CUDA UUID objects or UUID strings")
 
 
 __all__ = [
