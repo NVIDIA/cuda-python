@@ -48,6 +48,16 @@ Windows.
 - **Prefer focused abstractions**: if a change is platform-specific, route it
   through existing platform abstraction points instead of branching in many call
   sites.
+- **No default-location fallbacks without triage**: pathfinder intentionally
+  avoids guessing fallback install locations because that can hide broken
+  environments. Add explicit search steps or diagnostics rather than silent
+  fallback paths.
+- **Validate environment roots before trusting them**: `CUDA_HOME`,
+  `CUDA_PATH`, and related roots should be checked for the needed headers or
+  libraries, not just for being set.
+- **Keep skip logic feature-specific**: tests that depend on libraries or
+  driver capabilities should skip based on the missing library/capability, not
+  broad platform labels.
 
 ## Testing expectations
 

@@ -12,6 +12,86 @@ guide for package-specific conventions and workflows.
 - `cuda_core/`: High-level Pythonic CUDA APIs built on top of bindings.
 - `cuda_python/`: Metapackage and docs aggregation.
 
+# Review-derived repository guidance
+
+These rules come from recurring cuda-python PR review comments. Apply them
+across the repository, in addition to any package-specific `AGENTS.md`.
+
+## Public API and design
+
+- For new public APIs, major behavior changes, or broad feature work, make sure
+  the API surface is sketched in an issue or design discussion before coding.
+  Reviewers repeatedly block large feature PRs that arrive without design
+  context, especially before 1.0 API stabilization.
+- Keep public APIs minimal and intentional. Prefer public testing paths when
+  practical, but limited private or test-only access is acceptable when Python
+  tests need to exercise Cython internals that cannot be reached through a
+  stable public API.
+- When adding public behavior, update docs, examples, release notes, and API
+  index pages in the same PR unless the PR explicitly documents why those
+  updates are deferred.
+- User-facing errors and warnings should name the user-actionable concept, not
+  a private helper. Include diagnostics when something cannot be discovered,
+  and avoid silent success-shaped fallbacks.
+
+## Tests and CI behavior
+
+- Add targeted regression tests for behavioral fixes. Do not add elaborate
+  tests that mostly prove an implementation detail or require large module
+  stubbing unless that is the only practical way to cover the bug.
+- Do not weaken tests just to pass a platform or CI configuration. Use the
+  tightest available skip criteria: broad OS skips are appropriate only when
+  upstream documentation or the support matrix says the feature is unsupported
+  on that OS; otherwise query the specific CUDA driver/device capability or
+  missing library/feature.
+- Preserve real user workflows in tests. Do not change global CUDA state, skip
+  real loading paths, or disable release-note/doc checks merely to reduce CI
+  load unless reviewers have agreed to that behavior change.
+- Before pushing, run the narrowest relevant `pixi run ...`, `pytest`, docs, or
+  workflow validation command available for the touched package. If local
+  validation is impossible, state the exact reason in the PR.
+
+## Generated code and CUDA compatibility
+
+- Do not hand-edit generated binding artifacts as a shortcut. Fix the generator
+  source or templates and regenerate/sync outputs so the next generation does
+  not reintroduce the same review issue.
+- Use `.pre-commit-config.yaml` as the source of truth for linting and
+  formatting. Do not perform formatting or lint fixes on files marked "This code
+  was automatically generated..." unless the repo config explicitly opts them in.
+- Keep builds working across the supported CUDA major versions. Do not cimport
+  or call newly generated Cython symbols directly unless the older supported
+  CUDA-major build is gated or has a wrapper/fallback path.
+- In Cython/CUDA code, preserve CUDA stream ordering, handle ownership, and
+  context-manager semantics. Cleanup paths should not mask a user's original
+  exception, and `__enter__` should not expose invalid handles.
+
+## Workflows, packaging, and metadata
+
+- GitHub workflow logic should parse structured data with `jq` or GitHub's
+  `--jq` support. Avoid substring `grep` checks for labels, milestones, or
+  JSON fields when exact matching is possible.
+- Use the correct GitHub Actions context (`env`, `vars`, `github`, `inputs`)
+  deliberately; a wrong context often evaluates to an empty string and silently
+  breaks release or validation workflows.
+- Keep workflow permissions minimal and explicit, and include all triggers
+  needed for metadata checks to rerun when labels or milestones change.
+- Packaging changes should keep version constraints, wheel/sdist behavior,
+  release tags, and metapackage dependencies aligned across all affected
+  packages. Use exact version or lower-bound choices intentionally.
+
+## Documentation style
+
+- For Sphinx/Numpy-style docs, document class construction in the class
+  docstring and signature rather than separately documenting `__init__` or
+  `__new__`, unless the surrounding docs already use that convention.
+- Add docs entries for new public classes/functions in the relevant
+  `docs/source/api*.rst` or autosummary index, and build docs when changing
+  generated API pages.
+- Prefer concise comments that explain non-obvious compatibility, security, or
+  workflow choices. Remove duplicated error text, stale TODOs, and comments that
+  merely restate the code.
+
 # Pull requests
 
 **Never push branches or commits to the upstream repo (github.com/NVIDIA/cuda-python).
