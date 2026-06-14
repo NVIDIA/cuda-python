@@ -14,6 +14,9 @@ NBYTES = 64
 NWORKERS = 2
 NTASKS = 2
 
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
+
 
 class TestIpcMempool:
     @pytest.mark.flaky(reruns=2)
