@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0b6cd166"></script>
+    <script src="../_static/documentation_options.js?v=35bcafd9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev46';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev74';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.typing.VirtualMemoryHandleType.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2150/cuda-core/latest/generated/cuda.core.typing.VirtualMemoryHandleType.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -720,10 +720,32 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.typing.VirtualMemoryHandleType" title="Link to this definition">#</a></dt>
-<dd><p>VirtualMemoryHandleType</p>
-<p><strong>POSIX_FD</strong>: posix_fd</p>
-<p><strong>WIN32_KMT</strong>: win32_kmt</p>
-<p><strong>FABRIC</strong>: fabric</p>
+<dd><p>OS handle type for exporting virtual memory allocations across processes.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">POSIX_FD</span></code> — POSIX file descriptor (Linux).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WIN32_KMT</span></code> — Win32 kernel-mode handle (Windows).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FABRIC</span></code> — NVLink/NVSwitch fabric handle for multi-node topologies.</p></li>
+</ul>
+<dl class="simple">
+<dt><strong>POSIX_FD</strong>: posix_fd</dt><dd><p>OS handle type for exporting virtual memory allocations across processes.
+
+    * <code class="docutils literal notranslate"><span class="pre">POSIX_FD</span></code> — POSIX file descriptor (Linux).
+    * <code class="docutils literal notranslate"><span class="pre">WIN32_KMT</span></code> — Win32 kernel-mode handle (Windows).
+    * <code class="docutils literal notranslate"><span class="pre">FABRIC</span></code> — NVLink/NVSwitch fabric handle for multi-node topologies.</p>
+</dd>
+<dt><strong>WIN32_KMT</strong>: win32_kmt</dt><dd><p>OS handle type for exporting virtual memory allocations across processes.
+
+    * <code class="docutils literal notranslate"><span class="pre">POSIX_FD</span></code> — POSIX file descriptor (Linux).
+    * <code class="docutils literal notranslate"><span class="pre">WIN32_KMT</span></code> — Win32 kernel-mode handle (Windows).
+    * <code class="docutils literal notranslate"><span class="pre">FABRIC</span></code> — NVLink/NVSwitch fabric handle for multi-node topologies.</p>
+</dd>
+<dt><strong>FABRIC</strong>: fabric</dt><dd><p>OS handle type for exporting virtual memory allocations across processes.
+
+    * <code class="docutils literal notranslate"><span class="pre">POSIX_FD</span></code> — POSIX file descriptor (Linux).
+    * <code class="docutils literal notranslate"><span class="pre">WIN32_KMT</span></code> — Win32 kernel-mode handle (Windows).
+    * <code class="docutils literal notranslate"><span class="pre">FABRIC</span></code> — NVLink/NVSwitch fabric handle for multi-node topologies.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
