@@ -8,7 +8,7 @@ import warnings
 import pytest
 
 import cuda.core
-from cuda.core import Device, Kernel, ObjectCode, Program, ProgramOptions
+from cuda.core import Device, Kernel, Linker, LinkerOptions, ObjectCode, Program, ProgramOptions
 from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import binding_version, driver_version
@@ -172,6 +172,36 @@ def get_saxpy_fatbin(init_cuda):
     return bytes(fatbin), sym_map
 
 
+@pytest.fixture(scope="module")
+def get_saxpy_object():
+    """Read the pre-built saxpy.o.
+
+    In CI: produced by build stage into a test wheel file.
+    In local dev: auto-built on demand if nvcc is available; if you edit
+    saxpy.cu, remove the stale saxpy.o to force a rebuild.
+    """
+    import subprocess
+    from pathlib import Path
+
+    from cuda.pathfinder import find_nvidia_binary_utility
+
+    binaries_dir = Path(__file__).parent / "test_binaries"
+    obj_path = binaries_dir / "saxpy.o"
+
+    if not obj_path.is_file():
+        if find_nvidia_binary_utility("nvcc") is None:
+            pytest.skip(
+                f"saxpy.o not found at {obj_path} and nvcc is unavailable. "
+                "In CI this is downloaded from the build stage."
+            )
+        subprocess.run(  # noqa: S603
+            ["bash", str(binaries_dir / "build_test_binaries.sh")],  # noqa: S607
+            check=True,
+        )
+
+    return obj_path.read_bytes()
+
+
 def test_get_kernel(init_cuda):
     kernel = """extern "C" __global__ void ABC() { }"""
 
@@ -328,6 +358,67 @@ def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path, convert_p
     assert mod_obj.code == str(arg)
     assert mod_obj.code_type == "fatbin"
     mod_obj.get_kernel("saxpy<double>")  # force loading
+
+
+def test_object_code_load_object(get_saxpy_object):
+    obj = get_saxpy_object
+    assert isinstance(obj, bytes)
+    mod_obj = ObjectCode.from_object(obj)
+    assert mod_obj.code == obj
+    assert mod_obj.code_type == "object"
+    with pytest.raises(RuntimeError, match=r'Unsupported code type "object"'):
+        mod_obj.get_kernel("saxpy<float>")
+
+
+def test_object_code_load_object_from_file(get_saxpy_object, tmp_path):
+    obj_file = tmp_path / "test.o"
+    obj_file.write_bytes(get_saxpy_object)
+    arg = str(obj_file)
+    mod_obj = ObjectCode.from_object(arg)
+    assert mod_obj.code == arg
+    assert mod_obj.code_type == "object"
+
+
+def test_object_code_load_object_with_linker(get_saxpy_object, init_cuda):
+    arch = "sm_" + "".join(f"{i}" for i in init_cuda.compute_capability)
+    kernel_ptx = Program(
+        r"""
+        extern __device__ float saxpy_step(float a, float x, float y);
+        extern "C" __global__ void linked_kernel(float a, float x, float y, float* out) {
+            if (threadIdx.x == 0 && blockIdx.x == 0) *out = saxpy_step(a, x, y);
+        }
+        """,
+        "c++",
+        ProgramOptions(relocatable_device_code=True, arch=arch),
+    ).compile("ptx")
+    linked = Linker(
+        kernel_ptx,
+        ObjectCode.from_object(get_saxpy_object),
+        options=LinkerOptions(arch=arch),
+    ).link("cubin")
+    kernel = linked.get_kernel("linked_kernel")
+
+    import numpy as np
+
+    stream = init_cuda.create_stream()
+    host_buf = cuda.core.LegacyPinnedMemoryResource().allocate(4)
+    result = np.from_dlpack(host_buf).view(np.float32)
+    result[:] = 0.0
+    dev_buf = init_cuda.memory_resource.allocate(4, stream=init_cuda.default_stream)
+
+    cuda.core.launch(
+        stream,
+        cuda.core.LaunchConfig(grid=1, block=1),
+        kernel,
+        np.float32(2.0),
+        np.float32(3.0),
+        np.float32(4.0),
+        dev_buf,
+    )
+    dev_buf.copy_to(host_buf, stream=stream)
+    stream.sync()
+
+    assert result[0] == 10.0
 
 
 def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):
