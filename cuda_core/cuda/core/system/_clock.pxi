@@ -23,6 +23,15 @@ _CLOCKS_EVENT_REASONS_MAPPING = {
 }
 
 
+if cuda_bindings_version >= (13, 3, 1):
+    _CLOCKS_EVENT_REASONS_MAPPING.update(
+        {
+            nvml.ClocksEventReasons.EVENT_REASON_BOARD_LIMIT: ClocksEventReasons.BOARD_LIMIT,
+            nvml.ClocksEventReasons.EVENT_REASON_RELIABILITY: ClocksEventReasons.RELIABILITY,
+        }
+    )
+
+
 _CLOCK_TYPE_MAPPING = {
     ClockType.GRAPHICS: nvml.ClockType.CLOCK_GRAPHICS,
     ClockType.SM: nvml.ClockType.CLOCK_SM,

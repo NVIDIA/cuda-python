@@ -10,6 +10,7 @@ from typing import Iterable, TYPE_CHECKING
 import warnings
 
 from cuda.bindings import nvml
+from cuda.bindings._version import version_tuple as cuda_bindings_version
 
 from ._nvml_context cimport initialize
 from cuda.core.system.typing import (
