@@ -762,10 +762,18 @@ def test_compute_running_processes():
 
 
 def test_nvlink():
+    from cuda.bindings._version import version_tuple as cuda_bindings_version
+
+    nvml_version = system.get_nvml_version()
+
     for device in system.Device.get_all_devices():
         max_links = _device.NvlinkInfo.max_links
         assert isinstance(max_links, int)
         assert max_links > 0
+        if nvml_version >= (13, 3) and cuda_bindings_version > (13, 3, 1):
+            assert max_links == 36
+        else:
+            assert max_links == 18
 
         for link in range(max_links):
             with unsupported_before(device, None):

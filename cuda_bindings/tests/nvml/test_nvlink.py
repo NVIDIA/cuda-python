@@ -32,3 +32,12 @@ def test_nvlink_get_link_count(all_devices):
         # can't be more specific about how many links we should find.
         if value.nvml_return == nvml.Return.SUCCESS:
             assert value.value.ui_val[0] <= nvml.NVLINK_MAX_LINKS, f"Unexpected link count {value.value.ui_val[0]}"
+
+
+def test_nvlink_max_links():
+    nvml_version = tuple(int(x) for x in nvml.system_get_nvml_version().split("."))
+
+    if nvml_version < (13, 3):
+        assert nvml.NVLINK_MAX_LINKS == 18
+    else:
+        assert nvml.NVLINK_MAX_LINKS == 36

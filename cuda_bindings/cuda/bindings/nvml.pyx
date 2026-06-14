@@ -1593,8 +1593,6 @@ class FieldId(_FastEnum):
 
     MAX = 289
 
-NVLINK_MAX_LINKS = 18
-
 
 class RUSD(_FastEnum):
     POLL_NONE = (0x0, "Disable RUSD polling on all metric groups")
@@ -28451,3 +28449,17 @@ cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
 device_get_virtualization_mode.__doc__ = device_get_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
 device_set_virtualization_mode.__doc__ = device_set_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
 GpmMetricId.GPM_METRIC_DRAM_BW_UTIL.__doc__ = "Percentage of DRAM bw used vs theoretical maximum. ``0.0 - 100.0 *\u200d/``."
+
+
+def __getattr__(name: str):
+    # This value changed in CTK 13.3.  We need to build a binary that works across
+    # all versions, so the only way to support this is to check the version at
+    # runtime and set the value accordingly.
+
+    if name == "NVLINK_MAX_LINKS":
+        if tuple(int(x) for x in system_get_nvml_version().split(".")) < (3, 13):
+            return 18
+        else:
+            return 36
+
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
