@@ -9,6 +9,7 @@ import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda.core._memory import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
@@ -29,6 +30,13 @@ def test_outer_timeout_marker_is_applied(request):
     marker = request.node.get_closest_marker("timeout")
     assert marker is not None, "memory_ipc/conftest.py did not apply a timeout marker"
     assert marker.args == (expected,), f"unexpected timeout value: {marker.args!r}"
+
+
+def test_import_truncated_buffer_descriptor(ipc_device, ipc_memory_resource):
+    """Truncated IPC buffer descriptor payload is rejected before driver import."""
+    desc = IPCBufferDescriptor._init(b"\x00" * 8, NBYTES)
+    with pytest.raises(ValueError, match=r"payload is 8 bytes; expected at least 64"):
+        Buffer.from_ipc_descriptor(ipc_memory_resource, desc, stream=ipc_device.default_stream)
 
 
 class ChildErrorHarness:
