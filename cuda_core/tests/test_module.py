@@ -180,6 +180,7 @@ def get_saxpy_object():
     In local dev: auto-built on demand if nvcc is available; if you edit
     saxpy.cu, remove the stale saxpy.o to force a rebuild.
     """
+    import os
     import subprocess
     from pathlib import Path
 
@@ -197,6 +198,7 @@ def get_saxpy_object():
         subprocess.run(  # noqa: S603
             ["bash", str(binaries_dir / "build_test_binaries.sh")],  # noqa: S607
             check=True,
+            env=os.environ,
         )
 
     return obj_path.read_bytes()
