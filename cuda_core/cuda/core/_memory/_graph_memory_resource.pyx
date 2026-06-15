@@ -18,7 +18,6 @@ from cuda.core._resource_handles cimport (
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
-from functools import cache
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -161,6 +160,8 @@ cdef class cyGraphMemoryResource(MemoryResource):
         return False
 
 
+cdef dict _mem_resource_cache = {}
+
 class GraphMemoryResource(cyGraphMemoryResource):
     """
     A memory resource for memory related to graphs.
@@ -185,9 +186,16 @@ class GraphMemoryResource(cyGraphMemoryResource):
         return cls._create(c_device_id)
 
     @classmethod
-    @cache
     def _create(cls, int device_id) -> GraphMemoryResource:
-        return cyGraphMemoryResource.__new__(cls, device_id)
+        # we use a dict currently, because functools.cache is currently less
+        # thread-safe see also: https://github.com/python/cpython/issues/150708
+        res = _mem_resource_cache.get(device_id)
+        if res is not None:
+            return res
+
+        # create new instance, but in case of a race may return another:
+        new = cyGraphMemoryResource.__new__(cls, device_id)
+        return _mem_resource_cache.setdefault(device_id, new)
 
 
 # Raise an exception if the given stream is capturing.
