@@ -9,6 +9,7 @@ import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda.core._memory import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
@@ -86,6 +87,25 @@ class ChildErrorHarness:
         else:
             exc_info = None, None
         pipe[1].put(exc_info)
+
+
+class TestImportOversizedBufferDescriptorSize(ChildErrorHarness):
+    """Reject peer-supplied sizes larger than the mapped allocation extent."""
+
+    def PARENT_ACTION(self, queue):
+        self.buffer = self.mr.allocate(NBYTES, stream=self.device.default_stream)
+        payload, _ = self.buffer.ipc_descriptor.__reduce__()[1]
+        oversized = IPCBufferDescriptor._init(payload, NBYTES * 100)
+        queue.put(oversized)
+
+    def CHILD_ACTION(self, queue):
+        oversized = queue.get(timeout=CHILD_TIMEOUT_SEC)
+        Buffer.from_ipc_descriptor(self.mr, oversized, stream=self.device.default_stream)
+
+    def ASSERT(self, exc_type, exc_msg):
+        assert exc_type is ValueError
+        assert "exceeds" in exc_msg
+        assert "mapped allocation extent" in exc_msg
 
 
 class TestAllocFromImportedMr(ChildErrorHarness):
