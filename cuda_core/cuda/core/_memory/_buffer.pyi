@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import cython
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
 from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._memory._pinned_memory_resource import PinnedMemoryResource
@@ -88,6 +89,7 @@ class Buffer:
         """
 
     @property
+    @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
 
