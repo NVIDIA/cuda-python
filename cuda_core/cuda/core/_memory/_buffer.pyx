@@ -26,7 +26,6 @@ from cuda.core.typing import DevicePointerType
 
 from cuda.core._stream cimport Stream, Stream_accept, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
-from cuda.core._utils.cuda_utils import warn_ipc_buffer_unpickle
 
 import sys
 from typing import TYPE_CHECKING
@@ -143,10 +142,12 @@ cdef class Buffer:
         # pickle path cannot thread an explicit stream through. Seed the
         # imported buffer's deallocation with the current context's default
         # stream; the receiver can override via buffer.close(stream).
-        warn_ipc_buffer_unpickle()
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self) -> tuple[object, ...]:
+        # Security note (CWE-502): unpickling a Buffer performs a live CUDA IPC
+        # import using descriptor bytes from the pickle stream. Only deserialize
+        # Buffers from a principal at least as trusted as this process.
         # Must not serialize the parent's stream!
         return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 

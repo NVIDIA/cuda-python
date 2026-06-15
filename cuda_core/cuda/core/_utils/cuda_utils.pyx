@@ -348,9 +348,6 @@ class Transaction:
 # Track whether we've already warned about fork method
 _fork_warning_checked = False
 
-# Track whether we've already warned about unpickling IPC buffers
-_ipc_pickle_warning_checked = False
-
 
 def reset_fork_warning() -> None:
     """Reset the fork warning check flag for testing purposes.
@@ -360,28 +357,6 @@ def reset_fork_warning() -> None:
     """
     global _fork_warning_checked
     _fork_warning_checked = False
-
-
-def reset_ipc_pickle_warning() -> None:
-    """Reset the IPC buffer unpickle warning flag for testing purposes."""
-    global _ipc_pickle_warning_checked
-    _ipc_pickle_warning_checked = False
-
-
-def warn_ipc_buffer_unpickle() -> None:
-    """Warn that unpickling a Buffer performs an IPC import from embedded data."""
-    global _ipc_pickle_warning_checked
-    if _ipc_pickle_warning_checked:
-        return
-    _ipc_pickle_warning_checked = True
-    message = (
-        "Unpickling a cuda.core.Buffer imports GPU memory via the embedded "
-        "IPCBufferDescriptor. Only unpickle Buffer objects received from a "
-        "trusted same-host peer process; malicious pickle payloads can supply "
-        "crafted descriptors. Prefer explicit Buffer.from_ipc_descriptor only "
-        "with descriptors from cooperating peers."
-    )
-    warnings.warn(message, UserWarning, stacklevel=4)
 
 
 cdef inline tuple _read_fill_ptr(const char* ptr, Py_ssize_t width):

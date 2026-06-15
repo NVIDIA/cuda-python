@@ -60,7 +60,6 @@ _keep_nvrtc_in_stub: 'nvrtc.nvrtcResult'
 _keep_runtime_in_stub: 'runtime.cudaError_t'
 ComputeCapability = namedtuple('ComputeCapability', ('major', 'minor'))
 _fork_warning_checked = False
-_ipc_pickle_warning_checked = False
 
 def _check_driver_error(error: cydriver.CUresult) -> int:
     ...
@@ -140,12 +139,6 @@ def reset_fork_warning() -> None:
     This function is intended for use in tests to allow multiple test runs
     to check the warning behavior.
     """
-
-def reset_ipc_pickle_warning() -> None:
-    """Reset the IPC buffer unpickle warning flag for testing purposes."""
-
-def warn_ipc_buffer_unpickle() -> None:
-    """Warn that unpickling a Buffer performs an IPC import from embedded data."""
 
 def check_multiprocessing_start_method() -> None:
     """Check if multiprocessing start method is 'fork' and warn if so."""
