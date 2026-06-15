@@ -595,45 +595,6 @@ cdef class _HelperCUmemAllocationHandleType:
             raise TypeError('Unsupported attribute: {}'.format(self._type))
 
 
-cdef class _HelperCUlogicalEndpointIpcHandleType:
-    def __cinit__(self, attr):
-        self._type = attr.value
-        if False:
-            pass
-
-        elif self._type in (cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE,):
-            self._cptr = <void*>&self._int
-
-
-        elif self._type in (cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC,):
-            self._fabric_handle = _driver["CUlogicalEndpointFabricHandle"]()
-            self._cptr = <void*><void_ptr>self._fabric_handle.getPtr()
-
-        else:
-            raise TypeError('Unsupported attribute: {}'.format(attr.name))
-
-    def __dealloc__(self):
-        pass
-
-    @property
-    def cptr(self):
-        return <void_ptr>self._cptr
-
-    def pyObj(self):
-        if False:
-            pass
-
-        elif self._type in (cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE,):
-            return self._int
-
-
-        elif self._type in (cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC,):
-            return self._fabric_handle
-
-        else:
-            raise TypeError('Unsupported attribute: {}'.format(self._type))
-
-
 cdef class _InputVoidPtrPtrHelper:
     def __cinit__(self, lst):
         # Hold onto references to the original buffers so they

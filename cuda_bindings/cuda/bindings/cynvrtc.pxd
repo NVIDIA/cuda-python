@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -27,8 +27,6 @@ cdef extern from 'nvrtc.h':
         NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED
         NVRTC_ERROR_PCH_CREATE
         NVRTC_ERROR_CANCELLED
-        NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED
-        NVRTC_ERROR_BUSY
 cdef enum: _NVRTCRESULT_INTERNAL_LOADING_ERROR = -42
 
 
@@ -43,15 +41,6 @@ cdef extern from 'nvrtc.h':
         pass
     ctypedef _nvrtcProgram* nvrtcProgram 'nvrtcProgram'
 
-
-cdef extern from 'nvrtc.h':
-    ctypedef struct nvrtcBundledHeadersInfo 'nvrtcBundledHeadersInfo':
-        int available
-        size_t compressedSize
-        size_t uncompressedSize
-        int cudaVersionMajor
-        int cudaVersionMinor
-        unsigned int numFiles
 
 
 # FUNCTIONS
@@ -79,8 +68,3 @@ cdef nvrtcResult nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_IN
 cdef nvrtcResult nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil
 cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil
 cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil
-cdef nvrtcResult nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-cdef nvrtcResult nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_ERROR_INVALID_INPUT nogil
-cdef nvrtcResult nvrtcInstallBundledHeaders(const char* installPath, unsigned int flags, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil
-cdef nvrtcResult nvrtcGetBundledHeadersInfo(nvrtcBundledHeadersInfo* info, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil
-cdef nvrtcResult nvrtcRemoveBundledHeaders(const char* installPath, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil

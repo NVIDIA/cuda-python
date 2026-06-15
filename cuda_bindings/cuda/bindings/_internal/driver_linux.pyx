@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1738+g1060a290f. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -67,6 +67,7 @@ cdef void* __cuDriverGetVersion = NULL
 cdef void* __cuDeviceGet = NULL
 cdef void* __cuDeviceGetCount = NULL
 cdef void* __cuDeviceGetName = NULL
+cdef void* __cuDeviceGetUuid = NULL
 cdef void* __cuDeviceGetUuid_v2 = NULL
 cdef void* __cuDeviceGetLuid = NULL
 cdef void* __cuDeviceTotalMem_v2 = NULL
@@ -85,6 +86,8 @@ cdef void* __cuDevicePrimaryCtxRelease_v2 = NULL
 cdef void* __cuDevicePrimaryCtxSetFlags_v2 = NULL
 cdef void* __cuDevicePrimaryCtxGetState = NULL
 cdef void* __cuDevicePrimaryCtxReset_v2 = NULL
+cdef void* __cuCtxCreate_v2 = NULL
+cdef void* __cuCtxCreate_v3 = NULL
 cdef void* __cuCtxCreate_v4 = NULL
 cdef void* __cuCtxDestroy_v2 = NULL
 cdef void* __cuCtxPushCurrent_v2 = NULL
@@ -190,6 +193,8 @@ cdef void* __cuMemcpyAtoHAsync_v2 = NULL
 cdef void* __cuMemcpy2DAsync_v2 = NULL
 cdef void* __cuMemcpy3DAsync_v2 = NULL
 cdef void* __cuMemcpy3DPeerAsync = NULL
+cdef void* __cuMemcpyBatchAsync = NULL
+cdef void* __cuMemcpy3DBatchAsync = NULL
 cdef void* __cuMemsetD8_v2 = NULL
 cdef void* __cuMemsetD16_v2 = NULL
 cdef void* __cuMemsetD32_v2 = NULL
@@ -252,7 +257,9 @@ cdef void* __cuMulticastBindAddr = NULL
 cdef void* __cuMulticastUnbind = NULL
 cdef void* __cuMulticastGetGranularity = NULL
 cdef void* __cuPointerGetAttribute = NULL
+cdef void* __cuMemPrefetchAsync = NULL
 cdef void* __cuMemPrefetchAsync_v2 = NULL
+cdef void* __cuMemAdvise = NULL
 cdef void* __cuMemAdvise_v2 = NULL
 cdef void* __cuMemRangeGetAttribute = NULL
 cdef void* __cuMemRangeGetAttributes = NULL
@@ -273,7 +280,9 @@ cdef void* __cuStreamBeginCaptureToGraph = NULL
 cdef void* __cuThreadExchangeStreamCaptureMode = NULL
 cdef void* __cuStreamEndCapture = NULL
 cdef void* __cuStreamIsCapturing = NULL
+cdef void* __cuStreamGetCaptureInfo_v2 = NULL
 cdef void* __cuStreamGetCaptureInfo_v3 = NULL
+cdef void* __cuStreamUpdateCaptureDependencies = NULL
 cdef void* __cuStreamUpdateCaptureDependencies_v2 = NULL
 cdef void* __cuStreamAttachMemAsync = NULL
 cdef void* __cuStreamQuery = NULL
@@ -288,6 +297,7 @@ cdef void* __cuEventRecordWithFlags = NULL
 cdef void* __cuEventQuery = NULL
 cdef void* __cuEventSynchronize = NULL
 cdef void* __cuEventDestroy_v2 = NULL
+cdef void* __cuEventElapsedTime = NULL
 cdef void* __cuEventElapsedTime_v2 = NULL
 cdef void* __cuImportExternalMemory = NULL
 cdef void* __cuExternalMemoryGetMappedBuffer = NULL
@@ -370,10 +380,15 @@ cdef void* __cuGraphNodeFindInClone = NULL
 cdef void* __cuGraphNodeGetType = NULL
 cdef void* __cuGraphGetNodes = NULL
 cdef void* __cuGraphGetRootNodes = NULL
+cdef void* __cuGraphGetEdges = NULL
 cdef void* __cuGraphGetEdges_v2 = NULL
+cdef void* __cuGraphNodeGetDependencies = NULL
 cdef void* __cuGraphNodeGetDependencies_v2 = NULL
+cdef void* __cuGraphNodeGetDependentNodes = NULL
 cdef void* __cuGraphNodeGetDependentNodes_v2 = NULL
+cdef void* __cuGraphAddDependencies = NULL
 cdef void* __cuGraphAddDependencies_v2 = NULL
+cdef void* __cuGraphRemoveDependencies = NULL
 cdef void* __cuGraphRemoveDependencies_v2 = NULL
 cdef void* __cuGraphDestroyNode = NULL
 cdef void* __cuGraphInstantiateWithFlags = NULL
@@ -404,6 +419,7 @@ cdef void* __cuUserObjectRetain = NULL
 cdef void* __cuUserObjectRelease = NULL
 cdef void* __cuGraphRetainUserObject = NULL
 cdef void* __cuGraphReleaseUserObject = NULL
+cdef void* __cuGraphAddNode = NULL
 cdef void* __cuGraphAddNode_v2 = NULL
 cdef void* __cuGraphNodeSetParams = NULL
 cdef void* __cuGraphExecNodeSetParams = NULL
@@ -527,53 +543,6 @@ cdef void* __cuVDPAUGetDevice = NULL
 cdef void* __cuVDPAUCtxCreate_v2 = NULL
 cdef void* __cuGraphicsVDPAURegisterVideoSurface = NULL
 cdef void* __cuGraphicsVDPAURegisterOutputSurface = NULL
-cdef void* __cuDeviceGetHostAtomicCapabilities = NULL
-cdef void* __cuCtxGetDevice_v2 = NULL
-cdef void* __cuCtxSynchronize_v2 = NULL
-cdef void* __cuMemcpyBatchAsync_v2 = NULL
-cdef void* __cuMemcpy3DBatchAsync_v2 = NULL
-cdef void* __cuMemGetDefaultMemPool = NULL
-cdef void* __cuMemGetMemPool = NULL
-cdef void* __cuMemSetMemPool = NULL
-cdef void* __cuMemPrefetchBatchAsync = NULL
-cdef void* __cuMemDiscardBatchAsync = NULL
-cdef void* __cuMemDiscardAndPrefetchBatchAsync = NULL
-cdef void* __cuDeviceGetP2PAtomicCapabilities = NULL
-cdef void* __cuGreenCtxGetId = NULL
-cdef void* __cuMulticastBindMem_v2 = NULL
-cdef void* __cuMulticastBindAddr_v2 = NULL
-cdef void* __cuGraphNodeGetContainingGraph = NULL
-cdef void* __cuGraphNodeGetLocalId = NULL
-cdef void* __cuGraphNodeGetToolsId = NULL
-cdef void* __cuGraphGetId = NULL
-cdef void* __cuGraphExecGetId = NULL
-cdef void* __cuDevSmResourceSplit = NULL
-cdef void* __cuStreamGetDevResource = NULL
-cdef void* __cuKernelGetParamCount = NULL
-cdef void* __cuMemcpyWithAttributesAsync = NULL
-cdef void* __cuMemcpy3DWithAttributesAsync = NULL
-cdef void* __cuStreamBeginCaptureToCig = NULL
-cdef void* __cuStreamEndCaptureToCig = NULL
-cdef void* __cuFuncGetParamCount = NULL
-cdef void* __cuLaunchHostFunc_v2 = NULL
-cdef void* __cuGraphNodeGetParams = NULL
-cdef void* __cuCoredumpRegisterStartCallback = NULL
-cdef void* __cuCoredumpRegisterCompleteCallback = NULL
-cdef void* __cuCoredumpDeregisterStartCallback = NULL
-cdef void* __cuCoredumpDeregisterCompleteCallback = NULL
-cdef void* __cuLogicalEndpointIdReserve = NULL
-cdef void* __cuLogicalEndpointIdRelease = NULL
-cdef void* __cuLogicalEndpointCreate = NULL
-cdef void* __cuLogicalEndpointAddDevice = NULL
-cdef void* __cuLogicalEndpointDestroy = NULL
-cdef void* __cuLogicalEndpointBindAddr = NULL
-cdef void* __cuLogicalEndpointBindMem = NULL
-cdef void* __cuLogicalEndpointUnbind = NULL
-cdef void* __cuLogicalEndpointExport = NULL
-cdef void* __cuLogicalEndpointImport = NULL
-cdef void* __cuLogicalEndpointGetLimits = NULL
-cdef void* __cuLogicalEndpointQuery = NULL
-cdef void* __cuStreamBeginRecaptureToGraph = NULL
 
 
 
@@ -635,6 +604,9 @@ cdef int _init_driver() except -1 nogil:
         global __cuDeviceGetName
         _F_cuGetProcAddress_v2('cuDeviceGetName', <void **>&__cuDeviceGetName, 2000, ptds_mode, NULL)
 
+        global __cuDeviceGetUuid
+        _F_cuGetProcAddress_v2('cuDeviceGetUuid', <void **>&__cuDeviceGetUuid, 9020, ptds_mode, NULL)
+
         global __cuDeviceGetUuid_v2
         _F_cuGetProcAddress_v2('cuDeviceGetUuid', <void **>&__cuDeviceGetUuid_v2, 11040, ptds_mode, NULL)
 
@@ -688,6 +660,12 @@ cdef int _init_driver() except -1 nogil:
 
         global __cuDevicePrimaryCtxReset_v2
         _F_cuGetProcAddress_v2('cuDevicePrimaryCtxReset', <void **>&__cuDevicePrimaryCtxReset_v2, 11000, ptds_mode, NULL)
+
+        global __cuCtxCreate_v2
+        _F_cuGetProcAddress_v2('cuCtxCreate', <void **>&__cuCtxCreate_v2, 3020, ptds_mode, NULL)
+
+        global __cuCtxCreate_v3
+        _F_cuGetProcAddress_v2('cuCtxCreate', <void **>&__cuCtxCreate_v3, 11040, ptds_mode, NULL)
 
         global __cuCtxCreate_v4
         _F_cuGetProcAddress_v2('cuCtxCreate', <void **>&__cuCtxCreate_v4, 12050, ptds_mode, NULL)
@@ -1004,6 +982,12 @@ cdef int _init_driver() except -1 nogil:
         global __cuMemcpy3DPeerAsync
         _F_cuGetProcAddress_v2('cuMemcpy3DPeerAsync', <void **>&__cuMemcpy3DPeerAsync, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 4000, ptds_mode, NULL)
 
+        global __cuMemcpyBatchAsync
+        _F_cuGetProcAddress_v2('cuMemcpyBatchAsync', <void **>&__cuMemcpyBatchAsync, 12080, ptds_mode, NULL)
+
+        global __cuMemcpy3DBatchAsync
+        _F_cuGetProcAddress_v2('cuMemcpy3DBatchAsync', <void **>&__cuMemcpy3DBatchAsync, 12080, ptds_mode, NULL)
+
         global __cuMemsetD8_v2
         _F_cuGetProcAddress_v2('cuMemsetD8', <void **>&__cuMemsetD8_v2, 7000 if ptds_mode == CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM else 3020, ptds_mode, NULL)
 
@@ -1190,8 +1174,14 @@ cdef int _init_driver() except -1 nogil:
         global __cuPointerGetAttribute
         _F_cuGetProcAddress_v2('cuPointerGetAttribute', <void **>&__cuPointerGetAttribute, 4000, ptds_mode, NULL)
 
+        global __cuMemPrefetchAsync
+        _F_cuGetProcAddress_v2('cuMemPrefetchAsync', <void **>&__cuMemPrefetchAsync, 8000, ptds_mode, NULL)
+
         global __cuMemPrefetchAsync_v2
         _F_cuGetProcAddress_v2('cuMemPrefetchAsync', <void **>&__cuMemPrefetchAsync_v2, 12020, ptds_mode, NULL)
+
+        global __cuMemAdvise
+        _F_cuGetProcAddress_v2('cuMemAdvise', <void **>&__cuMemAdvise, 8000, ptds_mode, NULL)
 
         global __cuMemAdvise_v2
         _F_cuGetProcAddress_v2('cuMemAdvise', <void **>&__cuMemAdvise_v2, 12020, ptds_mode, NULL)
@@ -1253,8 +1243,14 @@ cdef int _init_driver() except -1 nogil:
         global __cuStreamIsCapturing
         _F_cuGetProcAddress_v2('cuStreamIsCapturing', <void **>&__cuStreamIsCapturing, 10000, ptds_mode, NULL)
 
+        global __cuStreamGetCaptureInfo_v2
+        _F_cuGetProcAddress_v2('cuStreamGetCaptureInfo', <void **>&__cuStreamGetCaptureInfo_v2, 11030, ptds_mode, NULL)
+
         global __cuStreamGetCaptureInfo_v3
         _F_cuGetProcAddress_v2('cuStreamGetCaptureInfo', <void **>&__cuStreamGetCaptureInfo_v3, 12030, ptds_mode, NULL)
+
+        global __cuStreamUpdateCaptureDependencies
+        _F_cuGetProcAddress_v2('cuStreamUpdateCaptureDependencies', <void **>&__cuStreamUpdateCaptureDependencies, 11030, ptds_mode, NULL)
 
         global __cuStreamUpdateCaptureDependencies_v2
         _F_cuGetProcAddress_v2('cuStreamUpdateCaptureDependencies', <void **>&__cuStreamUpdateCaptureDependencies_v2, 12030, ptds_mode, NULL)
@@ -1297,6 +1293,9 @@ cdef int _init_driver() except -1 nogil:
 
         global __cuEventDestroy_v2
         _F_cuGetProcAddress_v2('cuEventDestroy', <void **>&__cuEventDestroy_v2, 4000, ptds_mode, NULL)
+
+        global __cuEventElapsedTime
+        _F_cuGetProcAddress_v2('cuEventElapsedTime', <void **>&__cuEventElapsedTime, 2000, ptds_mode, NULL)
 
         global __cuEventElapsedTime_v2
         _F_cuGetProcAddress_v2('cuEventElapsedTime', <void **>&__cuEventElapsedTime_v2, 12080, ptds_mode, NULL)
@@ -1544,17 +1543,32 @@ cdef int _init_driver() except -1 nogil:
         global __cuGraphGetRootNodes
         _F_cuGetProcAddress_v2('cuGraphGetRootNodes', <void **>&__cuGraphGetRootNodes, 10000, ptds_mode, NULL)
 
+        global __cuGraphGetEdges
+        _F_cuGetProcAddress_v2('cuGraphGetEdges', <void **>&__cuGraphGetEdges, 10000, ptds_mode, NULL)
+
         global __cuGraphGetEdges_v2
         _F_cuGetProcAddress_v2('cuGraphGetEdges', <void **>&__cuGraphGetEdges_v2, 12030, ptds_mode, NULL)
+
+        global __cuGraphNodeGetDependencies
+        _F_cuGetProcAddress_v2('cuGraphNodeGetDependencies', <void **>&__cuGraphNodeGetDependencies, 10000, ptds_mode, NULL)
 
         global __cuGraphNodeGetDependencies_v2
         _F_cuGetProcAddress_v2('cuGraphNodeGetDependencies', <void **>&__cuGraphNodeGetDependencies_v2, 12030, ptds_mode, NULL)
 
+        global __cuGraphNodeGetDependentNodes
+        _F_cuGetProcAddress_v2('cuGraphNodeGetDependentNodes', <void **>&__cuGraphNodeGetDependentNodes, 10000, ptds_mode, NULL)
+
         global __cuGraphNodeGetDependentNodes_v2
         _F_cuGetProcAddress_v2('cuGraphNodeGetDependentNodes', <void **>&__cuGraphNodeGetDependentNodes_v2, 12030, ptds_mode, NULL)
 
+        global __cuGraphAddDependencies
+        _F_cuGetProcAddress_v2('cuGraphAddDependencies', <void **>&__cuGraphAddDependencies, 10000, ptds_mode, NULL)
+
         global __cuGraphAddDependencies_v2
         _F_cuGetProcAddress_v2('cuGraphAddDependencies', <void **>&__cuGraphAddDependencies_v2, 12030, ptds_mode, NULL)
+
+        global __cuGraphRemoveDependencies
+        _F_cuGetProcAddress_v2('cuGraphRemoveDependencies', <void **>&__cuGraphRemoveDependencies, 10000, ptds_mode, NULL)
 
         global __cuGraphRemoveDependencies_v2
         _F_cuGetProcAddress_v2('cuGraphRemoveDependencies', <void **>&__cuGraphRemoveDependencies_v2, 12030, ptds_mode, NULL)
@@ -1645,6 +1659,9 @@ cdef int _init_driver() except -1 nogil:
 
         global __cuGraphReleaseUserObject
         _F_cuGetProcAddress_v2('cuGraphReleaseUserObject', <void **>&__cuGraphReleaseUserObject, 11030, ptds_mode, NULL)
+
+        global __cuGraphAddNode
+        _F_cuGetProcAddress_v2('cuGraphAddNode', <void **>&__cuGraphAddNode, 12020, ptds_mode, NULL)
 
         global __cuGraphAddNode_v2
         _F_cuGetProcAddress_v2('cuGraphAddNode', <void **>&__cuGraphAddNode_v2, 12030, ptds_mode, NULL)
@@ -2015,147 +2032,6 @@ cdef int _init_driver() except -1 nogil:
         global __cuGraphicsVDPAURegisterOutputSurface
         _F_cuGetProcAddress_v2('cuGraphicsVDPAURegisterOutputSurface', <void **>&__cuGraphicsVDPAURegisterOutputSurface, 3010, ptds_mode, NULL)
 
-        global __cuDeviceGetHostAtomicCapabilities
-        _F_cuGetProcAddress_v2('cuDeviceGetHostAtomicCapabilities', <void **>&__cuDeviceGetHostAtomicCapabilities, 13000, ptds_mode, NULL)
-
-        global __cuCtxGetDevice_v2
-        _F_cuGetProcAddress_v2('cuCtxGetDevice', <void **>&__cuCtxGetDevice_v2, 13000, ptds_mode, NULL)
-
-        global __cuCtxSynchronize_v2
-        _F_cuGetProcAddress_v2('cuCtxSynchronize', <void **>&__cuCtxSynchronize_v2, 13000, ptds_mode, NULL)
-
-        global __cuMemcpyBatchAsync_v2
-        _F_cuGetProcAddress_v2('cuMemcpyBatchAsync', <void **>&__cuMemcpyBatchAsync_v2, 13000, ptds_mode, NULL)
-
-        global __cuMemcpy3DBatchAsync_v2
-        _F_cuGetProcAddress_v2('cuMemcpy3DBatchAsync', <void **>&__cuMemcpy3DBatchAsync_v2, 13000, ptds_mode, NULL)
-
-        global __cuMemGetDefaultMemPool
-        _F_cuGetProcAddress_v2('cuMemGetDefaultMemPool', <void **>&__cuMemGetDefaultMemPool, 13000, ptds_mode, NULL)
-
-        global __cuMemGetMemPool
-        _F_cuGetProcAddress_v2('cuMemGetMemPool', <void **>&__cuMemGetMemPool, 13000, ptds_mode, NULL)
-
-        global __cuMemSetMemPool
-        _F_cuGetProcAddress_v2('cuMemSetMemPool', <void **>&__cuMemSetMemPool, 13000, ptds_mode, NULL)
-
-        global __cuMemPrefetchBatchAsync
-        _F_cuGetProcAddress_v2('cuMemPrefetchBatchAsync', <void **>&__cuMemPrefetchBatchAsync, 13000, ptds_mode, NULL)
-
-        global __cuMemDiscardBatchAsync
-        _F_cuGetProcAddress_v2('cuMemDiscardBatchAsync', <void **>&__cuMemDiscardBatchAsync, 13000, ptds_mode, NULL)
-
-        global __cuMemDiscardAndPrefetchBatchAsync
-        _F_cuGetProcAddress_v2('cuMemDiscardAndPrefetchBatchAsync', <void **>&__cuMemDiscardAndPrefetchBatchAsync, 13000, ptds_mode, NULL)
-
-        global __cuDeviceGetP2PAtomicCapabilities
-        _F_cuGetProcAddress_v2('cuDeviceGetP2PAtomicCapabilities', <void **>&__cuDeviceGetP2PAtomicCapabilities, 13000, ptds_mode, NULL)
-
-        global __cuGreenCtxGetId
-        _F_cuGetProcAddress_v2('cuGreenCtxGetId', <void **>&__cuGreenCtxGetId, 13000, ptds_mode, NULL)
-
-        global __cuMulticastBindMem_v2
-        _F_cuGetProcAddress_v2('cuMulticastBindMem', <void **>&__cuMulticastBindMem_v2, 13010, ptds_mode, NULL)
-
-        global __cuMulticastBindAddr_v2
-        _F_cuGetProcAddress_v2('cuMulticastBindAddr', <void **>&__cuMulticastBindAddr_v2, 13010, ptds_mode, NULL)
-
-        global __cuGraphNodeGetContainingGraph
-        _F_cuGetProcAddress_v2('cuGraphNodeGetContainingGraph', <void **>&__cuGraphNodeGetContainingGraph, 13010, ptds_mode, NULL)
-
-        global __cuGraphNodeGetLocalId
-        _F_cuGetProcAddress_v2('cuGraphNodeGetLocalId', <void **>&__cuGraphNodeGetLocalId, 13010, ptds_mode, NULL)
-
-        global __cuGraphNodeGetToolsId
-        _F_cuGetProcAddress_v2('cuGraphNodeGetToolsId', <void **>&__cuGraphNodeGetToolsId, 13010, ptds_mode, NULL)
-
-        global __cuGraphGetId
-        _F_cuGetProcAddress_v2('cuGraphGetId', <void **>&__cuGraphGetId, 13010, ptds_mode, NULL)
-
-        global __cuGraphExecGetId
-        _F_cuGetProcAddress_v2('cuGraphExecGetId', <void **>&__cuGraphExecGetId, 13010, ptds_mode, NULL)
-
-        global __cuDevSmResourceSplit
-        _F_cuGetProcAddress_v2('cuDevSmResourceSplit', <void **>&__cuDevSmResourceSplit, 13010, ptds_mode, NULL)
-
-        global __cuStreamGetDevResource
-        _F_cuGetProcAddress_v2('cuStreamGetDevResource', <void **>&__cuStreamGetDevResource, 13010, ptds_mode, NULL)
-
-        global __cuKernelGetParamCount
-        _F_cuGetProcAddress_v2('cuKernelGetParamCount', <void **>&__cuKernelGetParamCount, 13020, ptds_mode, NULL)
-
-        global __cuMemcpyWithAttributesAsync
-        _F_cuGetProcAddress_v2('cuMemcpyWithAttributesAsync', <void **>&__cuMemcpyWithAttributesAsync, 13020, ptds_mode, NULL)
-
-        global __cuMemcpy3DWithAttributesAsync
-        _F_cuGetProcAddress_v2('cuMemcpy3DWithAttributesAsync', <void **>&__cuMemcpy3DWithAttributesAsync, 13020, ptds_mode, NULL)
-
-        global __cuStreamBeginCaptureToCig
-        _F_cuGetProcAddress_v2('cuStreamBeginCaptureToCig', <void **>&__cuStreamBeginCaptureToCig, 13020, ptds_mode, NULL)
-
-        global __cuStreamEndCaptureToCig
-        _F_cuGetProcAddress_v2('cuStreamEndCaptureToCig', <void **>&__cuStreamEndCaptureToCig, 13020, ptds_mode, NULL)
-
-        global __cuFuncGetParamCount
-        _F_cuGetProcAddress_v2('cuFuncGetParamCount', <void **>&__cuFuncGetParamCount, 13020, ptds_mode, NULL)
-
-        global __cuLaunchHostFunc_v2
-        _F_cuGetProcAddress_v2('cuLaunchHostFunc', <void **>&__cuLaunchHostFunc_v2, 13020, ptds_mode, NULL)
-
-        global __cuGraphNodeGetParams
-        _F_cuGetProcAddress_v2('cuGraphNodeGetParams', <void **>&__cuGraphNodeGetParams, 13020, ptds_mode, NULL)
-
-        global __cuCoredumpRegisterStartCallback
-        _F_cuGetProcAddress_v2('cuCoredumpRegisterStartCallback', <void **>&__cuCoredumpRegisterStartCallback, 13020, ptds_mode, NULL)
-
-        global __cuCoredumpRegisterCompleteCallback
-        _F_cuGetProcAddress_v2('cuCoredumpRegisterCompleteCallback', <void **>&__cuCoredumpRegisterCompleteCallback, 13020, ptds_mode, NULL)
-
-        global __cuCoredumpDeregisterStartCallback
-        _F_cuGetProcAddress_v2('cuCoredumpDeregisterStartCallback', <void **>&__cuCoredumpDeregisterStartCallback, 13020, ptds_mode, NULL)
-
-        global __cuCoredumpDeregisterCompleteCallback
-        _F_cuGetProcAddress_v2('cuCoredumpDeregisterCompleteCallback', <void **>&__cuCoredumpDeregisterCompleteCallback, 13020, ptds_mode, NULL)
-
-        global __cuLogicalEndpointIdReserve
-        _F_cuGetProcAddress_v2('cuLogicalEndpointIdReserve', <void **>&__cuLogicalEndpointIdReserve, 13030, ptds_mode, NULL)
-
-        global __cuLogicalEndpointIdRelease
-        _F_cuGetProcAddress_v2('cuLogicalEndpointIdRelease', <void **>&__cuLogicalEndpointIdRelease, 13030, ptds_mode, NULL)
-
-        global __cuLogicalEndpointCreate
-        _F_cuGetProcAddress_v2('cuLogicalEndpointCreate', <void **>&__cuLogicalEndpointCreate, 13030, ptds_mode, NULL)
-
-        global __cuLogicalEndpointAddDevice
-        _F_cuGetProcAddress_v2('cuLogicalEndpointAddDevice', <void **>&__cuLogicalEndpointAddDevice, 13030, ptds_mode, NULL)
-
-        global __cuLogicalEndpointDestroy
-        _F_cuGetProcAddress_v2('cuLogicalEndpointDestroy', <void **>&__cuLogicalEndpointDestroy, 13030, ptds_mode, NULL)
-
-        global __cuLogicalEndpointBindAddr
-        _F_cuGetProcAddress_v2('cuLogicalEndpointBindAddr', <void **>&__cuLogicalEndpointBindAddr, 13030, ptds_mode, NULL)
-
-        global __cuLogicalEndpointBindMem
-        _F_cuGetProcAddress_v2('cuLogicalEndpointBindMem', <void **>&__cuLogicalEndpointBindMem, 13030, ptds_mode, NULL)
-
-        global __cuLogicalEndpointUnbind
-        _F_cuGetProcAddress_v2('cuLogicalEndpointUnbind', <void **>&__cuLogicalEndpointUnbind, 13030, ptds_mode, NULL)
-
-        global __cuLogicalEndpointExport
-        _F_cuGetProcAddress_v2('cuLogicalEndpointExport', <void **>&__cuLogicalEndpointExport, 13030, ptds_mode, NULL)
-
-        global __cuLogicalEndpointImport
-        _F_cuGetProcAddress_v2('cuLogicalEndpointImport', <void **>&__cuLogicalEndpointImport, 13030, ptds_mode, NULL)
-
-        global __cuLogicalEndpointGetLimits
-        _F_cuGetProcAddress_v2('cuLogicalEndpointGetLimits', <void **>&__cuLogicalEndpointGetLimits, 13030, ptds_mode, NULL)
-
-        global __cuLogicalEndpointQuery
-        _F_cuGetProcAddress_v2('cuLogicalEndpointQuery', <void **>&__cuLogicalEndpointQuery, 13030, ptds_mode, NULL)
-
-        global __cuStreamBeginRecaptureToGraph
-        _F_cuGetProcAddress_v2('cuStreamBeginRecaptureToGraph', <void **>&__cuStreamBeginRecaptureToGraph, 13030, ptds_mode, NULL)
-
         __py_driver_init = True
         return 0
 
@@ -2197,6 +2073,9 @@ cpdef dict _inspect_function_pointers():
 
     global __cuDeviceGetName
     data["__cuDeviceGetName"] = <intptr_t>__cuDeviceGetName
+
+    global __cuDeviceGetUuid
+    data["__cuDeviceGetUuid"] = <intptr_t>__cuDeviceGetUuid
 
     global __cuDeviceGetUuid_v2
     data["__cuDeviceGetUuid_v2"] = <intptr_t>__cuDeviceGetUuid_v2
@@ -2251,6 +2130,12 @@ cpdef dict _inspect_function_pointers():
 
     global __cuDevicePrimaryCtxReset_v2
     data["__cuDevicePrimaryCtxReset_v2"] = <intptr_t>__cuDevicePrimaryCtxReset_v2
+
+    global __cuCtxCreate_v2
+    data["__cuCtxCreate_v2"] = <intptr_t>__cuCtxCreate_v2
+
+    global __cuCtxCreate_v3
+    data["__cuCtxCreate_v3"] = <intptr_t>__cuCtxCreate_v3
 
     global __cuCtxCreate_v4
     data["__cuCtxCreate_v4"] = <intptr_t>__cuCtxCreate_v4
@@ -2567,6 +2452,12 @@ cpdef dict _inspect_function_pointers():
     global __cuMemcpy3DPeerAsync
     data["__cuMemcpy3DPeerAsync"] = <intptr_t>__cuMemcpy3DPeerAsync
 
+    global __cuMemcpyBatchAsync
+    data["__cuMemcpyBatchAsync"] = <intptr_t>__cuMemcpyBatchAsync
+
+    global __cuMemcpy3DBatchAsync
+    data["__cuMemcpy3DBatchAsync"] = <intptr_t>__cuMemcpy3DBatchAsync
+
     global __cuMemsetD8_v2
     data["__cuMemsetD8_v2"] = <intptr_t>__cuMemsetD8_v2
 
@@ -2753,8 +2644,14 @@ cpdef dict _inspect_function_pointers():
     global __cuPointerGetAttribute
     data["__cuPointerGetAttribute"] = <intptr_t>__cuPointerGetAttribute
 
+    global __cuMemPrefetchAsync
+    data["__cuMemPrefetchAsync"] = <intptr_t>__cuMemPrefetchAsync
+
     global __cuMemPrefetchAsync_v2
     data["__cuMemPrefetchAsync_v2"] = <intptr_t>__cuMemPrefetchAsync_v2
+
+    global __cuMemAdvise
+    data["__cuMemAdvise"] = <intptr_t>__cuMemAdvise
 
     global __cuMemAdvise_v2
     data["__cuMemAdvise_v2"] = <intptr_t>__cuMemAdvise_v2
@@ -2816,8 +2713,14 @@ cpdef dict _inspect_function_pointers():
     global __cuStreamIsCapturing
     data["__cuStreamIsCapturing"] = <intptr_t>__cuStreamIsCapturing
 
+    global __cuStreamGetCaptureInfo_v2
+    data["__cuStreamGetCaptureInfo_v2"] = <intptr_t>__cuStreamGetCaptureInfo_v2
+
     global __cuStreamGetCaptureInfo_v3
     data["__cuStreamGetCaptureInfo_v3"] = <intptr_t>__cuStreamGetCaptureInfo_v3
+
+    global __cuStreamUpdateCaptureDependencies
+    data["__cuStreamUpdateCaptureDependencies"] = <intptr_t>__cuStreamUpdateCaptureDependencies
 
     global __cuStreamUpdateCaptureDependencies_v2
     data["__cuStreamUpdateCaptureDependencies_v2"] = <intptr_t>__cuStreamUpdateCaptureDependencies_v2
@@ -2860,6 +2763,9 @@ cpdef dict _inspect_function_pointers():
 
     global __cuEventDestroy_v2
     data["__cuEventDestroy_v2"] = <intptr_t>__cuEventDestroy_v2
+
+    global __cuEventElapsedTime
+    data["__cuEventElapsedTime"] = <intptr_t>__cuEventElapsedTime
 
     global __cuEventElapsedTime_v2
     data["__cuEventElapsedTime_v2"] = <intptr_t>__cuEventElapsedTime_v2
@@ -3107,17 +3013,32 @@ cpdef dict _inspect_function_pointers():
     global __cuGraphGetRootNodes
     data["__cuGraphGetRootNodes"] = <intptr_t>__cuGraphGetRootNodes
 
+    global __cuGraphGetEdges
+    data["__cuGraphGetEdges"] = <intptr_t>__cuGraphGetEdges
+
     global __cuGraphGetEdges_v2
     data["__cuGraphGetEdges_v2"] = <intptr_t>__cuGraphGetEdges_v2
+
+    global __cuGraphNodeGetDependencies
+    data["__cuGraphNodeGetDependencies"] = <intptr_t>__cuGraphNodeGetDependencies
 
     global __cuGraphNodeGetDependencies_v2
     data["__cuGraphNodeGetDependencies_v2"] = <intptr_t>__cuGraphNodeGetDependencies_v2
 
+    global __cuGraphNodeGetDependentNodes
+    data["__cuGraphNodeGetDependentNodes"] = <intptr_t>__cuGraphNodeGetDependentNodes
+
     global __cuGraphNodeGetDependentNodes_v2
     data["__cuGraphNodeGetDependentNodes_v2"] = <intptr_t>__cuGraphNodeGetDependentNodes_v2
 
+    global __cuGraphAddDependencies
+    data["__cuGraphAddDependencies"] = <intptr_t>__cuGraphAddDependencies
+
     global __cuGraphAddDependencies_v2
     data["__cuGraphAddDependencies_v2"] = <intptr_t>__cuGraphAddDependencies_v2
+
+    global __cuGraphRemoveDependencies
+    data["__cuGraphRemoveDependencies"] = <intptr_t>__cuGraphRemoveDependencies
 
     global __cuGraphRemoveDependencies_v2
     data["__cuGraphRemoveDependencies_v2"] = <intptr_t>__cuGraphRemoveDependencies_v2
@@ -3208,6 +3129,9 @@ cpdef dict _inspect_function_pointers():
 
     global __cuGraphReleaseUserObject
     data["__cuGraphReleaseUserObject"] = <intptr_t>__cuGraphReleaseUserObject
+
+    global __cuGraphAddNode
+    data["__cuGraphAddNode"] = <intptr_t>__cuGraphAddNode
 
     global __cuGraphAddNode_v2
     data["__cuGraphAddNode_v2"] = <intptr_t>__cuGraphAddNode_v2
@@ -3578,147 +3502,6 @@ cpdef dict _inspect_function_pointers():
     global __cuGraphicsVDPAURegisterOutputSurface
     data["__cuGraphicsVDPAURegisterOutputSurface"] = <intptr_t>__cuGraphicsVDPAURegisterOutputSurface
 
-    global __cuDeviceGetHostAtomicCapabilities
-    data["__cuDeviceGetHostAtomicCapabilities"] = <intptr_t>__cuDeviceGetHostAtomicCapabilities
-
-    global __cuCtxGetDevice_v2
-    data["__cuCtxGetDevice_v2"] = <intptr_t>__cuCtxGetDevice_v2
-
-    global __cuCtxSynchronize_v2
-    data["__cuCtxSynchronize_v2"] = <intptr_t>__cuCtxSynchronize_v2
-
-    global __cuMemcpyBatchAsync_v2
-    data["__cuMemcpyBatchAsync_v2"] = <intptr_t>__cuMemcpyBatchAsync_v2
-
-    global __cuMemcpy3DBatchAsync_v2
-    data["__cuMemcpy3DBatchAsync_v2"] = <intptr_t>__cuMemcpy3DBatchAsync_v2
-
-    global __cuMemGetDefaultMemPool
-    data["__cuMemGetDefaultMemPool"] = <intptr_t>__cuMemGetDefaultMemPool
-
-    global __cuMemGetMemPool
-    data["__cuMemGetMemPool"] = <intptr_t>__cuMemGetMemPool
-
-    global __cuMemSetMemPool
-    data["__cuMemSetMemPool"] = <intptr_t>__cuMemSetMemPool
-
-    global __cuMemPrefetchBatchAsync
-    data["__cuMemPrefetchBatchAsync"] = <intptr_t>__cuMemPrefetchBatchAsync
-
-    global __cuMemDiscardBatchAsync
-    data["__cuMemDiscardBatchAsync"] = <intptr_t>__cuMemDiscardBatchAsync
-
-    global __cuMemDiscardAndPrefetchBatchAsync
-    data["__cuMemDiscardAndPrefetchBatchAsync"] = <intptr_t>__cuMemDiscardAndPrefetchBatchAsync
-
-    global __cuDeviceGetP2PAtomicCapabilities
-    data["__cuDeviceGetP2PAtomicCapabilities"] = <intptr_t>__cuDeviceGetP2PAtomicCapabilities
-
-    global __cuGreenCtxGetId
-    data["__cuGreenCtxGetId"] = <intptr_t>__cuGreenCtxGetId
-
-    global __cuMulticastBindMem_v2
-    data["__cuMulticastBindMem_v2"] = <intptr_t>__cuMulticastBindMem_v2
-
-    global __cuMulticastBindAddr_v2
-    data["__cuMulticastBindAddr_v2"] = <intptr_t>__cuMulticastBindAddr_v2
-
-    global __cuGraphNodeGetContainingGraph
-    data["__cuGraphNodeGetContainingGraph"] = <intptr_t>__cuGraphNodeGetContainingGraph
-
-    global __cuGraphNodeGetLocalId
-    data["__cuGraphNodeGetLocalId"] = <intptr_t>__cuGraphNodeGetLocalId
-
-    global __cuGraphNodeGetToolsId
-    data["__cuGraphNodeGetToolsId"] = <intptr_t>__cuGraphNodeGetToolsId
-
-    global __cuGraphGetId
-    data["__cuGraphGetId"] = <intptr_t>__cuGraphGetId
-
-    global __cuGraphExecGetId
-    data["__cuGraphExecGetId"] = <intptr_t>__cuGraphExecGetId
-
-    global __cuDevSmResourceSplit
-    data["__cuDevSmResourceSplit"] = <intptr_t>__cuDevSmResourceSplit
-
-    global __cuStreamGetDevResource
-    data["__cuStreamGetDevResource"] = <intptr_t>__cuStreamGetDevResource
-
-    global __cuKernelGetParamCount
-    data["__cuKernelGetParamCount"] = <intptr_t>__cuKernelGetParamCount
-
-    global __cuMemcpyWithAttributesAsync
-    data["__cuMemcpyWithAttributesAsync"] = <intptr_t>__cuMemcpyWithAttributesAsync
-
-    global __cuMemcpy3DWithAttributesAsync
-    data["__cuMemcpy3DWithAttributesAsync"] = <intptr_t>__cuMemcpy3DWithAttributesAsync
-
-    global __cuStreamBeginCaptureToCig
-    data["__cuStreamBeginCaptureToCig"] = <intptr_t>__cuStreamBeginCaptureToCig
-
-    global __cuStreamEndCaptureToCig
-    data["__cuStreamEndCaptureToCig"] = <intptr_t>__cuStreamEndCaptureToCig
-
-    global __cuFuncGetParamCount
-    data["__cuFuncGetParamCount"] = <intptr_t>__cuFuncGetParamCount
-
-    global __cuLaunchHostFunc_v2
-    data["__cuLaunchHostFunc_v2"] = <intptr_t>__cuLaunchHostFunc_v2
-
-    global __cuGraphNodeGetParams
-    data["__cuGraphNodeGetParams"] = <intptr_t>__cuGraphNodeGetParams
-
-    global __cuCoredumpRegisterStartCallback
-    data["__cuCoredumpRegisterStartCallback"] = <intptr_t>__cuCoredumpRegisterStartCallback
-
-    global __cuCoredumpRegisterCompleteCallback
-    data["__cuCoredumpRegisterCompleteCallback"] = <intptr_t>__cuCoredumpRegisterCompleteCallback
-
-    global __cuCoredumpDeregisterStartCallback
-    data["__cuCoredumpDeregisterStartCallback"] = <intptr_t>__cuCoredumpDeregisterStartCallback
-
-    global __cuCoredumpDeregisterCompleteCallback
-    data["__cuCoredumpDeregisterCompleteCallback"] = <intptr_t>__cuCoredumpDeregisterCompleteCallback
-
-    global __cuLogicalEndpointIdReserve
-    data["__cuLogicalEndpointIdReserve"] = <intptr_t>__cuLogicalEndpointIdReserve
-
-    global __cuLogicalEndpointIdRelease
-    data["__cuLogicalEndpointIdRelease"] = <intptr_t>__cuLogicalEndpointIdRelease
-
-    global __cuLogicalEndpointCreate
-    data["__cuLogicalEndpointCreate"] = <intptr_t>__cuLogicalEndpointCreate
-
-    global __cuLogicalEndpointAddDevice
-    data["__cuLogicalEndpointAddDevice"] = <intptr_t>__cuLogicalEndpointAddDevice
-
-    global __cuLogicalEndpointDestroy
-    data["__cuLogicalEndpointDestroy"] = <intptr_t>__cuLogicalEndpointDestroy
-
-    global __cuLogicalEndpointBindAddr
-    data["__cuLogicalEndpointBindAddr"] = <intptr_t>__cuLogicalEndpointBindAddr
-
-    global __cuLogicalEndpointBindMem
-    data["__cuLogicalEndpointBindMem"] = <intptr_t>__cuLogicalEndpointBindMem
-
-    global __cuLogicalEndpointUnbind
-    data["__cuLogicalEndpointUnbind"] = <intptr_t>__cuLogicalEndpointUnbind
-
-    global __cuLogicalEndpointExport
-    data["__cuLogicalEndpointExport"] = <intptr_t>__cuLogicalEndpointExport
-
-    global __cuLogicalEndpointImport
-    data["__cuLogicalEndpointImport"] = <intptr_t>__cuLogicalEndpointImport
-
-    global __cuLogicalEndpointGetLimits
-    data["__cuLogicalEndpointGetLimits"] = <intptr_t>__cuLogicalEndpointGetLimits
-
-    global __cuLogicalEndpointQuery
-    data["__cuLogicalEndpointQuery"] = <intptr_t>__cuLogicalEndpointQuery
-
-    global __cuStreamBeginRecaptureToGraph
-    data["__cuStreamBeginRecaptureToGraph"] = <intptr_t>__cuStreamBeginRecaptureToGraph
-
     func_ptrs = data
     return data
 
@@ -3802,6 +3585,16 @@ cdef CUresult _cuDeviceGetName(char* name, int len, CUdevice dev) except ?CUDA_E
             raise FunctionNotFoundError("function cuDeviceGetName is not found")
     return (<CUresult (*)(char*, int, CUdevice) noexcept nogil>__cuDeviceGetName)(
         name, len, dev)
+
+
+cdef CUresult _cuDeviceGetUuid(CUuuid* uuid, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuDeviceGetUuid
+    _check_or_init_driver()
+    if __cuDeviceGetUuid == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuDeviceGetUuid is not found")
+    return (<CUresult (*)(CUuuid*, CUdevice) noexcept nogil>__cuDeviceGetUuid)(
+        uuid, dev)
 
 
 cdef CUresult _cuDeviceGetUuid_v2(CUuuid* uuid, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -3982,6 +3775,26 @@ cdef CUresult _cuDevicePrimaryCtxReset_v2(CUdevice dev) except ?CUDA_ERROR_NOT_F
             raise FunctionNotFoundError("function cuDevicePrimaryCtxReset_v2 is not found")
     return (<CUresult (*)(CUdevice) noexcept nogil>__cuDevicePrimaryCtxReset_v2)(
         dev)
+
+
+cdef CUresult _cuCtxCreate_v2(CUcontext* pctx, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCtxCreate_v2
+    _check_or_init_driver()
+    if __cuCtxCreate_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuCtxCreate_v2 is not found")
+    return (<CUresult (*)(CUcontext*, unsigned int, CUdevice) noexcept nogil>__cuCtxCreate_v2)(
+        pctx, flags, dev)
+
+
+cdef CUresult _cuCtxCreate_v3(CUcontext* pctx, CUexecAffinityParam* paramsArray, int numParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCtxCreate_v3
+    _check_or_init_driver()
+    if __cuCtxCreate_v3 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuCtxCreate_v3 is not found")
+    return (<CUresult (*)(CUcontext*, CUexecAffinityParam*, int, unsigned int, CUdevice) noexcept nogil>__cuCtxCreate_v3)(
+        pctx, paramsArray, numParams, flags, dev)
 
 
 cdef CUresult _cuCtxCreate_v4(CUcontext* pctx, CUctxCreateParams* ctxCreateParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -5034,6 +4847,26 @@ cdef CUresult _cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER* pCopy, CUstream hSt
         pCopy, hStream)
 
 
+cdef CUresult _cuMemcpyBatchAsync(CUdeviceptr* dsts, CUdeviceptr* srcs, size_t* sizes, size_t count, CUmemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, size_t* failIdx, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMemcpyBatchAsync
+    _check_or_init_driver()
+    if __cuMemcpyBatchAsync == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuMemcpyBatchAsync is not found")
+    return (<CUresult (*)(CUdeviceptr*, CUdeviceptr*, size_t*, size_t, CUmemcpyAttributes*, size_t*, size_t, size_t*, CUstream) noexcept nogil>__cuMemcpyBatchAsync)(
+        dsts, srcs, sizes, count, attrs, attrsIdxs, numAttrs, failIdx, hStream)
+
+
+cdef CUresult _cuMemcpy3DBatchAsync(size_t numOps, CUDA_MEMCPY3D_BATCH_OP* opList, size_t* failIdx, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMemcpy3DBatchAsync
+    _check_or_init_driver()
+    if __cuMemcpy3DBatchAsync == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuMemcpy3DBatchAsync is not found")
+    return (<CUresult (*)(size_t, CUDA_MEMCPY3D_BATCH_OP*, size_t*, unsigned long long, CUstream) noexcept nogil>__cuMemcpy3DBatchAsync)(
+        numOps, opList, failIdx, flags, hStream)
+
+
 cdef CUresult _cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_t N) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemsetD8_v2
     _check_or_init_driver()
@@ -5654,6 +5487,16 @@ cdef CUresult _cuPointerGetAttribute(void* data, CUpointer_attribute attribute, 
         data, attribute, ptr)
 
 
+cdef CUresult _cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevice dstDevice, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMemPrefetchAsync
+    _check_or_init_driver()
+    if __cuMemPrefetchAsync == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuMemPrefetchAsync is not found")
+    return (<CUresult (*)(CUdeviceptr, size_t, CUdevice, CUstream) noexcept nogil>__cuMemPrefetchAsync)(
+        devPtr, count, dstDevice, hStream)
+
+
 cdef CUresult _cuMemPrefetchAsync_v2(CUdeviceptr devPtr, size_t count, CUmemLocation location, unsigned int flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuMemPrefetchAsync_v2
     _check_or_init_driver()
@@ -5662,6 +5505,16 @@ cdef CUresult _cuMemPrefetchAsync_v2(CUdeviceptr devPtr, size_t count, CUmemLoca
             raise FunctionNotFoundError("function cuMemPrefetchAsync_v2 is not found")
     return (<CUresult (*)(CUdeviceptr, size_t, CUmemLocation, unsigned int, CUstream) noexcept nogil>__cuMemPrefetchAsync_v2)(
         devPtr, count, location, flags, hStream)
+
+
+cdef CUresult _cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUdevice device) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMemAdvise
+    _check_or_init_driver()
+    if __cuMemAdvise == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuMemAdvise is not found")
+    return (<CUresult (*)(CUdeviceptr, size_t, CUmem_advise, CUdevice) noexcept nogil>__cuMemAdvise)(
+        devPtr, count, advice, device)
 
 
 cdef CUresult _cuMemAdvise_v2(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUmemLocation location) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -5864,6 +5717,16 @@ cdef CUresult _cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* capt
         hStream, captureStatus)
 
 
+cdef CUresult _cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuStreamGetCaptureInfo_v2
+    _check_or_init_driver()
+    if __cuStreamGetCaptureInfo_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuStreamGetCaptureInfo_v2 is not found")
+    return (<CUresult (*)(CUstream, CUstreamCaptureStatus*, cuuint64_t*, CUgraph*, const CUgraphNode**, size_t*) noexcept nogil>__cuStreamGetCaptureInfo_v2)(
+        hStream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out)
+
+
 cdef CUresult _cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuStreamGetCaptureInfo_v3
     _check_or_init_driver()
@@ -5872,6 +5735,16 @@ cdef CUresult _cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus
             raise FunctionNotFoundError("function cuStreamGetCaptureInfo_v3 is not found")
     return (<CUresult (*)(CUstream, CUstreamCaptureStatus*, cuuint64_t*, CUgraph*, const CUgraphNode**, const CUgraphEdgeData**, size_t*) noexcept nogil>__cuStreamGetCaptureInfo_v3)(
         hStream, captureStatus_out, id_out, graph_out, dependencies_out, edgeData_out, numDependencies_out)
+
+
+cdef CUresult _cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode* dependencies, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuStreamUpdateCaptureDependencies
+    _check_or_init_driver()
+    if __cuStreamUpdateCaptureDependencies == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuStreamUpdateCaptureDependencies is not found")
+    return (<CUresult (*)(CUstream, CUgraphNode*, size_t, unsigned int) noexcept nogil>__cuStreamUpdateCaptureDependencies)(
+        hStream, dependencies, numDependencies, flags)
 
 
 cdef CUresult _cuStreamUpdateCaptureDependencies_v2(CUstream hStream, CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -6012,6 +5885,16 @@ cdef CUresult _cuEventDestroy_v2(CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND no
             raise FunctionNotFoundError("function cuEventDestroy_v2 is not found")
     return (<CUresult (*)(CUevent) noexcept nogil>__cuEventDestroy_v2)(
         hEvent)
+
+
+cdef CUresult _cuEventElapsedTime(float* pMilliseconds, CUevent hStart, CUevent hEnd) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuEventElapsedTime
+    _check_or_init_driver()
+    if __cuEventElapsedTime == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuEventElapsedTime is not found")
+    return (<CUresult (*)(float*, CUevent, CUevent) noexcept nogil>__cuEventElapsedTime)(
+        pMilliseconds, hStart, hEnd)
 
 
 cdef CUresult _cuEventElapsedTime_v2(float* pMilliseconds, CUevent hStart, CUevent hEnd) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -6834,6 +6717,16 @@ cdef CUresult _cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode* rootNodes, size_
         hGraph, rootNodes, numRootNodes)
 
 
+cdef CUresult _cuGraphGetEdges(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, size_t* numEdges) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphGetEdges
+    _check_or_init_driver()
+    if __cuGraphGetEdges == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuGraphGetEdges is not found")
+    return (<CUresult (*)(CUgraph, CUgraphNode*, CUgraphNode*, size_t*) noexcept nogil>__cuGraphGetEdges)(
+        hGraph, from_, to, numEdges)
+
+
 cdef CUresult _cuGraphGetEdges_v2(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, CUgraphEdgeData* edgeData, size_t* numEdges) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphGetEdges_v2
     _check_or_init_driver()
@@ -6842,6 +6735,16 @@ cdef CUresult _cuGraphGetEdges_v2(CUgraph hGraph, CUgraphNode* from_, CUgraphNod
             raise FunctionNotFoundError("function cuGraphGetEdges_v2 is not found")
     return (<CUresult (*)(CUgraph, CUgraphNode*, CUgraphNode*, CUgraphEdgeData*, size_t*) noexcept nogil>__cuGraphGetEdges_v2)(
         hGraph, from_, to, edgeData, numEdges)
+
+
+cdef CUresult _cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode* dependencies, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphNodeGetDependencies
+    _check_or_init_driver()
+    if __cuGraphNodeGetDependencies == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuGraphNodeGetDependencies is not found")
+    return (<CUresult (*)(CUgraphNode, CUgraphNode*, size_t*) noexcept nogil>__cuGraphNodeGetDependencies)(
+        hNode, dependencies, numDependencies)
 
 
 cdef CUresult _cuGraphNodeGetDependencies_v2(CUgraphNode hNode, CUgraphNode* dependencies, CUgraphEdgeData* edgeData, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -6854,6 +6757,16 @@ cdef CUresult _cuGraphNodeGetDependencies_v2(CUgraphNode hNode, CUgraphNode* dep
         hNode, dependencies, edgeData, numDependencies)
 
 
+cdef CUresult _cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode* dependentNodes, size_t* numDependentNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphNodeGetDependentNodes
+    _check_or_init_driver()
+    if __cuGraphNodeGetDependentNodes == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuGraphNodeGetDependentNodes is not found")
+    return (<CUresult (*)(CUgraphNode, CUgraphNode*, size_t*) noexcept nogil>__cuGraphNodeGetDependentNodes)(
+        hNode, dependentNodes, numDependentNodes)
+
+
 cdef CUresult _cuGraphNodeGetDependentNodes_v2(CUgraphNode hNode, CUgraphNode* dependentNodes, CUgraphEdgeData* edgeData, size_t* numDependentNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphNodeGetDependentNodes_v2
     _check_or_init_driver()
@@ -6864,6 +6777,16 @@ cdef CUresult _cuGraphNodeGetDependentNodes_v2(CUgraphNode hNode, CUgraphNode* d
         hNode, dependentNodes, edgeData, numDependentNodes)
 
 
+cdef CUresult _cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphAddDependencies
+    _check_or_init_driver()
+    if __cuGraphAddDependencies == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuGraphAddDependencies is not found")
+    return (<CUresult (*)(CUgraph, const CUgraphNode*, const CUgraphNode*, size_t) noexcept nogil>__cuGraphAddDependencies)(
+        hGraph, from_, to, numDependencies)
+
+
 cdef CUresult _cuGraphAddDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuGraphAddDependencies_v2
     _check_or_init_driver()
@@ -6872,6 +6795,16 @@ cdef CUresult _cuGraphAddDependencies_v2(CUgraph hGraph, const CUgraphNode* from
             raise FunctionNotFoundError("function cuGraphAddDependencies_v2 is not found")
     return (<CUresult (*)(CUgraph, const CUgraphNode*, const CUgraphNode*, const CUgraphEdgeData*, size_t) noexcept nogil>__cuGraphAddDependencies_v2)(
         hGraph, from_, to, edgeData, numDependencies)
+
+
+cdef CUresult _cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphRemoveDependencies
+    _check_or_init_driver()
+    if __cuGraphRemoveDependencies == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuGraphRemoveDependencies is not found")
+    return (<CUresult (*)(CUgraph, const CUgraphNode*, const CUgraphNode*, size_t) noexcept nogil>__cuGraphRemoveDependencies)(
+        hGraph, from_, to, numDependencies)
 
 
 cdef CUresult _cuGraphRemoveDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -7172,6 +7105,16 @@ cdef CUresult _cuGraphReleaseUserObject(CUgraph graph, CUuserObject object, unsi
             raise FunctionNotFoundError("function cuGraphReleaseUserObject is not found")
     return (<CUresult (*)(CUgraph, CUuserObject, unsigned int) noexcept nogil>__cuGraphReleaseUserObject)(
         graph, object, count)
+
+
+cdef CUresult _cuGraphAddNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphAddNode
+    _check_or_init_driver()
+    if __cuGraphAddNode == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuGraphAddNode is not found")
+    return (<CUresult (*)(CUgraphNode*, CUgraph, const CUgraphNode*, size_t, CUgraphNodeParams*) noexcept nogil>__cuGraphAddNode)(
+        phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
 
 
 cdef CUresult _cuGraphAddNode_v2(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -7924,14 +7867,14 @@ cdef CUresult _cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource
         hCtx, resource, type)
 
 
-cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remaining, unsigned int useFlags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDevSmResourceSplitByCount
     _check_or_init_driver()
     if __cuDevSmResourceSplitByCount == NULL:
         with gil:
             raise FunctionNotFoundError("function cuDevSmResourceSplitByCount is not found")
     return (<CUresult (*)(CUdevResource*, unsigned int*, const CUdevResource*, CUdevResource*, unsigned int, unsigned int) noexcept nogil>__cuDevSmResourceSplitByCount)(
-        result, nbGroups, input, remainder, flags, minCount)
+        result, nbGroups, input, remaining, useFlags, minCount)
 
 
 cdef CUresult _cuDevResourceGenerateDesc(CUdevResourceDesc* phDesc, CUdevResource* resources, unsigned int nbResources) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -8402,473 +8345,3 @@ cdef CUresult _cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaRes
             raise FunctionNotFoundError("function cuGraphicsVDPAURegisterOutputSurface is not found")
     return (<CUresult (*)(CUgraphicsResource*, VdpOutputSurface, unsigned int) noexcept nogil>__cuGraphicsVDPAURegisterOutputSurface)(
         pCudaResource, vdpSurface, flags)
-
-
-cdef CUresult _cuDeviceGetHostAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuDeviceGetHostAtomicCapabilities
-    _check_or_init_driver()
-    if __cuDeviceGetHostAtomicCapabilities == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuDeviceGetHostAtomicCapabilities is not found")
-    return (<CUresult (*)(unsigned int*, const CUatomicOperation*, unsigned int, CUdevice) noexcept nogil>__cuDeviceGetHostAtomicCapabilities)(
-        capabilities, operations, count, dev)
-
-
-cdef CUresult _cuCtxGetDevice_v2(CUdevice* device, CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuCtxGetDevice_v2
-    _check_or_init_driver()
-    if __cuCtxGetDevice_v2 == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuCtxGetDevice_v2 is not found")
-    return (<CUresult (*)(CUdevice*, CUcontext) noexcept nogil>__cuCtxGetDevice_v2)(
-        device, ctx)
-
-
-cdef CUresult _cuCtxSynchronize_v2(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuCtxSynchronize_v2
-    _check_or_init_driver()
-    if __cuCtxSynchronize_v2 == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuCtxSynchronize_v2 is not found")
-    return (<CUresult (*)(CUcontext) noexcept nogil>__cuCtxSynchronize_v2)(
-        ctx)
-
-
-cdef CUresult _cuMemcpyBatchAsync_v2(CUdeviceptr* dsts, CUdeviceptr* srcs, size_t* sizes, size_t count, CUmemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMemcpyBatchAsync_v2
-    _check_or_init_driver()
-    if __cuMemcpyBatchAsync_v2 == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMemcpyBatchAsync_v2 is not found")
-    return (<CUresult (*)(CUdeviceptr*, CUdeviceptr*, size_t*, size_t, CUmemcpyAttributes*, size_t*, size_t, CUstream) noexcept nogil>__cuMemcpyBatchAsync_v2)(
-        dsts, srcs, sizes, count, attrs, attrsIdxs, numAttrs, hStream)
-
-
-cdef CUresult _cuMemcpy3DBatchAsync_v2(size_t numOps, CUDA_MEMCPY3D_BATCH_OP* opList, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMemcpy3DBatchAsync_v2
-    _check_or_init_driver()
-    if __cuMemcpy3DBatchAsync_v2 == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMemcpy3DBatchAsync_v2 is not found")
-    return (<CUresult (*)(size_t, CUDA_MEMCPY3D_BATCH_OP*, unsigned long long, CUstream) noexcept nogil>__cuMemcpy3DBatchAsync_v2)(
-        numOps, opList, flags, hStream)
-
-
-cdef CUresult _cuMemGetDefaultMemPool(CUmemoryPool* pool_out, CUmemLocation* location, CUmemAllocationType type) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMemGetDefaultMemPool
-    _check_or_init_driver()
-    if __cuMemGetDefaultMemPool == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMemGetDefaultMemPool is not found")
-    return (<CUresult (*)(CUmemoryPool*, CUmemLocation*, CUmemAllocationType) noexcept nogil>__cuMemGetDefaultMemPool)(
-        pool_out, location, type)
-
-
-cdef CUresult _cuMemGetMemPool(CUmemoryPool* pool, CUmemLocation* location, CUmemAllocationType type) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMemGetMemPool
-    _check_or_init_driver()
-    if __cuMemGetMemPool == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMemGetMemPool is not found")
-    return (<CUresult (*)(CUmemoryPool*, CUmemLocation*, CUmemAllocationType) noexcept nogil>__cuMemGetMemPool)(
-        pool, location, type)
-
-
-cdef CUresult _cuMemSetMemPool(CUmemLocation* location, CUmemAllocationType type, CUmemoryPool pool) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMemSetMemPool
-    _check_or_init_driver()
-    if __cuMemSetMemPool == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMemSetMemPool is not found")
-    return (<CUresult (*)(CUmemLocation*, CUmemAllocationType, CUmemoryPool) noexcept nogil>__cuMemSetMemPool)(
-        location, type, pool)
-
-
-cdef CUresult _cuMemPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMemPrefetchBatchAsync
-    _check_or_init_driver()
-    if __cuMemPrefetchBatchAsync == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMemPrefetchBatchAsync is not found")
-    return (<CUresult (*)(CUdeviceptr*, size_t*, size_t, CUmemLocation*, size_t*, size_t, unsigned long long, CUstream) noexcept nogil>__cuMemPrefetchBatchAsync)(
-        dptrs, sizes, count, prefetchLocs, prefetchLocIdxs, numPrefetchLocs, flags, hStream)
-
-
-cdef CUresult _cuMemDiscardBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMemDiscardBatchAsync
-    _check_or_init_driver()
-    if __cuMemDiscardBatchAsync == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMemDiscardBatchAsync is not found")
-    return (<CUresult (*)(CUdeviceptr*, size_t*, size_t, unsigned long long, CUstream) noexcept nogil>__cuMemDiscardBatchAsync)(
-        dptrs, sizes, count, flags, hStream)
-
-
-cdef CUresult _cuMemDiscardAndPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMemDiscardAndPrefetchBatchAsync
-    _check_or_init_driver()
-    if __cuMemDiscardAndPrefetchBatchAsync == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMemDiscardAndPrefetchBatchAsync is not found")
-    return (<CUresult (*)(CUdeviceptr*, size_t*, size_t, CUmemLocation*, size_t*, size_t, unsigned long long, CUstream) noexcept nogil>__cuMemDiscardAndPrefetchBatchAsync)(
-        dptrs, sizes, count, prefetchLocs, prefetchLocIdxs, numPrefetchLocs, flags, hStream)
-
-
-cdef CUresult _cuDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice srcDevice, CUdevice dstDevice) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuDeviceGetP2PAtomicCapabilities
-    _check_or_init_driver()
-    if __cuDeviceGetP2PAtomicCapabilities == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuDeviceGetP2PAtomicCapabilities is not found")
-    return (<CUresult (*)(unsigned int*, const CUatomicOperation*, unsigned int, CUdevice, CUdevice) noexcept nogil>__cuDeviceGetP2PAtomicCapabilities)(
-        capabilities, operations, count, srcDevice, dstDevice)
-
-
-cdef CUresult _cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuGreenCtxGetId
-    _check_or_init_driver()
-    if __cuGreenCtxGetId == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuGreenCtxGetId is not found")
-    return (<CUresult (*)(CUgreenCtx, unsigned long long*) noexcept nogil>__cuGreenCtxGetId)(
-        greenCtx, greenCtxId)
-
-
-cdef CUresult _cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMulticastBindMem_v2
-    _check_or_init_driver()
-    if __cuMulticastBindMem_v2 == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMulticastBindMem_v2 is not found")
-    return (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice, size_t, CUmemGenericAllocationHandle, size_t, size_t, unsigned long long) noexcept nogil>__cuMulticastBindMem_v2)(
-        mcHandle, dev, mcOffset, memHandle, memOffset, size, flags)
-
-
-cdef CUresult _cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMulticastBindAddr_v2
-    _check_or_init_driver()
-    if __cuMulticastBindAddr_v2 == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMulticastBindAddr_v2 is not found")
-    return (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice, size_t, CUdeviceptr, size_t, unsigned long long) noexcept nogil>__cuMulticastBindAddr_v2)(
-        mcHandle, dev, mcOffset, memptr, size, flags)
-
-
-cdef CUresult _cuGraphNodeGetContainingGraph(CUgraphNode hNode, CUgraph* phGraph) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuGraphNodeGetContainingGraph
-    _check_or_init_driver()
-    if __cuGraphNodeGetContainingGraph == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuGraphNodeGetContainingGraph is not found")
-    return (<CUresult (*)(CUgraphNode, CUgraph*) noexcept nogil>__cuGraphNodeGetContainingGraph)(
-        hNode, phGraph)
-
-
-cdef CUresult _cuGraphNodeGetLocalId(CUgraphNode hNode, unsigned int* nodeId) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuGraphNodeGetLocalId
-    _check_or_init_driver()
-    if __cuGraphNodeGetLocalId == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuGraphNodeGetLocalId is not found")
-    return (<CUresult (*)(CUgraphNode, unsigned int*) noexcept nogil>__cuGraphNodeGetLocalId)(
-        hNode, nodeId)
-
-
-cdef CUresult _cuGraphNodeGetToolsId(CUgraphNode hNode, unsigned long long* toolsNodeId) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuGraphNodeGetToolsId
-    _check_or_init_driver()
-    if __cuGraphNodeGetToolsId == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuGraphNodeGetToolsId is not found")
-    return (<CUresult (*)(CUgraphNode, unsigned long long*) noexcept nogil>__cuGraphNodeGetToolsId)(
-        hNode, toolsNodeId)
-
-
-cdef CUresult _cuGraphGetId(CUgraph hGraph, unsigned int* graphId) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuGraphGetId
-    _check_or_init_driver()
-    if __cuGraphGetId == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuGraphGetId is not found")
-    return (<CUresult (*)(CUgraph, unsigned int*) noexcept nogil>__cuGraphGetId)(
-        hGraph, graphId)
-
-
-cdef CUresult _cuGraphExecGetId(CUgraphExec hGraphExec, unsigned int* graphId) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuGraphExecGetId
-    _check_or_init_driver()
-    if __cuGraphExecGetId == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuGraphExecGetId is not found")
-    return (<CUresult (*)(CUgraphExec, unsigned int*) noexcept nogil>__cuGraphExecGetId)(
-        hGraphExec, graphId)
-
-
-cdef CUresult _cuDevSmResourceSplit(CUdevResource* result, unsigned int nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, CU_DEV_SM_RESOURCE_GROUP_PARAMS* groupParams) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuDevSmResourceSplit
-    _check_or_init_driver()
-    if __cuDevSmResourceSplit == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuDevSmResourceSplit is not found")
-    return (<CUresult (*)(CUdevResource*, unsigned int, const CUdevResource*, CUdevResource*, unsigned int, CU_DEV_SM_RESOURCE_GROUP_PARAMS*) noexcept nogil>__cuDevSmResourceSplit)(
-        result, nbGroups, input, remainder, flags, groupParams)
-
-
-cdef CUresult _cuStreamGetDevResource(CUstream hStream, CUdevResource* resource, CUdevResourceType type) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuStreamGetDevResource
-    _check_or_init_driver()
-    if __cuStreamGetDevResource == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuStreamGetDevResource is not found")
-    return (<CUresult (*)(CUstream, CUdevResource*, CUdevResourceType) noexcept nogil>__cuStreamGetDevResource)(
-        hStream, resource, type)
-
-
-cdef CUresult _cuKernelGetParamCount(CUkernel kernel, size_t* paramCount) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuKernelGetParamCount
-    _check_or_init_driver()
-    if __cuKernelGetParamCount == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuKernelGetParamCount is not found")
-    return (<CUresult (*)(CUkernel, size_t*) noexcept nogil>__cuKernelGetParamCount)(
-        kernel, paramCount)
-
-
-cdef CUresult _cuMemcpyWithAttributesAsync(CUdeviceptr dst, CUdeviceptr src, size_t size, CUmemcpyAttributes* attr, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMemcpyWithAttributesAsync
-    _check_or_init_driver()
-    if __cuMemcpyWithAttributesAsync == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMemcpyWithAttributesAsync is not found")
-    return (<CUresult (*)(CUdeviceptr, CUdeviceptr, size_t, CUmemcpyAttributes*, CUstream) noexcept nogil>__cuMemcpyWithAttributesAsync)(
-        dst, src, size, attr, hStream)
-
-
-cdef CUresult _cuMemcpy3DWithAttributesAsync(CUDA_MEMCPY3D_BATCH_OP* op, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuMemcpy3DWithAttributesAsync
-    _check_or_init_driver()
-    if __cuMemcpy3DWithAttributesAsync == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuMemcpy3DWithAttributesAsync is not found")
-    return (<CUresult (*)(CUDA_MEMCPY3D_BATCH_OP*, unsigned long long, CUstream) noexcept nogil>__cuMemcpy3DWithAttributesAsync)(
-        op, flags, hStream)
-
-
-cdef CUresult _cuStreamBeginCaptureToCig(CUstream hStream, CUstreamCigCaptureParams* streamCigCaptureParams) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuStreamBeginCaptureToCig
-    _check_or_init_driver()
-    if __cuStreamBeginCaptureToCig == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuStreamBeginCaptureToCig is not found")
-    return (<CUresult (*)(CUstream, CUstreamCigCaptureParams*) noexcept nogil>__cuStreamBeginCaptureToCig)(
-        hStream, streamCigCaptureParams)
-
-
-cdef CUresult _cuStreamEndCaptureToCig(CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuStreamEndCaptureToCig
-    _check_or_init_driver()
-    if __cuStreamEndCaptureToCig == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuStreamEndCaptureToCig is not found")
-    return (<CUresult (*)(CUstream) noexcept nogil>__cuStreamEndCaptureToCig)(
-        hStream)
-
-
-cdef CUresult _cuFuncGetParamCount(CUfunction func, size_t* paramCount) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuFuncGetParamCount
-    _check_or_init_driver()
-    if __cuFuncGetParamCount == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuFuncGetParamCount is not found")
-    return (<CUresult (*)(CUfunction, size_t*) noexcept nogil>__cuFuncGetParamCount)(
-        func, paramCount)
-
-
-cdef CUresult _cuLaunchHostFunc_v2(CUstream hStream, CUhostFn fn, void* userData, unsigned int syncMode) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLaunchHostFunc_v2
-    _check_or_init_driver()
-    if __cuLaunchHostFunc_v2 == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLaunchHostFunc_v2 is not found")
-    return (<CUresult (*)(CUstream, CUhostFn, void*, unsigned int) noexcept nogil>__cuLaunchHostFunc_v2)(
-        hStream, fn, userData, syncMode)
-
-
-cdef CUresult _cuGraphNodeGetParams(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuGraphNodeGetParams
-    _check_or_init_driver()
-    if __cuGraphNodeGetParams == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuGraphNodeGetParams is not found")
-    return (<CUresult (*)(CUgraphNode, CUgraphNodeParams*) noexcept nogil>__cuGraphNodeGetParams)(
-        hNode, nodeParams)
-
-
-cdef CUresult _cuCoredumpRegisterStartCallback(CUcoredumpStatusCallback callback, void* userData, CUcoredumpCallbackHandle* callbackOut) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuCoredumpRegisterStartCallback
-    _check_or_init_driver()
-    if __cuCoredumpRegisterStartCallback == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuCoredumpRegisterStartCallback is not found")
-    return (<CUresult (*)(CUcoredumpStatusCallback, void*, CUcoredumpCallbackHandle*) noexcept nogil>__cuCoredumpRegisterStartCallback)(
-        callback, userData, callbackOut)
-
-
-cdef CUresult _cuCoredumpRegisterCompleteCallback(CUcoredumpStatusCallback callback, void* userData, CUcoredumpCallbackHandle* callbackOut) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuCoredumpRegisterCompleteCallback
-    _check_or_init_driver()
-    if __cuCoredumpRegisterCompleteCallback == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuCoredumpRegisterCompleteCallback is not found")
-    return (<CUresult (*)(CUcoredumpStatusCallback, void*, CUcoredumpCallbackHandle*) noexcept nogil>__cuCoredumpRegisterCompleteCallback)(
-        callback, userData, callbackOut)
-
-
-cdef CUresult _cuCoredumpDeregisterStartCallback(CUcoredumpCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuCoredumpDeregisterStartCallback
-    _check_or_init_driver()
-    if __cuCoredumpDeregisterStartCallback == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuCoredumpDeregisterStartCallback is not found")
-    return (<CUresult (*)(CUcoredumpCallbackHandle) noexcept nogil>__cuCoredumpDeregisterStartCallback)(
-        callback)
-
-
-cdef CUresult _cuCoredumpDeregisterCompleteCallback(CUcoredumpCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuCoredumpDeregisterCompleteCallback
-    _check_or_init_driver()
-    if __cuCoredumpDeregisterCompleteCallback == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuCoredumpDeregisterCompleteCallback is not found")
-    return (<CUresult (*)(CUcoredumpCallbackHandle) noexcept nogil>__cuCoredumpDeregisterCompleteCallback)(
-        callback)
-
-
-cdef CUresult _cuLogicalEndpointIdReserve(CUlogicalEndpointId* baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointIdReserve
-    _check_or_init_driver()
-    if __cuLogicalEndpointIdReserve == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointIdReserve is not found")
-    return (<CUresult (*)(CUlogicalEndpointId*, cuuint32_t) noexcept nogil>__cuLogicalEndpointIdReserve)(
-        baseLeId, count)
-
-
-cdef CUresult _cuLogicalEndpointIdRelease(CUlogicalEndpointId baseLeId, cuuint32_t count) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointIdRelease
-    _check_or_init_driver()
-    if __cuLogicalEndpointIdRelease == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointIdRelease is not found")
-    return (<CUresult (*)(CUlogicalEndpointId, cuuint32_t) noexcept nogil>__cuLogicalEndpointIdRelease)(
-        baseLeId, count)
-
-
-cdef CUresult _cuLogicalEndpointCreate(CUlogicalEndpointId leId, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointCreate
-    _check_or_init_driver()
-    if __cuLogicalEndpointCreate == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointCreate is not found")
-    return (<CUresult (*)(CUlogicalEndpointId, const CUlogicalEndpointProp*) noexcept nogil>__cuLogicalEndpointCreate)(
-        leId, prop)
-
-
-cdef CUresult _cuLogicalEndpointAddDevice(CUlogicalEndpointId leId, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointAddDevice
-    _check_or_init_driver()
-    if __cuLogicalEndpointAddDevice == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointAddDevice is not found")
-    return (<CUresult (*)(CUlogicalEndpointId, CUdevice) noexcept nogil>__cuLogicalEndpointAddDevice)(
-        leId, dev)
-
-
-cdef CUresult _cuLogicalEndpointDestroy(CUlogicalEndpointId leId) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointDestroy
-    _check_or_init_driver()
-    if __cuLogicalEndpointDestroy == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointDestroy is not found")
-    return (<CUresult (*)(CUlogicalEndpointId) noexcept nogil>__cuLogicalEndpointDestroy)(
-        leId)
-
-
-cdef CUresult _cuLogicalEndpointBindAddr(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, void* ptr, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointBindAddr
-    _check_or_init_driver()
-    if __cuLogicalEndpointBindAddr == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointBindAddr is not found")
-    return (<CUresult (*)(CUlogicalEndpointId, CUdevice, cuuint64_t, void*, cuuint64_t, unsigned long long) noexcept nogil>__cuLogicalEndpointBindAddr)(
-        leId, dev, offset, ptr, size, flags)
-
-
-cdef CUresult _cuLogicalEndpointBindMem(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, CUmemGenericAllocationHandle memHandle, cuuint64_t memOffset, cuuint64_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointBindMem
-    _check_or_init_driver()
-    if __cuLogicalEndpointBindMem == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointBindMem is not found")
-    return (<CUresult (*)(CUlogicalEndpointId, CUdevice, cuuint64_t, CUmemGenericAllocationHandle, cuuint64_t, cuuint64_t, unsigned long long) noexcept nogil>__cuLogicalEndpointBindMem)(
-        leId, dev, offset, memHandle, memOffset, size, flags)
-
-
-cdef CUresult _cuLogicalEndpointUnbind(CUlogicalEndpointId leId, CUdevice dev, cuuint64_t offset, cuuint64_t size) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointUnbind
-    _check_or_init_driver()
-    if __cuLogicalEndpointUnbind == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointUnbind is not found")
-    return (<CUresult (*)(CUlogicalEndpointId, CUdevice, cuuint64_t, cuuint64_t) noexcept nogil>__cuLogicalEndpointUnbind)(
-        leId, dev, offset, size)
-
-
-cdef CUresult _cuLogicalEndpointExport(void* handle, CUlogicalEndpointId leId, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointExport
-    _check_or_init_driver()
-    if __cuLogicalEndpointExport == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointExport is not found")
-    return (<CUresult (*)(void*, CUlogicalEndpointId, CUlogicalEndpointIpcHandleType) noexcept nogil>__cuLogicalEndpointExport)(
-        handle, leId, handleType)
-
-
-cdef CUresult _cuLogicalEndpointImport(CUlogicalEndpointId leId, const void* handle, CUlogicalEndpointIpcHandleType handleType) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointImport
-    _check_or_init_driver()
-    if __cuLogicalEndpointImport == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointImport is not found")
-    return (<CUresult (*)(CUlogicalEndpointId, const void*, CUlogicalEndpointIpcHandleType) noexcept nogil>__cuLogicalEndpointImport)(
-        leId, handle, handleType)
-
-
-cdef CUresult _cuLogicalEndpointGetLimits(cuuint64_t* bindAlignment, cuuint64_t* maxSize, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointGetLimits
-    _check_or_init_driver()
-    if __cuLogicalEndpointGetLimits == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointGetLimits is not found")
-    return (<CUresult (*)(cuuint64_t*, cuuint64_t*, const CUlogicalEndpointProp*) noexcept nogil>__cuLogicalEndpointGetLimits)(
-        bindAlignment, maxSize, prop)
-
-
-cdef CUresult _cuLogicalEndpointQuery(CUlogicalEndpointId leId, cuuint32_t count, int* queryStatus) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuLogicalEndpointQuery
-    _check_or_init_driver()
-    if __cuLogicalEndpointQuery == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuLogicalEndpointQuery is not found")
-    return (<CUresult (*)(CUlogicalEndpointId, cuuint32_t, int*) noexcept nogil>__cuLogicalEndpointQuery)(
-        leId, count, queryStatus)
-
-
-cdef CUresult _cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMode mode, CUgraph hGraph, CUgraphRecaptureCallback callbackFunc, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil:
-    global __cuStreamBeginRecaptureToGraph
-    _check_or_init_driver()
-    if __cuStreamBeginRecaptureToGraph == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuStreamBeginRecaptureToGraph is not found")
-    return (<CUresult (*)(CUstream, CUstreamCaptureMode, CUgraph, CUgraphRecaptureCallback, void*) noexcept nogil>__cuStreamBeginRecaptureToGraph)(
-        hStream, mode, hGraph, callbackFunc, userData)

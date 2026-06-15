@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
 
 from ._internal cimport nvrtc as _nvrtc
 
@@ -100,23 +100,3 @@ cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) ex
 
 cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     return _nvrtc._nvrtcSetFlowCallback(prog, callback, payload)
-
-
-cdef nvrtcResult nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    return _nvrtc._nvrtcGetTileIRSize(prog, TileIRSizeRet)
-
-
-cdef nvrtcResult nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    return _nvrtc._nvrtcGetTileIR(prog, TileIR)
-
-
-cdef nvrtcResult nvrtcInstallBundledHeaders(const char* installPath, unsigned int flags, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    return _nvrtc._nvrtcInstallBundledHeaders(installPath, flags, errorLog)
-
-
-cdef nvrtcResult nvrtcGetBundledHeadersInfo(nvrtcBundledHeadersInfo* info, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    return _nvrtc._nvrtcGetBundledHeadersInfo(info, errorLog)
-
-
-cdef nvrtcResult nvrtcRemoveBundledHeaders(const char* installPath, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    return _nvrtc._nvrtcRemoveBundledHeaders(installPath, errorLog)

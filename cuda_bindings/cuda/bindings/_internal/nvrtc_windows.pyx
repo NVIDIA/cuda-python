@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -101,11 +101,6 @@ cdef void* __nvrtcSetPCHHeapSize = NULL
 cdef void* __nvrtcGetPCHCreateStatus = NULL
 cdef void* __nvrtcGetPCHHeapSizeRequired = NULL
 cdef void* __nvrtcSetFlowCallback = NULL
-cdef void* __nvrtcGetTileIRSize = NULL
-cdef void* __nvrtcGetTileIR = NULL
-cdef void* __nvrtcInstallBundledHeaders = NULL
-cdef void* __nvrtcGetBundledHeadersInfo = NULL
-cdef void* __nvrtcRemoveBundledHeaders = NULL
 
 
 cdef int _init_nvrtc() except -1 nogil:
@@ -191,21 +186,6 @@ cdef int _init_nvrtc() except -1 nogil:
 
         global __nvrtcSetFlowCallback
         __nvrtcSetFlowCallback = GetProcAddress(handle, 'nvrtcSetFlowCallback')
-
-        global __nvrtcGetTileIRSize
-        __nvrtcGetTileIRSize = GetProcAddress(handle, 'nvrtcGetTileIRSize')
-
-        global __nvrtcGetTileIR
-        __nvrtcGetTileIR = GetProcAddress(handle, 'nvrtcGetTileIR')
-
-        global __nvrtcInstallBundledHeaders
-        __nvrtcInstallBundledHeaders = GetProcAddress(handle, 'nvrtcInstallBundledHeaders')
-
-        global __nvrtcGetBundledHeadersInfo
-        __nvrtcGetBundledHeadersInfo = GetProcAddress(handle, 'nvrtcGetBundledHeadersInfo')
-
-        global __nvrtcRemoveBundledHeaders
-        __nvrtcRemoveBundledHeaders = GetProcAddress(handle, 'nvrtcRemoveBundledHeaders')
 
         __py_nvrtc_init = True
         return 0
@@ -299,21 +279,6 @@ cpdef dict _inspect_function_pointers():
 
     global __nvrtcSetFlowCallback
     data["__nvrtcSetFlowCallback"] = <intptr_t>__nvrtcSetFlowCallback
-
-    global __nvrtcGetTileIRSize
-    data["__nvrtcGetTileIRSize"] = <intptr_t>__nvrtcGetTileIRSize
-
-    global __nvrtcGetTileIR
-    data["__nvrtcGetTileIR"] = <intptr_t>__nvrtcGetTileIR
-
-    global __nvrtcInstallBundledHeaders
-    data["__nvrtcInstallBundledHeaders"] = <intptr_t>__nvrtcInstallBundledHeaders
-
-    global __nvrtcGetBundledHeadersInfo
-    data["__nvrtcGetBundledHeadersInfo"] = <intptr_t>__nvrtcGetBundledHeadersInfo
-
-    global __nvrtcRemoveBundledHeaders
-    data["__nvrtcRemoveBundledHeaders"] = <intptr_t>__nvrtcRemoveBundledHeaders
 
     func_ptrs = data
     return data
@@ -568,53 +533,3 @@ cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void*
             raise FunctionNotFoundError("function nvrtcSetFlowCallback is not found")
     return (<nvrtcResult (*)(nvrtcProgram, void *, void*) noexcept nogil>__nvrtcSetFlowCallback)(
         prog, callback, payload)
-
-
-cdef nvrtcResult _nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    global __nvrtcGetTileIRSize
-    _check_or_init_nvrtc()
-    if __nvrtcGetTileIRSize == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvrtcGetTileIRSize is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetTileIRSize)(
-        prog, TileIRSizeRet)
-
-
-cdef nvrtcResult _nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    global __nvrtcGetTileIR
-    _check_or_init_nvrtc()
-    if __nvrtcGetTileIR == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvrtcGetTileIR is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetTileIR)(
-        prog, TileIR)
-
-
-cdef nvrtcResult _nvrtcInstallBundledHeaders(const char* installPath, unsigned int flags, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    global __nvrtcInstallBundledHeaders
-    _check_or_init_nvrtc()
-    if __nvrtcInstallBundledHeaders == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvrtcInstallBundledHeaders is not found")
-    return (<nvrtcResult (*)(const char*, unsigned int, const char**) noexcept nogil>__nvrtcInstallBundledHeaders)(
-        installPath, flags, errorLog)
-
-
-cdef nvrtcResult _nvrtcGetBundledHeadersInfo(nvrtcBundledHeadersInfo* info, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    global __nvrtcGetBundledHeadersInfo
-    _check_or_init_nvrtc()
-    if __nvrtcGetBundledHeadersInfo == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvrtcGetBundledHeadersInfo is not found")
-    return (<nvrtcResult (*)(nvrtcBundledHeadersInfo*, const char**) noexcept nogil>__nvrtcGetBundledHeadersInfo)(
-        info, errorLog)
-
-
-cdef nvrtcResult _nvrtcRemoveBundledHeaders(const char* installPath, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    global __nvrtcRemoveBundledHeaders
-    _check_or_init_nvrtc()
-    if __nvrtcRemoveBundledHeaders == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvrtcRemoveBundledHeaders is not found")
-    return (<nvrtcResult (*)(const char*, const char**) noexcept nogil>__nvrtcRemoveBundledHeaders)(
-        installPath, errorLog)

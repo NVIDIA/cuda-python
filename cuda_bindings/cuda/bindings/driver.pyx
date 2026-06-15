@@ -23880,6 +23880,48 @@ def cuDeviceGetName(int length, dev):
     return (_CUresult_SUCCESS, pyname)
 
 @cython.embedsignature(True)
+def cuDeviceGetUuid(dev):
+    """ Return an UUID for the device.
+
+    Note there is a later version of this API,
+    :py:obj:`~.cuDeviceGetUuid_v2`. It will supplant this version in 12.0,
+    which is retained for minor version compatibility.
+
+    Returns 16-octets identifying the device `dev` in the structure pointed
+    by the `uuid`.
+
+    Parameters
+    ----------
+    dev : :py:obj:`~.CUdevice`
+        Device to get identifier string for
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`
+    uuid : :py:obj:`~.CUuuid`
+        Returned UUID
+
+    See Also
+    --------
+    :py:obj:`~.cuDeviceGetUuid_v2` :py:obj:`~.cuDeviceGetAttribute`, :py:obj:`~.cuDeviceGetCount`, :py:obj:`~.cuDeviceGetName`, :py:obj:`~.cuDeviceGetLuid`, :py:obj:`~.cuDeviceGet`, :py:obj:`~.cuDeviceTotalMem`, :py:obj:`~.cuDeviceGetExecAffinitySupport`, :py:obj:`~.cudaGetDeviceProperties`
+    """
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    cdef CUuuid uuid = CUuuid()
+    with nogil:
+        err = cydriver.cuDeviceGetUuid(<cydriver.CUuuid*>uuid._pvt_ptr, cydev)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, uuid)
+
+@cython.embedsignature(True)
 def cuDeviceGetUuid_v2(dev):
     """ Return an UUID for the device (11.4+).
 
@@ -25216,6 +25258,314 @@ def cuDevicePrimaryCtxReset(dev):
     with nogil:
         err = cydriver.cuDevicePrimaryCtxReset(cydev)
     return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuCtxCreate(unsigned int flags, dev):
+    """ Create a CUDA context.
+
+    Creates a new CUDA context and associates it with the calling thread.
+    The `flags` parameter is described below. The context is created with a
+    usage count of 1 and the caller of :py:obj:`~.cuCtxCreate()` must call
+    :py:obj:`~.cuCtxDestroy()` when done using the context. If a context is
+    already current to the thread, it is supplanted by the newly created
+    context and may be restored by a subsequent call to
+    :py:obj:`~.cuCtxPopCurrent()`.
+
+    The three LSBs of the `flags` parameter can be used to control how the
+    OS thread, which owns the CUDA context at the time of an API call,
+    interacts with the OS scheduler when waiting for results from the GPU.
+    Only one of the scheduling flags can be set when creating a context.
+
+    - :py:obj:`~.CU_CTX_SCHED_SPIN`: Instruct CUDA to actively spin when
+      waiting for results from the GPU. This can decrease latency when
+      waiting for the GPU, but may lower the performance of CPU threads if
+      they are performing work in parallel with the CUDA thread.
+
+    - :py:obj:`~.CU_CTX_SCHED_YIELD`: Instruct CUDA to yield its thread
+      when waiting for results from the GPU. This can increase latency when
+      waiting for the GPU, but can increase the performance of CPU threads
+      performing work in parallel with the GPU.
+
+    - :py:obj:`~.CU_CTX_SCHED_BLOCKING_SYNC`: Instruct CUDA to block the
+      CPU thread on a synchronization primitive when waiting for the GPU to
+      finish work.
+
+    - :py:obj:`~.CU_CTX_BLOCKING_SYNC`: Instruct CUDA to block the CPU
+      thread on a synchronization primitive when waiting for the GPU to
+      finish work.   Deprecated: This flag was deprecated as of CUDA 4.0
+      and was replaced with :py:obj:`~.CU_CTX_SCHED_BLOCKING_SYNC`.
+
+    - :py:obj:`~.CU_CTX_SCHED_AUTO`: The default value if the `flags`
+      parameter is zero, uses a heuristic based on the number of active
+      CUDA contexts in the process `C` and the number of logical processors
+      in the system `P`. If `C` > `P`, then CUDA will yield to other OS
+      threads when waiting for the GPU (:py:obj:`~.CU_CTX_SCHED_YIELD`),
+      otherwise CUDA will not yield while waiting for results and actively
+      spin on the processor (:py:obj:`~.CU_CTX_SCHED_SPIN`). Additionally,
+      on Tegra devices, :py:obj:`~.CU_CTX_SCHED_AUTO` uses a heuristic
+      based on the power profile of the platform and may choose
+      :py:obj:`~.CU_CTX_SCHED_BLOCKING_SYNC` for low-powered devices.
+
+    - :py:obj:`~.CU_CTX_MAP_HOST`: Instruct CUDA to support mapped pinned
+      allocations. This flag must be set in order to allocate pinned host
+      memory that is accessible to the GPU.
+
+    - :py:obj:`~.CU_CTX_LMEM_RESIZE_TO_MAX`: Instruct CUDA to not reduce
+      local memory after resizing local memory for a kernel. This can
+      prevent thrashing by local memory allocations when launching many
+      kernels with high local memory usage at the cost of potentially
+      increased memory usage.   Deprecated: This flag is deprecated and the
+      behavior enabled by this flag is now the default and cannot be
+      disabled. Instead, the per-thread stack size can be controlled with
+      :py:obj:`~.cuCtxSetLimit()`.
+
+    - :py:obj:`~.CU_CTX_COREDUMP_ENABLE`: If GPU coredumps have not been
+      enabled globally with :py:obj:`~.cuCoredumpSetAttributeGlobal` or
+      environment variables, this flag can be set during context creation
+      to instruct CUDA to create a coredump if this context raises an
+      exception during execution. These environment variables are described
+      in the CUDA-GDB user guide under the "GPU core dump support" section.
+      The initial attributes will be taken from the global attributes at
+      the time of context creation. The other attributes that control
+      coredump output can be modified by calling
+      :py:obj:`~.cuCoredumpSetAttribute` from the created context after it
+      becomes current.
+
+    - :py:obj:`~.CU_CTX_USER_COREDUMP_ENABLE`: If user-triggered GPU
+      coredumps have not been enabled globally with
+      :py:obj:`~.cuCoredumpSetAttributeGlobal` or environment variables,
+      this flag can be set during context creation to instruct CUDA to
+      create a coredump if data is written to a certain pipe that is
+      present in the OS space. These environment variables are described in
+      the CUDA-GDB user guide under the "GPU core dump support" section. It
+      is important to note that the pipe name `must` be set with
+      :py:obj:`~.cuCoredumpSetAttributeGlobal` before creating the context
+      if this flag is used. Setting this flag implies that
+      :py:obj:`~.CU_CTX_COREDUMP_ENABLE` is set. The initial attributes
+      will be taken from the global attributes at the time of context
+      creation. The other attributes that control coredump output can be
+      modified by calling :py:obj:`~.cuCoredumpSetAttribute` from the
+      created context after it becomes current. Setting this flag on any
+      context creation is equivalent to setting the
+      :py:obj:`~.CU_COREDUMP_ENABLE_USER_TRIGGER` attribute to `true`
+      globally.
+
+    - :py:obj:`~.CU_CTX_SYNC_MEMOPS`: Ensures that synchronous memory
+      operations initiated on this context will always synchronize. See
+      further documentation in the section titled "API Synchronization
+      behavior" to learn more about cases when synchronous memory
+      operations can exhibit asynchronous behavior.
+
+    Context creation will fail with :py:obj:`~.CUDA_ERROR_UNKNOWN` if the
+    compute mode of the device is :py:obj:`~.CU_COMPUTEMODE_PROHIBITED`.
+    The function :py:obj:`~.cuDeviceGetAttribute()` can be used with
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_COMPUTE_MODE` to determine the compute
+    mode of the device. The `nvidia-smi` tool can be used to set the
+    compute mode for * devices. Documentation for `nvidia-smi` can be
+    obtained by passing a -h option to it.
+
+    Parameters
+    ----------
+    flags : unsigned int
+        Context creation flags
+    dev : :py:obj:`~.CUdevice`
+        Device to create context on
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_UNKNOWN`
+    pctx : :py:obj:`~.CUcontext`
+        Returned context handle of the new context
+
+    See Also
+    --------
+    :py:obj:`~.cuCtxDestroy`, :py:obj:`~.cuCtxGetApiVersion`, :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxGetDevice`, :py:obj:`~.cuCtxGetFlags`, :py:obj:`~.cuCtxGetLimit`, :py:obj:`~.cuCtxPopCurrent`, :py:obj:`~.cuCtxPushCurrent`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuCtxSetLimit`, :py:obj:`~.cuCoredumpSetAttributeGlobal`, :py:obj:`~.cuCoredumpSetAttribute`, :py:obj:`~.cuCtxSynchronize`
+
+    Notes
+    -----
+    In most cases it is recommended to use :py:obj:`~.cuDevicePrimaryCtxRetain`.
+    """
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    cdef CUcontext pctx = CUcontext()
+    with nogil:
+        err = cydriver.cuCtxCreate(<cydriver.CUcontext*>pctx._pvt_ptr, flags, cydev)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, pctx)
+
+@cython.embedsignature(True)
+def cuCtxCreate_v3(paramsArray : Optional[tuple[CUexecAffinityParam] | list[CUexecAffinityParam]], int numParams, unsigned int flags, dev):
+    """ Create a CUDA context with execution affinity.
+
+    Creates a new CUDA context with execution affinity and associates it
+    with the calling thread. The `paramsArray` and `flags` parameter are
+    described below. The context is created with a usage count of 1 and the
+    caller of :py:obj:`~.cuCtxCreate()` must call
+    :py:obj:`~.cuCtxDestroy()` when done using the context. If a context is
+    already current to the thread, it is supplanted by the newly created
+    context and may be restored by a subsequent call to
+    :py:obj:`~.cuCtxPopCurrent()`.
+
+    The type and the amount of execution resource the context can use is
+    limited by `paramsArray` and `numParams`. The `paramsArray` is an array
+    of `CUexecAffinityParam` and the `numParams` describes the size of the
+    array. If two `CUexecAffinityParam` in the array have the same type,
+    the latter execution affinity parameter overrides the former execution
+    affinity parameter. The supported execution affinity types are:
+
+    - :py:obj:`~.CU_EXEC_AFFINITY_TYPE_SM_COUNT` limits the portion of SMs
+      that the context can use. The portion of SMs is specified as the
+      number of SMs via `CUexecAffinitySmCount`. This limit will be
+      internally rounded up to the next hardware-supported amount. Hence,
+      it is imperative to query the actual execution affinity of the
+      context via `cuCtxGetExecAffinity` after context creation. Currently,
+      this attribute is only supported under Volta+ MPS.
+
+    The three LSBs of the `flags` parameter can be used to control how the
+    OS thread, which owns the CUDA context at the time of an API call,
+    interacts with the OS scheduler when waiting for results from the GPU.
+    Only one of the scheduling flags can be set when creating a context.
+
+    - :py:obj:`~.CU_CTX_SCHED_SPIN`: Instruct CUDA to actively spin when
+      waiting for results from the GPU. This can decrease latency when
+      waiting for the GPU, but may lower the performance of CPU threads if
+      they are performing work in parallel with the CUDA thread.
+
+    - :py:obj:`~.CU_CTX_SCHED_YIELD`: Instruct CUDA to yield its thread
+      when waiting for results from the GPU. This can increase latency when
+      waiting for the GPU, but can increase the performance of CPU threads
+      performing work in parallel with the GPU.
+
+    - :py:obj:`~.CU_CTX_SCHED_BLOCKING_SYNC`: Instruct CUDA to block the
+      CPU thread on a synchronization primitive when waiting for the GPU to
+      finish work.
+
+    - :py:obj:`~.CU_CTX_BLOCKING_SYNC`: Instruct CUDA to block the CPU
+      thread on a synchronization primitive when waiting for the GPU to
+      finish work.   Deprecated: This flag was deprecated as of CUDA 4.0
+      and was replaced with :py:obj:`~.CU_CTX_SCHED_BLOCKING_SYNC`.
+
+    - :py:obj:`~.CU_CTX_SCHED_AUTO`: The default value if the `flags`
+      parameter is zero, uses a heuristic based on the number of active
+      CUDA contexts in the process `C` and the number of logical processors
+      in the system `P`. If `C` > `P`, then CUDA will yield to other OS
+      threads when waiting for the GPU (:py:obj:`~.CU_CTX_SCHED_YIELD`),
+      otherwise CUDA will not yield while waiting for results and actively
+      spin on the processor (:py:obj:`~.CU_CTX_SCHED_SPIN`). Additionally,
+      on Tegra devices, :py:obj:`~.CU_CTX_SCHED_AUTO` uses a heuristic
+      based on the power profile of the platform and may choose
+      :py:obj:`~.CU_CTX_SCHED_BLOCKING_SYNC` for low-powered devices.
+
+    - :py:obj:`~.CU_CTX_MAP_HOST`: Instruct CUDA to support mapped pinned
+      allocations. This flag must be set in order to allocate pinned host
+      memory that is accessible to the GPU.
+
+    - :py:obj:`~.CU_CTX_LMEM_RESIZE_TO_MAX`: Instruct CUDA to not reduce
+      local memory after resizing local memory for a kernel. This can
+      prevent thrashing by local memory allocations when launching many
+      kernels with high local memory usage at the cost of potentially
+      increased memory usage.   Deprecated: This flag is deprecated and the
+      behavior enabled by this flag is now the default and cannot be
+      disabled. Instead, the per-thread stack size can be controlled with
+      :py:obj:`~.cuCtxSetLimit()`.
+
+    - :py:obj:`~.CU_CTX_COREDUMP_ENABLE`: If GPU coredumps have not been
+      enabled globally with :py:obj:`~.cuCoredumpSetAttributeGlobal` or
+      environment variables, this flag can be set during context creation
+      to instruct CUDA to create a coredump if this context raises an
+      exception during execution. These environment variables are described
+      in the CUDA-GDB user guide under the "GPU core dump support" section.
+      The initial attributes will be taken from the global attributes at
+      the time of context creation. The other attributes that control
+      coredump output can be modified by calling
+      :py:obj:`~.cuCoredumpSetAttribute` from the created context after it
+      becomes current.
+
+    - :py:obj:`~.CU_CTX_USER_COREDUMP_ENABLE`: If user-triggered GPU
+      coredumps have not been enabled globally with
+      :py:obj:`~.cuCoredumpSetAttributeGlobal` or environment variables,
+      this flag can be set during context creation to instruct CUDA to
+      create a coredump if data is written to a certain pipe that is
+      present in the OS space. These environment variables are described in
+      the CUDA-GDB user guide under the "GPU core dump support" section. It
+      is important to note that the pipe name `must` be set with
+      :py:obj:`~.cuCoredumpSetAttributeGlobal` before creating the context
+      if this flag is used. Setting this flag implies that
+      :py:obj:`~.CU_CTX_COREDUMP_ENABLE` is set. The initial attributes
+      will be taken from the global attributes at the time of context
+      creation. The other attributes that control coredump output can be
+      modified by calling :py:obj:`~.cuCoredumpSetAttribute` from the
+      created context after it becomes current. Setting this flag on any
+      context creation is equivalent to setting the
+      :py:obj:`~.CU_COREDUMP_ENABLE_USER_TRIGGER` attribute to `true`
+      globally.
+
+    Context creation will fail with :py:obj:`~.CUDA_ERROR_UNKNOWN` if the
+    compute mode of the device is :py:obj:`~.CU_COMPUTEMODE_PROHIBITED`.
+    The function :py:obj:`~.cuDeviceGetAttribute()` can be used with
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_COMPUTE_MODE` to determine the compute
+    mode of the device. The `nvidia-smi` tool can be used to set the
+    compute mode for * devices. Documentation for `nvidia-smi` can be
+    obtained by passing a -h option to it.
+
+    Parameters
+    ----------
+    paramsArray : list[:py:obj:`~.CUexecAffinityParam`]
+        Execution affinity parameters
+    numParams : int
+        Number of execution affinity parameters
+    flags : unsigned int
+        Context creation flags
+    dev : :py:obj:`~.CUdevice`
+        Device to create context on
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_UNSUPPORTED_EXEC_AFFINITY`, :py:obj:`~.CUDA_ERROR_UNKNOWN`
+    pctx : :py:obj:`~.CUcontext`
+        Returned context handle of the new context
+
+    See Also
+    --------
+    :py:obj:`~.cuCtxDestroy`, :py:obj:`~.cuCtxGetApiVersion`, :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxGetDevice`, :py:obj:`~.cuCtxGetFlags`, :py:obj:`~.cuCtxGetLimit`, :py:obj:`~.cuCtxPopCurrent`, :py:obj:`~.cuCtxPushCurrent`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuCtxSetLimit`, :py:obj:`~.cuCtxSynchronize`, :py:obj:`~.cuCoredumpSetAttributeGlobal`, :py:obj:`~.cuCoredumpSetAttribute`, :py:obj:`~.CUexecAffinityParam`
+    """
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    paramsArray = [] if paramsArray is None else paramsArray
+    if not all(isinstance(_x, (CUexecAffinityParam,)) for _x in paramsArray):
+        raise TypeError("Argument 'paramsArray' is not instance of type (expected tuple[cydriver.CUexecAffinityParam,] or list[cydriver.CUexecAffinityParam,]")
+    cdef CUcontext pctx = CUcontext()
+    cdef cydriver.CUexecAffinityParam* cyparamsArray = NULL
+    if len(paramsArray) > 1:
+        cyparamsArray = <cydriver.CUexecAffinityParam*> calloc(len(paramsArray), sizeof(cydriver.CUexecAffinityParam))
+        if cyparamsArray is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(paramsArray)) + 'x' + str(sizeof(cydriver.CUexecAffinityParam)))
+        for idx in range(len(paramsArray)):
+            string.memcpy(&cyparamsArray[idx], (<CUexecAffinityParam>paramsArray[idx])._pvt_ptr, sizeof(cydriver.CUexecAffinityParam))
+    elif len(paramsArray) == 1:
+        cyparamsArray = (<CUexecAffinityParam>paramsArray[0])._pvt_ptr
+    with nogil:
+        err = cydriver.cuCtxCreate_v3(<cydriver.CUcontext*>pctx._pvt_ptr, cyparamsArray, numParams, flags, cydev)
+    if len(paramsArray) > 1 and cyparamsArray is not NULL:
+        free(cyparamsArray)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, pctx)
 
 @cython.embedsignature(True)
 def cuCtxCreate_v4(ctxCreateParams : Optional[CUctxCreateParams], unsigned int flags, dev):
@@ -31064,6 +31414,324 @@ def cuMemcpy3DPeerAsync(pCopy : Optional[CUDA_MEMCPY3D_PEER], hStream):
     return (_CUresult(err),)
 
 @cython.embedsignature(True)
+def cuMemcpyBatchAsync(dsts : Optional[tuple[CUdeviceptr] | list[CUdeviceptr]], srcs : Optional[tuple[CUdeviceptr] | list[CUdeviceptr]], sizes : tuple[int] | list[int], size_t count, attrs : Optional[tuple[CUmemcpyAttributes] | list[CUmemcpyAttributes]], attrsIdxs : tuple[int] | list[int], size_t numAttrs, hStream):
+    """ Performs a batch of memory copies asynchronously.
+
+    Performs a batch of memory copies. The batch as a whole executes in
+    stream order but copies within a batch are not guaranteed to execute in
+    any specific order. This API only supports pointer-to-pointer copies.
+    For copies involving CUDA arrays, please see
+    :py:obj:`~.cuMemcpy3DBatchAsync`.
+
+    Performs memory copies from source buffers specified in `srcs` to
+    destination buffers specified in `dsts`. The size of each copy is
+    specified in `sizes`. All three arrays must be of the same length as
+    specified by `count`. Since there are no ordering guarantees for copies
+    within a batch, specifying any dependent copies within a batch will
+    result in undefined behavior.
+
+    Every copy in the batch has to be associated with a set of attributes
+    specified in the `attrs` array. Each entry in this array can apply to
+    more than one copy. This can be done by specifying in the `attrsIdxs`
+    array, the index of the first copy that the corresponding entry in the
+    `attrs` array applies to. Both `attrs` and `attrsIdxs` must be of the
+    same length as specified by `numAttrs`. For example, if a batch has 10
+    copies listed in dst/src/sizes, the first 6 of which have one set of
+    attributes and the remaining 4 another, then `numAttrs` will be 2,
+    `attrsIdxs` will be {0, 6} and `attrs` will contains the two sets of
+    attributes. Note that the first entry in `attrsIdxs` must always be 0.
+    Also, each entry must be greater than the previous entry and the last
+    entry should be less than `count`. Furthermore, `numAttrs` must be
+    lesser than or equal to `count`.
+
+    The :py:obj:`~.CUmemcpyAttributes.srcAccessOrder` indicates the source
+    access ordering to be observed for copies associated with the
+    attribute. If the source access order is set to
+    :py:obj:`~.CU_MEMCPY_SRC_ACCESS_ORDER_STREAM`, then the source will be
+    accessed in stream order. If the source access order is set to
+    :py:obj:`~.CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL` then it
+    indicates that access to the source pointer can be out of stream order
+    and all accesses must be complete before the API call returns. This
+    flag is suited for ephemeral sources (ex., stack variables) when it's
+    known that no prior operations in the stream can be accessing the
+    memory and also that the lifetime of the memory is limited to the scope
+    that the source variable was declared in. Specifying this flag allows
+    the driver to optimize the copy and removes the need for the user to
+    synchronize the stream after the API call. If the source access order
+    is set to :py:obj:`~.CU_MEMCPY_SRC_ACCESS_ORDER_ANY` then it indicates
+    that access to the source pointer can be out of stream order and the
+    accesses can happen even after the API call returns. This flag is
+    suited for host pointers allocated outside CUDA (ex., via malloc) when
+    it's known that no prior operations in the stream can be accessing the
+    memory. Specifying this flag allows the driver to optimize the copy on
+    certain platforms. Each memcpy operation in the batch must have a valid
+    :py:obj:`~.CUmemcpyAttributes` corresponding to it including the
+    appropriate srcAccessOrder setting, otherwise the API will return
+    :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+
+    The :py:obj:`~.CUmemcpyAttributes.srcLocHint` and
+    :py:obj:`~.CUmemcpyAttributes.dstLocHint` allows applications to
+    specify hint locations for operands of a copy when the operand doesn't
+    have a fixed location. That is, these hints are only applicable for
+    managed memory pointers on devices where
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS` is true or
+    system-allocated pageable memory on devices where
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS` is true. For
+    other cases, these hints are ignored.
+
+    The :py:obj:`~.CUmemcpyAttributes.flags` field can be used to specify
+    certain flags for copies. Setting the
+    :py:obj:`~.CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE` flag indicates
+    that the associated copies should preferably overlap with any compute
+    work. Note that this flag is a hint and can be ignored depending on the
+    platform and other parameters of the copy.
+
+    If any error is encountered while parsing the batch, the index within
+    the batch where the error was encountered will be returned in
+    `failIdx`.
+
+    Parameters
+    ----------
+    dsts : list[:py:obj:`~.CUdeviceptr`]
+        Array of destination pointers.
+    srcs : list[:py:obj:`~.CUdeviceptr`]
+        Array of memcpy source pointers.
+    sizes : list[int]
+        Array of sizes for memcpy operations.
+    count : size_t
+        Size of `dsts`, `srcs` and `sizes` arrays
+    attrs : list[:py:obj:`~.CUmemcpyAttributes`]
+        Array of memcpy attributes.
+    attrsIdxs : list[int]
+        Array of indices to specify which copies each entry in the `attrs`
+        array applies to. The attributes specified in attrs[k] will be
+        applied to copies starting from attrsIdxs[k] through attrsIdxs[k+1]
+        - 1. Also attrs[numAttrs-1] will apply to copies starting from
+        attrsIdxs[numAttrs-1] through count - 1.
+    numAttrs : size_t
+        Size of `attrs` and `attrsIdxs` arrays.
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        The stream to enqueue the operations in. Must not be legacy NULL
+        stream.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    failIdx : int
+        Pointer to a location to return the index of the copy where a
+        failure was encountered. The value will be SIZE_MAX if the error
+        doesn't pertain to any specific copy.
+    """
+    cdef cydriver.CUstream cyhStream
+    if hStream is None:
+        phStream = 0
+    elif isinstance(hStream, (CUstream,)):
+        phStream = int(hStream)
+    else:
+        phStream = int(CUstream(hStream))
+    cyhStream = <cydriver.CUstream><void_ptr>phStream
+    if not all(isinstance(_x, (int)) for _x in attrsIdxs):
+        raise TypeError("Argument 'attrsIdxs' is not instance of type (expected tuple[int] or list[int]")
+    attrs = [] if attrs is None else attrs
+    if not all(isinstance(_x, (CUmemcpyAttributes,)) for _x in attrs):
+        raise TypeError("Argument 'attrs' is not instance of type (expected tuple[cydriver.CUmemcpyAttributes,] or list[cydriver.CUmemcpyAttributes,]")
+    if not all(isinstance(_x, (int)) for _x in sizes):
+        raise TypeError("Argument 'sizes' is not instance of type (expected tuple[int] or list[int]")
+    srcs = [] if srcs is None else srcs
+    if not all(isinstance(_x, (CUdeviceptr,)) for _x in srcs):
+        raise TypeError("Argument 'srcs' is not instance of type (expected tuple[cydriver.CUdeviceptr,] or list[cydriver.CUdeviceptr,]")
+    dsts = [] if dsts is None else dsts
+    if not all(isinstance(_x, (CUdeviceptr,)) for _x in dsts):
+        raise TypeError("Argument 'dsts' is not instance of type (expected tuple[cydriver.CUdeviceptr,] or list[cydriver.CUdeviceptr,]")
+    cdef cydriver.CUdeviceptr* cydsts = NULL
+    if len(dsts) > 1:
+        cydsts = <cydriver.CUdeviceptr*> calloc(len(dsts), sizeof(cydriver.CUdeviceptr))
+        if cydsts is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(dsts)) + 'x' + str(sizeof(cydriver.CUdeviceptr)))
+        else:
+            for idx in range(len(dsts)):
+                cydsts[idx] = <cydriver.CUdeviceptr>(<CUdeviceptr>dsts[idx])._pvt_ptr[0]
+    elif len(dsts) == 1:
+        cydsts = <cydriver.CUdeviceptr*>(<CUdeviceptr>dsts[0])._pvt_ptr
+    cdef cydriver.CUdeviceptr* cysrcs = NULL
+    if len(srcs) > 1:
+        cysrcs = <cydriver.CUdeviceptr*> calloc(len(srcs), sizeof(cydriver.CUdeviceptr))
+        if cysrcs is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(srcs)) + 'x' + str(sizeof(cydriver.CUdeviceptr)))
+        else:
+            for idx in range(len(srcs)):
+                cysrcs[idx] = <cydriver.CUdeviceptr>(<CUdeviceptr>srcs[idx])._pvt_ptr[0]
+    elif len(srcs) == 1:
+        cysrcs = <cydriver.CUdeviceptr*>(<CUdeviceptr>srcs[0])._pvt_ptr
+    cdef vector[size_t] cysizes = sizes
+    if count > <size_t>len(dsts): raise RuntimeError("List is too small: " + str(len(dsts)) + " < " + str(count))
+    if count > <size_t>len(srcs): raise RuntimeError("List is too small: " + str(len(srcs)) + " < " + str(count))
+    if count > <size_t>len(sizes): raise RuntimeError("List is too small: " + str(len(sizes)) + " < " + str(count))
+    cdef cydriver.CUmemcpyAttributes* cyattrs = NULL
+    if len(attrs) > 1:
+        cyattrs = <cydriver.CUmemcpyAttributes*> calloc(len(attrs), sizeof(cydriver.CUmemcpyAttributes))
+        if cyattrs is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(attrs)) + 'x' + str(sizeof(cydriver.CUmemcpyAttributes)))
+        for idx in range(len(attrs)):
+            string.memcpy(&cyattrs[idx], (<CUmemcpyAttributes>attrs[idx])._pvt_ptr, sizeof(cydriver.CUmemcpyAttributes))
+    elif len(attrs) == 1:
+        cyattrs = (<CUmemcpyAttributes>attrs[0])._pvt_ptr
+    cdef vector[size_t] cyattrsIdxs = attrsIdxs
+    if numAttrs > <size_t>len(attrs): raise RuntimeError("List is too small: " + str(len(attrs)) + " < " + str(numAttrs))
+    if numAttrs > <size_t>len(attrsIdxs): raise RuntimeError("List is too small: " + str(len(attrsIdxs)) + " < " + str(numAttrs))
+    cdef size_t failIdx = 0
+    with nogil:
+        err = cydriver.cuMemcpyBatchAsync(cydsts, cysrcs, cysizes.data(), count, cyattrs, cyattrsIdxs.data(), numAttrs, &failIdx, cyhStream)
+    if len(dsts) > 1 and cydsts is not NULL:
+        free(cydsts)
+    if len(srcs) > 1 and cysrcs is not NULL:
+        free(cysrcs)
+    if len(attrs) > 1 and cyattrs is not NULL:
+        free(cyattrs)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, failIdx)
+
+@cython.embedsignature(True)
+def cuMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[CUDA_MEMCPY3D_BATCH_OP] | list[CUDA_MEMCPY3D_BATCH_OP]], unsigned long long flags, hStream):
+    """ Performs a batch of 3D memory copies asynchronously.
+
+    Performs a batch of memory copies. The batch as a whole executes in
+    stream order but copies within a batch are not guaranteed to execute in
+    any specific order. Note that this means specifying any dependent
+    copies within a batch will result in undefined behavior.
+
+    Performs memory copies as specified in the `opList` array. The length
+    of this array is specified in `numOps`. Each entry in this array
+    describes a copy operation. This includes among other things, the
+    source and destination operands for the copy as specified in
+    :py:obj:`~.CUDA_MEMCPY3D_BATCH_OP.src` and
+    :py:obj:`~.CUDA_MEMCPY3D_BATCH_OP.dst` respectively. The source and
+    destination operands of a copy can either be a pointer or a CUDA array.
+    The width, height and depth of a copy is specified in
+    :py:obj:`~.CUDA_MEMCPY3D_BATCH_OP.extent`. The width, height and depth
+    of a copy are specified in elements and must not be zero. For pointer-
+    to-pointer copies, the element size is considered to be 1. For pointer
+    to CUDA array or vice versa copies, the element size is determined by
+    the CUDA array. For CUDA array to CUDA array copies, the element size
+    of the two CUDA arrays must match.
+
+    For a given operand, if :py:obj:`~.CUmemcpy3DOperand.type` is specified
+    as :py:obj:`~.CU_MEMCPY_OPERAND_TYPE_POINTER`, then
+    :py:obj:`~.CUmemcpy3DOperand.op.ptr` will be used. The
+    :py:obj:`~.CUmemcpy3DOperand.op.ptr.ptr` field must contain the pointer
+    where the copy should begin. The
+    :py:obj:`~.CUmemcpy3DOperand.op.ptr.rowLength` field specifies the
+    length of each row in elements and must either be zero or be greater
+    than or equal to the width of the copy specified in
+    :py:obj:`~.CUDA_MEMCPY3D_BATCH_OP.extent.width`. The
+    :py:obj:`~.CUmemcpy3DOperand.op.ptr.layerHeight` field specifies the
+    height of each layer and must either be zero or be greater than or
+    equal to the height of the copy specified in
+    :py:obj:`~.CUDA_MEMCPY3D_BATCH_OP.extent.height`. When either of these
+    values is zero, that aspect of the operand is considered to be tightly
+    packed according to the copy extent. For managed memory pointers on
+    devices where :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`
+    is true or system-allocated pageable memory on devices where
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS` is true, the
+    :py:obj:`~.CUmemcpy3DOperand.op.ptr.locHint` field can be used to hint
+    the location of the operand.
+
+    If an operand's type is specified as
+    :py:obj:`~.CU_MEMCPY_OPERAND_TYPE_ARRAY`, then
+    :py:obj:`~.CUmemcpy3DOperand.op.array` will be used. The
+    :py:obj:`~.CUmemcpy3DOperand.op.array.array` field specifies the CUDA
+    array and :py:obj:`~.CUmemcpy3DOperand.op.array.offset` specifies the
+    3D offset into that array where the copy begins.
+
+    The :py:obj:`~.CUmemcpyAttributes.srcAccessOrder` indicates the source
+    access ordering to be observed for copies associated with the
+    attribute. If the source access order is set to
+    :py:obj:`~.CU_MEMCPY_SRC_ACCESS_ORDER_STREAM`, then the source will be
+    accessed in stream order. If the source access order is set to
+    :py:obj:`~.CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL` then it
+    indicates that access to the source pointer can be out of stream order
+    and all accesses must be complete before the API call returns. This
+    flag is suited for ephemeral sources (ex., stack variables) when it's
+    known that no prior operations in the stream can be accessing the
+    memory and also that the lifetime of the memory is limited to the scope
+    that the source variable was declared in. Specifying this flag allows
+    the driver to optimize the copy and removes the need for the user to
+    synchronize the stream after the API call. If the source access order
+    is set to :py:obj:`~.CU_MEMCPY_SRC_ACCESS_ORDER_ANY` then it indicates
+    that access to the source pointer can be out of stream order and the
+    accesses can happen even after the API call returns. This flag is
+    suited for host pointers allocated outside CUDA (ex., via malloc) when
+    it's known that no prior operations in the stream can be accessing the
+    memory. Specifying this flag allows the driver to optimize the copy on
+    certain platforms. Each memcopy operation in `opList` must have a valid
+    srcAccessOrder setting, otherwise this API will return
+    :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+
+    The :py:obj:`~.CUmemcpyAttributes.flags` field can be used to specify
+    certain flags for copies. Setting the
+    :py:obj:`~.CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE` flag indicates
+    that the associated copies should preferably overlap with any compute
+    work. Note that this flag is a hint and can be ignored depending on the
+    platform and other parameters of the copy.
+
+    If any error is encountered while parsing the batch, the index within
+    the batch where the error was encountered will be returned in
+    `failIdx`.
+
+    Parameters
+    ----------
+    numOps : size_t
+        Total number of memcpy operations.
+    opList : list[:py:obj:`~.CUDA_MEMCPY3D_BATCH_OP`]
+        Array of size `numOps` containing the actual memcpy operations.
+    flags : unsigned long long
+        Flags for future use, must be zero now.
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        The stream to enqueue the operations in. Must not be default NULL
+        stream.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    failIdx : int
+        Pointer to a location to return the index of the copy where a
+        failure was encountered. The value will be SIZE_MAX if the error
+        doesn't pertain to any specific copy.
+    """
+    cdef cydriver.CUstream cyhStream
+    if hStream is None:
+        phStream = 0
+    elif isinstance(hStream, (CUstream,)):
+        phStream = int(hStream)
+    else:
+        phStream = int(CUstream(hStream))
+    cyhStream = <cydriver.CUstream><void_ptr>phStream
+    opList = [] if opList is None else opList
+    if not all(isinstance(_x, (CUDA_MEMCPY3D_BATCH_OP,)) for _x in opList):
+        raise TypeError("Argument 'opList' is not instance of type (expected tuple[cydriver.CUDA_MEMCPY3D_BATCH_OP,] or list[cydriver.CUDA_MEMCPY3D_BATCH_OP,]")
+    if numOps > <size_t>len(opList): raise RuntimeError("List is too small: " + str(len(opList)) + " < " + str(numOps))
+    cdef cydriver.CUDA_MEMCPY3D_BATCH_OP* cyopList = NULL
+    if len(opList) > 1:
+        cyopList = <cydriver.CUDA_MEMCPY3D_BATCH_OP*> calloc(len(opList), sizeof(cydriver.CUDA_MEMCPY3D_BATCH_OP))
+        if cyopList is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(opList)) + 'x' + str(sizeof(cydriver.CUDA_MEMCPY3D_BATCH_OP)))
+        for idx in range(len(opList)):
+            string.memcpy(&cyopList[idx], (<CUDA_MEMCPY3D_BATCH_OP>opList[idx])._pvt_ptr, sizeof(cydriver.CUDA_MEMCPY3D_BATCH_OP))
+    elif len(opList) == 1:
+        cyopList = (<CUDA_MEMCPY3D_BATCH_OP>opList[0])._pvt_ptr
+    cdef size_t failIdx = 0
+    with nogil:
+        err = cydriver.cuMemcpy3DBatchAsync(numOps, cyopList, &failIdx, flags, cyhStream)
+    if len(opList) > 1 and cyopList is not NULL:
+        free(cyopList)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, failIdx)
+
+@cython.embedsignature(True)
 def cuMemsetD8(dstDevice, unsigned char uc, size_t N):
     """ Initializes device memory.
 
@@ -34694,6 +35362,120 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
     return (_CUresult_SUCCESS, cydata.pyObj())
 
 @cython.embedsignature(True)
+def cuMemPrefetchAsync(devPtr, size_t count, dstDevice, hStream):
+    """ Prefetches memory to the specified destination device.
+
+    Note there is a later version of this API,
+    :py:obj:`~.cuMemPrefetchAsync_v2`. It will supplant this version in
+    13.0, which is retained for minor version compatibility.
+
+    Prefetches memory to the specified destination device. `devPtr` is the
+    base device pointer of the memory to be prefetched and `dstDevice` is
+    the destination device. `count` specifies the number of bytes to copy.
+    `hStream` is the stream in which the operation is enqueued. The memory
+    range must refer to managed memory allocated via
+    :py:obj:`~.cuMemAllocManaged` or declared via managed variables or it
+    may also refer to system-allocated memory on systems with non-zero
+    CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS.
+
+    Passing in CU_DEVICE_CPU for `dstDevice` will prefetch the data to host
+    memory. If `dstDevice` is a GPU, then the device attribute
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS` must be non-
+    zero. Additionally, `hStream` must be associated with a device that has
+    a non-zero value for the device attribute
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`.
+
+    The start address and end address of the memory range will be rounded
+    down and rounded up respectively to be aligned to CPU page size before
+    the prefetch operation is enqueued in the stream.
+
+    If no physical memory has been allocated for this region, then this
+    memory region will be populated and mapped on the destination device.
+    If there's insufficient memory to prefetch the desired region, the
+    Unified Memory driver may evict pages from other
+    :py:obj:`~.cuMemAllocManaged` allocations to host memory in order to
+    make room. Device memory allocated using :py:obj:`~.cuMemAlloc` or
+    :py:obj:`~.cuArrayCreate` will not be evicted.
+
+    By default, any mappings to the previous location of the migrated pages
+    are removed and mappings for the new location are only setup on
+    `dstDevice`. The exact behavior however also depends on the settings
+    applied to this memory range via :py:obj:`~.cuMemAdvise` as described
+    below:
+
+    If :py:obj:`~.CU_MEM_ADVISE_SET_READ_MOSTLY` was set on any subset of
+    this memory range, then that subset will create a read-only copy of the
+    pages on `dstDevice`.
+
+    If :py:obj:`~.CU_MEM_ADVISE_SET_PREFERRED_LOCATION` was called on any
+    subset of this memory range, then the pages will be migrated to
+    `dstDevice` even if `dstDevice` is not the preferred location of any
+    pages in the memory range.
+
+    If :py:obj:`~.CU_MEM_ADVISE_SET_ACCESSED_BY` was called on any subset
+    of this memory range, then mappings to those pages from all the
+    appropriate processors are updated to refer to the new location if
+    establishing such a mapping is possible. Otherwise, those mappings are
+    cleared.
+
+    Note that this API is not required for functionality and only serves to
+    improve performance by allowing the application to migrate data to a
+    suitable location before it is accessed. Memory accesses to this range
+    are always coherent and are allowed even when the data is actively
+    being migrated.
+
+    Note that this function is asynchronous with respect to the host and
+    all work on other devices.
+
+    Parameters
+    ----------
+    devPtr : :py:obj:`~.CUdeviceptr`
+        Pointer to be prefetched
+    count : size_t
+        Size in bytes
+    dstDevice : :py:obj:`~.CUdevice`
+        Destination device to prefetch to
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Stream to enqueue prefetch operation
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`
+
+    See Also
+    --------
+    :py:obj:`~.cuMemcpy`, :py:obj:`~.cuMemcpyPeer`, :py:obj:`~.cuMemcpyAsync`, :py:obj:`~.cuMemcpy3DPeerAsync`, :py:obj:`~.cuMemAdvise`, :py:obj:`~.cuMemPrefetchAsync` :py:obj:`~.cudaMemPrefetchAsync_v2`
+    """
+    cdef cydriver.CUstream cyhStream
+    if hStream is None:
+        phStream = 0
+    elif isinstance(hStream, (CUstream,)):
+        phStream = int(hStream)
+    else:
+        phStream = int(CUstream(hStream))
+    cyhStream = <cydriver.CUstream><void_ptr>phStream
+    cdef cydriver.CUdevice cydstDevice
+    if dstDevice is None:
+        pdstDevice = 0
+    elif isinstance(dstDevice, (CUdevice,)):
+        pdstDevice = int(dstDevice)
+    else:
+        pdstDevice = int(CUdevice(dstDevice))
+    cydstDevice = <cydriver.CUdevice>pdstDevice
+    cdef cydriver.CUdeviceptr cydevPtr
+    if devPtr is None:
+        pdevPtr = 0
+    elif isinstance(devPtr, (CUdeviceptr,)):
+        pdevPtr = int(devPtr)
+    else:
+        pdevPtr = int(CUdeviceptr(devPtr))
+    cydevPtr = <cydriver.CUdeviceptr><void_ptr>pdevPtr
+    with nogil:
+        err = cydriver.cuMemPrefetchAsync(cydevPtr, count, cydstDevice, cyhStream)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
 def cuMemPrefetchAsync_v2(devPtr, size_t count, location not None : CUmemLocation, unsigned int flags, hStream):
     """ Prefetches memory to the specified destination location.
 
@@ -34810,6 +35592,188 @@ def cuMemPrefetchAsync_v2(devPtr, size_t count, location not None : CUmemLocatio
     cydevPtr = <cydriver.CUdeviceptr><void_ptr>pdevPtr
     with nogil:
         err = cydriver.cuMemPrefetchAsync_v2(cydevPtr, count, location._pvt_ptr[0], flags, cyhStream)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuMemAdvise(devPtr, size_t count, advice not None : CUmem_advise, device):
+    """ Advise about the usage of a given memory range.
+
+    Note there is a later version of this API, :py:obj:`~.cuMemAdvise_v2`.
+    It will supplant this version in 13.0, which is retained for minor
+    version compatibility.
+
+    Advise the Unified Memory subsystem about the usage pattern for the
+    memory range starting at `devPtr` with a size of `count` bytes. The
+    start address and end address of the memory range will be rounded down
+    and rounded up respectively to be aligned to CPU page size before the
+    advice is applied. The memory range must refer to managed memory
+    allocated via :py:obj:`~.cuMemAllocManaged` or declared via managed
+    variables. The memory range could also refer to system-allocated
+    pageable memory provided it represents a valid, host-accessible region
+    of memory and all additional constraints imposed by `advice` as
+    outlined below are also satisfied. Specifying an invalid system-
+    allocated pageable memory range results in an error being returned.
+
+    The `advice` parameter can take the following values:
+
+    - :py:obj:`~.CU_MEM_ADVISE_SET_READ_MOSTLY`: This implies that the data
+      is mostly going to be read from and only occasionally written to. Any
+      read accesses from any processor to this region will create a read-
+      only copy of at least the accessed pages in that processor's memory.
+      Additionally, if :py:obj:`~.cuMemPrefetchAsync` is called on this
+      region, it will create a read-only copy of the data on the
+      destination processor. If any processor writes to this region, all
+      copies of the corresponding page will be invalidated except for the
+      one where the write occurred. The `device` argument is ignored for
+      this advice. Note that for a page to be read-duplicated, the
+      accessing processor must either be the CPU or a GPU that has a non-
+      zero value for the device attribute
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`. Also, if a
+      context is created on a device that does not have the device
+      attribute :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`
+      set, then read-duplication will not occur until all such contexts are
+      destroyed. If the memory region refers to valid system-allocated
+      pageable memory, then the accessing device must have a non-zero value
+      for the device attribute
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS` for a read-
+      only copy to be created on that device. Note however that if the
+      accessing device also has a non-zero value for the device attribute
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES`,
+      then setting this advice will not create a read-only copy when that
+      device accesses this memory region.
+
+    - :py:obj:`~.CU_MEM_ADVISE_UNSET_READ_MOSTLY`: Undoes the effect of
+      :py:obj:`~.CU_MEM_ADVISE_SET_READ_MOSTLY` and also prevents the
+      Unified Memory driver from attempting heuristic read-duplication on
+      the memory range. Any read-duplicated copies of the data will be
+      collapsed into a single copy. The location for the collapsed copy
+      will be the preferred location if the page has a preferred location
+      and one of the read-duplicated copies was resident at that location.
+      Otherwise, the location chosen is arbitrary.
+
+    - :py:obj:`~.CU_MEM_ADVISE_SET_PREFERRED_LOCATION`: This advice sets
+      the preferred location for the data to be the memory belonging to
+      `device`. Passing in CU_DEVICE_CPU for `device` sets the preferred
+      location as host memory. If `device` is a GPU, then it must have a
+      non-zero value for the device attribute
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`. Setting
+      the preferred location does not cause data to migrate to that
+      location immediately. Instead, it guides the migration policy when a
+      fault occurs on that memory region. If the data is already in its
+      preferred location and the faulting processor can establish a mapping
+      without requiring the data to be migrated, then data migration will
+      be avoided. On the other hand, if the data is not in its preferred
+      location or if a direct mapping cannot be established, then it will
+      be migrated to the processor accessing it. It is important to note
+      that setting the preferred location does not prevent data prefetching
+      done using :py:obj:`~.cuMemPrefetchAsync`. Having a preferred
+      location can override the page thrash detection and resolution logic
+      in the Unified Memory driver. Normally, if a page is detected to be
+      constantly thrashing between for example host and device memory, the
+      page may eventually be pinned to host memory by the Unified Memory
+      driver. But if the preferred location is set as device memory, then
+      the page will continue to thrash indefinitely. If
+      :py:obj:`~.CU_MEM_ADVISE_SET_READ_MOSTLY` is also set on this memory
+      region or any subset of it, then the policies associated with that
+      advice will override the policies of this advice, unless read
+      accesses from `device` will not result in a read-only copy being
+      created on that device as outlined in description for the advice
+      :py:obj:`~.CU_MEM_ADVISE_SET_READ_MOSTLY`. If the memory region
+      refers to valid system-allocated pageable memory, then `device` must
+      have a non-zero value for the device attribute
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS`.
+
+    - :py:obj:`~.CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION`: Undoes the effect
+      of :py:obj:`~.CU_MEM_ADVISE_SET_PREFERRED_LOCATION` and changes the
+      preferred location to none.
+
+    - :py:obj:`~.CU_MEM_ADVISE_SET_ACCESSED_BY`: This advice implies that
+      the data will be accessed by `device`. Passing in
+      :py:obj:`~.CU_DEVICE_CPU` for `device` will set the advice for the
+      CPU. If `device` is a GPU, then the device attribute
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS` must be
+      non-zero. This advice does not cause data migration and has no impact
+      on the location of the data per se. Instead, it causes the data to
+      always be mapped in the specified processor's page tables, as long as
+      the location of the data permits a mapping to be established. If the
+      data gets migrated for any reason, the mappings are updated
+      accordingly. This advice is recommended in scenarios where data
+      locality is not important, but avoiding faults is. Consider for
+      example a system containing multiple GPUs with peer-to-peer access
+      enabled, where the data located on one GPU is occasionally accessed
+      by peer GPUs. In such scenarios, migrating data over to the other
+      GPUs is not as important because the accesses are infrequent and the
+      overhead of migration may be too high. But preventing faults can
+      still help improve performance, and so having a mapping set up in
+      advance is useful. Note that on CPU access of this data, the data may
+      be migrated to host memory because the CPU typically cannot access
+      device memory directly. Any GPU that had the
+      :py:obj:`~.CU_MEM_ADVISE_SET_ACCESSED_BY` flag set for this data will
+      now have its mapping updated to point to the page in host memory. If
+      :py:obj:`~.CU_MEM_ADVISE_SET_READ_MOSTLY` is also set on this memory
+      region or any subset of it, then the policies associated with that
+      advice will override the policies of this advice. Additionally, if
+      the preferred location of this memory region or any subset of it is
+      also `device`, then the policies associated with
+      :py:obj:`~.CU_MEM_ADVISE_SET_PREFERRED_LOCATION` will override the
+      policies of this advice. If the memory region refers to valid system-
+      allocated pageable memory, then `device` must have a non-zero value
+      for the device attribute
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS`. Additionally,
+      if `device` has a non-zero value for the device attribute
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES`,
+      then this call has no effect.
+
+    - :py:obj:`~.CU_MEM_ADVISE_UNSET_ACCESSED_BY`: Undoes the effect of
+      :py:obj:`~.CU_MEM_ADVISE_SET_ACCESSED_BY`. Any mappings to the data
+      from `device` may be removed at any time causing accesses to result
+      in non-fatal page faults. If the memory region refers to valid
+      system-allocated pageable memory, then `device` must have a non-zero
+      value for the device attribute
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS`. Additionally,
+      if `device` has a non-zero value for the device attribute
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES`,
+      then this call has no effect.
+
+    Parameters
+    ----------
+    devPtr : :py:obj:`~.CUdeviceptr`
+        Pointer to memory to set the advice for
+    count : size_t
+        Size in bytes of the memory range
+    advice : :py:obj:`~.CUmem_advise`
+        Advice to be applied for the specified memory range
+    device : :py:obj:`~.CUdevice`
+        Device to apply the advice for
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`
+
+    See Also
+    --------
+    :py:obj:`~.cuMemcpy`, :py:obj:`~.cuMemcpyPeer`, :py:obj:`~.cuMemcpyAsync`, :py:obj:`~.cuMemcpy3DPeerAsync`, :py:obj:`~.cuMemPrefetchAsync`, :py:obj:`~.cuMemAdvise_v2`, :py:obj:`~.cudaMemAdvise`
+    """
+    cdef cydriver.CUdevice cydevice
+    if device is None:
+        pdevice = 0
+    elif isinstance(device, (CUdevice,)):
+        pdevice = int(device)
+    else:
+        pdevice = int(CUdevice(device))
+    cydevice = <cydriver.CUdevice>pdevice
+    cdef cydriver.CUdeviceptr cydevPtr
+    if devPtr is None:
+        pdevPtr = 0
+    elif isinstance(devPtr, (CUdeviceptr,)):
+        pdevPtr = int(devPtr)
+    else:
+        pdevPtr = int(CUdeviceptr(devPtr))
+    cydevPtr = <cydriver.CUdeviceptr><void_ptr>pdevPtr
+    cdef cydriver.CUmem_advise cyadvice = int(advice)
+    with nogil:
+        err = cydriver.cuMemAdvise(cydevPtr, count, cyadvice, cydevice)
     return (_CUresult(err),)
 
 @cython.embedsignature(True)
@@ -36309,6 +37273,89 @@ def cuStreamIsCapturing(hStream):
     return (_CUresult_SUCCESS, CUstreamCaptureStatus(captureStatus))
 
 @cython.embedsignature(True)
+def cuStreamGetCaptureInfo(hStream):
+    """ Query a stream's capture state.
+
+    Query stream state related to stream capture.
+
+    If called on :py:obj:`~.CU_STREAM_LEGACY` (the "null stream") while a
+    stream not created with :py:obj:`~.CU_STREAM_NON_BLOCKING` is
+    capturing, returns :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_IMPLICIT`.
+
+    Valid data (other than capture status) is returned only if both of the
+    following are true:
+
+    - the call returns CUDA_SUCCESS
+
+    - the returned capture status is
+      :py:obj:`~.CU_STREAM_CAPTURE_STATUS_ACTIVE`
+
+    Parameters
+    ----------
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        The stream to query
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_IMPLICIT`
+    captureStatus_out : :py:obj:`~.CUstreamCaptureStatus`
+        Location to return the capture status of the stream; required
+    id_out : :py:obj:`~.cuuint64_t`
+        Optional location to return an id for the capture sequence, which
+        is unique over the lifetime of the process
+    graph_out : :py:obj:`~.CUgraph`
+        Optional location to return the graph being captured into. All
+        operations other than destroy and node removal are permitted on the
+        graph while the capture sequence is in progress. This API does not
+        transfer ownership of the graph, which is transferred or destroyed
+        at :py:obj:`~.cuStreamEndCapture`. Note that the graph handle may
+        be invalidated before end of capture for certain errors. Nodes that
+        are or become unreachable from the original stream at
+        :py:obj:`~.cuStreamEndCapture` due to direct actions on the graph
+        do not trigger :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNJOINED`.
+    dependencies_out : list[:py:obj:`~.CUgraphNode`]
+        Optional location to store a pointer to an array of nodes. The next
+        node to be captured in the stream will depend on this set of nodes,
+        absent operations such as event wait which modify this set. The
+        array pointer is valid until the next API call which operates on
+        the stream or until the capture is terminated. The node handles may
+        be copied out and are valid until they or the graph is destroyed.
+        The driver-owned array may also be passed directly to APIs that
+        operate on the graph (not the stream) without copying.
+    numDependencies_out : int
+        Optional location to store the size of the array returned in
+        dependencies_out.
+
+    See Also
+    --------
+    :py:obj:`~.cuStreamGetCaptureInfo_v3` :py:obj:`~.cuStreamBeginCapture`, :py:obj:`~.cuStreamIsCapturing`, :py:obj:`~.cuStreamUpdateCaptureDependencies`
+    """
+    cdef cydriver.CUstream cyhStream
+    if hStream is None:
+        phStream = 0
+    elif isinstance(hStream, (CUstream,)):
+        phStream = int(hStream)
+    else:
+        phStream = int(CUstream(hStream))
+    cyhStream = <cydriver.CUstream><void_ptr>phStream
+    cdef cydriver.CUstreamCaptureStatus captureStatus_out
+    cdef cuuint64_t id_out = cuuint64_t()
+    cdef CUgraph graph_out = CUgraph()
+    cdef const cydriver.CUgraphNode* cydependencies_out = NULL
+    pydependencies_out = []
+    cdef size_t numDependencies_out = 0
+    with nogil:
+        err = cydriver.cuStreamGetCaptureInfo(cyhStream, &captureStatus_out, <cydriver.cuuint64_t*>id_out._pvt_ptr, <cydriver.CUgraph*>graph_out._pvt_ptr, &cydependencies_out, &numDependencies_out)
+    if CUresult(err) == CUresult(0):
+        pydependencies_out = [CUgraphNode() for _ in range(numDependencies_out)]
+        for idx in range(numDependencies_out):
+            (<CUgraphNode>pydependencies_out[idx])._pvt_ptr[0] = cydependencies_out[idx]
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None, None, None, None, None)
+    return (_CUresult_SUCCESS, CUstreamCaptureStatus(captureStatus_out), id_out, graph_out, pydependencies_out, numDependencies_out)
+
+@cython.embedsignature(True)
 def cuStreamGetCaptureInfo_v3(hStream):
     """ Query a stream's capture state (12.3+).
 
@@ -36408,6 +37455,79 @@ def cuStreamGetCaptureInfo_v3(hStream):
     if err != cydriver.CUDA_SUCCESS:
         return (_CUresult(err), None, None, None, None, None, None)
     return (_CUresult_SUCCESS, CUstreamCaptureStatus(captureStatus_out), id_out, graph_out, pydependencies_out, pyedgeData_out, numDependencies_out)
+
+@cython.embedsignature(True)
+def cuStreamUpdateCaptureDependencies(hStream, dependencies : Optional[tuple[CUgraphNode] | list[CUgraphNode]], size_t numDependencies, unsigned int flags):
+    """ Update the set of dependencies in a capturing stream (11.3+).
+
+    Modifies the dependency set of a capturing stream. The dependency set
+    is the set of nodes that the next captured node in the stream will
+    depend on.
+
+    Valid flags are :py:obj:`~.CU_STREAM_ADD_CAPTURE_DEPENDENCIES` and
+    :py:obj:`~.CU_STREAM_SET_CAPTURE_DEPENDENCIES`. These control whether
+    the set passed to the API is added to the existing set or replaces it.
+    A flags value of 0 defaults to
+    :py:obj:`~.CU_STREAM_ADD_CAPTURE_DEPENDENCIES`.
+
+    Nodes that are removed from the dependency set via this API do not
+    result in :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNJOINED` if they are
+    unreachable from the stream at :py:obj:`~.cuStreamEndCapture`.
+
+    Returns :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` if the stream is not
+    capturing.
+
+    This API is new in CUDA 11.3. Developers requiring compatibility across
+    minor versions to CUDA 11.0 should not use this API or provide a
+    fallback.
+
+    Parameters
+    ----------
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        The stream to update
+    dependencies : list[:py:obj:`~.CUgraphNode`]
+        The set of dependencies to add
+    numDependencies : size_t
+        The size of the dependencies array
+    flags : unsigned int
+        See above
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+
+    See Also
+    --------
+    :py:obj:`~.cuStreamBeginCapture`, :py:obj:`~.cuStreamGetCaptureInfo`,
+    """
+    dependencies = [] if dependencies is None else dependencies
+    if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
+        raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
+    cdef cydriver.CUstream cyhStream
+    if hStream is None:
+        phStream = 0
+    elif isinstance(hStream, (CUstream,)):
+        phStream = int(hStream)
+    else:
+        phStream = int(CUstream(hStream))
+    cyhStream = <cydriver.CUstream><void_ptr>phStream
+    cdef cydriver.CUgraphNode* cydependencies = NULL
+    if len(dependencies) > 1:
+        cydependencies = <cydriver.CUgraphNode*> calloc(len(dependencies), sizeof(cydriver.CUgraphNode))
+        if cydependencies is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(dependencies)) + 'x' + str(sizeof(cydriver.CUgraphNode)))
+        else:
+            for idx in range(len(dependencies)):
+                cydependencies[idx] = <cydriver.CUgraphNode>(<CUgraphNode>dependencies[idx])._pvt_ptr[0]
+    elif len(dependencies) == 1:
+        cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
+    if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
+    with nogil:
+        err = cydriver.cuStreamUpdateCaptureDependencies(cyhStream, cydependencies, numDependencies, flags)
+    if len(dependencies) > 1 and cydependencies is not NULL:
+        free(cydependencies)
+    return (_CUresult(err),)
 
 @cython.embedsignature(True)
 def cuStreamUpdateCaptureDependencies_v2(hStream, dependencies : Optional[tuple[CUgraphNode] | list[CUgraphNode]], dependencyData : Optional[tuple[CUgraphEdgeData] | list[CUgraphEdgeData]], size_t numDependencies, unsigned int flags):
@@ -37129,6 +38249,76 @@ def cuEventDestroy(hEvent):
     with nogil:
         err = cydriver.cuEventDestroy(cyhEvent)
     return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuEventElapsedTime(hStart, hEnd):
+    """ Computes the elapsed time between two events.
+
+    Computes the elapsed time between two events (in milliseconds with a
+    resolution of around 0.5 microseconds).
+
+    If either event was last recorded in a non-NULL stream, the resulting
+    time may be greater than expected (even if both used the same stream
+    handle). This happens because the :py:obj:`~.cuEventRecord()` operation
+    takes place asynchronously and there is no guarantee that the measured
+    latency is actually just between the two events. Any number of other
+    different stream operations could execute in between the two measured
+    events, thus altering the timing in a significant way.
+
+    If :py:obj:`~.cuEventRecord()` has not been called on either event then
+    :py:obj:`~.CUDA_ERROR_INVALID_HANDLE` is returned. If
+    :py:obj:`~.cuEventRecord()` has been called on both events but one or
+    both of them has not yet been completed (that is,
+    :py:obj:`~.cuEventQuery()` would return
+    :py:obj:`~.CUDA_ERROR_NOT_READY` on at least one of the events),
+    :py:obj:`~.CUDA_ERROR_NOT_READY` is returned. If either event was
+    created with the :py:obj:`~.CU_EVENT_DISABLE_TIMING` flag, then this
+    function will return :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`.
+
+    Note there is a later version of this API,
+    :py:obj:`~.cuEventElapsedTime_v2`. It will supplant this version in
+    CUDA 13.0, which is retained for minor version compatibility.
+
+    Parameters
+    ----------
+    hStart : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Starting event
+    hEnd : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Ending event
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_NOT_READY`, :py:obj:`~.CUDA_ERROR_UNKNOWN`
+    pMilliseconds : float
+        Time between `hStart` and `hEnd` in ms
+
+    See Also
+    --------
+    :py:obj:`~.cuEventCreate`, :py:obj:`~.cuEventRecord`, :py:obj:`~.cuEventQuery`, :py:obj:`~.cuEventSynchronize`, :py:obj:`~.cuEventDestroy`, :py:obj:`~.cudaEventElapsedTime`
+    """
+    cdef cydriver.CUevent cyhEnd
+    if hEnd is None:
+        phEnd = 0
+    elif isinstance(hEnd, (CUevent,)):
+        phEnd = int(hEnd)
+    else:
+        phEnd = int(CUevent(hEnd))
+    cyhEnd = <cydriver.CUevent><void_ptr>phEnd
+    cdef cydriver.CUevent cyhStart
+    if hStart is None:
+        phStart = 0
+    elif isinstance(hStart, (CUevent,)):
+        phStart = int(hStart)
+    else:
+        phStart = int(CUevent(hStart))
+    cyhStart = <cydriver.CUevent><void_ptr>phStart
+    cdef float pMilliseconds = 0
+    with nogil:
+        err = cydriver.cuEventElapsedTime(&pMilliseconds, cyhStart, cyhEnd)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, pMilliseconds)
 
 @cython.embedsignature(True)
 def cuEventElapsedTime_v2(hStart, hEnd):
@@ -42428,6 +43618,80 @@ def cuGraphGetRootNodes(hGraph, size_t numRootNodes = 0):
     return (_CUresult_SUCCESS, pyrootNodes, numRootNodes)
 
 @cython.embedsignature(True)
+def cuGraphGetEdges(hGraph, size_t numEdges = 0):
+    """ Returns a graph's dependency edges.
+
+    Returns a list of `hGraph's` dependency edges. Edges are returned via
+    corresponding indices in `from` and `to`; that is, the node in `to`[i]
+    has a dependency on the node in `from`[i]. `from` and `to` may both be
+    NULL, in which case this function only returns the number of edges in
+    `numEdges`. Otherwise, `numEdges` entries will be filled in. If
+    `numEdges` is higher than the actual number of edges, the remaining
+    entries in `from` and `to` will be set to NULL, and the number of edges
+    actually returned will be written to `numEdges`.
+
+    Parameters
+    ----------
+    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to get the edges from
+    numEdges : int
+        See description
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    from : list[:py:obj:`~.CUgraphNode`]
+        Location to return edge endpoints
+    to : list[:py:obj:`~.CUgraphNode`]
+        Location to return edge endpoints
+    numEdges : int
+        See description
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphGetNodes`, :py:obj:`~.cuGraphGetRootNodes`, :py:obj:`~.cuGraphAddDependencies`, :py:obj:`~.cuGraphRemoveDependencies`, :py:obj:`~.cuGraphNodeGetDependencies`, :py:obj:`~.cuGraphNodeGetDependentNodes`
+    """
+    cdef size_t _graph_length = numEdges
+    cdef cydriver.CUgraph cyhGraph
+    if hGraph is None:
+        phGraph = 0
+    elif isinstance(hGraph, (CUgraph,)):
+        phGraph = int(hGraph)
+    else:
+        phGraph = int(CUgraph(hGraph))
+    cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
+    cdef cydriver.CUgraphNode* cyfrom_ = NULL
+    pyfrom_ = []
+    if _graph_length != 0:
+        cyfrom_ = <cydriver.CUgraphNode*>calloc(_graph_length, sizeof(cydriver.CUgraphNode))
+        if cyfrom_ is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(_graph_length) + 'x' + str(sizeof(cydriver.CUgraphNode)))
+    cdef cydriver.CUgraphNode* cyto = NULL
+    pyto = []
+    if _graph_length != 0:
+        cyto = <cydriver.CUgraphNode*>calloc(_graph_length, sizeof(cydriver.CUgraphNode))
+        if cyto is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(_graph_length) + 'x' + str(sizeof(cydriver.CUgraphNode)))
+    with nogil:
+        err = cydriver.cuGraphGetEdges(cyhGraph, cyfrom_, cyto, &numEdges)
+    if CUresult(err) == CUresult(0):
+        pyfrom_ = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pyfrom_[idx])._pvt_ptr[0] = cyfrom_[idx]
+    if cyfrom_ is not NULL:
+        free(cyfrom_)
+    if CUresult(err) == CUresult(0):
+        pyto = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pyto[idx])._pvt_ptr[0] = cyto[idx]
+    if cyto is not NULL:
+        free(cyto)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None, None, None)
+    return (_CUresult_SUCCESS, pyfrom_, pyto, numEdges)
+
+@cython.embedsignature(True)
 def cuGraphGetEdges_v2(hGraph, size_t numEdges = 0):
     """ Returns a graph's dependency edges (12.3+).
 
@@ -42521,6 +43785,65 @@ def cuGraphGetEdges_v2(hGraph, size_t numEdges = 0):
     return (_CUresult_SUCCESS, pyfrom_, pyto, pyedgeData, numEdges)
 
 @cython.embedsignature(True)
+def cuGraphNodeGetDependencies(hNode, size_t numDependencies = 0):
+    """ Returns a node's dependencies.
+
+    Returns a list of `node's` dependencies. `dependencies` may be NULL, in
+    which case this function will return the number of dependencies in
+    `numDependencies`. Otherwise, `numDependencies` entries will be filled
+    in. If `numDependencies` is higher than the actual number of
+    dependencies, the remaining entries in `dependencies` will be set to
+    NULL, and the number of nodes actually obtained will be returned in
+    `numDependencies`.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to query
+    numDependencies : int
+        See description
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    dependencies : list[:py:obj:`~.CUgraphNode`]
+        Pointer to return the dependencies
+    numDependencies : int
+        See description
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphNodeGetDependentNodes`, :py:obj:`~.cuGraphGetNodes`, :py:obj:`~.cuGraphGetRootNodes`, :py:obj:`~.cuGraphGetEdges`, :py:obj:`~.cuGraphAddDependencies`, :py:obj:`~.cuGraphRemoveDependencies`
+    """
+    cdef size_t _graph_length = numDependencies
+    cdef cydriver.CUgraphNode cyhNode
+    if hNode is None:
+        phNode = 0
+    elif isinstance(hNode, (CUgraphNode,)):
+        phNode = int(hNode)
+    else:
+        phNode = int(CUgraphNode(hNode))
+    cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
+    cdef cydriver.CUgraphNode* cydependencies = NULL
+    pydependencies = []
+    if _graph_length != 0:
+        cydependencies = <cydriver.CUgraphNode*>calloc(_graph_length, sizeof(cydriver.CUgraphNode))
+        if cydependencies is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(_graph_length) + 'x' + str(sizeof(cydriver.CUgraphNode)))
+    with nogil:
+        err = cydriver.cuGraphNodeGetDependencies(cyhNode, cydependencies, &numDependencies)
+    if CUresult(err) == CUresult(0):
+        pydependencies = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pydependencies[idx])._pvt_ptr[0] = cydependencies[idx]
+    if cydependencies is not NULL:
+        free(cydependencies)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None, None)
+    return (_CUresult_SUCCESS, pydependencies, numDependencies)
+
+@cython.embedsignature(True)
 def cuGraphNodeGetDependencies_v2(hNode, size_t numDependencies = 0):
     """ Returns a node's dependencies (12.3+).
 
@@ -42599,6 +43922,65 @@ def cuGraphNodeGetDependencies_v2(hNode, size_t numDependencies = 0):
     return (_CUresult_SUCCESS, pydependencies, pyedgeData, numDependencies)
 
 @cython.embedsignature(True)
+def cuGraphNodeGetDependentNodes(hNode, size_t numDependentNodes = 0):
+    """ Returns a node's dependent nodes.
+
+    Returns a list of `node's` dependent nodes. `dependentNodes` may be
+    NULL, in which case this function will return the number of dependent
+    nodes in `numDependentNodes`. Otherwise, `numDependentNodes` entries
+    will be filled in. If `numDependentNodes` is higher than the actual
+    number of dependent nodes, the remaining entries in `dependentNodes`
+    will be set to NULL, and the number of nodes actually obtained will be
+    returned in `numDependentNodes`.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to query
+    numDependentNodes : int
+        See description
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    dependentNodes : list[:py:obj:`~.CUgraphNode`]
+        Pointer to return the dependent nodes
+    numDependentNodes : int
+        See description
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphNodeGetDependencies`, :py:obj:`~.cuGraphGetNodes`, :py:obj:`~.cuGraphGetRootNodes`, :py:obj:`~.cuGraphGetEdges`, :py:obj:`~.cuGraphAddDependencies`, :py:obj:`~.cuGraphRemoveDependencies`
+    """
+    cdef size_t _graph_length = numDependentNodes
+    cdef cydriver.CUgraphNode cyhNode
+    if hNode is None:
+        phNode = 0
+    elif isinstance(hNode, (CUgraphNode,)):
+        phNode = int(hNode)
+    else:
+        phNode = int(CUgraphNode(hNode))
+    cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
+    cdef cydriver.CUgraphNode* cydependentNodes = NULL
+    pydependentNodes = []
+    if _graph_length != 0:
+        cydependentNodes = <cydriver.CUgraphNode*>calloc(_graph_length, sizeof(cydriver.CUgraphNode))
+        if cydependentNodes is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(_graph_length) + 'x' + str(sizeof(cydriver.CUgraphNode)))
+    with nogil:
+        err = cydriver.cuGraphNodeGetDependentNodes(cyhNode, cydependentNodes, &numDependentNodes)
+    if CUresult(err) == CUresult(0):
+        pydependentNodes = [CUgraphNode() for _ in range(_graph_length)]
+        for idx in range(_graph_length):
+            (<CUgraphNode>pydependentNodes[idx])._pvt_ptr[0] = cydependentNodes[idx]
+    if cydependentNodes is not NULL:
+        free(cydependentNodes)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None, None)
+    return (_CUresult_SUCCESS, pydependentNodes, numDependentNodes)
+
+@cython.embedsignature(True)
 def cuGraphNodeGetDependentNodes_v2(hNode, size_t numDependentNodes = 0):
     """ Returns a node's dependent nodes (12.3+).
 
@@ -42675,6 +44057,79 @@ def cuGraphNodeGetDependentNodes_v2(hNode, size_t numDependentNodes = 0):
     if err != cydriver.CUDA_SUCCESS:
         return (_CUresult(err), None, None, None)
     return (_CUresult_SUCCESS, pydependentNodes, pyedgeData, numDependentNodes)
+
+@cython.embedsignature(True)
+def cuGraphAddDependencies(hGraph, from_ : Optional[tuple[CUgraphNode] | list[CUgraphNode]], to : Optional[tuple[CUgraphNode] | list[CUgraphNode]], size_t numDependencies):
+    """ Adds dependency edges to a graph.
+
+    The number of dependencies to be added is defined by `numDependencies`
+    Elements in `from` and `to` at corresponding indices define a
+    dependency. Each node in `from` and `to` must belong to `hGraph`.
+
+    If `numDependencies` is 0, elements in `from` and `to` will be ignored.
+    Specifying an existing dependency will return an error.
+
+    Parameters
+    ----------
+    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which dependencies are added
+    from : list[:py:obj:`~.CUgraphNode`]
+        Array of nodes that provide the dependencies
+    to : list[:py:obj:`~.CUgraphNode`]
+        Array of dependent nodes
+    numDependencies : size_t
+        Number of dependencies to be added
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphRemoveDependencies`, :py:obj:`~.cuGraphGetEdges`, :py:obj:`~.cuGraphNodeGetDependencies`, :py:obj:`~.cuGraphNodeGetDependentNodes`
+    """
+    to = [] if to is None else to
+    if not all(isinstance(_x, (CUgraphNode,)) for _x in to):
+        raise TypeError("Argument 'to' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
+    from_ = [] if from_ is None else from_
+    if not all(isinstance(_x, (CUgraphNode,)) for _x in from_):
+        raise TypeError("Argument 'from_' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
+    cdef cydriver.CUgraph cyhGraph
+    if hGraph is None:
+        phGraph = 0
+    elif isinstance(hGraph, (CUgraph,)):
+        phGraph = int(hGraph)
+    else:
+        phGraph = int(CUgraph(hGraph))
+    cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
+    cdef cydriver.CUgraphNode* cyfrom_ = NULL
+    if len(from_) > 1:
+        cyfrom_ = <cydriver.CUgraphNode*> calloc(len(from_), sizeof(cydriver.CUgraphNode))
+        if cyfrom_ is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(from_)) + 'x' + str(sizeof(cydriver.CUgraphNode)))
+        else:
+            for idx in range(len(from_)):
+                cyfrom_[idx] = <cydriver.CUgraphNode>(<CUgraphNode>from_[idx])._pvt_ptr[0]
+    elif len(from_) == 1:
+        cyfrom_ = <cydriver.CUgraphNode*>(<CUgraphNode>from_[0])._pvt_ptr
+    cdef cydriver.CUgraphNode* cyto = NULL
+    if len(to) > 1:
+        cyto = <cydriver.CUgraphNode*> calloc(len(to), sizeof(cydriver.CUgraphNode))
+        if cyto is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(to)) + 'x' + str(sizeof(cydriver.CUgraphNode)))
+        else:
+            for idx in range(len(to)):
+                cyto[idx] = <cydriver.CUgraphNode>(<CUgraphNode>to[idx])._pvt_ptr[0]
+    elif len(to) == 1:
+        cyto = <cydriver.CUgraphNode*>(<CUgraphNode>to[0])._pvt_ptr
+    with nogil:
+        err = cydriver.cuGraphAddDependencies(cyhGraph, cyfrom_, cyto, numDependencies)
+    if len(from_) > 1 and cyfrom_ is not NULL:
+        free(cyfrom_)
+    if len(to) > 1 and cyto is not NULL:
+        free(cyto)
+    return (_CUresult(err),)
 
 @cython.embedsignature(True)
 def cuGraphAddDependencies_v2(hGraph, from_ : Optional[tuple[CUgraphNode] | list[CUgraphNode]], to : Optional[tuple[CUgraphNode] | list[CUgraphNode]], edgeData : Optional[tuple[CUgraphEdgeData] | list[CUgraphEdgeData]], size_t numDependencies):
@@ -42764,6 +44219,83 @@ def cuGraphAddDependencies_v2(hGraph, from_ : Optional[tuple[CUgraphNode] | list
         free(cyto)
     if len(edgeData) > 1 and cyedgeData is not NULL:
         free(cyedgeData)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuGraphRemoveDependencies(hGraph, from_ : Optional[tuple[CUgraphNode] | list[CUgraphNode]], to : Optional[tuple[CUgraphNode] | list[CUgraphNode]], size_t numDependencies):
+    """ Removes dependency edges from a graph.
+
+    The number of `dependencies` to be removed is defined by
+    `numDependencies`. Elements in `from` and `to` at corresponding indices
+    define a dependency. Each node in `from` and `to` must belong to
+    `hGraph`.
+
+    If `numDependencies` is 0, elements in `from` and `to` will be ignored.
+    Specifying a non-existing dependency will return an error.
+
+    Dependencies cannot be removed from graphs which contain allocation or
+    free nodes. Any attempt to do so will return an error.
+
+    Parameters
+    ----------
+    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph from which to remove dependencies
+    from : list[:py:obj:`~.CUgraphNode`]
+        Array of nodes that provide the dependencies
+    to : list[:py:obj:`~.CUgraphNode`]
+        Array of dependent nodes
+    numDependencies : size_t
+        Number of dependencies to be removed
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphAddDependencies`, :py:obj:`~.cuGraphGetEdges`, :py:obj:`~.cuGraphNodeGetDependencies`, :py:obj:`~.cuGraphNodeGetDependentNodes`
+    """
+    to = [] if to is None else to
+    if not all(isinstance(_x, (CUgraphNode,)) for _x in to):
+        raise TypeError("Argument 'to' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
+    from_ = [] if from_ is None else from_
+    if not all(isinstance(_x, (CUgraphNode,)) for _x in from_):
+        raise TypeError("Argument 'from_' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
+    cdef cydriver.CUgraph cyhGraph
+    if hGraph is None:
+        phGraph = 0
+    elif isinstance(hGraph, (CUgraph,)):
+        phGraph = int(hGraph)
+    else:
+        phGraph = int(CUgraph(hGraph))
+    cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
+    cdef cydriver.CUgraphNode* cyfrom_ = NULL
+    if len(from_) > 1:
+        cyfrom_ = <cydriver.CUgraphNode*> calloc(len(from_), sizeof(cydriver.CUgraphNode))
+        if cyfrom_ is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(from_)) + 'x' + str(sizeof(cydriver.CUgraphNode)))
+        else:
+            for idx in range(len(from_)):
+                cyfrom_[idx] = <cydriver.CUgraphNode>(<CUgraphNode>from_[idx])._pvt_ptr[0]
+    elif len(from_) == 1:
+        cyfrom_ = <cydriver.CUgraphNode*>(<CUgraphNode>from_[0])._pvt_ptr
+    cdef cydriver.CUgraphNode* cyto = NULL
+    if len(to) > 1:
+        cyto = <cydriver.CUgraphNode*> calloc(len(to), sizeof(cydriver.CUgraphNode))
+        if cyto is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(to)) + 'x' + str(sizeof(cydriver.CUgraphNode)))
+        else:
+            for idx in range(len(to)):
+                cyto[idx] = <cydriver.CUgraphNode>(<CUgraphNode>to[idx])._pvt_ptr[0]
+    elif len(to) == 1:
+        cyto = <cydriver.CUgraphNode*>(<CUgraphNode>to[0])._pvt_ptr
+    with nogil:
+        err = cydriver.cuGraphRemoveDependencies(cyhGraph, cyfrom_, cyto, numDependencies)
+    if len(from_) > 1 and cyfrom_ is not NULL:
+        free(cyfrom_)
+    if len(to) > 1 and cyto is not NULL:
+        free(cyto)
     return (_CUresult(err),)
 
 @cython.embedsignature(True)
@@ -44626,6 +46158,83 @@ def cuGraphReleaseUserObject(graph, object, unsigned int count):
     with nogil:
         err = cydriver.cuGraphReleaseUserObject(cygraph, cyobject, count)
     return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuGraphAddNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | list[CUgraphNode]], size_t numDependencies, nodeParams : Optional[CUgraphNodeParams]):
+    """ Adds a node of arbitrary type to a graph.
+
+    Creates a new node in `hGraph` described by `nodeParams` with
+    `numDependencies` dependencies specified via `dependencies`.
+    `numDependencies` may be 0. `dependencies` may be null if
+    `numDependencies` is 0. `dependencies` may not have any duplicate
+    entries.
+
+    `nodeParams` is a tagged union. The node type should be specified in
+    the `typename` field, and type-specific parameters in the corresponding
+    union member. All unused bytes - that is, `reserved0` and all bytes
+    past the utilized union member - must be set to zero. It is recommended
+    to use brace initialization or memset to ensure all bytes are
+    initialized.
+
+    Note that for some node types, `nodeParams` may contain "out
+    parameters" which are modified during the call, such as
+    `nodeParams->alloc.dptr`.
+
+    A handle to the new node will be returned in `phGraphNode`.
+
+    Parameters
+    ----------
+    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which to add the node
+    dependencies : list[:py:obj:`~.CUgraphNode`]
+        Dependencies of the node
+    numDependencies : size_t
+        Number of dependencies
+    nodeParams : :py:obj:`~.CUgraphNodeParams`
+        Specification of the node
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+    phGraphNode : :py:obj:`~.CUgraphNode`
+        Returns newly created node
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphNodeSetParams`, :py:obj:`~.cuGraphExecNodeSetParams`
+    """
+    dependencies = [] if dependencies is None else dependencies
+    if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
+        raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
+    cdef cydriver.CUgraph cyhGraph
+    if hGraph is None:
+        phGraph = 0
+    elif isinstance(hGraph, (CUgraph,)):
+        phGraph = int(hGraph)
+    else:
+        phGraph = int(CUgraph(hGraph))
+    cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
+    cdef CUgraphNode phGraphNode = CUgraphNode()
+    cdef cydriver.CUgraphNode* cydependencies = NULL
+    if len(dependencies) > 1:
+        cydependencies = <cydriver.CUgraphNode*> calloc(len(dependencies), sizeof(cydriver.CUgraphNode))
+        if cydependencies is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(dependencies)) + 'x' + str(sizeof(cydriver.CUgraphNode)))
+        else:
+            for idx in range(len(dependencies)):
+                cydependencies[idx] = <cydriver.CUgraphNode>(<CUgraphNode>dependencies[idx])._pvt_ptr[0]
+    elif len(dependencies) == 1:
+        cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
+    if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
+    cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = <cydriver.CUgraphNodeParams*>nodeParams._pvt_ptr if nodeParams is not None else NULL
+    with nogil:
+        err = cydriver.cuGraphAddNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
+    if len(dependencies) > 1 and cydependencies is not NULL:
+        free(cydependencies)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, phGraphNode)
 
 @cython.embedsignature(True)
 def cuGraphAddNode_v2(hGraph, dependencies : Optional[tuple[CUgraphNode] | list[CUgraphNode]], dependencyData : Optional[tuple[CUgraphEdgeData] | list[CUgraphEdgeData]], size_t numDependencies, nodeParams : Optional[CUgraphNodeParams]):
