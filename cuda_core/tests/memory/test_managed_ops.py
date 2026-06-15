@@ -426,6 +426,25 @@ class TestManagedBuffer:
         buf.accessed_by = set()
         assert device not in buf.accessed_by
 
+    def test_accessed_by_set_assignment_validates_kind_before_mutation(
+        self, location_ops_device, external_managed_buffer
+    ):
+        """Invalid kinds in bulk assignment must not partially mutate driver state."""
+        device = location_ops_device
+        buf = external_managed_buffer
+        buf.accessed_by = {device, Host()}
+        assert device in buf.accessed_by
+        assert Host() in buf.accessed_by
+
+        with pytest.raises(
+            (ValueError, TypeError),
+            match=r"does not support location_type='host_numa'|cuda-bindings 13\.0\+",
+        ):
+            buf.accessed_by = {device, Host(numa_id=0)}
+
+        assert device in buf.accessed_by
+        assert Host() in buf.accessed_by
+
     def test_instance_prefetch(self, location_ops_device, managed_buffer):
         device = location_ops_device
         buf = managed_buffer
