@@ -14,6 +14,7 @@ from cuda.core.system.typing import (AddressingMode, AffinityScope, ClockId,
                                      GpuTopologyLevel, InforomObject,
                                      TemperatureThresholds, ThermalController,
                                      ThermalTarget)
+from deprecated.sphinx import deprecated, versionadded, versionchanged
 
 
 class ClockOffsets:
@@ -787,11 +788,23 @@ class MigInfo:
             A list of all MIG devices corresponding to this GPU.
         """
 
-class NvlinkInfo:
+class _NvlinkInfoMeta(type):
+
+    @property
+    @deprecated(version='1.1.0', reason='Use Device.get_num_nvlinks instead to get the actual number of Nvlinks available on a specific device.')
+    def max_links(cls):
+        """
+        The statically-defined maximum number of Nvlinks available.  Defined in
+        upstream NVML as ``NVML_NVLINK_MAX_LINKS``.
+
+        To find the actual number of Nvlinks available on a device, use
+        :py:attr:`Device.get_num_nvlinks`.
+        """
+
+class _NvlinkInfo:
     """
     Nvlink information for a device.
     """
-    max_links = nvml.NVLINK_MAX_LINKS
 
     def __init__(self, device: Device, link: int):
         ...
@@ -823,6 +836,9 @@ class NvlinkInfo:
         bool
             `True` if the Nvlink is active.
         """
+
+class NvlinkInfo(_NvlinkInfo, metaclass=_NvlinkInfoMeta):
+    ...
 
 class PciInfo:
     """
@@ -1719,9 +1735,26 @@ class Device:
         :obj:`~_device.MemoryInfo` object with memory information.
         """
 
+    @versionchanged(version='1.1.0', reason='Any link number not supported by this specific device will raise a `ValueError`.')
     def get_nvlink(self, link: int) -> NvlinkInfo:
         """
         Get :obj:`~NvlinkInfo` about this device.
+
+        For devices with NVLink support.
+        """
+
+    @versionadded(version='1.1.0')
+    def get_nvlink_count(self) -> int:
+        """
+        Get the number of NVLink links on this device.
+
+        For devices with NVLink support.
+        """
+
+    @versionadded(version='1.1.0')
+    def get_nvlinks(self) -> Iterable[NvlinkInfo]:
+        """
+        Get :obj:`~NvlinkInfo` about all NVLink links on this device.
 
         For devices with NVLink support.
         """

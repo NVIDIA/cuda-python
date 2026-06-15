@@ -9,6 +9,8 @@ from multiprocessing import cpu_count
 from typing import Iterable, TYPE_CHECKING
 import warnings
 
+from deprecated.sphinx import deprecated, versionadded, versionchanged
+
 from cuda.bindings import nvml
 
 from ._nvml_context cimport initialize
@@ -884,15 +886,39 @@ cdef class Device:
     # NVLINK
     # See external class definitions in _nvlink.pxi
 
+    @versionchanged(
+        version="1.1.0",
+        reason="Any link number not supported by this specific device will raise a `ValueError`."
+    )
     def get_nvlink(self, link: int) -> NvlinkInfo:
         """
         Get :obj:`~NvlinkInfo` about this device.
 
         For devices with NVLink support.
         """
-        if link < 0 or link >= NvlinkInfo.max_links:
-            raise ValueError(f"Link index {link} is out of range [0, {NvlinkInfo.max_links})")
+        if link < 0 or link >= self.get_num_nvlinks():
+            raise ValueError(f"Link index {link} is out of range [0, {self.get_num_nvlinks()})")
         return NvlinkInfo(self, link)
+
+    @versionadded(version="1.1.0")
+    def get_nvlink_count(self) -> int:
+        """
+        Get the number of NVLink links on this device.
+
+        For devices with NVLink support.
+        """
+        return self.get_field_values([FieldId.DEV_NVLINK_LINK_COUNT])[0].value
+
+    @versionadded(version="1.1.0")
+    def get_nvlinks(self) -> Iterable[NvlinkInfo]:
+        """
+        Get :obj:`~NvlinkInfo` about all NVLink links on this device.
+
+        For devices with NVLink support.
+        """
+        num_links = self.get_num_nvlinks()
+        for link in range(num_links):
+            yield self.get_nvlink(link)
 
     ##########################################################################
     # PCI INFO
