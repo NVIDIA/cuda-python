@@ -9,6 +9,12 @@ set -euo pipefail
 
 SCRIPTPATH=$(dirname "$(realpath "$0")")
 
-nvcc -dc -o "${SCRIPTPATH}/saxpy.o" "${SCRIPTPATH}/saxpy.cu"
+NVCC_EXTRA_FLAGS=()
+if [[ "${OS:-}" == "Windows_NT" ]]; then
+    # CCCL headers (e.g. cuda/std/cstddef) require MSVC's conforming preprocessor.
+    NVCC_EXTRA_FLAGS+=(-Xcompiler /Zc:preprocessor)
+fi
+
+nvcc -dc "${NVCC_EXTRA_FLAGS[@]}" -o "${SCRIPTPATH}/saxpy.o" "${SCRIPTPATH}/saxpy.cu"
 
 ls -lah "${SCRIPTPATH}/saxpy.o"
