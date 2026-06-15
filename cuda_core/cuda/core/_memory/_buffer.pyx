@@ -145,9 +145,8 @@ cdef class Buffer:
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self) -> tuple[object, ...]:
-        # Security note (CWE-502): unpickling a Buffer performs a live CUDA IPC
-        # import using descriptor bytes from the pickle stream. Only deserialize
-        # Buffers from a principal at least as trusted as this process.
+        # Unpickling performs a live CUDA IPC import from descriptor bytes in the
+        # pickle stream. Only deserialize Buffers from a trusted principal.
         # Must not serialize the parent's stream!
         return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
