@@ -179,7 +179,20 @@ cdef Buffer Buffer_from_ipc_descriptor(
     )
     if not h_ptr:
         HANDLE_RETURN(get_last_error())
-    return Buffer_from_deviceptr_handle(h_ptr, ipc_descriptor.size, mr, ipc_descriptor)
+    cdef size_t mapped_size = 0
+    cdef size_t claimed_size = ipc_descriptor.size
+    with nogil:
+        HANDLE_RETURN(cydriver.cuPointerGetAttribute(
+            &mapped_size,
+            cydriver.CU_POINTER_ATTRIBUTE_RANGE_SIZE,
+            as_cu(h_ptr)))
+    if claimed_size > mapped_size:
+        h_ptr.reset()
+        raise ValueError(
+            f"IPC buffer descriptor size ({claimed_size}) exceeds "
+            f"mapped allocation extent ({mapped_size} bytes)"
+        )
+    return Buffer_from_deviceptr_handle(h_ptr, claimed_size, mr, ipc_descriptor)
 
 
 # _MemPool IPC Implementation
