@@ -382,7 +382,7 @@ def test_object_code_load_object_from_file(get_saxpy_object, tmp_path):
 
 def test_object_code_load_object_with_linker(get_saxpy_object, init_cuda):
     arch = f"sm_{init_cuda.arch}"
-    kernel_ptx = Program(
+    kernel_code = Program(
         r"""
         extern __device__ float saxpy_step(float a, float x, float y);
         extern "C" __global__ void linked_kernel(float a, float x, float y, float* out) {
@@ -391,9 +391,9 @@ def test_object_code_load_object_with_linker(get_saxpy_object, init_cuda):
         """,
         "c++",
         ProgramOptions(relocatable_device_code=True, arch=arch),
-    ).compile("ptx")
+    ).compile("cubin")
     linked = Linker(
-        kernel_ptx,
+        kernel_code,
         ObjectCode.from_object(get_saxpy_object),
         options=LinkerOptions(arch=arch),
     ).link("cubin")
