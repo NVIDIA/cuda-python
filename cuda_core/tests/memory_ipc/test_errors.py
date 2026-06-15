@@ -39,6 +39,14 @@ def test_import_truncated_buffer_descriptor(ipc_device, ipc_memory_resource):
         Buffer.from_ipc_descriptor(ipc_memory_resource, desc, stream=ipc_device.default_stream)
 
 
+def test_ipc_allocation_handle_rejects_negative_fd():
+    """Negative fds are rejected even when CPython runs with -O (Glasswing V3.2)."""
+    from cuda.core._memory._ipc import IPCAllocationHandle
+
+    with pytest.raises(ValueError, match=r"Invalid allocation handle \(fd\) -1: must be non-negative"):
+        IPCAllocationHandle._init(-1, None)
+
+
 class ChildErrorHarness:
     """Test harness for checking errors in child processes. Subclasses override
     PARENT_ACTION, CHILD_ACTION, and ASSERT (see below for examples)."""

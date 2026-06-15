@@ -112,7 +112,8 @@ cdef class IPCAllocationHandle:
     @classmethod
     def _init(cls, handle: int, uuid: uuid.UUID | None) -> IPCAllocationHandle:  # no-cython-lint
         cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
-        assert handle >= 0
+        if handle < 0:
+            raise ValueError(f"Invalid allocation handle (fd) {handle}: must be non-negative")
         self._h_fd = create_fd_handle(handle)
         self._uuid = uuid
         return self
