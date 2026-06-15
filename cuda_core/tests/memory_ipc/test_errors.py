@@ -31,6 +31,14 @@ def test_outer_timeout_marker_is_applied(request):
     assert marker.args == (expected,), f"unexpected timeout value: {marker.args!r}"
 
 
+def test_ipc_allocation_handle_rejects_negative_fd():
+    """Negative fds are rejected even when CPython runs with -O (Glasswing V3.2)."""
+    from cuda.core._memory._ipc import IPCAllocationHandle
+
+    with pytest.raises(ValueError, match=r"Invalid allocation handle \(fd\) -1: must be non-negative"):
+        IPCAllocationHandle._init(-1, None)
+
+
 class ChildErrorHarness:
     """Test harness for checking errors in child processes. Subclasses override
     PARENT_ACTION, CHILD_ACTION, and ASSERT (see below for examples)."""
