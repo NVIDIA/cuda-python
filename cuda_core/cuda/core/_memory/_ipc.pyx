@@ -4,6 +4,7 @@
 
 cimport cpython
 
+from libc.stddef cimport size_t
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
 from cuda.core._memory._memory_pool cimport _MemPool
@@ -171,6 +172,13 @@ cdef Buffer Buffer_from_ipc_descriptor(
     """Import a buffer that was exported from another process."""
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
+    cdef size_t payload_size = len(ipc_descriptor._payload)
+    cdef size_t expected_size = sizeof(cydriver.CUmemPoolPtrExportData)
+    if payload_size < expected_size:
+        raise ValueError(
+            f"IPC buffer descriptor payload is {payload_size} bytes; "
+            f"expected at least {expected_size}"
+        )
     cdef Stream s = Stream_accept(stream)
     cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
         mr._h_pool,

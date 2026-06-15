@@ -32,6 +32,13 @@ def test_outer_timeout_marker_is_applied(request):
     assert marker.args == (expected,), f"unexpected timeout value: {marker.args!r}"
 
 
+def test_import_truncated_buffer_descriptor(ipc_device, ipc_memory_resource):
+    """Truncated IPC buffer descriptor payload is rejected before driver import."""
+    desc = IPCBufferDescriptor._init(b"\x00" * 8, NBYTES)
+    with pytest.raises(ValueError, match=r"payload is 8 bytes; expected at least 64"):
+        Buffer.from_ipc_descriptor(ipc_memory_resource, desc, stream=ipc_device.default_stream)
+
+
 def test_ipc_allocation_handle_rejects_negative_fd():
     """Negative fds are rejected even when CPython runs with -O (Glasswing V3.2)."""
     from cuda.core._memory._ipc import IPCAllocationHandle
