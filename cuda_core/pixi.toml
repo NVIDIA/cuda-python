@@ -24,18 +24,6 @@ cloudpickle = "*"
 psutil = "*"
 pyglet = "*"
 
-# MLIR-based numba-cuda backend used by examples/gl_interop_fluid_numba_cuda_mlir.py.
-# It tracks
-# the current cuda.bindings / cuda.core API, whereas classic `numba-cuda` lags
-# the editable dev tip (e.g. cuda.core.GraphBuilder relocation, property-style
-# kernel attributes). Linux-only: upstream ships manylinux wheels (cp311-cp314,
-# x86_64 + aarch64) and no win-64 wheel, so it is gated to the linux targets.
-[feature.test.target.linux-64.pypi-dependencies]
-numba-cuda-mlir = "*"
-
-[feature.test.target.linux-aarch64.pypi-dependencies]
-numba-cuda-mlir = "*"
-
 [feature.examples.dependencies]
 cuda-core = { path = "." }
 cffi = "*"
@@ -126,6 +114,31 @@ nvidia-sphinx-theme = "*"
 [feature.docs.target.linux.dependencies]
 make = "*"
 
+# Dedicated environment for the MLIR numba-cuda example
+# (examples/gl_interop_fluid_numba_cuda_mlir.py). numba-cuda-mlir pulls
+# *published* cuda-core / cuda-bindings through its pypi closure, which would
+# shadow (overwrite in site-packages) the editable dev path builds used
+# everywhere else -- so it MUST live in its own environment, isolated from the
+# local-deps path packages. The [cu13] extra makes it self-contained: nvvm,
+# cudart, and nvrtc come from the nvidia pypi wheels, so no conda CUDA toolkit
+# or CUDA_HOME wiring is needed. Linux-only: upstream ships manylinux wheels
+# (cp311-cp314, x86_64 + aarch64) and no win-64 wheel.
+[feature.numba-mlir.dependencies]
+numpy = "*"
+pyglet = "*"
+
+[feature.numba-mlir.system-requirements]
+cuda = "13"
+
+[feature.numba-mlir.target.linux.dependencies]
+libgl-devel = "*"
+
+[feature.numba-mlir.target.linux-64.pypi-dependencies]
+numba-cuda-mlir = { version = "*", extras = ["cu13"] }
+
+[feature.numba-mlir.target.linux-aarch64.pypi-dependencies]
+numba-cuda-mlir = { version = "*", extras = ["cu13"] }
+
 # We keep both cu12 and cu13 because cuda.core works with either major version.
 # The local sibling checkouts are wired into the default/cu13/examples workflows;
 # cu12 intentionally solves against published packages instead.
@@ -139,6 +152,9 @@ cu13 = { features = ["cu13", "test", "cython-tests", "local-deps"], solve-group 
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
 examples = { features = ["cu13", "examples", "local-deps"], solve-group = "examples" }
 docs = { features = ["cu13", "docs", "local-deps"], solve-group = "docs" }
+# Isolated: uses published cuda-core via numba-cuda-mlir's pypi closure, NOT the
+# local-deps path builds (which it would otherwise shadow).
+numba-mlir = { features = ["numba-mlir"] }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
