@@ -2,9 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import os
 import pickle
+import subprocess
 import warnings
+from pathlib import Path
 
+import numpy as np
 import pytest
 
 import cuda.core
@@ -12,6 +16,7 @@ from cuda.core import Device, Kernel, Linker, LinkerOptions, ObjectCode, Program
 from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import binding_version, driver_version
+from cuda.pathfinder import find_nvidia_binary_utility
 
 try:
     import numba
@@ -180,12 +185,6 @@ def get_saxpy_object():
     In local dev: auto-built on demand if nvcc is available; if you edit
     saxpy.cu, remove the stale saxpy.o to force a rebuild.
     """
-    import os
-    import subprocess
-    from pathlib import Path
-
-    from cuda.pathfinder import find_nvidia_binary_utility
-
     binaries_dir = Path(__file__).parent / "test_binaries"
     obj_path = binaries_dir / "saxpy.o"
 
@@ -399,8 +398,6 @@ def test_object_code_load_object_with_linker(get_saxpy_object, init_cuda):
         options=LinkerOptions(arch=arch),
     ).link("cubin")
     kernel = linked.get_kernel("linked_kernel")
-
-    import numpy as np
 
     stream = init_cuda.create_stream()
     host_buf = cuda.core.LegacyPinnedMemoryResource().allocate(4)
