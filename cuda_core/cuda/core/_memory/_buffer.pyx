@@ -26,6 +26,7 @@ from cuda.core.typing import DevicePointerType
 
 from cuda.core._stream cimport Stream, Stream_accept, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
+from cuda.core._utils.cuda_utils import warn_ipc_buffer_unpickle
 
 import sys
 from typing import TYPE_CHECKING
@@ -86,6 +87,13 @@ cdef class Buffer:
     allocations.
 
     Support for data interchange mechanisms are provided by DLPack.
+
+    Note
+    ----
+    Pickling an IPC-enabled :class:`Buffer` embeds an
+    :class:`~_memory.IPCBufferDescriptor`. Unpickling reconstructs the buffer
+    by calling :meth:`from_ipc_descriptor` and therefore performs an IPC
+    import. Do not unpickle buffers from untrusted sources.
     """
     def __cinit__(self) -> None:
         self._clear()
@@ -135,6 +143,7 @@ cdef class Buffer:
         # pickle path cannot thread an explicit stream through. Seed the
         # imported buffer's deallocation with the current context's default
         # stream; the receiver can override via buffer.close(stream).
+        warn_ipc_buffer_unpickle()
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self) -> tuple[object, ...]:
@@ -187,6 +196,12 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream`
             Keyword-only. The stream used for asynchronous deallocation when
             the buffer is closed or garbage collected.
+
+        Note
+        ----
+        The descriptor payload and ``size`` are supplied by the exporting peer
+        and must be treated as untrusted input unless the peer is known to be
+        cooperating.
         """
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
