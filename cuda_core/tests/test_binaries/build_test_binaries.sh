@@ -9,9 +9,8 @@ set -euo pipefail
 
 SCRIPTPATH=$(dirname "$(realpath "$0")")
 
-NVCC_EXTRA_FLAGS=()
+NVCC_EXTRA_FLAGS=(-std=c++17)
 if [[ "${OS:-}" == "Windows_NT" ]]; then
-    # CCCL headers (e.g. cuda/std/cstddef) require MSVC's conforming preprocessor.
     NVCC_EXTRA_FLAGS+=(-Xcompiler /Zc:preprocessor)
 fi
 
