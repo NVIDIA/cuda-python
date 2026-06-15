@@ -33,6 +33,16 @@ on:
         required: false
         default: false
         type: boolean
+      deploy-docs:
+        description: "Deploy generated docs to GitHub Pages or preview branches"
+        required: false
+        default: true
+        type: boolean
+      docs-branch:
+        description: "Branch that receives deployed docs"
+        required: false
+        default: "gh-pages"
+        type: string
 
 jobs:
   build:
@@ -52,7 +62,14 @@ jobs:
 
       - name: Read build CTK version
         run: |
-          BUILD_CTK_VER=$(yq '.cuda.build.version' ci/versions.yml)
+          if [[ -f ci/versions.yml ]]; then
+            BUILD_CTK_VER=$(yq '.cuda.build.version' ci/versions.yml)
+          elif [[ -f ci/versions.json ]]; then
+            BUILD_CTK_VER=$(jq -r '.cuda.build.version' ci/versions.json)
+          else
+            echo "error: cannot find ci/versions.yml or ci/versions.json" >&2
+            exit 1
+          fi
           if [[ ! "${BUILD_CTK_VER}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "error: derived CTK build version ${BUILD_CTK_VER} does not match MAJOR.MINOR.MICRO" >&2
             exit 1
@@ -305,13 +322,22 @@ jobs:
           key: ${{ steps.restore-lychee-cache.outputs.cache-primary-key }}
 
       - name: Upload docs GitHub Pages artifact
+        if: ${{ inputs.deploy-docs }}
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
           path: artifacts/
           retention-days: 3
 
+      - name: Upload dry-run docs artifact
+        if: ${{ !inputs.deploy-docs || (inputs.is-release && inputs.docs-branch != 'gh-pages') }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: release-docs-dry-run-${{ inputs.component }}-${{ inputs.git-tag }}
+          path: artifacts/docs/
+          retention-days: 3
+
       - name: Deploy or clean up doc preview
-        if: ${{ !inputs.is-release }}
+        if: ${{ inputs.deploy-docs && !inputs.is-release }}
         uses: ./.github/actions/doc_preview
         with:
           source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
@@ -319,11 +345,12 @@ jobs:
           pr-number: ${{ env.PR_NUMBER }}
 
       - name: Deploy doc update
-        if: ${{ github.ref_name == 'main' || inputs.is-release }}
+        if: ${{ inputs.deploy-docs && (github.ref_name == 'main' || inputs.is-release) }}
         uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f  # v4.8.0
         with:
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
+          branch: ${{ inputs.docs-branch }}
           folder: artifacts/docs/
           target-folder: docs/
           commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.CUDA_PYTHON_DOCS_GITHUB_REF }}"

@@ -112,7 +112,7 @@ jobs:
     timeout-minutes: 90
     container:
       options: -u root --security-opt seccomp=unconfined --shm-size 16g
-      image: ubuntu:22.04
+      image: ubuntu:24.04
     steps:
       - name: Ensure GPU is working
         run: nvidia-smi

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from functools import cache
-
 from cuda.core._device import Device
 from cuda.core._memory._buffer import Buffer, MemoryResource
 from cuda.core._stream import Stream
@@ -113,7 +111,6 @@ class GraphMemoryResource(cyGraphMemoryResource):
         ...
 
     @classmethod
-    @cache
     def _create(cls, device_id: int) -> GraphMemoryResource:
         ...
 __all__ = ['GraphMemoryResource']

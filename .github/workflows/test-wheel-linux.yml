@@ -118,7 +118,7 @@ jobs:
       # can nsenter to the host for the install + refresh the toolkit bind mounts
       # back inside the container. Stock options for latest/earliest rows.
       options: ${{ ((matrix.DRIVER == 'latest' || matrix.DRIVER == 'earliest') && '-u root --security-opt seccomp=unconfined --shm-size 16g') || '-u root --security-opt seccomp=unconfined --shm-size 16g --privileged --pid=host' }}
-      image: ubuntu:22.04
+      image: ubuntu:24.04
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
         PIP_CACHE_DIR: "/tmp/pip-cache"

@@ -78,8 +78,7 @@ _node_registry: weakref.WeakValueDictionary[int, GraphNode] = weakref.WeakValueD
 
 
 cdef inline GraphNode _registered(GraphNode n):
-    _node_registry[<uintptr_t>n._h_node.get()] = n
-    return n
+    return _node_registry.setdefault(<uintptr_t>n._h_node.get(), n)
 
 
 cdef class GraphNode:
