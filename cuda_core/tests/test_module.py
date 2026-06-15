@@ -381,7 +381,7 @@ def test_object_code_load_object_from_file(get_saxpy_object, tmp_path):
 
 
 def test_object_code_load_object_with_linker(get_saxpy_object, init_cuda):
-    arch = init_cuda.arch
+    arch = f"sm_{init_cuda.arch}"
     kernel_ptx = Program(
         r"""
         extern __device__ float saxpy_step(float a, float x, float y);
