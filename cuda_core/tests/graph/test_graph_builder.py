@@ -259,6 +259,21 @@ def test_graph_child_graph(init_cuda):
     b.close()
 
 
+def test_graph_close_is_idempotent(init_cuda):
+    """Re-entrant close must not double-destroy the graph exec (Glasswing V18.1)."""
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    gb = Device().create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    graph = gb.end_building().complete()
+    gb.close()
+
+    graph.close()
+    graph.close()
+    assert int(graph.handle) == 0
+
+
 def test_graph_stream_lifetime(init_cuda):
     mod = compile_common_kernels()
     empty_kernel = mod.get_kernel("empty_kernel")
