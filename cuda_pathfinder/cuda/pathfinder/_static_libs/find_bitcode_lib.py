@@ -76,15 +76,13 @@ def _normalize_sm_arch(sm_arch: str | None) -> str | None:
 
     if not isinstance(sm_arch, str):
         raise ValueError(
-            "Invalid sm_arch value. Expected None or an NVIDIA SM architecture like "
-            "'sm90', 'sm90a', 'sm_90', or '90'."
+            "Invalid sm_arch value. Expected None or an NVIDIA SM architecture like 'sm90', 'sm90a', 'sm_90', or '90'."
         )
 
     match = re.fullmatch(r"(?:sm_?)?([0-9]{2,3}[a-z]?)", sm_arch)
     if match is None:
         raise ValueError(
-            "Invalid sm_arch value. Expected None or an NVIDIA SM architecture like "
-            "'sm90', 'sm90a', 'sm_90', or '90'."
+            "Invalid sm_arch value. Expected None or an NVIDIA SM architecture like 'sm90', 'sm90a', 'sm_90', or '90'."
         )
     return f"sm{match.group(1)}"
 
