@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ea5e8671"></script>
+    <script src="../_static/documentation_options.js?v=d880dc05"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev78';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev90';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -717,6 +717,13 @@
 different memory resources are to give access to their memory
 allocations.</p>
 <p>Support for data interchange mechanisms are provided by DLPack.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pickling an IPC-enabled <a class="reference internal" href="#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> embeds an
+<code class="xref py py-class docutils literal notranslate"><span class="pre">IPCBufferDescriptor</span></code>. Unpickling reconstructs the buffer
+by calling <a class="reference internal" href="#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_ipc_descriptor()</span></code></a> and therefore performs an IPC
+import. Do not unpickle buffers from untrusted sources.</p>
+</div>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.__init__">
@@ -890,6 +897,12 @@ the buffer is closed or garbage collected.</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The descriptor payload and <code class="docutils literal notranslate"><span class="pre">size</span></code> are supplied by the exporting peer
+and must be treated as untrusted input unless the peer is known to be
+cooperating.</p>
+</div>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
