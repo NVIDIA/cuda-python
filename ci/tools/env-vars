@@ -15,16 +15,6 @@ if [[ ${#} -ne 1 ]]; then
   exit 1
 fi
 
-# [demo] Intentional failure to validate the gating-check fix in this PR.
-# Mirrors the #2209 reproducer: every Build matrix entry should fail here,
-# downstream Test jobs should be skipped, and -- with the new aggregator --
-# Check job status should now report failure (whereas it reported success
-# in #2209 before the fix). REMOVE THIS BLOCK before merging.
-if [[ "${1}" == "build" ]]; then
-  echo "::error::INTENTIONAL FAILURE validating gating-check fix on PR #2210. See https://github.com/NVIDIA/cuda-python/issues/2208" >&2
-  exit 7
-fi
-
 PYTHON_VERSION_FORMATTED=$(echo "${PY_VER}" | tr -d '.')
 
 if [[ "${HOST_PLATFORM}" == linux* ]]; then
