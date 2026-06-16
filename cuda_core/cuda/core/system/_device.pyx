@@ -916,8 +916,7 @@ cdef class Device:
 
         For devices with NVLink support.
         """
-        num_links = self.get_num_nvlinks()
-        for link in range(num_links):
+        for link in range(self.get_nvlink_count()):
             yield self.get_nvlink(link)
 
     ##########################################################################
