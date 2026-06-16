@@ -3,6 +3,7 @@
 
 import functools
 import os
+import re
 from dataclasses import dataclass
 from typing import NoReturn, TypedDict
 
@@ -23,10 +24,12 @@ class LocatedBitcodeLib:
     abs_path: str
     filename: str
     found_via: str
+    sm_arch: str | None = None
 
 
 class _BitcodeLibInfo(TypedDict):
     filename: str
+    arch_specific_filename_template: str | None
     rel_path: str
     site_packages_dirs: tuple[str, ...]
     available_on_windows: bool
@@ -35,6 +38,7 @@ class _BitcodeLibInfo(TypedDict):
 _SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
     "device": {
         "filename": "libdevice.10.bc",
+        "arch_specific_filename_template": None,
         "rel_path": os.path.join("nvvm", "libdevice"),
         "site_packages_dirs": (
             "nvidia/cu13/nvvm/libdevice",
@@ -44,12 +48,14 @@ _SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
     },
     "nccl_device": {
         "filename": "libnccl_device.bc",
+        "arch_specific_filename_template": None,
         "rel_path": "lib",
         "site_packages_dirs": ("nvidia/nccl/lib",),
         "available_on_windows": False,
     },
     "nvshmem_device": {
         "filename": "libnvshmem_device.bc",
+        "arch_specific_filename_template": "libnvshmem_device_{sm_arch}.bc",
         "rel_path": "lib",
         "site_packages_dirs": ("nvidia/nvshmem/lib",),
         "available_on_windows": False,
@@ -64,6 +70,25 @@ SUPPORTED_BITCODE_LIBS: tuple[str, ...] = tuple(
 )
 
 
+def _normalize_sm_arch(sm_arch: str | None) -> str | None:
+    if sm_arch is None:
+        return None
+
+    if not isinstance(sm_arch, str):
+        raise ValueError(
+            "Invalid sm_arch value. Expected None or an NVIDIA SM architecture like "
+            "'sm90', 'sm90a', 'sm_90', or '90'."
+        )
+
+    match = re.fullmatch(r"(?:sm_?)?([0-9]{2,3}[a-z]?)", sm_arch)
+    if match is None:
+        raise ValueError(
+            "Invalid sm_arch value. Expected None or an NVIDIA SM architecture like "
+            "'sm90', 'sm90a', 'sm_90', or '90'."
+        )
+    return f"sm{match.group(1)}"
+
+
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
     error_messages.append(f"No such file: {os.path.join(dir_path, filename)}")
     if os.path.isdir(dir_path):
@@ -75,12 +100,19 @@ def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str]
 
 
 class _FindBitcodeLib:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, sm_arch: str | None = None) -> None:
         if name not in _SUPPORTED_BITCODE_LIBS_INFO:  # Updated reference
             raise ValueError(f"Unknown bitcode library: '{name}'. Supported: {', '.join(SUPPORTED_BITCODE_LIBS)}")
         self.name: str = name
         self.config: _BitcodeLibInfo = _SUPPORTED_BITCODE_LIBS_INFO[name]  # Updated reference
-        self.filename: str = self.config["filename"]
+        self.sm_arch: str | None = _normalize_sm_arch(sm_arch)
+        if self.sm_arch is None:
+            self.filename: str = self.config["filename"]
+        else:
+            template = self.config["arch_specific_filename_template"]
+            if template is None:
+                raise ValueError(f"Bitcode library '{name}' does not support sm_arch lookup")
+            self.filename = template.format(sm_arch=self.sm_arch)
         self.rel_path: str = self.config["rel_path"]
         self.site_packages_dirs: tuple[str, ...] = self.config["site_packages_dirs"]
         self.error_messages: list[str] = []
@@ -130,14 +162,21 @@ class _FindBitcodeLib:
         raise BitcodeLibNotFoundError(f'Failure finding "{self.filename}": {err}\n{att}')
 
 
-def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
+def locate_bitcode_lib(name: str, sm_arch: str | None = None) -> LocatedBitcodeLib:
     """Locate a bitcode library by name.
+
+    Args:
+        name: Supported bitcode library name.
+        sm_arch: Optional NVIDIA SM architecture for arch-specific bitcode
+            libraries. Accepted forms include ``"sm90"``, ``"sm90a"``,
+            ``"sm_90"``, and ``"90"``.
 
     Raises:
         ValueError: If ``name`` is not a supported bitcode library.
+        ValueError: If ``sm_arch`` is invalid or unsupported for ``name``.
         BitcodeLibNotFoundError: If the bitcode library cannot be found.
     """
-    finder = _FindBitcodeLib(name)
+    finder = _FindBitcodeLib(name, sm_arch=sm_arch)
 
     abs_path = finder.try_site_packages()
     if abs_path is not None:
@@ -146,6 +185,7 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
             abs_path=abs_path,
             filename=finder.filename,
             found_via="site-packages",
+            sm_arch=finder.sm_arch,
         )
 
     abs_path = finder.try_with_conda_prefix()
@@ -155,6 +195,7 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
             abs_path=abs_path,
             filename=finder.filename,
             found_via="conda",
+            sm_arch=finder.sm_arch,
         )
 
     abs_path = finder.try_with_cuda_home()
@@ -164,17 +205,25 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
             abs_path=abs_path,
             filename=finder.filename,
             found_via="CUDA_PATH",
+            sm_arch=finder.sm_arch,
         )
 
     finder.raise_not_found_error()
 
 
 @functools.cache
-def find_bitcode_lib(name: str) -> str:
+def find_bitcode_lib(name: str, sm_arch: str | None = None) -> str:
     """Find the absolute path to a bitcode library.
+
+    Args:
+        name: Supported bitcode library name.
+        sm_arch: Optional NVIDIA SM architecture for arch-specific bitcode
+            libraries. Accepted forms include ``"sm90"``, ``"sm90a"``,
+            ``"sm_90"``, and ``"90"``.
 
     Raises:
         ValueError: If ``name`` is not a supported bitcode library.
+        ValueError: If ``sm_arch`` is invalid or unsupported for ``name``.
         BitcodeLibNotFoundError: If the bitcode library cannot be found.
     """
-    return locate_bitcode_lib(name).abs_path
+    return locate_bitcode_lib(name, sm_arch=sm_arch).abs_path
