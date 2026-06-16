@@ -47,7 +47,7 @@ test = [
     "cython>=3.2,<3.3",
     "setuptools>=80.0.0",
     # TODO: remove the Python 3.15 guard once 3.15 is officially supported
-    "matplotlib==3.11.0; python_version < '3.15'",
+    "matplotlib==3.10.9; python_version < '3.15'",
     "numpy==2.4.6",
     "pytest==9.1.0",
     "pytest-benchmark==5.2.3",
