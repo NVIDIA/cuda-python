@@ -79,7 +79,14 @@ cdef class IPCDataForMR:
 
 
 cdef class IPCBufferDescriptor:
-    """Serializable object describing a buffer that can be shared between processes."""
+    """Serializable object describing a buffer that can be shared between processes.
+
+    Note
+    ----
+    The payload and ``size`` fields are controlled by the exporting peer.
+    Receivers must treat them as untrusted and import only through
+    :meth:`Buffer.from_ipc_descriptor`.
+    """
 
     def __init__(self, *arg, **kwargs) -> None:
         raise RuntimeError("IPCBufferDescriptor objects cannot be instantiated directly. Please use MemoryResource APIs.")
