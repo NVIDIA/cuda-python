@@ -143,7 +143,11 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUctx_flags.CU_CTX_BLOCKING_SYNC
 
 
-        Set blocking synchronization as default scheduling [Deprecated]
+        Set blocking synchronization as default scheduling
+
+
+
+        [Deprecated]
 
 
     .. autoattribute:: cuda.bindings.driver.CUctx_flags.CU_CTX_SCHED_MASK
@@ -325,25 +329,25 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_GEQ
 
 
-        Wait until (int32_t)(*addr - value) >= 0 (or int64_t for 64 bit values). Note this is a cyclic comparison which ignores wraparound. (Default behavior.)
+        Wait until (int32_t)(\*addr - value) >= 0 (or int64_t for 64 bit values). Note this is a cyclic comparison which ignores wraparound. (Default behavior.)
 
 
     .. autoattribute:: cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_EQ
 
 
-        Wait until *addr == value.
+        Wait until \*addr == value.
 
 
     .. autoattribute:: cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_AND
 
 
-        Wait until (*addr & value) != 0.
+        Wait until (\*addr & value) != 0.
 
 
     .. autoattribute:: cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_NOR
 
 
-        Wait until ~(*addr | value) != 0. Support for this operation can be queried with :py:obj:`~.cuDeviceGetAttribute()` and :py:obj:`~.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR`.
+        Wait until ~(\*addr | value) != 0. Support for this operation can be queried with :py:obj:`~.cuDeviceGetAttribute()` and :py:obj:`~.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR`.
 
 
     .. autoattribute:: cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_FLUSH
@@ -1818,7 +1822,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_HW_DECOMPRESS_CAPABLE
 
 
-        Returns in `*data` a boolean that indicates whether the pointer points to memory that is capable to be used for hardware accelerated decompression.
+        Returns in ``*data`` a boolean that indicates whether the pointer points to memory that is capable to be used for hardware accelerated decompression.
 
 .. autoclass:: cuda.bindings.driver.CUfunction_attribute
 
@@ -1855,13 +1859,13 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PTX_VERSION
 
 
-        The PTX virtual architecture version for which the function was compiled. This value is the major PTX version * 10 + the minor PTX version, so a PTX version 1.3 function would return the value 13. Note that this may return the undefined value of 0 for cubins compiled prior to CUDA 3.0.
+        The PTX virtual architecture version for which the function was compiled. This value is the major PTX version \* 10 + the minor PTX version, so a PTX version 1.3 function would return the value 13. Note that this may return the undefined value of 0 for cubins compiled prior to CUDA 3.0.
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_BINARY_VERSION
 
 
-        The binary architecture version for which the function was compiled. This value is the major binary version * 10 + the minor binary version, so a binary version 1.3 function would return the value 13. Note that this will return a value of 10 for legacy cubins that do not have a properly-encoded binary architecture version.
+        The binary architecture version for which the function was compiled. This value is the major binary version \* 10 + the minor binary version, so a binary version 1.3 function would return the value 13. Note that this will return a value of 10 for legacy cubins that do not have a properly-encoded binary architecture version.
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA
@@ -1943,7 +1947,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
 
 
-        The block scheduling policy of a function. The value type is CUclusterSchedulingPolicy / cudaClusterSchedulingPolicy. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
+        The block scheduling policy of a function. The value type is :py:obj:`~.CUclusterSchedulingPolicy` / cudaClusterSchedulingPolicy. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX
@@ -2182,7 +2186,7 @@ Data types used by CUDA driver
 
         Pointer to a buffer in which to print any log messages that are informational in nature (the buffer size is specified via option :py:obj:`~.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES`)
 
-        Option type: char *
+        Option type: char \*
 
         Applies to: compiler and linker
 
@@ -2204,7 +2208,7 @@ Data types used by CUDA driver
 
         Pointer to a buffer in which to print any log messages that reflect errors (the buffer size is specified via option :py:obj:`~.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES`)
 
-        Option type: char *
+        Option type: char \*
 
         Applies to: compiler and linker
 
@@ -2254,7 +2258,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUjit_option.CU_JIT_FALLBACK_STRATEGY
 
 
-        Specifies choice of fallback strategy if matching cubin is not found. Choice is based on supplied :py:obj:`~.CUjit_fallback`. This option cannot be used with cuLink* APIs as the linker requires exact matches.
+        Specifies choice of fallback strategy if matching cubin is not found. Choice is based on supplied :py:obj:`~.CUjit_fallback`. This option cannot be used with cuLink\* APIs as the linker requires exact matches.
 
         Option type: unsigned int for enumerated type :py:obj:`~.CUjit_fallback`
 
@@ -2328,7 +2332,7 @@ Data types used by CUDA driver
 
         It is illegal to register the same device symbol at multiple addresses.
 
-        Option type: const char **
+        Option type: const char \*\*
 
         Applies to: dynamic linker only
 
@@ -2340,7 +2344,7 @@ Data types used by CUDA driver
 
         Must contain :py:obj:`~.CU_JIT_GLOBAL_SYMBOL_COUNT` entries.
 
-        Option type: void **
+        Option type: void \*\*
 
         Applies to: dynamic linker only
 
@@ -2955,7 +2959,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_IF
 
 
-        Conditional 'if/else' Node. Body[0] executed if condition is non-zero. If `size` == 2, an optional ELSE graph is created and this is executed if the condition is zero.
+        Conditional 'if/else' Node. Body[0] executed if condition is non-zero. If ``size`` == 2, an optional ELSE graph is created and this is executed if the condition is zero.
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_WHILE
@@ -3093,7 +3097,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUgraphDependencyType.CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC
 
 
-        This dependency type allows the downstream node to use `cudaGridDependencySynchronize()`. It may only be used between kernel nodes, and must be used with either the :py:obj:`~.CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC` or :py:obj:`~.CU_GRAPH_KERNEL_NODE_PORT_LAUNCH_ORDER` outgoing port.
+        This dependency type allows the downstream node to use ``cudaGridDependencySynchronize()``. It may only be used between kernel nodes, and must be used with either the :py:obj:`~.CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC` or :py:obj:`~.CU_GRAPH_KERNEL_NODE_PORT_LAUNCH_ORDER` outgoing port.
 
 .. autoclass:: cuda.bindings.driver.CUgraphInstantiateResult
 
@@ -3254,7 +3258,7 @@ Data types used by CUDA driver
 
          Each type of cluster will have its enumeration / coordinate setup as if the grid consists solely of its type of cluster. For example, if the preferred substitute cluster dimensions double the regular cluster dimensions, there might be simultaneously a regular cluster indexed at (1,0,0), and a preferred cluster indexed at (1,0,0). In this example, the preferred substitute cluster (1,0,0) replaces regular clusters (2,0,0) and (3,0,0) and groups their blocks. 
 
-         This attribute will only take effect when a regular cluster dimension has been specified. The preferred substitute cluster dimension must be an integer multiple greater than zero of the regular cluster dimension and must divide the grid. It must also be no more than `maxBlocksPerCluster`, if it is set in the kernel's `__launch_bounds__`. Otherwise it must be less than the maximum value the driver can support. Otherwise, setting this attribute to a value physically unable to fit on any particular device is permitted.
+         This attribute will only take effect when a regular cluster dimension has been specified. The preferred substitute cluster dimension must be an integer multiple greater than zero of the regular cluster dimension and must divide the grid. It must also be no more than ``maxBlocksPerCluster``, if it is set in the kernel's ``__launch_bounds__``. Otherwise it must be less than the maximum value the driver can support. Otherwise, setting this attribute to a value physically unable to fit on any particular device is permitted.
 
 
     .. autoattribute:: cuda.bindings.driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT
@@ -3264,7 +3268,7 @@ Data types used by CUDA driver
 
          Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock. 
 
-         A launch completion event is nominally similar to a programmatic event with `triggerAtBlockStart` set except that it is not visible to `cudaGridDependencySynchronize()` and can be used with compute capability less than 9.0. 
+         A launch completion event is nominally similar to a programmatic event with ``triggerAtBlockStart`` set except that it is not visible to ``cudaGridDependencySynchronize()`` and can be used with compute capability less than 9.0. 
 
          The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the :py:obj:`~.CU_EVENT_DISABLE_TIMING` flag set).
 
@@ -3381,7 +3385,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUlibraryOption.CU_LIBRARY_BINARY_IS_PRESERVED
 
 
-        Specifes that the argument `code` passed to :py:obj:`~.cuLibraryLoadData()` will be preserved. Specifying this option will let the driver know that `code` can be accessed at any point until :py:obj:`~.cuLibraryUnload()`. The default behavior is for the driver to allocate and maintain its own copy of `code`. Note that this is only a memory usage optimization hint and the driver can choose to ignore it if required. Specifying this option with :py:obj:`~.cuLibraryLoadFromFile()` is invalid and will return :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+        Specifes that the argument ``code`` passed to :py:obj:`~.cuLibraryLoadData()` will be preserved. Specifying this option will let the driver know that ``code`` can be accessed at any point until :py:obj:`~.cuLibraryUnload()`. The default behavior is for the driver to allocate and maintain its own copy of ``code``. Note that this is only a memory usage optimization hint and the driver can choose to ignore it if required. Specifying this option with :py:obj:`~.cuLibraryLoadFromFile()` is invalid and will return :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
 
 
     .. autoattribute:: cuda.bindings.driver.CUlibraryOption.CU_LIBRARY_NUM_OPTIONS
@@ -3487,7 +3491,11 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_CONTEXT_ALREADY_CURRENT
 
 
-        This indicated that the context being supplied as a parameter to the API call was already the active context. [Deprecated]
+        This indicated that the context being supplied as a parameter to the API call was already the active context.
+
+
+
+        [Deprecated]
 
 
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_MAP_FAILED
@@ -4495,7 +4503,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_FABRIC
 
 
-        Allows a fabric handle to be used for exporting. (CUmemFabricHandle)
+        Allows a fabric handle to be used for exporting. (:py:obj:`~.CUmemFabricHandle`)
 
 
     .. autoattribute:: cuda.bindings.driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_MAX
@@ -4715,31 +4723,31 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD
 
 
-        (value type = cuuint64_t) Amount of reserved memory in bytes to hold onto before trying to release memory back to the OS. When more than the release threshold bytes of memory are held by the memory pool, the allocator will try to release memory back to the OS on the next call to stream, event or context synchronize. (default 0)
+        (value type = :py:obj:`~.cuuint64_t`) Amount of reserved memory in bytes to hold onto before trying to release memory back to the OS. When more than the release threshold bytes of memory are held by the memory pool, the allocator will try to release memory back to the OS on the next call to stream, event or context synchronize. (default 0)
 
 
     .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT
 
 
-        (value type = cuuint64_t) Amount of backing memory currently allocated for the mempool.
+        (value type = :py:obj:`~.cuuint64_t`) Amount of backing memory currently allocated for the mempool.
 
 
     .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH
 
 
-        (value type = cuuint64_t) High watermark of backing memory allocated for the mempool since the last time it was reset. High watermark can only be reset to zero.
+        (value type = :py:obj:`~.cuuint64_t`) High watermark of backing memory allocated for the mempool since the last time it was reset. High watermark can only be reset to zero.
 
 
     .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_CURRENT
 
 
-        (value type = cuuint64_t) Amount of memory from the pool that is currently in use by the application.
+        (value type = :py:obj:`~.cuuint64_t`) Amount of memory from the pool that is currently in use by the application.
 
 
     .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_HIGH
 
 
-        (value type = cuuint64_t) High watermark of the amount of memory from the pool that was in use by the application since the last time it was reset. High watermark can only be reset to zero.
+        (value type = :py:obj:`~.cuuint64_t`) High watermark of the amount of memory from the pool that was in use by the application since the last time it was reset. High watermark can only be reset to zero.
 
 .. autoclass:: cuda.bindings.driver.CUmemcpyFlags
 
@@ -4790,7 +4798,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUmemcpy3DOperandType.CU_MEMCPY_OPERAND_TYPE_ARRAY
 
 
-        Memcpy operand is a CUarray.
+        Memcpy operand is a :py:obj:`~.CUarray`.
 
 
     .. autoattribute:: cuda.bindings.driver.CUmemcpy3DOperandType.CU_MEMCPY_OPERAND_TYPE_MAX
@@ -4800,25 +4808,25 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT
 
 
-        (value type = cuuint64_t) Amount of memory, in bytes, currently associated with graphs
+        (value type = :py:obj:`~.cuuint64_t`) Amount of memory, in bytes, currently associated with graphs
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH
 
 
-        (value type = cuuint64_t) High watermark of memory, in bytes, associated with graphs since the last time it was reset. High watermark can only be reset to zero.
+        (value type = :py:obj:`~.cuuint64_t`) High watermark of memory, in bytes, associated with graphs since the last time it was reset. High watermark can only be reset to zero.
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT
 
 
-        (value type = cuuint64_t) Amount of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
+        (value type = :py:obj:`~.cuuint64_t`) Amount of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH
 
 
-        (value type = cuuint64_t) High watermark of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
+        (value type = :py:obj:`~.cuuint64_t`) High watermark of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
 
 .. autoclass:: cuda.bindings.driver.CUgraphChildGraphNodeOwnership
 
@@ -4906,49 +4914,49 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_PARAMS
 
 
-        Adds CUDA_KERNEL_NODE_PARAMS values to output
+        Adds :py:obj:`~.CUDA_KERNEL_NODE_PARAMS` values to output
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_NODE_PARAMS
 
 
-        Adds CUDA_MEMCPY3D values to output
+        Adds :py:obj:`~.CUDA_MEMCPY3D` values to output
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMSET_NODE_PARAMS
 
 
-        Adds CUDA_MEMSET_NODE_PARAMS values to output
+        Adds :py:obj:`~.CUDA_MEMSET_NODE_PARAMS` values to output
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HOST_NODE_PARAMS
 
 
-        Adds CUDA_HOST_NODE_PARAMS values to output
+        Adds :py:obj:`~.CUDA_HOST_NODE_PARAMS` values to output
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EVENT_NODE_PARAMS
 
 
-        Adds CUevent handle from record and wait nodes to output
+        Adds :py:obj:`~.CUevent` handle from record and wait nodes to output
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_SIGNAL_NODE_PARAMS
 
 
-        Adds CUDA_EXT_SEM_SIGNAL_NODE_PARAMS values to output
+        Adds :py:obj:`~.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS` values to output
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_WAIT_NODE_PARAMS
 
 
-        Adds CUDA_EXT_SEM_WAIT_NODE_PARAMS values to output
+        Adds :py:obj:`~.CUDA_EXT_SEM_WAIT_NODE_PARAMS` values to output
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_ATTRIBUTES
 
 
-        Adds CUkernelNodeAttrValue values to output
+        Adds :py:obj:`~.CUkernelNodeAttrValue` values to output
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HANDLES
@@ -5011,7 +5019,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_UPLOAD
 
 
-        Automatically upload the graph after instantiation. Only supported by :py:obj:`~.cuGraphInstantiateWithParams`. The upload will be performed using the stream provided in `instantiateParams`.
+        Automatically upload the graph after instantiation. Only supported by :py:obj:`~.cuGraphInstantiateWithParams`. The upload will be performed using the stream provided in ``instantiateParams``.
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_DEVICE_LAUNCH
@@ -5983,7 +5991,7 @@ Data types used by CUDA driver
 
 
 
-    Stream handle that can be passed as a CUstream to use an implicit stream with legacy synchronization behavior.
+    Stream handle that can be passed as a :py:obj:`~.CUstream` to use an implicit stream with legacy synchronization behavior.
 
 
 
@@ -5995,7 +6003,7 @@ Data types used by CUDA driver
 
 
 
-    Stream handle that can be passed as a CUstream to use an implicit stream with per-thread synchronization behavior.
+    Stream handle that can be passed as a :py:obj:`~.CUstream` to use an implicit stream with per-thread synchronization behavior.
 
 
 
@@ -6077,19 +6085,19 @@ Data types used by CUDA driver
 
 .. autoattribute:: cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_SKIP_NVSCIBUF_MEMSYNC
 
-    When the `flags` parameter of :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS` contains this flag, it indicates that signaling an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF`, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.
+    When the ``flags`` parameter of :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS` contains this flag, it indicates that signaling an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF`, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.
 
 .. autoattribute:: cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_WAIT_SKIP_NVSCIBUF_MEMSYNC
 
-    When the `flags` parameter of :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS` contains this flag, it indicates that waiting on an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF`, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.
+    When the ``flags`` parameter of :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS` contains this flag, it indicates that waiting on an external semaphore object should skip performing appropriate memory synchronization operations over all the external memory objects that are imported as :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF`, which otherwise are performed by default to ensure data coherency with other importers of the same NvSciBuf memory objects.
 
 .. autoattribute:: cuda.bindings.driver.CUDA_NVSCISYNC_ATTR_SIGNAL
 
-    When `flags` of :py:obj:`~.cuDeviceGetNvSciSyncAttributes` is set to this, it indicates that application needs signaler specific NvSciSyncAttr to be filled by :py:obj:`~.cuDeviceGetNvSciSyncAttributes`.
+    When ``flags`` of :py:obj:`~.cuDeviceGetNvSciSyncAttributes` is set to this, it indicates that application needs signaler specific NvSciSyncAttr to be filled by :py:obj:`~.cuDeviceGetNvSciSyncAttributes`.
 
 .. autoattribute:: cuda.bindings.driver.CUDA_NVSCISYNC_ATTR_WAIT
 
-    When `flags` of :py:obj:`~.cuDeviceGetNvSciSyncAttributes` is set to this, it indicates that application needs waiter specific NvSciSyncAttr to be filled by :py:obj:`~.cuDeviceGetNvSciSyncAttributes`.
+    When ``flags`` of :py:obj:`~.cuDeviceGetNvSciSyncAttributes` is set to this, it indicates that application needs waiter specific NvSciSyncAttr to be filled by :py:obj:`~.cuDeviceGetNvSciSyncAttributes`.
 
 .. autoattribute:: cuda.bindings.driver.CU_MEM_CREATE_USAGE_TILE_POOL
 
@@ -6113,7 +6121,7 @@ Data types used by CUDA driver
 
 .. autoattribute:: cuda.bindings.driver.CUDA_ARRAY3D_LAYERED
 
-    If set, the CUDA array is a collection of layers, where each layer is either a 1D or a 2D array and the Depth member of CUDA_ARRAY3D_DESCRIPTOR specifies the number of layers, not the depth of a 3D array.
+    If set, the CUDA array is a collection of layers, where each layer is either a 1D or a 2D array and the Depth member of :py:obj:`~.CUDA_ARRAY3D_DESCRIPTOR` specifies the number of layers, not the depth of a 3D array.
 
 .. autoattribute:: cuda.bindings.driver.CUDA_ARRAY3D_2DARRAY
 
@@ -6185,7 +6193,7 @@ Data types used by CUDA driver
 
 .. autoattribute:: cuda.bindings.driver.CU_LAUNCH_PARAM_END
 
-    End of array terminator for the `extra` parameter to :py:obj:`~.cuLaunchKernel`
+    End of array terminator for the ``extra`` parameter to :py:obj:`~.cuLaunchKernel`
 
 .. autoattribute:: cuda.bindings.driver.CU_LAUNCH_PARAM_BUFFER_POINTER_AS_INT
 
@@ -6193,7 +6201,7 @@ Data types used by CUDA driver
 
 .. autoattribute:: cuda.bindings.driver.CU_LAUNCH_PARAM_BUFFER_POINTER
 
-    Indicator that the next value in the `extra` parameter to :py:obj:`~.cuLaunchKernel` will be a pointer to a buffer containing all kernel parameters used for launching kernel `f`. This buffer needs to honor all alignment/padding requirements of the individual parameters. If :py:obj:`~.CU_LAUNCH_PARAM_BUFFER_SIZE` is not also specified in the `extra` array, then :py:obj:`~.CU_LAUNCH_PARAM_BUFFER_POINTER` will have no effect.
+    Indicator that the next value in the ``extra`` parameter to :py:obj:`~.cuLaunchKernel` will be a pointer to a buffer containing all kernel parameters used for launching kernel ``f``. This buffer needs to honor all alignment/padding requirements of the individual parameters. If :py:obj:`~.CU_LAUNCH_PARAM_BUFFER_SIZE` is not also specified in the ``extra`` array, then :py:obj:`~.CU_LAUNCH_PARAM_BUFFER_POINTER` will have no effect.
 
 .. autoattribute:: cuda.bindings.driver.CU_LAUNCH_PARAM_BUFFER_SIZE_AS_INT
 
@@ -6201,7 +6209,7 @@ Data types used by CUDA driver
 
 .. autoattribute:: cuda.bindings.driver.CU_LAUNCH_PARAM_BUFFER_SIZE
 
-    Indicator that the next value in the `extra` parameter to :py:obj:`~.cuLaunchKernel` will be a pointer to a size_t which contains the size of the buffer specified with :py:obj:`~.CU_LAUNCH_PARAM_BUFFER_POINTER`. It is required that :py:obj:`~.CU_LAUNCH_PARAM_BUFFER_POINTER` also be specified in the `extra` array if the value associated with :py:obj:`~.CU_LAUNCH_PARAM_BUFFER_SIZE` is not zero.
+    Indicator that the next value in the ``extra`` parameter to :py:obj:`~.cuLaunchKernel` will be a pointer to a size_t which contains the size of the buffer specified with :py:obj:`~.CU_LAUNCH_PARAM_BUFFER_POINTER`. It is required that :py:obj:`~.CU_LAUNCH_PARAM_BUFFER_POINTER` also be specified in the ``extra`` array if the value associated with :py:obj:`~.CU_LAUNCH_PARAM_BUFFER_SIZE` is not zero.
 
 .. autoattribute:: cuda.bindings.driver.CU_PARAM_TR_DEFAULT
 
@@ -6227,6 +6235,10 @@ Data types used by CUDA driver
 Error Handling
 --------------
 
+MANBRIEF error handling functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the error handling functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.bindings.driver.cuGetErrorString
@@ -6235,6 +6247,10 @@ This section describes the error handling functions of the low-level CUDA driver
 Initialization
 --------------
 
+MANBRIEF initialization functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the initialization functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.bindings.driver.cuInit
@@ -6242,12 +6258,20 @@ This section describes the initialization functions of the low-level CUDA driver
 Version Management
 ------------------
 
+MANBRIEF version management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the version management functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.bindings.driver.cuDriverGetVersion
 
 Device Management
 -----------------
+
+MANBRIEF device management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the device management functions of the low-level CUDA driver application programming interface.
 
@@ -6270,6 +6294,10 @@ This section describes the device management functions of the low-level CUDA dri
 Primary Context Management
 --------------------------
 
+MANBRIEF primary context management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the primary context management functions of the low-level CUDA driver application programming interface.
 
 
@@ -6284,6 +6312,10 @@ The primary context is unique per device and shared with the CUDA runtime API. T
 
 Context Management
 ------------------
+
+MANBRIEF context management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the context management functions of the low-level CUDA driver application programming interface.
 
@@ -6317,6 +6349,10 @@ Please note that some functions are described in Primary Context Management sect
 
 Module Management
 -----------------
+
+MANBRIEF module management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the module management functions of the low-level CUDA driver application programming interface.
 
@@ -6352,6 +6388,10 @@ This section describes the module management functions of the low-level CUDA dri
 Library Management
 ------------------
 
+MANBRIEF library management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the library management functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.bindings.driver.cuLibraryLoadData
@@ -6374,6 +6414,10 @@ This section describes the library management functions of the low-level CUDA dr
 
 Memory Management
 -----------------
+
+MANBRIEF memory management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the memory management functions of the low-level CUDA driver application programming interface.
 
@@ -6483,6 +6527,10 @@ This section describes the memory management functions of the low-level CUDA dri
 Virtual Memory Management
 -------------------------
 
+MANBRIEF virtual memory management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the virtual memory management functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.bindings.driver.cuMemAddressReserve
@@ -6503,6 +6551,10 @@ This section describes the virtual memory management functions of the low-level 
 Stream Ordered Memory Allocator
 -------------------------------
 
+MANBRIEF Functions for performing allocation and free operations in stream order. Functions for controlling the behavior of the underlying allocator. (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the stream ordered memory allocator exposed by the low-level CUDA driver application programming interface.
 
 
@@ -6510,8 +6562,6 @@ This section describes the stream ordered memory allocator exposed by the low-le
 
 
 **overview**
-
-
 
 The asynchronous allocator allows the user to allocate and free in stream order. All asynchronous accesses of the allocation must happen between the stream executions of the allocation and the free. If the memory is accessed outside of the promised stream order, a use before allocation / use after free error will cause undefined behavior.
 
@@ -6522,8 +6572,6 @@ The allocator is free to reallocate the memory as long as it can guarantee that 
 
 
 **Supported Platforms**
-
-
 
 Whether or not a device supports the integrated stream ordered memory allocator may be queried by calling cuDeviceGetAttribute() with the device attribute CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED
 
@@ -6545,6 +6593,10 @@ Whether or not a device supports the integrated stream ordered memory allocator 
 Multicast Object Management
 ---------------------------
 
+MANBRIEF Functions for creating multicast objects, adding devices to them and binding/unbinding memory (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the CUDA multicast object operations exposed by the low-level CUDA driver application programming interface.
 
 
@@ -6553,8 +6605,6 @@ This section describes the CUDA multicast object operations exposed by the low-l
 
 **overview**
 
-
-
 A multicast object created via cuMulticastCreate enables certain memory operations to be broadcast to a team of devices. Devices can be added to a multicast object via cuMulticastAddDevice. Memory can be bound on each participating device via either cuMulticastBindMem or cuMulticastBindAddr. Multicast objects can be mapped into a device's virtual address space using the virtual memmory management APIs (see cuMemMap and cuMemSetAccess).
 
 
@@ -6562,8 +6612,6 @@ A multicast object created via cuMulticastCreate enables certain memory operatio
 
 
 **Supported Platforms**
-
-
 
 Support for multicast on a specific device can be queried using the device attribute CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED
 
@@ -6577,6 +6625,10 @@ Support for multicast on a specific device can be queried using the device attri
 Unified Addressing
 ------------------
 
+MANBRIEF unified addressing functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the unified addressing functions of the low-level CUDA driver application programming interface.
 
 
@@ -6585,8 +6637,6 @@ This section describes the unified addressing functions of the low-level CUDA dr
 
 **Overview**
 
-
-
 CUDA devices can share a unified address space with the host. For these devices there is no distinction between a device pointer and a host pointer -- the same pointer value may be used to access memory from the host program and from a kernel running on the device (with exceptions enumerated below).
 
 
@@ -6594,8 +6644,6 @@ CUDA devices can share a unified address space with the host. For these devices 
 
 
 **Supported Platforms**
-
-
 
 Whether or not a device supports unified addressing may be queried by calling cuDeviceGetAttribute() with the device attribute CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING.
 
@@ -6607,8 +6655,6 @@ Unified addressing is automatically enabled in 64-bit processes
 
 **Looking Up Information from Pointer Values**
 
-
-
 It is possible to look up information about the memory which backs a pointer value. For instance, one may want to know if a pointer points to host or device memory. As another example, in the case of device memory, one may want to know on which CUDA device the memory resides. These properties may be queried using the function cuPointerGetAttribute()
 
 Since pointers are unique, it is not necessary to specify information about the pointers specified to the various copy functions in the CUDA API. The function cuMemcpy() may be used to perform a copy between two pointers, ignoring whether they point to host or device memory (making cuMemcpyHtoD(), cuMemcpyDtoD(), and cuMemcpyDtoH() unnecessary for devices supporting unified addressing). For multidimensional copies, the memory type CU_MEMORYTYPE_UNIFIED may be used to specify that the CUDA driver should infer the location of the pointer from its value.
@@ -6618,8 +6664,6 @@ Since pointers are unique, it is not necessary to specify information about the 
 
 
 **Automatic Mapping of Host Allocated Host Memory**
-
-
 
 All host memory allocated in all contexts using cuMemAllocHost() and cuMemHostAlloc() is always directly accessible from all contexts on all devices that support unified addressing. This is the case regardless of whether or not the flags CU_MEMHOSTALLOC_PORTABLE and CU_MEMHOSTALLOC_DEVICEMAP are specified.
 
@@ -6633,8 +6677,6 @@ Note that this is not the case for memory allocated using the flag CU_MEMHOSTALL
 
 **Automatic Registration of Peer Memory**
 
-
-
 Upon enabling direct access from a context that supports unified addressing to another peer context that supports unified addressing using cuCtxEnablePeerAccess() all memory allocated in the peer context using cuMemAlloc() and cuMemAllocPitch() will immediately be accessible by the current context. The device pointer value through which any peer memory may be accessed in the current context is the same pointer value through which that memory may be accessed in the peer context.
 
 
@@ -6642,8 +6684,6 @@ Upon enabling direct access from a context that supports unified addressing to a
 
 
 **Exceptions, Disjoint Addressing**
-
-
 
 Not all memory may be accessed on devices through the same pointer value through which they are accessed on the host. These exceptions are host memory registered using cuMemHostRegister() and host memory allocated using the flag CU_MEMHOSTALLOC_WRITECOMBINED. For these exceptions, there exists a distinct host and device address for the memory. The device address is guaranteed to not overlap any valid host pointer range and is guaranteed to have the same value across all contexts that support unified addressing.
 
@@ -6661,6 +6701,10 @@ This device address may be queried using cuMemHostGetDevicePointer() when a cont
 
 Stream Management
 -----------------
+
+MANBRIEF stream management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the stream management functions of the low-level CUDA driver application programming interface.
 
@@ -6694,6 +6738,10 @@ This section describes the stream management functions of the low-level CUDA dri
 Event Management
 ----------------
 
+MANBRIEF event management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the event management functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.bindings.driver.cuEventCreate
@@ -6708,6 +6756,10 @@ This section describes the event management functions of the low-level CUDA driv
 External Resource Interoperability
 ----------------------------------
 
+MANBRIEF External resource interoperability functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the external resource interoperability functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.bindings.driver.cuImportExternalMemory
@@ -6721,6 +6773,10 @@ This section describes the external resource interoperability functions of the l
 
 Stream Memory Operations
 ------------------------
+
+MANBRIEF Stream memory operations of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the stream memory operations of the low-level CUDA driver application programming interface.
 
@@ -6757,6 +6813,10 @@ Warning: Improper use of these APIs may deadlock the application. Synchronizatio
 Execution Control
 -----------------
 
+MANBRIEF execution control functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the execution control functions of the low-level CUDA driver application programming interface.
 
 .. autoclass:: cuda.bindings.driver.CUfunctionLoadingState
@@ -6785,6 +6845,10 @@ This section describes the execution control functions of the low-level CUDA dri
 
 Graph Management
 ----------------
+
+MANBRIEF graph management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the graph management functions of the low-level CUDA driver application programming interface.
 
@@ -6880,6 +6944,10 @@ This section describes the graph management functions of the low-level CUDA driv
 Occupancy
 ---------
 
+MANBRIEF occupancy calculation functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the occupancy calculation functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.bindings.driver.cuOccupancyMaxActiveBlocksPerMultiprocessor
@@ -6893,6 +6961,10 @@ This section describes the occupancy calculation functions of the low-level CUDA
 Texture Object Management
 -------------------------
 
+MANBRIEF texture object management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the texture object management functions of the low-level CUDA driver application programming interface. The texture object API is only supported on devices of compute capability 3.0 or higher.
 
 .. autofunction:: cuda.bindings.driver.cuTexObjectCreate
@@ -6904,6 +6976,10 @@ This section describes the texture object management functions of the low-level 
 Surface Object Management
 -------------------------
 
+MANBRIEF surface object management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the surface object management functions of the low-level CUDA driver application programming interface. The surface object API is only supported on devices of compute capability 3.0 or higher.
 
 .. autofunction:: cuda.bindings.driver.cuSurfObjectCreate
@@ -6912,6 +6988,10 @@ This section describes the surface object management functions of the low-level 
 
 Tensor Map Object Managment
 ---------------------------
+
+MANBRIEF tensor map object management functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the tensor map object management functions of the low-level CUDA driver application programming interface. The tensor core API is only supported on devices of compute capability 9.0 or higher.
 
@@ -6923,6 +7003,10 @@ This section describes the tensor map object management functions of the low-lev
 Peer Context Memory Access
 --------------------------
 
+MANBRIEF direct peer context memory access functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the direct peer context memory access functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.bindings.driver.cuDeviceCanAccessPeer
@@ -6932,6 +7016,10 @@ This section describes the direct peer context memory access functions of the lo
 
 Graphics Interoperability
 -------------------------
+
+MANBRIEF graphics interoperability functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the graphics interoperability functions of the low-level CUDA driver application programming interface.
 
@@ -6946,12 +7034,20 @@ This section describes the graphics interoperability functions of the low-level 
 Driver Entry Point Access
 -------------------------
 
+MANBRIEF driver entry point access functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the driver entry point access functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.bindings.driver.cuGetProcAddress
 
 Coredump Attributes Control API
 -------------------------------
+
+MANBRIEF coredump attribute control functions for the low-level CUDA API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the coredump attribute control functions of the low-level CUDA driver application programming interface.
 
@@ -7013,6 +7109,10 @@ This section describes the coredump attribute control functions of the low-level
 Green Contexts
 --------------
 
+MANBRIEF Driver level API for creation and manipulation of green contexts (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the APIs for creation and manipulation of green contexts in the CUDA driver. Green contexts are a lightweight alternative to traditional contexts, with the ability to pass in a set of resources that they should be initialized with. This allows the developer to represent distinct spatial partitions of the GPU, provision resources for them, and target them via the same programming model that CUDA exposes (streams, kernel launches, etc.).
 
 
@@ -7055,7 +7155,7 @@ There are 4 main steps to using these new set of APIs.
 
 
 
-For ``CU_DEV_RESOURCE_TYPE_SM``\ , the partitions created have minimum SM count requirements, often rounding up and aligning the minCount provided to cuDevSmResourceSplitByCount. The following is a guideline for each architecture and may be subject to change:
+For ``CU_DEV_RESOURCE_TYPE_SM``, the partitions created have minimum SM count requirements, often rounding up and aligning the minCount provided to cuDevSmResourceSplitByCount. The following is a guideline for each architecture and may be subject to change:
 
 - On Compute Architecture 6.X: The minimum count is 1 SM.
 
@@ -7099,7 +7199,7 @@ In the future, flags can be provided to tradeoff functional and performance char
 
 Even if the green contexts have disjoint SM partitions, it is not guaranteed that the kernels launched in them will run concurrently or have forward progress guarantees. This is due to other resources (like HW connections, see ::CUDA_DEVICE_MAX_CONNECTIONS) that could cause a dependency. Additionally, in certain scenarios, it is possible for the workload to run on more SMs than was provisioned (but never less). The following are two scenarios which can exhibit this behavior:
 
-- On Volta+ MPS: When ``CUDA_MPS_ACTIVE_THREAD_PERCENTAGE``\  is used, the set of SMs that are used for running kernels can be scaled up to the value of SMs used for the MPS client.
+- On Volta+ MPS: When ``CUDA_MPS_ACTIVE_THREAD_PERCENTAGE`` is used, the set of SMs that are used for running kernels can be scaled up to the value of SMs used for the MPS client.
 
 
 
@@ -7160,6 +7260,10 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 Error Log Management Functions
 ------------------------------
 
+MANBRIEF error log management functions for the low-level CUDA API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the error log management functions of the low-level CUDA driver application programming interface.
 
 .. autoclass:: cuda.bindings.driver.CUlogLevel
@@ -7185,7 +7289,7 @@ CUDA API versioning support
 
 
 
-
+MANBRIEF CUDA checkpoint and restore functionality of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
 
 
 
@@ -7209,6 +7313,10 @@ Checkpoint and restore capabilities are currently restricted to Linux.
 Profiler Control
 ----------------
 
+MANBRIEF profiler control functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
+
 This section describes the profiler control functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.bindings.driver.cuProfilerStart
@@ -7216,6 +7324,10 @@ This section describes the profiler control functions of the low-level CUDA driv
 
 EGL Interoperability
 --------------------
+
+MANBRIEF EGL interoperability functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the EGL interoperability functions of the low-level CUDA driver application programming interface.
 
@@ -7234,6 +7346,10 @@ This section describes the EGL interoperability functions of the low-level CUDA 
 
 OpenGL Interoperability
 -----------------------
+
+MANBRIEF OpenGL interoperability functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the OpenGL interoperability functions of the low-level CUDA driver application programming interface. Note that mapping of OpenGL resources is performed with the graphics API agnostic, resource mapping interface described in Graphics Interoperability.
 
@@ -7262,6 +7378,10 @@ This section describes the OpenGL interoperability functions of the low-level CU
 
 VDPAU Interoperability
 ----------------------
+
+MANBRIEF VDPAU interoperability functions of the low-level CUDA driver API (CURRENT_FILE) ENDMANBRIEF
+
+
 
 This section describes the VDPAU interoperability functions of the low-level CUDA driver application programming interface.
 

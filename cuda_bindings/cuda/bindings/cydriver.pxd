@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1602+g3c8d84404. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -1434,6 +1434,7 @@ ctypedef enum CUoutput_mode_enum "CUoutput_mode_enum":
     CU_OUT_CSV "CU_OUT_CSV" = 0x01
 ctypedef CUoutput_mode_enum CUoutput_mode "CUoutput_mode"
 cdef enum: _CURESULT_INTERNAL_LOADING_ERROR = CUresult.CUDA_ERROR_NOT_FOUND
+cdef enum: CUDA_VERSION = 12090
 
 
 # TYPES
@@ -3326,12 +3327,7 @@ cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResou
 cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 
 
-# cdef extern from "cuda.h":
-#     ctypedef CUdevSmResourceSplit_flags CUdevSmResourceSplitByCount_flags
-
 # TODO: Extract these defines somehow?
-
-cdef enum: CUDA_VERSION = 13020
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 
