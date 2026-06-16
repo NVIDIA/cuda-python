@@ -446,7 +446,6 @@ cdef class Buffer:
 
 # Memory Attribute Query Helpers
 # ------------------------------
-@cython.critical_section
 cdef inline void _init_mem_attrs(Buffer self):
     """Initialize memory attributes by querying the pointer."""
     if not self._mem_attrs_inited:
