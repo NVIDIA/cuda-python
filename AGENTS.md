@@ -113,6 +113,33 @@ repos/{owner}/{repo}/milestones --jq '.[].title'`, and pick the best match.
   end on clarifications unless truly blocked. Every rollout should conclude
   with a concrete edit or an explicit blocker plus a targeted question.
 
+## Test authorship tags
+
+Use these tags to make the provenance of newly added unit tests explicit. Use
+the host language's comment syntax, and place the tag immediately above the
+test function, test class, or at the top of a new test file when the whole file
+has the same provenance.
+
+- `AGENT-AUTHORED <model>`: the test was authored by an agent and has not yet
+  been materially reviewed or rewritten by a human. Agents must add this tag
+  when generating new unit tests, for example:
+
+  ```python
+  # AGENT-AUTHORED gpt-5.5
+  ```
+
+- `HUMAN-REVIEWED`: a human has materially reviewed or rewritten an
+  agent-authored test. Prefer replacing `AGENT-AUTHORED <model>` with this tag
+  instead of keeping both.
+- `HUMAN-AUTHORED`: the test was authored by a human, or rewritten enough that
+  the authorship is primarily human.
+
+Use at most one authorship tag per test. Treat missing tags as legacy or
+unknown provenance, not as implicit `HUMAN-AUTHORED`. When an agent notices a
+human adding a new test or materially modifying an existing test, suggest
+adding `HUMAN-AUTHORED` or replacing `AGENT-AUTHORED <model>` with
+`HUMAN-REVIEWED` as appropriate.
+
 
 # Editing constraints
 
