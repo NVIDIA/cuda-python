@@ -157,11 +157,12 @@ Reviews should point out where existing public APIs are broken.
 - Changes should be notated in the code and also in the release notes in the
   "Deprecated APIs" section.
 
-**Annotating a new API** — Use the `deprecated.sphinx.versionadded` decorator:
+**Annotating a new API** — Use the `versionadded` decorator from the vendored
+`cuda.core._vendored.deprecated.sphinx` module:
 
 ```python
 
-from deprecated.sphinx import versionadded
+from cuda.core._vendored.deprecated.sphinx import versionadded
 
 @versionadded("1.2.0")
 def new_feature(...):
@@ -180,11 +181,12 @@ def new_feature(...):
     """
 ```
 
-**Annotating a changed API** — Use the `deprecated.sphinx.versionchanged` decorator:
+**Annotating a changed API** — Use the `versionchanged` decorator from the
+vendored `cuda.core._vendored.deprecated.sphinx` module:
 
 ```python
 
-from deprecated.sphinx import versionchanged
+from cuda.core._vendored.deprecated.sphinx import versionchanged
 
 @versionchanged("1.2.0", reason="The old version was broken because...")
 def new_feature(...):
@@ -205,13 +207,13 @@ def new_feature(...):
 ```
 
 **Deprecating an existing API** — use the `@deprecated` decorator from the
-`Deprecated` PyPI package (`deprecated.sphinx` import name) and add a
+vendored `cuda.core._vendored.deprecated.sphinx` module and add a
 `.. deprecated::` directive in the docstring.  The decorator emits a
 `DeprecationWarning` at call time; the docstring directive surfaces it in the
 generated docs.
 
 ```python
-from deprecated.sphinx import deprecated
+from cuda.core._vendored.deprecated.sphinx import deprecated
 
 @deprecated(version="1.2.0", reason="Use `new_feature` instead.")
 def old_feature(...):

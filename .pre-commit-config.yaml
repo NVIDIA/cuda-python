@@ -32,7 +32,7 @@ repos:
         language: python
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
-        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)'
+        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)'
         args: ["--fix"]
 
       - id: no-markdown-in-docs-source
@@ -111,11 +111,11 @@ repos:
         alias: mypy-cuda-core
         name: mypy-cuda-core
         files: ^cuda_core/cuda/.*\.(py|pyi)$
+        exclude: ^cuda_core/cuda/core/_vendored/
         pass_filenames: false
         args: [--config-file=cuda_core/pyproject.toml, cuda_core/cuda/core]
         additional_dependencies:
           - numpy
-          - types-Deprecated
 
   - repo: https://github.com/rhysd/actionlint
     rev: "914e7df21a07ef503a81201c76d2b11c789d3fca"  # frozen: v1.7.12

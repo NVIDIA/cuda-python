@@ -9,8 +9,6 @@ from multiprocessing import cpu_count
 from typing import Iterable, TYPE_CHECKING
 import warnings
 
-from deprecated.sphinx import deprecated, versionadded, versionchanged
-
 from cuda.bindings import nvml
 
 from ._nvml_context cimport initialize
@@ -35,6 +33,7 @@ from cuda.core.system.typing import (
     ThermalController,
     ThermalTarget,
 )
+from cuda.core._vendored.deprecated.sphinx import deprecated, versionadded, versionchanged
 
 if TYPE_CHECKING:
     import cuda.core  # no-cython-lint

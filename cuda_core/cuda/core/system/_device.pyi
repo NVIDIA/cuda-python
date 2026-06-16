@@ -6,6 +6,8 @@ from typing import Iterable
 
 import cuda.core
 from cuda.bindings import nvml
+from cuda.core._vendored.deprecated.sphinx import (deprecated, versionadded,
+                                                   versionchanged)
 from cuda.core.system.typing import (AddressingMode, AffinityScope, ClockId,
                                      ClocksEventReasons, ClockType,
                                      CoolerControl, CoolerTarget, DeviceArch,
@@ -14,7 +16,6 @@ from cuda.core.system.typing import (AddressingMode, AffinityScope, ClockId,
                                      GpuTopologyLevel, InforomObject,
                                      TemperatureThresholds, ThermalController,
                                      ThermalTarget)
-from deprecated.sphinx import deprecated, versionadded, versionchanged
 
 
 class ClockOffsets:
