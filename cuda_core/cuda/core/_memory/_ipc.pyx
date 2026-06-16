@@ -4,6 +4,7 @@
 
 cimport cpython
 
+from libc.stddef cimport size_t
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
 from cuda.core._memory._memory_pool cimport _MemPool
@@ -111,7 +112,8 @@ cdef class IPCAllocationHandle:
     @classmethod
     def _init(cls, handle: int, uuid: uuid.UUID | None) -> IPCAllocationHandle:  # no-cython-lint
         cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
-        assert handle >= 0
+        if handle < 0:
+            raise ValueError(f"Invalid allocation handle (fd) {handle}: must be non-negative")
         self._h_fd = create_fd_handle(handle)
         self._uuid = uuid
         return self
@@ -170,6 +172,13 @@ cdef Buffer Buffer_from_ipc_descriptor(
     """Import a buffer that was exported from another process."""
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
+    cdef size_t payload_size = len(ipc_descriptor._payload)
+    cdef size_t expected_size = sizeof(cydriver.CUmemPoolPtrExportData)
+    if payload_size < expected_size:
+        raise ValueError(
+            f"IPC buffer descriptor payload is {payload_size} bytes; "
+            f"expected at least {expected_size}"
+        )
     cdef Stream s = Stream_accept(stream)
     cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
         mr._h_pool,
@@ -178,7 +187,20 @@ cdef Buffer Buffer_from_ipc_descriptor(
     )
     if not h_ptr:
         HANDLE_RETURN(get_last_error())
-    return Buffer_from_deviceptr_handle(h_ptr, ipc_descriptor.size, mr, ipc_descriptor)
+    cdef size_t mapped_size = 0
+    cdef size_t claimed_size = ipc_descriptor.size
+    with nogil:
+        HANDLE_RETURN(cydriver.cuPointerGetAttribute(
+            &mapped_size,
+            cydriver.CU_POINTER_ATTRIBUTE_RANGE_SIZE,
+            as_cu(h_ptr)))
+    if claimed_size > mapped_size:
+        h_ptr.reset()
+        raise ValueError(
+            f"IPC buffer descriptor size ({claimed_size}) exceeds "
+            f"mapped allocation extent ({mapped_size} bytes)"
+        )
+    return Buffer_from_deviceptr_handle(h_ptr, claimed_size, mr, ipc_descriptor)
 
 
 # _MemPool IPC Implementation
