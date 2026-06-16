@@ -792,14 +792,14 @@ class MigInfo:
 class _NvlinkInfoMeta(type):
 
     @property
-    @deprecated(version='1.1.0', reason='Use Device.get_num_nvlinks instead to get the actual number of Nvlinks available on a specific device.')
+    @deprecated(version='1.1.0', reason='Use Device.get_nvlink_count instead to get the actual number of Nvlinks available on a specific device.')
     def max_links(cls):
         """
         The statically-defined maximum number of Nvlinks available.  Defined in
         upstream NVML as ``NVML_NVLINK_MAX_LINKS``.
 
         To find the actual number of Nvlinks available on a device, use
-        :py:attr:`Device.get_num_nvlinks`.
+        :py:attr:`Device.get_nvlink_count`.
         """
 
 class _NvlinkInfo:

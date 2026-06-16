@@ -799,6 +799,11 @@ def test_nvlink():
                 assert all(isinstance(i, int) for i in version)
 
 
+def test_nvlink_max_links_deprecated():
+    with pytest.warns(DeprecationWarning, match="max_links"):
+        _ = _device.NvlinkInfo.max_links
+
+
 def test_utilization():
     for device in system.Device.get_all_devices():
         with unsupported_before(device, None):

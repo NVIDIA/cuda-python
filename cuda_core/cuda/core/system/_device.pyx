@@ -895,8 +895,9 @@ cdef class Device:
 
         For devices with NVLink support.
         """
-        if link < 0 or link >= self.get_nvlink_count():
-            raise ValueError(f"Link index {link} is out of range [0, {self.get_nvlink_count()})")
+        link_count = self.get_nvlink_count()
+        if link < 0 or link >= link_count:
+            raise ValueError(f"Link index {link} is out of range [0, {link_count})")
         return NvlinkInfo(self, link)
 
     @versionadded(version="1.1.0")

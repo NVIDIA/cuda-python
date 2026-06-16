@@ -148,7 +148,7 @@ Reviews should point out where existing public APIs are broken.
 
 ### Deprecation and API lifecycle
 
-`cuda.core` follows SemVer (see `docs/source/:
+`cuda.core` follows SemVer (see `docs/source/support.rst`):
 
 - **New APIs** may be added at any time (`x.Y.0`).
 - **Breaking removals** only happen in **major releases** (`X.0.0`).
