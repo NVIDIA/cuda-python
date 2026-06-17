@@ -86,6 +86,13 @@ cdef class Buffer:
     allocations.
 
     Support for data interchange mechanisms are provided by DLPack.
+
+    Note
+    ----
+    Pickling an IPC-enabled :class:`Buffer` embeds an
+    :class:`~_memory.IPCBufferDescriptor`. Unpickling reconstructs the buffer
+    by calling :meth:`from_ipc_descriptor` and therefore performs an IPC
+    import. Do not unpickle buffers from untrusted sources.
     """
     def __cinit__(self) -> None:
         self._clear()
@@ -138,6 +145,8 @@ cdef class Buffer:
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self) -> tuple[object, ...]:
+        # Unpickling performs a live CUDA IPC import from descriptor bytes in the
+        # pickle stream. Only deserialize Buffers from a trusted principal.
         # Must not serialize the parent's stream!
         return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
@@ -187,6 +196,12 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream`
             Keyword-only. The stream used for asynchronous deallocation when
             the buffer is closed or garbage collected.
+
+        Note
+        ----
+        The descriptor payload and ``size`` are supplied by the exporting peer
+        and must be treated as untrusted input unless the peer is known to be
+        cooperating.
         """
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 

@@ -29,6 +29,17 @@ disclosure policy. Please visit our [Product Security Incident Response Team
 (PSIRT)](https://www.nvidia.com/en-us/security/psirt-policies/) policies page for more
 information.
 
+## CUDA IPC and Python serialization
+
+`cuda.core.Buffer` objects allocated from IPC-enabled memory resources can be
+pickled for transfer between same-host processes. Unpickling performs an IPC
+memory import using the embedded `IPCBufferDescriptor`. Only unpickle buffers
+(and call `Buffer.from_ipc_descriptor`) with descriptors from trusted peers;
+malicious descriptors can trigger invalid memory operations.
+
+When sharing CUDA objects across processes, use `multiprocessing` with the
+`spawn` start method.
+
 ## NVIDIA Product Security
 
 For all security-related concerns, please visit NVIDIA's Product Security portal at
