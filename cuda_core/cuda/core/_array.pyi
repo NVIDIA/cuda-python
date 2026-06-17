@@ -44,7 +44,13 @@ class CUDAArray:
     """
 
     def close(self):
-        """Destroy the underlying ``CUarray`` if owned by this object."""
+        """Release this object's reference to the underlying ``CUarray``.
+
+        Destruction (``cuArrayDestroy``) happens via the handle's deleter when
+        the last reference is dropped; for a non-owning handle (graphics interop
+        or a mipmap-level view) nothing is destroyed. Idempotent: a second call
+        (or destruction after ``close()``) is a no-op.
+        """
 
     def __init__(self, *args, **kwargs):
         ...
@@ -77,9 +83,9 @@ class CUDAArray:
         """Wrap an externally-allocated ``CUarray``.
 
         Intended for graphics interop (``cuGraphicsSubResourceGetMappedArray``)
-        where the array is owned by the graphics API. With ``owning=False``,
-        :meth:`close` and ``__dealloc__`` will not free the handle. Shape,
-        format, and channel count are queried from the driver.
+        where the array is owned by the graphics API. With ``owning=False`` the
+        underlying ``CUarray`` is never destroyed by this object. Shape, format,
+        and channel count are queried from the driver.
         """
 
     @property
@@ -148,9 +154,6 @@ class CUDAArray:
     @property
     def size_bytes(self):
         """Total bytes of array storage (``prod(shape) * element_size``)."""
-
-    def __dealloc__(self):
-        ...
 
     def __enter__(self):
         ...

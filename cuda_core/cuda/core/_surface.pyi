@@ -19,7 +19,12 @@ class SurfaceObject:
     """
 
     def close(self):
-        """Destroy the underlying ``CUsurfObject``."""
+        """Release this object's reference to the underlying ``CUsurfObject``.
+
+        Destruction (``cuSurfObjectDestroy``) and release of the backing array
+        happen via the handle's deleter when the last reference is dropped.
+        Idempotent.
+        """
 
     def __init__(self, *args, **kwargs):
         ...
@@ -53,9 +58,6 @@ class SurfaceObject:
 
     @property
     def device(self):
-        ...
-
-    def __dealloc__(self):
         ...
 
     def __enter__(self):

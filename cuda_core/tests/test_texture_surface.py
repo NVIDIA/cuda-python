@@ -620,9 +620,7 @@ def test_texture_surface_close_is_idempotent(init_cuda):
     assert arr.handle == 0
     arr.close()  # second close must not raise
 
-    mip = MipmappedArray.from_descriptor(
-        shape=(8, 8), format=ArrayFormat.UINT8, num_channels=1, num_levels=2
-    )
+    mip = MipmappedArray.from_descriptor(shape=(8, 8), format=ArrayFormat.UINT8, num_channels=1, num_levels=2)
     mip.close()
     assert mip.handle == 0
     mip.close()

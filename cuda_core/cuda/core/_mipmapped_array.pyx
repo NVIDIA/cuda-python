@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver

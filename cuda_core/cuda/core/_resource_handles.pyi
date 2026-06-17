@@ -20,3 +20,7 @@ NvvmProgramHandle = shared_ptr
 NvJitLinkHandle = shared_ptr
 CuLinkHandle = shared_ptr
 FileDescriptorHandle = shared_ptr
+ArrayHandle = shared_ptr
+MipmappedArrayHandle = shared_ptr
+TexObjectHandle = shared_ptr
+SurfObjectHandle = shared_ptr

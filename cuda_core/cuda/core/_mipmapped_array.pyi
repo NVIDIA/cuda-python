@@ -17,10 +17,12 @@ class MipmappedArray:
     """
 
     def close(self):
-        """Destroy the underlying ``CUmipmappedArray`` if owned.
+        """Release this object's reference to the underlying ``CUmipmappedArray``.
 
-        After ``close()`` any level :class:`CUDAArray` returned by :meth:`get_level`
-        becomes invalid; callers must not access them.
+        Destruction (``cuMipmappedArrayDestroy``) happens via the handle's
+        deleter when the last reference is dropped. A level :class:`CUDAArray`
+        from :meth:`get_level` holds its own reference to this mipmap's storage,
+        so it stays valid until both it and this object are released. Idempotent.
         """
 
     def __init__(self, *args, **kwargs):
@@ -98,9 +100,6 @@ class MipmappedArray:
     @property
     def device(self):
         """The :class:`Device` this mipmap was allocated on."""
-
-    def __dealloc__(self):
-        ...
 
     def __enter__(self):
         ...

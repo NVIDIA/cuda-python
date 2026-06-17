@@ -209,7 +209,12 @@ class TextureObject:
     """
 
     def close(self):
-        """Destroy the underlying ``CUtexObject``."""
+        """Release this object's reference to the underlying ``CUtexObject``.
+
+        Destruction (``cuTexObjectDestroy``) and release of the backing resource
+        happen via the handle's deleter when the last reference is dropped.
+        Idempotent.
+        """
 
     def __init__(self, *args, **kwargs):
         ...
@@ -238,9 +243,6 @@ class TextureObject:
 
     @property
     def device(self):
-        ...
-
-    def __dealloc__(self):
         ...
 
     def __enter__(self):
