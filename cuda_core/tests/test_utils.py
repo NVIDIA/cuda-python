@@ -148,7 +148,7 @@ def _cpu_array_samples():
     return samples
 
 
-@pytest.mark.parametrize("in_arr,", _cpu_array_samples())
+@pytest.mark.parametrize("in_arr", _cpu_array_samples())
 class TestViewCPU:
     def test_args_viewable_as_strided_memory_cpu(self, in_arr):
         @args_viewable_as_strided_memory((0,))
