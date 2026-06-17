@@ -1223,6 +1223,7 @@ def test_vmm_allocator_allocate_rolls_back_if_handle_release_fails(init_cuda, mo
         "set_access",
         "release",
         "unmap",
+        "release",
         "addr_free",
     ]
     assert calls.count(("release", HANDLE)) == 2
@@ -1305,6 +1306,7 @@ def test_vmm_allocator_grow_allocation_fast_path_rolls_back_if_handle_release_fa
         "set_access",
         "release",
         "unmap",
+        "release",
         "addr_free",
     ]
 
@@ -1526,6 +1528,7 @@ def test_vmm_allocator_grow_allocation_slow_path_rolls_back_if_handle_release_fa
         "create",
         "map",
         "set_access",
+        "release",
         "unmap",
         "release",
         "unmap",
