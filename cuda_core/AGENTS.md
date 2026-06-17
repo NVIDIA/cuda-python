@@ -24,6 +24,49 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
 - **Build backend**: `build_hooks.py` handles Cython extension setup and build
   dependency wiring.
 
+## Resource lifetime management
+
+CUDA resources (contexts, streams, events, memory pools, device pointers,
+libraries, kernels, graphs, arrays, textures/surfaces, etc.) are owned through a
+single C++ `std::shared_ptr`-based handle layer -- never by raw driver handles
+stored in Python objects. This is the canonical pattern; see
+`cuda/core/_cpp/DESIGN.md` and `cuda/core/_cpp/REGISTRY_DESIGN.md`, with
+`_stream.pyx`/`_stream.pxd`, `_event.pyx`, and `_memory/_buffer.pyx` as the
+reference consumers. When adding or changing a resource-owning type, follow it:
+
+- **Store a handle, not a raw resource.** A `cdef class` holds a `*Handle`
+  (a `shared_ptr[const CUxxx]` alias from `_resource_handles.pxd`), not a raw
+  `cydriver.CUxxx` handle plus a `bint _owning` flag.
+- **`close()` is `self._handle.reset()`.** Do not call `cu*Destroy` directly in
+  `close()`, and do not define a `__dealloc__`/`__del__` that calls `cu*Destroy`.
+  Destruction runs in the handle's deleter (GIL released) when the last
+  reference drops; do not swallow destruction errors.
+- **Encode dependencies structurally, not with Python refs.** If resource A
+  depends on B (stream->context, texture->backing, mipmap level->parent), embed
+  B's handle in A's C++ box so the deleter keeps B alive. Python attributes such
+  as `_parent_ref`/`_source_ref` are acceptable only for introspection, never
+  for lifetime correctness.
+- **Create via a `create_*_handle` factory.** Creation returns an empty handle
+  on failure and stashes the code in thread-local state; callers check
+  `if not h: HANDLE_RETURN(get_last_error())`.
+- **Adding a new resource type** means adding to
+  `_cpp/resource_handles.{hpp,cpp}` a handle alias, a box (resource + embedded
+  dependency handles), a GIL-guarded deleter, `create_*` functions, and
+  `as_cu`/`as_intptr`/`as_py` overloads; then declaring them in
+  `_resource_handles.{pxd,pyx}` and populating any new driver pointers from
+  `cydriver.__pyx_capi__`. Only `_resource_handles.so` links the C++; consumer
+  modules `cimport` from `_resource_handles.pxd`.
+- **Distinguish identical integer handle types.** `CUdeviceptr`, `CUtexObject`,
+  and `CUsurfObject` are all `unsigned long long`, so `shared_ptr<const T>`
+  would collapse to one C++ type and break the `as_*` overload set. Wrap such
+  handles in distinct `TaggedHandle<T, Tag>` types (as the NVVM / nvJitLink /
+  TexObject / SurfObject handles do).
+
+Do not introduce a second, parallel ownership model (raw handle + `__dealloc__`
++ Python keepalive) for CUDA resources -- it reintroduces the GC-ordering,
+interpreter-shutdown, double-free, and cross-language hazards the handle layer
+exists to prevent.
+
 ## Build and version coupling
 
 - `build_hooks.py` determines CUDA major version from `CUDA_CORE_BUILD_MAJOR`
@@ -132,8 +175,14 @@ Python imports should generally be outside of an if typing.TYPE_CHECK: block, ev
 APIs should exist for both manual resource management (such as `close()`) and
 automatic resource management, using context managers or destructors where
 appropriate.  Context managers should be implemented with `__enter__` and
-`__exit__`, not `contextlib.contextmanager`.  For destructors use `__dealloc__`
-where possible, otherwise `__del__`.
+`__exit__`, not `contextlib.contextmanager`.
+
+For a type that owns a CUDA resource, automatic cleanup comes from the
+`std::shared_ptr` handle's deleter (see **Resource lifetime management**):
+`close()` is `self._handle.reset()` and there is **no** `__dealloc__`/`__del__`
+that destroys the resource directly. Reserve `__dealloc__` (or `__del__` where
+`__dealloc__` is unavailable) for finalizing non-resource state, such as
+decref-ing a Python owner -- not for calling a driver destroy.
 
 ### Documentation
 
