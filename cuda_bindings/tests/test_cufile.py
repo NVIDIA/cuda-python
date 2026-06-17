@@ -78,15 +78,20 @@ def cufileVersionLessThan(target):
         return True  # Assume old version if any error occurs
 
 
-@cache
-def isSupportedFilesystem():
-    """Check if the current filesystem is supported (ext4 or xfs).
+@pytest.fixture(scope="session")
+def skipIfUnsupportedFilesystem(tmpdir_factory):
+    """Fixture that skips if the current filesystem is supported (ext4 or xfs).
+
+    The actual requirements are probably both stricter (ext4 was not working on CI previously)
+    and possibly also less strict.
 
     This uses `findmnt` so the kernel's mount table logic owns the decoding of the filesystem type.
     """
-    fs_type = subprocess.check_output(["findmnt", "-no", "FSTYPE", "-T", os.getcwd()], text=True).strip()  # noqa: S603, S607
+    cmd = ["findmnt", "-no", "FSTYPE", "-T", tmpdir_factory.getbasetemp()]
+    fs_type = subprocess.check_output(cmd, text=True).strip()  # noqa S603, S607
     logging.info(f"Current filesystem type (findmnt): {fs_type}")
-    return fs_type in ("ext4", "xfs")
+    if fs_type not in ("ext4", "xfs"):
+        pytest.skip("cuFile handle_register requires ext4 or xfs filesystem")
 
 
 @cache
@@ -195,8 +200,7 @@ def driver(ctx):
     cufile.driver_close()
 
 
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("driver")
+@pytest.mark.usefixtures("driver", "skipIfUnsupportedFilesystem")
 def test_handle_register(tmpdir):
     """Test file handle registration with cuFile."""
     # Create test file
@@ -385,8 +389,7 @@ def test_buf_register_already_registered():
         cuda.cuMemFree(buf_ptr)
 
 
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("driver")
+@pytest.mark.usefixtures("driver", "skipIfUnsupportedFilesystem")
 def test_cufile_read_write(tmpdir):
     """Test cuFile read and write operations."""
     # Create test file
@@ -469,8 +472,7 @@ def test_cufile_read_write(tmpdir):
         cuda.cuMemFree(read_buf)
 
 
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("driver")
+@pytest.mark.usefixtures("driver", "skipIfUnsupportedFilesystem")
 def test_cufile_read_write_host_memory(tmpdir):
     """Test cuFile read and write operations using host memory."""
     # Create test file
@@ -549,8 +551,7 @@ def test_cufile_read_write_host_memory(tmpdir):
         cuda.cuMemFreeHost(read_buf)
 
 
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("driver")
+@pytest.mark.usefixtures("driver", "skipIfUnsupportedFilesystem")
 def test_cufile_read_write_large(tmpdir):
     """Test cuFile read and write operations with large data."""
     # Create test file
@@ -636,8 +637,7 @@ def test_cufile_read_write_large(tmpdir):
         cuda.cuMemFree(read_buf)
 
 
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
+@pytest.mark.usefixtures("ctx", "cufile_env_json", "driver", "skipIfUnsupportedFilesystem")
 def test_cufile_write_async(tmpdir):
     """Test cuFile asynchronous write operations."""
     # Create test file
@@ -711,8 +711,7 @@ def test_cufile_write_async(tmpdir):
         os.close(fd)
 
 
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
+@pytest.mark.usefixtures("ctx", "cufile_env_json", "driver", "skipIfUnsupportedFilesystem")
 def test_cufile_read_async(tmpdir):
     """Test cuFile asynchronous read operations."""
     # Create test file
@@ -799,8 +798,7 @@ def test_cufile_read_async(tmpdir):
         os.close(fd)
 
 
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
+@pytest.mark.usefixtures("ctx", "cufile_env_json", "driver", "skipIfUnsupportedFilesystem")
 def test_cufile_async_read_write(tmpdir):
     """Test cuFile asynchronous read and write operations in sequence."""
     # Create test file
@@ -910,8 +908,7 @@ def test_cufile_async_read_write(tmpdir):
         os.close(fd)
 
 
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("driver")
+@pytest.mark.usefixtures("driver", "skipIfUnsupportedFilesystem")
 def test_batch_io_basic(tmpdir):
     """Test basic batch IO operations with multiple read/write operations."""
     # Create test file
@@ -1106,8 +1103,7 @@ def test_batch_io_basic(tmpdir):
             cuda.cuMemFree(buf)
 
 
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("driver")
+@pytest.mark.usefixtures("driver", "skipIfUnsupportedFilesystem")
 def test_batch_io_cancel(tmpdir):
     """Test batch IO cancellation."""
     # Create test file
@@ -1183,8 +1179,7 @@ def test_batch_io_cancel(tmpdir):
             cuda.cuMemFree(buf)
 
 
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("driver")
+@pytest.mark.usefixtures("driver", "skipIfUnsupportedFilesystem")
 def test_batch_io_large_operations(tmpdir):
     """Test batch IO with large buffer operations."""
     # Create test file
@@ -1585,8 +1580,7 @@ def test_stats_start_stop():
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("stats")
+@pytest.mark.usefixtures("stats", "skipIfUnsupportedFilesystem")
 @pytest.mark.thread_unsafe(reason="cuFile stats counters and collection state are process-global")
 def test_get_stats_l1(tmpdir):
     """Test cuFile L1 statistics retrieval with file operations."""
@@ -1663,8 +1657,7 @@ def test_get_stats_l1(tmpdir):
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("stats")
+@pytest.mark.usefixtures("stats", "skipIfUnsupportedFilesystem")
 @pytest.mark.thread_unsafe(reason="cuFile stats counters and collection state are process-global")
 def test_get_stats_l2(tmpdir):
     """Test cuFile L2 statistics retrieval with file operations."""
@@ -1745,8 +1738,7 @@ def test_get_stats_l2(tmpdir):
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
-@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("stats")
+@pytest.mark.usefixtures("stats", "skipIfUnsupportedFilesystem")
 @pytest.mark.thread_unsafe(reason="cuFile stats counters and collection state are process-global")
 def test_get_stats_l3(tmpdir):
     """Test cuFile L3 statistics retrieval with file operations."""
