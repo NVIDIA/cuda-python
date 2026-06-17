@@ -93,21 +93,23 @@ import time
 import numpy as np
 
 from cuda.core import (
-    AddressMode,
-    ArrayFormat,
     Device,
-    FilterMode,
     GraphicsResource,
     LaunchConfig,
-    MipmappedArray,
     Program,
     ProgramOptions,
+    launch,
+)
+from cuda.core.textures import (
+    AddressMode,
+    ArrayFormat,
+    FilterMode,
+    MipmappedArray,
     ReadMode,
     ResourceDescriptor,
     SurfaceObject,
     TextureDescriptor,
     TextureObject,
-    launch,
 )
 
 # ---------------------------------------------------------------------------

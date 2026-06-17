@@ -22,20 +22,22 @@
 import numpy as np
 
 from cuda.core import (
-    AddressMode,
-    ArrayFormat,
-    CUDAArray,
     Device,
-    FilterMode,
     LaunchConfig,
     LegacyPinnedMemoryResource,
     Program,
     ProgramOptions,
+    launch,
+)
+from cuda.core.textures import (
+    AddressMode,
+    ArrayFormat,
+    CUDAArray,
+    FilterMode,
     ReadMode,
     ResourceDescriptor,
     TextureDescriptor,
     TextureObject,
-    launch,
 )
 
 # Kernel reads N (x, y) coordinates from `coords` (interleaved float pairs) and

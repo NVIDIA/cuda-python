@@ -19,7 +19,7 @@ from cuda.core._resource_handles cimport (
     create_array_handle_ref,
     get_last_error,
 )
-from cuda.core._stream cimport Stream
+from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
     _get_current_device_id,
@@ -188,20 +188,18 @@ cdef int _fill_linear_endpoint(
     )
 
 
-cdef _copy3d(CUDAArray arr, object other, object stream, bint to_array):
+cdef _copy3d(CUDAArray arr, object other, Stream stream, bint to_array):
     """Issue a full-array async 3D memcpy between ``arr`` and ``other``.
 
     Direction is determined by ``to_array``: True copies *into* arr, False
-    copies *out of* arr.
+    copies *out of* arr. ``stream`` must already be a concrete :class:`Stream`
+    (callers coerce via :func:`Stream_accept`).
     """
     cdef cydriver.CUDA_MEMCPY3D params
     cdef cpython.Py_buffer pybuf
     cdef int got_buffer = 0
     cdef intptr_t stream_handle
     cdef cydriver.CUstream c_stream
-
-    if not isinstance(stream, Stream):
-        raise TypeError(f"stream must be a Stream, got {type(stream).__name__}")
 
     memset(&params, 0, sizeof(params))
     width_bytes, height, depth = arr._extent_bytes()
@@ -369,7 +367,7 @@ cdef class CUDAArray:
         cdef size_t d = <size_t>(self._shape[2] if rank >= 3 else 1)
         return w, h, d
 
-    def copy_from(self, src, *, stream):
+    def copy_from(self, src, *, stream) -> None:
         """Copy a full-array's worth of data into this array.
 
         Parameters
@@ -377,10 +375,11 @@ cdef class CUDAArray:
         src : Buffer or buffer-protocol object
             Source data. Must contain at least ``self.size_bytes`` bytes
             of contiguous data.
-        stream : Stream
-            Stream to issue the copy on.
+        stream : Stream or GraphBuilder
+            Stream to issue the copy on. A :class:`~cuda.core.graph.GraphBuilder`
+            is accepted so the copy can be captured into a graph.
         """
-        _copy3d(self, src, stream, to_array=True)
+        _copy3d(self, src, Stream_accept(stream), to_array=True)
 
     def copy_to(self, dst, *, stream):
         """Copy a full-array's worth of data out of this array.
@@ -390,10 +389,16 @@ cdef class CUDAArray:
         dst : Buffer or writable buffer-protocol object
             Destination. Must have at least ``self.size_bytes`` bytes of
             writable, contiguous space.
-        stream : Stream
-            Stream to issue the copy on.
+        stream : Stream or GraphBuilder
+            Stream to issue the copy on. A :class:`~cuda.core.graph.GraphBuilder`
+            is accepted so the copy can be captured into a graph.
+
+        Returns
+        -------
+        The ``dst`` object, for parity with :meth:`Buffer.copy_to`.
         """
-        _copy3d(self, dst, stream, to_array=False)
+        _copy3d(self, dst, Stream_accept(stream), to_array=False)
+        return dst
 
     @property
     def size_bytes(self):

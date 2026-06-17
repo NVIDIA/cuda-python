@@ -106,7 +106,7 @@ class CUDAArray:
         """Return (width_bytes, height, depth) for cuMemcpy3D, with height/depth
         normalized to >=1 for lower-rank arrays."""
 
-    def copy_from(self, src, *, stream):
+    def copy_from(self, src, *, stream) -> None:
         """Copy a full-array's worth of data into this array.
 
         Parameters
@@ -114,8 +114,9 @@ class CUDAArray:
         src : Buffer or buffer-protocol object
             Source data. Must contain at least ``self.size_bytes`` bytes
             of contiguous data.
-        stream : Stream
-            Stream to issue the copy on.
+        stream : Stream or GraphBuilder
+            Stream to issue the copy on. A :class:`~cuda.core.graph.GraphBuilder`
+            is accepted so the copy can be captured into a graph.
         """
 
     def copy_to(self, dst, *, stream):
@@ -126,8 +127,13 @@ class CUDAArray:
         dst : Buffer or writable buffer-protocol object
             Destination. Must have at least ``self.size_bytes`` bytes of
             writable, contiguous space.
-        stream : Stream
-            Stream to issue the copy on.
+        stream : Stream or GraphBuilder
+            Stream to issue the copy on. A :class:`~cuda.core.graph.GraphBuilder`
+            is accepted so the copy can be captured into a graph.
+
+        Returns
+        -------
+        The ``dst`` object, for parity with :meth:`Buffer.copy_to`.
         """
 
     @property

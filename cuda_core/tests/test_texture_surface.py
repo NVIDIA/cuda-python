@@ -7,10 +7,12 @@ import pytest
 
 import cuda.core
 from cuda.core import (
+    Device,
+)
+from cuda.core.textures import (
     AddressMode,
     ArrayFormat,
     CUDAArray,
-    Device,
     FilterMode,
     MipmappedArray,
     ReadMode,
@@ -669,12 +671,53 @@ def test_array_copy_rejects_non_stream(init_cuda):
         import array as _array
 
         buf = _array.array("B", [0] * 8)
-        with pytest.raises(TypeError, match="stream must be a Stream"):
+        with pytest.raises(TypeError, match="Stream or GraphBuilder expected"):
             arr.copy_from(buf, stream="not-a-stream")
-        with pytest.raises(TypeError, match="stream must be a Stream"):
+        with pytest.raises(TypeError, match="Stream or GraphBuilder expected"):
             arr.copy_to(buf, stream="not-a-stream")
     finally:
         arr.close()
+
+
+def test_array_copy_to_returns_dst(init_cuda):
+    """CUDAArray.copy_to returns the destination, for parity with Buffer.copy_to."""
+    import array as _array
+
+    device = Device()
+    stream = device.create_stream()
+    arr = CUDAArray.from_descriptor(shape=(16,), format=ArrayFormat.UINT32, num_channels=1)
+    try:
+        dst = _array.array("I", [0] * 16)
+        returned = arr.copy_to(dst, stream=stream)
+        stream.sync()
+        assert returned is dst
+    finally:
+        arr.close()
+        stream.close()
+
+
+def test_array_copy_accepts_graph_builder(init_cuda):
+    """copy_from/copy_to accept a GraphBuilder so the array copy can be captured
+    into a CUDA graph (parity with Buffer, which accepts Stream | GraphBuilder)."""
+    device = Device()
+    stream = device.create_stream()
+    arr = CUDAArray.from_descriptor(shape=(16,), format=ArrayFormat.UINT32, num_channels=1)
+    buf_in = device.memory_resource.allocate(arr.size_bytes, stream=stream)
+    buf_out = device.memory_resource.allocate(arr.size_bytes, stream=stream)
+    stream.sync()
+    try:
+        gb = device.create_graph_builder().begin_building()
+        # These would raise TypeError before the Stream | GraphBuilder fix.
+        arr.copy_from(buf_in, stream=gb)
+        arr.copy_to(buf_out, stream=gb)
+        graph = gb.end_building().complete()
+        graph.launch(stream)
+        stream.sync()
+    finally:
+        buf_in.close()
+        buf_out.close()
+        arr.close()
+        stream.close()
 
 
 def test_resource_descriptor_from_pitch2d_rejects_non_buffer():

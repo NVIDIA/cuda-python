@@ -165,11 +165,14 @@ Textures and surfaces
 ---------------------
 
 CUDA arrays back bindless texture and surface objects for kernel-side sampled
-reads and typed load/store. :class:`CUDAArray` is allocated through
+reads and typed load/store. These types live in the :mod:`cuda.core.textures`
+namespace. :class:`CUDAArray` is allocated through
 :meth:`CUDAArray.from_descriptor` and bound through a :class:`ResourceDescriptor`
 factory; linear (1D) and row-pitched 2D :class:`Buffer` views as well as
 mipmapped allocations (:class:`MipmappedArray`) are also supported as texture
 backings.
+
+.. currentmodule:: cuda.core.textures
 
 .. autosummary::
    :toctree: generated/
