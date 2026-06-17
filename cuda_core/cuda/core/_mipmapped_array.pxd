@@ -3,18 +3,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
+from cuda.core._resource_handles cimport MipmappedArrayHandle
 
 
 cdef class MipmappedArray:
 
     cdef:
-        cydriver.CUmipmappedArray _handle
+        MipmappedArrayHandle _handle
         tuple _shape                 # (w,), (w, h), or (w, h, d)
         cydriver.CUarray_format _format
         unsigned int _num_channels   # 1, 2, or 4
         unsigned int _num_levels
         int _device_id
-        bint _owning
         bint _surface_load_store
 
     cpdef close(self)

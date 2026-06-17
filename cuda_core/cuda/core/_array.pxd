@@ -3,21 +3,25 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
+from cuda.core._resource_handles cimport ArrayHandle
 
 
 cdef class CUDAArray:
 
     cdef:
-        cydriver.CUarray _handle
+        # Owning/non-owning + any parent (mipmap) dependency are encoded
+        # structurally in the C++ box behind this handle, not in Python state.
+        ArrayHandle _handle
         tuple _shape                 # (w,), (w, h), or (w, h, d)
         cydriver.CUarray_format _format
         unsigned int _num_channels   # 1, 2, or 4
         int _device_id
-        bint _owning
         bint _surface_load_store
-        # Optional strong reference to a parent owner (e.g. a MipmappedArray
-        # whose level this CUDAArray views). When set, the parent must outlive
-        # this CUDAArray because the underlying CUarray belongs to the parent.
-        object _parent_ref
 
     cpdef close(self)
+
+
+# Wrap an existing ArrayHandle as a CUDAArray, querying the driver for the
+# array's shape/format/channels/surface-flag metadata. Used by get_level and
+# the graphics-interop _from_handle path.
+cdef CUDAArray _array_from_handle(ArrayHandle h, int device_id)

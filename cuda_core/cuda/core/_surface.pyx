@@ -9,6 +9,13 @@ from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
 from cuda.core._array cimport CUDAArray
+from cuda.core._resource_handles cimport (
+    SurfObjectHandle,
+    as_cu,
+    as_intptr,
+    create_surf_object_handle,
+    get_last_error,
+)
 from cuda.core._texture import ResourceDescriptor
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
@@ -79,22 +86,22 @@ cdef class SurfaceObject:
         cdef cydriver.CUDA_RESOURCE_DESC res_desc
         memset(&res_desc, 0, sizeof(res_desc))
         res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
-        res_desc.res.array.hArray = arr._handle
+        res_desc.res.array.hArray = as_cu(arr._handle)
+
+        cdef SurfObjectHandle h = create_surf_object_handle(res_desc, arr._handle)
+        if not h:
+            HANDLE_RETURN(get_last_error())
 
         cdef SurfaceObject self = cls.__new__(cls)
+        self._handle = h
         self._source_ref = resource
         self._device_id = _get_current_device_id()
-
-        with nogil:
-            HANDLE_RETURN(
-                cydriver.cuSurfObjectCreate(&self._handle, &res_desc)
-            )
         return self
 
     @property
     def handle(self):
         """The underlying ``CUsurfObject`` as an integer (64-bit kernel arg)."""
-        return <intptr_t>self._handle
+        return as_intptr(self._handle)
 
     @property
     def resource(self):
@@ -107,19 +114,14 @@ cdef class SurfaceObject:
         return Device(self._device_id)
 
     cpdef close(self):
-        """Destroy the underlying ``CUsurfObject``."""
-        cdef cydriver.CUsurfObject h = self._handle
-        self._handle = 0
-        self._source_ref = None
-        if h != 0:
-            HANDLE_RETURN(cydriver.cuSurfObjectDestroy(h))
+        """Release this object's reference to the underlying ``CUsurfObject``.
 
-    def __dealloc__(self):
-        # Cython destructors cannot raise; any cuSurfObjectDestroy error is
-        # silently dropped. Callers needing visibility should use close().
-        if self._handle != 0:
-            cydriver.cuSurfObjectDestroy(self._handle)
-            self._handle = 0
+        Destruction (``cuSurfObjectDestroy``) and release of the backing array
+        happen via the handle's deleter when the last reference is dropped.
+        Idempotent.
+        """
+        self._handle.reset()
+        self._source_ref = None
 
     def __enter__(self):
         return self
@@ -128,4 +130,4 @@ cdef class SurfaceObject:
         self.close()
 
     def __repr__(self):
-        return f"SurfaceObject(handle=0x{<intptr_t>self._handle:x})"
+        return f"SurfaceObject(handle=0x{as_intptr(self._handle):x})"

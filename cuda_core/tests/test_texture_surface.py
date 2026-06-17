@@ -570,35 +570,79 @@ def test_surface_rejects_mipmapped_array(init_cuda):
         mip.close()
 
 
-def test_mipmapped_array_level_keeps_parent_alive(init_cuda):
-    """Dropping the local parent reference must not invalidate the level CUDAArray;
-    the level holds an internal strong ref back to the MipmappedArray.
+def test_mipmapped_array_level_outlives_dropped_parent(init_cuda):
+    """A level CUDAArray must keep the parent mipmap's storage alive structurally
+    (via the C++ handle box), so the level stays usable after the Python parent
+    is dropped and garbage-collected.
 
-    cdef classes don't natively support weakref, so we verify the parent
-    reference by inspecting the level CUDAArray's gc referents.
+    The level holds no Python reference to the parent (no ``_parent_ref``); the
+    only thing keeping the underlying ``CUmipmappedArray`` alive after ``del mip``
+    is the parent handle embedded in the level's box. A full round-trip copy on
+    the level touches that live storage and would fail with an invalid-handle
+    error if the parent had been destroyed.
     """
+    import array as _array
+
+    device = Device()
+    stream = device.create_stream()
     mip = MipmappedArray.from_descriptor(
         shape=(16, 16),
-        format=ArrayFormat.UINT8,
+        format=ArrayFormat.UINT32,
         num_channels=1,
         num_levels=3,
     )
-    parent_id = id(mip)
-    lvl = mip.get_level(1)
-    # Drop our local reference and force GC; the parent must survive because
-    # the level CUDAArray holds a strong ref via the internal _parent_ref slot.
+    lvl = mip.get_level(1)  # (8, 8)
+    # Drop the only Python reference to the parent and force GC.
     del mip
     gc.collect()
+    try:
+        assert lvl.handle != 0
+        n = lvl.shape[0] * (lvl.shape[1] if len(lvl.shape) > 1 else 1)
+        src = _array.array("I", list(range(n)))
+        dst = _array.array("I", [0] * n)
+        lvl.copy_from(src, stream=stream)
+        lvl.copy_to(dst, stream=stream)
+        stream.sync()
+        assert list(dst) == list(range(n))
+    finally:
+        lvl.close()
+        stream.close()
 
-    # The handle is still valid storage; the level still tracks the parent.
-    assert lvl.handle != 0
-    referents = gc.get_referents(lvl)
-    parents = [r for r in referents if isinstance(r, MipmappedArray)]
-    assert len(parents) == 1, f"level CUDAArray should reference exactly one MipmappedArray parent, got {parents!r}"
-    assert id(parents[0]) == parent_id, "level CUDAArray's parent ref is not the original MipmappedArray"
-    # Closing the level drops its parent ref. Don't access the parent past
-    # this point; cuMipmappedArrayDestroy may then run.
-    lvl.close()
+
+def test_texture_surface_close_is_idempotent(init_cuda):
+    """close() drops this object's handle reference; destruction happens once via
+    the handle deleter. A second close() (and the later __dealloc__) must be a
+    safe no-op, and handle must read back as 0."""
+    arr = CUDAArray.from_descriptor(shape=(8, 8), format=ArrayFormat.UINT8, num_channels=1)
+    arr.close()
+    assert arr.handle == 0
+    arr.close()  # second close must not raise
+
+    mip = MipmappedArray.from_descriptor(
+        shape=(8, 8), format=ArrayFormat.UINT8, num_channels=1, num_levels=2
+    )
+    mip.close()
+    assert mip.handle == 0
+    mip.close()
+
+    surf_arr = CUDAArray.from_descriptor(
+        shape=(8, 8), format=ArrayFormat.UINT8, num_channels=4, is_surface_load_store=True
+    )
+    surf = SurfaceObject.from_array(surf_arr)
+    surf.close()
+    assert surf.handle == 0
+    surf.close()
+    surf_arr.close()
+
+    tex_arr = CUDAArray.from_descriptor(shape=(8, 8), format=ArrayFormat.FLOAT32, num_channels=1)
+    tex = TextureObject.from_descriptor(
+        resource=ResourceDescriptor.from_array(tex_arr),
+        texture_descriptor=TextureDescriptor(),
+    )
+    tex.close()
+    assert tex.handle == 0
+    tex.close()
+    tex_arr.close()
 
 
 # --- Negative-path validation tests ------------------------------------------

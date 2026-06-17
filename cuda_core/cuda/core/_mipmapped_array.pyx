@@ -8,8 +8,16 @@ from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._array cimport CUDAArray
+from cuda.core._array cimport _array_from_handle
 from cuda.core._array import ArrayFormat, _validate_array_shape, _validate_format_channels
+from cuda.core._resource_handles cimport (
+    ArrayHandle,
+    MipmappedArrayHandle,
+    as_intptr,
+    create_array_level_handle,
+    create_mipmapped_array_handle,
+    get_last_error,
+)
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
     _get_current_device_id,
@@ -70,15 +78,6 @@ cdef class MipmappedArray:
         if levels < 1:
             raise ValueError(f"num_levels must be >= 1, got {levels}")
 
-        cdef MipmappedArray self = cls.__new__(cls)
-        self._owning = True
-        self._shape = shape_t
-        self._format = <cydriver.CUarray_format><int>format
-        self._num_channels = num_channels
-        self._num_levels = <unsigned int>levels
-        self._surface_load_store = bool(is_surface_load_store)
-        self._device_id = _get_current_device_id()
-
         cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format><int>format
         cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
         cdef int rank = len(shape_t)
@@ -96,11 +95,19 @@ cdef class MipmappedArray:
         desc3d.Format = c_format
         desc3d.NumChannels = <unsigned int>num_channels
         desc3d.Flags = flags
-        with nogil:
-            HANDLE_RETURN(
-                cydriver.cuMipmappedArrayCreate(&self._handle, &desc3d, c_levels)
-            )
 
+        cdef MipmappedArrayHandle h = create_mipmapped_array_handle(desc3d, c_levels)
+        if not h:
+            HANDLE_RETURN(get_last_error())
+
+        cdef MipmappedArray self = cls.__new__(cls)
+        self._handle = h
+        self._shape = shape_t
+        self._format = c_format
+        self._num_channels = num_channels
+        self._num_levels = <unsigned int>levels
+        self._surface_load_store = bool(is_surface_load_store)
+        self._device_id = _get_current_device_id()
         return self
 
     def get_level(self, level):
@@ -127,26 +134,18 @@ cdef class MipmappedArray:
                 f"level ({lvl}) must be < num_levels ({self._num_levels})"
             )
 
-        cdef cydriver.CUarray level_handle
-        cdef unsigned int c_level = <unsigned int>lvl
-        with nogil:
-            HANDLE_RETURN(
-                cydriver.cuMipmappedArrayGetLevel(&level_handle, self._handle, c_level)
-            )
-
-        # Wrap as a non-owning CUDAArray; the level's underlying CUarray belongs
-        # to this MipmappedArray and must not be destroyed independently.
-        arr = CUDAArray._from_handle(
-            <intptr_t>level_handle, False, device_id=self._device_id
-        )
-        # Strong ref back to the parent so the mipmap outlives the level view.
-        (<CUDAArray>arr)._parent_ref = self
-        return arr
+        cdef ArrayHandle h_level = create_array_level_handle(self._handle, <unsigned int>lvl)
+        if not h_level:
+            HANDLE_RETURN(get_last_error())
+        # The returned CUDAArray is non-owning; its C++ box embeds this mipmap's
+        # handle, so the parent's storage structurally outlives the level view
+        # (no Python parent reference needed).
+        return _array_from_handle(h_level, self._device_id)
 
     @property
     def handle(self):
         """The underlying ``CUmipmappedArray`` as an integer."""
-        return <intptr_t>self._handle
+        return as_intptr(self._handle)
 
     @property
     def shape(self):
@@ -181,24 +180,14 @@ cdef class MipmappedArray:
         return Device(self._device_id)
 
     cpdef close(self):
-        """Destroy the underlying ``CUmipmappedArray`` if owned.
+        """Release this object's reference to the underlying ``CUmipmappedArray``.
 
-        After ``close()`` any level :class:`CUDAArray` returned by :meth:`get_level`
-        becomes invalid; callers must not access them.
+        Destruction (``cuMipmappedArrayDestroy``) happens via the handle's
+        deleter when the last reference is dropped. A level :class:`CUDAArray`
+        from :meth:`get_level` holds its own reference to this mipmap's storage,
+        so it stays valid until both it and this object are released. Idempotent.
         """
-        cdef cydriver.CUmipmappedArray h = self._handle
-        cdef bint owning = self._owning
-        self._handle = NULL
-        if h != NULL and owning:
-            HANDLE_RETURN(cydriver.cuMipmappedArrayDestroy(h))
-
-    def __dealloc__(self):
-        # Cython destructors cannot raise; any cuMipmappedArrayDestroy error
-        # here is silently dropped. Callers needing visibility should use
-        # close().
-        if self._handle != NULL and self._owning:
-            cydriver.cuMipmappedArrayDestroy(self._handle)
-            self._handle = NULL
+        self._handle.reset()
 
     def __enter__(self):
         return self

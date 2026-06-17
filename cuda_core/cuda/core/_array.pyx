@@ -10,6 +10,15 @@ from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
+from cuda.core._resource_handles cimport (
+    ArrayHandle,
+    as_cu,
+    as_intptr,
+    create_array_handle,
+    create_array_handle_owning,
+    create_array_handle_ref,
+    get_last_error,
+)
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
@@ -77,13 +86,13 @@ cdef void _fill_array_endpoint(
     """Populate the src or dst array fields of a CUDA_MEMCPY3D struct."""
     if is_src:
         p.srcMemoryType = cydriver.CU_MEMORYTYPE_ARRAY
-        p.srcArray = arr._handle
+        p.srcArray = as_cu(arr._handle)
         p.srcXInBytes = 0
         p.srcY = 0
         p.srcZ = 0
     else:
         p.dstMemoryType = cydriver.CU_MEMORYTYPE_ARRAY
-        p.dstArray = arr._handle
+        p.dstArray = as_cu(arr._handle)
         p.dstXInBytes = 0
         p.dstY = 0
         p.dstZ = 0
@@ -264,44 +273,34 @@ cdef class CUDAArray:
         _validate_format_channels(format, num_channels)
         shape_t = _validate_array_shape(shape)
 
-        cdef CUDAArray self = cls.__new__(cls)
-        self._owning = True
-        self._shape = shape_t
-        self._format = <cydriver.CUarray_format><int>format
-        self._num_channels = num_channels
-        self._surface_load_store = bool(is_surface_load_store)
-        self._device_id = _get_current_device_id()
-        self._parent_ref = None
-
         cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format><int>format
         cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
-        cdef cydriver.CUDA_ARRAY_DESCRIPTOR desc2d
         cdef int rank = len(shape_t)
         cdef unsigned int flags = (
             cydriver.CUDA_ARRAY3D_SURFACE_LDST if is_surface_load_store else 0
         )
 
-        # cuArrayCreate (2D path) does not accept flags; use the 3D descriptor
-        # whenever any flag is set or shape is 3D.
-        if rank == 3 or flags != 0:
-            memset(&desc3d, 0, sizeof(desc3d))
-            desc3d.Width = <size_t>shape_t[0]
-            desc3d.Height = <size_t>(shape_t[1] if rank >= 2 else 0)
-            desc3d.Depth = <size_t>(shape_t[2] if rank >= 3 else 0)
-            desc3d.Format = c_format
-            desc3d.NumChannels = <unsigned int>num_channels
-            desc3d.Flags = flags
-            with nogil:
-                HANDLE_RETURN(cydriver.cuArray3DCreate(&self._handle, &desc3d))
-        else:
-            memset(&desc2d, 0, sizeof(desc2d))
-            desc2d.Width = <size_t>shape_t[0]
-            desc2d.Height = <size_t>(shape_t[1] if rank == 2 else 0)
-            desc2d.Format = c_format
-            desc2d.NumChannels = <unsigned int>num_channels
-            with nogil:
-                HANDLE_RETURN(cydriver.cuArrayCreate(&self._handle, &desc2d))
+        # cuArray3DCreate handles 1D/2D/3D uniformly (Height/Depth 0 sentinels),
+        # so a single descriptor + create_array_handle covers every shape.
+        memset(&desc3d, 0, sizeof(desc3d))
+        desc3d.Width = <size_t>shape_t[0]
+        desc3d.Height = <size_t>(shape_t[1] if rank >= 2 else 0)
+        desc3d.Depth = <size_t>(shape_t[2] if rank >= 3 else 0)
+        desc3d.Format = c_format
+        desc3d.NumChannels = <unsigned int>num_channels
+        desc3d.Flags = flags
 
+        cdef ArrayHandle h = create_array_handle(desc3d)
+        if not h:
+            HANDLE_RETURN(get_last_error())
+
+        cdef CUDAArray self = cls.__new__(cls)
+        self._handle = h
+        self._shape = shape_t
+        self._format = c_format
+        self._num_channels = num_channels
+        self._surface_load_store = bool(is_surface_load_store)
+        self._device_id = _get_current_device_id()
         return self
 
     @classmethod
@@ -309,35 +308,23 @@ cdef class CUDAArray:
         """Wrap an externally-allocated ``CUarray``.
 
         Intended for graphics interop (``cuGraphicsSubResourceGetMappedArray``)
-        where the array is owned by the graphics API. With ``owning=False``,
-        :meth:`close` and ``__dealloc__`` will not free the handle. Shape,
-        format, and channel count are queried from the driver.
+        where the array is owned by the graphics API. With ``owning=False`` the
+        underlying ``CUarray`` is never destroyed by this object. Shape, format,
+        and channel count are queried from the driver.
         """
-        cdef CUDAArray self = cls.__new__(cls)
-        self._handle = <cydriver.CUarray><void*>handle
-        self._owning = owning
-        self._device_id = _get_current_device_id() if device_id is None else int(device_id)
-        self._parent_ref = None
-
-        cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc
-        with nogil:
-            HANDLE_RETURN(cydriver.cuArray3DGetDescriptor(&desc, self._handle))
-
-        if desc.Depth > 0:
-            self._shape = (int(desc.Width), int(desc.Height), int(desc.Depth))
-        elif desc.Height > 0:
-            self._shape = (int(desc.Width), int(desc.Height))
+        cdef cydriver.CUarray raw = <cydriver.CUarray><void*>handle
+        cdef ArrayHandle h
+        if owning:
+            h = create_array_handle_owning(raw)
         else:
-            self._shape = (int(desc.Width),)
-        self._format = desc.Format
-        self._num_channels = desc.NumChannels
-        self._surface_load_store = bool(desc.Flags & cydriver.CUDA_ARRAY3D_SURFACE_LDST)
-        return self
+            h = create_array_handle_ref(raw)
+        cdef int dev = _get_current_device_id() if device_id is None else int(device_id)
+        return _array_from_handle(h, dev)
 
     @property
     def handle(self):
         """The underlying ``CUarray`` as an integer."""
-        return <intptr_t>self._handle
+        return as_intptr(self._handle)
 
     @property
     def shape(self):
@@ -417,22 +404,14 @@ cdef class CUDAArray:
         return n * <size_t>(_FORMAT_ELEM_SIZE[self._format] * self._num_channels)
 
     cpdef close(self):
-        """Destroy the underlying ``CUarray`` if owned by this object."""
-        cdef cydriver.CUarray h = self._handle
-        cdef bint owning = self._owning
-        self._handle = NULL
-        # Drop the parent reference (if any) so a non-owning level CUDAArray
-        # stops pinning its MipmappedArray after close().
-        self._parent_ref = None
-        if h != NULL and owning:
-            HANDLE_RETURN(cydriver.cuArrayDestroy(h))
+        """Release this object's reference to the underlying ``CUarray``.
 
-    def __dealloc__(self):
-        # Cython destructors cannot raise; any cuArrayDestroy error here is
-        # silently dropped. Callers needing visibility should use close().
-        if self._handle != NULL and self._owning:
-            cydriver.cuArrayDestroy(self._handle)
-            self._handle = NULL
+        Destruction (``cuArrayDestroy``) happens via the handle's deleter when
+        the last reference is dropped; for a non-owning handle (graphics interop
+        or a mipmap-level view) nothing is destroyed. Idempotent: a second call
+        (or destruction after ``close()``) is a no-op.
+        """
+        self._handle.reset()
 
     def __enter__(self):
         return self
@@ -446,3 +425,34 @@ cdef class CUDAArray:
             f"format={ArrayFormat(self._format).name}, "
             f"num_channels={self._num_channels})"
         )
+
+
+cdef CUDAArray _array_from_handle(ArrayHandle h, int device_id):
+    """Wrap an existing ArrayHandle as a CUDAArray, querying the driver for the
+    array's shape/format/channels/surface-flag metadata.
+
+    Any owning/non-owning semantics and parent (mipmap) dependency are already
+    captured structurally inside ``h``'s C++ box.
+    """
+    if not h:
+        HANDLE_RETURN(get_last_error())
+
+    cdef CUDAArray self = CUDAArray.__new__(CUDAArray)
+    self._handle = h
+    self._device_id = device_id
+
+    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc
+    cdef cydriver.CUarray raw = as_cu(h)
+    with nogil:
+        HANDLE_RETURN(cydriver.cuArray3DGetDescriptor(&desc, raw))
+
+    if desc.Depth > 0:
+        self._shape = (int(desc.Width), int(desc.Height), int(desc.Depth))
+    elif desc.Height > 0:
+        self._shape = (int(desc.Width), int(desc.Height))
+    else:
+        self._shape = (int(desc.Width),)
+    self._format = desc.Format
+    self._num_channels = desc.NumChannels
+    self._surface_load_store = bool(desc.Flags & cydriver.CUDA_ARRAY3D_SURFACE_LDST)
+    return self

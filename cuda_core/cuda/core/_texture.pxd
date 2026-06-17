@@ -3,13 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
+from cuda.core._resource_handles cimport TexObjectHandle
 
 
 cdef class TextureObject:
 
     cdef:
-        cydriver.CUtexObject _handle
-        object _source_ref      # keep backing CUDAArray (or other resource) alive
+        # The backing resource (array / mipmap / device pointer) is kept alive
+        # structurally by the C++ box behind this handle, not by _source_ref.
+        TexObjectHandle _handle
+        object _source_ref      # ResourceDescriptor, retained for introspection
         object _texture_desc    # original TextureDescriptor for introspection
         int _device_id
 

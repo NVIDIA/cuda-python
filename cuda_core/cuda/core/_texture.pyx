@@ -13,6 +13,15 @@ from cuda.core._array import ArrayFormat, _FORMAT_ELEM_SIZE, _validate_format_ch
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._mipmapped_array cimport MipmappedArray
 from cuda.core._mipmapped_array import MipmappedArray as _PyMipmappedArray
+from cuda.core._resource_handles cimport (
+    TexObjectHandle,
+    as_cu,
+    as_intptr,
+    create_tex_object_handle_array,
+    create_tex_object_handle_linear,
+    create_tex_object_handle_mipmap,
+    get_last_error,
+)
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
     _get_current_device_id,
@@ -421,11 +430,11 @@ cdef class TextureObject:
         if resource.kind == "array":
             arr = <CUDAArray>resource.source
             res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
-            res_desc.res.array.hArray = arr._handle
+            res_desc.res.array.hArray = as_cu(arr._handle)
         elif resource.kind == "mipmapped_array":
             mip = <MipmappedArray>resource.source
             res_desc.resType = cydriver.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
-            res_desc.res.mipmap.hMipmappedArray = mip._handle
+            res_desc.res.mipmap.hMipmappedArray = as_cu(mip._handle)
         elif resource.kind == "linear":
             buf = <Buffer>resource.source
             devptr = int(buf.handle)
@@ -510,21 +519,27 @@ cdef class TextureObject:
             for i in range(4):
                 tex_desc.borderColor[i] = <float>bc[i]
 
+        cdef TexObjectHandle h
+        if resource.kind == "array":
+            h = create_tex_object_handle_array(res_desc, tex_desc, arr._handle)
+        elif resource.kind == "mipmapped_array":
+            h = create_tex_object_handle_mipmap(res_desc, tex_desc, mip._handle)
+        else:  # linear or pitch2d — both backed by a device Buffer
+            h = create_tex_object_handle_linear(res_desc, tex_desc, buf._h_ptr)
+        if not h:
+            HANDLE_RETURN(get_last_error())
+
         cdef TextureObject self = cls.__new__(cls)
+        self._handle = h
         self._source_ref = resource
         self._texture_desc = texture_descriptor
         self._device_id = _get_current_device_id()
-
-        with nogil:
-            HANDLE_RETURN(
-                cydriver.cuTexObjectCreate(&self._handle, &res_desc, &tex_desc, NULL)
-            )
         return self
 
     @property
     def handle(self):
         """The underlying ``CUtexObject`` as an integer (64-bit kernel arg)."""
-        return <intptr_t>self._handle
+        return as_intptr(self._handle)
 
     @property
     def resource(self):
@@ -542,19 +557,14 @@ cdef class TextureObject:
         return Device(self._device_id)
 
     cpdef close(self):
-        """Destroy the underlying ``CUtexObject``."""
-        cdef cydriver.CUtexObject h = self._handle
-        self._handle = 0
-        self._source_ref = None
-        if h != 0:
-            HANDLE_RETURN(cydriver.cuTexObjectDestroy(h))
+        """Release this object's reference to the underlying ``CUtexObject``.
 
-    def __dealloc__(self):
-        # Cython destructors cannot raise; any cuTexObjectDestroy error is
-        # silently dropped. Callers needing visibility should use close().
-        if self._handle != 0:
-            cydriver.cuTexObjectDestroy(self._handle)
-            self._handle = 0
+        Destruction (``cuTexObjectDestroy``) and release of the backing resource
+        happen via the handle's deleter when the last reference is dropped.
+        Idempotent.
+        """
+        self._handle.reset()
+        self._source_ref = None
 
     def __enter__(self):
         return self
@@ -563,4 +573,4 @@ cdef class TextureObject:
         self.close()
 
     def __repr__(self):
-        return f"TextureObject(handle=0x{<intptr_t>self._handle:x})"
+        return f"TextureObject(handle=0x{as_intptr(self._handle):x})"
