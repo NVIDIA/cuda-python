@@ -1,6 +1,0 @@
-﻿cuda.core.system.typing.FieldId
-===============================
-
-.. currentmodule:: cuda.core.system.typing
-
-.. autoenum:: FieldId
