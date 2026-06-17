@@ -1,0 +1,6 @@
+﻿cuda.core.textures.FilterMode
+=============================
+
+.. currentmodule:: cuda.core.textures
+
+.. autoenum:: FilterMode

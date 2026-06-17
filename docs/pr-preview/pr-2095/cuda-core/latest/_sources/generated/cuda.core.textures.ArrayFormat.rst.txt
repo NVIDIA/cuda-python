@@ -1,0 +1,6 @@
+﻿cuda.core.textures.ArrayFormat
+==============================
+
+.. currentmodule:: cuda.core.textures
+
+.. autoenum:: ArrayFormat

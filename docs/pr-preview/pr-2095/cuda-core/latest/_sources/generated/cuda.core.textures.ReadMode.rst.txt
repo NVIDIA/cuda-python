@@ -1,0 +1,6 @@
+﻿cuda.core.textures.ReadMode
+===========================
+
+.. currentmodule:: cuda.core.textures
+
+.. autoenum:: ReadMode
