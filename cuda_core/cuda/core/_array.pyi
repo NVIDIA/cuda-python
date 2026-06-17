@@ -29,6 +29,15 @@ class CUDAArray:
     :class:`SurfaceObject`. Its memory layout is chosen by the driver for 2D/3D
     spatial locality.
 
+    **Copy-only interop.** Because the layout is opaque and there is no linear
+    device pointer, a ``CUDAArray`` cannot expose ``__cuda_array_interface__`` /
+    DLPack and cannot be shared zero-copy with NumPy, CuPy, numba-cuda, or
+    PyTorch. Moving data in or out is therefore always a copy: use
+    :meth:`copy_from` / :meth:`copy_to` against a linear :class:`Buffer` or a
+    host buffer-protocol object. There is no allocation helper — allocate the
+    linear :class:`Buffer` yourself (e.g. ``mr.allocate(arr.size_bytes,
+    stream=s)``) and copy.
+
     Construct via :meth:`from_descriptor`. Only plain 1D/2D/3D allocations are
     supported in this initial version; layered/cubemap/sparse variants will
     follow once their shape semantics are settled.

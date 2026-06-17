@@ -172,6 +172,12 @@ factory; linear (1D) and row-pitched 2D :class:`Buffer` views as well as
 mipmapped allocations (:class:`MipmappedArray`) are also supported as texture
 backings.
 
+A :class:`CUDAArray` has an opaque, hardware-defined layout with no linear
+device pointer, so it cannot participate in ``__cuda_array_interface__`` /
+DLPack zero-copy interop. Data is moved in and out only by copying — use
+:meth:`CUDAArray.copy_from` / :meth:`CUDAArray.copy_to` against a linear
+:class:`Buffer` or a host buffer-protocol object.
+
 .. currentmodule:: cuda.core.textures
 
 .. autosummary::
