@@ -308,6 +308,27 @@ class TestTensorMapDescriptorValidation:
                 data_type=42,
             )
 
+    def test_as_tensor_map_host_view_rejected_without_tma(self):
+        """``as_tensor_map`` on a non-device-accessible (host) view fails
+        gracefully with a clear error, without needing TMA-capable hardware.
+
+        This drives the real ``as_tensor_map`` -> ``_from_tiled`` path: every
+        keyword is assembled and the options are coerced before the
+        device-accessibility guard rejects the host pointer, so no monkeypatching
+        is required to cover the forwarding logic.
+        """
+        host = np.zeros((64, 64), dtype=np.float32)
+        view = StridedMemoryView.from_any_interface(host, stream_ptr=-1)
+        with pytest.raises(ValueError, match="device-accessible"):
+            view.as_tensor_map(
+                box_dim=(32, 32),
+                data_type=TensorMapDataType.FLOAT32,
+                element_strides=(1, 1),
+                swizzle=TensorMapSwizzle.SWIZZLE_128B,
+                l2_promotion=TensorMapL2Promotion.L2_128B,
+                oob_fill=TensorMapOOBFill.NAN_REQUEST_ZERO_FMA,
+            )
+
 
 class TestTensorMapDtypeMapping:
     """Test automatic dtype inference from numpy dtypes."""
