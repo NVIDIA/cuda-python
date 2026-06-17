@@ -47,7 +47,7 @@ jobs:
     # TODO: use a different (nvidia?) container
     container:
       options: -u root --security-opt seccomp=unconfined --shm-size 16g
-      image: ubuntu:22.04
+      image: ubuntu:24.04
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
         PIP_CACHE_DIR: "/tmp/pip-cache"

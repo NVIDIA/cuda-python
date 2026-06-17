@@ -121,8 +121,7 @@ def nvcc_smoke(tmpdir) -> str:
     return nvcc
 
 
-@pytest.fixture
-def CUBIN(arch):
+def _build_cubin(arch):
     def CHECK_NVRTC(err):
         if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
             raise RuntimeError(repr(err))
@@ -139,6 +138,11 @@ def CUBIN(arch):
     (err,) = nvrtc.nvrtcDestroyProgram(program_handle)
     CHECK_NVRTC(err)
     return cubin
+
+
+@pytest.fixture
+def CUBIN(arch):
+    return _build_cubin(arch)
 
 
 # create a valid LTOIR input for testing
@@ -259,11 +263,11 @@ def test_nvfatbin_add_ptx(PTX, arch):
     nvfatbin.destroy(handle)
 
 
-@pytest.mark.parametrize("arch", ["sm_80"], indirect=True)
-def test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH(CUBIN, arch):
+def test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH():
+    cubin = _build_cubin("sm_80")
     handle = nvfatbin.create([], 0)
     with pytest.raises(nvfatbin.nvFatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
-        nvfatbin.add_cubin(handle, CUBIN, len(CUBIN), "75", "inc")
+        nvfatbin.add_cubin(handle, cubin, len(cubin), "75", "inc")
 
     nvfatbin.destroy(handle)
 
@@ -280,11 +284,11 @@ def test_nvfatbin_add_cubin(CUBIN, arch):
     nvfatbin.destroy(handle)
 
 
-@pytest.mark.parametrize("arch", ["sm_80"], indirect=True)
-def test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH(CUBIN, arch):
+def test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH():
+    cubin = _build_cubin("sm_80")
     handle = nvfatbin.create([], 0)
     with pytest.raises(nvfatbin.nvFatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
-        nvfatbin.add_cubin(handle, CUBIN, len(CUBIN), "75", "inc")
+        nvfatbin.add_cubin(handle, cubin, len(cubin), "75", "inc")
 
     nvfatbin.destroy(handle)
 
