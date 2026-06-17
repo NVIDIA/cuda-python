@@ -1077,11 +1077,9 @@ def test_view_as_cai_device_pointer_and_stream_ordering(init_cuda):
     ``stream`` differs from the consumer stream.
 
     This only exercises the code path and checks *device* correctness (ptr,
-    device_id, shape); it does NOT verify stream-order correctness -- that would
-    need many queued kernels on the producer stream plus an observable
-    dependency on the consumer side. Uses a synthetic CAI object backed by a
-    genuine device allocation, so the cupy/numba-only device branch is exercised
-    without those optional deps.
+    device_id, shape); it does NOT verify stream-order correctness. Uses a
+    synthetic CAI object backed by a genuine device allocation, so the
+    cupy/numba-only device branch is exercised without those optional deps.
     """
     dev = init_cuda
     buffer = dev.memory_resource.allocate(64, stream=dev.default_stream)
@@ -1108,7 +1106,7 @@ def test_strided_memory_view_init_cai_path_deprecated(init_cuda):
     """The deprecated ``StridedMemoryView(obj)`` constructor routes a CAI-only
     object through the CAI branch (warn + ``view_as_cai``), not the DLPack one."""
     obj = _make_cuda_array_interface_obj(shape=(4,), strides=None, typestr="<f4", data=(0, False))
-    with pytest.deprecated_call(match="CUDA-array-interface-supporting"):
+    with pytest.deprecated_call(match="CUDA-array-interface-supporting object is deprecated"):
         view = StridedMemoryView(obj, stream_ptr=-1)
     assert view.is_device_accessible is True
     assert view.shape == (4,)

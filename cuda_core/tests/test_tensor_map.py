@@ -309,14 +309,9 @@ class TestTensorMapDescriptorValidation:
             )
 
     def test_as_tensor_map_host_view_rejected_without_tma(self):
-        """``as_tensor_map`` on a non-device-accessible (host) view fails
-        gracefully with a clear error, without needing TMA-capable hardware.
-
-        This drives the real ``as_tensor_map`` -> ``_from_tiled`` path: every
-        keyword is assembled and the options are coerced before the
-        device-accessibility guard rejects the host pointer, so no monkeypatching
-        is required to cover the forwarding logic.
-        """
+        """``as_tensor_map`` rejects a non-device-accessible (host) view with a
+        clear error, exercising the ``as_tensor_map`` -> ``_from_tiled`` path
+        without needing TMA-capable hardware."""
         host = np.zeros((64, 64), dtype=np.float32)
         view = StridedMemoryView.from_any_interface(host, stream_ptr=-1)
         with pytest.raises(ValueError, match="device-accessible"):

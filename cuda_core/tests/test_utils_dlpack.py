@@ -2,12 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""DLPack-focused tests for ``StridedMemoryView``.
-
-Split out of ``test_utils.py`` (which had grown large): export/import
-round-trips, capsule + deleter paths, ``from_dlpack`` error handling, and the
+"""DLPack tests for ``StridedMemoryView``: export/import round-trips, capsule +
+deleter paths, ``from_dlpack`` error handling, and the
 ``__dlpack_c_exchange_api__`` C exchange-API helpers driven through ctypes.
-CAI-only behavior stays in ``test_utils.py``.
 """
 
 import ctypes
@@ -167,12 +164,8 @@ def test_from_dlpack_typeerror_fallback_unversioned_import():
 #
 # Drive the C function pointers exposed by the capsule the way a native
 # consumer would, exercising the StridedMemoryView exchange-API implementation.
-#
-# The C functions report failure by setting a Python error and returning -1.
-# Defining the pointers with PYFUNCTYPE (Python calling convention) lets ctypes
-# propagate that real exception (TypeError/RuntimeError/NotImplementedError)
-# instead of wrapping it in a SystemError, so the tests assert the meaningful
-# type directly.
+# Pointers use PYFUNCTYPE so a failing call raises its real Python exception
+# (TypeError/RuntimeError/NotImplementedError).
 # ---------------------------------------------------------------------------
 
 _PyCapsule_GetPointer = ctypes.pythonapi.PyCapsule_GetPointer
@@ -312,13 +305,11 @@ def test_dlpack_c_exchange_api_to_py_object_null_tensor():
 
 
 def test_dlpack_c_exchange_api_managed_tensor_allocator_not_supported():
-    """``managed_tensor_allocator`` is unsupported (NotImplementedError).
-
-    The implementation sets a Python error even when no ``SetError`` callback is
-    passed, so with PYFUNCTYPE ctypes surfaces the NotImplementedError directly.
-    """
+    """Covers the ``managed_tensor_allocator`` entry point, which is unsupported
+    and only ever raises NotImplementedError (StridedMemoryView never allocates)."""
     api = _get_exchange_api()
     out = ctypes.c_void_p(123)
     with pytest.raises(NotImplementedError, match="not supported"):
+        # Currently sets a Python error when `SetError` isn't passed.
         api.managed_tensor_allocator(None, ctypes.byref(out), None, None)
     assert not out.value  # set to NULL before the error
