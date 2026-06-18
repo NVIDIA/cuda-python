@@ -139,7 +139,7 @@ class YRig:
         self._buf.close()
 
 
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 class TestMutateYRig:
     """Tests that mutate the Y-shaped graph built by YRig."""
 
@@ -335,7 +335,7 @@ def test_self_edge(init_cuda):
         node.succ.add(node)
 
 
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_convert_linear_to_fan_in(init_cuda):
     """Chain four computations sequentially, then rewire so all pairs run in
     parallel feeding into a reduce node.
