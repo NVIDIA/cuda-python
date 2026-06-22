@@ -38,6 +38,7 @@ The workflow is basically:
 import ctypes
 import importlib
 import json
+import re
 import sys
 import sysconfig
 from io import StringIO
@@ -114,6 +115,9 @@ def _format_base_type_name(bt: object) -> str:
     if cls == "CComplexBaseTypeNode":
         inner = _format_base_type_name(bt.base_type)
         return _unwrap_declarator(inner, bt.declarator)[0]
+    if cls == "CConstOrVolatileTypeNode":
+        # Discard const/volatile qualifiers; they don't affect ABI layout
+        return _format_base_type_name(bt.base_type)
     return cls
 
 
@@ -263,6 +267,62 @@ def get_structs(module: object) -> dict:
     return dict(sorted(structs.items()))
 
 
+_OLD_ANON_RE = re.compile(r"^anon_(struct|union)\d+$")
+_NEW_ANON_RE = re.compile(r"^\w+__anon_pod\d+$")
+
+
+def _is_anon_name(name: str) -> bool:
+    return bool(_OLD_ANON_RE.match(name)) or bool(_NEW_ANON_RE.match(name))
+
+
+def _normalize_type(type_str: str, rename_map: dict) -> str:
+    """Replace old anon_struct/union names in a type string using rename_map."""
+    for old, new in rename_map.items():
+        # Use word-boundary matching so e.g. "anon_struct1" doesn't corrupt "anon_struct12"
+        type_str = re.sub(r"\b" + re.escape(old) + r"\b", new, type_str)
+    return type_str
+
+
+def _build_anon_rename_map(expected: dict, found: dict) -> dict:
+    """Match old anon_struct/union names to new MODULE__anon_pod names by field content.
+
+    Works iteratively bottom-up: leaf anon structs (whose fields contain no anon
+    type references) are matched first.  Their old->new mapping is then used to
+    normalize the field types of the remaining unmatched anon structs, which may
+    allow the next round to match parent structs that embed them.  Repeats until
+    no new matches are found in a round.
+    """
+    old_anons = {name: info for name, info in expected.items() if _is_anon_name(name)}
+    new_pods = {name: info for name, info in found.items() if _is_anon_name(name)}
+
+    rename_map = {}
+    matched_pods = set()
+    unmatched_old = dict(old_anons)
+
+    while True:
+        matched_this_round = {}
+
+        for old_name, old_info in unmatched_old.items():
+            # Normalize this struct's field types using mappings found so far
+            normalized_fields = [[_normalize_type(f[0], rename_map), f[1]] for f in old_info.get("fields", [])]
+            for new_name, new_info in new_pods.items():
+                if new_name in matched_pods:
+                    continue
+                if normalized_fields == new_info.get("fields", []):
+                    matched_this_round[old_name] = new_name
+                    matched_pods.add(new_name)
+                    break
+
+        if not matched_this_round:
+            break  # No progress; remaining old anons have no content-matching pod
+
+        rename_map.update(matched_this_round)
+        for name in matched_this_round:
+            del unmatched_old[name]
+
+    return rename_map
+
+
 def _report_field_changes(name: str, expected_fields: list, found_fields: list) -> None:
     """Print detailed field-level differences for a struct."""
     expected_dict = {f[1]: f[0] for f in expected_fields}
@@ -289,12 +349,22 @@ def check_structs(expected: dict, found: dict) -> tuple[bool, bool]:
     has_errors = False
     has_allowed_changes = False
 
+    rename_map = _build_anon_rename_map(expected, found)
+    renamed_new = set(rename_map.values())
+
     for name, expected_info in expected.items():
-        if name not in found:
+        effective_name = rename_map.get(name, name)
+
+        if effective_name not in found:
             print(f"  Missing struct/class: {name}")
             has_errors = True
             continue
-        found_info = found[name]
+
+        if effective_name != name:
+            # Anon struct/union renamed to new-style anon_pod — allowed change
+            has_allowed_changes = True
+
+        found_info = found[effective_name]
 
         if "basicsize" in expected_info:
             if "basicsize" not in found_info:
@@ -310,12 +380,15 @@ def check_structs(expected: dict, found: dict) -> tuple[bool, bool]:
             if "fields" not in found_info:
                 print(f"  Struct {name}: field information no longer available")
                 has_errors = True
-            elif found_info["fields"] != expected_info["fields"]:
-                _report_field_changes(name, expected_info["fields"], found_info["fields"])
-                has_errors = True
+            else:
+                # Normalize old anon type names in expected field types before comparing
+                normalized_fields = [[_normalize_type(f[0], rename_map), f[1]] for f in expected_info["fields"]]
+                if found_info["fields"] != normalized_fields:
+                    _report_field_changes(name, normalized_fields, found_info["fields"])
+                    has_errors = True
 
     for name in found:
-        if name not in expected:
+        if name not in expected and name not in renamed_new:
             print(f"  Added struct/class: {name}")
             has_allowed_changes = True
 
