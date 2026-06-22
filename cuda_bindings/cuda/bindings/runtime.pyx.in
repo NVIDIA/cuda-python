@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -83,16 +83,16 @@ cudaStreamNonBlocking = cyruntime.cudaStreamNonBlocking
 
 #: Legacy stream handle
 #:
-#: Stream handle that can be passed as a cudaStream_t to use an implicit
-#: stream with legacy synchronization behavior.
+#: Stream handle that can be passed as a :py:obj:`~.cudaStream_t` to use an
+#: implicit stream with legacy synchronization behavior.
 #:
 #: See details of the \link_sync_behavior
 cudaStreamLegacy = cyruntime.cudaStreamLegacy
 
 #: Per-thread stream handle
 #:
-#: Stream handle that can be passed as a cudaStream_t to use an implicit
-#: stream with per-thread synchronization behavior.
+#: Stream handle that can be passed as a :py:obj:`~.cudaStream_t` to use an
+#: implicit stream with per-thread synchronization behavior.
 #:
 #: See details of the \link_sync_behavior
 cudaStreamPerThread = cyruntime.cudaStreamPerThread
@@ -136,7 +136,9 @@ cudaDeviceScheduleYield = cyruntime.cudaDeviceScheduleYield
 #: Device flag - Use blocking synchronization
 cudaDeviceScheduleBlockingSync = cyruntime.cudaDeviceScheduleBlockingSync
 
-#: Device flag - Use blocking synchronization [Deprecated]
+#: Device flag - Use blocking synchronization
+#:
+#: [Deprecated]
 cudaDeviceBlockingSync = cyruntime.cudaDeviceBlockingSync
 
 #: Device schedule flags mask
@@ -443,14 +445,16 @@ class cudaError_t(_FastEnum):
     cudaErrorInvalidHostPointer = (
         cyruntime.cudaError.cudaErrorInvalidHostPointer,
         'This indicates that at least one host pointer passed to the API call is not\n'
-        'a valid host pointer. [Deprecated]\n'
+        'a valid host pointer.\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'cudaErrorInvalidDevicePointer' in found_values}}
 
     cudaErrorInvalidDevicePointer = (
         cyruntime.cudaError.cudaErrorInvalidDevicePointer,
         'This indicates that at least one device pointer passed to the API call is\n'
-        'not a valid device pointer. [Deprecated]\n'
+        'not a valid device pointer.\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'cudaErrorInvalidTexture' in found_values}}
 
@@ -486,28 +490,32 @@ class cudaError_t(_FastEnum):
     cudaErrorAddressOfConstant = (
         cyruntime.cudaError.cudaErrorAddressOfConstant,
         'This indicated that the user has taken the address of a constant variable,\n'
-        'which was forbidden up until the CUDA 3.1 release. [Deprecated]\n'
+        'which was forbidden up until the CUDA 3.1 release.\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'cudaErrorTextureFetchFailed' in found_values}}
 
     cudaErrorTextureFetchFailed = (
         cyruntime.cudaError.cudaErrorTextureFetchFailed,
         'This indicated that a texture fetch was not able to be performed. This was\n'
-        'previously used for device emulation of texture operations. [Deprecated]\n'
+        'previously used for device emulation of texture operations.\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'cudaErrorTextureNotBound' in found_values}}
 
     cudaErrorTextureNotBound = (
         cyruntime.cudaError.cudaErrorTextureNotBound,
         'This indicated that a texture was not bound for access. This was previously\n'
-        'used for device emulation of texture operations. [Deprecated]\n'
+        'used for device emulation of texture operations.\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'cudaErrorSynchronizationError' in found_values}}
 
     cudaErrorSynchronizationError = (
         cyruntime.cudaError.cudaErrorSynchronizationError,
         'This indicated that a synchronization operation had failed. This was\n'
-        'previously used for some device emulation functions. [Deprecated]\n'
+        'previously used for some device emulation functions.\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'cudaErrorInvalidFilterSetting' in found_values}}
 
@@ -527,21 +535,24 @@ class cudaError_t(_FastEnum):
 
     cudaErrorMixedDeviceExecution = (
         cyruntime.cudaError.cudaErrorMixedDeviceExecution,
-        'Mixing of device and device emulation code was not allowed. [Deprecated]\n'
+        'Mixing of device and device emulation code was not allowed.\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'cudaErrorNotYetImplemented' in found_values}}
 
     cudaErrorNotYetImplemented = (
         cyruntime.cudaError.cudaErrorNotYetImplemented,
         'This indicates that the API call is not yet implemented. Production\n'
-        'releases of CUDA will never return this error. [Deprecated]\n'
+        'releases of CUDA will never return this error.\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'cudaErrorMemoryValueTooLarge' in found_values}}
 
     cudaErrorMemoryValueTooLarge = (
         cyruntime.cudaError.cudaErrorMemoryValueTooLarge,
         'This indicated that an emulated device pointer exceeded the 32-bit address\n'
-        'range. [Deprecated]\n'
+        'range.\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'cudaErrorStubLibrary' in found_values}}
 
@@ -618,7 +629,7 @@ class cudaError_t(_FastEnum):
         'Driver context was created using an older version of the API, because the\n'
         'Runtime API call expects a primary driver context and the Driver context is\n'
         'not primary, or because the Driver context has been destroyed. Please see\n'
-        ':py:obj:`~.Interactions`with the CUDA Driver API" for more information.\n'
+        ':py:obj:`~.Interactions with the CUDA Driver API` for more information.\n'
     ){{endif}}
     {{if 'cudaErrorMissingConfiguration' in found_values}}
 
@@ -633,7 +644,8 @@ class cudaError_t(_FastEnum):
     cudaErrorPriorLaunchFailure = (
         cyruntime.cudaError.cudaErrorPriorLaunchFailure,
         'This indicated that a previous kernel launch failed. This was previously\n'
-        'used for device emulation of kernel launches. [Deprecated]\n'
+        'used for device emulation of kernel launches.\n'
+        '[Deprecated]\n'
     ){{endif}}
     {{if 'cudaErrorLaunchMaxDepthExceeded' in found_values}}
 
@@ -3871,7 +3883,7 @@ class cudaFuncCache(_FastEnum):
 
 class cudaSharedMemConfig(_FastEnum):
     """
-    CUDA shared memory configuration [Deprecated]
+    CUDA shared memory configuration  [Deprecated]
     """
     {{if 'cudaSharedMemBankSizeDefault' in found_values}}
     cudaSharedMemBankSizeDefault = cyruntime.cudaSharedMemConfig.cudaSharedMemBankSizeDefault{{endif}}
@@ -5074,14 +5086,15 @@ class cudaMemPoolAttr(_FastEnum):
 
     cudaMemPoolAttrAllocationType = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrAllocationType,
-        '(value type = cudaMemAllocationType) The allocation type of the mempool\n'
+        '(value type = :py:obj:`~.cudaMemAllocationType`) The allocation type of the\n'
+        'mempool\n'
     ){{endif}}
     {{if 'cudaMemPoolAttrExportHandleTypes' in found_values}}
 
     cudaMemPoolAttrExportHandleTypes = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrExportHandleTypes,
-        '(value type = cudaMemAllocationHandleType) Available export handle types\n'
-        'for the mempool. For imported pools this value is always\n'
+        '(value type = :py:obj:`~.cudaMemAllocationHandleType`) Available export\n'
+        'handle types for the mempool. For imported pools this value is always\n'
         'cudaMemHandleTypeNone as an imported pool cannot be re-exported\n'
     ){{endif}}
     {{if 'cudaMemPoolAttrLocationId' in found_values}}
@@ -5096,10 +5109,10 @@ class cudaMemPoolAttr(_FastEnum):
 
     cudaMemPoolAttrLocationType = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrLocationType,
-        '(value type = cudaMemLocationType) The location type for the mempool. For\n'
-        'imported memory pools where the device is not directly visible to the\n'
-        'importing process or pools imported via fabric handles across nodes this\n'
-        'will be cudaMemLocationTypeInvisible\n'
+        '(value type = :py:obj:`~.cudaMemLocationType`) The location type for the\n'
+        'mempool. For imported memory pools where the device is not directly visible\n'
+        'to the importing process or pools imported via fabric handles across nodes\n'
+        'this will be cudaMemLocationTypeInvisible\n'
     ){{endif}}
     {{if 'cudaMemPoolAttrMaxPoolSize' in found_values}}
 
@@ -5255,7 +5268,8 @@ class cudaMemAllocationHandleType(_FastEnum):
 
     cudaMemHandleTypeFabric = (
         cyruntime.cudaMemAllocationHandleType.cudaMemHandleTypeFabric,
-        'Allows a fabric handle to be used for exporting. (cudaMemFabricHandle_t)\n'
+        'Allows a fabric handle to be used for exporting.\n'
+        '(:py:obj:`~.cudaMemFabricHandle_t`)\n'
     ){{endif}}
 
 {{endif}}
@@ -5976,13 +5990,13 @@ class cudaKernelFunctionType(_FastEnum):
 
     cudaKernelFunctionTypeKernel = (
         cyruntime.cudaKernelFunctionType.cudaKernelFunctionTypeKernel,
-        'Function handle is a cudaKernel_t\n'
+        'Function handle is a :py:obj:`~.cudaKernel_t`\n'
     ){{endif}}
     {{if 'cudaKernelFunctionTypeFunction' in found_values}}
 
     cudaKernelFunctionTypeFunction = (
         cyruntime.cudaKernelFunctionType.cudaKernelFunctionTypeFunction,
-        'Function handle is a cudaFunction_t\n'
+        'Function handle is a :py:obj:`~.cudaFunction_t`\n'
     ){{endif}}
 
 {{endif}}
@@ -6376,7 +6390,7 @@ class cudaGraphDebugDotFlags(_FastEnum):
 
     cudaGraphDebugDotFlagsEventNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsEventNodeParams,
-        'Adds cudaEvent_t handle from record and wait nodes to output\n'
+        'Adds :py:obj:`~.cudaEvent_t` handle from record and wait nodes to output\n'
     ){{endif}}
     {{if 'cudaGraphDebugDotFlagsExtSemasSignalNodeParams' in found_values}}
 
@@ -22131,9 +22145,11 @@ def cudaDeviceFlushGPUDirectRDMAWrites(target not None : cudaFlushGPUDirectRDMAW
     Parameters
     ----------
     target : :py:obj:`~.cudaFlushGPUDirectRDMAWritesTarget`
-        The target of the operation, see cudaFlushGPUDirectRDMAWritesTarget
+        The target of the operation, see
+        :py:obj:`~.cudaFlushGPUDirectRDMAWritesTarget`
     scope : :py:obj:`~.cudaFlushGPUDirectRDMAWritesScope`
-        The scope of the operation, see cudaFlushGPUDirectRDMAWritesScope
+        The scope of the operation, see
+        :py:obj:`~.cudaFlushGPUDirectRDMAWritesScope`
 
     Returns
     -------
@@ -26167,7 +26183,7 @@ def cudaFuncSetAttribute(func, attr not None : cudaFuncAttribute, int value):
 
     - :py:obj:`~.cudaFuncAttributeClusterSchedulingPolicyPreference`: The
       block scheduling policy of a function. The value type is
-      cudaClusterSchedulingPolicy.
+      :py:obj:`~.cudaClusterSchedulingPolicy`.
 
     cudaLaunchKernel (C++ API), cudaFuncSetCacheConfig (C++ API),
     :py:obj:`~.cudaFuncGetAttributes (C API)`,
@@ -27521,7 +27537,7 @@ def cudaMalloc3D(extent not None : cudaExtent):
 
     See Also
     --------
-    :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaMemset3D`, :py:obj:`~.cudaMalloc3DArray`, :py:obj:`~.cudaMallocArray`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaHostAlloc`, make_cudaPitchedPtr, make_cudaExtent, :py:obj:`~.cuMemAllocPitch`
+    :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaMemset3D`, :py:obj:`~.cudaMalloc3DArray`, :py:obj:`~.cudaMallocArray`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaHostAlloc`, :py:obj:`~.make_cudaPitchedPtr`, :py:obj:`~.make_cudaExtent`, :py:obj:`~.cuMemAllocPitch`
     """
     cdef cudaPitchedPtr pitchedDevPtr = cudaPitchedPtr()
     with nogil:
@@ -27643,7 +27659,7 @@ def cudaMalloc3DArray(desc : Optional[cudaChannelFormatDesc], extent not None : 
 
     See Also
     --------
-    :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaHostAlloc`, make_cudaExtent, :py:obj:`~.cuArray3DCreate`
+    :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaHostAlloc`, :py:obj:`~.make_cudaExtent`, :py:obj:`~.cuArray3DCreate`
     """
     cdef cudaArray_t array = cudaArray_t()
     cdef cyruntime.cudaChannelFormatDesc* cydesc_ptr = <cyruntime.cudaChannelFormatDesc*>desc._pvt_ptr if desc is not None else NULL
@@ -27769,7 +27785,7 @@ def cudaMallocMipmappedArray(desc : Optional[cudaChannelFormatDesc], extent not 
 
     See Also
     --------
-    :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaHostAlloc`, make_cudaExtent, :py:obj:`~.cuMipmappedArrayCreate`
+    :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaHostAlloc`, :py:obj:`~.make_cudaExtent`, :py:obj:`~.cuMipmappedArrayCreate`
     """
     cdef cudaMipmappedArray_t mipmappedArray = cudaMipmappedArray_t()
     cdef cyruntime.cudaChannelFormatDesc* cydesc_ptr = <cyruntime.cudaChannelFormatDesc*>desc._pvt_ptr if desc is not None else NULL
@@ -27811,7 +27827,7 @@ def cudaGetMipmappedArrayLevel(mipmappedArray, unsigned int level):
 
     See Also
     --------
-    :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaHostAlloc`, make_cudaExtent, :py:obj:`~.cuMipmappedArrayGetLevel`
+    :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaHostAlloc`, :py:obj:`~.make_cudaExtent`, :py:obj:`~.cuMipmappedArrayGetLevel`
     """
     cdef cyruntime.cudaMipmappedArray_const_t cymipmappedArray
     if mipmappedArray is None:
@@ -27905,7 +27921,7 @@ def cudaMemcpy3D(p : Optional[cudaMemcpy3DParms]):
 
     See Also
     --------
-    :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc3DArray`, :py:obj:`~.cudaMemset3D`, :py:obj:`~.cudaMemcpy3DAsync`, :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpy2D`, :py:obj:`~.cudaMemcpy2DToArray`, :py:obj:`~.cudaMemcpy2DFromArray`, :py:obj:`~.cudaMemcpy2DArrayToArray`, :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy2DAsync`, :py:obj:`~.cudaMemcpy2DToArrayAsync`, :py:obj:`~.cudaMemcpy2DFromArrayAsync`, :py:obj:`~.cudaMemcpyToSymbolAsync`, :py:obj:`~.cudaMemcpyFromSymbolAsync`, make_cudaExtent, make_cudaPos, :py:obj:`~.cuMemcpy3D`
+    :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc3DArray`, :py:obj:`~.cudaMemset3D`, :py:obj:`~.cudaMemcpy3DAsync`, :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpy2D`, :py:obj:`~.cudaMemcpy2DToArray`, :py:obj:`~.cudaMemcpy2DFromArray`, :py:obj:`~.cudaMemcpy2DArrayToArray`, :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy2DAsync`, :py:obj:`~.cudaMemcpy2DToArrayAsync`, :py:obj:`~.cudaMemcpy2DFromArrayAsync`, :py:obj:`~.cudaMemcpyToSymbolAsync`, :py:obj:`~.cudaMemcpyFromSymbolAsync`, :py:obj:`~.make_cudaExtent`, :py:obj:`~.make_cudaPos`, :py:obj:`~.cuMemcpy3D`
     """
     cdef cyruntime.cudaMemcpy3DParms* cyp_ptr = <cyruntime.cudaMemcpy3DParms*>p._pvt_ptr if p is not None else NULL
     with nogil:
@@ -28039,7 +28055,7 @@ def cudaMemcpy3DAsync(p : Optional[cudaMemcpy3DParms], stream):
 
     See Also
     --------
-    :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc3DArray`, :py:obj:`~.cudaMemset3D`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpy2D`, :py:obj:`~.cudaMemcpy2DToArray`, ::::py:obj:`~.cudaMemcpy2DFromArray`, :py:obj:`~.cudaMemcpy2DArrayToArray`, :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy2DAsync`, :py:obj:`~.cudaMemcpy2DToArrayAsync`, :py:obj:`~.cudaMemcpy2DFromArrayAsync`, :py:obj:`~.cudaMemcpyToSymbolAsync`, :py:obj:`~.cudaMemcpyFromSymbolAsync`, make_cudaExtent, make_cudaPos, :py:obj:`~.cuMemcpy3DAsync`
+    :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc3DArray`, :py:obj:`~.cudaMemset3D`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpy2D`, :py:obj:`~.cudaMemcpy2DToArray`, ::::py:obj:`~.cudaMemcpy2DFromArray`, :py:obj:`~.cudaMemcpy2DArrayToArray`, :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy2DAsync`, :py:obj:`~.cudaMemcpy2DToArrayAsync`, :py:obj:`~.cudaMemcpy2DFromArrayAsync`, :py:obj:`~.cudaMemcpyToSymbolAsync`, :py:obj:`~.cudaMemcpyFromSymbolAsync`, :py:obj:`~.make_cudaExtent`, :py:obj:`~.make_cudaPos`, :py:obj:`~.cuMemcpy3DAsync`
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
@@ -29738,7 +29754,7 @@ def cudaMemset3D(pitchedDevPtr not None : cudaPitchedPtr, int value, extent not 
 
     See Also
     --------
-    :py:obj:`~.cudaMemset`, :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaMemsetAsync`, :py:obj:`~.cudaMemset2DAsync`, :py:obj:`~.cudaMemset3DAsync`, :py:obj:`~.cudaMalloc3D`, make_cudaPitchedPtr, make_cudaExtent
+    :py:obj:`~.cudaMemset`, :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaMemsetAsync`, :py:obj:`~.cudaMemset2DAsync`, :py:obj:`~.cudaMemset3DAsync`, :py:obj:`~.cudaMalloc3D`, :py:obj:`~.make_cudaPitchedPtr`, :py:obj:`~.make_cudaExtent`
     """
     with nogil:
         err = cyruntime.cudaMemset3D(pitchedDevPtr._pvt_ptr[0], value, extent._pvt_ptr[0])
@@ -29915,7 +29931,7 @@ def cudaMemset3DAsync(pitchedDevPtr not None : cudaPitchedPtr, int value, extent
 
     See Also
     --------
-    :py:obj:`~.cudaMemset`, :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaMemset3D`, :py:obj:`~.cudaMemsetAsync`, :py:obj:`~.cudaMemset2DAsync`, :py:obj:`~.cudaMalloc3D`, make_cudaPitchedPtr, make_cudaExtent
+    :py:obj:`~.cudaMemset`, :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaMemset3D`, :py:obj:`~.cudaMemsetAsync`, :py:obj:`~.cudaMemset2DAsync`, :py:obj:`~.cudaMalloc3D`, :py:obj:`~.make_cudaPitchedPtr`, :py:obj:`~.make_cudaExtent`
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
@@ -31404,11 +31420,11 @@ def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
     pools:
 
     - :py:obj:`~.cudaMemPoolAttrAllocationType`: (value type =
-      cudaMemAllocationType) The allocation type of the mempool
+      :py:obj:`~.cudaMemAllocationType`) The allocation type of the mempool
 
     - :py:obj:`~.cudaMemPoolAttrExportHandleTypes`: (value type =
-      cudaMemAllocationHandleType) Available export handle types for the
-      mempool. For imported pools this value is always
+      :py:obj:`~.cudaMemAllocationHandleType`) Available export handle
+      types for the mempool. For imported pools this value is always
       cudaMemHandleTypeNone as an imported pool cannot be re-exported
 
     - :py:obj:`~.cudaMemPoolAttrLocationId`: (value type = int) The
@@ -31416,10 +31432,10 @@ def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
       cudaMemLocationTypeInvisible then ID will be cudaInvalidDeviceId.
 
     - :py:obj:`~.cudaMemPoolAttrLocationType`: (value type =
-      cudaMemLocationType) The location type for the mempool. For imported
-      memory pools where the device is not directly visible to the
-      importing process or pools imported via fabric handles across nodes
-      this will be cudaMemlocataionTypeInvisible.
+      :py:obj:`~.cudaMemLocationType`) The location type for the mempool.
+      For imported memory pools where the device is not directly visible to
+      the importing process or pools imported via fabric handles across
+      nodes this will be cudaMemlocataionTypeInvisible.
 
     - :py:obj:`~.cudaMemPoolAttrMaxPoolSize`: (value type = cuuint64_t)
       Maximum size of the pool in bytes, this value may be higher than what
@@ -31620,7 +31636,7 @@ def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
     /dev/nvidia-caps-imex-channels/channel0 c <major number> 0`
 
     To create a managed memory pool, applications must set
-    :py:obj:`~.cudaMemPoolProps`:cudaMemAllocationType to
+    :py:obj:`~.cudaMemPoolProps.py`:obj:`~.cudaMemAllocationType` to
     :py:obj:`~.cudaMemAllocationTypeManaged`.
     :py:obj:`~.cudaMemPoolProps.cudaMemAllocationHandleType` must also be
     set to :py:obj:`~.cudaMemHandleTypeNone` since IPC is not supported.
@@ -38312,8 +38328,8 @@ def cudaGraphDebugDotPrint(graph, char* path, unsigned int flags):
     path : bytes
         The path to write the DOT file to
     flags : unsigned int
-        Flags from cudaGraphDebugDotFlags for specifying which additional
-        node information to write
+        Flags from :py:obj:`~.cudaGraphDebugDotFlags` for specifying which
+        additional node information to write
 
     Returns
     -------
@@ -39758,7 +39774,7 @@ def cudaKernelSetAttributeForDevice(kernel, attr not None : cudaFuncAttribute, i
 
     - :py:obj:`~.cudaFuncAttributeClusterSchedulingPolicyPreference`: The
       block scheduling policy of a function. The value type is
-      cudaClusterSchedulingPolicy.
+      :py:obj:`~.cudaClusterSchedulingPolicy`.
 
     Parameters
     ----------
@@ -39822,7 +39838,7 @@ def cudaDeviceGetDevResource(int device, typename not None : cudaDevResourceType
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidResourceType`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`
     resource : :py:obj:`~.cudaDevResource`
-        Output pointer to a cudaDevResource structure
+        Output pointer to a :py:obj:`~.cudaDevResource` structure
 
     See Also
     --------
@@ -40343,7 +40359,7 @@ def cudaExecutionCtxGetDevResource(ctx, typename not None : cudaDevResourceType)
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`
     resource : :py:obj:`~.cudaDevResource`
-        Output pointer to a cudaDevResource structure
+        Output pointer to a :py:obj:`~.cudaDevResource` structure
 
     See Also
     --------
@@ -40593,7 +40609,7 @@ def cudaStreamGetDevResource(hStream, typename not None : cudaDevResourceType):
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorDeviceUninitialized`, :py:obj:`~.cudaErrorInvalidResourceType`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidHandle`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorCallRequiresNewerDriver`,
     resource : :py:obj:`~.cudaDevResource`
-        Output pointer to a cudaDevResource structure
+        Output pointer to a :py:obj:`~.cudaDevResource` structure
 
     See Also
     --------
@@ -40741,8 +40757,9 @@ def cudaDeviceGetExecutionCtx(int device):
 
     Returns in `ctx` the execution context for the specified device. This
     is the device's primary context. The returned context can then be
-    passed to APIs that take in a cudaExecutionContext_t enabling explicit
-    context-based programming without relying on thread-local state.
+    passed to APIs that take in a :py:obj:`~.cudaExecutionContext_t`
+    enabling explicit context-based programming without relying on thread-
+    local state.
 
     Passing the returned execution context to
     :py:obj:`~.cudaExecutionCtxDestroy()` is not allowed and will result in
