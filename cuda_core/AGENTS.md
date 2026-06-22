@@ -164,7 +164,7 @@ Reviews should point out where existing public APIs are broken.
 
 from cuda.core._vendored.deprecated.sphinx import versionadded
 
-@versionadded("1.2.0")
+@versionadded(version="1.2.0")
 def new_feature(...):
     """Short description.
     """
@@ -188,7 +188,7 @@ vendored `cuda.core._vendored.deprecated.sphinx` module:
 
 from cuda.core._vendored.deprecated.sphinx import versionchanged
 
-@versionchanged("1.2.0", reason="The old version was broken because...")
+@versionchanged(version="1.2.0", reason="The old version was broken because...")
 def new_feature(...):
     """Short description.
     """
