@@ -5,7 +5,8 @@
 [build-system]
 requires = [
     "setuptools>=80",
-    "setuptools-scm[simple]>=8",
+    "setuptools-scm[simple]>=8,<10.1",
+    "vcs-versioning<2.0",
     "Cython>=3.2,<3.3",
     "cuda-pathfinder>=1.5"
 ]
