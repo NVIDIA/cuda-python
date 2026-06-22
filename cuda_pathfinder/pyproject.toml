@@ -89,6 +89,7 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 requires = [
     "setuptools>=80.0.0",
     "setuptools_scm[simple]>=8,<10.1",
+    "vcs-versioning<2.0",
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
