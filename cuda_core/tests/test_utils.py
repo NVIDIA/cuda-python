@@ -1060,6 +1060,7 @@ def test_dlpack_export_non_native_endian_rejected():
         bad_view.__dlpack__()
 
 
+# HUMAN-REVIEWED
 def test_strided_memory_view_proxy_cai_only_has_dlpack_false():
     """``_StridedMemoryViewProxy`` records ``has_dlpack=False`` for an object
     that exposes only ``__cuda_array_interface__`` (check_has_dlpack CAI branch)."""
@@ -1071,6 +1072,7 @@ def test_strided_memory_view_proxy_cai_only_has_dlpack_false():
     assert proxy.obj is obj
 
 
+# HUMAN-REVIEWED
 def test_view_as_cai_device_pointer_and_stream_ordering(init_cuda):
     """``view_as_cai`` on a real device pointer resolves the device ordinal via
     ``cuPointerGetAttribute`` and takes the cross-stream branch when the CAI
@@ -1102,6 +1104,7 @@ def test_view_as_cai_device_pointer_and_stream_ordering(init_cuda):
     dev.default_stream.sync()
 
 
+# HUMAN-REVIEWED
 def test_strided_memory_view_init_cai_path_deprecated(init_cuda):
     """The deprecated ``StridedMemoryView(obj)`` constructor routes a CAI-only
     object through the CAI branch (warn + ``view_as_cai``), not the DLPack one."""
@@ -1113,6 +1116,7 @@ def test_strided_memory_view_init_cai_path_deprecated(init_cuda):
     assert view.device_id == init_cuda.device_id
 
 
+# HUMAN-REVIEWED
 def test_dlpack_export_device_accessible_cai_view(init_cuda):
     """Exporting a device-accessible CAI-backed view (no dl_tensor) drives the
     ``_smv_get_dl_device`` branch that calls ``get_buffer``/``classify_dl_device``
@@ -1137,6 +1141,7 @@ def test_dlpack_export_device_accessible_cai_view(init_cuda):
     dev.default_stream.sync()
 
 
+# HUMAN-REVIEWED
 def test_strided_memory_view_repr_with_none_dtype(init_cuda):
     """``__repr__`` of a view whose dtype is None renders the dtype via
     ``get_simple_repr`` taking the builtins branch (NoneType)."""
