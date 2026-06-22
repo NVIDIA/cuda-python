@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_num\_gpu\_cores
+===============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_num_gpu_cores
