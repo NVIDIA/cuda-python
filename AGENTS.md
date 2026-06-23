@@ -116,9 +116,11 @@ repos/{owner}/{repo}/milestones --jq '.[].title'`, and pick the best match.
 ## Test authorship tags
 
 Use these tags to make the provenance of newly added unit tests explicit. Use
-the host language's comment syntax, and place the tag immediately above the
-test function, test class, or at the top of a new test file when the whole file
-has the same provenance.
+the host language's comment syntax, and place the tag immediately above each
+test function. A class-level tag is acceptable only when every test method in
+the class has the same provenance. Do not use file-level tags for authorship
+provenance; they are too easy to miss in large files and make later per-test
+provenance changes unclear.
 
 - `AGENT-AUTHORED <model>`: the test was authored by an agent and has not yet
   been materially reviewed or rewritten by a human. Agents must add this tag
