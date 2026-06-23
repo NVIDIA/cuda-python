@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.gpu\_instance\_get\_compute\_instance\_profile\_info\_v
-==========================================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: gpu_instance_get_compute_instance_profile_info_v
