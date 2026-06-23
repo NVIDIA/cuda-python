@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -176,12 +176,12 @@ cdef struct cudaEglPlaneDesc_st:
 
 ctypedef cudaEglPlaneDesc_st cudaEglPlaneDesc
 
-cdef union anon_union11:
+cdef union anon_union12:
     cudaArray_t pArray[3]
     cudaPitchedPtr pPitch[3]
 
 cdef struct cudaEglFrame_st:
-    anon_union11 frame
+    anon_union12 frame
     cudaEglPlaneDesc planeDesc[3]
     unsigned int planeCount
     cudaEglFrameType frameType
@@ -492,6 +492,11 @@ cdef cudaError_t cudaStreamAttachMemAsync(cudaStream_t stream, void* devPtr, siz
 {{if 'cudaStreamBeginCapture' in found_functions}}
 
 cdef cudaError_t cudaStreamBeginCapture(cudaStream_t stream, cudaStreamCaptureMode mode) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaStreamBeginRecaptureToGraph' in found_functions}}
+
+cdef cudaError_t cudaStreamBeginRecaptureToGraph(cudaStream_t stream, cudaStreamCaptureMode mode, cudaGraph_t graph, cudaGraphRecaptureCallbackData* callbackData) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaStreamBeginCaptureToGraph' in found_functions}}
@@ -2082,8 +2087,8 @@ cdef enum: cudaTextureType2DLayered = 242
 
 cdef enum: cudaTextureTypeCubemapLayered = 252
 
-cdef enum: CUDART_VERSION = 13020
+cdef enum: CUDART_VERSION = 13030
 
-cdef enum: __CUDART_API_VERSION = 13020
+cdef enum: __CUDART_API_VERSION = 13030
 
 cdef enum: CUDA_EGL_MAX_PLANES = 3

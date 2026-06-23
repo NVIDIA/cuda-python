@@ -18,23 +18,6 @@ from cuda.bindings cimport cynvrtc
 from cuda.bindings cimport cynvvm
 from cuda.bindings cimport cynvjitlink
 
-from ._resource_handles cimport (
-    ContextHandle,
-    GreenCtxHandle,
-    StreamHandle,
-    EventHandle,
-    MemoryPoolHandle,
-    DevicePtrHandle,
-    LibraryHandle,
-    KernelHandle,
-    GraphHandle,
-    GraphicsResourceHandle,
-    NvrtcProgramHandle,
-    NvvmProgramHandle,
-    NvJitLinkHandle,
-    CuLinkHandle,
-)
-
 import cuda.bindings.cydriver as cydriver
 import cuda.bindings.cynvrtc as cynvrtc
 import cuda.bindings.cynvvm as cynvvm
@@ -76,6 +59,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUstream stream) except+ nogil
     StreamHandle create_stream_handle_with_owner "cuda_core::create_stream_handle_with_owner" (
         cydriver.CUstream stream, object owner) except+ nogil
+    void py_object_user_object_destroy "cuda_core::py_object_user_object_destroy" (
+        void* py_object) noexcept nogil
     ContextHandle get_stream_context "cuda_core::get_stream_context" (
         const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::get_legacy_stream" () except+ nogil
@@ -325,67 +310,88 @@ cdef void* _get_optional_driver_fn(str name):
         return NULL
     return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
 
-# Context
-p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
-p_cuDevicePrimaryCtxRelease = _get_driver_fn("cuDevicePrimaryCtxRelease")
-p_cuCtxGetCurrent = _get_driver_fn("cuCtxGetCurrent")
-p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
-p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
-p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")
-p_cuDevResourceGenerateDesc = _get_optional_driver_fn("cuDevResourceGenerateDesc")
-p_cuGreenCtxStreamCreate = _get_optional_driver_fn("cuGreenCtxStreamCreate")
 
-# Stream
-p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")
-p_cuStreamDestroy = _get_driver_fn("cuStreamDestroy")
+cdef void _init_driver_fn_pointers() noexcept:
+    global p_cuDevicePrimaryCtxRetain, p_cuDevicePrimaryCtxRelease, p_cuCtxGetCurrent
+    global p_cuGreenCtxCreate, p_cuGreenCtxDestroy, p_cuCtxFromGreenCtx
+    global p_cuDevResourceGenerateDesc, p_cuGreenCtxStreamCreate
+    global p_cuStreamCreateWithPriority, p_cuStreamDestroy
+    global p_cuEventCreate, p_cuEventDestroy, p_cuIpcOpenEventHandle
+    global p_cuDeviceGetCount
+    global p_cuMemPoolSetAccess, p_cuMemPoolDestroy, p_cuMemPoolCreate
+    global p_cuDeviceGetMemPool, p_cuMemPoolImportFromShareableHandle
+    global p_cuMemAllocFromPoolAsync, p_cuMemAllocAsync, p_cuMemAlloc, p_cuMemAllocHost
+    global p_cuMemFreeAsync, p_cuMemFree, p_cuMemFreeHost
+    global p_cuMemPoolImportPointer
+    global p_cuLibraryLoadFromFile, p_cuLibraryLoadData, p_cuLibraryUnload, p_cuLibraryGetKernel
+    global p_cuGraphDestroy
+    global p_cuLinkDestroy
+    global p_cuGraphicsUnmapResources, p_cuGraphicsUnregisterResource
+    global p_cuDevSmResourceSplit
 
-# Event
-p_cuEventCreate = _get_driver_fn("cuEventCreate")
-p_cuEventDestroy = _get_driver_fn("cuEventDestroy")
-p_cuIpcOpenEventHandle = _get_driver_fn("cuIpcOpenEventHandle")
+    # Context
+    p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
+    p_cuDevicePrimaryCtxRelease = _get_driver_fn("cuDevicePrimaryCtxRelease")
+    p_cuCtxGetCurrent = _get_driver_fn("cuCtxGetCurrent")
+    p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
+    p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
+    p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")
+    p_cuDevResourceGenerateDesc = _get_optional_driver_fn("cuDevResourceGenerateDesc")
+    p_cuGreenCtxStreamCreate = _get_optional_driver_fn("cuGreenCtxStreamCreate")
 
-# Device
-p_cuDeviceGetCount = _get_driver_fn("cuDeviceGetCount")
+    # Stream
+    p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")
+    p_cuStreamDestroy = _get_driver_fn("cuStreamDestroy")
 
-# Memory pool
-p_cuMemPoolSetAccess = _get_driver_fn("cuMemPoolSetAccess")
-p_cuMemPoolDestroy = _get_driver_fn("cuMemPoolDestroy")
-p_cuMemPoolCreate = _get_driver_fn("cuMemPoolCreate")
-p_cuDeviceGetMemPool = _get_driver_fn("cuDeviceGetMemPool")
-p_cuMemPoolImportFromShareableHandle = _get_driver_fn("cuMemPoolImportFromShareableHandle")
+    # Event
+    p_cuEventCreate = _get_driver_fn("cuEventCreate")
+    p_cuEventDestroy = _get_driver_fn("cuEventDestroy")
+    p_cuIpcOpenEventHandle = _get_driver_fn("cuIpcOpenEventHandle")
 
-# Memory allocation
-p_cuMemAllocFromPoolAsync = _get_driver_fn("cuMemAllocFromPoolAsync")
-p_cuMemAllocAsync = _get_driver_fn("cuMemAllocAsync")
-p_cuMemAlloc = _get_driver_fn("cuMemAlloc")
-p_cuMemAllocHost = _get_driver_fn("cuMemAllocHost")
+    # Device
+    p_cuDeviceGetCount = _get_driver_fn("cuDeviceGetCount")
 
-# Memory deallocation
-p_cuMemFreeAsync = _get_driver_fn("cuMemFreeAsync")
-p_cuMemFree = _get_driver_fn("cuMemFree")
-p_cuMemFreeHost = _get_driver_fn("cuMemFreeHost")
+    # Memory pool
+    p_cuMemPoolSetAccess = _get_driver_fn("cuMemPoolSetAccess")
+    p_cuMemPoolDestroy = _get_driver_fn("cuMemPoolDestroy")
+    p_cuMemPoolCreate = _get_driver_fn("cuMemPoolCreate")
+    p_cuDeviceGetMemPool = _get_driver_fn("cuDeviceGetMemPool")
+    p_cuMemPoolImportFromShareableHandle = _get_driver_fn("cuMemPoolImportFromShareableHandle")
 
-# IPC
-p_cuMemPoolImportPointer = _get_driver_fn("cuMemPoolImportPointer")
+    # Memory allocation
+    p_cuMemAllocFromPoolAsync = _get_driver_fn("cuMemAllocFromPoolAsync")
+    p_cuMemAllocAsync = _get_driver_fn("cuMemAllocAsync")
+    p_cuMemAlloc = _get_driver_fn("cuMemAlloc")
+    p_cuMemAllocHost = _get_driver_fn("cuMemAllocHost")
 
-# Library
-p_cuLibraryLoadFromFile = _get_driver_fn("cuLibraryLoadFromFile")
-p_cuLibraryLoadData = _get_driver_fn("cuLibraryLoadData")
-p_cuLibraryUnload = _get_driver_fn("cuLibraryUnload")
-p_cuLibraryGetKernel = _get_driver_fn("cuLibraryGetKernel")
+    # Memory deallocation
+    p_cuMemFreeAsync = _get_driver_fn("cuMemFreeAsync")
+    p_cuMemFree = _get_driver_fn("cuMemFree")
+    p_cuMemFreeHost = _get_driver_fn("cuMemFreeHost")
 
-# Graph
-p_cuGraphDestroy = _get_driver_fn("cuGraphDestroy")
+    # IPC
+    p_cuMemPoolImportPointer = _get_driver_fn("cuMemPoolImportPointer")
 
-# Linker
-p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
+    # Library
+    p_cuLibraryLoadFromFile = _get_driver_fn("cuLibraryLoadFromFile")
+    p_cuLibraryLoadData = _get_driver_fn("cuLibraryLoadData")
+    p_cuLibraryUnload = _get_driver_fn("cuLibraryUnload")
+    p_cuLibraryGetKernel = _get_driver_fn("cuLibraryGetKernel")
 
-# Graphics interop
-p_cuGraphicsUnmapResources = _get_driver_fn("cuGraphicsUnmapResources")
-p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")
+    # Graph
+    p_cuGraphDestroy = _get_driver_fn("cuGraphDestroy")
 
-# SM resource split (13.1+ — may not exist in older cuda-bindings)
-p_cuDevSmResourceSplit = _get_optional_driver_fn("cuDevSmResourceSplit")
+    # Linker
+    p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
+
+    # Graphics interop
+    p_cuGraphicsUnmapResources = _get_driver_fn("cuGraphicsUnmapResources")
+    p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")
+
+    # SM resource split (13.1+ — may not exist in older cuda-bindings)
+    p_cuDevSmResourceSplit = _get_optional_driver_fn("cuDevSmResourceSplit")
+
+_init_driver_fn_pointers()
 
 # =============================================================================
 # NVRTC function pointer initialization
@@ -395,7 +401,11 @@ cdef void* _get_nvrtc_fn(str name):
     capsule = cynvrtc.__pyx_capi__[name]
     return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
 
-p_nvrtcDestroyProgram = _get_nvrtc_fn("nvrtcDestroyProgram")
+cdef void _init_nvrtc_fn_pointers() noexcept:
+    global p_nvrtcDestroyProgram
+    p_nvrtcDestroyProgram = _get_nvrtc_fn("nvrtcDestroyProgram")
+
+_init_nvrtc_fn_pointers()
 
 # =============================================================================
 # NVVM function pointer initialization
@@ -408,7 +418,11 @@ cdef void* _get_nvvm_fn(str name):
     capsule = cynvvm.__pyx_capi__[name]
     return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
 
-p_nvvmDestroyProgram = _get_nvvm_fn("nvvmDestroyProgram")
+cdef void _init_nvvm_fn_pointers() noexcept:
+    global p_nvvmDestroyProgram
+    p_nvvmDestroyProgram = _get_nvvm_fn("nvvmDestroyProgram")
+
+_init_nvvm_fn_pointers()
 
 # =============================================================================
 # nvJitLink function pointer initialization
@@ -421,4 +435,8 @@ cdef void* _get_nvjitlink_fn(str name):
     capsule = cynvjitlink.__pyx_capi__[name]
     return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
 
-p_nvJitLinkDestroy = _get_nvjitlink_fn("nvJitLinkDestroy")
+cdef void _init_nvjitlink_fn_pointers() noexcept:
+    global p_nvJitLinkDestroy
+    p_nvJitLinkDestroy = _get_nvjitlink_fn("nvJitLinkDestroy")
+
+_init_nvjitlink_fn_pointers()

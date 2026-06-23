@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 set -ex
@@ -25,8 +25,17 @@ if [[ -z "${SPHINX_CUDA_PATHFINDER_VER}" ]]; then
                                       | awk -F'+' '{print $1}')
 fi
 
+if [[ "${LATEST_ONLY}" == "1" && -z "${BUILD_PREVIEW:-}" && -z "${BUILD_LATEST:-}" ]]; then
+    export BUILD_LATEST=1
+fi
+
 # build the docs (in parallel)
-SPHINXOPTS="-W --keep-going -j 4 -d build/.doctrees" make html
+if [[ -z "${SPHINXOPTS:-}" ]]; then
+    HTML_SPHINXOPTS="-W --keep-going -j 4 -d build/.doctrees"
+else
+    HTML_SPHINXOPTS="${SPHINXOPTS}"
+fi
+SPHINXOPTS="${HTML_SPHINXOPTS}" make html
 
 # for debugging/developing (conf.py), please comment out the above line and
 # use the line below instead, as we must build in serial to avoid getting

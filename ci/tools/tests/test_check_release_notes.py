@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from check_release_notes import (
     check_release_notes,
     is_post_release,
+    load_backport_branch,
     main,
     parse_version_from_tag,
 )
@@ -126,7 +127,31 @@ class TestCheckReleaseNotes:
         assert problems == []
 
 
+class TestLoadBackportBranch:
+    def test_from_versions_yml(self, tmp_path):
+        d = tmp_path / "ci"
+        d.mkdir(parents=True)
+        (d / "versions.yml").write_text('backport_branch: "12.9.x"\n')
+
+        assert load_backport_branch(str(tmp_path)) == "12.9.x"
+
+    def test_from_github_ref_name_for_legacy_backport_branch(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("GITHUB_REF_NAME", "12.9.x")
+
+        assert load_backport_branch(str(tmp_path)) == "12.9.x"
+
+    def test_ignores_non_backport_github_ref_name(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("GITHUB_REF_NAME", "main")
+
+        assert load_backport_branch(str(tmp_path)) is None
+
+
 class TestMain:
+    def _make_notes(self, tmp_path, pkg, version, content="Release notes."):
+        d = tmp_path / pkg / "docs" / "source" / "release"
+        d.mkdir(parents=True, exist_ok=True)
+        (d / f"{version}-notes.rst").write_text(content)
+
     def test_success(self, tmp_path):
         d = tmp_path / "cuda_core" / "docs" / "source" / "release"
         d.mkdir(parents=True)
@@ -161,4 +186,148 @@ class TestMain:
                 str(tmp_path),
             ]
         )
+        assert rc == 2
+
+    def test_mainline_bindings_requires_backport_decision(self, tmp_path, capsys):
+        rc = main(
+            [
+                "--git-tag",
+                "v13.3.0",
+                "--component",
+                "cuda-bindings",
+                "--repo-root",
+                str(tmp_path),
+                "--backport-branch",
+                "12.9.x",
+            ]
+        )
+
+        captured = capsys.readouterr()
+        assert rc == 1
+        assert "<backport-git-tag>" in captured.err
+
+    def test_mainline_bindings_accepts_not_planned(self, tmp_path):
+        self._make_notes(tmp_path, "cuda_bindings", "13.3.0")
+
+        rc = main(
+            [
+                "--git-tag",
+                "v13.3.0",
+                "--component",
+                "cuda-bindings",
+                "--repo-root",
+                str(tmp_path),
+                "--backport-branch",
+                "12.9.x",
+                "--backport-git-tag",
+                "not planned",
+            ]
+        )
+
+        assert rc == 0
+
+    def test_mainline_bindings_checks_planned_backport_notes(self, tmp_path, capsys):
+        self._make_notes(tmp_path, "cuda_bindings", "13.3.0")
+
+        rc = main(
+            [
+                "--git-tag",
+                "v13.3.0",
+                "--component",
+                "cuda-bindings",
+                "--repo-root",
+                str(tmp_path),
+                "--backport-branch",
+                "12.9.x",
+                "--backport-git-tag",
+                "v12.9.7",
+            ]
+        )
+
+        captured = capsys.readouterr()
+        assert rc == 1
+        assert "12.9.7-notes.rst" in captured.err
+
+    def test_mainline_bindings_accepts_planned_backport_notes(self, tmp_path):
+        self._make_notes(tmp_path, "cuda_bindings", "13.3.0")
+        self._make_notes(tmp_path, "cuda_bindings", "12.9.7")
+
+        rc = main(
+            [
+                "--git-tag",
+                "v13.3.0",
+                "--component",
+                "cuda-bindings",
+                "--repo-root",
+                str(tmp_path),
+                "--backport-branch",
+                "12.9.x",
+                "--backport-git-tag",
+                "v12.9.7",
+            ]
+        )
+
+        assert rc == 0
+
+    def test_mainline_cuda_python_accepts_planned_backport_notes(self, tmp_path):
+        self._make_notes(tmp_path, "cuda_python", "13.3.0")
+        self._make_notes(tmp_path, "cuda_python", "12.9.7")
+
+        rc = main(
+            [
+                "--git-tag",
+                "v13.3.0",
+                "--component",
+                "cuda-python",
+                "--repo-root",
+                str(tmp_path),
+                "--backport-branch",
+                "12.9.x",
+                "--backport-git-tag",
+                "v12.9.7",
+            ]
+        )
+
+        assert rc == 0
+
+    def test_backport_bindings_missing_notes_warns_without_failing(self, tmp_path, monkeypatch, capsys):
+        summary_path = tmp_path / "summary.md"
+        monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary_path))
+
+        rc = main(
+            [
+                "--git-tag",
+                "v12.9.7",
+                "--component",
+                "cuda-bindings",
+                "--repo-root",
+                str(tmp_path),
+                "--backport-branch",
+                "12.9.x",
+            ]
+        )
+
+        captured = capsys.readouterr()
+        assert rc == 0
+        assert "::warning file=cuda_bindings/docs/source/release/12.9.7-notes.rst::" in captured.out
+        assert "12.9.7-notes.rst" in summary_path.read_text()
+
+    def test_mainline_bindings_rejects_non_backport_tag(self, tmp_path):
+        self._make_notes(tmp_path, "cuda_bindings", "13.3.0")
+
+        rc = main(
+            [
+                "--git-tag",
+                "v13.3.0",
+                "--component",
+                "cuda-bindings",
+                "--repo-root",
+                str(tmp_path),
+                "--backport-branch",
+                "12.9.x",
+                "--backport-git-tag",
+                "v13.2.0",
+            ]
+        )
+
         assert rc == 2

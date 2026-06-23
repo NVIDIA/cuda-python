@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.4.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uint32_t
 
@@ -34,5 +34,6 @@ cpdef add_ltoir(intptr_t handle, code, size_t size, arch, identifier, options_cm
 cpdef size_t size(intptr_t handle) except? 0
 cpdef get(intptr_t handle, buffer)
 cpdef tuple version()
+cpdef add_index(intptr_t handle, code, size_t size, identifier)
 cpdef add_reloc(intptr_t handle, code, size_t size)
 cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_line)

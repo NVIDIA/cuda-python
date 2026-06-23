@@ -10,12 +10,14 @@ from helpers.buffers import PatternGen
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 
-CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 NWORKERS = 2
 NMRS = 3
 NTASKS = 20
 POOL_SIZE = 2097152
+
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
 class TestIpcWorkerPool:

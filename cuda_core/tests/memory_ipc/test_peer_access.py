@@ -5,13 +5,17 @@ import multiprocessing as mp
 
 import pytest
 from helpers.buffers import PatternGen
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._utils.cuda_utils import CUDAError
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 POOL_SIZE = 2097152
+
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
 class TestPeerAccessNotPreservedOnImport:
@@ -21,8 +25,8 @@ class TestPeerAccessNotPreservedOnImport:
     """
 
     @pytest.mark.flaky(reruns=2)
-    def test_main(self, mempool_device_x2):
-        dev0, dev1 = mempool_device_x2
+    def test_main(self, ipc_mempool_device_x2):
+        dev0, dev1 = ipc_mempool_device_x2
 
         # Parent Process - Create and Configure MR
         dev1.set_current()
@@ -35,6 +39,8 @@ class TestPeerAccessNotPreservedOnImport:
         process = mp.Process(target=self.child_main, args=(mr,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         # Verify parent's MR still has peer access set (independent state)
@@ -61,8 +67,8 @@ class TestBufferPeerAccessAfterImport:
 
     @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("grant_access_in_parent", [True, False])
-    def test_main(self, mempool_device_x2, grant_access_in_parent):
-        dev0, dev1 = mempool_device_x2
+    def test_main(self, ipc_mempool_device_x2, grant_access_in_parent):
+        dev0, dev1 = ipc_mempool_device_x2
 
         # Parent Process - Create MR and Buffer
         dev1.set_current()
@@ -81,6 +87,8 @@ class TestBufferPeerAccessAfterImport:
         process = mp.Process(target=self.child_main, args=(mr, buffer))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         buffer.close()

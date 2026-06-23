@@ -224,6 +224,10 @@ StreamHandle create_stream_handle_ref(CUstream stream);
 // The owner is responsible for keeping the stream's context alive.
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
 
+// Destroy a Python-backed CUDA user object by decref'ing it when safe.
+// If Python is finalized or finalizing, the object is intentionally leaked.
+void py_object_user_object_destroy(void* py_object) noexcept;
+
 // Return the context dependency associated with a stream handle, if any.
 ContextHandle get_stream_context(const StreamHandle& h) noexcept;
 
@@ -662,6 +666,22 @@ inline std::intptr_t as_intptr(const FileDescriptorHandle& h) noexcept {
 extern "C" int _Py_IsFinalizing(void);
 #endif
 
+// Best-effort probe for interpreter shutdown.
+//
+// In CPython this is not a hard guarantee: finalization can begin after this
+// returns false but before a later PyGILState_Ensure() or other Python C-API
+// call.
+//
+// If that race is lost on a non-finalizer thread, CPython's behavior is
+// version-dependent: on older supported versions (3.10-3.13) it may abruptly
+// terminate the current thread (historically via PyThread_exit_thread(),
+// without normal C++ unwinding), while on newer versions (3.14+) it may hang
+// the thread until process exit.
+//
+// We still use this check because the policy in this layer is to avoid Python
+// work once shutdown is underway and accept an intentional leak or skipped
+// Python conversion in that edge case rather than add more complex deferral
+// machinery.
 inline bool py_is_finalizing() noexcept {
 #if PY_VERSION_HEX >= 0x030D0000
     return Py_IsFinalizing();

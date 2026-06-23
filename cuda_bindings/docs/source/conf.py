@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2012-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2012-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # Configuration file for the Sphinx documentation builder.
@@ -9,7 +9,6 @@
 
 # -- Path setup --------------------------------------------------------------
 
-import inspect
 import os
 import sys
 from pathlib import Path
@@ -28,12 +27,23 @@ release = os.environ["SPHINX_CUDA_BINDINGS_VER"]
 
 
 def _github_examples_ref():
+    if ref := os.environ.get("CUDA_PYTHON_DOCS_GITHUB_REF"):
+        return ref
     if int(os.environ.get("BUILD_PREVIEW", 0)) or int(os.environ.get("BUILD_LATEST", 0)):
         return "main"
     return f"v{release}"
 
 
 GITHUB_EXAMPLES_REF = _github_examples_ref()
+
+
+def _html_baseurl():
+    docs_domain = os.environ.get("CUDA_PYTHON_DOCS_DOMAIN", "https://nvidia.github.io/cuda-python")
+    if int(os.environ.get("BUILD_PREVIEW", 0)):
+        return f"{docs_domain}/pr-preview/pr-{os.environ['PR_NUMBER']}/cuda-bindings/latest/"
+    if int(os.environ.get("BUILD_LATEST", 0)):
+        return f"{docs_domain}/cuda-bindings/latest/"
+    return f"{docs_domain}/cuda-bindings/{release}/"
 
 
 # -- General configuration ---------------------------------------------------
@@ -44,6 +54,7 @@ GITHUB_EXAMPLES_REF = _github_examples_ref()
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.extlinks",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "myst_nb",
@@ -74,7 +85,7 @@ toc_object_entries_show_parents = "domain"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_baseurl = "docs"
+html_baseurl = _html_baseurl()
 html_theme = "nvidia_sphinx_theme"
 html_theme_options = {
     "switcher": {
@@ -109,9 +120,16 @@ html_static_path = []  # ["_static"] does not exist in our environment
 # skip cmdline prompts
 copybutton_exclude = ".linenos, .gp"
 
-rst_epilog = f"""
-.. |cuda_bindings_github_ref| replace:: {GITHUB_EXAMPLES_REF}
-"""
+extlinks = {
+    "cuda-bindings-example": (
+        f"https://github.com/NVIDIA/cuda-python/blob/{GITHUB_EXAMPLES_REF}/cuda_bindings/examples/%s",
+        "%s",
+    ),
+    "cuda-bindings-examples": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/cuda_bindings/examples%s",
+        "%s",
+    ),
+}
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
@@ -122,36 +140,9 @@ intersphinx_mapping = {
 }
 
 
-def _sanitize_generated_docstring(lines):
-    doc_lines = inspect.cleandoc("\n".join(lines)).splitlines()
-    if not doc_lines:
-        return
-
-    if "(" in doc_lines[0] and ")" in doc_lines[0]:
-        doc_lines = doc_lines[1:]
-        while doc_lines and not doc_lines[0].strip():
-            doc_lines.pop(0)
-
-    if not doc_lines:
-        lines[:] = []
-        return
-
-    lines[:] = [".. code-block:: text", ""]
-    lines.extend(f"   {line}" if line else "   " for line in doc_lines)
-
-
-def autodoc_process_docstring(app, what, name, obj, options, lines):
-    if name.startswith("cuda.bindings."):
-        _sanitize_generated_docstring(lines)
-
-
 def rewrite_source(app, docname, source):
-    text = source[0]
-
     if docname.startswith("release/"):
-        text = text.replace(".. module:: cuda.bindings\n\n", "", 1)
-
-    source[0] = text
+        source[0] = source[0].replace(".. module:: cuda.bindings\n\n", "", 1)
 
 
 suppress_warnings = [
@@ -161,5 +152,4 @@ suppress_warnings = [
 
 
 def setup(app):
-    app.connect("autodoc-process-docstring", autodoc_process_docstring)
     app.connect("source-read", rewrite_source)
