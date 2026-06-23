@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/cudla.pyx: 41.02%</title>
+    <title>Coverage for cuda/bindings/cudla.pyx: 40.57%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -34,7 +34,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>bindings<span class="sep">/</span>cudla.pyx</b>:
-            <span class="pc_cov">41.02%</span>
+            <span class="pc_cov">40.57%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -76,8 +76,8 @@
             </div>
         </aside>
         <h2>
-            <span class="text">919 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">377<span class="text"> run</span></button>
+            <span class="text">912 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">370<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">542<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
@@ -86,8 +86,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cufile_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.2">coverage.py v7.14.2</a>,
-            created at 2026-06-22 01:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
+            created at 2026-06-23 01:23 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -105,7 +105,7 @@
     <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 1.5.0 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 1.5.0 to 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">cimport cython  # NOQA</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from libc.stdint cimport intptr_t, uintptr_t</span>&nbsp;</span><span class="r"></span></p>
@@ -171,7 +171,7 @@
     <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">cdef _get_external_memory_handle_desc_dtype_offsets():</span>&nbsp;</span><span class="r"><label for="ctxs69" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">    cdef cudlaExternalMemoryHandleDesc_t pod = cudlaExternalMemoryHandleDesc_t()</span>&nbsp;</span><span class="r"><label for="ctxs70" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">    cdef cudlaExternalMemoryHandleDesc_t pod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    return _numpy.dtype({</span>&nbsp;</span><span class="r"><label for="ctxs71" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">        'names': ['ext_buf_object', 'size_'],</span>&nbsp;</span><span class="r"><label for="ctxs72" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        'formats': [_numpy.intp, _numpy.uint64],</span>&nbsp;</span><span class="r"><label for="ctxs73" class="ctx">(empty)</label></span></p>
@@ -314,7 +314,7 @@
     <p class="pln"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">cdef _get_external_semaphore_handle_desc_dtype_offsets():</span>&nbsp;</span><span class="r"><label for="ctxs212" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">    cdef cudlaExternalSemaphoreHandleDesc_t pod = cudlaExternalSemaphoreHandleDesc_t()</span>&nbsp;</span><span class="r"><label for="ctxs213" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">    cdef cudlaExternalSemaphoreHandleDesc_t pod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">    return _numpy.dtype({</span>&nbsp;</span><span class="r"><label for="ctxs214" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">        'names': ['ext_sync_object'],</span>&nbsp;</span><span class="r"><label for="ctxs215" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">        'formats': [_numpy.intp],</span>&nbsp;</span><span class="r"><label for="ctxs216" class="ctx">(empty)</label></span></p>
@@ -445,7 +445,7 @@
     <p class="pln"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">cdef _get_module_tensor_descriptor_dtype_offsets():</span>&nbsp;</span><span class="r"><label for="ctxs343" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">    cdef cudlaModuleTensorDescriptor pod = cudlaModuleTensorDescriptor()</span>&nbsp;</span><span class="r"><label for="ctxs344" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">    cdef cudlaModuleTensorDescriptor pod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">    return _numpy.dtype({</span>&nbsp;</span><span class="r"><label for="ctxs345" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">        'names': ['name', 'size_', 'n', 'c', 'h', 'w', 'data_format', 'data_type', 'data_category', 'pixel_format', 'pixel_mapping', 'stride'],</span>&nbsp;</span><span class="r"><label for="ctxs346" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">        'formats': [(_numpy.int8, 81), _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, (_numpy.uint32, 8)],</span>&nbsp;</span><span class="r"><label for="ctxs347" class="ctx">(empty)</label></span></p>
@@ -718,7 +718,7 @@
     <p class="pln"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t"><span class="txt">cdef _get_fence_dtype_offsets():</span>&nbsp;</span><span class="r"><label for="ctxs616" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t"><span class="txt">    cdef CudlaFence pod = CudlaFence()</span>&nbsp;</span><span class="r"><label for="ctxs617" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t"><span class="txt">    cdef CudlaFence pod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t"><span class="txt">    return _numpy.dtype({</span>&nbsp;</span><span class="r"><label for="ctxs618" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t"><span class="txt">        'names': ['fence', 'type'],</span>&nbsp;</span><span class="r"><label for="ctxs619" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t620" href="#t620">620</a></span><span class="t"><span class="txt">        'formats': [_numpy.intp, _numpy.int32],</span>&nbsp;</span><span class="r"><label for="ctxs620" class="ctx">(empty)</label></span></p>
@@ -1159,7 +1159,7 @@
     <p class="pln"><span class="n"><a id="t1055" href="#t1055">1055</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1056" href="#t1056">1056</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1057" href="#t1057">1057</a></span><span class="t"><span class="txt">cdef _get_wait_events_dtype_offsets():</span>&nbsp;</span><span class="r"><label for="ctxs1057" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1058" href="#t1058">1058</a></span><span class="t"><span class="txt">    cdef cudlaWaitEvents pod = cudlaWaitEvents()</span>&nbsp;</span><span class="r"><label for="ctxs1058" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t1058" href="#t1058">1058</a></span><span class="t"><span class="txt">    cdef cudlaWaitEvents pod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1059" href="#t1059">1059</a></span><span class="t"><span class="txt">    return _numpy.dtype({</span>&nbsp;</span><span class="r"><label for="ctxs1059" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t1060" href="#t1060">1060</a></span><span class="t"><span class="txt">        'names': ['pre_fences', 'num_events'],</span>&nbsp;</span><span class="r"><label for="ctxs1060" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t1061" href="#t1061">1061</a></span><span class="t"><span class="txt">        'formats': [_numpy.intp, _numpy.uint32],</span>&nbsp;</span><span class="r"><label for="ctxs1061" class="ctx">(empty)</label></span></p>
@@ -1299,7 +1299,7 @@
     <p class="pln"><span class="n"><a id="t1195" href="#t1195">1195</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1196" href="#t1196">1196</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1197" href="#t1197">1197</a></span><span class="t"><span class="txt">cdef _get_signal_events_dtype_offsets():</span>&nbsp;</span><span class="r"><label for="ctxs1197" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1198" href="#t1198">1198</a></span><span class="t"><span class="txt">    cdef cudlaSignalEvents pod = cudlaSignalEvents()</span>&nbsp;</span><span class="r"><label for="ctxs1198" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t1198" href="#t1198">1198</a></span><span class="t"><span class="txt">    cdef cudlaSignalEvents pod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1199" href="#t1199">1199</a></span><span class="t"><span class="txt">    return _numpy.dtype({</span>&nbsp;</span><span class="r"><label for="ctxs1199" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t1200" href="#t1200">1200</a></span><span class="t"><span class="txt">        'names': ['dev_ptrs', 'eof_fences', 'num_events'],</span>&nbsp;</span><span class="r"><label for="ctxs1200" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t1201" href="#t1201">1201</a></span><span class="t"><span class="txt">        'formats': [_numpy.intp, _numpy.intp, _numpy.uint32],</span>&nbsp;</span><span class="r"><label for="ctxs1201" class="ctx">(empty)</label></span></p>
@@ -1465,7 +1465,7 @@
     <p class="pln"><span class="n"><a id="t1361" href="#t1361">1361</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1362" href="#t1362">1362</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1363" href="#t1363">1363</a></span><span class="t"><span class="txt">cdef _get_task_dtype_offsets():</span>&nbsp;</span><span class="r"><label for="ctxs1363" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1364" href="#t1364">1364</a></span><span class="t"><span class="txt">    cdef cudlaTask pod = cudlaTask()</span>&nbsp;</span><span class="r"><label for="ctxs1364" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t1364" href="#t1364">1364</a></span><span class="t"><span class="txt">    cdef cudlaTask pod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1365" href="#t1365">1365</a></span><span class="t"><span class="txt">    return _numpy.dtype({</span>&nbsp;</span><span class="r"><label for="ctxs1365" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t1366" href="#t1366">1366</a></span><span class="t"><span class="txt">        'names': ['module_handle', 'output_tensor', 'num_output_tensors', 'num_input_tensors', 'input_tensor', 'wait_events', 'signal_events'],</span>&nbsp;</span><span class="r"><label for="ctxs1366" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t1367" href="#t1367">1367</a></span><span class="t"><span class="txt">        'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp, _numpy.intp],</span>&nbsp;</span><span class="r"><label for="ctxs1367" class="ctx">(empty)</label></span></p>
@@ -1937,8 +1937,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_bb8e88d71740c463_cufile_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.2">coverage.py v7.14.2</a>,
-            created at 2026-06-22 01:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
+            created at 2026-06-23 01:23 +0000
         </p>
     </div>
 </footer>

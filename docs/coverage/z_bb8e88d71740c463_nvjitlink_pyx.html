@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/nvjitlink.pyx: 97.54%</title>
+    <title>Coverage for cuda/bindings/nvjitlink.pyx: 91.67%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -79,7 +79,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>bindings<span class="sep">/</span>nvjitlink.pyx</b>:
-            <span class="pc_cov">97.54%</span>
+            <span class="pc_cov">91.67%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -121,9 +121,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">122 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">119<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">3<span class="text"> missing</span></button>
+            <span class="text">132 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">121<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">11<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -131,8 +131,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_nvml_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.2">coverage.py v7.14.2</a>,
-            created at 2026-06-22 01:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
+            created at 2026-06-23 01:23 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -151,7 +151,7 @@
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">cimport cython  # NOQA</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -168,8 +168,8 @@
     <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">class Result(_FastEnum):</span>&nbsp;</span><span class="r"><label for="ctxs20" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">    The enumerated type nvJitLinkResult defines API call result codes.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">    nvJitLink APIs return nvJitLinkResult codes to indicate the result.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">    The enumerated type `nvJitLinkResult` defines API call result codes.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">    nvJitLink APIs return `nvJitLinkResult` codes to indicate the result.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">    See `nvJitLinkResult`.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
@@ -195,8 +195,8 @@
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">class InputType(_FastEnum):</span>&nbsp;</span><span class="r"><label for="ctxs47" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">    The enumerated type nvJitLinkInputType defines the kind of inputs that</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">    can be passed to nvJitLinkAdd* APIs.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">    The enumerated type `nvJitLinkInputType` defines the kind of inputs</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">    that can be passed to nvJitLinkAdd* APIs.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">    See `nvJitLinkInputType`.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
@@ -254,7 +254,7 @@
     <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">cpdef intptr_t create(uint32_t num_options, options) except -1:</span>&nbsp;</span><span class="r"><label for="ctxs107" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">    """nvJitLinkCreate creates an instance of nvJitLinkHandle with the given input options, and sets the output parameter ``handle``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">    """nvJitLinkCreate creates an instance of ``nvJitLinkHandle`` with the given input options, and sets the output parameter ``handle``.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    Args:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        num_options (uint32_t): Number of options passed.</span>&nbsp;</span><span class="r"></span></p>
@@ -483,6 +483,39 @@
     <p class="run"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">        __status__ = nvJitLinkVersion(&amp;major, &amp;minor)</span>&nbsp;</span><input type="checkbox" id="ctxs334"><span class="r"><label for="ctxs334" class="ctx">26 ctx</label></span><span class="ctxs">1aKLMNOPQRSTUVWXYZ012345678</span></p>
     <p class="run"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs335"><span class="r"><label for="ctxs335" class="ctx">26 ctx</label></span><span class="ctxs">1aKLMNOPQRSTUVWXYZ012345678</span></p>
     <p class="run"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">    return (major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs336"><span class="r"><label for="ctxs336" class="ctx">26 ctx</label></span><span class="ctxs">1aKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="pln"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">cpdef size_t get_linked_ltoir_size(intptr_t handle) except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs339" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t"><span class="txt">    """nvJitLinkGetLinkedLTOIRSize gets the size of the linked LTOIR.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t"><span class="txt">    Args:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">        handle (intptr_t): nvJitLink handle.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">    Returns:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">        size_t: Size of the linked LTOIR.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t"><span class="txt">    .. seealso:: `nvJitLinkGetLinkedLTOIRSize`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">    cdef size_t size</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">        __status__ = nvJitLinkGetLinkedLTOIRSize(&lt;Handle>handle, &amp;size)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">    return size</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t"><span class="txt">cpdef get_linked_ltoir(intptr_t handle, ltoir):</span>&nbsp;</span><span class="r"><label for="ctxs357" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t"><span class="txt">    """nvJitLinkGetLinkedLTOIR gets the linked LTOIR.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t"><span class="txt">    Args:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t"><span class="txt">        handle (intptr_t): nvJitLink handle.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">        ltoir (bytes): The linked LTOIR in Container format.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t"><span class="txt">    .. seealso:: `nvJitLinkGetLinkedLTOIR`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t"><span class="txt">    cdef void* _ltoir_ = get_buffer_pointer(ltoir, -1, readonly=False)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t"><span class="txt">        __status__ = nvJitLinkGetLinkedLTOIR(&lt;Handle>handle, &lt;void*>_ltoir_)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -491,8 +524,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_bb8e88d71740c463_nvml_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.2">coverage.py v7.14.2</a>,
-            created at 2026-06-22 01:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
+            created at 2026-06-23 01:23 +0000
         </p>
     </div>
 </footer>
