@@ -120,6 +120,7 @@ def test_read_prm_counters(all_devices):
         assert len(read_counters) == 5
 
 
+@pytest.mark.thread_unsafe(reason="API appears to be thread-unsafe (2026-06)")
 def test_read_write_prm(all_devices):
     for device in all_devices:
         # Docs say supported in BLACKWELL or later
