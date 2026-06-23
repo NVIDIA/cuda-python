@@ -99,6 +99,37 @@ def _clampi(i, n):
     return i
 
 
+# Integer-coordinate reads (CLAMP addressing, no interpolation).
+#
+# The stencil kernels (divergence/pressure/gradient/curl) and the self-velocity
+# read in advection only ever sample at integer pixel centers. At an integer
+# coordinate the bilinear sampler's fractional weights are zero, so it returns
+# one stored texel exactly -- but still pays a floor, four clamps, two redundant
+# corner loads, and the blend FMAs. These helpers do the one clamped load the
+# result actually depends on. They are the equivalent of an unfiltered (POINT)
+# tex2D, and are why the manual `sample_*` path is reserved for the genuinely
+# fractional back-traced coordinates in advect_*/splat.
+
+
+@cuda.jit(device=True, inline=True)
+def load_scalar(fld, ix, iy, w, h):
+    return fld[_clampi(iy, h), _clampi(ix, w)]
+
+
+@cuda.jit(device=True, inline=True)
+def load_vec(fld, ix, iy, w, h):
+    xc = _clampi(ix, w)
+    yc = _clampi(iy, h)
+    return fld[yc, xc, 0], fld[yc, xc, 1]
+
+
+@cuda.jit(device=True, inline=True)
+def load_color(fld, ix, iy, w, h):
+    xc = _clampi(ix, w)
+    yc = _clampi(iy, h)
+    return fld[yc, xc, 0], fld[yc, xc, 1], fld[yc, xc, 2], fld[yc, xc, 3]
+
+
 @cuda.jit(device=True, inline=True)
 def _bilinear_setup(px, py, w, h):
     # Shared front half of every sampler: pixel-center coords -> (corner
@@ -117,15 +148,6 @@ def _bilinear_setup(px, py, w, h):
     y0c = _clampi(y0, h)
     y1c = _clampi(y0 + 1, h)
     return x0c, x1c, y0c, y1c, fx, fy
-
-
-@cuda.jit(device=True, inline=True)
-def sample_scalar(fld, px, py, w, h):
-    # Equivalent of tex2D<float>(tex, u, v) with LINEAR + CLAMP.
-    x0c, x1c, y0c, y1c, fx, fy = _bilinear_setup(px, py, w, h)
-    top = fld[y0c, x0c] * (1.0 - fx) + fld[y0c, x1c] * fx
-    bot = fld[y1c, x0c] * (1.0 - fx) + fld[y1c, x1c] * fx
-    return top * (1.0 - fy) + bot * fy
 
 
 @cuda.jit(device=True, inline=True)
@@ -152,16 +174,6 @@ def sample_color(fld, px, py, w, h):
     out2 = (fld[y0c, x0c, 2] * g + fld[y0c, x1c, 2] * fx) * h0 + (fld[y1c, x0c, 2] * g + fld[y1c, x1c, 2] * fx) * fy
     out3 = (fld[y0c, x0c, 3] * g + fld[y0c, x1c, 3] * fx) * h0 + (fld[y1c, x0c, 3] * g + fld[y1c, x1c, 3] * fx) * fy
     return out0, out1, out2, out3
-
-
-@cuda.jit(device=True, inline=True)
-def curl_at(vel, px, py, w, h):
-    # Scalar 2D curl w = dVy/dx - dVx/dy via central differences.
-    lx, ly = sample_vec(vel, px - 1.0, py, w, h)
-    rx, ry = sample_vec(vel, px + 1.0, py, w, h)
-    dx_, dy_ = sample_vec(vel, px, py - 1.0, w, h)
-    ux, uy = sample_vec(vel, px, py + 1.0, w, h)
-    return 0.5 * ((ry - ly) - (ux - dx_))
 
 
 # ================================= Kernels ================================== #
@@ -227,7 +239,7 @@ def advect_velocity(vel_in, vel_out, w, h, dt, diss):
     x, y = cuda.grid(2)
     if x >= w or y >= h:
         return
-    vx, vy = sample_vec(vel_in, float(x), float(y), w, h)
+    vx, vy = load_vec(vel_in, x, y, w, h)
     # Back-trace the cell center one timestep against the local velocity.
     px = x - dt * vx
     py = y - dt * vy
@@ -237,18 +249,32 @@ def advect_velocity(vel_in, vel_out, w, h, dt, diss):
 
 
 @cuda.jit
-def vorticity_confinement(vel_in, vel_out, w, h, dt, eps):
+def compute_curl(vel, curl_out, w, h):
+    # Scalar 2D curl w = dVy/dx - dVx/dy via central differences, written once
+    # per cell into a scratch field. Splitting this out of the confinement step
+    # removes the 5x-redundant recomputation (the original recomputed curl at
+    # the cell and its 4 neighbors, 20 velocity samples per cell) and drops the
+    # confinement kernel's register pressure.
     x, y = cuda.grid(2)
     if x >= w or y >= h:
         return
-    fx = float(x)
-    fy = float(y)
+    lx, ly = load_vec(vel, x - 1, y, w, h)
+    rx, ry = load_vec(vel, x + 1, y, w, h)
+    dx_, dy_ = load_vec(vel, x, y - 1, w, h)
+    ux, uy = load_vec(vel, x, y + 1, w, h)
+    curl_out[y, x] = 0.5 * ((ry - ly) - (ux - dx_))
 
-    wc = curl_at(vel_in, fx, fy, w, h)
-    wl = curl_at(vel_in, fx - 1.0, fy, w, h)
-    wr = curl_at(vel_in, fx + 1.0, fy, w, h)
-    wd = curl_at(vel_in, fx, fy - 1.0, w, h)
-    wu = curl_at(vel_in, fx, fy + 1.0, w, h)
+
+@cuda.jit
+def apply_vorticity(vel_in, curl, vel_out, w, h, dt, eps):
+    x, y = cuda.grid(2)
+    if x >= w or y >= h:
+        return
+    wc = load_scalar(curl, x, y, w, h)
+    wl = load_scalar(curl, x - 1, y, w, h)
+    wr = load_scalar(curl, x + 1, y, w, h)
+    wd = load_scalar(curl, x, y - 1, w, h)
+    wu = load_scalar(curl, x, y + 1, w, h)
 
     gx = 0.5 * (abs(wr) - abs(wl))
     gy = 0.5 * (abs(wu) - abs(wd))
@@ -256,7 +282,7 @@ def vorticity_confinement(vel_in, vel_out, w, h, dt, eps):
     nx = gx / length
     ny = gy / length
 
-    vx, vy = sample_vec(vel_in, fx, fy, w, h)
+    vx, vy = load_vec(vel_in, x, y, w, h)
     vel_out[y, x, 0] = vx + eps * dt * (ny * wc)
     vel_out[y, x, 1] = vy + eps * dt * (-nx * wc)
 
@@ -266,15 +292,22 @@ def divergence(vel, div_out, w, h):
     x, y = cuda.grid(2)
     if x >= w or y >= h:
         return
-    lx, ly = sample_vec(vel, x - 1.0, float(y), w, h)
-    rx, ry = sample_vec(vel, x + 1.0, float(y), w, h)
-    dx_, dy_ = sample_vec(vel, float(x), y - 1.0, w, h)
-    ux, uy = sample_vec(vel, float(x), y + 1.0, w, h)
+    lx, ly = load_vec(vel, x - 1, y, w, h)
+    rx, ry = load_vec(vel, x + 1, y, w, h)
+    dx_, dy_ = load_vec(vel, x, y - 1, w, h)
+    ux, uy = load_vec(vel, x, y + 1, w, h)
     div_out[y, x] = 0.5 * ((rx - lx) + (uy - dy_))
 
 
 @cuda.jit
 def pressure_jacobi(prs_in, div, prs_out, w, h, clear):
+    # Integer-coordinate stencil: neighbors and the divergence are read with the
+    # unfiltered clamped loads, not the bilinear sampler -- the reads land exactly
+    # on texels, so the result is identical while avoiding the floor/clamp/blend
+    # arithmetic the sampler would do. (A faster *stable* solver than Jacobi --
+    # Chebyshev-accelerated Jacobi or multigrid -- would need a proper per-cell
+    # diagonal and null-space handling; plain SOR diverges on this singular
+    # Neumann discretization, so it is intentionally not used here.)
     x, y = cuda.grid(2)
     if x >= w or y >= h:
         return
@@ -283,11 +316,11 @@ def pressure_jacobi(prs_in, div, prs_out, w, h, clear):
     pd = 0.0
     pu = 0.0
     if clear == 0:
-        pl = sample_scalar(prs_in, x - 1.0, float(y), w, h)
-        pr = sample_scalar(prs_in, x + 1.0, float(y), w, h)
-        pd = sample_scalar(prs_in, float(x), y - 1.0, w, h)
-        pu = sample_scalar(prs_in, float(x), y + 1.0, w, h)
-    d = sample_scalar(div, float(x), float(y), w, h)
+        pl = load_scalar(prs_in, x - 1, y, w, h)
+        pr = load_scalar(prs_in, x + 1, y, w, h)
+        pd = load_scalar(prs_in, x, y - 1, w, h)
+        pu = load_scalar(prs_in, x, y + 1, w, h)
+    d = div[y, x]
     prs_out[y, x] = (pl + pr + pd + pu - d) * 0.25
 
 
@@ -296,10 +329,10 @@ def subtract_gradient(prs, vel, w, h):
     x, y = cuda.grid(2)
     if x >= w or y >= h:
         return
-    pl = sample_scalar(prs, x - 1.0, float(y), w, h)
-    pr = sample_scalar(prs, x + 1.0, float(y), w, h)
-    pd = sample_scalar(prs, float(x), y - 1.0, w, h)
-    pu = sample_scalar(prs, float(x), y + 1.0, w, h)
+    pl = load_scalar(prs, x - 1, y, w, h)
+    pr = load_scalar(prs, x + 1, y, w, h)
+    pd = load_scalar(prs, x, y - 1, w, h)
+    pu = load_scalar(prs, x, y + 1, w, h)
     vel[y, x, 0] -= 0.5 * (pr - pl)
     vel[y, x, 1] -= 0.5 * (pu - pd)
 
@@ -309,7 +342,7 @@ def advect_dye(dye_in, vel, dye_out, w, h, dt, diss):
     x, y = cuda.grid(2)
     if x >= w or y >= h:
         return
-    vx, vy = sample_vec(vel, float(x), float(y), w, h)
+    vx, vy = load_vec(vel, x, y, w, h)
     px = x - dt * vx
     py = y - dt * vy
     r, g, b, a = sample_color(dye_in, px, py, w, h)
@@ -325,7 +358,7 @@ def colorize(dye, out, w, h):
     x, y = cuda.grid(2)
     if x >= w or y >= h:
         return
-    r, g, b, a = sample_color(dye, float(x), float(y), w, h)
+    r, g, b, a = load_color(dye, x, y, w, h)
     gain = 1.3
     rr = 1.0 - math.exp(-max(r, 0.0) * gain)
     gg = 1.0 - math.exp(-max(g, 0.0) * gain)
@@ -450,6 +483,7 @@ def main():
     prs_a = cuda.device_array((HEIGHT, WIDTH), f32)
     prs_b = cuda.device_array((HEIGHT, WIDTH), f32)
     div = cuda.device_array((HEIGHT, WIDTH), f32)
+    curl = cuda.device_array((HEIGHT, WIDTH), f32)
     dye_a = cuda.device_array((HEIGHT, WIDTH, 4), f32)
     dye_b = cuda.device_array((HEIGHT, WIDTH, 4), f32)
 
@@ -561,9 +595,10 @@ def main():
                     1,
                 )
 
-        # (b3) vorticity confinement (ping-pong: reads neighbors)
+        # (b3) vorticity confinement: curl into a scratch field, then apply.
         if VORTICITY > 0.0:
-            vorticity_confinement[grid, block, stream](vel[0], vel[1], WIDTH, HEIGHT, dt_adv, VORTICITY)
+            compute_curl[grid, block, stream](vel[0], curl, WIDTH, HEIGHT)
+            apply_vorticity[grid, block, stream](vel[0], curl, vel[1], WIDTH, HEIGHT, dt_adv, VORTICITY)
             vel.reverse()
 
         # (c) divergence of the live velocity
