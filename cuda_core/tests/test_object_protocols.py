@@ -233,7 +233,11 @@ def sample_ipc_buffer_descriptor(ipc_device):
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
     mr = DeviceMemoryResource(ipc_device, options=options)
     buf = mr.allocate(64, stream=ipc_device.default_stream)
-    return buf.ipc_descriptor
+    descriptor = buf.ipc_descriptor
+    buf.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    ipc_device.sync()
+    return descriptor
 
 
 @pytest.fixture
