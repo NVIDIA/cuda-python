@@ -32,6 +32,7 @@ class _NvlinkInfoMeta(type):
         To find the actual number of Nvlinks available on a device, use
         :py:attr:`Device.get_nvlink_count`.
         """
+        # This will always return 18, even on CTK 13.3 where it should be 36.
         return nvml.NVLINK_MAX_LINKS
 
 
