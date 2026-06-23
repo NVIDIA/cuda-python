@@ -104,6 +104,11 @@ git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--ma
 [tool.pytest.ini_options]
 addopts = "--showlocals"
 thread_unsafe_fixtures = ['mocker']
+markers = [
+    "agent_authored(model): agent-authored test not yet materially human-reviewed",
+    "human_reviewed: agent-authored test materially reviewed or rewritten by a human",
+    "human_authored: test authored primarily by a human",
+]
 
 [tool.mypy]
 # Try to keep the mypy configuration similar between the subprojects
