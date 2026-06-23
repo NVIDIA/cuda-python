@@ -11,6 +11,13 @@ import warnings
 
 from cuda.bindings import nvml
 
+from cuda.core._resource_handles cimport (
+    NvmlEventSetHandle,
+    as_intptr,
+    create_nvml_event_set_handle,
+    register_nvml_event_set_fn_pointers,
+)
+
 from ._nvml_context cimport initialize
 from cuda.core.system.typing import (
     AddressingMode,
@@ -51,6 +58,24 @@ cdef int _pstate_to_enum(int pstate):
     if pstate < 0 or pstate > 15:
         raise ValueError(f"Invalid P-state: {pstate}. Must be between 0 and 15 inclusive.")
     return int(pstate) + int(nvml.Pstates.PSTATE_0)
+
+
+cdef void _register_nvml_fn_pointers() noexcept:
+    # Register NVML event-set free function pointers so that NvmlEventSetHandle
+    # and NvmlSysEventSetHandle deleters can call them without GIL.
+    # Function pointers come from the NVML internal bindings (loaded via dlsym
+    # at their module import time) and are safe to read immediately.
+    try:
+        from cuda.bindings._internal import nvml as _nvml_internal
+    except ImportError:
+        return
+    fn_ptrs = _nvml_internal._inspect_function_pointers()
+    cdef intptr_t p_event_set_free = fn_ptrs.get("__nvmlEventSetFree", 0)
+    cdef intptr_t p_sys_event_set_free = fn_ptrs.get("__nvmlSystemEventSetFree", 0)
+    register_nvml_event_set_fn_pointers(p_event_set_free, p_sys_event_set_free)
+
+
+_register_nvml_fn_pointers()
 
 
 include "_clock.pxi"

@@ -36,6 +36,13 @@ struct TaggedHandle {
 using NvvmProgramValue = TaggedHandle<nvvmProgram, 0>;
 using NvJitLinkValue = TaggedHandle<nvJitLink_t, 1>;
 
+// NVML event set types — forward-declared as void* to avoid nvml.h dependency.
+// nvmlEventSet_t = nvmlEventSet_st* (device-scope event set)
+// nvmlSystemEventSet_t = nvmlSystemEventSet_st* (system-scope event set)
+// TaggedHandle distinguishes the two intptr_t-based handle types for overloading.
+using NvmlEventSetValue = TaggedHandle<intptr_t, 2>;
+using NvmlSysEventSetValue = TaggedHandle<intptr_t, 3>;
+
 // ============================================================================
 // Thread-local error handling
 // ============================================================================
@@ -153,6 +160,35 @@ using NvJitLinkDestroyFn = int (*)(nvJitLink_t*);
 extern NvJitLinkDestroyFn p_nvJitLinkDestroy;
 
 // ============================================================================
+// NVML event set function pointers
+//
+// Populated by register_nvml_event_set_fn_pointers(), called from the system
+// event / device modules once the NVML bindings have loaded the library.
+// Both may be null until registration; deleters are no-ops when null.
+// ============================================================================
+
+// nvmlReturn_t nvmlEventSetFree(nvmlEventSet_t set)
+// nvmlEventSet_t is nvmlEventSet_st* (opaque pointer stored as intptr_t here)
+using NvmlEventSetFreeFn = unsigned int (*)(void*);
+extern NvmlEventSetFreeFn p_nvmlEventSetFree;
+
+// Minimal layout-compatible counterpart to nvmlSystemEventSetFreeRequest_v1_t.
+// Both fields match the NVML header: {unsigned int version; void* set;}.
+struct NvmlSysEventSetFreeRequest {
+    unsigned int version;
+    void* set;  // nvmlSystemEventSet_t
+};
+
+// nvmlReturn_t nvmlSystemEventSetFree(nvmlSystemEventSetFreeRequest_t*)
+using NvmlSysEventSetFreeFn = unsigned int (*)(NvmlSysEventSetFreeRequest*);
+extern NvmlSysEventSetFreeFn p_nvmlSysEventSetFree;
+
+// Register both NVML event-set free function pointers.
+// safe to call multiple times (idempotent); second call is a no-op.
+void register_nvml_event_set_fn_pointers(intptr_t event_set_free_fn,
+                                         intptr_t sys_event_set_free_fn) noexcept;
+
+// ============================================================================
 // Handle type aliases - expose only the raw CUDA resource
 // ============================================================================
 
@@ -171,6 +207,24 @@ using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
 using NvJitLinkHandle = std::shared_ptr<const NvJitLinkValue>;
 using CuLinkHandle = std::shared_ptr<const CUlinkState>;
 using FileDescriptorHandle = std::shared_ptr<const int>;
+using NvmlEventSetHandle = std::shared_ptr<const NvmlEventSetValue>;
+using NvmlSysEventSetHandle = std::shared_ptr<const NvmlSysEventSetValue>;
+
+// ============================================================================
+// NVML event set handle functions
+// ============================================================================
+
+// Create an owning device-scope NVML event set handle.
+// handle is the intptr_t value returned by nvml.event_set_create().
+// When the last reference is released, nvmlEventSetFree is called.
+// Returns empty handle if registration has not been done (p_nvmlEventSetFree is null).
+NvmlEventSetHandle create_nvml_event_set_handle(intptr_t handle);
+
+// Create an owning system-scope NVML event set handle.
+// handle is the intptr_t value returned by nvml.system_event_set_create().
+// When the last reference is released, nvmlSystemEventSetFree is called via struct.
+// Returns empty handle if registration has not been done.
+NvmlSysEventSetHandle create_nvml_sys_event_set_handle(intptr_t handle);
 
 
 // ============================================================================
@@ -659,6 +713,14 @@ inline std::intptr_t as_intptr(const CuLinkHandle& h) noexcept {
 
 inline std::intptr_t as_intptr(const FileDescriptorHandle& h) noexcept {
     return h ? static_cast<std::intptr_t>(*h) : -1;
+}
+
+inline std::intptr_t as_intptr(const NvmlEventSetHandle& h) noexcept {
+    return h ? h->raw : 0;
+}
+
+inline std::intptr_t as_intptr(const NvmlSysEventSetHandle& h) noexcept {
+    return h ? h->raw : 0;
 }
 
 // as_py() - convert handle to Python wrapper object (returns new reference)

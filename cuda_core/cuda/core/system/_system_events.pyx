@@ -7,6 +7,13 @@ from libc.stdint cimport intptr_t
 
 from cuda.bindings import nvml
 
+from cuda.core._resource_handles cimport (
+    NvmlSysEventSetHandle,
+    as_intptr,
+    create_nvml_sys_event_set_handle,
+    register_nvml_event_set_fn_pointers,
+)
+
 from ._nvml_context cimport initialize
 
 from . import _device
@@ -20,6 +27,23 @@ _SYSTEM_EVENT_TYPE_MAPPING = {
 
 
 _SYSTEM_EVENT_TYPE_INV_MAPPING = {v: k for k, v in _SYSTEM_EVENT_TYPE_MAPPING.items()}
+
+
+cdef void _register_nvml_fn_pointers() noexcept:
+    try:
+        from cuda.bindings._internal import nvml_linux as _nvml_internal
+    except ImportError:
+        try:
+            from cuda.bindings._internal import nvml_windows as _nvml_internal
+        except ImportError:
+            return
+    fn_ptrs = _nvml_internal._inspect_function_pointers()
+    cdef intptr_t p_event_set_free = fn_ptrs.get("__nvmlEventSetFree", 0)
+    cdef intptr_t p_sys_event_set_free = fn_ptrs.get("__nvmlSystemEventSetFree", 0)
+    register_nvml_event_set_fn_pointers(p_event_set_free, p_sys_event_set_free)
+
+
+_register_nvml_fn_pointers()
 
 
 cdef class SystemEvent:
@@ -73,7 +97,7 @@ cdef class RegisteredSystemEvents:
     """
     Represents a set of events that can be waited on for a specific device.
     """
-    cdef intptr_t _event_set
+    cdef NvmlSysEventSetHandle _h_event_set
 
     def __init__(self, events: SystemEventType | str | list[SystemEventType | str]):
         cdef unsigned long long event_bitmask
@@ -96,15 +120,15 @@ cdef class RegisteredSystemEvents:
 
         initialize()
 
-        self._event_set = 0
-        self._event_set = nvml.system_event_set_create()
-        # If this raises, the event needs to be freed and this is handled by
-        # this class's __dealloc__ method.
-        nvml.system_register_events(event_bitmask, self._event_set)
+        cdef intptr_t raw_set = nvml.system_event_set_create()
+        # If system_register_events raises, create_nvml_sys_event_set_handle already
+        # owns the handle and its shared_ptr deleter will free it.
+        self._h_event_set = create_nvml_sys_event_set_handle(raw_set)
+        nvml.system_register_events(event_bitmask, raw_set)
 
-    def __dealloc__(self) -> None:
-        if self._event_set != 0:
-            nvml.system_event_set_free(self._event_set)
+    cpdef close(self):
+        """Destroy the system event set, releasing its NVML resources."""
+        self._h_event_set.reset()
 
     def wait(self, timeout_ms: int = 0, buffer_size: int = 1) -> SystemEvents:
         """
@@ -140,7 +164,7 @@ cdef class RegisteredSystemEvents:
         :class:`cuda.core.system.GpuIsLostError`
             If the GPU has fallen off the bus or is otherwise inaccessible.
         """
-        return SystemEvents(nvml.system_event_set_wait(self._event_set, timeout_ms, buffer_size))
+        return SystemEvents(nvml.system_event_set_wait(as_intptr(self._h_event_set), timeout_ms, buffer_size))
 
 
 def register_events(events: SystemEventType | str | list[SystemEventType | str]) -> RegisteredSystemEvents:
