@@ -117,9 +117,10 @@ repos/{owner}/{repo}/milestones --jq '.[].title'`, and pick the best match.
 
 Use pytest markers to make the provenance of newly added unit tests explicit.
 Keep this provenance system minimal: choose from only these three markers.
-Place the marker immediately above the test function or test class. Use
-module-level `pytestmark` only when the whole test file has the same
-provenance.
+Place the marker immediately above each test function. A class-level marker is
+acceptable only when every test method in the class has the same provenance.
+Do not use module-level `pytestmark` for authorship provenance; it is too easy
+to miss in large files and makes later per-test provenance changes ambiguous.
 
 - `@pytest.mark.agent_authored(model="<model>")`: the test was authored by an
   agent and has not yet been materially reviewed or rewritten by a human.
