@@ -290,6 +290,9 @@ def ipc_memory_resource(request, ipc_device):
     assert mr.is_ipc_enabled
     yield mr
     mr.close()
+    # TODO(seberg): Make sure the `mr` and it's buffers are fully torn down.
+    # May be unnecessary as `mr.close()` is not parallel with other work.
+    ipc_device.sync()
 
 
 @pytest.fixture

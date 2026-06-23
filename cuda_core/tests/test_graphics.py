@@ -20,6 +20,9 @@ from cuda.core import (
 )
 from cuda.core.utils import StridedMemoryView
 
+# TODO(seberg): Maybe some of these tests can be made threadable?
+pytestmark = pytest.mark.thread_unsafe(reason="OpenGL context not threadable")
+
 # ---------------------------------------------------------------------------
 # GL context + buffer helpers
 # ---------------------------------------------------------------------------

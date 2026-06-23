@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -19,8 +19,8 @@ from libcpp.vector cimport vector
 
 class Result(_FastEnum):
     """
-    The enumerated type nvJitLinkResult defines API call result codes.
-    nvJitLink APIs return nvJitLinkResult codes to indicate the result.
+    The enumerated type `nvJitLinkResult` defines API call result codes.
+    nvJitLink APIs return `nvJitLinkResult` codes to indicate the result.
 
     See `nvJitLinkResult`.
     """
@@ -46,8 +46,8 @@ class Result(_FastEnum):
 
 class InputType(_FastEnum):
     """
-    The enumerated type nvJitLinkInputType defines the kind of inputs that
-    can be passed to nvJitLinkAdd* APIs.
+    The enumerated type `nvJitLinkInputType` defines the kind of inputs
+    that can be passed to nvJitLinkAdd* APIs.
 
     See `nvJitLinkInputType`.
     """
@@ -105,7 +105,7 @@ cpdef destroy(intptr_t handle):
 
 
 cpdef intptr_t create(uint32_t num_options, options) except -1:
-    """nvJitLinkCreate creates an instance of nvJitLinkHandle with the given input options, and sets the output parameter ``handle``.
+    """nvJitLinkCreate creates an instance of ``nvJitLinkHandle`` with the given input options, and sets the output parameter ``handle``.
 
     Args:
         num_options (uint32_t): Number of options passed.
@@ -334,3 +334,36 @@ cpdef tuple version():
         __status__ = nvJitLinkVersion(&major, &minor)
     check_status(__status__)
     return (major, minor)
+
+
+cpdef size_t get_linked_ltoir_size(intptr_t handle) except? 0:
+    """nvJitLinkGetLinkedLTOIRSize gets the size of the linked LTOIR.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+
+    Returns:
+        size_t: Size of the linked LTOIR.
+
+    .. seealso:: `nvJitLinkGetLinkedLTOIRSize`
+    """
+    cdef size_t size
+    with nogil:
+        __status__ = nvJitLinkGetLinkedLTOIRSize(<Handle>handle, &size)
+    check_status(__status__)
+    return size
+
+
+cpdef get_linked_ltoir(intptr_t handle, ltoir):
+    """nvJitLinkGetLinkedLTOIR gets the linked LTOIR.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+        ltoir (bytes): The linked LTOIR in Container format.
+
+    .. seealso:: `nvJitLinkGetLinkedLTOIR`
+    """
+    cdef void* _ltoir_ = get_buffer_pointer(ltoir, -1, readonly=False)
+    with nogil:
+        __status__ = nvJitLinkGetLinkedLTOIR(<Handle>handle, <void*>_ltoir_)
+    check_status(__status__)
