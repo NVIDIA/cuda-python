@@ -453,8 +453,20 @@ jobs:
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
           if-no-files-found: error
 
+      - name: Set up mini CTK for test binaries
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ inputs.prev-cuda-version }}
+          cuda-path: "./cuda_toolkit_test_binaries"
+
       - name: Build cuda.core test binaries
-        run: bash ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/build_test_binaries.sh
+        run: |
+          TEST_CTK="$(realpath ./cuda_toolkit_test_binaries)"
+          export PATH="${TEST_CTK}/bin:${PATH}"
+          export CUDA_HOME="${TEST_CTK}"
+          bash ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/build_test_binaries.sh
 
       - name: Upload cuda.core test binaries
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
