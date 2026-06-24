@@ -407,7 +407,7 @@ cdef class GraphBuilder:
             raise RuntimeError("Graph has not finished building.")
         cdef unsigned int c_flags = options._to_flags() if options else 0
         cdef cydriver.CUgraph c_graph = as_cu(self._h_graph)
-        cdef bytes b_path = path.encode() if isinstance(path, str) else path
+        cdef bytes b_path = path.encode('utf-8')
         cdef const char* c_path = b_path
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDebugDotPrint(c_graph, c_path, c_flags))

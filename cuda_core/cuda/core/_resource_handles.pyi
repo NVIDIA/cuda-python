@@ -13,6 +13,7 @@ DevicePtrHandle = shared_ptr
 LibraryHandle = shared_ptr
 KernelHandle = shared_ptr
 GraphHandle = shared_ptr
+GraphExecHandle = shared_ptr
 GraphNodeHandle = shared_ptr
 GraphicsResourceHandle = shared_ptr
 NvrtcProgramHandle = shared_ptr

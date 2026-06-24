@@ -18,23 +18,6 @@ from cuda.bindings cimport cynvrtc
 from cuda.bindings cimport cynvvm
 from cuda.bindings cimport cynvjitlink
 
-from ._resource_handles cimport (
-    ContextHandle,
-    StreamHandle,
-    EventHandle,
-    MemoryPoolHandle,
-    DevicePtrHandle,
-    LibraryHandle,
-    KernelHandle,
-    GraphHandle,
-    GraphExecHandle,
-    GraphicsResourceHandle,
-    NvrtcProgramHandle,
-    NvvmProgramHandle,
-    NvJitLinkHandle,
-    CuLinkHandle,
-)
-
 import cuda.bindings.cydriver as cydriver
 import cuda.bindings.cynvrtc as cynvrtc
 import cuda.bindings.cynvvm as cynvvm
