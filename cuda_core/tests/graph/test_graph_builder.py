@@ -166,6 +166,86 @@ def test_graph_capture_errors(init_cuda):
     gb.end_building().complete()
 
 
+def test_graph_begin_building_twice(init_cuda):
+    """Calling begin_building() while already capturing is a clear error."""
+    gb = Device().create_graph_builder()
+    gb.begin_building()
+    with pytest.raises(RuntimeError, match="^Graph builder is already building."):
+        gb.begin_building()
+    gb.end_building()
+
+
+def test_graph_split_requires_building(init_cuda):
+    """A builder must be capturing before it can be split."""
+    gb = Device().create_graph_builder()
+    with pytest.raises(RuntimeError, match="^Graph builder must be building before it can be split."):
+        gb.split(2)
+
+
+def test_graph_complete_after_close_forked(init_cuda):
+    """complete() on a forked builder closed via join() must not deref a null handle."""
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    gb = Device().create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    left, right = gb.split(2)
+    launch(left, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(right, LaunchConfig(grid=1, block=1), empty_kernel)
+
+    # join() closes the non-root builder (right); it must now be rejected, not crash.
+    GraphBuilder.join(left, right)
+    with pytest.raises(RuntimeError, match="^Graph builder has been closed."):
+        right.complete()
+
+
+def test_graph_update_after_source_close(init_cuda):
+    """Graph.update() with a closed source builder must raise, not deref a null handle."""
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    gb = Device().create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    graph = gb.end_building().complete()
+
+    source = Device().create_graph_builder().begin_building()
+    launch(source, LaunchConfig(grid=1, block=1), empty_kernel)
+    source.end_building()
+    source.close()
+
+    with pytest.raises(ValueError, match="^Source graph builder has been closed."):
+        graph.update(source)
+
+
+def test_graph_gc_mid_capture(init_cuda):
+    """Dropping a builder mid-capture ends the orphaned capture so the stream stays usable."""
+    import gc
+
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    stream = Device().create_stream()
+    gb = stream.create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+
+    # Drop the builder without end_building()/close(); __dealloc__ must end the capture.
+    del gb
+    gc.collect()
+
+    # If the capture were left active, the stream would be poisoned for new work.
+    launch(stream, LaunchConfig(grid=1, block=1), empty_kernel)
+    stream.sync()
+    stream.close()
+
+
+def test_graph_embed_non_builder(init_cuda):
+    """embed() rejects a non-GraphBuilder argument with a TypeError."""
+    gb = Device().create_graph_builder().begin_building()
+    with pytest.raises(TypeError):
+        gb.embed(object())
+    gb.end_building()
+
+
 def test_graph_capture_callback_python(init_cuda):
     results = []
 
