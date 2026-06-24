@@ -68,94 +68,159 @@
   "6": "tests/test_cudart.py::test_cudaExecutionCtxGetDevice|run",
   "7": "tests/test_cudart.py::test_cudaExecutionCtxGetId|run",
   "8": "tests/test_cudart.py::test_profiler|run",
-  "9": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[1]|run",
-  "!": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[3]|run",
-  "#": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[1]|run",
-  "$": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[3]|run",
-  "%": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[1]|run",
-  "'": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[3]|run",
-  "(": "tests/test_device.py::test_device_alloc_zero_bytes|run",
-  ")": "tests/test_device.py::test_device_alloc|run",
-  "*": "tests/test_helpers.py::test_patterngen_seeds|run",
-  "+": "tests/test_helpers.py::test_patterngen_values|run",
-  ",": "tests/test_memory.py::test_buffer_copy_from|run",
-  "-": "tests/test_memory.py::test_buffer_copy_to|run",
-  ".": "tests/test_memory.py::test_buffer_fill[device-bytes-1]|run",
-  "/": "tests/test_memory.py::test_buffer_fill[device-bytes-2]|run",
-  ":": "tests/test_memory.py::test_buffer_fill[device-bytes-4]|run",
-  ";": "tests/test_memory.py::test_buffer_fill[device-int-0x42]|run",
-  "=": "tests/test_memory.py::test_buffer_fill[device-np-float32-1.0]|run",
-  "?": "tests/test_memory.py::test_buffer_fill[device-np-int8-127]|run",
-  "@": "tests/test_memory.py::test_buffer_fill[device-np-int8--1]|run",
-  "[": "tests/test_memory.py::test_buffer_fill[device-np-int8--128]|run",
-  "]": "tests/test_memory.py::test_buffer_fill[device-np-int16--1]|run",
-  "^": "tests/test_memory.py::test_buffer_fill[device-np-int16-max]|run",
-  "_": "tests/test_memory.py::test_buffer_fill[device-np-int16-min]|run",
-  "`": "tests/test_memory.py::test_buffer_fill[device-np-int32--1]|run",
-  "{": "tests/test_memory.py::test_buffer_fill[device-np-int32-max]|run",
-  "|": "tests/test_memory.py::test_buffer_fill[device-np-int32-min]|run",
-  "}": "tests/test_memory.py::test_buffer_fill[device-np-uint8-0]|run",
-  "~": "tests/test_memory.py::test_buffer_fill[device-np-uint8-255]|run",
-  "ab": "tests/test_memory.py::test_buffer_fill[device-np-uint16-0x1234]|run",
-  "bb": "tests/test_memory.py::test_buffer_fill[device-np-uint16-0xFFFF]|run",
-  "cb": "tests/test_memory.py::test_buffer_fill[device-np-uint32-0xDEADBEEF]|run",
-  "db": "tests/test_memory.py::test_buffer_fill[device-np-uint32-0xFFFFFFFF]|run",
-  "eb": "tests/test_memory.py::test_buffer_fill[pinned-bytes-1]|run",
-  "fb": "tests/test_memory.py::test_buffer_fill[pinned-bytes-2]|run",
-  "gb": "tests/test_memory.py::test_buffer_fill[pinned-bytes-4]|run",
-  "hb": "tests/test_memory.py::test_buffer_fill[pinned-int-0x42]|run",
-  "ib": "tests/test_memory.py::test_buffer_fill[pinned-np-float32-1.0]|run",
-  "jb": "tests/test_memory.py::test_buffer_fill[pinned-np-int8-127]|run",
-  "kb": "tests/test_memory.py::test_buffer_fill[pinned-np-int8--1]|run",
-  "lb": "tests/test_memory.py::test_buffer_fill[pinned-np-int8--128]|run",
-  "mb": "tests/test_memory.py::test_buffer_fill[pinned-np-int16--1]|run",
-  "nb": "tests/test_memory.py::test_buffer_fill[pinned-np-int16-max]|run",
-  "ob": "tests/test_memory.py::test_buffer_fill[pinned-np-int16-min]|run",
-  "pb": "tests/test_memory.py::test_buffer_fill[pinned-np-int32--1]|run",
-  "qb": "tests/test_memory.py::test_buffer_fill[pinned-np-int32-max]|run",
-  "rb": "tests/test_memory.py::test_buffer_fill[pinned-np-int32-min]|run",
-  "sb": "tests/test_memory.py::test_buffer_fill[pinned-np-uint8-0]|run",
-  "tb": "tests/test_memory.py::test_buffer_fill[pinned-np-uint8-255]|run",
-  "ub": "tests/test_memory.py::test_buffer_fill[pinned-np-uint16-0x1234]|run",
-  "vb": "tests/test_memory.py::test_buffer_fill[pinned-np-uint16-0xFFFF]|run",
-  "wb": "tests/test_memory.py::test_buffer_fill[pinned-np-uint32-0xDEADBEEF]|run",
-  "xb": "tests/test_memory.py::test_buffer_fill[pinned-np-uint32-0xFFFFFFFF]|run",
-  "yb": "tests/test_memory.py::test_buffer_fill[unified-bytes-1]|run",
-  "zb": "tests/test_memory.py::test_buffer_fill[unified-bytes-2]|run",
-  "Ab": "tests/test_memory.py::test_buffer_fill[unified-bytes-4]|run",
-  "Bb": "tests/test_memory.py::test_buffer_fill[unified-int-0x42]|run",
-  "Cb": "tests/test_memory.py::test_buffer_fill[unified-np-float32-1.0]|run",
-  "Db": "tests/test_memory.py::test_buffer_fill[unified-np-int8-127]|run",
-  "Eb": "tests/test_memory.py::test_buffer_fill[unified-np-int8--1]|run",
-  "Fb": "tests/test_memory.py::test_buffer_fill[unified-np-int8--128]|run",
-  "Gb": "tests/test_memory.py::test_buffer_fill[unified-np-int16--1]|run",
-  "Hb": "tests/test_memory.py::test_buffer_fill[unified-np-int16-max]|run",
-  "Ib": "tests/test_memory.py::test_buffer_fill[unified-np-int16-min]|run",
-  "Jb": "tests/test_memory.py::test_buffer_fill[unified-np-int32--1]|run",
-  "Kb": "tests/test_memory.py::test_buffer_fill[unified-np-int32-max]|run",
-  "Lb": "tests/test_memory.py::test_buffer_fill[unified-np-int32-min]|run",
-  "Mb": "tests/test_memory.py::test_buffer_fill[unified-np-uint8-0]|run",
-  "Nb": "tests/test_memory.py::test_buffer_fill[unified-np-uint8-255]|run",
-  "Ob": "tests/test_memory.py::test_buffer_fill[unified-np-uint16-0x1234]|run",
-  "Pb": "tests/test_memory.py::test_buffer_fill[unified-np-uint16-0xFFFF]|run",
-  "Qb": "tests/test_memory.py::test_buffer_fill[unified-np-uint32-0xDEADBEEF]|run",
-  "Rb": "tests/test_memory.py::test_buffer_fill[unified-np-uint32-0xFFFFFFFF]|run",
-  "Sb": "tests/test_memory.py::test_device_memory_resource_with_options|run",
-  "Tb": "tests/test_memory.py::test_managed_memory_resource_with_options|run",
-  "Ub": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[DeviceMR]|run",
-  "Vb": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[ManagedMR]|run",
-  "Wb": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[PinnedMR]|run",
-  "Xb": "tests/test_memory.py::test_pinned_memory_resource_with_options|run",
-  "Yb": "tests/system/test_system_device.py::test_to_cuda_device|run",
-  "Zb": "tests/test_device.py::test_pci_bus_id|run",
-  "0b": "tests/test_device.py::test_to_system_device|run",
-  "1b": "tests/test_cuda_utils.py::test_check_runtime_error|run",
-  "2b": "tests/test_cudart.py::test_cudart_cudaGetDeviceProperties|run",
-  "3b": "tests/test_cudart.py::test_cudart_list_access|run",
-  "4b": "tests/test_device.py::test_compute_capability|run",
-  "5b": "tests/test_device.py::test_device_id|run",
-  "6b": "tests/test_cudart.py::test_cudart_both_type|run",
-  "7b": "tests/test_cudart.py::test_cudaDeviceGetDevResource|run"
+  "9": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|teardown",
+  "!": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|teardown",
+  "#": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[DeviceMR]|teardown",
+  "$": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|teardown",
+  "%": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|teardown",
+  "'": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|teardown",
+  "(": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[DeviceMR]|teardown",
+  ")": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|teardown",
+  "*": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[DeviceMR]|teardown",
+  "+": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|teardown",
+  ",": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[DeviceMR]|teardown",
+  "-": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|teardown",
+  ".": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|teardown",
+  "/": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|teardown",
+  ":": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|teardown",
+  ";": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|teardown",
+  "=": "tests/memory_ipc/test_leaks.py::test_alloc_handle[DeviceMR]|teardown",
+  "?": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|teardown",
+  "@": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|teardown",
+  "[": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|teardown",
+  "]": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|teardown",
+  "^": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|teardown",
+  "_": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|teardown",
+  "`": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|teardown",
+  "{": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|teardown",
+  "|": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|teardown",
+  "}": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|teardown",
+  "~": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|teardown",
+  "ab": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|teardown",
+  "bb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|teardown",
+  "cb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|teardown",
+  "db": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|teardown",
+  "eb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|teardown",
+  "fb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|teardown",
+  "gb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|teardown",
+  "hb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|teardown",
+  "ib": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|teardown",
+  "jb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|teardown",
+  "kb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|teardown",
+  "lb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|teardown",
+  "mb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|teardown",
+  "nb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|teardown",
+  "ob": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|teardown",
+  "pb": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|teardown",
+  "qb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|teardown",
+  "rb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|teardown",
+  "sb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|teardown",
+  "tb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|teardown",
+  "ub": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|teardown",
+  "vb": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|teardown",
+  "wb": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|teardown",
+  "xb": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|teardown",
+  "yb": "tests/memory_ipc/test_send_buffers.py::TestIpcSendBuffers::test_main[1]|run",
+  "zb": "tests/memory_ipc/test_send_buffers.py::TestIpcSendBuffers::test_main[3]|run",
+  "Ab": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|teardown",
+  "Bb": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|teardown",
+  "Cb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|teardown",
+  "Db": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|teardown",
+  "Eb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|teardown",
+  "Fb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|teardown",
+  "Gb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[1]|run",
+  "Hb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[3]|run",
+  "Ib": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[1]|run",
+  "Jb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[3]|run",
+  "Kb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[1]|run",
+  "Lb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[3]|run",
+  "Mb": "tests/test_device.py::test_device_alloc_zero_bytes|run",
+  "Nb": "tests/test_device.py::test_device_alloc|run",
+  "Ob": "tests/test_helpers.py::test_patterngen_seeds|run",
+  "Pb": "tests/test_helpers.py::test_patterngen_values|run",
+  "Qb": "tests/test_memory.py::test_buffer_copy_from|run",
+  "Rb": "tests/test_memory.py::test_buffer_copy_to|run",
+  "Sb": "tests/test_memory.py::test_buffer_fill[device-bytes-1]|run",
+  "Tb": "tests/test_memory.py::test_buffer_fill[device-bytes-2]|run",
+  "Ub": "tests/test_memory.py::test_buffer_fill[device-bytes-4]|run",
+  "Vb": "tests/test_memory.py::test_buffer_fill[device-int-0x42]|run",
+  "Wb": "tests/test_memory.py::test_buffer_fill[device-np-float32-1.0]|run",
+  "Xb": "tests/test_memory.py::test_buffer_fill[device-np-int8-127]|run",
+  "Yb": "tests/test_memory.py::test_buffer_fill[device-np-int8--1]|run",
+  "Zb": "tests/test_memory.py::test_buffer_fill[device-np-int8--128]|run",
+  "0b": "tests/test_memory.py::test_buffer_fill[device-np-int16--1]|run",
+  "1b": "tests/test_memory.py::test_buffer_fill[device-np-int16-max]|run",
+  "2b": "tests/test_memory.py::test_buffer_fill[device-np-int16-min]|run",
+  "3b": "tests/test_memory.py::test_buffer_fill[device-np-int32--1]|run",
+  "4b": "tests/test_memory.py::test_buffer_fill[device-np-int32-max]|run",
+  "5b": "tests/test_memory.py::test_buffer_fill[device-np-int32-min]|run",
+  "6b": "tests/test_memory.py::test_buffer_fill[device-np-uint8-0]|run",
+  "7b": "tests/test_memory.py::test_buffer_fill[device-np-uint8-255]|run",
+  "8b": "tests/test_memory.py::test_buffer_fill[device-np-uint16-0x1234]|run",
+  "9b": "tests/test_memory.py::test_buffer_fill[device-np-uint16-0xFFFF]|run",
+  "!b": "tests/test_memory.py::test_buffer_fill[device-np-uint32-0xDEADBEEF]|run",
+  "#b": "tests/test_memory.py::test_buffer_fill[device-np-uint32-0xFFFFFFFF]|run",
+  "$b": "tests/test_memory.py::test_buffer_fill[pinned-bytes-1]|run",
+  "%b": "tests/test_memory.py::test_buffer_fill[pinned-bytes-2]|run",
+  "'b": "tests/test_memory.py::test_buffer_fill[pinned-bytes-4]|run",
+  "(b": "tests/test_memory.py::test_buffer_fill[pinned-int-0x42]|run",
+  ")b": "tests/test_memory.py::test_buffer_fill[pinned-np-float32-1.0]|run",
+  "*b": "tests/test_memory.py::test_buffer_fill[pinned-np-int8-127]|run",
+  "+b": "tests/test_memory.py::test_buffer_fill[pinned-np-int8--1]|run",
+  ",b": "tests/test_memory.py::test_buffer_fill[pinned-np-int8--128]|run",
+  "-b": "tests/test_memory.py::test_buffer_fill[pinned-np-int16--1]|run",
+  ".b": "tests/test_memory.py::test_buffer_fill[pinned-np-int16-max]|run",
+  "/b": "tests/test_memory.py::test_buffer_fill[pinned-np-int16-min]|run",
+  ":b": "tests/test_memory.py::test_buffer_fill[pinned-np-int32--1]|run",
+  ";b": "tests/test_memory.py::test_buffer_fill[pinned-np-int32-max]|run",
+  "=b": "tests/test_memory.py::test_buffer_fill[pinned-np-int32-min]|run",
+  "?b": "tests/test_memory.py::test_buffer_fill[pinned-np-uint8-0]|run",
+  "@b": "tests/test_memory.py::test_buffer_fill[pinned-np-uint8-255]|run",
+  "[b": "tests/test_memory.py::test_buffer_fill[pinned-np-uint16-0x1234]|run",
+  "]b": "tests/test_memory.py::test_buffer_fill[pinned-np-uint16-0xFFFF]|run",
+  "^b": "tests/test_memory.py::test_buffer_fill[pinned-np-uint32-0xDEADBEEF]|run",
+  "_b": "tests/test_memory.py::test_buffer_fill[pinned-np-uint32-0xFFFFFFFF]|run",
+  "`b": "tests/test_memory.py::test_buffer_fill[unified-bytes-1]|run",
+  "{b": "tests/test_memory.py::test_buffer_fill[unified-bytes-2]|run",
+  "|b": "tests/test_memory.py::test_buffer_fill[unified-bytes-4]|run",
+  "}b": "tests/test_memory.py::test_buffer_fill[unified-int-0x42]|run",
+  "~b": "tests/test_memory.py::test_buffer_fill[unified-np-float32-1.0]|run",
+  "ac": "tests/test_memory.py::test_buffer_fill[unified-np-int8-127]|run",
+  "bc": "tests/test_memory.py::test_buffer_fill[unified-np-int8--1]|run",
+  "cc": "tests/test_memory.py::test_buffer_fill[unified-np-int8--128]|run",
+  "dc": "tests/test_memory.py::test_buffer_fill[unified-np-int16--1]|run",
+  "ec": "tests/test_memory.py::test_buffer_fill[unified-np-int16-max]|run",
+  "fc": "tests/test_memory.py::test_buffer_fill[unified-np-int16-min]|run",
+  "gc": "tests/test_memory.py::test_buffer_fill[unified-np-int32--1]|run",
+  "hc": "tests/test_memory.py::test_buffer_fill[unified-np-int32-max]|run",
+  "ic": "tests/test_memory.py::test_buffer_fill[unified-np-int32-min]|run",
+  "jc": "tests/test_memory.py::test_buffer_fill[unified-np-uint8-0]|run",
+  "kc": "tests/test_memory.py::test_buffer_fill[unified-np-uint8-255]|run",
+  "lc": "tests/test_memory.py::test_buffer_fill[unified-np-uint16-0x1234]|run",
+  "mc": "tests/test_memory.py::test_buffer_fill[unified-np-uint16-0xFFFF]|run",
+  "nc": "tests/test_memory.py::test_buffer_fill[unified-np-uint32-0xDEADBEEF]|run",
+  "oc": "tests/test_memory.py::test_buffer_fill[unified-np-uint32-0xFFFFFFFF]|run",
+  "pc": "tests/test_memory.py::test_device_memory_resource_with_options|run",
+  "qc": "tests/test_memory.py::test_managed_memory_resource_with_options|run",
+  "rc": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[DeviceMR]|run",
+  "sc": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[ManagedMR]|run",
+  "tc": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[PinnedMR]|run",
+  "uc": "tests/test_memory.py::test_mempool_ipc_errors|run",
+  "vc": "tests/test_memory.py::test_pinned_memory_resource_with_options|run",
+  "wc": "tests/test_memory.py::test_pinned_mempool_ipc_basic|run",
+  "xc": "tests/test_memory.py::test_pinned_mempool_ipc_errors|run",
+  "yc": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_buffer_descriptor-cloudpickle]|run",
+  "zc": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_buffer_descriptor-pickle]|run",
+  "Ac": "tests/system/test_system_device.py::test_to_cuda_device|run",
+  "Bc": "tests/test_device.py::test_pci_bus_id|run",
+  "Cc": "tests/test_device.py::test_to_system_device|run",
+  "Dc": "tests/test_cuda_utils.py::test_check_runtime_error|run",
+  "Ec": "tests/test_cudart.py::test_cudart_cudaGetDeviceProperties|run",
+  "Fc": "tests/test_cudart.py::test_cudart_list_access|run",
+  "Gc": "tests/test_device.py::test_compute_capability|run",
+  "Hc": "tests/test_device.py::test_device_id|run",
+  "Ic": "tests/test_cudart.py::test_cudart_both_type|run",
+  "Jc": "tests/test_cudart.py::test_cudaDeviceGetDevResource|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -218,7 +283,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-06-23 01:23 +0000
+            created at 2026-06-24 01:56 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -244,7 +309,7 @@
     <p class="mis show_mis"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceReset()</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceSynchronize() except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs11" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceSynchronize()</span>&nbsp;</span><input type="checkbox" id="ctxs12"><span class="r"><label for="ctxs12" class="ctx">79 ctx</label></span><span class="ctxs">29 ! # $ % ' v ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXb</span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceSynchronize()</span>&nbsp;</span><input type="checkbox" id="ctxs12"><span class="r"><label for="ctxs12" class="ctx">144 ctx</label></span><span class="ctxs">29 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbv MbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczc</span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceSetLimit(cudaLimit limit, size_t value) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs14" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceSetLimit(limit, value)</span>&nbsp;</span><span class="r"></span></p>
@@ -268,7 +333,7 @@
     <p class="mis show_mis"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetByPCIBusId(device, pciBusId)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetPCIBusId(char* pciBusId, int length, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs35" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetPCIBusId(pciBusId, length, device)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">3 ctx</label></span><span class="ctxs">2YbZb0b</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetPCIBusId(pciBusId, length, device)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">3 ctx</label></span><span class="ctxs">2AcBcCc</span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">cdef cudaError_t cudaIpcGetEventHandle(cudaIpcEventHandle_t* handle, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs38" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    return cyruntime._cudaIpcGetEventHandle(handle, event)</span>&nbsp;</span><span class="r"></span></p>
@@ -310,16 +375,16 @@
     <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetErrorName(error)</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">4 ctx</label></span><span class="ctxs">1RGHI</span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">cdef const char* cudaGetErrorString(cudaError_t error) except ?NULL nogil:</span>&nbsp;</span><span class="r"><label for="ctxs77" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetErrorString(error)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">3 ctx</label></span><span class="ctxs">2R 1bI </span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetErrorString(error)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">3 ctx</label></span><span class="ctxs">2R DcI </span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGetDeviceCount(int* count) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs80" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDeviceCount(count)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGetDeviceProperties(cudaDeviceProp* prop, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs83" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDeviceProperties(prop, device)</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">2 ctx</label></span><span class="ctxs">22b3b</span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDeviceProperties(prop, device)</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">2 ctx</label></span><span class="ctxs">2EcFc</span></p>
     <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetAttribute(int* value, cudaDeviceAttr attr, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs86" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetAttribute(value, attr, device)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">2 ctx</label></span><span class="ctxs">2a 4b</span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetAttribute(value, attr, device)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">2 ctx</label></span><span class="ctxs">2a Gc</span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetHostAtomicCapabilities(unsigned int* capabilities, const cudaAtomicOperation* operations, unsigned int count, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs89" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetHostAtomicCapabilities(capabilities, operations, count, device)</span>&nbsp;</span><span class="r"></span></p>
@@ -352,7 +417,7 @@
     <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">    return cyruntime._cudaSetDevice(device)</span>&nbsp;</span><input type="checkbox" id="ctxs117"><span class="r"><label for="ctxs117" class="ctx">1 ctx</label></span><span class="ctxs">1m</span></p>
     <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGetDevice(int* device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs119" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDevice(device)</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">1 ctx</label></span><span class="ctxs">25b</span></p>
+    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDevice(device)</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">1 ctx</label></span><span class="ctxs">2Hc</span></p>
     <p class="pln"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">cdef cudaError_t cudaSetDeviceFlags(unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs122" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">    return cyruntime._cudaSetDeviceFlags(flags)</span>&nbsp;</span><span class="r"></span></p>
@@ -421,7 +486,7 @@
     <p class="mis show_mis"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamBeginCaptureToGraph(stream, graph, dependencies, dependencyData, numDependencies, mode)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">cdef cudaError_t cudaThreadExchangeStreamCaptureMode(cudaStreamCaptureMode* mode) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs188" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">    return cyruntime._cudaThreadExchangeStreamCaptureMode(mode)</span>&nbsp;</span><input type="checkbox" id="ctxs189"><span class="r"><label for="ctxs189" class="ctx">1 ctx</label></span><span class="ctxs">26b</span></p>
+    <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">    return cyruntime._cudaThreadExchangeStreamCaptureMode(mode)</span>&nbsp;</span><input type="checkbox" id="ctxs189"><span class="r"><label for="ctxs189" class="ctx">1 ctx</label></span><span class="ctxs">2Ic</span></p>
     <p class="pln"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">cdef cudaError_t cudaStreamEndCapture(cudaStream_t stream, cudaGraph_t* pGraph) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs191" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamEndCapture(stream, pGraph)</span>&nbsp;</span><input type="checkbox" id="ctxs192"><span class="r"><label for="ctxs192" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
@@ -1138,7 +1203,7 @@
     <p class="mis show_mis"><span class="n"><a id="t903" href="#t903">903</a></span><span class="t"><span class="txt">    return cyruntime._cudaKernelSetAttributeForDevice(kernel, attr, value, device)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t904" href="#t904">904</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t905" href="#t905">905</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetDevResource(int device, cudaDevResource* resource, cudaDevResourceType typename) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs905" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t906" href="#t906">906</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetDevResource(device, resource, typename)</span>&nbsp;</span><input type="checkbox" id="ctxs906"><span class="r"><label for="ctxs906" class="ctx">5 ctx</label></span><span class="ctxs">22 3 4 7bm </span></p>
+    <p class="run"><span class="n"><a id="t906" href="#t906">906</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetDevResource(device, resource, typename)</span>&nbsp;</span><input type="checkbox" id="ctxs906"><span class="r"><label for="ctxs906" class="ctx">5 ctx</label></span><span class="ctxs">22 3 4 Jcm </span></p>
     <p class="pln"><span class="n"><a id="t907" href="#t907">907</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t908" href="#t908">908</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDevSmResourceSplitByCount(cudaDevResource* result, unsigned int* nbGroups, const cudaDevResource* input, cudaDevResource* remaining, unsigned int flags, unsigned int minCount) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs908" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t909" href="#t909">909</a></span><span class="t"><span class="txt">    return cyruntime._cudaDevSmResourceSplitByCount(result, nbGroups, input, remaining, flags, minCount)</span>&nbsp;</span><input type="checkbox" id="ctxs909"><span class="r"><label for="ctxs909" class="ctx">1 ctx</label></span><span class="ctxs">13</span></p>
@@ -1303,7 +1368,7 @@
             <a class="nav" href="z_bb8e88d71740c463_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-06-23 01:23 +0000
+            created at 2026-06-24 01:56 +0000
         </p>
     </div>
 </footer>
