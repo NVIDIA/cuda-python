@@ -42,6 +42,7 @@ cuda.core.Device
    .. autoproperty:: name
    .. autoproperty:: pci_bus_id
    .. autoproperty:: properties
+   .. autoproperty:: resources
    .. autoproperty:: uuid
    
    

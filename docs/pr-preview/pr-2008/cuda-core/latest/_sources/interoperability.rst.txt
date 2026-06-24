@@ -35,7 +35,7 @@ in Python. While we encourage new Python projects to start using streams (and ot
 CUDA types) from ``cuda.core``, we understand that there are already several projects
 exposing their own stream types.
 
-To address this issue, we propose the :attr:`~_stream.IsStreamT.__cuda_stream__` protocol
+To address this issue, we propose the :attr:`~_stream.IsStreamType.__cuda_stream__` protocol
 (currently version 0) as follows: For any Python objects that are meant to be interpreted
 as a stream, they should add a ``__cuda_stream__`` *method* that returns a 2-tuple: The
 version number (``0``) and the address of ``cudaStream_t`` (both as Python ``int``):
@@ -70,11 +70,11 @@ a few iterations to ensure correctness.
 for extracting the metadata (such as pointer address, shape, strides, and
 dtype) from any Python objects supporting either CAI or DLPack and returning a
 :class:`~utils.StridedMemoryView` object. See the
-`strided_memory_view_constructors.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_constructors.py>`_
+:cuda-core-example:`strided_memory_view_constructors.py <strided_memory_view_constructors.py>`
 example for the explicit constructors, or
-`strided_memory_view_cpu.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_cpu.py>`_
+:cuda-core-example:`strided_memory_view_cpu.py <strided_memory_view_cpu.py>`
 and
-`strided_memory_view_gpu.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_gpu.py>`_
+:cuda-core-example:`strided_memory_view_gpu.py <strided_memory_view_gpu.py>`
 for decorator-based workflows. This provides a *concrete implementation* to
 both protocols that is **array-library-agnostic**, so that all Python projects
 can just rely on this without either re-implementing (the consumer-side of)

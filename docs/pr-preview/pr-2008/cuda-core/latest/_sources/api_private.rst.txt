@@ -16,22 +16,34 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   typing.DevicePointerT
-   _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryGranularityT
-   _memory._virtual_memory_resource.VirtualMemoryAccessTypeT
-   _memory._virtual_memory_resource.VirtualMemoryHandleTypeT
+   _memory._peer_access_utils.PeerAccessibleBySetProxy
    _module.KernelAttributes
    _module.KernelOccupancy
-   _module.ParamInfo
    _module.MaxPotentialBlockSizeOccupancyResult
+   _module.ParamInfo
+   typing.CompilerBackendType
+   typing.DevicePointerType
+   typing.DeviceResourcesType
+   typing.GraphConditionalType
+   typing.GraphMemoryType
+   typing.ManagedMemoryLocationType
+   typing.ObjectCodeFormatType
+   typing.PCHStatusType
+   typing.ProcessStateType
+   typing.SourceCodeType
+   typing.VirtualMemoryAccessType
+   typing.VirtualMemoryAllocationType
+   typing.VirtualMemoryGranularityType
+   typing.VirtualMemoryHandleType
+   typing.VirtualMemoryLocationType
 
    :template: autosummary/cyclass.rst
 
    _device.DeviceProperties
+   _device_resources.DeviceResources
    _memory._ipc.IPCAllocationHandle
    _memory._ipc.IPCBufferDescriptor
+   _memory._managed_buffer.AccessedBySetProxy
 
 
 CUDA graphs
@@ -50,7 +62,7 @@ CUDA protocols
    :toctree: generated/
    :template: protocol.rst
 
-   typing.IsStreamT
+   typing.IsStreamType
 
 NVML
 ----
@@ -80,6 +92,7 @@ NVML
    system._device.Temperature
    system._device.ThermalSensor
    system._device.ThermalSettings
+   system._device.Utilization
    system._system_events.RegisteredSystemEvents
    system._system_events.SystemEvent
    system._system_events.SystemEvents
@@ -89,22 +102,22 @@ NVML
 .. autosummary::
    :toctree: generated/
 
-   system.AddressingMode
-   system.AffinityScope
-   system.ClockId
-   system.ClocksEventReasons
-   system.ClockType
-   system.CoolerControl
-   system.CoolerTarget
-   system.DeviceArch
-   system.EventType
-   system.FanControlPolicy
-   system.FieldId
-   system.GpuP2PCapsIndex
-   system.GpuP2PStatus
-   system.GpuTopologyLevel
-   system.InforomObject
-   system.TemperatureThresholds
-   system.ThermalController
-   system.ThermalTarget
-   system.SystemEventType
+   system.typing.AddressingMode
+   system.typing.AffinityScope
+   system.typing.ClockId
+   system.typing.ClocksEventReasons
+   system.typing.ClockType
+   system.typing.CoolerControl
+   system.typing.CoolerTarget
+   system.typing.DeviceArch
+   system.typing.EventType
+   system.typing.FanControlPolicy
+   system.typing.FieldId
+   system.typing.GpuP2PCapsIndex
+   system.typing.GpuP2PStatus
+   system.typing.GpuTopologyLevel
+   system.typing.InforomObject
+   system.typing.SystemEventType
+   system.typing.TemperatureThresholds
+   system.typing.ThermalController
+   system.typing.ThermalTarget
