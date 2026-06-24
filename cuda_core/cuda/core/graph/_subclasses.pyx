@@ -33,6 +33,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core.graph._utils cimport _is_py_host_trampoline
 
 from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core.typing import GraphConditionalType
 
 __all__ = [
     'AllocNode',
@@ -59,8 +60,10 @@ cdef bint _version_checked = False
 cdef bint _check_node_get_params():
     global _has_cuGraphNodeGetParams, _version_checked
     if not _version_checked:
-        from cuda.core._utils.version import driver_version
-        _has_cuGraphNodeGetParams = driver_version() >= (13, 2, 0)
+        from cuda.core._utils.version import binding_version, driver_version
+        _has_cuGraphNodeGetParams = (
+            driver_version() >= (13, 2, 0) and binding_version() >= (13, 2, 0)
+        )
         _version_checked = True
     return _has_cuGraphNodeGetParams
 
@@ -128,12 +131,12 @@ cdef class KernelNode(GraphNode):
                 f" kernel=0x{as_intptr(self._h_kernel):x}>")
 
     @property
-    def grid(self) -> tuple:
+    def grid(self) -> tuple[int, int, int]:
         """Grid dimensions as a 3-tuple (gridDimX, gridDimY, gridDimZ)."""
         return self._grid
 
     @property
-    def block(self) -> tuple:
+    def block(self) -> tuple[int, int, int]:
         """Block dimensions as a 3-tuple (blockDimX, blockDimY, blockDimZ)."""
         return self._block
 
@@ -169,12 +172,10 @@ cdef class AllocNode(GraphNode):
         The number of bytes allocated.
     device_id : int
         The device on which the allocation was made.
-    memory_type : str
-        The type of memory allocated (``"device"``, ``"host"``, or ``"managed"``).
+    memory_type : GraphMemoryType | str
+        The type of memory allocated.
     peer_access : tuple of int
         Device IDs that have read-write access to this allocation.
-    options : GraphAllocOptions
-        A GraphAllocOptions reconstructed from this node's parameters.
     """
 
     @staticmethod
@@ -248,19 +249,9 @@ cdef class AllocNode(GraphNode):
         return self._memory_type
 
     @property
-    def peer_access(self) -> tuple:
+    def peer_access(self) -> tuple[int, ...]:
         """Device IDs with read-write access to this allocation."""
         return self._peer_access
-
-    @property
-    def options(self):
-        """A GraphAllocOptions reconstructed from this node's parameters."""
-        from cuda.core.graph._graph_definition import GraphAllocOptions
-        return GraphAllocOptions(
-            device=self._device_id,
-            memory_type=self._memory_type,
-            peer_access=list(self._peer_access) if self._peer_access else None,
-        )
 
 
 cdef class FreeNode(GraphNode):
@@ -487,7 +478,7 @@ cdef class ChildGraphNode(GraphNode):
                 f" child=0x{as_intptr(self._h_child_graph):x}>")
 
     @property
-    def child_graph(self) -> "GraphDefinition":
+    def child_graph(self) -> GraphDefinition:
         """The embedded graph definition (non-owning wrapper)."""
         return GraphDefinition._from_handle(self._h_child_graph)
 
@@ -573,7 +564,7 @@ cdef class HostCallbackNode(GraphNode):
 
     Properties
     ----------
-    callback_fn : callable or None
+    callback : callable or None
         The Python callable (None for ctypes function pointer callbacks).
     """
 
@@ -613,7 +604,7 @@ cdef class HostCallbackNode(GraphNode):
                 f" cfunc=0x{<uintptr_t>self._fn:x}>")
 
     @property
-    def callback_fn(self):
+    def callback(self):
         """The Python callable, or None for ctypes function pointer callbacks."""
         return self._callable
 
@@ -698,8 +689,8 @@ cdef class ConditionalNode(GraphNode):
         return self._condition
 
     @property
-    def cond_type(self) -> str | None:
-        """The conditional type as a string: 'if', 'while', or 'switch'.
+    def cond_type(self) -> GraphConditionalType | None:
+        """The conditional type: GraphConditionalType.IF, .WHILE, or .SWITCH
 
         Returns None when reconstructed from the driver pre-CUDA 13.2,
         as the conditional type cannot be determined.
@@ -707,14 +698,14 @@ cdef class ConditionalNode(GraphNode):
         if self._condition is None:
             return None
         if self._cond_type == cydriver.CU_GRAPH_COND_TYPE_IF:
-            return "if"
+            return GraphConditionalType("if")
         elif self._cond_type == cydriver.CU_GRAPH_COND_TYPE_WHILE:
-            return "while"
+            return GraphConditionalType("while")
         else:
-            return "switch"
+            return GraphConditionalType("switch")
 
     @property
-    def branches(self) -> tuple:
+    def branches(self) -> tuple[GraphDefinition, ...]:
         """The body graphs for each branch as a tuple of GraphDefinition.
 
         Returns an empty tuple when reconstructed from the driver
@@ -731,7 +722,7 @@ cdef class IfNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def then(self) -> "GraphDefinition":
+    def then(self) -> GraphDefinition:
         """The 'then' branch graph."""
         return self._branches[0]
 
@@ -744,12 +735,12 @@ cdef class IfElseNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def then(self) -> "GraphDefinition":
+    def then(self) -> GraphDefinition:
         """The ``then`` branch graph (executed when condition is non-zero)."""
         return self._branches[0]
 
     @property
-    def else_(self) -> "GraphDefinition":
+    def else_(self) -> GraphDefinition:
         """The ``else`` branch graph (executed when condition is zero)."""
         return self._branches[1]
 
@@ -762,7 +753,7 @@ cdef class WhileNode(ConditionalNode):
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
-    def body(self) -> "GraphDefinition":
+    def body(self) -> GraphDefinition:
         """The loop body graph."""
         return self._branches[0]
 

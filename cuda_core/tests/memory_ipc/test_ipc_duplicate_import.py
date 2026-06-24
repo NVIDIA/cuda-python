@@ -13,15 +13,19 @@ import contextlib
 import multiprocessing as mp
 
 import pytest
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.logging import TimestampedLogger
 
 from cuda.core import Buffer, Device
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 POOL_SIZE = 2097152
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
+
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
 def child_main(log, queue):
@@ -34,8 +38,8 @@ def child_main(log, queue):
     buffer_desc2 = queue.get()
 
     # Import the same buffer twice - should return same handle due to cache
-    buffer1 = Buffer.from_ipc_descriptor(mr, buffer_desc1)
-    buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc2)
+    buffer1 = Buffer.from_ipc_descriptor(mr, buffer_desc1, stream=device.default_stream)
+    buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc2, stream=device.default_stream)
 
     log(f"buffer1.handle = {buffer1.handle}")
     log(f"buffer2.handle = {buffer2.handle}")
@@ -68,7 +72,7 @@ class TestIpcDuplicateImport:
         mr = ipc_memory_resource
 
         log("allocating buffer")
-        buffer = mr.allocate(NBYTES)
+        buffer = mr.allocate(NBYTES, stream=ipc_device.default_stream)
 
         # Start the child process.
         log("starting child")
@@ -84,6 +88,8 @@ class TestIpcDuplicateImport:
 
         log("waiting for child")
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
         log(f"child exit code: {process.exitcode}")
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0, f"Child process failed with exit code {process.exitcode}"
         log("done")

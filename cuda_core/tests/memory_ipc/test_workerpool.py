@@ -10,12 +10,14 @@ from helpers.buffers import PatternGen
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 
-CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 NWORKERS = 2
 NMRS = 3
 NTASKS = 20
 POOL_SIZE = 2097152
+
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
 class TestIpcWorkerPool:
@@ -33,9 +35,10 @@ class TestIpcWorkerPool:
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        buffers = []
 
         try:
-            buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
 
             with mp.Pool(NWORKERS) as pool:
                 pool.map(self.process_buffer, buffers)
@@ -43,8 +46,11 @@ class TestIpcWorkerPool:
             pgen = PatternGen(device, NBYTES)
             for buffer in buffers:
                 pgen.verify_buffer(buffer, seed=True)
-                buffer.close()
         finally:
+            for buffer in buffers:
+                buffer.close()
+            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+            device.sync()
             for mr in mrs:
                 mr.close()
 
@@ -75,9 +81,10 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        buffers = []
 
         try:
-            buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
 
             with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
                 pool.starmap(
@@ -88,8 +95,11 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
             pgen = PatternGen(device, NBYTES)
             for buffer in buffers:
                 pgen.verify_buffer(buffer, seed=True)
-                buffer.close()
         finally:
+            for buffer in buffers:
+                buffer.close()
+            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+            device.sync()
             for mr in mrs:
                 mr.close()
 
@@ -97,7 +107,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         mr = self.mrs[mr_idx]
         device = Device(mr.device_id)
         device.set_current()
-        buffer = Buffer.from_ipc_descriptor(mr, buffer_desc)
+        buffer = Buffer.from_ipc_descriptor(mr, buffer_desc, stream=device.default_stream)
         pgen = PatternGen(device, NBYTES)
         pgen.fill_buffer(buffer, seed=True)
         buffer.close()
@@ -125,9 +135,10 @@ class TestIpcWorkerPoolUsingRegistry:
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        buffers = []
 
         try:
-            buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
 
             with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
                 pool.starmap(self.process_buffer, [(device, pickle.dumps(buffer)) for buffer in buffers])
@@ -135,8 +146,11 @@ class TestIpcWorkerPoolUsingRegistry:
             pgen = PatternGen(device, NBYTES)
             for buffer in buffers:
                 pgen.verify_buffer(buffer, seed=True)
-                buffer.close()
         finally:
+            for buffer in buffers:
+                buffer.close()
+            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+            device.sync()
             for mr in mrs:
                 mr.close()
 

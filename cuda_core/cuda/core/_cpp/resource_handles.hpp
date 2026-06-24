@@ -59,6 +59,12 @@ void clear_last_error() noexcept;
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
+extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
+extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
+extern decltype(&cuDevResourceGenerateDesc) p_cuDevResourceGenerateDesc;
+
+extern decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate;
 
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
@@ -103,6 +109,15 @@ extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
 extern decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources;
 extern decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource;
 
+// SM resource split (13.1+ — may be null on older drivers/bindings)
+#if CUDA_VERSION >= 13010
+extern decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit;
+#else
+// cuDevSmResourceSplit doesn't exist in CUDA < 13.1 headers, so use a
+// void* placeholder. The pointer is always null when built against 12.x.
+extern void* p_cuDevSmResourceSplit;
+#endif
+
 // ============================================================================
 // NVRTC function pointers
 //
@@ -143,6 +158,7 @@ extern NvJitLinkDestroyFn p_nvJitLinkDestroy;
 // ============================================================================
 
 using ContextHandle = std::shared_ptr<const CUcontext>;
+using GreenCtxHandle = std::shared_ptr<const CUgreenCtx>;
 using StreamHandle = std::shared_ptr<const CUstream>;
 using EventHandle = std::shared_ptr<const CUevent>;
 using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
@@ -165,6 +181,21 @@ using FileDescriptorHandle = std::shared_ptr<const int>;
 
 // Function to create a non-owning context handle (references existing context).
 ContextHandle create_context_handle_ref(CUcontext ctx);
+
+// Create a context handle for the CUcontext view of the provided green context.
+// The returned ContextHandle keeps the green context alive, but the CUcontext
+// view is non-owning and is not destroyed independently.
+ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx);
+
+// Return the green context dependency associated with a ContextHandle, if any.
+GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept;
+
+// Create an owning green context handle from a list of device resources.
+GreenCtxHandle create_green_ctx_handle(CUdevResource* resources, unsigned int nbResources,
+                                       CUdevice dev, unsigned int flags);
+
+// Create a non-owning green context handle.
+GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx ctx);
 
 // Get handle to the primary context for a device (with thread-local caching)
 // Returns empty handle on error (caller must check)
@@ -194,6 +225,13 @@ StreamHandle create_stream_handle_ref(CUstream stream);
 // The owner's refcount is incremented; decremented when handle is released.
 // The owner is responsible for keeping the stream's context alive.
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
+
+// Destroy a Python-backed CUDA user object by decref'ing it when safe.
+// If Python is finalized or finalizing, the object is intentionally leaked.
+void py_object_user_object_destroy(void* py_object) noexcept;
+
+// Return the context dependency associated with a stream handle, if any.
+ContextHandle get_stream_context(const StreamHandle& h) noexcept;
 
 // Get non-owning handle to the legacy default stream (CU_STREAM_LEGACY)
 // Note: Legacy stream has no specific context dependency.
@@ -511,6 +549,10 @@ inline CUcontext as_cu(const ContextHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUgreenCtx as_cu(const GreenCtxHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 inline CUstream as_cu(const StreamHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -570,6 +612,10 @@ inline CUlinkState as_cu(const CuLinkHandle& h) noexcept {
 // as_intptr() - extract handle as intptr_t for Python interop
 // Using signed intptr_t per C standard convention and issue #1342
 inline std::intptr_t as_intptr(const ContextHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const GreenCtxHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -638,6 +684,22 @@ inline std::intptr_t as_intptr(const FileDescriptorHandle& h) noexcept {
 extern "C" int _Py_IsFinalizing(void);
 #endif
 
+// Best-effort probe for interpreter shutdown.
+//
+// In CPython this is not a hard guarantee: finalization can begin after this
+// returns false but before a later PyGILState_Ensure() or other Python C-API
+// call.
+//
+// If that race is lost on a non-finalizer thread, CPython's behavior is
+// version-dependent: on older supported versions (3.10-3.13) it may abruptly
+// terminate the current thread (historically via PyThread_exit_thread(),
+// without normal C++ unwinding), while on newer versions (3.14+) it may hang
+// the thread until process exit.
+//
+// We still use this check because the policy in this layer is to avoid Python
+// work once shutdown is underway and accept an intentional leak or skipped
+// Python conversion in that edge case rather than add more complex deferral
+// machinery.
 inline bool py_is_finalizing() noexcept {
 #if PY_VERSION_HEX >= 0x030D0000
     return Py_IsFinalizing();
@@ -665,6 +727,10 @@ inline PyObject* make_py(const char* module_name, const char* class_name, std::i
 
 inline PyObject* as_py(const ContextHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUcontext", as_intptr(h));
+}
+
+inline PyObject* as_py(const GreenCtxHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgreenCtx", as_intptr(h));
 }
 
 inline PyObject* as_py(const StreamHandle& h) noexcept {
@@ -731,5 +797,23 @@ inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
 inline PyObject* as_py(const FileDescriptorHandle& h) noexcept {
     return PyLong_FromSsize_t(as_intptr(h));
 }
+
+// ============================================================================
+// SM resource split wrapper (13.1+)
+//
+// Calls through p_cuDevSmResourceSplit if available, otherwise returns
+// CUDA_ERROR_NOT_SUPPORTED. This avoids a direct Cython cimport of the
+// cydriver cdef function, which would fail at module init on cuda-bindings
+// < 13.1 (see https://github.com/NVIDIA/cuda-python/issues/2063).
+// ============================================================================
+
+// groupParams is void* so the Cython declaration doesn't reference
+// CU_DEV_SM_RESOURCE_GROUP_PARAMS (absent from cuda-bindings 13.0 .pxd).
+CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
+                           const CUdevResource* input, CUdevResource* remainder,
+                           unsigned int flags, void* groupParams);
+
+// Returns true if the cuDevSmResourceSplit function pointer is available.
+bool has_sm_resource_split() noexcept;
 
 }  // namespace cuda_core

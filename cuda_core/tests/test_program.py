@@ -13,6 +13,7 @@ from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
+from cuda.core.typing import CompilerBackendType, PCHStatusType
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
 
@@ -89,6 +90,15 @@ def _check_nvvm_arch(arch: str) -> bool:
     from cuda.bindings.utils import check_nvvm_compiler_options
 
     return check_nvvm_compiler_options([f"-arch={arch}"])
+
+
+def _check_nvvm_supports_numba_debug() -> bool:
+    """Check if the installed libNVVM recognizes --numba-debug (CTK 13.2+)."""
+    if not _has_check_nvvm_compiler_options():
+        return False
+    from cuda.bindings.utils import check_nvvm_compiler_options
+
+    return check_nvvm_compiler_options(["--numba-debug"])
 
 
 @pytest.fixture(scope="session")
@@ -241,6 +251,7 @@ def test_cpp_program_with_various_options(init_cuda, options):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++", options)
     assert program.backend == "NVRTC"
+    assert isinstance(program.backend, CompilerBackendType)
     program.compile("ptx")
     program.close()
 
@@ -281,6 +292,7 @@ def test_cpp_program_pch_auto_creates(init_cuda, tmp_path):
     assert program.pch_status is None  # not compiled yet
     program.compile("ptx")
     assert program.pch_status in ("created", "not_attempted", "failed")
+    assert isinstance(program.pch_status, PCHStatusType)
     program.close()
 
 
@@ -300,6 +312,8 @@ options = [
     ProgramOptions(prec_div=True),
     ProgramOptions(prec_sqrt=True),
     ProgramOptions(fma=True),
+    # Plumb-through; no-op at link time. See #1287.
+    ProgramOptions(debug=True, numba_debug=True),
 ]
 if not is_culink_backend:
     options += [
@@ -435,6 +449,23 @@ def test_nvvm_compile_invalid_target(nvvm_ir):
 
 
 @nvvm_available
+def test_nvvm_accepts_bytearray_input(nvvm_ir):
+    """Program(..., 'nvvm') must accept bytearray input.
+
+    Regression for a bug where the NVVM init branch retained the coerced
+    ``self._code`` as bytes but still cast the original ``code`` object to
+    ``<bytes>`` for the C pointer -- tripping a runtime type error for
+    bytearray inputs before nvvmAddModuleToProgram was called.
+    """
+    program = Program(bytearray(nvvm_ir, "utf-8"), "nvvm")
+    try:
+        assert program.backend == "NVVM"
+        assert program.handle is not None
+    finally:
+        program.close()
+
+
+@nvvm_available
 def test_nvvm_compile_invalid_ir():
     """Compiling invalid NVVM IR exercises the HANDLE_RETURN_NVVM error path."""
     from cuda.bindings.nvvm import nvvmError
@@ -532,7 +563,6 @@ def test_nvvm_program_with_single_extra_source(nvvm_ir):
 
     nvvm = _get_nvvm_module()
     major, minor, debug_major, debug_minor = nvvm.ir_version()
-    # helper nvvm ir for multiple module loading
     helper_nvvmir = f"""target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
@@ -681,7 +711,7 @@ def test_cpp_program_with_extra_sources():
 def test_program_options_as_bytes_nvrtc():
     """Test ProgramOptions.as_bytes() for NVRTC backend"""
     options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True)
-    nvrtc_options = options.as_bytes("nvrtc")
+    nvrtc_options = options.as_bytes(CompilerBackendType.NVRTC)
     assert isinstance(nvrtc_options, list)
     assert all(isinstance(opt, bytes) for opt in nvrtc_options)
     options_str = [opt.decode() for opt in nvrtc_options]
@@ -718,6 +748,33 @@ def test_program_options_as_bytes_nvvm_unsupported_option():
     options = ProgramOptions(arch="sm_80", lineinfo=True)
     with pytest.raises(CUDAError, match="not supported by NVVM backend"):
         options.as_bytes("nvvm")
+
+
+@nvvm_available
+def test_nvvm_program_options_as_bytes_numba_debug():
+    """numba_debug must be plumbed through to libNVVM as --numba-debug
+    (see #1287)."""
+    options = ProgramOptions(arch="sm_80", debug=True, numba_debug=True)
+    nvvm_bytes = options.as_bytes("nvvm")
+    assert b"--numba-debug" in nvvm_bytes
+    assert b"-g" in nvvm_bytes
+
+
+@nvvm_available
+@pytest.mark.skipif(
+    not _check_nvvm_supports_numba_debug(),
+    reason="installed libNVVM does not recognize --numba-debug (needs CTK 13.2+)",
+)
+def test_nvvm_program_numba_debug(init_cuda, nvvm_ir):
+    options = ProgramOptions(arch="sm_80", debug=True, numba_debug=True)
+    program = Program(nvvm_ir, "nvvm", options)
+    try:
+        assert program.backend == "NVVM"
+        result = program.compile("ptx")
+        assert isinstance(result, ObjectCode)
+        assert len(result.code) > 0
+    finally:
+        program.close()
 
 
 def test_program_options_repr():
@@ -808,6 +865,49 @@ def test_extra_sources_empty_source():
     """extra_sources module source cannot be empty bytes."""
     with pytest.raises(ValueError, match="Module source for 'mod'.*cannot be empty"):
         ProgramOptions(name="test", arch="sm_80", extra_sources=[("mod", b"")])
+
+
+@pytest.mark.parametrize(
+    ("extra_sources", "expected"),
+    [
+        (None, None),
+        ([("mod_s", "kernel-as-string")], [(b"mod_s", b"kernel-as-string")]),
+        (
+            [("mod_ba", bytearray(b"\x00\x01module-as-bytearray"))],
+            [(b"mod_ba", b"\x00\x01module-as-bytearray")],
+        ),
+        ([("mod_b", b"\x00\x01module-as-bytes")], [(b"mod_b", b"\x00\x01module-as-bytes")]),
+    ],
+    ids=["none", "str", "bytearray", "bytes"],
+)
+def test_prepare_extra_sources_bytes(extra_sources, expected):
+    """_prepare_extra_sources_bytes converts each input type to (bytes, bytes) tuples (None passthrough)."""
+    # arch is set to skip __post_init__'s Device() lookup, keeping this a pure unit test.
+    opts = ProgramOptions(name="t", arch="sm_80", extra_sources=extra_sources)
+    result = opts._prepare_extra_sources_bytes()
+    assert result == expected
+    # bytearray == bytes by content, so == alone misses type regressions.
+    if result is not None:
+        for name, source in result:
+            assert isinstance(name, bytes), f"name should be bytes, got {type(name).__name__}"
+            assert isinstance(source, bytes), f"source should be bytes, got {type(source).__name__}"
+
+
+def test_find_libdevice_path_delegates_to_pathfinder(monkeypatch):
+    """_find_libdevice_path calls cuda.pathfinder.find_bitcode_lib('device') and returns its result."""
+    import cuda.pathfinder
+    from cuda.core import _program
+
+    captured = []
+    sentinel = "/fake/path/libdevice.10.bc"
+
+    def fake_find(name):
+        captured.append(name)
+        return sentinel
+
+    monkeypatch.setattr(cuda.pathfinder, "find_bitcode_lib", fake_find)
+    assert _program._find_libdevice_path() == sentinel
+    assert captured == ["device"]
 
 
 def test_nvrtc_compile_with_logs_capture(init_cuda):

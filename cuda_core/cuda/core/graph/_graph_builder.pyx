@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from libc.stdint cimport intptr_t
 
@@ -24,6 +25,9 @@ from cuda.core._utils.cuda_utils import (
     driver,
     handle_return,
 )
+
+if TYPE_CHECKING:
+    from cuda.core.graph._graph_definition import GraphDefinition
 
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 
@@ -279,7 +283,7 @@ cdef class GraphBuilder:
         """Returns True if this graph builder must be joined before building is ended."""
         return self._kind == FORKED
 
-    def begin_building(self, mode="relaxed") -> GraphBuilder:
+    def begin_building(self, mode: str | None = "relaxed") -> GraphBuilder:
         """Begins the building process.
 
         Build `mode` for controlling interaction with other API calls must be one of the following:
@@ -387,7 +391,7 @@ cdef class GraphBuilder:
 
         return _instantiate_graph(as_py(self._h_graph), options)
 
-    def debug_dot_print(self, path, options: GraphDebugPrintOptions | None = None):
+    def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None = None) -> None:
         """Generates a DOT debug file for the graph builder.
 
         Parameters
@@ -442,7 +446,7 @@ cdef class GraphBuilder:
         return tuple(result)
 
     @staticmethod
-    def join(*graph_builders) -> GraphBuilder:
+    def join(*graph_builders: GraphBuilder) -> GraphBuilder:
         """Joins multiple graph builders into a single graph builder.
 
         The returned builder inherits work dependencies from the provided builders.
@@ -488,7 +492,7 @@ cdef class GraphBuilder:
     def _get_conditional_context(self) -> driver.CUcontext:
         return self._stream.context.handle
 
-    def create_condition(self, default_value=None) -> GraphCondition:
+    def create_condition(self, default_value: int | None = None) -> GraphCondition:
         """Create a condition variable for use with conditional nodes.
 
         The returned :class:`GraphCondition` object is passed to conditional-node
@@ -719,7 +723,7 @@ cdef class GraphBuilder:
             )
         )
 
-    def callback(self, fn, *, user_data=None):
+    def callback(self, fn, *, user_data=None) -> None:
         """Add a host callback to the graph during stream capture.
 
         The callback runs on the host CPU when the graph reaches this point
@@ -894,7 +898,7 @@ cdef class Graph:
         self._h_graph_exec = create_graph_exec_handle(graph_exec)
         return self
 
-    def close(self):
+    def close(self) -> None:
         """Destroy the graph."""
         self._h_graph_exec.reset()
 
@@ -949,7 +953,7 @@ cdef class Graph:
             raise CUDAError(msg)
         HANDLE_RETURN(err)
 
-    def upload(self, stream: Stream):
+    def upload(self, stream: Stream) -> None:
         """Uploads the graph in a stream.
 
         Parameters
@@ -963,13 +967,13 @@ cdef class Graph:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphUpload(c_exec, c_stream))
 
-    def launch(self, stream: Stream):
+    def launch(self, stream: Stream) -> None:
         """Launches the graph in a stream.
 
         Parameters
         ----------
         stream : :obj:`~_stream.Stream`
-            The stream in which to launch the graph
+            The stream in which to launch the graph.
 
         """
         cdef cydriver.CUgraphExec c_exec = as_cu(self._h_graph_exec)

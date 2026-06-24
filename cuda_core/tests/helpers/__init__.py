@@ -35,10 +35,7 @@ def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
 
     try:
         # Lazy import to avoid hard dependency when not running GPU tests
-        try:
-            from cuda.bindings import driver  # type: ignore
-        except Exception:
-            from cuda import cuda as driver  # type: ignore
+        from cuda.bindings import driver  # type: ignore
 
         # Initialize CUDA
         handle_return(driver.cuInit(0))

@@ -5,25 +5,12 @@
 
 from libc.stdint cimport intptr_t
 
-import sys
-if sys.version_info >= (3, 11):
-    from enum import StrEnum
-else:
-    from backports.strenum import StrEnum
-
 from cuda.bindings import nvml
 
 from ._nvml_context cimport initialize
 
 from . import _device
-
-
-class SystemEventType(StrEnum):
-    """
-    System event types.
-    """
-    UNBIND = "unbind"
-    BIND = "bind"
+from cuda.core.system.typing import SystemEventType
 
 
 _SYSTEM_EVENT_TYPE_MAPPING = {
@@ -72,7 +59,7 @@ cdef class SystemEvents:
     def __init__(self, event_data: nvml.SystemEventData_v1):
         self._event_data = event_data
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._event_data)
 
     def __getitem__(self, idx: int) -> SystemEvent:
@@ -115,7 +102,7 @@ cdef class RegisteredSystemEvents:
         # this class's __dealloc__ method.
         nvml.system_register_events(event_bitmask, self._event_set)
 
-    def __dealloc__(self):
+    def __dealloc__(self) -> None:
         if self._event_set != 0:
             nvml.system_event_set_free(self._event_set)
 
@@ -193,5 +180,4 @@ def register_events(events: SystemEventType | str | list[SystemEventType | str])
 
 __all__ = [
     "register_events",
-    "SystemEventType",
 ]

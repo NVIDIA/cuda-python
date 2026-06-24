@@ -52,6 +52,11 @@ def cuda12_4_prerequisite_check():
     return binding_version() >= (12, 0, 0) and driver_version() >= (12, 4, 0)
 
 
+@pytest.fixture(name="convert_path", params=[str, lambda p: p], ids=["str", "path"])
+def convert_path_to_arg(request):
+    return request.param
+
+
 def test_kernel_attributes_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelAttributes cannot be instantiated directly\."):
         cuda.core._module.KernelAttributes()  # Ensure back door is locked.
@@ -231,14 +236,15 @@ def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     mod_obj.get_kernel("saxpy<double>")  # force loading
 
 
-def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
+def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path, convert_path):
     ptx, mod = get_saxpy_kernel_ptx
     sym_map = mod.symbol_mapping
     assert isinstance(ptx, bytes)
     ptx_file = tmp_path / "test.ptx"
     ptx_file.write_bytes(ptx)
-    mod_obj = ObjectCode.from_ptx(str(ptx_file), symbol_mapping=sym_map)
-    assert mod_obj.code == str(ptx_file)
+    arg = convert_path(ptx_file)
+    mod_obj = ObjectCode.from_ptx(arg, symbol_mapping=sym_map)
+    assert mod_obj.code == str(arg)
     assert mod_obj.code_type == "ptx"
     if not _can_load_generated_ptx():
         pytest.skip("PTX version too new for current driver")
@@ -255,15 +261,16 @@ def test_object_code_load_cubin(get_saxpy_kernel_cubin):
     mod.get_kernel("saxpy<double>")  # force loading
 
 
-def test_object_code_load_cubin_from_file(get_saxpy_kernel_cubin, tmp_path):
+def test_object_code_load_cubin_from_file(get_saxpy_kernel_cubin, tmp_path, convert_path):
     _, mod = get_saxpy_kernel_cubin
     cubin = mod.code
     sym_map = mod.symbol_mapping
     assert isinstance(cubin, bytes)
     cubin_file = tmp_path / "test.cubin"
     cubin_file.write_bytes(cubin)
-    mod = ObjectCode.from_cubin(str(cubin_file), symbol_mapping=sym_map)
-    assert mod.code == str(cubin_file)
+    arg = convert_path(cubin_file)
+    mod = ObjectCode.from_cubin(arg, symbol_mapping=sym_map)
+    assert mod.code == str(arg)
     mod.get_kernel("saxpy<double>")  # force loading
 
 
@@ -286,15 +293,16 @@ def test_object_code_load_ltoir(get_saxpy_kernel_ltoir):
         mod_obj.get_kernel("saxpy<float>")
 
 
-def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path):
+def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path, convert_path):
     mod = get_saxpy_kernel_ltoir
     ltoir = mod.code
     sym_map = mod.symbol_mapping
     assert isinstance(ltoir, bytes)
     ltoir_file = tmp_path / "test.ltoir"
     ltoir_file.write_bytes(ltoir)
-    mod_obj = ObjectCode.from_ltoir(str(ltoir_file), symbol_mapping=sym_map)
-    assert mod_obj.code == str(ltoir_file)
+    arg = convert_path(ltoir_file)
+    mod_obj = ObjectCode.from_ltoir(arg, symbol_mapping=sym_map)
+    assert mod_obj.code == str(arg)
     assert mod_obj.code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
 
@@ -310,13 +318,14 @@ def test_object_code_load_fatbin(get_saxpy_fatbin):
 
 
 @nvfatbin_available
-def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path):
+def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path, convert_path):
     fatbin, sym_map = get_saxpy_fatbin
     assert isinstance(fatbin, bytes)
     fatbin_file = tmp_path / "test.fatbin"
     fatbin_file.write_bytes(fatbin)
-    mod_obj = ObjectCode.from_fatbin(str(fatbin_file), symbol_mapping=sym_map)
-    assert mod_obj.code == str(fatbin_file)
+    arg = convert_path(fatbin_file)
+    mod_obj = ObjectCode.from_fatbin(arg, symbol_mapping=sym_map)
+    assert mod_obj.code == str(arg)
     assert mod_obj.code_type == "fatbin"
     mod_obj.get_kernel("saxpy<double>")  # force loading
 
@@ -488,9 +497,8 @@ def test_occupancy_max_active_clusters(get_saxpy_kernel_cubin, cluster):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.LaunchConfig(grid=128, block=64, cluster=cluster)
     query_fn = kernel.occupancy.max_active_clusters
-    max_active_clusters = query_fn(launch_config)
-    assert isinstance(max_active_clusters, int)
-    assert max_active_clusters >= 0
+    with pytest.raises(TypeError, match=r"keyword-only argument"):
+        query_fn(launch_config)
     max_active_clusters = query_fn(launch_config, stream=dev.default_stream)
     assert isinstance(max_active_clusters, int)
     assert max_active_clusters >= 0
@@ -503,9 +511,8 @@ def test_occupancy_max_potential_cluster_size(get_saxpy_kernel_cubin):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.LaunchConfig(grid=128, block=64)
     query_fn = kernel.occupancy.max_potential_cluster_size
-    max_potential_cluster_size = query_fn(launch_config)
-    assert isinstance(max_potential_cluster_size, int)
-    assert max_potential_cluster_size >= 0
+    with pytest.raises(TypeError, match=r"keyword-only argument"):
+        query_fn(launch_config)
     max_potential_cluster_size = query_fn(launch_config, stream=dev.default_stream)
     assert isinstance(max_potential_cluster_size, int)
     assert max_potential_cluster_size >= 0
@@ -685,7 +692,7 @@ def test_kernel_keeps_library_alive(init_cuda):
     result = np.from_dlpack(host_buf).view(np.int32)
     result[:] = 0
 
-    dev_buf = device.memory_resource.allocate(4)
+    dev_buf = device.memory_resource.allocate(4, stream=device.default_stream)
 
     # Launch kernel
     config = cuda.core.LaunchConfig(grid=1, block=1)

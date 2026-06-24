@@ -1,9 +1,12 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 from libc.stdint cimport uintptr_t
+from libcpp cimport bool as cpp_bool
+from libcpp.atomic cimport atomic as std_atomic, memory_order_acquire, memory_order_release
 
+from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport DevicePtrHandle
 from cuda.core._stream cimport Stream
 
@@ -17,24 +20,37 @@ cdef struct _MemAttrs:
 
 cdef class Buffer:
     cdef:
-        DevicePtrHandle _h_ptr
+        DevicePtrHandle       _h_ptr
+        MemoryResource        _memory_resource
+        object                _ipc_data
+        object                _owner
+        _MemAttrs             _mem_attrs
+        std_atomic[cpp_bool]  _mem_attrs_inited
+        object                __weakref__
+    cdef public:
+        # Python code in _memory/_virtual_memory_resource.py needs to update
+        # this value, though it is technically private.
         size_t          _size
-        MemoryResource  _memory_resource
-        object          _ipc_data
-        object          _owner
-        _MemAttrs       _mem_attrs
-        bint            _mem_attrs_inited
-        object          __weakref__
 
 
 cdef class MemoryResource:
     pass
 
 
-# Helper function to create a Buffer from a DevicePtrHandle
+# Helper function to create a Buffer from a DevicePtrHandle.
+# `cls` lets callers materialize Buffer subclasses (e.g. ManagedBuffer for
+# managed-memory allocations); defaults to Buffer.
 cdef Buffer Buffer_from_deviceptr_handle(
     DevicePtrHandle h_ptr,
     size_t size,
     MemoryResource mr,
-    object ipc_descriptor = *
+    object ipc_descriptor = *,
+    type cls = *,
 )
+
+# Memory attribute query helpers (used by _managed_memory_ops)
+cdef void _init_mem_attrs(Buffer self)
+cdef int _query_memory_attrs(
+    _MemAttrs& out,
+    cydriver.CUdeviceptr ptr,
+) except -1 nogil

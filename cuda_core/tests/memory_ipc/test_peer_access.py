@@ -5,13 +5,17 @@ import multiprocessing as mp
 
 import pytest
 from helpers.buffers import PatternGen
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._utils.cuda_utils import CUDAError
 
-CHILD_TIMEOUT_SEC = 30
+CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 POOL_SIZE = 2097152
+
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
 class TestPeerAccessNotPreservedOnImport:
@@ -21,35 +25,37 @@ class TestPeerAccessNotPreservedOnImport:
     """
 
     @pytest.mark.flaky(reruns=2)
-    def test_main(self, mempool_device_x2):
-        dev0, dev1 = mempool_device_x2
+    def test_main(self, ipc_mempool_device_x2):
+        dev0, dev1 = ipc_mempool_device_x2
 
         # Parent Process - Create and Configure MR
         dev1.set_current()
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr = DeviceMemoryResource(dev1, options=options)
         mr.peer_accessible_by = [dev0]
-        assert mr.peer_accessible_by == (0,)
+        assert mr.peer_accessible_by == {dev0}
 
         # Spawn child process
         process = mp.Process(target=self.child_main, args=(mr,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         # Verify parent's MR still has peer access set (independent state)
-        assert mr.peer_accessible_by == (0,)
+        assert mr.peer_accessible_by == {dev0}
         mr.close()
 
     def child_main(self, mr):
         Device(1).set_current()
         assert mr.is_mapped is True
         assert mr.device_id == 1
-        assert mr.peer_accessible_by == ()
+        assert mr.peer_accessible_by == set()
         mr.peer_accessible_by = [0]
-        assert mr.peer_accessible_by == (0,)
+        assert mr.peer_accessible_by == {Device(0)}
         mr.peer_accessible_by = []
-        assert mr.peer_accessible_by == ()
+        assert mr.peer_accessible_by == set()
         mr.close()
 
 
@@ -61,8 +67,8 @@ class TestBufferPeerAccessAfterImport:
 
     @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("grant_access_in_parent", [True, False])
-    def test_main(self, mempool_device_x2, grant_access_in_parent):
-        dev0, dev1 = mempool_device_x2
+    def test_main(self, ipc_mempool_device_x2, grant_access_in_parent):
+        dev0, dev1 = ipc_mempool_device_x2
 
         # Parent Process - Create MR and Buffer
         dev1.set_current()
@@ -70,10 +76,10 @@ class TestBufferPeerAccessAfterImport:
         mr = DeviceMemoryResource(dev1, options=options)
         if grant_access_in_parent:
             mr.peer_accessible_by = [dev0]
-            assert mr.peer_accessible_by == (0,)
+            assert mr.peer_accessible_by == {dev0}
         else:
-            assert mr.peer_accessible_by == ()
-        buffer = mr.allocate(NBYTES)
+            assert mr.peer_accessible_by == set()
+        buffer = mr.allocate(NBYTES, stream=dev1.default_stream)
         pgen = PatternGen(dev1, NBYTES)
         pgen.fill_buffer(buffer, seed=False)
 
@@ -81,9 +87,13 @@ class TestBufferPeerAccessAfterImport:
         process = mp.Process(target=self.child_main, args=(mr, buffer))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
         assert process.exitcode == 0
 
         buffer.close()
+        # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+        dev1.sync()
         mr.close()
 
     def child_main(self, mr, buffer):
@@ -108,17 +118,19 @@ class TestBufferPeerAccessAfterImport:
         # Test 3: Set peer access and verify buffer becomes accessible
         dev1.set_current()
         mr.peer_accessible_by = [0]
-        assert mr.peer_accessible_by == (0,)
+        assert mr.peer_accessible_by == {dev0}
         dev0.set_current()
         PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
 
         # Test 4: Revoke peer access and verify buffer becomes inaccessible
         dev1.set_current()
         mr.peer_accessible_by = []
-        assert mr.peer_accessible_by == ()
+        assert mr.peer_accessible_by == set()
         dev0.set_current()
         with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
             PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
 
         buffer.close()
+        # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+        dev1.sync()
         mr.close()

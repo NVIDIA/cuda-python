@@ -3,36 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-class EventType(StrEnum):
-    """
-    Event types that can be waited on with :class:`DeviceEvents`.
-    """
-    NONE = "none"
-    SINGLE_BIT_ECC_ERROR = "single_bit_ecc_error"
-    DOUBLE_BIT_ECC_ERROR = "double_bit_ecc_error"
-    PSTATE = "pstate"
-    XID_CRITICAL_ERROR = "xid_critical_error"
-    CLOCK = "clock"
-    POWER_SOURCE_CHANGE = "power_source_change"
-    MIG_CONFIG_CHANGE = "mig_config_change"
-    SINGLE_BIT_ECC_ERROR_STORM = "single_bit_ecc_error_storm"
-    DRAM_RETIREMENT_EVENT = "dram_retirement_event"
-    DRAM_RETIREMENT_FAILURE = "dram_retirement_failure"
-    NON_FATAL_POISON_ERROR = "non_fatal_poison_error"
-    FATAL_POISON_ERROR = "fatal_poison_error"
-    GPU_UNAVAILABLE_ERROR = "gpu_unavailable_error"
-    GPU_RECOVERY_ACTION = "gpu_recovery_action"
-
-
-EventType.PSTATE.__doc__ = """
-Event about PState changes
-
-On Fermi™ architecture, PState changes are also an indicator that GPU is throttling down due to
-no work being executed on the GPU, power capping or thermal capping. In a typical situation,
-Fermi-based GPU should stay in P0 for the duration of the execution of the compute process.
-"""
-
-
 _EVENT_TYPE_MAPPING = {
     nvml.EventType.NONE: EventType.NONE,
     nvml.EventType.SINGLE_BIT_ECC_ERROR: EventType.SINGLE_BIT_ECC_ERROR,
@@ -125,6 +95,8 @@ cdef class DeviceEvents:
     cdef intptr_t _device_handle
 
     def __init__(self, device_handle: intptr_t, events: EventType | str | list[EventType | str]):
+        self._event_set = 0
+
         cdef unsigned long long event_bitmask
         if isinstance(events, (str, EventType)):
             events = [events]
@@ -149,8 +121,9 @@ cdef class DeviceEvents:
         # this class's __dealloc__ method.
         nvml.device_register_events(self._device_handle, event_bitmask, self._event_set)
 
-    def __dealloc__(self):
-        nvml.event_set_free(self._event_set)
+    def __dealloc__(self) -> None:
+        if self._event_set != 0:
+            nvml.event_set_free(self._event_set)
 
     def wait(self, timeout_ms: int = 0) -> EventData:
         """

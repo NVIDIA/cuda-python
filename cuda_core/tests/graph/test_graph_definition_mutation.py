@@ -311,9 +311,9 @@ def test_add_wrong_type(init_cuda):
     """Adding a non-GraphNode raises TypeError."""
     g = GraphDefinition()
     node = g.empty()
-    with pytest.raises(TypeError, match="expected GraphNode"):
+    with pytest.raises(TypeError, match="expected .*GraphNode"):
         node.succ.add("not a node")
-    with pytest.raises(TypeError, match="expected GraphNode"):
+    with pytest.raises(TypeError, match="expected .*GraphNode"):
         node.succ.add(42)
 
 

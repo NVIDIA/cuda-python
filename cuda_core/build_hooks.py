@@ -11,7 +11,6 @@ import functools
 import glob
 import os
 import re
-import subprocess
 import sys
 import tempfile
 import zipfile
@@ -144,12 +143,21 @@ def _build_cuda_core(debug=False):
         # cuda-bindings not available in editable mode, will use installed version
         pass
 
+    _posix_only_modules = frozenset(
+        {
+            "_utils/_wsl_locale",
+        }
+    )
+
     # It seems setuptools' wildcard support has problems for namespace packages,
     # so we explicitly spell out all Extension instances.
     def module_names():
         root_path = os.path.sep.join(["cuda", "core", ""])
         for filename in glob.glob(f"{root_path}/**/*.pyx", recursive=True):
-            yield filename[len(root_path) : -4]
+            mod = filename[len(root_path) : -4]
+            if sys.platform == "win32" and mod.replace(os.path.sep, "/") in _posix_only_modules:
+                continue
+            yield mod
 
     def get_sources(mod_name):
         """Get source files for a module, including any .cpp files."""
@@ -185,28 +193,6 @@ def _build_cuda_core(debug=False):
         # related to free-threading builds.
         extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
 
-    # On Windows, _tensor_bridge.pyx needs a stub import library so the MSVC
-    # linker can resolve the AOTI symbols (they live in torch_cpu.dll at
-    # runtime).  We generate the .lib from a .def file at build time.
-    # Note: aoti_torch_get_current_cuda_stream lives in torch_cuda.dll and
-    # is resolved lazily at runtime (not via the stub lib) — see
-    # _tensor_bridge.pyx.
-    _aoti_extra_link_args = []
-    if sys.platform == "win32":
-        _def_file = os.path.join("cuda", "core", "_include", "aoti_shim.def")
-        _lib_file = os.path.join("build", "aoti_shim.lib")
-        os.makedirs("build", exist_ok=True)
-        subprocess.check_call(  # noqa: S603
-            ["lib", f"/DEF:{_def_file}", f"/OUT:{_lib_file}", "/MACHINE:X64"],  # noqa: S607
-            stdout=subprocess.DEVNULL,
-        )
-        _aoti_extra_link_args = [_lib_file]
-
-    def get_extra_link_args(mod_name):
-        if mod_name == "_tensor_bridge" and _aoti_extra_link_args:
-            return extra_link_args + _aoti_extra_link_args
-        return extra_link_args
-
     ext_modules = tuple(
         Extension(
             f"cuda.core.{mod.replace(os.path.sep, '.')}",
@@ -218,7 +204,7 @@ def _build_cuda_core(debug=False):
             + all_include_dirs,
             language="c++",
             extra_compile_args=extra_compile_args,
-            extra_link_args=get_extra_link_args(mod),
+            extra_link_args=extra_link_args,
         )
         for mod in module_names()
     )

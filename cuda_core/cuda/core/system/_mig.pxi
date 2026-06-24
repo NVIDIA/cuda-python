@@ -45,7 +45,7 @@ cdef class MigInfo:
         return current == nvml.EnableState.FEATURE_ENABLED
 
     @mode.setter
-    def mode(self, mode: bool):
+    def mode(self, mode: bool) -> None:
         """
         Set the MIG mode for the device.
 
@@ -163,4 +163,8 @@ cdef class MigInfo:
             A list of all MIG devices corresponding to this GPU.
         """
         for i in range(self.device_count):
-            yield self.get_device_by_index(i)
+            try:
+                yield self.get_device_by_index(i)
+            except nvml.NotFoundError:
+                # Not all MIG devices may be available
+                continue

@@ -14,6 +14,8 @@ import ctypes
 import functools
 import sys
 import warnings
+from collections.abc import Callable  # no-cython-lint  # used in string annotations below
+from typing import Any  # no-cython-lint  # used in string annotations below
 
 import numpy
 
@@ -43,7 +45,7 @@ cdef dict _torch_type_cache = {}
 cdef object _torch_version_ok = None
 
 cdef inline bint _torch_version_check():
-    """Return True if 2.3 <= torch <= 2.11 (known AOTI ABI range). Memoized.
+    """Return True if 2.3 <= torch <= 2.12 (known AOTI ABI range). Memoized.
 
     Lower bound: AOTI functions we use were introduced in PyTorch 2.3.
     Upper bound: the ``pyobj_to_aten_handle`` trick relies on the
@@ -64,7 +66,7 @@ cdef inline bint _torch_version_check():
     try:
         major, minor = int(torch.__version__.split(".")[0]), \
                        int(torch.__version__.split(".")[1])
-        _torch_version_ok = (2, 3) <= (major, minor) <= (2, 11)
+        _torch_version_ok = (2, 3) <= (major, minor) <= (2, 12)
     except (ValueError, IndexError):
         _torch_version_ok = False
     return <bint>_torch_version_ok
@@ -78,7 +80,7 @@ cdef inline bint _is_torch_tensor(object obj):
     cdef str mod = tp.__module__ or ""
     cdef bint result = mod.startswith("torch") and hasattr(obj, "data_ptr") \
         and _torch_version_check()
-    _torch_type_cache[tp] = result
+    _torch_type_cache[tp] = result  # setdefault not needed for bools
     return result
 
 
@@ -334,7 +336,7 @@ cdef class StridedMemoryView:
         )
         return view
 
-    def __dealloc__(self):
+    def __dealloc__(self) -> None:
         if self.dl_tensor == NULL:
             return
 
@@ -370,16 +372,16 @@ cdef class StridedMemoryView:
 
     def as_tensor_map(
         self,
-        box_dim=None,
+        box_dim: tuple[int, ...] | None = None,
         *,
-        options=None,
-        element_strides=None,
-        data_type=None,
-        interleave=None,
-        swizzle=None,
-        l2_promotion=None,
-        oob_fill=None,
-    ):
+        options: object = None,
+        element_strides: tuple[int, ...] | None = None,
+        data_type: object = None,
+        interleave: object = None,
+        swizzle: object = None,
+        l2_promotion: object = None,
+        oob_fill: object = None,
+    ) -> object:
         """Create a tiled :obj:`TensorMapDescriptor` from this view.
 
         This is the public entry point for creating tiled tensor map
@@ -407,10 +409,12 @@ cdef class StridedMemoryView:
         return TensorMapDescriptor._from_tiled(self, box_dim, **kwargs)
 
     def copy_from(
-        self, other : StridedMemoryView, stream : Stream,
-        allocator = None,
-        blocking : bool | None = None,
-    ):
+        self,
+        other: StridedMemoryView,
+        stream: Stream,
+        allocator: object = None,
+        blocking: bool | None = None,
+    ) -> None:
         """
         Copies the data from the other view into this view.
 
@@ -441,10 +445,12 @@ cdef class StridedMemoryView:
         raise NotImplementedError("Sorry, not supported: copy_from")
 
     def copy_to(
-        self, other : StridedMemoryView, stream : Stream | None = None,
-        allocator = None,
-        blocking : bool | None = None,
-    ):
+        self,
+        other: StridedMemoryView,
+        stream: Stream | None = None,
+        allocator: object = None,
+        blocking: bool | None = None,
+    ) -> None:
         """
         Copies the data from this view into the ``other`` view.
 
@@ -459,7 +465,7 @@ cdef class StridedMemoryView:
         max_version: tuple[int, int] | None = None,
         dl_device: tuple[int, int] | None = None,
         copy: bool | None = None,
-    ):
+    ) -> object:
         # Similar to Buffer.__dlpack__: no implicit synchronization is performed.
         if dl_device is not None:
             raise BufferError("Sorry, not supported: dl_device other than None")
@@ -522,7 +528,7 @@ cdef class StridedMemoryView:
         """
         return self.get_dtype()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (f"StridedMemoryView(ptr={self.ptr},\n"
               + f"                  shape={self.shape},\n"
               + f"                  strides={self.strides},\n"
@@ -996,7 +1002,7 @@ cdef bint check_has_dlpack(obj) except*:
     elif hasattr(obj, "__cuda_array_interface__"):
         has_dlpack = False
     else:
-        raise RuntimeError(
+        raise BufferError(
             "the input object does not support any data exchange protocol")
     return has_dlpack
 
@@ -1006,7 +1012,7 @@ cdef class _StridedMemoryViewProxy:
         object obj
         bint has_dlpack
 
-    def __init__(self, obj):
+    def __init__(self, obj: object) -> None:
         self.obj = obj
         self.has_dlpack = check_has_dlpack(obj)
 
@@ -1090,12 +1096,12 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
 
 
 @functools.lru_cache
-def _typestr2dtype(str typestr):
+def _typestr2dtype(str typestr) -> numpy.dtype:
     return numpy.dtype(typestr)
 
 
 @functools.lru_cache
-def _typestr2itemsize(str typestr):
+def _typestr2itemsize(str typestr) -> int:
     return _typestr2dtype(typestr).itemsize
 
 
@@ -1239,7 +1245,7 @@ cpdef StridedMemoryView view_as_array_interface(obj, view=None):
     return buf
 
 
-def args_viewable_as_strided_memory(tuple arg_indices):
+def args_viewable_as_strided_memory(arg_indices: tuple[int, ...]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator to create proxy objects to :obj:`StridedMemoryView` for the
     specified positional arguments.
@@ -1268,9 +1274,9 @@ def args_viewable_as_strided_memory(tuple arg_indices):
     arg_indices : tuple
         The indices of the target positional arguments.
     """
-    def wrapped_func_with_indices(func):
+    def wrapped_func_with_indices(func: "Callable") -> "Callable":
         @functools.wraps(func)
-        def wrapped_func(*args, **kwargs):
+        def wrapped_func(*args, **kwargs) -> object:
             args = list(args)
             cdef int idx
             for idx in arg_indices:

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 set -euo pipefail
@@ -133,7 +133,7 @@ status_from_rc() {
 run_pytest() {
   # Run pytest safely under set -e and return its exit code
   set +e
-  python -m pytest "${PYTEST_FLAGS[@]}" "$@"
+  CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM=0 python -m pytest "${PYTEST_FLAGS[@]}" "$@"
   local rc=$?
   set -e
   return ${rc}

@@ -17,8 +17,11 @@ from cuda.core import (
     Buffer,
     Device,
     GraphicsResource,
-    StridedMemoryView,
 )
+from cuda.core.utils import StridedMemoryView
+
+# TODO(seberg): Maybe some of these tests can be made threadable?
+pytestmark = pytest.mark.thread_unsafe(reason="OpenGL context not threadable")
 
 # ---------------------------------------------------------------------------
 # GL context + buffer helpers
@@ -337,14 +340,14 @@ class TestMapUnmap:
                 assert buf.size > 0
             resource.close()
 
-    def test_map_with_default_stream(self):
+    def test_map_requires_explicit_stream(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
             resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            with resource.map() as buf:
-                assert isinstance(buf, Buffer)
-                assert buf.size > 0
-            assert not resource.is_mapped
-            resource.close()
+            try:
+                with pytest.raises(TypeError, match=r"keyword-only argument"):
+                    resource.map()
+            finally:
+                resource.close()
 
 
 # ---------------------------------------------------------------------------
