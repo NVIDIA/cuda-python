@@ -308,7 +308,6 @@ class TestTensorMapDescriptorValidation:
                 data_type=42,
             )
 
-    # HUMAN-REVIEWED
     def test_as_tensor_map_host_view_rejected_without_tma(self):
         """``as_tensor_map`` rejects a non-device-accessible (host) view with a
         clear error, exercising the ``as_tensor_map`` -> ``_from_tiled`` path

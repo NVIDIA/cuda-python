@@ -7,8 +7,6 @@ deleter paths, ``from_dlpack`` error handling, and the
 ``__dlpack_c_exchange_api__`` C exchange-API helpers driven through ctypes.
 """
 
-# HUMAN-REVIEWED
-
 import ctypes
 
 try:
