@@ -88,7 +88,8 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 [build-system]
 requires = [
     "setuptools>=80.0.0",
-    "setuptools_scm[simple]>=8",
+    "setuptools_scm[simple]>=8,<10.1",
+    "vcs-versioning<2.0",
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
@@ -102,6 +103,7 @@ git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--ma
 
 [tool.pytest.ini_options]
 addopts = "--showlocals"
+thread_unsafe_fixtures = ['mocker']
 
 [tool.mypy]
 # Try to keep the mypy configuration similar between the subprojects
