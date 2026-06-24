@@ -80,7 +80,7 @@ def cufileVersionLessThan(target):
 
 @pytest.fixture(scope="session")
 def skipIfUnsupportedFilesystem(tmpdir_factory):
-    """Fixture that skips if the current filesystem is supported (ext4 or xfs).
+    """Fixture that skips if the current filesystem is not supported (ext4 or xfs).
 
     The actual requirements are probably both stricter (ext4 was not working on CI previously)
     and possibly also less strict.
@@ -88,7 +88,7 @@ def skipIfUnsupportedFilesystem(tmpdir_factory):
     This uses `findmnt` so the kernel's mount table logic owns the decoding of the filesystem type.
     """
     cmd = ["findmnt", "-no", "FSTYPE", "-T", tmpdir_factory.getbasetemp()]
-    fs_type = subprocess.check_output(cmd, text=True).strip()  # noqa S603, S607
+    fs_type = subprocess.check_output(cmd, text=True).strip()  # noqa: S603
     logging.info(f"Current filesystem type (findmnt): {fs_type}")
     if fs_type not in ("ext4", "xfs"):
         pytest.skip("cuFile handle_register requires ext4 or xfs filesystem")
