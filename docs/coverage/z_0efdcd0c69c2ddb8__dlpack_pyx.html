@@ -86,7 +86,8 @@
   ";": "tests/test_memory.py::test_buffer_dunder_dlpack_device_success[DummyHostMemoryResource-expected1]|run",
   "=": "tests/test_memory.py::test_buffer_dunder_dlpack_device_success[DummyPinnedMemoryResource-expected3]|run",
   "?": "tests/test_memory.py::test_buffer_dunder_dlpack_device_success[DummyUnifiedMemoryResource-expected2]|run",
-  "@": "tests/test_memory.py::test_buffer_dunder_dlpack_device_success[DummyDeviceMemoryResource-expected0]|run"
+  "@": "tests/test_memory.py::test_buffer_dunder_dlpack_device_success[DummyDeviceMemoryResource-expected0]|run",
+  "[": "tests/test_utils.py::test_dlpack_export_device_accessible_cai_view|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -149,7 +150,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__event_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-06-24 01:56 +0000
+            created at 2026-06-25 01:32 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -261,10 +262,10 @@
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">    ``buf`` must expose ``is_device_accessible``, ``is_host_accessible``,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">    ``is_managed``, and ``device_id`` attributes.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">    cdef bint d = buf.is_device_accessible</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">79 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*.:@;=?a+,-</span></p>
-    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">    cdef bint h = buf.is_host_accessible</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">79 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*.:@;=?a+,-</span></p>
-    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">    if d and not h:</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">79 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*.:@;=?a+,-</span></p>
-    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        return (_kDLCUDA, buf.device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">2 ctx</label></span><span class="ctxs">1@a</span></p>
+    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">    cdef bint d = buf.is_device_accessible</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">80 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*.:@;=?a+,-[</span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">    cdef bint h = buf.is_host_accessible</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">80 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*.:@;=?a+,-[</span></p>
+    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">    if d and not h:</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">80 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*.:@;=?a+,-[</span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        return (_kDLCUDA, buf.device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">3 ctx</label></span><span class="ctxs">1@a[</span></p>
     <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">    if d and h:</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">77 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*.:;=?+,-</span></p>
     <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">        return (_kDLCUDAManaged if buf.is_managed else _kDLCUDAHost, 0)</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">74 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*=?+,-</span></p>
     <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">    if not d and h:</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">3 ctx</label></span><span class="ctxs">1.:;</span></p>
@@ -349,7 +350,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__event_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-06-24 01:56 +0000
+            created at 2026-06-25 01:32 +0000
         </p>
     </div>
 </footer>

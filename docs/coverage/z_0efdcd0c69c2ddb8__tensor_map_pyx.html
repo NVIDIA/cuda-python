@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/_tensor_map.pyx: 29.60%</title>
+    <title>Coverage for cuda/core/_tensor_map.pyx: 35.48%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
         contexts = {
   "a": "(empty)",
-  "b": "tests/test_tensor_map.py::TestTensorMapDeviceValidation::test_require_view_device_rejects_different_cuda_device|run",
-  "c": "tests/test_tensor_map.py::TestTensorMapDeviceValidation::test_require_view_device_accepts_same_cuda_device|run",
-  "d": "tests/test_tensor_map.py::TestTensorMapDeviceValidation::test_require_view_device_allows_cuda_host_memory|run",
-  "e": "tests/test_tensor_map.py::TestTensorMapDeviceValidation::test_require_view_device_allows_cuda_managed_memory|run",
-  "f": "tests/test_tensor_map.py::TestTensorMapDescriptorCreation::test_cannot_instantiate_directly|run"
+  "b": "tests/test_tensor_map.py::TestTensorMapDescriptorValidation::test_as_tensor_map_host_view_rejected_without_tma|run",
+  "c": "tests/test_tensor_map.py::TestTensorMapDeviceValidation::test_require_view_device_rejects_different_cuda_device|run",
+  "d": "tests/test_tensor_map.py::TestTensorMapDeviceValidation::test_require_view_device_accepts_same_cuda_device|run",
+  "e": "tests/test_tensor_map.py::TestTensorMapDeviceValidation::test_require_view_device_allows_cuda_host_memory|run",
+  "f": "tests/test_tensor_map.py::TestTensorMapDeviceValidation::test_require_view_device_allows_cuda_managed_memory|run",
+  "g": "tests/test_tensor_map.py::TestTensorMapDescriptorCreation::test_cannot_instantiate_directly|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -22,7 +23,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>_tensor_map.pyx</b>:
-            <span class="pc_cov">29.60%</span>
+            <span class="pc_cov">35.48%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -65,8 +66,8 @@
         </aside>
         <h2>
             <span class="text">527 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">156<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">371<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">187<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">340<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">1<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -75,7 +76,7 @@
             <a id="nextFileLink" class="nav" href="z_b1c5cc5642be1834_cuda_utils_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-06-24 01:56 +0000
+            created at 2026-06-25 01:32 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -238,8 +239,8 @@
     <p class="pln"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">def _normalize_tensor_map_data_type(data_type):</span>&nbsp;</span><span class="r"><label for="ctxs148" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">    if data_type is None or isinstance(data_type, TensorMapDataType):</span>&nbsp;</span><span class="r"><label for="ctxs149" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        return data_type</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">    if data_type is None or isinstance(data_type, TensorMapDataType):</span>&nbsp;</span><input type="checkbox" id="ctxs149"><span class="r"><label for="ctxs149" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
+    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        return data_type</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">        return numpy.dtype(data_type)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">    except TypeError as e:</span>&nbsp;</span><span class="r"></span></p>
@@ -249,20 +250,20 @@
     <p class="pln"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">def _normalize_tensor_map_sequence(name, values):</span>&nbsp;</span><span class="r"><label for="ctxs159" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">        values = tuple(values)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs160"><span class="r"><label for="ctxs160" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">        values = tuple(values)</span>&nbsp;</span><input type="checkbox" id="ctxs161"><span class="r"><label for="ctxs161" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">    except TypeError as e:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">        raise TypeError(f"{name} must be a tuple of ints, got {type(values)}") from e</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">    for i, value in enumerate(values):</span>&nbsp;</span><span class="r"><label for="ctxs164" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">        if not isinstance(value, int):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">    for i, value in enumerate(values):</span>&nbsp;</span><input type="checkbox" id="ctxs164"><span class="r"><label for="ctxs164" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
+    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">        if not isinstance(value, int):</span>&nbsp;</span><input type="checkbox" id="ctxs165"><span class="r"><label for="ctxs165" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">            raise TypeError(f"{name}[{i}] must be an int, got {type(value)}")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">    return values</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">    return values</span>&nbsp;</span><input type="checkbox" id="ctxs167"><span class="r"><label for="ctxs167" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">def _require_tensor_map_enum(name, value, enum_type):</span>&nbsp;</span><span class="r"><label for="ctxs170" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">    if not isinstance(value, enum_type):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">    if not isinstance(value, enum_type):</span>&nbsp;</span><input type="checkbox" id="ctxs171"><span class="r"><label for="ctxs171" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">        raise TypeError(f"{name} must be a {enum_type.__name__}, got {type(value)}")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">    return value</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">    return value</span>&nbsp;</span><input type="checkbox" id="ctxs173"><span class="r"><label for="ctxs173" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">@dataclass</span>&nbsp;</span><span class="r"><label for="ctxs176" class="ctx">(empty)</label></span></p>
@@ -297,14 +298,14 @@
     <p class="run"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">    oob_fill: TensorMapOOBFill = TensorMapOOBFill.NONE</span>&nbsp;</span><span class="r"><label for="ctxs205" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">    def __post_init__(self) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs207" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">        self.box_dim = _normalize_tensor_map_sequence("box_dim", self.box_dim)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">        if self.element_strides is not None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">            self.element_strides = _normalize_tensor_map_sequence("element_strides", self.element_strides)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">        self.data_type = _normalize_tensor_map_data_type(self.data_type)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">        self.interleave = _require_tensor_map_enum("interleave", self.interleave, TensorMapInterleave)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">        self.swizzle = _require_tensor_map_enum("swizzle", self.swizzle, TensorMapSwizzle)</span>&nbsp;</span><span class="r"><label for="ctxs213" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">        self.l2_promotion = _require_tensor_map_enum("l2_promotion", self.l2_promotion, TensorMapL2Promotion)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">        self.oob_fill = _require_tensor_map_enum("oob_fill", self.oob_fill, TensorMapOOBFill)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">        self.box_dim = _normalize_tensor_map_sequence("box_dim", self.box_dim)</span>&nbsp;</span><input type="checkbox" id="ctxs208"><span class="r"><label for="ctxs208" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">        if self.element_strides is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs209"><span class="r"><label for="ctxs209" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">            self.element_strides = _normalize_tensor_map_sequence("element_strides", self.element_strides)</span>&nbsp;</span><input type="checkbox" id="ctxs210"><span class="r"><label for="ctxs210" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">        self.data_type = _normalize_tensor_map_data_type(self.data_type)</span>&nbsp;</span><input type="checkbox" id="ctxs211"><span class="r"><label for="ctxs211" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">        self.interleave = _require_tensor_map_enum("interleave", self.interleave, TensorMapInterleave)</span>&nbsp;</span><input type="checkbox" id="ctxs212"><span class="r"><label for="ctxs212" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">        self.swizzle = _require_tensor_map_enum("swizzle", self.swizzle, TensorMapSwizzle)</span>&nbsp;</span><input type="checkbox" id="ctxs213"><span class="r"><label for="ctxs213" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
+    <p class="run"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">        self.l2_promotion = _require_tensor_map_enum("l2_promotion", self.l2_promotion, TensorMapL2Promotion)</span>&nbsp;</span><input type="checkbox" id="ctxs214"><span class="r"><label for="ctxs214" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">        self.oob_fill = _require_tensor_map_enum("oob_fill", self.oob_fill, TensorMapOOBFill)</span>&nbsp;</span><input type="checkbox" id="ctxs215"><span class="r"><label for="ctxs215" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">def _coerce_tensor_map_descriptor_options(</span>&nbsp;</span><span class="r"><label for="ctxs218" class="ctx">(empty)</label></span></p>
@@ -318,7 +319,7 @@
     <p class="pln"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">    l2_promotion,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">    oob_fill,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">    if options is not None:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">    if options is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs229"><span class="r"><label for="ctxs229" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">        if (</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">            box_dim is not None</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">            or element_strides is not None</span>&nbsp;</span><span class="r"><label for="ctxs232" class="ctx">(empty)</label></span></p>
@@ -336,17 +337,17 @@
     <p class="pln"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">            "Tensor map descriptor options",</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">    if box_dim is None:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">    if box_dim is None:</span>&nbsp;</span><input type="checkbox" id="ctxs247"><span class="r"><label for="ctxs247" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">        raise TypeError("box_dim is required unless options is provided")</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">    return TensorMapDescriptorOptions(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">    return TensorMapDescriptorOptions(</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">        box_dim=box_dim,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">        element_strides=element_strides,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">        data_type=data_type,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">        interleave=interleave,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">        swizzle=swizzle,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">        l2_promotion=l2_promotion,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">        oob_fill=oob_fill,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">        oob_fill=oob_fill,</span>&nbsp;</span><input type="checkbox" id="ctxs257"><span class="r"><label for="ctxs257" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -475,8 +476,8 @@
     <p class="pln"><span class="n"><a id="t383" href="#t383">383</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t384" href="#t384">384</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t385" href="#t385">385</a></span><span class="t"><span class="txt">cdef inline int _validate_tensor_map_view(view) except -1:</span>&nbsp;</span><span class="r"><label for="ctxs385" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t386" href="#t386">386</a></span><span class="t"><span class="txt">    if not view.is_device_accessible:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t387" href="#t387">387</a></span><span class="t"><span class="txt">        raise ValueError("The tensor must be device-accessible")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t386" href="#t386">386</a></span><span class="t"><span class="txt">    if not view.is_device_accessible:</span>&nbsp;</span><input type="checkbox" id="ctxs386"><span class="r"><label for="ctxs386" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t387" href="#t387">387</a></span><span class="t"><span class="txt">        raise ValueError("The tensor must be device-accessible")</span>&nbsp;</span><input type="checkbox" id="ctxs387"><span class="r"><label for="ctxs387" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t388" href="#t388">388</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t389" href="#t389">389</a></span><span class="t"><span class="txt">    if view.ptr % 16 != 0:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t390" href="#t390">390</a></span><span class="t"><span class="txt">        raise ValueError(</span>&nbsp;</span><span class="r"></span></p>
@@ -504,10 +505,10 @@
     <p class="pln"><span class="n"><a id="t412" href="#t412">412</a></span><span class="t"><span class="txt">    ``kDLCUDAManaged`` with ``device_id=0`` regardless of the current device,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t413" href="#t413">413</a></span><span class="t"><span class="txt">    so only true ``kDLCUDA`` tensors are rejected by device-id mismatch.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t414" href="#t414">414</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t415" href="#t415">415</a></span><span class="t"><span class="txt">    device_type, device_id = view.__dlpack_device__()</span>&nbsp;</span><input type="checkbox" id="ctxs415"><span class="r"><label for="ctxs415" class="ctx">4 ctx</label></span><span class="ctxs">1cdeb</span></p>
-    <p class="run"><span class="n"><a id="t416" href="#t416">416</a></span><span class="t"><span class="txt">    if device_type == _kDLCUDA and device_id != expected_device_id:</span>&nbsp;</span><input type="checkbox" id="ctxs416"><span class="r"><label for="ctxs416" class="ctx">4 ctx</label></span><span class="ctxs">1cdeb</span></p>
-    <p class="run"><span class="n"><a id="t417" href="#t417">417</a></span><span class="t"><span class="txt">        raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs417"><span class="r"><label for="ctxs417" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
-    <p class="run"><span class="n"><a id="t418" href="#t418">418</a></span><span class="t"><span class="txt">            f"{operation} expects tensor on device {expected_device_id}, got {device_id}")</span>&nbsp;</span><input type="checkbox" id="ctxs418"><span class="r"><label for="ctxs418" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
+    <p class="run"><span class="n"><a id="t415" href="#t415">415</a></span><span class="t"><span class="txt">    device_type, device_id = view.__dlpack_device__()</span>&nbsp;</span><input type="checkbox" id="ctxs415"><span class="r"><label for="ctxs415" class="ctx">4 ctx</label></span><span class="ctxs">1defc</span></p>
+    <p class="run"><span class="n"><a id="t416" href="#t416">416</a></span><span class="t"><span class="txt">    if device_type == _kDLCUDA and device_id != expected_device_id:</span>&nbsp;</span><input type="checkbox" id="ctxs416"><span class="r"><label for="ctxs416" class="ctx">4 ctx</label></span><span class="ctxs">1defc</span></p>
+    <p class="run"><span class="n"><a id="t417" href="#t417">417</a></span><span class="t"><span class="txt">        raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs417"><span class="r"><label for="ctxs417" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
+    <p class="run"><span class="n"><a id="t418" href="#t418">418</a></span><span class="t"><span class="txt">            f"{operation} expects tensor on device {expected_device_id}, got {device_id}")</span>&nbsp;</span><input type="checkbox" id="ctxs418"><span class="r"><label for="ctxs418" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
     <p class="run"><span class="n"><a id="t419" href="#t419">419</a></span><span class="t"><span class="txt">cdef inline intptr_t _get_current_context_ptr() except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs419" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t420" href="#t420">420</a></span><span class="t"><span class="txt">    cdef cydriver.CUcontext ctx</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t421" href="#t421">421</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><span class="r"></span></p>
@@ -567,7 +568,7 @@
     <p class="pln"><span class="n"><a id="t475" href="#t475">475</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t476" href="#t476">476</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t477" href="#t477">477</a></span><span class="t"><span class="txt">    def __init__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t478" href="#t478">478</a></span><span class="t"><span class="txt">        raise RuntimeError(</span>&nbsp;</span><input type="checkbox" id="ctxs478"><span class="r"><label for="ctxs478" class="ctx">1 ctx</label></span><span class="ctxs">1f</span></p>
+    <p class="run"><span class="n"><a id="t478" href="#t478">478</a></span><span class="t"><span class="txt">        raise RuntimeError(</span>&nbsp;</span><input type="checkbox" id="ctxs478"><span class="r"><label for="ctxs478" class="ctx">1 ctx</label></span><span class="ctxs">1g</span></p>
     <p class="pln"><span class="n"><a id="t479" href="#t479">479</a></span><span class="t"><span class="txt">            "TensorMapDescriptor cannot be instantiated directly. "</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t480" href="#t480">480</a></span><span class="t"><span class="txt">            "Use StridedMemoryView.as_tensor_map() instead.")</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t481" href="#t481">481</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -653,9 +654,9 @@
     <p class="pln"><span class="n"><a id="t561" href="#t561">561</a></span><span class="t"><span class="txt">            If the tensor rank is outside [1, 5], the pointer is not</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t562" href="#t562">562</a></span><span class="t"><span class="txt">            16-byte aligned, or dimension/stride constraints are violated.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t563" href="#t563">563</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t564" href="#t564">564</a></span><span class="t"><span class="txt">        cdef TensorMapDescriptor desc = cls.__new__(cls)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t564" href="#t564">564</a></span><span class="t"><span class="txt">        cdef TensorMapDescriptor desc = cls.__new__(cls)</span>&nbsp;</span><input type="checkbox" id="ctxs564"><span class="r"><label for="ctxs564" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t565" href="#t565">565</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t566" href="#t566">566</a></span><span class="t"><span class="txt">        opts = _coerce_tensor_map_descriptor_options(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t566" href="#t566">566</a></span><span class="t"><span class="txt">        opts = _coerce_tensor_map_descriptor_options(</span>&nbsp;</span><input type="checkbox" id="ctxs566"><span class="r"><label for="ctxs566" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t567" href="#t567">567</a></span><span class="t"><span class="txt">            box_dim,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t568" href="#t568">568</a></span><span class="t"><span class="txt">            options,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t569" href="#t569">569</a></span><span class="t"><span class="txt">            element_strides=element_strides,</span>&nbsp;</span><span class="r"></span></p>
@@ -663,17 +664,17 @@
     <p class="pln"><span class="n"><a id="t571" href="#t571">571</a></span><span class="t"><span class="txt">            interleave=interleave,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t572" href="#t572">572</a></span><span class="t"><span class="txt">            swizzle=swizzle,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t573" href="#t573">573</a></span><span class="t"><span class="txt">            l2_promotion=l2_promotion,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t574" href="#t574">574</a></span><span class="t"><span class="txt">            oob_fill=oob_fill,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t574" href="#t574">574</a></span><span class="t"><span class="txt">            oob_fill=oob_fill,</span>&nbsp;</span><input type="checkbox" id="ctxs574"><span class="r"><label for="ctxs574" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t575" href="#t575">575</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t576" href="#t576">576</a></span><span class="t"><span class="txt">        box_dim = opts.box_dim</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t577" href="#t577">577</a></span><span class="t"><span class="txt">        element_strides = opts.element_strides</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t578" href="#t578">578</a></span><span class="t"><span class="txt">        data_type = opts.data_type</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t579" href="#t579">579</a></span><span class="t"><span class="txt">        interleave = opts.interleave</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t580" href="#t580">580</a></span><span class="t"><span class="txt">        swizzle = opts.swizzle</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t581" href="#t581">581</a></span><span class="t"><span class="txt">        l2_promotion = opts.l2_promotion</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t582" href="#t582">582</a></span><span class="t"><span class="txt">        oob_fill = opts.oob_fill</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t576" href="#t576">576</a></span><span class="t"><span class="txt">        box_dim = opts.box_dim</span>&nbsp;</span><input type="checkbox" id="ctxs576"><span class="r"><label for="ctxs576" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t577" href="#t577">577</a></span><span class="t"><span class="txt">        element_strides = opts.element_strides</span>&nbsp;</span><input type="checkbox" id="ctxs577"><span class="r"><label for="ctxs577" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t578" href="#t578">578</a></span><span class="t"><span class="txt">        data_type = opts.data_type</span>&nbsp;</span><input type="checkbox" id="ctxs578"><span class="r"><label for="ctxs578" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t579" href="#t579">579</a></span><span class="t"><span class="txt">        interleave = opts.interleave</span>&nbsp;</span><input type="checkbox" id="ctxs579"><span class="r"><label for="ctxs579" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t580" href="#t580">580</a></span><span class="t"><span class="txt">        swizzle = opts.swizzle</span>&nbsp;</span><input type="checkbox" id="ctxs580"><span class="r"><label for="ctxs580" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t581" href="#t581">581</a></span><span class="t"><span class="txt">        l2_promotion = opts.l2_promotion</span>&nbsp;</span><input type="checkbox" id="ctxs581"><span class="r"><label for="ctxs581" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t582" href="#t582">582</a></span><span class="t"><span class="txt">        oob_fill = opts.oob_fill</span>&nbsp;</span><input type="checkbox" id="ctxs582"><span class="r"><label for="ctxs582" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t583" href="#t583">583</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t584" href="#t584">584</a></span><span class="t"><span class="txt">        _validate_tensor_map_view(view)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t584" href="#t584">584</a></span><span class="t"><span class="txt">        _validate_tensor_map_view(view)</span>&nbsp;</span><input type="checkbox" id="ctxs584"><span class="r"><label for="ctxs584" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t585" href="#t585">585</a></span><span class="t"><span class="txt">        # Keep both the original tensor object and the validated view alive.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t586" href="#t586">586</a></span><span class="t"><span class="txt">        # For DLPack exporters, the view may hold the owning capsule whose</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t587" href="#t587">587</a></span><span class="t"><span class="txt">        # deleter can free the backing allocation when released.</span>&nbsp;</span><span class="r"></span></p>
@@ -1203,7 +1204,7 @@
             <a class="nav" href="z_b1c5cc5642be1834_cuda_utils_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-06-24 01:56 +0000
+            created at 2026-06-25 01:32 +0000
         </p>
     </div>
 </footer>

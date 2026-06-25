@@ -743,7 +743,8 @@
   "vi": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[dtype0-1-itemsize .+ does not match dtype.itemsize .+]|run",
   "wi": "tests/test_utils.py::test_from_buffer_disallowed_negative_offset|run",
   "xi": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
-  "yi": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run"
+  "yi": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
+  "zi": "tests/test_utils.py::test_strided_memory_view_repr_with_none_dtype|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -806,7 +807,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__linker_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-06-24 01:56 +0000
+            created at 2026-06-25 01:32 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -876,7 +877,7 @@
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">        itemsize : int,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">        divide_strides : bool = False</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">    ) -> None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">        self.init_from_tuple(shape, strides, itemsize, divide_strides)</span>&nbsp;</span><input type="checkbox" id="ctxs56"><span class="r"><label for="ctxs56" class="ctx">709 ctx</label></span><span class="ctxs">2dgpgegfgggqgrghgig[f]f^f_f`f{f|f}f~fagbgcgTcUcVc4cWc5cXcHc6cIc7c8cYc9cZcJc0c1cKcLcMcUhVhWhXhYhZh0h1h2h3h+c[cU V C D c W d X y z rcNcpcscG H I J M E F K L N qctcxe?eyc%czcucAcsgtgug; = ? !c#c$ca b 6 7 8 9 ! # jgkglg{e|e}e~eafbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAfBfCfDfEfFfGfHfIfJfKfLfMfNfOfPfQfRfSfTfUfVfWfXfYfZf0f1f2f3f4f5f6fjiki4h5h6h2cDc'cEcFc3c(cGc/f#g,f@e3gVg4g`eOcPcSbTb)cnc*cBcocCcu v fcgcw WghcicjckcXglcmcx YgZgm n kblbmbnbobpbY s Z t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , 0 4 zbO Ab( BbCb+ ) - 5 DbP 1 A B -f:f;f.f0g5gTgGggbHg$g%g6g'g7g1g(g)g2g*g7hhbIg8hibjb+gUgJg,ge g h i j 2 Q f k 3 R l q S r T EbFb=f?f@fQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%ezgAgfeBgcegedeFhGheeHhheie]e^eKgQg_e'eRgLgjekeMgNgle(eSgOgmePgne)e*e+e+d,e,d-d-e.e/emgngog)f*f+f$ % . ' / : Qc7f8f9fRcScvcwcxc!f#f$f%f'f(f}g~gahbh-g.gchdhth/guhvheh:g;gfhwhxhghhh=gihyhjhqdrd?gkhsdlhtdOdzhPdudmhvdwdnhxdydQdzd@gohphAdRdAhSdTdBdCdDdEdFdGd[gBhHd]g^g8g]cqhUd_g`g.d^c_cVd`crhWdXd,c-cYdhd{cZd|c9g0d}c.c/c/d1did~cad:d{g|g!gCh;djdbd=dDh2d?d3dEh@d4dkd[dcd:c5d]ddd;csh^d6dld_d7d8d9ded`d!dfd#d=c?cmdgd@cyezeAeBeCeoeDepeEeFe:eGe;eHeIe=eJeKeqeLeMeNereOePesete{d|dIh}d~daeJhbeKhLhnd$d%dIdJd'dKd(dLdodMdMh)dpd*dNdNh0bGb1bUbue2b3b4b5b6b7b8b9b!bHbIb#b$bJb%b'b(b)b*b+bKbVbve,b-bLb.bMb/bWb:b;bNb=b?b@bOb[b]b^b_bPbQb`bXbwe{b|b}b~bacYbRbbcccdcZbec9h!h#h$h%h'h(h)h*h+h,h-h.h/h:h;h=h?h@h[h]h^h_h`h{h|h}h~haibicidiwixgyglixiyi</span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">        self.init_from_tuple(shape, strides, itemsize, divide_strides)</span>&nbsp;</span><input type="checkbox" id="ctxs56"><span class="r"><label for="ctxs56" class="ctx">710 ctx</label></span><span class="ctxs">2dgpgegfgggqgrghgig[f]f^f_f`f{f|f}f~fagbgcgTcUcVc4cWc5cXcHc6cIc7c8cYc9cZcJc0c1cKcLcMcUhVhWhXhYhZh0h1h2h3h+c[cU V C D c W d X y z rcNcpcscG H I J M E F K L N qctcxe?eyc%czcucAcsgtgug; = ? !c#c$ca b 6 7 8 9 ! # jgkglg{e|e}e~eafbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAfBfCfDfEfFfGfHfIfJfKfLfMfNfOfPfQfRfSfTfUfVfWfXfYfZf0f1f2f3f4f5f6fjiki4h5h6h2cDc'cEcFc3c(cGc/f#g,f@e3gVg4g`eOcPcSbTb)cnc*cBcocCcu v fcgcw WghcicjckcXglcmcx YgZgm n kblbmbnbobpbY s Z t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , 0 4 zbO Ab( BbCb+ ) - 5 DbP 1 A B -f:f;f.f0g5gTgGggbHg$g%g6g'g7g1g(g)g2g*g7hhbIg8hibjb+gUgJg,ge g h i j 2 Q f k 3 R l q S r T EbFb=f?f@fQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%ezgAgfeBgcegedeFhGheeHhheie]e^eKgQg_e'eRgLgjekeMgNgle(eSgOgmePgne)e*e+e+d,e,d-d-e.e/emgngog)f*f+f$ % . ' / : Qc7f8f9fRcScvcwcxc!f#f$f%f'f(f}g~gahbh-g.gchdhth/guhvheh:g;gfhwhxhghhh=gihyhjhqdrd?gkhsdlhtdOdzhPdudmhvdwdnhxdydQdzd@gohphAdRdAhSdTdBdCdDdEdFdGd[gBhHd]g^g8g]cqhUd_g`g.d^c_cVd`crhWdXd,c-cYdhd{cZd|c9g0d}c.c/c/d1did~cad:d{g|g!gCh;djdbd=dDh2d?d3dEh@d4dkd[dcd:c5d]ddd;csh^d6dld_d7d8d9ded`d!dfd#d=c?cmdgd@cyezeAeBeCeoeDepeEeFe:eGe;eHeIe=eJeKeqeLeMeNereOePesete{d|dIh}d~daeJhbeKhLhnd$d%dIdJd'dKd(dLdodMdMh)dpd*dNdNh0bGb1bUbue2b3b4b5b6b7b8b9b!bHbIb#b$bJb%b'b(b)b*b+bKbVbve,b-bLb.bMb/bWb:b;bNb=b?b@bOb[b]b^b_bPbQb`bXbwe{b|b}b~bacYbRbbcccdcZbec9h!h#h$h%h'h(h)h*h+h,h-h.h/h:h;h=h?h@h[h]h^h_h`h{h|h}h~haibicidiwixgyglixiyizi</span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"><label for="ctxs58" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    def dense(</span>&nbsp;</span><span class="r"></span></p>
@@ -2159,7 +2160,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__linker_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-06-24 01:56 +0000
+            created at 2026-06-25 01:32 +0000
         </p>
     </div>
 </footer>
