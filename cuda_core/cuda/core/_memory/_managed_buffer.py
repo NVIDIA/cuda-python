@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 from cuda.core._device import Device
 from cuda.core._host import Host
 from cuda.core._memory._buffer import Buffer
+from cuda.core._memory._managed_location import _coerce_location
 from cuda.core._memory._managed_memory_ops import (
     _advise_one,
     _do_single_discard_prefetch_py,
@@ -227,6 +228,11 @@ class ManagedBuffer(Buffer):
             if not isinstance(loc, (Device, Host)):
                 raise TypeError(f"accessed_by entries must be Device or Host, got {type(loc).__name__}")
             target.add(loc)
+        for loc in target:
+            spec = _coerce_location(loc)
+            assert spec is not None
+            if spec.kind not in ("device", "host"):
+                raise ValueError(f"advise {_SET_ACCESSED_BY.name} does not support location_type='{spec.kind}'")
         current = set(_query_accessed_by(self))
         for loc in current - target:
             _advise_one(self, _UNSET_ACCESSED_BY, loc)

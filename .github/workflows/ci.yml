@@ -432,52 +432,42 @@ jobs:
     steps:
       - name: Exit
         run: |
-          # if any dependencies were cancelled or failed, that's a failure
-          #
-          # see https://docs.github.com/en/actions/reference/workflows-and-actions/expressions#always
-          # and https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
-          # for why this cannot be encoded in the job-level `if:` field
-          #
-          # TL; DR: `$REASONS`
-          #
-          # The intersection of skipped-as-success and required status checks
-          # creates a scenario where if you DON'T `always()` run this job, the
-          # status check UI will block merging and if you DO `always()` run and
-          # a dependency is _cancelled_ (due to a critical failure, which is
-          # somehow not considered a failure ¯\_(ツ)_/¯) then the critically
-          # failing job(s) will timeout causing a cancellation here and the
-          # build to succeed which we don't want (originally this was just
-          # 'exit 0')
-          #
-          # Note: When [doc-only] is in PR title, test jobs are intentionally
-          # skipped and should not cause failure.
-          #
-          # detect-changes gates whether heavy test matrices run at all; if it
-          # does not succeed, downstream test jobs are skipped rather than
-          # failed, which would otherwise go unnoticed here. Require its
-          # success explicitly so a broken gating step cannot masquerade as a
-          # green CI run.
-          doc_only=${{ needs.should-skip.outputs.doc-only }}
-          if ${{ needs.detect-changes.result != 'success' }}; then
-            exit 1
+          # GitHub treats `result == 'skipped'` as success for required
+          # status checks (see CCCL gate comment + cccl#605). The previous
+          # `cancelled || failure` predicate let upstream build failures
+          # propagate as `skipped` on downstream test jobs and silently
+          # pass this aggregator. Adopt CCCL's `check_result` pattern:
+          # require an explicit `expected` status per dependency, where
+          # anything else (including `skipped` from a failed upstream)
+          # fails the gate. `if: always()` on the job still ensures this
+          # step runs even when needs are skipped.
+          if [[ "${{ needs.should-skip.outputs.skip }}" == "true" ]]; then
+            echo "[no-ci] - skipping aggregator checks"
+            exit 0
           fi
-          if ${{ needs.doc.result == 'cancelled' || needs.doc.result == 'failure' }}; then
-            exit 1
-          fi
-          if ${{ needs.test-sdist-linux.result == 'cancelled' ||
-                 needs.test-sdist-linux.result == 'failure' ||
-                 needs.test-sdist-windows.result == 'cancelled' ||
-                 needs.test-sdist-windows.result == 'failure' }}; then
-            exit 1
-          fi
-          if [[ "${doc_only}" != "true" ]]; then
-            if ${{ needs.test-linux-64.result == 'cancelled' ||
-                   needs.test-linux-64.result == 'failure' ||
-                   needs.test-linux-aarch64.result == 'cancelled' ||
-                   needs.test-linux-aarch64.result == 'failure' ||
-                   needs.test-windows.result == 'cancelled' ||
-                   needs.test-windows.result == 'failure' }}; then
-              exit 1
+
+          doc_only="${{ needs.should-skip.outputs.doc-only }}"
+          status="success"
+          check_result() {
+            name=$1; expected=$2; result=$3
+            echo "Checking $name: result='$result' (expected '$expected')"
+            if [[ "$result" != "$expected" ]]; then
+              echo "::error::$name did not match expected result"
+              status="failed"
             fi
-          fi
-          exit 0
+          }
+
+          # always expected to succeed (even in [doc-only] mode)
+          check_result "should-skip"    "success" "${{ needs.should-skip.result }}"
+          check_result "detect-changes" "success" "${{ needs.detect-changes.result }}"
+          check_result "doc"            "success" "${{ needs.doc.result }}"
+
+          # [doc-only] flips these from 'success' to 'skipped'
+          if [[ "$doc_only" == "true" ]]; then expected="skipped"; else expected="success"; fi
+          check_result "test-sdist-linux"   "$expected" "${{ needs.test-sdist-linux.result }}"
+          check_result "test-sdist-windows" "$expected" "${{ needs.test-sdist-windows.result }}"
+          check_result "test-linux-64"      "$expected" "${{ needs.test-linux-64.result }}"
+          check_result "test-linux-aarch64" "$expected" "${{ needs.test-linux-aarch64.result }}"
+          check_result "test-windows"       "$expected" "${{ needs.test-windows.result }}"
+
+          [[ "$status" == "success" ]]

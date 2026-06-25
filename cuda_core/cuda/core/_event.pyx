@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 cimport cpython
+from libc.stddef cimport size_t
 from libc.string cimport memcpy
 from cuda.bindings cimport cydriver
 from cuda.core._context cimport Context
@@ -232,6 +233,13 @@ cdef class Event:
             A new event backed by the imported IPC handle.
 
         """
+        cdef size_t reserved_size = len(ipc_descriptor._reserved)
+        cdef size_t expected_size = sizeof(cydriver.CUipcEventHandle)
+        if reserved_size < expected_size:
+            raise ValueError(
+                f"IPC event descriptor reserved field is {reserved_size} bytes; "
+                f"expected at least {expected_size}"
+            )
         cdef cydriver.CUipcEventHandle data
         memcpy(data.reserved, <const void*><const char*>(ipc_descriptor._reserved), sizeof(data.reserved))
         cdef Event self = Event.__new__(cls)
