@@ -24,31 +24,37 @@ cloudpickle = "*"
 psutil = "*"
 pyglet = "*"
 
-[feature.examples.dependencies]
-cuda-core = { path = "." }
-cffi = "*"
-pyglet = "*"
-
-[feature.examples.system-requirements]
-cuda = "13"
-
 [feature.local-deps.dependencies]
 cuda-bindings = { path = "../cuda_bindings" }
 cuda-pathfinder = { path = "../cuda_pathfinder" }
 
-[feature.examples.target.linux.dependencies]
+[feature.samples.dependencies]
+cuda-core = { path = "." }
+cffi = "*"
+pyglet = "*"
+pytest = "*"
+numpy = "*"
+
+[feature.samples.system-requirements]
+cuda = "13"
+
+[feature.samples.pypi-dependencies]
+nvtx = "*"
+
+[feature.samples.target.linux.dependencies]
 cupy = "*"
 pytorch-gpu = "*"
 libgl-devel = "*"
 gxx = "*"
+pillow = "*"
 
-[feature.examples.target.linux-64.activation.env]
+[feature.samples.target.linux-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
 
-[feature.examples.target.linux-aarch64.activation.env]
+[feature.samples.target.linux-aarch64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
 
-[feature.examples.target.win-64.activation.env]
+[feature.samples.target.win-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/Library"
 
 [feature.cython-tests.dependencies]
@@ -115,7 +121,7 @@ nvidia-sphinx-theme = "*"
 make = "*"
 
 # We keep both cu12 and cu13 because cuda.core works with either major version.
-# The local sibling checkouts are wired into the default/cu13/examples workflows;
+# The local sibling checkouts are wired into the default/cu13/samples workflows;
 # cu12 intentionally solves against published packages instead.
 [environments]
 default = { features = [
@@ -125,7 +131,7 @@ default = { features = [
 ], solve-group = "default" }
 cu13 = { features = ["cu13", "test", "cython-tests", "local-deps"], solve-group = "cu13" }
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
-examples = { features = ["cu13", "examples", "local-deps"], solve-group = "examples" }
+samples = { features = ["cu13", "samples", "local-deps"], solve-group = "samples" }
 docs = { features = ["cu13", "docs", "local-deps"], solve-group = "docs" }
 
 # TODO: check if these can be extracted from pyproject.toml
@@ -227,3 +233,7 @@ cmd = [
     "norecursedirs=\"\"",  # include cython tests (ignore by default config)
 ]
 depends-on = [{ task = "build-cython-tests" }]
+
+[tasks.test-samples]
+cmd = ["pytest", "-rxXs", "-v", "$PIXI_PROJECT_ROOT/../tests/samples"]
+default-environment = "samples"

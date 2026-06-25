@@ -108,10 +108,17 @@ inline-quotes = "double"
   "B028",    # no explicit stacklevel in warnings (test code)
 ]
 
-"**/examples/**" = [
+"samples/**" = [
   "T201",    # print
-  "E402",    # module-level import not at top of file
-  "RUF059",  # unused unpacked variable
+  "E402",    # module-level import not at top of file (sys.path mutation before import)
+  "N801",    # CUDA naming conventions (CamelCase classes)
+  "N802",    # CUDA naming conventions (camelCase methods)
+  "N803",    # CUDA naming conventions (argument names)
+  "N806",    # non-lowercase variable in function (e.g. d_A, h_blockSums)
+  "N816",    # mixed-case variable in global scope
+  "N999",    # invalid module name (samples/Utilities is a directory, not a module)
+  "RUF001",  # ambiguous unicode in strings (math symbols like ``×`` in shape annotations)
+  "RUF003",  # ambiguous unicode in comments (same as RUF001)
 ]
 
 "**/benchmarks/**" = [

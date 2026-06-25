@@ -13,8 +13,8 @@ if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument. You provided ${#}"
   exit 1
 fi
-if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" && "${1}" != nightly-* ]]; then
-  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', 'pathfinder', or 'nightly-*'"
+if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" && "${1}" != "samples" && "${1}" != nightly-* ]]; then
+  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', 'pathfinder', 'samples', or 'nightly-*'"
   exit 1
 fi
 
@@ -56,6 +56,20 @@ elif [[ "${test_module}" == "bindings" ]]; then
     ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
   fi
   popd
+elif [[ "${test_module}" == "samples" ]]; then
+  # Samples re-use whatever cuda-bindings + cuda-core packages are already
+  # installed by an earlier ``core`` invocation. Install the cupy backend (the
+  # only test-only dep most samples need) and run the pytest harness.
+  TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< "${CUDA_VER}")"
+  echo "Installing optional sample deps (cupy-cuda${TEST_CUDA_MAJOR}x, nvtx, pillow)"
+  pip install --upgrade pip
+  pip install \
+    "cupy-cuda${TEST_CUDA_MAJOR}x" \
+    nvtx \
+    pillow \
+    || echo "Warning: optional sample deps install failed; affected samples will be waived"
+  echo "Running sample tests"
+  pytest -rxXs -v --durations=0 tests/samples/
 elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   # Shared setup for core and nightly modes.
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
