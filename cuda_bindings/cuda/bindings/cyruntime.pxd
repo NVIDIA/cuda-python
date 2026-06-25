@@ -161,7 +161,7 @@ cdef extern from 'driver_types.h':
         pass
     ctypedef cudaGraphicsResource* cudaGraphicsResource_t 'cudaGraphicsResource_t'
 
-cdef extern from 'cuda_egl_interop.h':
+cdef extern from "":
     cdef struct CUeglStreamConnection_st 'CUeglStreamConnection_st':
         pass
     ctypedef CUeglStreamConnection_st* cudaEglStreamConnection 'cudaEglStreamConnection'
@@ -1172,134 +1172,131 @@ cdef extern from 'library_types.h':
         CUDA_R_4F_E2M1
     ctypedef cudaDataType_t cudaDataType
 
-cdef extern from 'cuda_egl_interop.h':
-    cdef enum cudaEglFrameType_enum:
-        cudaEglFrameTypeArray
-        cudaEglFrameTypePitch
-    ctypedef cudaEglFrameType_enum cudaEglFrameType
+cdef enum cudaEglFrameType_enum:
+    cudaEglFrameTypeArray = 0
+    cudaEglFrameTypePitch = 1
+ctypedef cudaEglFrameType_enum cudaEglFrameType
 
-cdef extern from 'cuda_egl_interop.h':
-    cdef enum cudaEglResourceLocationFlags_enum:
-        cudaEglResourceLocationSysmem
-        cudaEglResourceLocationVidmem
-    ctypedef cudaEglResourceLocationFlags_enum cudaEglResourceLocationFlags
+cdef enum cudaEglResourceLocationFlags_enum:
+    cudaEglResourceLocationSysmem = 0x00
+    cudaEglResourceLocationVidmem = 0x01
+ctypedef cudaEglResourceLocationFlags_enum cudaEglResourceLocationFlags
 
-cdef extern from 'cuda_egl_interop.h':
-    cdef enum cudaEglColorFormat_enum:
-        cudaEglColorFormatYUV420Planar
-        cudaEglColorFormatYUV420SemiPlanar
-        cudaEglColorFormatYUV422Planar
-        cudaEglColorFormatYUV422SemiPlanar
-        cudaEglColorFormatARGB
-        cudaEglColorFormatRGBA
-        cudaEglColorFormatL
-        cudaEglColorFormatR
-        cudaEglColorFormatYUV444Planar
-        cudaEglColorFormatYUV444SemiPlanar
-        cudaEglColorFormatYUYV422
-        cudaEglColorFormatUYVY422
-        cudaEglColorFormatABGR
-        cudaEglColorFormatBGRA
-        cudaEglColorFormatA
-        cudaEglColorFormatRG
-        cudaEglColorFormatAYUV
-        cudaEglColorFormatYVU444SemiPlanar
-        cudaEglColorFormatYVU422SemiPlanar
-        cudaEglColorFormatYVU420SemiPlanar
-        cudaEglColorFormatY10V10U10_444SemiPlanar
-        cudaEglColorFormatY10V10U10_420SemiPlanar
-        cudaEglColorFormatY12V12U12_444SemiPlanar
-        cudaEglColorFormatY12V12U12_420SemiPlanar
-        cudaEglColorFormatVYUY_ER
-        cudaEglColorFormatUYVY_ER
-        cudaEglColorFormatYUYV_ER
-        cudaEglColorFormatYVYU_ER
-        cudaEglColorFormatYUVA_ER
-        cudaEglColorFormatAYUV_ER
-        cudaEglColorFormatYUV444Planar_ER
-        cudaEglColorFormatYUV422Planar_ER
-        cudaEglColorFormatYUV420Planar_ER
-        cudaEglColorFormatYUV444SemiPlanar_ER
-        cudaEglColorFormatYUV422SemiPlanar_ER
-        cudaEglColorFormatYUV420SemiPlanar_ER
-        cudaEglColorFormatYVU444Planar_ER
-        cudaEglColorFormatYVU422Planar_ER
-        cudaEglColorFormatYVU420Planar_ER
-        cudaEglColorFormatYVU444SemiPlanar_ER
-        cudaEglColorFormatYVU422SemiPlanar_ER
-        cudaEglColorFormatYVU420SemiPlanar_ER
-        cudaEglColorFormatBayerRGGB
-        cudaEglColorFormatBayerBGGR
-        cudaEglColorFormatBayerGRBG
-        cudaEglColorFormatBayerGBRG
-        cudaEglColorFormatBayer10RGGB
-        cudaEglColorFormatBayer10BGGR
-        cudaEglColorFormatBayer10GRBG
-        cudaEglColorFormatBayer10GBRG
-        cudaEglColorFormatBayer12RGGB
-        cudaEglColorFormatBayer12BGGR
-        cudaEglColorFormatBayer12GRBG
-        cudaEglColorFormatBayer12GBRG
-        cudaEglColorFormatBayer14RGGB
-        cudaEglColorFormatBayer14BGGR
-        cudaEglColorFormatBayer14GRBG
-        cudaEglColorFormatBayer14GBRG
-        cudaEglColorFormatBayer20RGGB
-        cudaEglColorFormatBayer20BGGR
-        cudaEglColorFormatBayer20GRBG
-        cudaEglColorFormatBayer20GBRG
-        cudaEglColorFormatYVU444Planar
-        cudaEglColorFormatYVU422Planar
-        cudaEglColorFormatYVU420Planar
-        cudaEglColorFormatBayerIspRGGB
-        cudaEglColorFormatBayerIspBGGR
-        cudaEglColorFormatBayerIspGRBG
-        cudaEglColorFormatBayerIspGBRG
-        cudaEglColorFormatBayerBCCR
-        cudaEglColorFormatBayerRCCB
-        cudaEglColorFormatBayerCRBC
-        cudaEglColorFormatBayerCBRC
-        cudaEglColorFormatBayer10CCCC
-        cudaEglColorFormatBayer12BCCR
-        cudaEglColorFormatBayer12RCCB
-        cudaEglColorFormatBayer12CRBC
-        cudaEglColorFormatBayer12CBRC
-        cudaEglColorFormatBayer12CCCC
-        cudaEglColorFormatY
-        cudaEglColorFormatYUV420SemiPlanar_2020
-        cudaEglColorFormatYVU420SemiPlanar_2020
-        cudaEglColorFormatYUV420Planar_2020
-        cudaEglColorFormatYVU420Planar_2020
-        cudaEglColorFormatYUV420SemiPlanar_709
-        cudaEglColorFormatYVU420SemiPlanar_709
-        cudaEglColorFormatYUV420Planar_709
-        cudaEglColorFormatYVU420Planar_709
-        cudaEglColorFormatY10V10U10_420SemiPlanar_709
-        cudaEglColorFormatY10V10U10_420SemiPlanar_2020
-        cudaEglColorFormatY10V10U10_422SemiPlanar_2020
-        cudaEglColorFormatY10V10U10_422SemiPlanar
-        cudaEglColorFormatY10V10U10_422SemiPlanar_709
-        cudaEglColorFormatY_ER
-        cudaEglColorFormatY_709_ER
-        cudaEglColorFormatY10_ER
-        cudaEglColorFormatY10_709_ER
-        cudaEglColorFormatY12_ER
-        cudaEglColorFormatY12_709_ER
-        cudaEglColorFormatYUVA
-        cudaEglColorFormatYVYU
-        cudaEglColorFormatVYUY
-        cudaEglColorFormatY10V10U10_420SemiPlanar_ER
-        cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER
-        cudaEglColorFormatY10V10U10_444SemiPlanar_ER
-        cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER
-        cudaEglColorFormatY12V12U12_420SemiPlanar_ER
-        cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER
-        cudaEglColorFormatY12V12U12_444SemiPlanar_ER
-        cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER
-        cudaEglColorFormatUYVY709
-        cudaEglColorFormatUYVY709_ER
-        cudaEglColorFormatUYVY2020
-    ctypedef cudaEglColorFormat_enum cudaEglColorFormat
+cdef enum cudaEglColorFormat_enum:
+    cudaEglColorFormatYUV420Planar = 0
+    cudaEglColorFormatYUV420SemiPlanar = 1
+    cudaEglColorFormatYUV422Planar = 2
+    cudaEglColorFormatYUV422SemiPlanar = 3
+    cudaEglColorFormatARGB = 6
+    cudaEglColorFormatRGBA = 7
+    cudaEglColorFormatL = 8
+    cudaEglColorFormatR = 9
+    cudaEglColorFormatYUV444Planar = 10
+    cudaEglColorFormatYUV444SemiPlanar = 11
+    cudaEglColorFormatYUYV422 = 12
+    cudaEglColorFormatUYVY422 = 13
+    cudaEglColorFormatABGR = 14
+    cudaEglColorFormatBGRA = 15
+    cudaEglColorFormatA = 16
+    cudaEglColorFormatRG = 17
+    cudaEglColorFormatAYUV = 18
+    cudaEglColorFormatYVU444SemiPlanar = 19
+    cudaEglColorFormatYVU422SemiPlanar = 20
+    cudaEglColorFormatYVU420SemiPlanar = 21
+    cudaEglColorFormatY10V10U10_444SemiPlanar = 22
+    cudaEglColorFormatY10V10U10_420SemiPlanar = 23
+    cudaEglColorFormatY12V12U12_444SemiPlanar = 24
+    cudaEglColorFormatY12V12U12_420SemiPlanar = 25
+    cudaEglColorFormatVYUY_ER = 26
+    cudaEglColorFormatUYVY_ER = 27
+    cudaEglColorFormatYUYV_ER = 28
+    cudaEglColorFormatYVYU_ER = 29
+    cudaEglColorFormatYUVA_ER = 31
+    cudaEglColorFormatAYUV_ER = 32
+    cudaEglColorFormatYUV444Planar_ER = 33
+    cudaEglColorFormatYUV422Planar_ER = 34
+    cudaEglColorFormatYUV420Planar_ER = 35
+    cudaEglColorFormatYUV444SemiPlanar_ER = 36
+    cudaEglColorFormatYUV422SemiPlanar_ER = 37
+    cudaEglColorFormatYUV420SemiPlanar_ER = 38
+    cudaEglColorFormatYVU444Planar_ER = 39
+    cudaEglColorFormatYVU422Planar_ER = 40
+    cudaEglColorFormatYVU420Planar_ER = 41
+    cudaEglColorFormatYVU444SemiPlanar_ER = 42
+    cudaEglColorFormatYVU422SemiPlanar_ER = 43
+    cudaEglColorFormatYVU420SemiPlanar_ER = 44
+    cudaEglColorFormatBayerRGGB = 45
+    cudaEglColorFormatBayerBGGR = 46
+    cudaEglColorFormatBayerGRBG = 47
+    cudaEglColorFormatBayerGBRG = 48
+    cudaEglColorFormatBayer10RGGB = 49
+    cudaEglColorFormatBayer10BGGR = 50
+    cudaEglColorFormatBayer10GRBG = 51
+    cudaEglColorFormatBayer10GBRG = 52
+    cudaEglColorFormatBayer12RGGB = 53
+    cudaEglColorFormatBayer12BGGR = 54
+    cudaEglColorFormatBayer12GRBG = 55
+    cudaEglColorFormatBayer12GBRG = 56
+    cudaEglColorFormatBayer14RGGB = 57
+    cudaEglColorFormatBayer14BGGR = 58
+    cudaEglColorFormatBayer14GRBG = 59
+    cudaEglColorFormatBayer14GBRG = 60
+    cudaEglColorFormatBayer20RGGB = 61
+    cudaEglColorFormatBayer20BGGR = 62
+    cudaEglColorFormatBayer20GRBG = 63
+    cudaEglColorFormatBayer20GBRG = 64
+    cudaEglColorFormatYVU444Planar = 65
+    cudaEglColorFormatYVU422Planar = 66
+    cudaEglColorFormatYVU420Planar = 67
+    cudaEglColorFormatBayerIspRGGB = 68
+    cudaEglColorFormatBayerIspBGGR = 69
+    cudaEglColorFormatBayerIspGRBG = 70
+    cudaEglColorFormatBayerIspGBRG = 71
+    cudaEglColorFormatBayerBCCR = 72
+    cudaEglColorFormatBayerRCCB = 73
+    cudaEglColorFormatBayerCRBC = 74
+    cudaEglColorFormatBayerCBRC = 75
+    cudaEglColorFormatBayer10CCCC = 76
+    cudaEglColorFormatBayer12BCCR = 77
+    cudaEglColorFormatBayer12RCCB = 78
+    cudaEglColorFormatBayer12CRBC = 79
+    cudaEglColorFormatBayer12CBRC = 80
+    cudaEglColorFormatBayer12CCCC = 81
+    cudaEglColorFormatY = 82
+    cudaEglColorFormatYUV420SemiPlanar_2020 = 83
+    cudaEglColorFormatYVU420SemiPlanar_2020 = 84
+    cudaEglColorFormatYUV420Planar_2020 = 85
+    cudaEglColorFormatYVU420Planar_2020 = 86
+    cudaEglColorFormatYUV420SemiPlanar_709 = 87
+    cudaEglColorFormatYVU420SemiPlanar_709 = 88
+    cudaEglColorFormatYUV420Planar_709 = 89
+    cudaEglColorFormatYVU420Planar_709 = 90
+    cudaEglColorFormatY10V10U10_420SemiPlanar_709 = 91
+    cudaEglColorFormatY10V10U10_420SemiPlanar_2020 = 92
+    cudaEglColorFormatY10V10U10_422SemiPlanar_2020 = 93
+    cudaEglColorFormatY10V10U10_422SemiPlanar = 94
+    cudaEglColorFormatY10V10U10_422SemiPlanar_709 = 95
+    cudaEglColorFormatY_ER = 96
+    cudaEglColorFormatY_709_ER = 97
+    cudaEglColorFormatY10_ER = 98
+    cudaEglColorFormatY10_709_ER = 99
+    cudaEglColorFormatY12_ER = 100
+    cudaEglColorFormatY12_709_ER = 101
+    cudaEglColorFormatYUVA = 102
+    cudaEglColorFormatYVYU = 104
+    cudaEglColorFormatVYUY = 105
+    cudaEglColorFormatY10V10U10_420SemiPlanar_ER = 106
+    cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER = 107
+    cudaEglColorFormatY10V10U10_444SemiPlanar_ER = 108
+    cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER = 109
+    cudaEglColorFormatY12V12U12_420SemiPlanar_ER = 110
+    cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER = 111
+    cudaEglColorFormatY12V12U12_444SemiPlanar_ER = 112
+    cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER = 113
+    cudaEglColorFormatUYVY709 = 114
+    cudaEglColorFormatUYVY709_ER = 115
+    cudaEglColorFormatUYVY2020 = 116
+ctypedef cudaEglColorFormat_enum cudaEglColorFormat
 
 cdef extern from 'cuda_gl_interop.h':
     cdef enum cudaGLDeviceList:
@@ -2659,17 +2656,17 @@ cdef extern from 'driver_types.h':
         cudaLogLevelError
         cudaLogLevelWarning
 
-cdef extern from 'cuda_egl_interop.h':
+cdef extern from "":
     ctypedef enum cudaEglFrameType_enum 'cudaEglFrameType_enum':
         cudaEglFrameTypeArray
         cudaEglFrameTypePitch
 
-cdef extern from 'cuda_egl_interop.h':
+cdef extern from "":
     ctypedef enum cudaEglResourceLocationFlags_enum 'cudaEglResourceLocationFlags_enum':
         cudaEglResourceLocationSysmem
         cudaEglResourceLocationVidmem
 
-cdef extern from 'cuda_egl_interop.h':
+cdef extern from "":
     ctypedef enum cudaEglColorFormat_enum 'cudaEglColorFormat_enum':
         cudaEglColorFormatYUV420Planar
         cudaEglColorFormatYUV420SemiPlanar

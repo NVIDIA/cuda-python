@@ -86,6 +86,16 @@ cdef extern from "cuda_runtime_api.h":
 
 
 
+    cudaError_t cudaDeviceRegisterAsyncNotification(int device, cudaAsyncCallback callbackFunc, void* userData, cudaAsyncCallbackHandle_t* callback) nogil
+
+
+
+
+    cudaError_t cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCallbackHandle_t callback) nogil
+
+
+
+
     cudaError_t cudaDeviceGetSharedMemConfig(cudaSharedMemConfig* pConfig) nogil
 
 

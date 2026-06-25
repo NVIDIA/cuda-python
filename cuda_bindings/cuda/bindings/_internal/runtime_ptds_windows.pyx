@@ -65,6 +65,12 @@ cdef extern from 'cuda_runtime_api.h' nogil:
     cudaError_t _static_cudaDeviceFlushGPUDirectRDMAWrites "cudaDeviceFlushGPUDirectRDMAWrites" (cudaFlushGPUDirectRDMAWritesTarget target, cudaFlushGPUDirectRDMAWritesScope scope) noexcept
 
 cdef extern from 'cuda_runtime_api.h' nogil:
+    cudaError_t _static_cudaDeviceRegisterAsyncNotification "cudaDeviceRegisterAsyncNotification" (int device, cudaAsyncCallback callbackFunc, void* userData, cudaAsyncCallbackHandle_t* callback) noexcept
+
+cdef extern from 'cuda_runtime_api.h' nogil:
+    cudaError_t _static_cudaDeviceUnregisterAsyncNotification "cudaDeviceUnregisterAsyncNotification" (int device, cudaAsyncCallbackHandle_t callback) noexcept
+
+cdef extern from 'cuda_runtime_api.h' nogil:
     cudaError_t _static_cudaDeviceGetSharedMemConfig "cudaDeviceGetSharedMemConfig" (cudaSharedMemConfig* pConfig) noexcept
 
 cdef extern from 'cuda_runtime_api.h' nogil:
@@ -1037,6 +1043,14 @@ cdef cudaError_t _cudaIpcCloseMemHandle(void* devPtr) except ?cudaErrorCallRequi
 
 cdef cudaError_t _cudaDeviceFlushGPUDirectRDMAWrites(cudaFlushGPUDirectRDMAWritesTarget target, cudaFlushGPUDirectRDMAWritesScope scope) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _static_cudaDeviceFlushGPUDirectRDMAWrites(target, scope)
+
+
+cdef cudaError_t _cudaDeviceRegisterAsyncNotification(int device, cudaAsyncCallback callbackFunc, void* userData, cudaAsyncCallbackHandle_t* callback) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _static_cudaDeviceRegisterAsyncNotification(device, callbackFunc, userData, callback)
+
+
+cdef cudaError_t _cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCallbackHandle_t callback) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _static_cudaDeviceUnregisterAsyncNotification(device, callback)
 
 
 cdef cudaError_t _cudaDeviceGetSharedMemConfig(cudaSharedMemConfig* pConfig) except ?cudaErrorCallRequiresNewerDriver nogil:

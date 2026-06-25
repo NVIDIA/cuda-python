@@ -21528,6 +21528,131 @@ def cudaDeviceFlushGPUDirectRDMAWrites(target not None : cudaFlushGPUDirectRDMAW
         err = cyruntime.cudaDeviceFlushGPUDirectRDMAWrites(cytarget, cyscope)
     return (_cudaError_t(err),)
 
+ctypedef struct cudaAsyncCallbackData_st:
+    cyruntime.cudaAsyncCallback callback
+    void *userData
+
+ctypedef cudaAsyncCallbackData_st cudaAsyncCallbackData
+
+@cython.show_performance_hints(False)
+cdef void cudaAsyncNotificationCallbackWrapper(cyruntime.cudaAsyncNotificationInfo_t *info, void *data, cyruntime.cudaAsyncCallbackHandle_t handle) nogil:
+    cdef cudaAsyncCallbackData *cbData = <cudaAsyncCallbackData *>data
+    with gil:
+        cbData.callback(info, cbData.userData, handle)
+
+@cython.embedsignature(True)
+def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
+    """ Registers a callback function to receive async notifications.
+
+    Registers `callbackFunc` to receive async notifications.
+
+    The `userData` parameter is passed to the callback function at async
+    notification time. Likewise, `callback` is also passed to the callback
+    function to distinguish between multiple registered callbacks.
+
+    The callback function being registered should be designed to return
+    quickly (~10ms). Any long running tasks should be queued for execution
+    on an application thread.
+
+    Callbacks may not call cudaDeviceRegisterAsyncNotification or
+    cudaDeviceUnregisterAsyncNotification. Doing so will result in
+    :py:obj:`~.cudaErrorNotPermitted`. Async notification callbacks execute
+    in an undefined order and may be serialized.
+
+    Returns in `*callback` a handle representing the registered callback
+    instance.
+
+    Parameters
+    ----------
+    device : int
+        The device on which to register the callback
+    callbackFunc : :py:obj:`~.cudaAsyncCallback`
+        The function to register as a callback
+    userData : Any
+        A generic pointer to user data. This is passed into the callback
+        function.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorNotSupported` :py:obj:`~.cudaErrorInvalidDevice` :py:obj:`~.cudaErrorInvalidValue` :py:obj:`~.cudaErrorNotPermitted` :py:obj:`~.cudaErrorUnknown`
+    callback : :py:obj:`~.cudaAsyncCallbackHandle_t`
+        A handle representing the registered callback instance
+
+    See Also
+    --------
+    :py:obj:`~.cudaDeviceUnregisterAsyncNotification`
+    """
+    cdef cyruntime.cudaAsyncCallback cycallbackFunc
+    if callbackFunc is None:
+        pcallbackFunc = 0
+    elif isinstance(callbackFunc, (cudaAsyncCallback,)):
+        pcallbackFunc = int(callbackFunc)
+    else:
+        pcallbackFunc = int(cudaAsyncCallback(callbackFunc))
+    cycallbackFunc = <cyruntime.cudaAsyncCallback><void_ptr>pcallbackFunc
+    cdef _HelperInputVoidPtrStruct cyuserDataHelper
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
+
+    cdef cudaAsyncCallbackData *cbData = NULL
+    cbData = <cudaAsyncCallbackData *>malloc(sizeof(cbData[0]))
+    if cbData == NULL:
+        return (cudaError_t.cudaErrorMemoryAllocation, None)
+    cbData.callback = cycallbackFunc
+    cbData.userData = cyuserData
+
+    cdef cudaAsyncCallbackHandle_t callback = cudaAsyncCallbackHandle_t()
+    with nogil:
+        err = cyruntime.cudaDeviceRegisterAsyncNotification(device, <cyruntime.cudaAsyncCallback>cudaAsyncNotificationCallbackWrapper, <void *>cbData, <cyruntime.cudaAsyncCallbackHandle_t*>callback._pvt_ptr)
+    if err != cyruntime.cudaSuccess:
+        free(cbData)
+    else:
+        m_global._allocated[int(callback)] = cbData
+    _helper_input_void_ptr_free(&cyuserDataHelper)
+
+    if err != cyruntime.cudaSuccess:
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, callback)
+
+@cython.embedsignature(True)
+def cudaDeviceUnregisterAsyncNotification(int device, callback):
+    """ Unregisters an async notification callback.
+
+    Unregisters `callback` so that the corresponding callback function will
+    stop receiving async notifications.
+
+    Parameters
+    ----------
+    device : int
+        The device from which to remove `callback`.
+    callback : :py:obj:`~.cudaAsyncCallbackHandle_t`
+        The callback instance to unregister from receiving async
+        notifications.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorNotSupported` :py:obj:`~.cudaErrorInvalidDevice` :py:obj:`~.cudaErrorInvalidValue` :py:obj:`~.cudaErrorNotPermitted` :py:obj:`~.cudaErrorUnknown`
+
+    See Also
+    --------
+    :py:obj:`~.cudaDeviceRegisterAsyncNotification`
+    """
+    cdef cyruntime.cudaAsyncCallbackHandle_t cycallback
+    if callback is None:
+        pcallback = 0
+    elif isinstance(callback, (cudaAsyncCallbackHandle_t,)):
+        pcallback = int(callback)
+    else:
+        pcallback = int(cudaAsyncCallbackHandle_t(callback))
+    cycallback = <cyruntime.cudaAsyncCallbackHandle_t><void_ptr>pcallback
+    with nogil:
+        err = cyruntime.cudaDeviceUnregisterAsyncNotification(device, cycallback)
+    if err == cyruntime.cudaSuccess:
+        free(m_global._allocated[pcallback])
+        m_global._allocated.erase(<void_ptr>pcallback)
+    return (_cudaError_t(err),)
+
 @cython.embedsignature(True)
 def cudaDeviceGetSharedMemConfig():
     """ Returns the shared memory configuration for the current device.
