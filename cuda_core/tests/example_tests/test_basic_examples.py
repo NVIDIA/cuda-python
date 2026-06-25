@@ -100,6 +100,7 @@ sample_files = [os.path.basename(x) for x in glob.glob(samples_path + "**/*.py",
 
 
 @pytest.mark.parametrize("example", sample_files)
+@pytest.mark.parallel_threads_limit(8)
 def test_example(example):
     example_path = os.path.join(samples_path, example)
     has_package_requirements_or_skip(example_path)
