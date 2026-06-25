@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260623. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260625. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -7813,7 +7813,7 @@ cdef class cudaChannelFormatDesc:
         return cudaChannelFormatKind(self._pvt_ptr[0].f)
     @f.setter
     def f(self, f not None : cudaChannelFormatKind):
-        self._pvt_ptr[0].f = int(f)
+        self._pvt_ptr[0].f = <cyruntime.cudaChannelFormatKind><int>int(f)
 
 
 cdef class anon_struct0:
@@ -8585,7 +8585,7 @@ cdef class cudaMemcpy3DParms:
         return cudaMemcpyKind(self._pvt_ptr[0].kind)
     @kind.setter
     def kind(self, kind not None : cudaMemcpyKind):
-        self._pvt_ptr[0].kind = int(kind)
+        self._pvt_ptr[0].kind = <cyruntime.cudaMemcpyKind><int>int(kind)
 
 
 cdef class cudaMemcpyNodeParams:
@@ -9367,7 +9367,7 @@ cdef class cudaAccessPolicyWindow:
         return cudaAccessProperty(self._pvt_ptr[0].hitProp)
     @hitProp.setter
     def hitProp(self, hitProp not None : cudaAccessProperty):
-        self._pvt_ptr[0].hitProp = int(hitProp)
+        self._pvt_ptr[0].hitProp = <cyruntime.cudaAccessProperty><int>int(hitProp)
 
 
     @property
@@ -9375,7 +9375,7 @@ cdef class cudaAccessPolicyWindow:
         return cudaAccessProperty(self._pvt_ptr[0].missProp)
     @missProp.setter
     def missProp(self, missProp not None : cudaAccessProperty):
-        self._pvt_ptr[0].missProp = int(missProp)
+        self._pvt_ptr[0].missProp = <cyruntime.cudaAccessProperty><int>int(missProp)
 
 
 cdef class cudaHostNodeParams:
@@ -10115,7 +10115,7 @@ cdef class cudaResourceDesc:
         return cudaResourceType(self._pvt_ptr[0].resType)
     @resType.setter
     def resType(self, resType not None : cudaResourceType):
-        self._pvt_ptr[0].resType = int(resType)
+        self._pvt_ptr[0].resType = <cyruntime.cudaResourceType><int>int(resType)
 
 
     @property
@@ -10259,7 +10259,7 @@ cdef class cudaResourceViewDesc:
         return cudaResourceViewFormat(self._pvt_ptr[0].format)
     @format.setter
     def format(self, format not None : cudaResourceViewFormat):
-        self._pvt_ptr[0].format = int(format)
+        self._pvt_ptr[0].format = <cyruntime.cudaResourceViewFormat><int>int(format)
 
 
     @property
@@ -10422,7 +10422,7 @@ cdef class cudaPointerAttributes:
         return cudaMemoryType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaMemoryType):
-        self._pvt_ptr[0].type = int(type)
+        self._pvt_ptr[0].type = <cyruntime.cudaMemoryType><int>int(type)
 
 
     @property
@@ -10932,7 +10932,7 @@ cdef class cudaMemLocation:
         return cudaMemLocationType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaMemLocationType):
-        self._pvt_ptr[0].type = int(type)
+        self._pvt_ptr[0].type = <cyruntime.cudaMemLocationType><int>int(type)
 
 
     @property
@@ -11009,7 +11009,7 @@ cdef class cudaMemAccessDesc:
         return cudaMemAccessFlags(self._pvt_ptr[0].flags)
     @flags.setter
     def flags(self, flags not None : cudaMemAccessFlags):
-        self._pvt_ptr[0].flags = int(flags)
+        self._pvt_ptr[0].flags = <cyruntime.cudaMemAccessFlags><int>int(flags)
 
 
 cdef class cudaMemPoolProps:
@@ -11126,7 +11126,7 @@ cdef class cudaMemPoolProps:
         return cudaMemAllocationType(self._pvt_ptr[0].allocType)
     @allocType.setter
     def allocType(self, allocType not None : cudaMemAllocationType):
-        self._pvt_ptr[0].allocType = int(allocType)
+        self._pvt_ptr[0].allocType = <cyruntime.cudaMemAllocationType><int>int(allocType)
 
 
     @property
@@ -11134,7 +11134,7 @@ cdef class cudaMemPoolProps:
         return cudaMemAllocationHandleType(self._pvt_ptr[0].handleTypes)
     @handleTypes.setter
     def handleTypes(self, handleTypes not None : cudaMemAllocationHandleType):
-        self._pvt_ptr[0].handleTypes = int(handleTypes)
+        self._pvt_ptr[0].handleTypes = <cyruntime.cudaMemAllocationHandleType><int>int(handleTypes)
 
 
     @property
@@ -11665,7 +11665,7 @@ cdef class cudaMemcpyAttributes:
         return cudaMemcpySrcAccessOrder(self._pvt_ptr[0].srcAccessOrder)
     @srcAccessOrder.setter
     def srcAccessOrder(self, srcAccessOrder not None : cudaMemcpySrcAccessOrder):
-        self._pvt_ptr[0].srcAccessOrder = int(srcAccessOrder)
+        self._pvt_ptr[0].srcAccessOrder = <cyruntime.cudaMemcpySrcAccessOrder><int>int(srcAccessOrder)
 
 
     @property
@@ -12083,7 +12083,7 @@ cdef class cudaMemcpy3DOperand:
         return cudaMemcpy3DOperandType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaMemcpy3DOperandType):
-        self._pvt_ptr[0].type = int(type)
+        self._pvt_ptr[0].type = <cyruntime.cudaMemcpy3DOperandType><int>int(type)
 
 
     @property
@@ -12211,7 +12211,7 @@ cdef class cudaMemcpy3DBatchOp:
         return cudaMemcpySrcAccessOrder(self._pvt_ptr[0].srcAccessOrder)
     @srcAccessOrder.setter
     def srcAccessOrder(self, srcAccessOrder not None : cudaMemcpySrcAccessOrder):
-        self._pvt_ptr[0].srcAccessOrder = int(srcAccessOrder)
+        self._pvt_ptr[0].srcAccessOrder = <cyruntime.cudaMemcpySrcAccessOrder><int>int(srcAccessOrder)
 
 
     @property
@@ -14420,7 +14420,7 @@ cdef class cudaExternalMemoryHandleDesc:
         return cudaExternalMemoryHandleType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaExternalMemoryHandleType):
-        self._pvt_ptr[0].type = int(type)
+        self._pvt_ptr[0].type = <cyruntime.cudaExternalMemoryHandleType><int>int(type)
 
 
     @property
@@ -14931,7 +14931,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
         return cudaExternalSemaphoreHandleType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaExternalSemaphoreHandleType):
-        self._pvt_ptr[0].type = int(type)
+        self._pvt_ptr[0].type = <cyruntime.cudaExternalSemaphoreHandleType><int>int(type)
 
 
     @property
@@ -15869,7 +15869,7 @@ cdef class cudaDevWorkqueueConfigResource:
         return cudaDevWorkqueueConfigScope(self._pvt_ptr[0].sharingScope)
     @sharingScope.setter
     def sharingScope(self, sharingScope not None : cudaDevWorkqueueConfigScope):
-        self._pvt_ptr[0].sharingScope = int(sharingScope)
+        self._pvt_ptr[0].sharingScope = <cyruntime.cudaDevWorkqueueConfigScope><int>int(sharingScope)
 
 
 cdef class cudaDevWorkqueueResource:
@@ -16182,7 +16182,7 @@ cdef class cudaDevResource_st:
         return cudaDevResourceType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaDevResourceType):
-        self._pvt_ptr[0].type = int(type)
+        self._pvt_ptr[0].type = <cyruntime.cudaDevResourceType><int>int(type)
 
 
     @property
@@ -16757,7 +16757,7 @@ cdef class cudaKernelNodeParamsV2:
         return cudaKernelFunctionType(self._pvt_ptr[0].functionType)
     @functionType.setter
     def functionType(self, functionType not None : cudaKernelFunctionType):
-        self._pvt_ptr[0].functionType = int(functionType)
+        self._pvt_ptr[0].functionType = <cyruntime.cudaKernelFunctionType><int>int(functionType)
 
 
 cdef class cudaExternalSemaphoreSignalNodeParams:
@@ -17395,7 +17395,7 @@ cdef class cudaConditionalNodeParams:
         return cudaGraphConditionalNodeType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaGraphConditionalNodeType):
-        self._pvt_ptr[0].type = int(type)
+        self._pvt_ptr[0].type = <cyruntime.cudaGraphConditionalNodeType><int>int(type)
 
 
     @property
@@ -17508,7 +17508,7 @@ cdef class cudaChildGraphNodeParams:
         return cudaGraphChildGraphNodeOwnership(self._pvt_ptr[0].ownership)
     @ownership.setter
     def ownership(self, ownership not None : cudaGraphChildGraphNodeOwnership):
-        self._pvt_ptr[0].ownership = int(ownership)
+        self._pvt_ptr[0].ownership = <cyruntime.cudaGraphChildGraphNodeOwnership><int>int(ownership)
 
 
 cdef class cudaEventRecordNodeParams:
@@ -17864,7 +17864,7 @@ cdef class cudaGraphNodeParams:
         return cudaGraphNodeType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaGraphNodeType):
-        self._pvt_ptr[0].type = int(type)
+        self._pvt_ptr[0].type = <cyruntime.cudaGraphNodeType><int>int(type)
 
 
     @property
@@ -18234,7 +18234,7 @@ cdef class cudaGraphInstantiateParams_st:
         return cudaGraphInstantiateResult(self._pvt_ptr[0].result_out)
     @result_out.setter
     def result_out(self, result_out not None : cudaGraphInstantiateResult):
-        self._pvt_ptr[0].result_out = int(result_out)
+        self._pvt_ptr[0].result_out = <cyruntime.cudaGraphInstantiateResult><int>int(result_out)
 
 
 cdef class cudaGraphExecUpdateResultInfo_st:
@@ -18311,7 +18311,7 @@ cdef class cudaGraphExecUpdateResultInfo_st:
         return cudaGraphExecUpdateResult(self._pvt_ptr[0].result)
     @result.setter
     def result(self, result not None : cudaGraphExecUpdateResult):
-        self._pvt_ptr[0].result = int(result)
+        self._pvt_ptr[0].result = <cyruntime.cudaGraphExecUpdateResult><int>int(result)
 
 
     @property
@@ -18607,7 +18607,7 @@ cdef class cudaGraphKernelNodeUpdate:
         return cudaGraphKernelNodeField(self._pvt_ptr[0].field)
     @field.setter
     def field(self, field not None : cudaGraphKernelNodeField):
-        self._pvt_ptr[0].field = int(field)
+        self._pvt_ptr[0].field = <cyruntime.cudaGraphKernelNodeField><int>int(field)
 
 
     @property
@@ -19404,7 +19404,7 @@ cdef class cudaLaunchAttributeValue:
         return cudaSynchronizationPolicy(self._pvt_ptr[0].syncPolicy)
     @syncPolicy.setter
     def syncPolicy(self, syncPolicy not None : cudaSynchronizationPolicy):
-        self._pvt_ptr[0].syncPolicy = int(syncPolicy)
+        self._pvt_ptr[0].syncPolicy = <cyruntime.cudaSynchronizationPolicy><int>int(syncPolicy)
 
 
     @property
@@ -19420,7 +19420,7 @@ cdef class cudaLaunchAttributeValue:
         return cudaClusterSchedulingPolicy(self._pvt_ptr[0].clusterSchedulingPolicyPreference)
     @clusterSchedulingPolicyPreference.setter
     def clusterSchedulingPolicyPreference(self, clusterSchedulingPolicyPreference not None : cudaClusterSchedulingPolicy):
-        self._pvt_ptr[0].clusterSchedulingPolicyPreference = int(clusterSchedulingPolicyPreference)
+        self._pvt_ptr[0].clusterSchedulingPolicyPreference = <cyruntime.cudaClusterSchedulingPolicy><int>int(clusterSchedulingPolicyPreference)
 
 
     @property
@@ -19460,7 +19460,7 @@ cdef class cudaLaunchAttributeValue:
         return cudaLaunchMemSyncDomain(self._pvt_ptr[0].memSyncDomain)
     @memSyncDomain.setter
     def memSyncDomain(self, memSyncDomain not None : cudaLaunchMemSyncDomain):
-        self._pvt_ptr[0].memSyncDomain = int(memSyncDomain)
+        self._pvt_ptr[0].memSyncDomain = <cyruntime.cudaLaunchMemSyncDomain><int>int(memSyncDomain)
 
 
     @property
@@ -19508,7 +19508,7 @@ cdef class cudaLaunchAttributeValue:
         return cudaLaunchAttributePortableClusterMode(self._pvt_ptr[0].portableClusterSizeMode)
     @portableClusterSizeMode.setter
     def portableClusterSizeMode(self, portableClusterSizeMode not None : cudaLaunchAttributePortableClusterMode):
-        self._pvt_ptr[0].portableClusterSizeMode = int(portableClusterSizeMode)
+        self._pvt_ptr[0].portableClusterSizeMode = <cyruntime.cudaLaunchAttributePortableClusterMode><int>int(portableClusterSizeMode)
 
 
     @property
@@ -19516,7 +19516,7 @@ cdef class cudaLaunchAttributeValue:
         return cudaSharedMemoryMode(self._pvt_ptr[0].sharedMemoryMode)
     @sharedMemoryMode.setter
     def sharedMemoryMode(self, sharedMemoryMode not None : cudaSharedMemoryMode):
-        self._pvt_ptr[0].sharedMemoryMode = int(sharedMemoryMode)
+        self._pvt_ptr[0].sharedMemoryMode = <cyruntime.cudaSharedMemoryMode><int>int(sharedMemoryMode)
 
 
 cdef class cudaLaunchAttribute_st:
@@ -19577,7 +19577,7 @@ cdef class cudaLaunchAttribute_st:
         return cudaLaunchAttributeID(self._pvt_ptr[0].id)
     @id.setter
     def id(self, id not None : cudaLaunchAttributeID):
-        self._pvt_ptr[0].id = int(id)
+        self._pvt_ptr[0].id = <cyruntime.cudaLaunchAttributeID><int>int(id)
 
 
     @property
@@ -19740,7 +19740,7 @@ cdef class cudaAsyncNotificationInfo:
         return cudaAsyncNotificationType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaAsyncNotificationType):
-        self._pvt_ptr[0].type = int(type)
+        self._pvt_ptr[0].type = <cyruntime.cudaAsyncNotificationType><int>int(type)
 
 
     @property
@@ -19924,7 +19924,7 @@ cdef class cudaTextureDesc:
         return cudaTextureFilterMode(self._pvt_ptr[0].filterMode)
     @filterMode.setter
     def filterMode(self, filterMode not None : cudaTextureFilterMode):
-        self._pvt_ptr[0].filterMode = int(filterMode)
+        self._pvt_ptr[0].filterMode = <cyruntime.cudaTextureFilterMode><int>int(filterMode)
 
 
     @property
@@ -19932,7 +19932,7 @@ cdef class cudaTextureDesc:
         return cudaTextureReadMode(self._pvt_ptr[0].readMode)
     @readMode.setter
     def readMode(self, readMode not None : cudaTextureReadMode):
-        self._pvt_ptr[0].readMode = int(readMode)
+        self._pvt_ptr[0].readMode = <cyruntime.cudaTextureReadMode><int>int(readMode)
 
 
     @property
@@ -19972,7 +19972,7 @@ cdef class cudaTextureDesc:
         return cudaTextureFilterMode(self._pvt_ptr[0].mipmapFilterMode)
     @mipmapFilterMode.setter
     def mipmapFilterMode(self, mipmapFilterMode not None : cudaTextureFilterMode):
-        self._pvt_ptr[0].mipmapFilterMode = int(mipmapFilterMode)
+        self._pvt_ptr[0].mipmapFilterMode = <cyruntime.cudaTextureFilterMode><int>int(mipmapFilterMode)
 
 
     @property
@@ -20457,7 +20457,7 @@ cdef class cudaEglFrame_st:
         return cudaEglFrameType(self._pvt_ptr[0].frameType)
     @frameType.setter
     def frameType(self, frameType not None : cudaEglFrameType):
-        self._pvt_ptr[0].frameType = int(frameType)
+        self._pvt_ptr[0].frameType = <cyruntime.cudaEglFrameType><int>int(frameType)
 
 
     @property
@@ -20465,7 +20465,7 @@ cdef class cudaEglFrame_st:
         return cudaEglColorFormat(self._pvt_ptr[0].eglColorFormat)
     @eglColorFormat.setter
     def eglColorFormat(self, eglColorFormat not None : cudaEglColorFormat):
-        self._pvt_ptr[0].eglColorFormat = int(eglColorFormat)
+        self._pvt_ptr[0].eglColorFormat = <cyruntime.cudaEglColorFormat><int>int(eglColorFormat)
 
 
 cdef class cudaGraphConditionalHandle:
@@ -28118,7 +28118,7 @@ def cudaMemcpyBatchAsync(dsts : Optional[tuple[Any] | list[Any]], srcs : Optiona
     dsts = [] if dsts is None else dsts
     pylist = [_HelperInputVoidPtr(pydsts) for pydsts in dsts]
     cdef _InputVoidPtrPtrHelper voidStarHelperdsts = _InputVoidPtrPtrHelper(pylist)
-    cdef const void** cydsts_ptr = <const void**><void_ptr>voidStarHelperdsts.cptr
+    cdef void** cydsts_ptr = <void**><void_ptr>voidStarHelperdsts.cptr
     pylist = [_HelperInputVoidPtr(pysrcs) for pysrcs in srcs]
     cdef _InputVoidPtrPtrHelper voidStarHelpersrcs = _InputVoidPtrPtrHelper(pylist)
     cdef const void** cysrcs_ptr = <const void**><void_ptr>voidStarHelpersrcs.cptr
