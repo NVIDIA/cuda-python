@@ -59,6 +59,4 @@ def test_sample(sample_name: str) -> None:
     # Re-print captured output through stdout/stderr so pytest's failure
     # capture surfaces it in the report.
     sys.stdout.flush()
-    pytest.fail(
-        f"sample {sample_name} returned status={result.status} (rc={result.return_code}): {result.detail}"
-    )
+    pytest.fail(f"sample {sample_name} returned status={result.status} (rc={result.return_code}): {result.detail}")

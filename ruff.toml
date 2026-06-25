@@ -108,6 +108,12 @@ inline-quotes = "double"
   "B028",    # no explicit stacklevel in warnings (test code)
 ]
 
+"**/examples/**" = [
+  "T201",    # print
+  "E402",    # module-level import not at top of file
+  "RUF059",  # unused unpacked variable
+]
+
 "samples/**" = [
   "T201",    # print
   "E402",    # module-level import not at top of file (sys.path mutation before import)

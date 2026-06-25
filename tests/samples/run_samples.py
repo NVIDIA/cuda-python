@@ -104,11 +104,7 @@ def get_gpu_count() -> int:
             check=False,
         )
         if smi.returncode == 0:
-            return sum(
-                1
-                for line in smi.stdout.splitlines()
-                if line.strip().lower().startswith("gpu ")
-            )
+            return sum(1 for line in smi.stdout.splitlines() if line.strip().lower().startswith("gpu "))
     except FileNotFoundError:
         pass
     except OSError:
@@ -127,9 +123,7 @@ def get_gpu_count() -> int:
 # ---------------------------------------------------------------------------
 
 _DEP_NAME_RE = re.compile(r"[a-zA-Z0-9_-]+")
-_PEP723_RE = re.compile(
-    r"(?m)^# /// (?P<type>[a-zA-Z0-9-]+)$\s(?P<content>(^#(| .*)$\s)+)^# ///$"
-)
+_PEP723_RE = re.compile(r"(?m)^# /// (?P<type>[a-zA-Z0-9-]+)$\s(?P<content>(^#(| .*)$\s)+)^# ///$")
 
 # Aliases bridging PyPI distribution names declared in sample PEP 723 blocks
 # and the install-name a conda/pixi environment provides. CI uses wheels where
@@ -264,9 +258,7 @@ def build_run_plan(
             [],
             [],
             timeout,
-            skip_reason=(
-                f"requires {required_gpus} GPU(s), only {gpu_count} available"
-            ),
+            skip_reason=(f"requires {required_gpus} GPU(s), only {gpu_count} available"),
         )
 
     python_cfg = sample_cfg.get("python", {})
@@ -381,9 +373,7 @@ def main(argv: list[str] | None = None) -> int:
         "--filter",
         action="append",
         default=[],
-        help=(
-            "Run only samples whose directory name contains the given substring (may be repeated)"
-        ),
+        help=("Run only samples whose directory name contains the given substring (may be repeated)"),
     )
     parser.add_argument(
         "--timeout",
