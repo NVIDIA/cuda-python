@@ -29,6 +29,7 @@ class TestIpcSendBuffers:
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        buffers = []
 
         try:
             # Allocate and fill memory.
@@ -54,6 +55,10 @@ class TestIpcSendBuffers:
                 pgen.verify_buffer(buffer, seed=True)
                 buffer.close()
         finally:
+            for buffer in buffers:
+                buffer.close()
+            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+            device.sync()
             for mr in mrs:
                 mr.close()
 
