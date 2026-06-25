@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 Installation
@@ -77,6 +77,31 @@ Development environment
 The sections above cover end-user installation. The section below focuses on
 a repeatable *development* workflow (editable installs and running tests).
 
+Installing the latest nightly (top-of-tree builds)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These are useful for users looking to test new features or bug fixes prior to
+their inclusion in a release.
+
+CI publishes wheels as GitHub Actions artifacts on every push to ``main``. To
+obtain the most recent build, use the following commands:
+
+.. code-block:: console
+
+   $ # Find the latest successful CI run on main:
+   $ RUN_ID=$(gh run list -R NVIDIA/cuda-python -w ci.yml -b main -s success -L1 --json databaseId -q '.[0].databaseId')
+
+   $ # Download the wheel (pick your Python version and platform):
+   $ gh run download "$RUN_ID" -R NVIDIA/cuda-python -p "cuda-core-python312-linux-64-*"
+
+   $ # Install the downloaded wheel:
+   $ pip install cuda-core-python312-linux-64-*/cuda_core*.whl[cu13]
+
+Replace ``python312`` with your Python version (e.g. ``python310``, ``python311``,
+``python313``, ``python314``, ``python314t``). For aarch64, replace ``linux-64``
+with ``linux-aarch64``; for Windows, use ``win-64``. Replace ``cu13`` with
+``cu12`` for CUDA 12.x environments.
+
 Development with uv
 ~~~~~~~~~~~~~~~~~~~
 
@@ -122,7 +147,7 @@ Use ``-e cu12`` to test against CUDA 12 instead.
 .. _pixi: https://pixi.sh/
 
 Installing from Source
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: console
 

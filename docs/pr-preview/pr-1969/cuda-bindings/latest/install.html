@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,35 +37,35 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
 
 
-    <script src="_static/documentation_options.js?v=a86adfc4"></script>
+    <script src="_static/documentation_options.js?v=ee471ff7"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'install';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.3.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/install.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-1969/cuda-bindings/latest/install.html" />
     <link rel="icon" href="_static/favicon.png"/>
 
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Overview" href="overview.html" />
-    <link rel="prev" title="cuda-bindings 13.3.0 Release notes" href="release/13.3.0-notes.html" />
+    <link rel="prev" title="cuda-bindings 13.3.1 Release notes" href="release/13.3.1-notes.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -537,8 +537,8 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.3.1-notes.html">13.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.3.0-notes.html">13.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/13.2.1-notes.html">13.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.1.0-notes.html">13.1.0</a></li>
@@ -546,6 +546,7 @@
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.4-notes.html">12.9.4</a></li>
@@ -1306,7 +1307,7 @@
 <li><p>Linux (x86-64, arm64) and Windows (x86-64)</p></li>
 <li><p>Python 3.10 - 3.14</p></li>
 <li><p>Driver: Linux (580.65.06 or later) Windows (580.88 or later)</p></li>
-<li><p>Optionally, NVRTC, nvJitLink, NVVM, and cuFile from CUDA Toolkit 13.x</p></li>
+<li><p>Optionally, NVRTC, nvJitLink, nvFatBin, NVVM, cuFile, and cuDLA from CUDA Toolkit 13.x</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1337,10 +1338,12 @@ library are thread-safe. This is subject to change.</p></li>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cuda-nvrtc</span></code> (NVRTC runtime compilation library)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-nvjitlink</span></code> (nvJitLink library)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-nvfatbin</span></code> (nvFatBin library)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-nvvm</span></code> (NVVM library)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cufile</span></code> (cuFile library, Linux only)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cudla</span></code> (cuDLA library, Linux aarch64 only)</p></li>
 </ul>
-<p>These are now installed through the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage for improved dependency resolution.</p>
+<p>These are now installed through the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage, where available, for improved dependency resolution.</p>
 </section>
 <section id="installing-from-conda">
 <h2>Installing from Conda<a class="headerlink" href="#installing-from-conda" title="Link to this heading">#</a></h2>
@@ -1355,11 +1358,41 @@ library are thread-safe. This is subject to change.</p></li>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>cuda-python<span class="w"> </span>cuda-version<span class="o">=</span><span class="m">13</span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Tegra users can install the cuDLA conda package from conda-forge through <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">conda-forge</span> <span class="pre">libcudla</span> <span class="pre">cuda-version=13</span></code>, if it does not already exist on the system.</p>
+</div>
+</section>
+<section id="development-environment">
+<h2>Development environment<a class="headerlink" href="#development-environment" title="Link to this heading">#</a></h2>
+<p>The sections above cover end-user installation. The section below focuses on
+a repeatable <em>development</em> workflow (editable installs and running tests).</p>
+<section id="installing-the-latest-nightly-top-of-tree-builds">
+<h3>Installing the latest nightly (top-of-tree builds)<a class="headerlink" href="#installing-the-latest-nightly-top-of-tree-builds" title="Link to this heading">#</a></h3>
+<p>These are useful for users looking to test new features or bug fixes prior to
+their inclusion in a release.</p>
+<p>CI publishes wheels as GitHub Actions artifacts on every push to <code class="docutils literal notranslate"><span class="pre">main</span></code>. To
+obtain the most recent build, use the following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="c1"># Find the latest successful CI run on main:</span>
+<span class="gp">$ </span><span class="nv">RUN_ID</span><span class="o">=</span><span class="k">$(</span>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-w<span class="w"> </span>ci.yml<span class="w"> </span>-b<span class="w"> </span>main<span class="w"> </span>-s<span class="w"> </span>success<span class="w"> </span>-L1<span class="w"> </span>--json<span class="w"> </span>databaseId<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;.[0].databaseId&#39;</span><span class="k">)</span>
+
+<span class="gp">$ </span><span class="c1"># Download the wheel (pick your Python version and platform):</span>
+<span class="gp">$ </span>gh<span class="w"> </span>run<span class="w"> </span>download<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$RUN_ID</span><span class="s2">&quot;</span><span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;cuda-bindings-python312-cuda13*-linux-64-*&quot;</span>
+
+<span class="gp">$ </span><span class="c1"># Install the downloaded wheel:</span>
+<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>cuda-bindings-python312-cuda13*-linux-64-*/cuda_bindings*.whl<span class="o">[</span>all<span class="o">]</span>
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">python312</span></code> with your Python version (e.g. <code class="docutils literal notranslate"><span class="pre">python310</span></code>, <code class="docutils literal notranslate"><span class="pre">python311</span></code>,
+<code class="docutils literal notranslate"><span class="pre">python313</span></code>, <code class="docutils literal notranslate"><span class="pre">python314</span></code>, <code class="docutils literal notranslate"><span class="pre">python314t</span></code>). For aarch64, replace <code class="docutils literal notranslate"><span class="pre">linux-64</span></code>
+with <code class="docutils literal notranslate"><span class="pre">linux-aarch64</span></code>; for Windows, use <code class="docutils literal notranslate"><span class="pre">win-64</span></code>. Only the current CUDA
+major version is built on <code class="docutils literal notranslate"><span class="pre">main</span></code>; wheels for the prior CUDA major are
+published from the corresponding backport branch.</p>
 </section>
 <section id="installing-from-source">
-<h2>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">#</a></h2>
+<h3>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">#</a></h3>
 <section id="requirements">
-<h3>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h3>
+<h4>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>CUDA Toolkit headers[^1]</p></li>
 <li><p>CUDA Runtime static library[^2]</p></li>
@@ -1370,19 +1403,20 @@ library are thread-safe. This is subject to change.</p></li>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_PATH</span><span class="o">=</span>/usr/local/cuda
 </pre></div>
 </div>
-<p>See <a class="reference external" href="environment_variables.rst">Environment Variables</a> for a description of other build-time environment variables.</p>
+<p>See <a class="reference internal" href="environment_variables.html"><span class="doc">Environment Variables</span></a> for a description of other build-time environment variables.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Only <code class="docutils literal notranslate"><span class="pre">cydriver</span></code>, <code class="docutils literal notranslate"><span class="pre">cyruntime</span></code> and <code class="docutils literal notranslate"><span class="pre">cynvrtc</span></code> are impacted by the header requirement.</p>
 </div>
 </section>
 <section id="editable-install">
-<h3>Editable Install<a class="headerlink" href="#editable-install" title="Link to this heading">#</a></h3>
+<h4>Editable Install<a class="headerlink" href="#editable-install" title="Link to this heading">#</a></h4>
 <p>You can use:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>-e<span class="w"> </span>.
 </pre></div>
 </div>
 <p>to install the module as editable in your current Python environment (e.g. for testing of porting other libraries to use the binding).</p>
+</section>
 </section>
 </section>
 </section>
@@ -1398,12 +1432,12 @@ library are thread-safe. This is subject to change.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="release/13.3.0-notes.html"
+       href="release/13.3.1-notes.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.3.0 Release notes</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.3.1 Release notes</p>
       </div>
     </a>
     <a class="right-next"
@@ -1442,9 +1476,13 @@ library are thread-safe. This is subject to change.</p></li>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-pypi">Installing from PyPI</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-conda">Installing from Conda</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-source">Installing from Source</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#editable-install">Editable Install</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-environment">Development environment</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-the-latest-nightly-top-of-tree-builds">Installing the latest nightly (top-of-tree builds)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-source">Installing from Source</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#editable-install">Editable Install</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1465,8 +1503,8 @@ library are thread-safe. This is subject to change.</p></li>
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
 
 
   <footer class="bd-footer">
