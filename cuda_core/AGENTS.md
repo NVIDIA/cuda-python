@@ -146,14 +146,17 @@ so that they are documented but don't appear in the main index.
 
 Reviews should point out where existing public APIs are broken.
 
-### Deprecation and API lifecycle
+### API lifecycle and deprecations
 
 `cuda.core` follows SemVer (see `docs/source/support.rst`):
 
-- **New APIs** may be added at any time (`x.Y.0`).
+- **New APIs** may be added at any time (`x.Y.0`).  They MUST have a
+  `@versionadded` decorator, unless the docstring formatting requires it to be
+  manually-specified.
 - **Breaking removals** only happen in **major releases** (`X.0.0`).
 - Per the support policy, a deprecation notice must be present for **at least
-  one minor release** before the API is actually removed.
+  one minor release** before the API is actually removed.  The deprecation notice
+  should use the `@deprecated` decorator, unless
 - Changes should be notated in the code and also in the release notes in the
   "Deprecated APIs" section.
 
@@ -215,7 +218,7 @@ generated docs.
 ```python
 from cuda.core._vendored.deprecated.sphinx import deprecated
 
-@deprecated(version="1.2.0", reason="Use `new_feature` instead.")
+@deprecated(version="1.2.0", reason="Use `new_feature` instead.")`
 def old_feature(...):
     """Short description.
     """
@@ -237,5 +240,9 @@ removing, verify that the deprecation has been present since at least the
 previous minor release.  Remove the decorator, the implementation, and any
 `__all__` entry; update `api.rst` and the release notes accordingly.
 
-At some point in the future, we will provide automation for removal of
-deprecated APIs.
+## Vendored code
+
+The `cuda/core/_vendored` directory contains vendored code from third-party
+sources.  It should not be modified, except to update the dependency or under
+exceptional circumstances, in which case any modifications should be clearly
+marked.
