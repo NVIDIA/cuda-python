@@ -62,7 +62,7 @@ cu13 = ["cuda-bindings[all]==13.*", "cuda-toolkit==13.*"]
 test = [
     "cython>=3.2,<3.3",
     "setuptools>=80",
-    "pytest==9.1.0",
+    "pytest==9.1.1",
     "pytest-benchmark==5.2.3",
     "pytest-randomly==4.1.0",
     "pytest-repeat==0.9.4",
