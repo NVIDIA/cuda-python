@@ -628,7 +628,7 @@ cdef int _init_driver() except -1 nogil:
         if __cuGetProcAddress_v2 == NULL:
             raise RuntimeError("Failed to get __cuGetProcAddress_v2")
         _F_cuGetProcAddress_v2 = <__cuGetProcAddress_v2_T>__cuGetProcAddress_v2
-        
+
         if bool(int(os.getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=0))):
             ptds_mode = CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM
         else:

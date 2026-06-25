@@ -20,7 +20,7 @@ cache_runtime
 cache_nvrtc
 
 # CUDA Python specific (auto-generated)
-cuda_cindings/cuda/bindings/_internal/cudla.pyx
+cuda_bindings/cuda/bindings/_internal/cudla.pyx
 cuda_bindings/cuda/bindings/_internal/driver.pyx
 cuda_bindings/cuda/bindings/_internal/nvrtc.pyx
 cuda_bindings/cuda/bindings/_internal/cufile.pyx
@@ -29,6 +29,7 @@ cuda_bindings/cuda/bindings/_internal/nvjitlink.pyx
 cuda_bindings/cuda/bindings/_internal/nvml.pyx
 cuda_bindings/cuda/bindings/_internal/nvvm.pyx
 cuda_bindings/cuda/bindings/_internal/runtime.pyx
+cuda_bindings/cuda/bindings/_internal/runtime_ptds.pyx
 cuda_bindings/cuda/bindings/utils/_get_handle.pyx
 
 # Version files from setuptools_scm

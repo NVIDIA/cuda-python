@@ -161,7 +161,11 @@ cdef extern from 'driver_types.h':
         pass
     ctypedef cudaGraphicsResource* cudaGraphicsResource_t 'cudaGraphicsResource_t'
 
-cdef extern from "":
+cdef extern from *:
+    """
+    struct CUeglStreamConnection_st;
+    typedef struct CUeglStreamConnection_st *cudaEglStreamConnection;
+    """
     cdef struct CUeglStreamConnection_st 'CUeglStreamConnection_st':
         pass
     ctypedef CUeglStreamConnection_st* cudaEglStreamConnection 'cudaEglStreamConnection'
@@ -1835,16 +1839,15 @@ cdef struct cuda_bindings_runtime__anon_pod5:
     size_t height
     size_t pitchInBytes
 
-cdef extern from '':
-    cdef struct cudaEglPlaneDesc_st:
-        unsigned int width
-        unsigned int height
-        unsigned int depth
-        unsigned int pitch
-        unsigned int numChannels
-        cudaChannelFormatDesc channelDesc
-        unsigned int reserved[4]
-    ctypedef cudaEglPlaneDesc_st cudaEglPlaneDesc
+cdef struct cudaEglPlaneDesc_st:
+    unsigned int width
+    unsigned int height
+    unsigned int depth
+    unsigned int pitch
+    unsigned int numChannels
+    cudaChannelFormatDesc channelDesc
+    unsigned int reserved[4]
+ctypedef cudaEglPlaneDesc_st cudaEglPlaneDesc
 
 cdef extern from '':
     cdef struct cudaArraySparseProperties:
@@ -1981,14 +1984,13 @@ cdef union cuda_bindings_runtime__anon_pod1:
     cuda_bindings_runtime__anon_pod5 pitch2D
     cuda_bindings_runtime__anon_pod6 reserved
 
-cdef extern from '':
-    cdef struct cudaEglFrame_st:
-        cuda_bindings_runtime__anon_pod35 frame
-        cudaEglPlaneDesc planeDesc[3]
-        unsigned int planeCount
-        cudaEglFrameType frameType
-        cudaEglColorFormat eglColorFormat
-    ctypedef cudaEglFrame_st cudaEglFrame
+cdef struct cudaEglFrame_st:
+    cuda_bindings_runtime__anon_pod35 frame
+    cudaEglPlaneDesc planeDesc[3]
+    unsigned int planeCount
+    cudaEglFrameType frameType
+    cudaEglColorFormat eglColorFormat
+ctypedef cudaEglFrame_st cudaEglFrame
 
 cdef extern from '':
     cdef struct cudaMemcpyNodeParams:
@@ -2639,148 +2641,6 @@ cdef extern from 'library_types.h':
         MAJOR_VERSION
         MINOR_VERSION
         PATCH_LEVEL
-
-# Enum aliases using C tag names, required by lowpp layer (runtime.pxd) which uses
-# the legacy_cython_gen naming convention of enum_name_enum for the C tag.
-cdef extern from 'driver_types.h':
-    ctypedef enum cudaGraphDependencyType_enum 'cudaGraphDependencyType_enum':
-        cudaGraphDependencyTypeDefault
-        cudaGraphDependencyTypeProgrammatic
-
-cdef extern from 'driver_types.h':
-    ctypedef enum cudaAsyncNotificationType_enum 'cudaAsyncNotificationType_enum':
-        cudaAsyncNotificationTypeOverBudget
-
-cdef extern from 'driver_types.h':
-    ctypedef enum CUDAlogLevel_enum 'CUDAlogLevel_enum':
-        cudaLogLevelError
-        cudaLogLevelWarning
-
-cdef extern from "":
-    ctypedef enum cudaEglFrameType_enum 'cudaEglFrameType_enum':
-        cudaEglFrameTypeArray
-        cudaEglFrameTypePitch
-
-cdef extern from "":
-    ctypedef enum cudaEglResourceLocationFlags_enum 'cudaEglResourceLocationFlags_enum':
-        cudaEglResourceLocationSysmem
-        cudaEglResourceLocationVidmem
-
-cdef extern from "":
-    ctypedef enum cudaEglColorFormat_enum 'cudaEglColorFormat_enum':
-        cudaEglColorFormatYUV420Planar
-        cudaEglColorFormatYUV420SemiPlanar
-        cudaEglColorFormatYUV422Planar
-        cudaEglColorFormatYUV422SemiPlanar
-        cudaEglColorFormatARGB
-        cudaEglColorFormatRGBA
-        cudaEglColorFormatL
-        cudaEglColorFormatR
-        cudaEglColorFormatYUV444Planar
-        cudaEglColorFormatYUV444SemiPlanar
-        cudaEglColorFormatYUYV422
-        cudaEglColorFormatUYVY422
-        cudaEglColorFormatABGR
-        cudaEglColorFormatBGRA
-        cudaEglColorFormatA
-        cudaEglColorFormatRG
-        cudaEglColorFormatAYUV
-        cudaEglColorFormatYVU444SemiPlanar
-        cudaEglColorFormatYVU422SemiPlanar
-        cudaEglColorFormatYVU420SemiPlanar
-        cudaEglColorFormatY10V10U10_444SemiPlanar
-        cudaEglColorFormatY10V10U10_420SemiPlanar
-        cudaEglColorFormatY12V12U12_444SemiPlanar
-        cudaEglColorFormatY12V12U12_420SemiPlanar
-        cudaEglColorFormatVYUY_ER
-        cudaEglColorFormatUYVY_ER
-        cudaEglColorFormatYUYV_ER
-        cudaEglColorFormatYVYU_ER
-        cudaEglColorFormatYUVA_ER
-        cudaEglColorFormatAYUV_ER
-        cudaEglColorFormatYUV444Planar_ER
-        cudaEglColorFormatYUV422Planar_ER
-        cudaEglColorFormatYUV420Planar_ER
-        cudaEglColorFormatYUV444SemiPlanar_ER
-        cudaEglColorFormatYUV422SemiPlanar_ER
-        cudaEglColorFormatYUV420SemiPlanar_ER
-        cudaEglColorFormatYVU444Planar_ER
-        cudaEglColorFormatYVU422Planar_ER
-        cudaEglColorFormatYVU420Planar_ER
-        cudaEglColorFormatYVU444SemiPlanar_ER
-        cudaEglColorFormatYVU422SemiPlanar_ER
-        cudaEglColorFormatYVU420SemiPlanar_ER
-        cudaEglColorFormatBayerRGGB
-        cudaEglColorFormatBayerBGGR
-        cudaEglColorFormatBayerGRBG
-        cudaEglColorFormatBayerGBRG
-        cudaEglColorFormatBayer10RGGB
-        cudaEglColorFormatBayer10BGGR
-        cudaEglColorFormatBayer10GRBG
-        cudaEglColorFormatBayer10GBRG
-        cudaEglColorFormatBayer12RGGB
-        cudaEglColorFormatBayer12BGGR
-        cudaEglColorFormatBayer12GRBG
-        cudaEglColorFormatBayer12GBRG
-        cudaEglColorFormatBayer14RGGB
-        cudaEglColorFormatBayer14BGGR
-        cudaEglColorFormatBayer14GRBG
-        cudaEglColorFormatBayer14GBRG
-        cudaEglColorFormatBayer20RGGB
-        cudaEglColorFormatBayer20BGGR
-        cudaEglColorFormatBayer20GRBG
-        cudaEglColorFormatBayer20GBRG
-        cudaEglColorFormatYVU444Planar
-        cudaEglColorFormatYVU422Planar
-        cudaEglColorFormatYVU420Planar
-        cudaEglColorFormatBayerIspRGGB
-        cudaEglColorFormatBayerIspBGGR
-        cudaEglColorFormatBayerIspGRBG
-        cudaEglColorFormatBayerIspGBRG
-        cudaEglColorFormatBayerBCCR
-        cudaEglColorFormatBayerRCCB
-        cudaEglColorFormatBayerCRBC
-        cudaEglColorFormatBayerCBRC
-        cudaEglColorFormatBayer10CCCC
-        cudaEglColorFormatBayer12BCCR
-        cudaEglColorFormatBayer12RCCB
-        cudaEglColorFormatBayer12CRBC
-        cudaEglColorFormatBayer12CBRC
-        cudaEglColorFormatBayer12CCCC
-        cudaEglColorFormatY
-        cudaEglColorFormatYUV420SemiPlanar_2020
-        cudaEglColorFormatYVU420SemiPlanar_2020
-        cudaEglColorFormatYUV420Planar_2020
-        cudaEglColorFormatYVU420Planar_2020
-        cudaEglColorFormatYUV420SemiPlanar_709
-        cudaEglColorFormatYVU420SemiPlanar_709
-        cudaEglColorFormatYUV420Planar_709
-        cudaEglColorFormatYVU420Planar_709
-        cudaEglColorFormatY10V10U10_420SemiPlanar_709
-        cudaEglColorFormatY10V10U10_420SemiPlanar_2020
-        cudaEglColorFormatY10V10U10_422SemiPlanar_2020
-        cudaEglColorFormatY10V10U10_422SemiPlanar
-        cudaEglColorFormatY10V10U10_422SemiPlanar_709
-        cudaEglColorFormatY_ER
-        cudaEglColorFormatY_709_ER
-        cudaEglColorFormatY10_ER
-        cudaEglColorFormatY10_709_ER
-        cudaEglColorFormatY12_ER
-        cudaEglColorFormatY12_709_ER
-        cudaEglColorFormatYUVA
-        cudaEglColorFormatYVYU
-        cudaEglColorFormatVYUY
-        cudaEglColorFormatY10V10U10_420SemiPlanar_ER
-        cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER
-        cudaEglColorFormatY10V10U10_444SemiPlanar_ER
-        cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER
-        cudaEglColorFormatY12V12U12_420SemiPlanar_ER
-        cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER
-        cudaEglColorFormatY12V12U12_444SemiPlanar_ER
-        cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER
-        cudaEglColorFormatUYVY709
-        cudaEglColorFormatUYVY709_ER
-        cudaEglColorFormatUYVY2020
 
 
 # Static inline helpers from driver_functions.h — wrapped as cdef so the lowpp layer can cimport them.

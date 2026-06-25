@@ -1328,12 +1328,12 @@ cdef extern from 'cuda.h':
         CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
 cdef extern from 'cuda.h':
-    cdef enum CUgreenCtxCreate_flags:
+    ctypedef enum CUgreenCtxCreate_flags "CUgreenCtxCreate_flags":
         CU_GREEN_CTX_NONE
         CU_GREEN_CTX_DEFAULT_STREAM
 
 cdef extern from 'cuda.h':
-    cdef enum CUdevResourceType:
+    ctypedef enum CUdevResourceType "CUdevResourceType":
         CU_DEV_RESOURCE_TYPE_INVALID
         CU_DEV_RESOURCE_TYPE_SM
         CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
@@ -1530,17 +1530,17 @@ cdef extern from 'cuda.h':
     ctypedef CUstreamAtomicReductionDataType_enum CUstreamAtomicReductionDataType
 
 cdef extern from 'cuda.h':
-    cdef enum CUdevSmResourceGroup_flags:
+    ctypedef enum CUdevSmResourceGroup_flags "CUdevSmResourceGroup_flags":
         CU_DEV_SM_RESOURCE_GROUP_DEFAULT
         CU_DEV_SM_RESOURCE_GROUP_BACKFILL
 
 cdef extern from 'cuda.h':
-    cdef enum CUdevSmResourceSplitByCount_flags:
+    ctypedef enum CUdevSmResourceSplitByCount_flags "CUdevSmResourceSplitByCount_flags":
         CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING
         CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE
 
 cdef extern from 'cuda.h':
-    cdef enum CUdevWorkqueueConfigScope:
+    ctypedef enum CUdevWorkqueueConfigScope "CUdevWorkqueueConfigScope":
         CU_WORKQUEUE_SCOPE_DEVICE_CTX
         CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED
 
