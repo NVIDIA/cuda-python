@@ -92,6 +92,13 @@ required_plugins = "pytest-benchmark"
 addopts = "--benchmark-disable --showlocals"
 norecursedirs = ["tests/cython", "examples"]
 xfail_strict = true
+# Keep this authorship marker registry in sync across all pytest config roots.
+# Search for "agent_authored(model)" before editing.
+markers = [
+    "agent_authored(model): agent-authored test not yet materially human-reviewed",
+    "human_reviewed: agent-authored test materially reviewed or rewritten by a human",
+    "human_authored: test authored primarily by a human",
+]
 
 [tool.setuptools_scm]
 root = ".."
