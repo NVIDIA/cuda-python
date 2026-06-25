@@ -21,6 +21,13 @@ from cuda.core import (
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.graph import GraphCompleteOptions
 
+# NOTE(seberg): "global" mode seems thread-unsafe even when working on stream
+_GRAPH_MODES = [
+    pytest.param("global", marks=pytest.mark.thread_unsafe(reason="gb instances share stream unsafely")),
+    "thread_local",
+    "relaxed",
+]
+
 
 def _common_kernels_alloc():
     code = """
@@ -80,7 +87,7 @@ class GraphMemoryTestManager:
         self.stream.sync()
 
 
-@pytest.mark.parametrize("mode", ["no_graph", "global", "thread_local", "relaxed"])
+@pytest.mark.parametrize("mode", ["no_graph"] + _GRAPH_MODES)
 @pytest.mark.parametrize("action", ["incr", "fill"])
 def test_graph_alloc(mempool_device, mode, action):
     """Test basic graph capture with memory allocated and deallocated by
@@ -130,7 +137,7 @@ def test_graph_alloc(mempool_device, mode, action):
         assert compare_buffer_to_constant(out, 3)
     else:
         # Capture work, then upload and launch.
-        gb = device.create_graph_builder().begin_building(mode)
+        gb = stream.create_graph_builder().begin_building(mode)
         with xfail_on_graph_mempool_oom(device):
             apply_kernels(mr=gmr, stream=gb, out=out)
             graph = gb.end_building().complete()
@@ -150,7 +157,7 @@ def test_graph_alloc(mempool_device, mode, action):
 
 
 @pytest.mark.skipif(IS_WINDOWS or IS_WSL, reason="auto_free_on_launch not supported on Windows")
-@pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
+@pytest.mark.parametrize("mode", _GRAPH_MODES)
 def test_graph_alloc_with_output(mempool_device, mode):
     """Test for memory allocated in a graph being used outside the graph."""
     NBYTES = 64
@@ -168,7 +175,7 @@ def test_graph_alloc_with_output(mempool_device, mode):
     # Construct a graph to copy and increment the input. It returns a new
     # buffer allocated within the graph.  The auto_free_on_launch option
     # is required to properly use the output buffer.
-    gb = device.create_graph_builder().begin_building(mode)
+    gb = stream.create_graph_builder().begin_building(mode)
     with xfail_on_graph_mempool_oom(device):
         out = gmr.allocate(NBYTES, stream=gb)
         out.copy_from(in_, stream=gb)
@@ -195,7 +202,8 @@ def test_graph_alloc_with_output(mempool_device, mode):
     assert compare_buffer_to_constant(out, 6)
 
 
-@pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
+@pytest.mark.parametrize("mode", _GRAPH_MODES)
+@pytest.mark.thread_unsafe(reason="gb instances share default stream")
 def test_graph_mem_alloc_zero(mempool_device, mode):
     device = mempool_device
     gb = device.create_graph_builder().begin_building(mode)
@@ -213,7 +221,8 @@ def test_graph_mem_alloc_zero(mempool_device, mode):
     assert buffer.device_id == int(device)
 
 
-@pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
+@pytest.mark.parametrize("mode", _GRAPH_MODES)
+@pytest.mark.thread_unsafe(reason="GMR is shared, so high mark is global")
 def test_graph_mem_set_attributes(mempool_device, mode):
     device = mempool_device
     stream = device.create_stream()
@@ -265,7 +274,7 @@ def test_graph_mem_set_attributes(mempool_device, mode):
     mman.reset()
 
 
-@pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
+@pytest.mark.parametrize("mode", _GRAPH_MODES)
 def test_gmr_check_capture_state(mempool_device, mode):
     """
     Test expected errors (and non-errors) using GraphMemoryResource with graph
@@ -284,7 +293,7 @@ def test_gmr_check_capture_state(mempool_device, mode):
         gmr.allocate(1, stream=stream)
 
     # Capturing
-    gb = device.create_graph_builder().begin_building(mode=mode)
+    gb = stream.create_graph_builder().begin_building(mode=mode)
     with xfail_on_graph_mempool_oom(device):
         gmr.allocate(1, stream=gb)  # no error
         gb.end_building().complete()
@@ -320,7 +329,7 @@ def test_graph_memory_resource_attributes_repr(mempool_device):
     assert "used_mem_high=" in r
 
 
-@pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
+@pytest.mark.parametrize("mode", _GRAPH_MODES)
 def test_dmr_check_capture_state(mempool_device, mode):
     """
     Test expected errors (and non-errors) using DeviceMemoryResource with graph
@@ -334,7 +343,7 @@ def test_dmr_check_capture_state(mempool_device, mode):
     dmr.allocate(1, stream=stream).close()  # no error
 
     # Capturing
-    gb = device.create_graph_builder().begin_building(mode=mode)
+    gb = stream.create_graph_builder().begin_building(mode=mode)
     with pytest.raises(
         RuntimeError,
         match=r"cannot perform memory operations on a capturing "

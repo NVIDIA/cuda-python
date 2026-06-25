@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+cimport cython
 from ._dlpack cimport *
 from ._dlpack import classify_dl_device
 from libc.stdint cimport intptr_t
@@ -539,6 +540,7 @@ cdef class StridedMemoryView:
               + f"                  readonly={self.readonly},\n"
               + f"                  exporting_obj={get_simple_repr(self.exporting_obj)})")
 
+    @cython.critical_section
     cdef inline _StridedLayout get_layout(self):
         if self._layout is None:
             if self.dl_tensor:
@@ -549,6 +551,7 @@ cdef class StridedMemoryView:
                 raise ValueError("Cannot infer layout from the exporting object")
         return self._layout
 
+    @cython.critical_section
     cdef inline object get_buffer(self):
         """
         Returns Buffer instance with the underlying data.
@@ -562,6 +565,7 @@ cdef class StridedMemoryView:
                 self._buffer = Buffer.from_handle(self.ptr, 0, owner=self.exporting_obj)
         return self._buffer
 
+    @cython.critical_section
     cdef inline object get_dtype(self):
         if self._dtype is None:
             if self.dl_tensor != NULL:
