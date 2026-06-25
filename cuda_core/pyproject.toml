@@ -149,6 +149,10 @@ implicit_reexport = true
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = "cuda.core._vendored.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
 # cpdef functions with Cython-native tuple return types can't carry type args
 # through stubgen-pyx; suppress the resulting type-arg error for this module.
 module = "cuda.core._utils.cuda_utils"
