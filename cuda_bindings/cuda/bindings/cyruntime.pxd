@@ -1302,17 +1302,15 @@ cdef enum cudaEglColorFormat_enum:
     cudaEglColorFormatUYVY2020 = 116
 ctypedef cudaEglColorFormat_enum cudaEglColorFormat
 
-cdef extern from 'cuda_gl_interop.h':
-    cdef enum cudaGLDeviceList:
-        cudaGLDeviceListAll
-        cudaGLDeviceListCurrentFrame
-        cudaGLDeviceListNextFrame
+cdef enum cudaGLDeviceList:
+    cudaGLDeviceListAll = 1
+    cudaGLDeviceListCurrentFrame = 2
+    cudaGLDeviceListNextFrame = 3
 
-cdef extern from 'cuda_gl_interop.h':
-    cdef enum cudaGLMapFlags:
-        cudaGLMapFlagsNone
-        cudaGLMapFlagsReadOnly
-        cudaGLMapFlagsWriteDiscard
+cdef enum cudaGLMapFlags:
+    cudaGLMapFlagsNone = 0
+    cudaGLMapFlagsReadOnly = 1
+    cudaGLMapFlagsWriteDiscard = 2
 
 cdef extern from 'library_types.h':
     cdef enum cudaEmulationStrategy_t:
