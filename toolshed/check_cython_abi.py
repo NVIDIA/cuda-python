@@ -499,6 +499,9 @@ def generate(package: str, abi_dir: Path) -> bool:
 
     build_dir = get_package_path(package)
     for so_path in Path(build_dir).glob(f"**/*{EXT_SUFFIX}"):
+        if any(x.startswith("_") for x in so_path.parts):
+            # Skip private modules (e.g. _driver.so) since they are not part of the public ABI
+            continue
         try:
             module = import_from_path(package, build_dir, so_path)
         except ImportError:
