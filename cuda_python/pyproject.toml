@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 [build-system]
-requires = ["setuptools>=80.0.0", "setuptools-scm[simple]>=8"]
+requires = ["setuptools>=80.0.0", "setuptools-scm[simple]>=8,!=10.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
