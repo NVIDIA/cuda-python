@@ -1385,15 +1385,10 @@ CUDAArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc) {
     if (CUDA_SUCCESS != (err = p_cuArray3DCreate(&arr, &desc))) {
         return {};
     }
-    auto box = std::shared_ptr<const ArrayBox>(
-        new ArrayBox{arr, {}},
-        [](const ArrayBox* b) {
-            GILReleaseGuard gil;
-            p_cuArrayDestroy(b->resource);
-            delete b;
-        }
-    );
-    return CUDAArrayHandle(box, &box->resource);
+    // Allocation and adoption share the same owning lifetime; the only
+    // difference is who calls cuArray3DCreate. Delegate so the owning box and
+    // its destroy-on-last-ref deleter are defined in exactly one place.
+    return create_array_handle_owning(arr);
 }
 
 CUDAArrayHandle create_array_handle_ref(CUarray arr) {
