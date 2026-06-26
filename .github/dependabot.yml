@@ -4,48 +4,6 @@
 
 version: 2
 updates:
-  # Python test-dependency updates for cuda_bindings
-  - package-ecosystem: pip
-    directory: /cuda_bindings
-    schedule:
-      interval: "monthly"
-      time: "09:00"
-      timezone: "America/Los_Angeles"
-    open-pull-requests-limit: 5
-    groups:
-      test-deps:
-        applies-to: version-updates
-        patterns: ["*"]
-        update-types: ["major", "minor", "patch"]
-
-  # Python test-dependency updates for cuda_core
-  - package-ecosystem: pip
-    directory: /cuda_core
-    schedule:
-      interval: "monthly"
-      time: "09:00"
-      timezone: "America/Los_Angeles"
-    open-pull-requests-limit: 5
-    groups:
-      test-deps:
-        applies-to: version-updates
-        patterns: ["*"]
-        update-types: ["major", "minor", "patch"]
-
-  # Python test-dependency updates for cuda_pathfinder
-  - package-ecosystem: pip
-    directory: /cuda_pathfinder
-    schedule:
-      interval: "monthly"
-      time: "09:00"
-      timezone: "America/Los_Angeles"
-    open-pull-requests-limit: 5
-    groups:
-      test-deps:
-        applies-to: version-updates
-        patterns: ["*"]
-        update-types: ["major", "minor", "patch"]
-
   # GitHub Actions updates targeting the default branch (main)
   - package-ecosystem: github-actions
     directory: /
