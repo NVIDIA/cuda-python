@@ -145,3 +145,104 @@ so that they are documented but don't appear in the main index.
 ### API stability
 
 Reviews should point out where existing public APIs are broken.
+
+### API lifecycle and deprecations
+
+`cuda.core` follows SemVer (see `docs/source/support.rst`):
+
+- **New APIs** may be added at any time (`x.Y.0`).  They MUST have a
+  `@versionadded` decorator, unless the docstring formatting requires it to be
+  manually-specified.
+- **Breaking removals** only happen in **major releases** (`X.0.0`).
+- Per the support policy, a deprecation notice must be present for **at least
+  one minor release** before the API is actually removed.  The deprecation notice
+  should use the `@deprecated` decorator, unless
+- Changes should be notated in the code and also in the release notes in the
+  "Deprecated APIs" section.
+
+**Annotating a new API** — Use the `versionadded` decorator from the vendored
+`cuda.core._vendored.deprecated.sphinx` module:
+
+```python
+
+from cuda.core._vendored.deprecated.sphinx import versionadded
+
+@versionadded(version="1.2.0")
+def new_feature(...):
+    """Short description.
+    """
+```
+
+Alternatively, if the vagaries of how we implement functions in Cython does not
+allow this, you can add the reST `versionadded` directive directly:
+
+```python
+def new_feature(...):
+    """Short description.
+
+    .. versionadded:: 1.2.0
+    """
+```
+
+**Annotating a changed API** — Use the `versionchanged` decorator from the
+vendored `cuda.core._vendored.deprecated.sphinx` module:
+
+```python
+
+from cuda.core._vendored.deprecated.sphinx import versionchanged
+
+@versionchanged(version="1.2.0", reason="The old version was broken because...")
+def new_feature(...):
+    """Short description.
+    """
+```
+
+Alternatively, if the vagaries of how we implement functions in Cython does not
+allow this, you can add the reST `versionchanged` directive directly:
+
+```python
+def new_feature(...):
+    """Short description.
+
+    .. versionchanged:: 1.2.0
+        The old version was broken because...
+    """
+```
+
+**Deprecating an existing API** — use the `@deprecated` decorator from the
+vendored `cuda.core._vendored.deprecated.sphinx` module and add a
+`.. deprecated::` directive in the docstring.  The decorator emits a
+`DeprecationWarning` at call time; the docstring directive surfaces it in the
+generated docs.
+
+```python
+from cuda.core._vendored.deprecated.sphinx import deprecated
+
+@deprecated(version="1.2.0", reason="Use `new_feature` instead.")`
+def old_feature(...):
+    """Short description.
+    """
+```
+
+Rules to follow when deprecating:
+
+- The `version=` argument must be the **first** in which the
+  deprecation appears, not the release in which removal is planned.
+- The `reason=` string must name the replacement (if one exists) so users
+  know what to migrate to.
+- Keep the old implementation fully functional — do not change its behavior,
+  only add the decorator.
+- The deprecated API must remain in the codebase for **at least one full minor
+  release cycle** before it can be removed in a subsequent major release.
+
+**Removing a deprecated API** — removals land in a **major release**.  Before
+removing, verify that the deprecation has been present since at least the
+previous minor release.  Remove the decorator, the implementation, and any
+`__all__` entry; update `api.rst` and the release notes accordingly.
+
+## Vendored code
+
+The `cuda/core/_vendored` directory contains vendored code from third-party
+sources.  It should not be modified, except to update the dependency or under
+exceptional circumstances, in which case any modifications should be clearly
+marked.
