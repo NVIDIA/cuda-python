@@ -9940,7 +9940,7 @@ cdef class CUstreamMemOpWaitValueParams_st:
         return CUstreamBatchMemOpType(self._pvt_ptr[0].waitValue.operation)
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].waitValue.operation = <cydriver.CUstreamBatchMemOpType><int>int(operation)
+        self._pvt_ptr[0].waitValue.operation = int(operation)
 
 
     @property
@@ -10126,7 +10126,7 @@ cdef class CUstreamMemOpWriteValueParams_st:
         return CUstreamBatchMemOpType(self._pvt_ptr[0].writeValue.operation)
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].writeValue.operation = <cydriver.CUstreamBatchMemOpType><int>int(operation)
+        self._pvt_ptr[0].writeValue.operation = int(operation)
 
 
     @property
@@ -10260,7 +10260,7 @@ cdef class CUstreamMemOpFlushRemoteWritesParams_st:
         return CUstreamBatchMemOpType(self._pvt_ptr[0].flushRemoteWrites.operation)
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].flushRemoteWrites.operation = <cydriver.CUstreamBatchMemOpType><int>int(operation)
+        self._pvt_ptr[0].flushRemoteWrites.operation = int(operation)
 
 
     @property
@@ -10322,7 +10322,7 @@ cdef class CUstreamMemOpMemoryBarrierParams_st:
         return CUstreamBatchMemOpType(self._pvt_ptr[0].memoryBarrier.operation)
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].memoryBarrier.operation = <cydriver.CUstreamBatchMemOpType><int>int(operation)
+        self._pvt_ptr[0].memoryBarrier.operation = int(operation)
 
 
     @property
@@ -10443,7 +10443,7 @@ cdef class CUstreamMemOpAtomicReductionParams_st:
         return CUstreamBatchMemOpType(self._pvt_ptr[0].atomicReduction.operation)
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].atomicReduction.operation = <cydriver.CUstreamBatchMemOpType><int>int(operation)
+        self._pvt_ptr[0].atomicReduction.operation = int(operation)
 
 
     @property
@@ -10459,7 +10459,7 @@ cdef class CUstreamMemOpAtomicReductionParams_st:
         return CUstreamAtomicReductionOpType(self._pvt_ptr[0].atomicReduction.reductionOp)
     @reductionOp.setter
     def reductionOp(self, reductionOp not None : CUstreamAtomicReductionOpType):
-        self._pvt_ptr[0].atomicReduction.reductionOp = <cydriver.CUstreamAtomicReductionOpType><int>int(reductionOp)
+        self._pvt_ptr[0].atomicReduction.reductionOp = int(reductionOp)
 
 
     @property
@@ -10467,7 +10467,7 @@ cdef class CUstreamMemOpAtomicReductionParams_st:
         return CUstreamAtomicReductionDataType(self._pvt_ptr[0].atomicReduction.dataType)
     @dataType.setter
     def dataType(self, dataType not None : CUstreamAtomicReductionDataType):
-        self._pvt_ptr[0].atomicReduction.dataType = <cydriver.CUstreamAtomicReductionDataType><int>int(dataType)
+        self._pvt_ptr[0].atomicReduction.dataType = int(dataType)
 
 
     @property
@@ -10647,7 +10647,7 @@ cdef class CUstreamBatchMemOpParams_union:
         return CUstreamBatchMemOpType(self._pvt_ptr[0].operation)
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].operation = <cydriver.CUstreamBatchMemOpType><int>int(operation)
+        self._pvt_ptr[0].operation = int(operation)
 
 
     @property
@@ -11122,7 +11122,7 @@ cdef class CUasyncNotificationInfo_st:
         return CUasyncNotificationType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : CUasyncNotificationType):
-        self._pvt_ptr[0].type = <cydriver.CUasyncNotificationType><int>int(type)
+        self._pvt_ptr[0].type = int(type)
 
 
     @property
@@ -11465,7 +11465,7 @@ cdef class CUaccessPolicyWindow_st:
         return CUaccessProperty(self._pvt_ptr[0].hitProp)
     @hitProp.setter
     def hitProp(self, hitProp not None : CUaccessProperty):
-        self._pvt_ptr[0].hitProp = <cydriver.CUaccessProperty><int>int(hitProp)
+        self._pvt_ptr[0].hitProp = int(hitProp)
 
 
     @property
@@ -11473,7 +11473,7 @@ cdef class CUaccessPolicyWindow_st:
         return CUaccessProperty(self._pvt_ptr[0].missProp)
     @missProp.setter
     def missProp(self, missProp not None : CUaccessProperty):
-        self._pvt_ptr[0].missProp = <cydriver.CUaccessProperty><int>int(missProp)
+        self._pvt_ptr[0].missProp = int(missProp)
 
 
 cdef class CUDA_KERNEL_NODE_PARAMS_st:
@@ -12905,7 +12905,7 @@ cdef class CUDA_CONDITIONAL_NODE_PARAMS:
         return CUgraphConditionalNodeType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : CUgraphConditionalNodeType):
-        self._pvt_ptr[0].type = <cydriver.CUgraphConditionalNodeType><int>int(type)
+        self._pvt_ptr[0].type = int(type)
 
 
     @property
@@ -13199,7 +13199,7 @@ cdef class CUDA_GRAPH_INSTANTIATE_PARAMS_st:
         return CUgraphInstantiateResult(self._pvt_ptr[0].result_out)
     @result_out.setter
     def result_out(self, result_out not None : CUgraphInstantiateResult):
-        self._pvt_ptr[0].result_out = <cydriver.CUgraphInstantiateResult><int>int(result_out)
+        self._pvt_ptr[0].result_out = int(result_out)
 
 
 cdef class CUlaunchMemSyncDomainMap_st:
@@ -13988,7 +13988,7 @@ cdef class CUlaunchAttributeValue_union:
         return CUsynchronizationPolicy(self._pvt_ptr[0].syncPolicy)
     @syncPolicy.setter
     def syncPolicy(self, syncPolicy not None : CUsynchronizationPolicy):
-        self._pvt_ptr[0].syncPolicy = <cydriver.CUsynchronizationPolicy><int>int(syncPolicy)
+        self._pvt_ptr[0].syncPolicy = int(syncPolicy)
 
 
     @property
@@ -14004,7 +14004,7 @@ cdef class CUlaunchAttributeValue_union:
         return CUclusterSchedulingPolicy(self._pvt_ptr[0].clusterSchedulingPolicyPreference)
     @clusterSchedulingPolicyPreference.setter
     def clusterSchedulingPolicyPreference(self, clusterSchedulingPolicyPreference not None : CUclusterSchedulingPolicy):
-        self._pvt_ptr[0].clusterSchedulingPolicyPreference = <cydriver.CUclusterSchedulingPolicy><int>int(clusterSchedulingPolicyPreference)
+        self._pvt_ptr[0].clusterSchedulingPolicyPreference = int(clusterSchedulingPolicyPreference)
 
 
     @property
@@ -14052,7 +14052,7 @@ cdef class CUlaunchAttributeValue_union:
         return CUlaunchMemSyncDomain(self._pvt_ptr[0].memSyncDomain)
     @memSyncDomain.setter
     def memSyncDomain(self, memSyncDomain not None : CUlaunchMemSyncDomain):
-        self._pvt_ptr[0].memSyncDomain = <cydriver.CUlaunchMemSyncDomain><int>int(memSyncDomain)
+        self._pvt_ptr[0].memSyncDomain = int(memSyncDomain)
 
 
     @property
@@ -14092,7 +14092,7 @@ cdef class CUlaunchAttributeValue_union:
         return CUlaunchAttributePortableClusterMode(self._pvt_ptr[0].portableClusterSizeMode)
     @portableClusterSizeMode.setter
     def portableClusterSizeMode(self, portableClusterSizeMode not None : CUlaunchAttributePortableClusterMode):
-        self._pvt_ptr[0].portableClusterSizeMode = <cydriver.CUlaunchAttributePortableClusterMode><int>int(portableClusterSizeMode)
+        self._pvt_ptr[0].portableClusterSizeMode = int(portableClusterSizeMode)
 
 
     @property
@@ -14100,7 +14100,7 @@ cdef class CUlaunchAttributeValue_union:
         return CUsharedMemoryMode(self._pvt_ptr[0].sharedMemoryMode)
     @sharedMemoryMode.setter
     def sharedMemoryMode(self, sharedMemoryMode not None : CUsharedMemoryMode):
-        self._pvt_ptr[0].sharedMemoryMode = <cydriver.CUsharedMemoryMode><int>int(sharedMemoryMode)
+        self._pvt_ptr[0].sharedMemoryMode = int(sharedMemoryMode)
 
 
 cdef class CUlaunchAttribute_st:
@@ -14161,7 +14161,7 @@ cdef class CUlaunchAttribute_st:
         return CUlaunchAttributeID(self._pvt_ptr[0].id)
     @id.setter
     def id(self, id not None : CUlaunchAttributeID):
-        self._pvt_ptr[0].id = <cydriver.CUlaunchAttributeID><int>int(id)
+        self._pvt_ptr[0].id = int(id)
 
 
     @property
@@ -14570,7 +14570,7 @@ cdef class CUexecAffinityParam_st:
         return CUexecAffinityType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : CUexecAffinityType):
-        self._pvt_ptr[0].type = <cydriver.CUexecAffinityType><int>int(type)
+        self._pvt_ptr[0].type = int(type)
 
 
     @property
@@ -14637,7 +14637,7 @@ cdef class CUctxCigParam_st:
         return CUcigDataType(self._pvt_ptr[0].sharedDataType)
     @sharedDataType.setter
     def sharedDataType(self, sharedDataType not None : CUcigDataType):
-        self._pvt_ptr[0].sharedDataType = <cydriver.CUcigDataType><int>int(sharedDataType)
+        self._pvt_ptr[0].sharedDataType = int(sharedDataType)
 
 
     @property
@@ -14838,7 +14838,7 @@ cdef class CUstreamCigParam_st:
         return CUstreamCigDataType(self._pvt_ptr[0].streamSharedDataType)
     @streamSharedDataType.setter
     def streamSharedDataType(self, streamSharedDataType not None : CUstreamCigDataType):
-        self._pvt_ptr[0].streamSharedDataType = <cydriver.CUstreamCigDataType><int>int(streamSharedDataType)
+        self._pvt_ptr[0].streamSharedDataType = int(streamSharedDataType)
 
 
     @property
@@ -15246,7 +15246,7 @@ cdef class CUDA_MEMCPY2D_st:
         return CUmemorytype(self._pvt_ptr[0].srcMemoryType)
     @srcMemoryType.setter
     def srcMemoryType(self, srcMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].srcMemoryType = <cydriver.CUmemorytype><int>int(srcMemoryType)
+        self._pvt_ptr[0].srcMemoryType = int(srcMemoryType)
 
 
     @property
@@ -15322,7 +15322,7 @@ cdef class CUDA_MEMCPY2D_st:
         return CUmemorytype(self._pvt_ptr[0].dstMemoryType)
     @dstMemoryType.setter
     def dstMemoryType(self, dstMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].dstMemoryType = <cydriver.CUmemorytype><int>int(dstMemoryType)
+        self._pvt_ptr[0].dstMemoryType = int(dstMemoryType)
 
 
     @property
@@ -15723,7 +15723,7 @@ cdef class CUDA_MEMCPY3D_st:
         return CUmemorytype(self._pvt_ptr[0].srcMemoryType)
     @srcMemoryType.setter
     def srcMemoryType(self, srcMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].srcMemoryType = <cydriver.CUmemorytype><int>int(srcMemoryType)
+        self._pvt_ptr[0].srcMemoryType = int(srcMemoryType)
 
 
     @property
@@ -15832,7 +15832,7 @@ cdef class CUDA_MEMCPY3D_st:
         return CUmemorytype(self._pvt_ptr[0].dstMemoryType)
     @dstMemoryType.setter
     def dstMemoryType(self, dstMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].dstMemoryType = <cydriver.CUmemorytype><int>int(dstMemoryType)
+        self._pvt_ptr[0].dstMemoryType = int(dstMemoryType)
 
 
     @property
@@ -16265,7 +16265,7 @@ cdef class CUDA_MEMCPY3D_PEER_st:
         return CUmemorytype(self._pvt_ptr[0].srcMemoryType)
     @srcMemoryType.setter
     def srcMemoryType(self, srcMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].srcMemoryType = <cydriver.CUmemorytype><int>int(srcMemoryType)
+        self._pvt_ptr[0].srcMemoryType = int(srcMemoryType)
 
 
     @property
@@ -16382,7 +16382,7 @@ cdef class CUDA_MEMCPY3D_PEER_st:
         return CUmemorytype(self._pvt_ptr[0].dstMemoryType)
     @dstMemoryType.setter
     def dstMemoryType(self, dstMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].dstMemoryType = <cydriver.CUmemorytype><int>int(dstMemoryType)
+        self._pvt_ptr[0].dstMemoryType = int(dstMemoryType)
 
 
     @property
@@ -16694,7 +16694,7 @@ cdef class CUDA_ARRAY_DESCRIPTOR_st:
         return CUarray_format(self._pvt_ptr[0].Format)
     @Format.setter
     def Format(self, Format not None : CUarray_format):
-        self._pvt_ptr[0].Format = <cydriver.CUarray_format><int>int(Format)
+        self._pvt_ptr[0].Format = int(Format)
 
 
     @property
@@ -16824,7 +16824,7 @@ cdef class CUDA_ARRAY3D_DESCRIPTOR_st:
         return CUarray_format(self._pvt_ptr[0].Format)
     @Format.setter
     def Format(self, Format not None : CUarray_format):
-        self._pvt_ptr[0].Format = <cydriver.CUarray_format><int>int(Format)
+        self._pvt_ptr[0].Format = int(Format)
 
 
     @property
@@ -17335,7 +17335,7 @@ cdef class anon_struct9:
         return CUarray_format(self._pvt_ptr[0].res.linear.format)
     @format.setter
     def format(self, format not None : CUarray_format):
-        self._pvt_ptr[0].res.linear.format = <cydriver.CUarray_format><int>int(format)
+        self._pvt_ptr[0].res.linear.format = int(format)
 
 
     @property
@@ -17466,7 +17466,7 @@ cdef class anon_struct10:
         return CUarray_format(self._pvt_ptr[0].res.pitch2D.format)
     @format.setter
     def format(self, format not None : CUarray_format):
-        self._pvt_ptr[0].res.pitch2D.format = <cydriver.CUarray_format><int>int(format)
+        self._pvt_ptr[0].res.pitch2D.format = int(format)
 
 
     @property
@@ -17746,7 +17746,7 @@ cdef class CUDA_RESOURCE_DESC_st:
         return CUresourcetype(self._pvt_ptr[0].resType)
     @resType.setter
     def resType(self, resType not None : CUresourcetype):
-        self._pvt_ptr[0].resType = <cydriver.CUresourcetype><int>int(resType)
+        self._pvt_ptr[0].resType = int(resType)
 
 
     @property
@@ -17908,7 +17908,7 @@ cdef class CUDA_TEXTURE_DESC_st:
         return CUfilter_mode(self._pvt_ptr[0].filterMode)
     @filterMode.setter
     def filterMode(self, filterMode not None : CUfilter_mode):
-        self._pvt_ptr[0].filterMode = <cydriver.CUfilter_mode><int>int(filterMode)
+        self._pvt_ptr[0].filterMode = int(filterMode)
 
 
     @property
@@ -17932,7 +17932,7 @@ cdef class CUDA_TEXTURE_DESC_st:
         return CUfilter_mode(self._pvt_ptr[0].mipmapFilterMode)
     @mipmapFilterMode.setter
     def mipmapFilterMode(self, mipmapFilterMode not None : CUfilter_mode):
-        self._pvt_ptr[0].mipmapFilterMode = <cydriver.CUfilter_mode><int>int(mipmapFilterMode)
+        self._pvt_ptr[0].mipmapFilterMode = int(mipmapFilterMode)
 
 
     @property
@@ -18100,7 +18100,7 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
         return CUresourceViewFormat(self._pvt_ptr[0].format)
     @format.setter
     def format(self, format not None : CUresourceViewFormat):
-        self._pvt_ptr[0].format = <cydriver.CUresourceViewFormat><int>int(format)
+        self._pvt_ptr[0].format = int(format)
 
 
     @property
@@ -18756,7 +18756,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         return CUexternalMemoryHandleType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : CUexternalMemoryHandleType):
-        self._pvt_ptr[0].type = <cydriver.CUexternalMemoryHandleType><int>int(type)
+        self._pvt_ptr[0].type = int(type)
 
 
     @property
@@ -19227,7 +19227,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
         return CUexternalSemaphoreHandleType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : CUexternalSemaphoreHandleType):
-        self._pvt_ptr[0].type = <cydriver.CUexternalSemaphoreHandleType><int>int(type)
+        self._pvt_ptr[0].type = int(type)
 
 
     @property
@@ -21102,7 +21102,7 @@ cdef class CUarrayMapInfo_st:
         return CUresourcetype(self._pvt_ptr[0].resourceType)
     @resourceType.setter
     def resourceType(self, resourceType not None : CUresourcetype):
-        self._pvt_ptr[0].resourceType = <cydriver.CUresourcetype><int>int(resourceType)
+        self._pvt_ptr[0].resourceType = int(resourceType)
 
 
     @property
@@ -21118,7 +21118,7 @@ cdef class CUarrayMapInfo_st:
         return CUarraySparseSubresourceType(self._pvt_ptr[0].subresourceType)
     @subresourceType.setter
     def subresourceType(self, subresourceType not None : CUarraySparseSubresourceType):
-        self._pvt_ptr[0].subresourceType = <cydriver.CUarraySparseSubresourceType><int>int(subresourceType)
+        self._pvt_ptr[0].subresourceType = int(subresourceType)
 
 
     @property
@@ -21134,7 +21134,7 @@ cdef class CUarrayMapInfo_st:
         return CUmemOperationType(self._pvt_ptr[0].memOperationType)
     @memOperationType.setter
     def memOperationType(self, memOperationType not None : CUmemOperationType):
-        self._pvt_ptr[0].memOperationType = <cydriver.CUmemOperationType><int>int(memOperationType)
+        self._pvt_ptr[0].memOperationType = int(memOperationType)
 
 
     @property
@@ -21142,7 +21142,7 @@ cdef class CUarrayMapInfo_st:
         return CUmemHandleType(self._pvt_ptr[0].memHandleType)
     @memHandleType.setter
     def memHandleType(self, memHandleType not None : CUmemHandleType):
-        self._pvt_ptr[0].memHandleType = <cydriver.CUmemHandleType><int>int(memHandleType)
+        self._pvt_ptr[0].memHandleType = int(memHandleType)
 
 
     @property
@@ -21244,7 +21244,7 @@ cdef class CUmemLocation_st:
         return CUmemLocationType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : CUmemLocationType):
-        self._pvt_ptr[0].type = <cydriver.CUmemLocationType><int>int(type)
+        self._pvt_ptr[0].type = int(type)
 
 
     @property
@@ -21451,7 +21451,7 @@ cdef class CUmemAllocationProp_st:
         return CUmemAllocationType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : CUmemAllocationType):
-        self._pvt_ptr[0].type = <cydriver.CUmemAllocationType><int>int(type)
+        self._pvt_ptr[0].type = int(type)
 
 
     @property
@@ -21459,7 +21459,7 @@ cdef class CUmemAllocationProp_st:
         return CUmemAllocationHandleType(self._pvt_ptr[0].requestedHandleTypes)
     @requestedHandleTypes.setter
     def requestedHandleTypes(self, requestedHandleTypes not None : CUmemAllocationHandleType):
-        self._pvt_ptr[0].requestedHandleTypes = <cydriver.CUmemAllocationHandleType><int>int(requestedHandleTypes)
+        self._pvt_ptr[0].requestedHandleTypes = int(requestedHandleTypes)
 
 
     @property
@@ -21658,7 +21658,7 @@ cdef class CUmemAccessDesc_st:
         return CUmemAccess_flags(self._pvt_ptr[0].flags)
     @flags.setter
     def flags(self, flags not None : CUmemAccess_flags):
-        self._pvt_ptr[0].flags = <cydriver.CUmemAccess_flags><int>int(flags)
+        self._pvt_ptr[0].flags = int(flags)
 
 
 cdef class CUgraphExecUpdateResultInfo_st:
@@ -21735,7 +21735,7 @@ cdef class CUgraphExecUpdateResultInfo_st:
         return CUgraphExecUpdateResult(self._pvt_ptr[0].result)
     @result.setter
     def result(self, result not None : CUgraphExecUpdateResult):
-        self._pvt_ptr[0].result = <cydriver.CUgraphExecUpdateResult><int>int(result)
+        self._pvt_ptr[0].result = int(result)
 
 
     @property
@@ -21886,7 +21886,7 @@ cdef class CUmemPoolProps_st:
         return CUmemAllocationType(self._pvt_ptr[0].allocType)
     @allocType.setter
     def allocType(self, allocType not None : CUmemAllocationType):
-        self._pvt_ptr[0].allocType = <cydriver.CUmemAllocationType><int>int(allocType)
+        self._pvt_ptr[0].allocType = int(allocType)
 
 
     @property
@@ -21894,7 +21894,7 @@ cdef class CUmemPoolProps_st:
         return CUmemAllocationHandleType(self._pvt_ptr[0].handleTypes)
     @handleTypes.setter
     def handleTypes(self, handleTypes not None : CUmemAllocationHandleType):
-        self._pvt_ptr[0].handleTypes = <cydriver.CUmemAllocationHandleType><int>int(handleTypes)
+        self._pvt_ptr[0].handleTypes = int(handleTypes)
 
 
     @property
@@ -22077,7 +22077,7 @@ cdef class CUmemcpyAttributes_st:
         return CUmemcpySrcAccessOrder(self._pvt_ptr[0].srcAccessOrder)
     @srcAccessOrder.setter
     def srcAccessOrder(self, srcAccessOrder not None : CUmemcpySrcAccessOrder):
-        self._pvt_ptr[0].srcAccessOrder = <cydriver.CUmemcpySrcAccessOrder><int>int(srcAccessOrder)
+        self._pvt_ptr[0].srcAccessOrder = int(srcAccessOrder)
 
 
     @property
@@ -22591,7 +22591,7 @@ cdef class CUmemcpy3DOperand_st:
         return CUmemcpy3DOperandType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : CUmemcpy3DOperandType):
-        self._pvt_ptr[0].type = <cydriver.CUmemcpy3DOperandType><int>int(type)
+        self._pvt_ptr[0].type = int(type)
 
 
     @property
@@ -22719,7 +22719,7 @@ cdef class CUDA_MEMCPY3D_BATCH_OP_st:
         return CUmemcpySrcAccessOrder(self._pvt_ptr[0].srcAccessOrder)
     @srcAccessOrder.setter
     def srcAccessOrder(self, srcAccessOrder not None : CUmemcpySrcAccessOrder):
-        self._pvt_ptr[0].srcAccessOrder = <cydriver.CUmemcpySrcAccessOrder><int>int(srcAccessOrder)
+        self._pvt_ptr[0].srcAccessOrder = int(srcAccessOrder)
 
 
     @property
@@ -23192,7 +23192,7 @@ cdef class CUDA_CHILD_GRAPH_NODE_PARAMS_st:
         return CUgraphChildGraphNodeOwnership(self._pvt_ptr[0].ownership)
     @ownership.setter
     def ownership(self, ownership not None : CUgraphChildGraphNodeOwnership):
-        self._pvt_ptr[0].ownership = <cydriver.CUgraphChildGraphNodeOwnership><int>int(ownership)
+        self._pvt_ptr[0].ownership = int(ownership)
 
 
 cdef class CUDA_EVENT_RECORD_NODE_PARAMS_st:
@@ -23571,7 +23571,7 @@ cdef class CUgraphNodeParams_st:
         return CUgraphNodeType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : CUgraphNodeType):
-        self._pvt_ptr[0].type = <cydriver.CUgraphNodeType><int>int(type)
+        self._pvt_ptr[0].type = int(type)
 
 
     @property
@@ -24261,7 +24261,7 @@ cdef class CUmemDecompressParams_st:
         return CUmemDecompressAlgorithm(self._pvt_ptr[0].algo)
     @algo.setter
     def algo(self, algo not None : CUmemDecompressAlgorithm):
-        self._pvt_ptr[0].algo = <cydriver.CUmemDecompressAlgorithm><int>int(algo)
+        self._pvt_ptr[0].algo = int(algo)
 
 
     @property
@@ -24531,7 +24531,7 @@ cdef class CUlogicalEndpointProp_struct:
         return CUlogicalEndpointType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : CUlogicalEndpointType):
-        self._pvt_ptr[0].type = <cydriver.CUlogicalEndpointType><int>int(type)
+        self._pvt_ptr[0].type = int(type)
 
 
     @property
@@ -24771,7 +24771,7 @@ cdef class CUdevWorkqueueConfigResource_st:
         return CUdevWorkqueueConfigScope(self._pvt_ptr[0].sharingScope)
     @sharingScope.setter
     def sharingScope(self, sharingScope not None : CUdevWorkqueueConfigScope):
-        self._pvt_ptr[0].sharingScope = <cydriver.CUdevWorkqueueConfigScope><int>int(sharingScope)
+        self._pvt_ptr[0].sharingScope = int(sharingScope)
 
 
 cdef class CUdevWorkqueueResource_st:
@@ -25065,7 +25065,7 @@ cdef class CUdevResource_st:
         return CUdevResourceType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : CUdevResourceType):
-        self._pvt_ptr[0].type = <cydriver.CUdevResourceType><int>int(type)
+        self._pvt_ptr[0].type = int(type)
 
 
     @property
@@ -25407,7 +25407,7 @@ cdef class CUeglFrame_st:
         return CUeglFrameType(self._pvt_ptr[0].frameType)
     @frameType.setter
     def frameType(self, frameType not None : CUeglFrameType):
-        self._pvt_ptr[0].frameType = <cydriver.CUeglFrameType><int>int(frameType)
+        self._pvt_ptr[0].frameType = int(frameType)
 
 
     @property
@@ -25415,7 +25415,7 @@ cdef class CUeglFrame_st:
         return CUeglColorFormat(self._pvt_ptr[0].eglColorFormat)
     @eglColorFormat.setter
     def eglColorFormat(self, eglColorFormat not None : CUeglColorFormat):
-        self._pvt_ptr[0].eglColorFormat = <cydriver.CUeglColorFormat><int>int(eglColorFormat)
+        self._pvt_ptr[0].eglColorFormat = int(eglColorFormat)
 
 
     @property
@@ -25423,7 +25423,7 @@ cdef class CUeglFrame_st:
         return CUarray_format(self._pvt_ptr[0].cuFormat)
     @cuFormat.setter
     def cuFormat(self, cuFormat not None : CUarray_format):
-        self._pvt_ptr[0].cuFormat = <cydriver.CUarray_format><int>int(cuFormat)
+        self._pvt_ptr[0].cuFormat = int(cuFormat)
 
 
 cdef class cuuint32_t:

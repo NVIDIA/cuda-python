@@ -1334,39 +1334,48 @@ cdef enum: _CUDAERROR_T_INTERNAL_LOADING_ERROR = cudaError_t.cudaErrorCallRequir
 cdef extern from 'driver_types.h':
     ctypedef unsigned long long cudaGraphConditionalHandle 'cudaGraphConditionalHandle'
 
+
 cdef extern from 'driver_types.h':
     ctypedef unsigned int cudaLogIterator 'cudaLogIterator'
+
 
 cdef extern from 'surface_types.h':
     ctypedef unsigned long long cudaSurfaceObject_t 'cudaSurfaceObject_t'
 
+
 cdef extern from 'texture_types.h':
     ctypedef unsigned long long cudaTextureObject_t 'cudaTextureObject_t'
+
 
 cdef extern from 'driver_types.h':
     ctypedef struct cudaArray:
         pass
     ctypedef cudaArray* cudaArray_t 'cudaArray_t'
 
+
 cdef extern from 'driver_types.h':
     ctypedef struct cudaArray:
         pass
     ctypedef cudaArray* cudaArray_const_t 'cudaArray_const_t'
+
 
 cdef extern from 'driver_types.h':
     ctypedef struct cudaMipmappedArray:
         pass
     ctypedef cudaMipmappedArray* cudaMipmappedArray_t 'cudaMipmappedArray_t'
 
+
 cdef extern from 'driver_types.h':
     ctypedef struct cudaMipmappedArray:
         pass
     ctypedef cudaMipmappedArray* cudaMipmappedArray_const_t 'cudaMipmappedArray_const_t'
 
+
 cdef extern from 'driver_types.h':
     ctypedef struct cudaAsyncCallbackEntry:
         pass
     ctypedef cudaAsyncCallbackEntry* cudaAsyncCallbackHandle_t 'cudaAsyncCallbackHandle_t'
+
 
 cdef extern from '':
     cdef struct cudaChannelFormatDesc:
@@ -1427,6 +1436,7 @@ cdef extern from 'driver_types.h':
     ctypedef void (*cudaHostFn_t 'cudaHostFn_t')(
         void* userData
     )
+
 
 cdef struct cuda_bindings_runtime__anon_pod6:
     int reserved[32]
@@ -1725,6 +1735,7 @@ cdef extern from 'cuda_runtime_api.h':
         size_t length
     )
 
+
 cdef extern from '':
     cdef struct cudaMemsetParamsV2:
         void* dst
@@ -1747,6 +1758,7 @@ cdef extern from 'cuda_runtime_api.h':
         cudaError_t status,
         void* userData
     )
+
 
 cdef extern from '':
     cdef struct cudaEventRecordNodeParams:
@@ -2137,6 +2149,7 @@ cdef extern from 'cuda_runtime_api.h':
         const cudaGraphNodeParams* recaptureParams,
         cudaGraphRecaptureStatus status
     )
+
 
 cdef extern from '':
     cdef struct cudaGraphRecaptureCallbackData:

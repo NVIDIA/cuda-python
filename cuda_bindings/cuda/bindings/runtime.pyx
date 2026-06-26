@@ -28118,7 +28118,7 @@ def cudaMemcpyBatchAsync(dsts : Optional[tuple[Any] | list[Any]], srcs : Optiona
     dsts = [] if dsts is None else dsts
     pylist = [_HelperInputVoidPtr(pydsts) for pydsts in dsts]
     cdef _InputVoidPtrPtrHelper voidStarHelperdsts = _InputVoidPtrPtrHelper(pylist)
-    cdef void** cydsts_ptr = <void**><void_ptr>voidStarHelperdsts.cptr
+    cdef const void** cydsts_ptr = <const void**><void_ptr>voidStarHelperdsts.cptr
     pylist = [_HelperInputVoidPtr(pysrcs) for pysrcs in srcs]
     cdef _InputVoidPtrPtrHelper voidStarHelpersrcs = _InputVoidPtrPtrHelper(pylist)
     cdef const void** cysrcs_ptr = <const void**><void_ptr>voidStarHelpersrcs.cptr
