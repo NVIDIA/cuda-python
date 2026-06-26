@@ -1,0 +1,33 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.SMResource
+====================
+
+.. currentmodule:: cuda.core
+
+.. autoclass:: SMResource
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: split
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: coscheduled_alignment
+   .. autoattribute:: flags
+   .. autoattribute:: handle
+   .. autoattribute:: min_partition_size
+   .. autoattribute:: sm_count
+   
+   
