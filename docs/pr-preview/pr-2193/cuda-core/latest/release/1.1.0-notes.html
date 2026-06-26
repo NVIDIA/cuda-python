@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,23 +37,23 @@
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
 
 
-    <script src="../_static/documentation_options.js?v=5a4dbb0d"></script>
+    <script src="../_static/documentation_options.js?v=6bcdfcfa"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'release/1.1.0-notes';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev72';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev105';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -743,6 +743,10 @@ and as property setters (<a class="reference internal" href="../generated/cuda.c
 <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.preferred_location" title="cuda.core.ManagedBuffer.preferred_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">preferred_location</span></code></a>,
 <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.accessed_by" title="cuda.core.ManagedBuffer.accessed_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">accessed_by</span></code></a>). Locations are expressed via
 <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code></a>.</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.get_nvlink_count" title="cuda.core.system.Device.get_nvlink_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.get_nvlink_count()</span></code></a> and
+<a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.get_nvlinks" title="cuda.core.system.Device.get_nvlinks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.get_nvlinks()</span></code></a> for device-specific NVLink enumeration.
+These APIs avoid relying on the static NVML <code class="docutils literal notranslate"><span class="pre">NVML_NVLINK_MAX_LINKS</span></code> macro
+when querying the links available on a particular device.</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
@@ -753,6 +757,16 @@ and as property setters (<a class="reference internal" href="../generated/cuda.c
 <li><p>Calling <code class="docutils literal notranslate"><span class="pre">cuda.core.system.get_process_name</span></code> before querying any device’s
 <code class="docutils literal notranslate"><span class="pre">compute_running_processes</span></code> would raise a <code class="docutils literal notranslate"><span class="pre">NvmlNotFoundError</span></code>.  Now it will
 correctly return the process name, if it is a GPU-using process.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.get_nvlink" title="cuda.core.system.Device.get_nvlink"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.get_nvlink()</span></code></a> now validates link numbers against the
+device-specific NVLink count and raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> for unsupported links.</p></li>
+</ul>
+</section>
+<section id="deprecated-apis">
+<h2>Deprecated APIs<a class="headerlink" href="#deprecated-apis" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Deprecated <code class="xref py py-attr docutils literal notranslate"><span class="pre">system.NvlinkInfo.max_links</span></code>. Use
+<a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.get_nvlink_count" title="cuda.core.system.Device.get_nvlink_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.get_nvlink_count()</span></code></a> or <a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.get_nvlinks" title="cuda.core.system.Device.get_nvlinks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.get_nvlinks()</span></code></a>
+to query NVLink availability for a specific device.</p></li>
 </ul>
 </section>
 </section>
@@ -799,6 +813,7 @@ correctly return the process name, if it is a GPU-using process.</p></li>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug fixes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated-apis">Deprecated APIs</a></li>
 </ul>
   </nav></div>
 
@@ -817,8 +832,8 @@ correctly return the process name, if it is a GPU-using process.</p></li>
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
 
 
   <footer class="bd-footer">
