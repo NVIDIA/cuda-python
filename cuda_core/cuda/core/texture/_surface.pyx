@@ -7,7 +7,7 @@ from __future__ import annotations
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._array cimport CUDAArray
+from cuda.core.texture._array cimport CUDAArray
 from cuda.core._resource_handles cimport (
     SurfObjectHandle,
     as_cu,
@@ -15,7 +15,7 @@ from cuda.core._resource_handles cimport (
     create_surf_object_handle,
     get_last_error,
 )
-from cuda.core._texture import ResourceDescriptor
+from cuda.core.texture._texture import ResourceDescriptor
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
     _get_current_device_id,

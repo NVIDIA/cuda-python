@@ -7,8 +7,8 @@ from __future__ import annotations
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._array cimport _array_from_handle
-from cuda.core._array import ArrayFormat, _validate_array_shape, _validate_format_channels
+from cuda.core.texture._array cimport _array_from_handle
+from cuda.core.texture._array import ArrayFormat, _validate_array_shape, _validate_format_channels
 from cuda.core._resource_handles cimport (
     CUDAArrayHandle,
     MipmappedArrayHandle,

@@ -9,7 +9,7 @@ import cuda.core
 from cuda.core import (
     Device,
 )
-from cuda.core.textures import (
+from cuda.core.texture import (
     AddressMode,
     ArrayFormat,
     CUDAArray,
@@ -25,17 +25,17 @@ from cuda.core.textures import (
 
 def test_array_init_disabled():
     with pytest.raises(RuntimeError, match=r"^CUDAArray cannot be instantiated directly"):
-        cuda.core._array.CUDAArray()
+        cuda.core.texture._array.CUDAArray()
 
 
 def test_texture_object_init_disabled():
     with pytest.raises(RuntimeError, match=r"^TextureObject cannot be instantiated directly"):
-        cuda.core._texture.TextureObject()
+        cuda.core.texture._texture.TextureObject()
 
 
 def test_surface_object_init_disabled():
     with pytest.raises(RuntimeError, match=r"^SurfaceObject cannot be instantiated directly"):
-        cuda.core._surface.SurfaceObject()
+        cuda.core.texture._surface.SurfaceObject()
 
 
 def test_resource_descriptor_init_disabled():
@@ -189,7 +189,7 @@ def test_surface_requires_ldst_flag(init_cuda):
 def test_address_mode_normalization(init_cuda):
     # Direct unit test of the private normalizer: a scalar should expand to a
     # 3-tuple; a shorter tuple should be padded by repeating the last entry.
-    from cuda.core._texture import _normalize_address_modes
+    from cuda.core.texture._texture import _normalize_address_modes
 
     assert _normalize_address_modes(AddressMode.WRAP) == (
         AddressMode.WRAP,
@@ -414,7 +414,7 @@ def test_surface_rejects_linear_and_pitch2d(init_cuda):
 
 def test_mipmapped_array_init_disabled():
     with pytest.raises(RuntimeError, match=r"^MipmappedArray cannot be instantiated directly"):
-        cuda.core._mipmapped_array.MipmappedArray()
+        cuda.core.texture._mipmapped_array.MipmappedArray()
 
 
 def test_mipmapped_array_from_descriptor_2d(init_cuda):

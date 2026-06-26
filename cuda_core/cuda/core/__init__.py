@@ -110,12 +110,12 @@ from cuda.core._stream import (
 from cuda.core._tensor_map import TensorMapDescriptor, TensorMapDescriptorOptions
 
 # isort: split
-# Texture/surface types live under the cuda.core.textures namespace (not the
+# Texture/surface types live under the cuda.core.texture namespace (not the
 # flat cuda.core namespace); import the subpackage so it is available as
-# `cuda.core.textures` after `import cuda.core`.
+# `cuda.core.texture` after `import cuda.core`.
 # Must come after the cuda.core._* extension imports above: loading graph
 # earlier interacts badly with the merged-wheel __path__ rewrite and leaves
 # Graph/GraphBuilder/GraphCompleteOptions/GraphDebugPrintOptions missing from
 # cuda.core.graph.
 import cuda.core.graph
-import cuda.core.textures
+import cuda.core.texture

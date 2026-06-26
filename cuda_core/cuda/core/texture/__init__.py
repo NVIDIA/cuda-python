@@ -10,13 +10,13 @@ single namespace, mirroring how the CUDA driver documentation organizes them.
 
 Import these types from here, e.g.::
 
-    from cuda.core.textures import CUDAArray, TextureObject, TextureDescriptor
+    from cuda.core.texture import CUDAArray, TextureObject, TextureDescriptor
 """
 
-from cuda.core._array import ArrayFormat, CUDAArray
-from cuda.core._mipmapped_array import MipmappedArray
-from cuda.core._surface import SurfaceObject
-from cuda.core._texture import (
+from cuda.core.texture._array import ArrayFormat, CUDAArray
+from cuda.core.texture._mipmapped_array import MipmappedArray
+from cuda.core.texture._surface import SurfaceObject
+from cuda.core.texture._texture import (
     AddressMode,
     FilterMode,
     ReadMode,

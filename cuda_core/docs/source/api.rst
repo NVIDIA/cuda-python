@@ -165,7 +165,7 @@ Textures and surfaces
 ---------------------
 
 CUDA arrays back bindless texture and surface objects for kernel-side sampled
-reads and typed load/store. These types live in the :mod:`cuda.core.textures`
+reads and typed load/store. These types live in the :mod:`cuda.core.texture`
 namespace. :class:`CUDAArray` is allocated through
 :meth:`CUDAArray.from_descriptor` and bound through a :class:`ResourceDescriptor`
 factory; linear (1D) and row-pitched 2D :class:`Buffer` views as well as
@@ -178,7 +178,7 @@ DLPack zero-copy interop. Data is moved in and out only by copying — use
 :meth:`CUDAArray.copy_from` / :meth:`CUDAArray.copy_to` against a linear
 :class:`Buffer` or a host buffer-protocol object.
 
-.. currentmodule:: cuda.core.textures
+.. currentmodule:: cuda.core.texture
 
 .. autosummary::
    :toctree: generated/

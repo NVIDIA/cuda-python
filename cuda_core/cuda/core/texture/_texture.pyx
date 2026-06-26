@@ -8,11 +8,11 @@ from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._array cimport CUDAArray
-from cuda.core._array import ArrayFormat, _FORMAT_ELEM_SIZE, _validate_format_channels
+from cuda.core.texture._array cimport CUDAArray
+from cuda.core.texture._array import ArrayFormat, _FORMAT_ELEM_SIZE, _validate_format_channels
 from cuda.core._memory._buffer cimport Buffer
-from cuda.core._mipmapped_array cimport MipmappedArray
-from cuda.core._mipmapped_array import MipmappedArray as _PyMipmappedArray
+from cuda.core.texture._mipmapped_array cimport MipmappedArray
+from cuda.core.texture._mipmapped_array import MipmappedArray as _PyMipmappedArray
 from cuda.core._resource_handles cimport (
     TexObjectHandle,
     as_cu,
