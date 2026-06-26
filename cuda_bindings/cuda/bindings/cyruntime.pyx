@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260623. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1781+g72872c498. Do not modify it directly.
 
 from ._internal cimport runtime as _runtime
 
@@ -190,11 +190,11 @@ cdef cudaError_t cudaStreamCopyAttributes(cudaStream_t dst, cudaStream_t src) ex
     return _runtime._cudaStreamCopyAttributes(dst, src)
 
 
-cdef cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, cudaLaunchAttributeID attr, cudaLaunchAttributeValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, cudaStreamAttrID attr, cudaStreamAttrValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _runtime._cudaStreamGetAttribute(hStream, attr, value_out)
 
 
-cdef cudaError_t cudaStreamSetAttribute(cudaStream_t hStream, cudaLaunchAttributeID attr, const cudaLaunchAttributeValue* value) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t cudaStreamSetAttribute(cudaStream_t hStream, cudaStreamAttrID attr, const cudaStreamAttrValue* value) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _runtime._cudaStreamSetAttribute(hStream, attr, value)
 
 
@@ -490,7 +490,7 @@ cdef cudaError_t cudaMemcpyPeerAsync(void* dst, int dstDevice, const void* src, 
     return _runtime._cudaMemcpyPeerAsync(dst, dstDevice, src, srcDevice, count, stream)
 
 
-cdef cudaError_t cudaMemcpyBatchAsync(void** dsts, const void** srcs, const size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t cudaMemcpyBatchAsync(const void** dsts, const void** srcs, const size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _runtime._cudaMemcpyBatchAsync(dsts, srcs, sizes, count, attrs, attrsIdxs, numAttrs, stream)
 
 
@@ -738,11 +738,11 @@ cdef cudaError_t cudaGraphKernelNodeCopyAttributes(cudaGraphNode_t hDst, cudaGra
     return _runtime._cudaGraphKernelNodeCopyAttributes(hDst, hSrc)
 
 
-cdef cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, cudaLaunchAttributeID attr, cudaLaunchAttributeValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, cudaKernelNodeAttrID attr, cudaKernelNodeAttrValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _runtime._cudaGraphKernelNodeGetAttribute(hNode, attr, value_out)
 
 
-cdef cudaError_t cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, cudaLaunchAttributeID attr, const cudaLaunchAttributeValue* value) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, cudaKernelNodeAttrID attr, const cudaKernelNodeAttrValue* value) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _runtime._cudaGraphKernelNodeSetAttribute(hNode, attr, value)
 
 

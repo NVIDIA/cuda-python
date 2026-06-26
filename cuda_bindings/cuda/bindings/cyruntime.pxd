@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260625. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1781+g72872c498. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -27,12 +27,14 @@ ctypedef uint32_t VdpVideoSurface
 ctypedef uint32_t VdpOutputSurface
 
 # These four names are preprocessor macros in driver_types.h that alias the
-# cudaLaunchAttribute* types.  Declaring them here as Cython type aliases lets
-# the generated bindings use the legacy names in function signatures.
-ctypedef cudaLaunchAttributeID cudaStreamAttrID 'cudaStreamAttrID'
-ctypedef cudaLaunchAttributeID cudaKernelNodeAttrID 'cudaKernelNodeAttrID'
-ctypedef cudaLaunchAttributeValue cudaStreamAttrValue 'cudaStreamAttrValue'
-ctypedef cudaLaunchAttributeValue cudaKernelNodeAttrValue 'cudaKernelNodeAttrValue'
+# cudaLaunchAttribute* types.  Omitting the C alias string is intentional: it
+# preserves the Cython-mangled ABI (__pyx_t_...) that legacy_cython_gen produced,
+# so downstream extensions compiled against the old headers keep working.
+# Do NOT add 'CName' aliases here — that would break binary compatibility.
+ctypedef cudaLaunchAttributeID cudaStreamAttrID
+ctypedef cudaLaunchAttributeID cudaKernelNodeAttrID
+ctypedef cudaLaunchAttributeValue cudaStreamAttrValue
+ctypedef cudaLaunchAttributeValue cudaKernelNodeAttrValue
 
 # dim3 is used as a member type in several CUDA structs
 cdef extern from 'vector_types.h':
@@ -144,19 +146,6 @@ cdef extern from 'driver_types.h':
         char bytes[16]
 
 cdef extern from 'driver_types.h':
-    # cudaLaunchAttribute_st is SKIPped (sizeof-based array dimension in pad field).
-    # Declared here with int id and char val[64] instead of cudaLaunchAttributeID/Value
-    # (enum and union declared later in the generated sections) to allow address-of and
-    # sizeof operations used by the lowpp layer. int is ABI-compatible with
-    # cudaLaunchAttributeID (enum), and char[64] matches cudaLaunchAttributeValue's size.
-    ctypedef struct cudaLaunchAttribute_st 'cudaLaunchAttribute_st':
-        int id
-        char val[64]
-
-cdef extern from 'driver_types.h':
-    ctypedef cudaLaunchAttribute_st cudaLaunchAttribute 'cudaLaunchAttribute'
-
-cdef extern from 'driver_types.h':
     cdef struct cudaGraphicsResource 'cudaGraphicsResource':
         pass
     ctypedef cudaGraphicsResource* cudaGraphicsResource_t 'cudaGraphicsResource_t'
@@ -168,7 +157,12 @@ cdef extern from *:
     """
     cdef struct CUeglStreamConnection_st 'CUeglStreamConnection_st':
         pass
-    ctypedef CUeglStreamConnection_st* cudaEglStreamConnection 'cudaEglStreamConnection'
+
+# Declared at module scope (not inside cdef extern from) so that Cython assigns
+# its own mangled name (__pyx_t_...) to this typedef, preserving the Cython ABI
+# that legacy_cython_gen produced for the EGL functions that take this type.
+# Do NOT move this declaration back inside the cdef extern from block.
+ctypedef CUeglStreamConnection_st* cudaEglStreamConnection
 
 
 # ENUMS
@@ -1747,16 +1741,6 @@ cdef struct cuda_bindings_runtime__anon_pod2:
 cdef struct cuda_bindings_runtime__anon_pod3:
     cudaMipmappedArray_t mipmap
 
-cdef extern from '':
-    cdef struct cudaLaunchConfig_st:
-        dim3 gridDim
-        dim3 blockDim
-        size_t dynamicSmemBytes
-        cudaStream_t stream
-        cudaLaunchAttribute* attrs
-        unsigned int numAttrs
-    ctypedef cudaLaunchConfig_st cudaLaunchConfig_t
-
 cdef extern from 'cuda_runtime_api.h':
     ctypedef void (*cudaStreamCallback_t 'cudaStreamCallback_t')(
         cudaStream_t stream,
@@ -2159,6 +2143,32 @@ cdef extern from '':
         cudaGraphRecaptureCallback_t callbackFunc
         void* userData
 
+cdef extern from 'driver_types.h':
+    # cudaLaunchAttribute_st is SKIPped (sizeof-based array dimension in pad field).
+    # Declared here (after the enum and type sections) so that cudaLaunchAttributeID and
+    # cudaLaunchAttributeValue are already in scope — Cython requires forward types to
+    # be visible at the point of use even inside cdef extern from blocks.
+    # Field types must match the legacy_cython_gen ABI baseline for __pyx_capi__ compat.
+    ctypedef struct cudaLaunchAttribute_st 'cudaLaunchAttribute_st':
+        cudaLaunchAttributeID id
+        cudaLaunchAttributeValue val
+
+cdef extern from 'driver_types.h':
+    ctypedef cudaLaunchAttribute_st cudaLaunchAttribute 'cudaLaunchAttribute'
+
+# cudaLaunchConfig_st references cudaLaunchAttribute* so it must follow the above.
+# Declared here rather than auto-generated (which would land in type_decls, before
+# cudaLaunchAttribute) to satisfy Cython's forward-declaration requirement.
+cdef extern from '':
+    cdef struct cudaLaunchConfig_st:
+        dim3 gridDim
+        dim3 blockDim
+        size_t dynamicSmemBytes
+        cudaStream_t stream
+        cudaLaunchAttribute* attrs
+        unsigned int numAttrs
+    ctypedef cudaLaunchConfig_st cudaLaunchConfig_t
+
 cdef extern from 'cuda_runtime_api.h':
     ctypedef void (*cudaAsyncCallback)(cudaAsyncNotificationInfo_t* info, void* userData, cudaAsyncCallbackHandle_t handle) nogil
 
@@ -2210,8 +2220,8 @@ cdef cudaError_t cudaStreamGetId(cudaStream_t hStream, unsigned long long* strea
 cdef cudaError_t cudaStreamGetDevice(cudaStream_t hStream, int* device) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaCtxResetPersistingL2Cache() except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaStreamCopyAttributes(cudaStream_t dst, cudaStream_t src) except ?cudaErrorCallRequiresNewerDriver nogil
-cdef cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, cudaLaunchAttributeID attr, cudaLaunchAttributeValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil
-cdef cudaError_t cudaStreamSetAttribute(cudaStream_t hStream, cudaLaunchAttributeID attr, const cudaLaunchAttributeValue* value) except ?cudaErrorCallRequiresNewerDriver nogil
+cdef cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, cudaStreamAttrID attr, cudaStreamAttrValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil
+cdef cudaError_t cudaStreamSetAttribute(cudaStream_t hStream, cudaStreamAttrID attr, const cudaStreamAttrValue* value) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaStreamDestroy(cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaStreamWaitEvent(cudaStream_t stream, cudaEvent_t event, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaStreamAddCallback(cudaStream_t stream, cudaStreamCallback_t callback, void* userData, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil
@@ -2285,7 +2295,7 @@ cdef cudaError_t cudaMemcpy2DFromArray(void* dst, size_t dpitch, cudaArray_const
 cdef cudaError_t cudaMemcpy2DArrayToArray(cudaArray_t dst, size_t wOffsetDst, size_t hOffsetDst, cudaArray_const_t src, size_t wOffsetSrc, size_t hOffsetSrc, size_t width, size_t height, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind kind, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaMemcpyPeerAsync(void* dst, int dstDevice, const void* src, int srcDevice, size_t count, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
-cdef cudaError_t cudaMemcpyBatchAsync(void** dsts, const void** srcs, const size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
+cdef cudaError_t cudaMemcpyBatchAsync(const void** dsts, const void** srcs, const size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaMemcpy3DBatchAsync(size_t numOps, cudaMemcpy3DBatchOp* opList, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaMemcpy2DAsync(void* dst, size_t dpitch, const void* src, size_t spitch, size_t width, size_t height, cudaMemcpyKind kind, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaMemcpy2DToArrayAsync(cudaArray_t dst, size_t wOffset, size_t hOffset, const void* src, size_t spitch, size_t width, size_t height, cudaMemcpyKind kind, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
@@ -2347,8 +2357,8 @@ cdef cudaError_t cudaGraphAddKernelNode(cudaGraphNode_t* pGraphNode, cudaGraph_t
 cdef cudaError_t cudaGraphKernelNodeGetParams(cudaGraphNode_t node, cudaKernelNodeParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaGraphKernelNodeSetParams(cudaGraphNode_t node, const cudaKernelNodeParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaGraphKernelNodeCopyAttributes(cudaGraphNode_t hDst, cudaGraphNode_t hSrc) except ?cudaErrorCallRequiresNewerDriver nogil
-cdef cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, cudaLaunchAttributeID attr, cudaLaunchAttributeValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil
-cdef cudaError_t cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, cudaLaunchAttributeID attr, const cudaLaunchAttributeValue* value) except ?cudaErrorCallRequiresNewerDriver nogil
+cdef cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, cudaKernelNodeAttrID attr, cudaKernelNodeAttrValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil
+cdef cudaError_t cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, cudaKernelNodeAttrID attr, const cudaKernelNodeAttrValue* value) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaGraphAddMemcpyNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaMemcpy3DParms* pCopyParams) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaGraphAddMemcpyNode1D(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, void* dst, const void* src, size_t count, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaGraphMemcpyNodeGetParams(cudaGraphNode_t node, cudaMemcpy3DParms* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil

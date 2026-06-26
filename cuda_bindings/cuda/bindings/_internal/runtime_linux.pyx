@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260623. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1781+g72872c498. Do not modify it directly.
 
 import os
 
@@ -1369,14 +1369,14 @@ cdef cudaError_t _cudaStreamCopyAttributes(cudaStream_t dst, cudaStream_t src) e
     return _static_cudaStreamCopyAttributes(dst, src)
 
 
-cdef cudaError_t _cudaStreamGetAttribute(cudaStream_t hStream, cudaLaunchAttributeID attr, cudaLaunchAttributeValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t _cudaStreamGetAttribute(cudaStream_t hStream, cudaStreamAttrID attr, cudaStreamAttrValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef bint usePTDS = cudaPythonInit()
     if usePTDS:
         return ptds._cudaStreamGetAttribute(hStream, attr, value_out)
     return _static_cudaStreamGetAttribute(hStream, attr, value_out)
 
 
-cdef cudaError_t _cudaStreamSetAttribute(cudaStream_t hStream, cudaLaunchAttributeID attr, const cudaLaunchAttributeValue* value) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t _cudaStreamSetAttribute(cudaStream_t hStream, cudaStreamAttrID attr, const cudaStreamAttrValue* value) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef bint usePTDS = cudaPythonInit()
     if usePTDS:
         return ptds._cudaStreamSetAttribute(hStream, attr, value)
@@ -1894,7 +1894,7 @@ cdef cudaError_t _cudaMemcpyPeerAsync(void* dst, int dstDevice, const void* src,
     return _static_cudaMemcpyPeerAsync(dst, dstDevice, src, srcDevice, count, stream)
 
 
-cdef cudaError_t _cudaMemcpyBatchAsync(void** dsts, const void** srcs, const size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t _cudaMemcpyBatchAsync(const void** dsts, const void** srcs, const size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef bint usePTDS = cudaPythonInit()
     if usePTDS:
         return ptds._cudaMemcpyBatchAsync(dsts, srcs, sizes, count, attrs, attrsIdxs, numAttrs, stream)
@@ -2328,14 +2328,14 @@ cdef cudaError_t _cudaGraphKernelNodeCopyAttributes(cudaGraphNode_t hDst, cudaGr
     return _static_cudaGraphKernelNodeCopyAttributes(hDst, hSrc)
 
 
-cdef cudaError_t _cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, cudaLaunchAttributeID attr, cudaLaunchAttributeValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t _cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, cudaKernelNodeAttrID attr, cudaKernelNodeAttrValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef bint usePTDS = cudaPythonInit()
     if usePTDS:
         return ptds._cudaGraphKernelNodeGetAttribute(hNode, attr, value_out)
     return _static_cudaGraphKernelNodeGetAttribute(hNode, attr, value_out)
 
 
-cdef cudaError_t _cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, cudaLaunchAttributeID attr, const cudaLaunchAttributeValue* value) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t _cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, cudaKernelNodeAttrID attr, const cudaKernelNodeAttrValue* value) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef bint usePTDS = cudaPythonInit()
     if usePTDS:
         return ptds._cudaGraphKernelNodeSetAttribute(hNode, attr, value)
