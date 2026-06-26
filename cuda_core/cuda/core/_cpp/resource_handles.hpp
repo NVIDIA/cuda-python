@@ -190,7 +190,7 @@ using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
 using NvJitLinkHandle = std::shared_ptr<const NvJitLinkValue>;
 using CuLinkHandle = std::shared_ptr<const CUlinkState>;
 using FileDescriptorHandle = std::shared_ptr<const int>;
-using ArrayHandle = std::shared_ptr<const CUarray>;
+using CUDAArrayHandle = std::shared_ptr<const CUarray>;
 using MipmappedArrayHandle = std::shared_ptr<const CUmipmappedArray>;
 using TexObjectHandle = std::shared_ptr<const TexObjectValue>;
 using SurfObjectHandle = std::shared_ptr<const SurfObjectValue>;
@@ -566,21 +566,21 @@ FileDescriptorHandle create_fd_handle_ref(int fd);
 // Create an owning CUDA array via cuArray3DCreate.
 // When the last reference is released, cuArrayDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-ArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc);
+CUDAArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc);
 
 // Create a non-owning array handle (references an existing CUarray).
 // Use for arrays owned elsewhere (e.g. graphics interop). Never destroyed here.
-ArrayHandle create_array_handle_ref(CUarray arr);
+CUDAArrayHandle create_array_handle_ref(CUarray arr);
 
 // Create an owning array handle adopting an existing CUarray.
 // When the last reference is released, cuArrayDestroy is called automatically.
-ArrayHandle create_array_handle_owning(CUarray arr);
+CUDAArrayHandle create_array_handle_owning(CUarray arr);
 
 // Create a non-owning handle to a mipmap level via cuMipmappedArrayGetLevel.
 // The level CUarray is owned by the mipmap; the parent MipmappedArrayHandle is
 // embedded in the box so it outlives the level view. No destroy in the deleter.
 // Returns empty handle on error (caller must check).
-ArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level);
+CUDAArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level);
 
 // Create an owning mipmapped array via cuMipmappedArrayCreate.
 // When the last reference is released, cuMipmappedArrayDestroy is called.
@@ -594,7 +594,7 @@ MipmappedArrayHandle create_mipmapped_array_handle(const CUDA_ARRAY3D_DESCRIPTOR
 // deleter. Returns empty handle on error (caller must check).
 TexObjectHandle create_tex_object_handle_array(const CUDA_RESOURCE_DESC& res,
                                                const CUDA_TEXTURE_DESC& tex,
-                                               const ArrayHandle& h_backing);
+                                               const CUDAArrayHandle& h_backing);
 TexObjectHandle create_tex_object_handle_mipmap(const CUDA_RESOURCE_DESC& res,
                                                 const CUDA_TEXTURE_DESC& tex,
                                                 const MipmappedArrayHandle& h_backing);
@@ -606,7 +606,7 @@ TexObjectHandle create_tex_object_handle_linear(const CUDA_RESOURCE_DESC& res,
 // array handle so it outlives the surface. cuSurfObjectDestroy runs in the
 // deleter. Returns empty handle on error (caller must check).
 SurfObjectHandle create_surf_object_handle(const CUDA_RESOURCE_DESC& res,
-                                           const ArrayHandle& h_backing);
+                                           const CUDAArrayHandle& h_backing);
 
 // ============================================================================
 // Overloaded helper functions to extract raw resources from handles
@@ -673,7 +673,7 @@ inline CUlinkState as_cu(const CuLinkHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-inline CUarray as_cu(const ArrayHandle& h) noexcept {
+inline CUarray as_cu(const CUDAArrayHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
@@ -757,7 +757,7 @@ inline std::intptr_t as_intptr(const FileDescriptorHandle& h) noexcept {
     return h ? static_cast<std::intptr_t>(*h) : -1;
 }
 
-inline std::intptr_t as_intptr(const ArrayHandle& h) noexcept {
+inline std::intptr_t as_intptr(const CUDAArrayHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -888,7 +888,7 @@ inline PyObject* as_py(const FileDescriptorHandle& h) noexcept {
     return PyLong_FromSsize_t(as_intptr(h));
 }
 
-inline PyObject* as_py(const ArrayHandle& h) noexcept {
+inline PyObject* as_py(const CUDAArrayHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUarray", as_intptr(h));
 }
 

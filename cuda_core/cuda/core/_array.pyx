@@ -11,7 +11,7 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._resource_handles cimport (
-    ArrayHandle,
+    CUDAArrayHandle,
     as_cu,
     as_intptr,
     create_array_handle,
@@ -297,7 +297,7 @@ cdef class CUDAArray:
         desc3d.NumChannels = <unsigned int>num_channels
         desc3d.Flags = flags
 
-        cdef ArrayHandle h = create_array_handle(desc3d)
+        cdef CUDAArrayHandle h = create_array_handle(desc3d)
         if not h:
             HANDLE_RETURN(get_last_error())
 
@@ -320,7 +320,7 @@ cdef class CUDAArray:
         and channel count are queried from the driver.
         """
         cdef cydriver.CUarray raw = <cydriver.CUarray><void*>handle
-        cdef ArrayHandle h
+        cdef CUDAArrayHandle h
         if owning:
             h = create_array_handle_owning(raw)
         else:
@@ -441,8 +441,8 @@ cdef class CUDAArray:
         )
 
 
-cdef CUDAArray _array_from_handle(ArrayHandle h, int device_id):
-    """Wrap an existing ArrayHandle as a CUDAArray, querying the driver for the
+cdef CUDAArray _array_from_handle(CUDAArrayHandle h, int device_id):
+    """Wrap an existing CUDAArrayHandle as a CUDAArray, querying the driver for the
     array's shape/format/channels/surface-flag metadata.
 
     Any owning/non-owning semantics and parent (mipmap) dependency are already

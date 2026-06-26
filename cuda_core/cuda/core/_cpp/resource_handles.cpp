@@ -1367,7 +1367,7 @@ struct TexObjectBox {
     // Tagged so TexObjectHandle is a distinct C++ type from DevicePtrHandle /
     // SurfObjectHandle (all wrap `unsigned long long`).
     TexObjectValue resource;
-    // Type-erased backing dependency (ArrayHandle / MipmappedArrayHandle /
+    // Type-erased backing dependency (CUDAArrayHandle / MipmappedArrayHandle /
     // DevicePtrHandle). The texture's resource is a union; we only need to keep
     // whichever backing it was built from alive, never to dereference it.
     std::shared_ptr<const void> h_backing;
@@ -1375,11 +1375,11 @@ struct TexObjectBox {
 
 struct SurfObjectBox {
     SurfObjectValue resource;
-    ArrayHandle h_array;  // surfaces are always array-backed
+    CUDAArrayHandle h_array;  // surfaces are always array-backed
 };
 }  // namespace
 
-ArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc) {
+CUDAArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc) {
     GILReleaseGuard gil;
     CUarray arr;
     if (CUDA_SUCCESS != (err = p_cuArray3DCreate(&arr, &desc))) {
@@ -1393,18 +1393,18 @@ ArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc) {
             delete b;
         }
     );
-    return ArrayHandle(box, &box->resource);
+    return CUDAArrayHandle(box, &box->resource);
 }
 
-ArrayHandle create_array_handle_ref(CUarray arr) {
+CUDAArrayHandle create_array_handle_ref(CUarray arr) {
     if (!arr) {
         return {};
     }
     auto box = std::make_shared<const ArrayBox>(ArrayBox{arr, {}});
-    return ArrayHandle(box, &box->resource);
+    return CUDAArrayHandle(box, &box->resource);
 }
 
-ArrayHandle create_array_handle_owning(CUarray arr) {
+CUDAArrayHandle create_array_handle_owning(CUarray arr) {
     if (!arr) {
         return {};
     }
@@ -1416,10 +1416,10 @@ ArrayHandle create_array_handle_owning(CUarray arr) {
             delete b;
         }
     );
-    return ArrayHandle(box, &box->resource);
+    return CUDAArrayHandle(box, &box->resource);
 }
 
-ArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level) {
+CUDAArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level) {
     GILReleaseGuard gil;
     CUarray arr;
     if (CUDA_SUCCESS != (err = p_cuMipmappedArrayGetLevel(&arr, as_cu(h_mip), level))) {
@@ -1431,7 +1431,7 @@ ArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigne
         new ArrayBox{arr, h_mip},
         [](const ArrayBox* b) { delete b; }
     );
-    return ArrayHandle(box, &box->resource);
+    return CUDAArrayHandle(box, &box->resource);
 }
 
 MipmappedArrayHandle create_mipmapped_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc,
@@ -1475,7 +1475,7 @@ TexObjectHandle make_tex_object_handle(const CUDA_RESOURCE_DESC& res,
 
 TexObjectHandle create_tex_object_handle_array(const CUDA_RESOURCE_DESC& res,
                                                const CUDA_TEXTURE_DESC& tex,
-                                               const ArrayHandle& h_backing) {
+                                               const CUDAArrayHandle& h_backing) {
     return make_tex_object_handle(res, tex, h_backing);
 }
 
@@ -1492,7 +1492,7 @@ TexObjectHandle create_tex_object_handle_linear(const CUDA_RESOURCE_DESC& res,
 }
 
 SurfObjectHandle create_surf_object_handle(const CUDA_RESOURCE_DESC& res,
-                                           const ArrayHandle& h_backing) {
+                                           const CUDAArrayHandle& h_backing) {
     GILReleaseGuard gil;
     CUsurfObject obj;
     if (CUDA_SUCCESS != (err = p_cuSurfObjectCreate(&obj, &res))) {

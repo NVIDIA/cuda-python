@@ -43,7 +43,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     ctypedef shared_ptr[const cydriver.CUlinkState] CuLinkHandle
     ctypedef shared_ptr[const int] FileDescriptorHandle
-    ctypedef shared_ptr[const cydriver.CUarray] ArrayHandle
+    ctypedef shared_ptr[const cydriver.CUarray] CUDAArrayHandle
     ctypedef shared_ptr[const cydriver.CUmipmappedArray] MipmappedArrayHandle
 
     # CUtexObject / CUsurfObject are both `unsigned long long` (as is CUdeviceptr),
@@ -72,7 +72,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cynvvm.nvvmProgram as_cu(NvvmProgramHandle h) noexcept nogil
     cynvjitlink.nvJitLinkHandle as_cu(NvJitLinkHandle h) noexcept nogil
     cydriver.CUlinkState as_cu(CuLinkHandle h) noexcept nogil
-    cydriver.CUarray as_cu(ArrayHandle h) noexcept nogil
+    cydriver.CUarray as_cu(CUDAArrayHandle h) noexcept nogil
     cydriver.CUmipmappedArray as_cu(MipmappedArrayHandle h) noexcept nogil
     cydriver.CUtexObject as_cu(TexObjectHandle h) noexcept nogil
     cydriver.CUsurfObject as_cu(SurfObjectHandle h) noexcept nogil
@@ -94,7 +94,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     intptr_t as_intptr(NvJitLinkHandle h) noexcept nogil
     intptr_t as_intptr(CuLinkHandle h) noexcept nogil
     intptr_t as_intptr(FileDescriptorHandle h) noexcept nogil
-    intptr_t as_intptr(ArrayHandle h) noexcept nogil
+    intptr_t as_intptr(CUDAArrayHandle h) noexcept nogil
     intptr_t as_intptr(MipmappedArrayHandle h) noexcept nogil
     intptr_t as_intptr(TexObjectHandle h) noexcept nogil
     intptr_t as_intptr(SurfObjectHandle h) noexcept nogil
@@ -116,7 +116,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     object as_py(NvJitLinkHandle h)
     object as_py(CuLinkHandle h)
     object as_py(FileDescriptorHandle h)
-    object as_py(ArrayHandle h)
+    object as_py(CUDAArrayHandle h)
     object as_py(MipmappedArrayHandle h)
     object as_py(TexObjectHandle h)
     object as_py(SurfObjectHandle h)
@@ -249,15 +249,15 @@ cdef FileDescriptorHandle create_fd_handle(int fd) except+ nogil
 cdef FileDescriptorHandle create_fd_handle_ref(int fd) except+ nogil
 
 # Array / mipmapped-array / texture / surface handles (PR #467)
-cdef ArrayHandle create_array_handle(const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
-cdef ArrayHandle create_array_handle_ref(cydriver.CUarray arr) except+ nogil
-cdef ArrayHandle create_array_handle_owning(cydriver.CUarray arr) except+ nogil
-cdef ArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level) except+ nogil
+cdef CUDAArrayHandle create_array_handle(const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
+cdef CUDAArrayHandle create_array_handle_ref(cydriver.CUarray arr) except+ nogil
+cdef CUDAArrayHandle create_array_handle_owning(cydriver.CUarray arr) except+ nogil
+cdef CUDAArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level) except+ nogil
 cdef MipmappedArrayHandle create_mipmapped_array_handle(
     const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc, unsigned int num_levels) except+ nogil
 cdef TexObjectHandle create_tex_object_handle_array(
     const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
-    const ArrayHandle& h_backing) except+ nogil
+    const CUDAArrayHandle& h_backing) except+ nogil
 cdef TexObjectHandle create_tex_object_handle_mipmap(
     const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
     const MipmappedArrayHandle& h_backing) except+ nogil
@@ -265,7 +265,7 @@ cdef TexObjectHandle create_tex_object_handle_linear(
     const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
     const DevicePtrHandle& h_backing) except+ nogil
 cdef SurfObjectHandle create_surf_object_handle(
-    const cydriver.CUDA_RESOURCE_DESC& res, const ArrayHandle& h_backing) except+ nogil
+    const cydriver.CUDA_RESOURCE_DESC& res, const CUDAArrayHandle& h_backing) except+ nogil
 
 # SM resource split (13.1+ — calls through function pointer, safe on older bindings)
 # groupParams is void* here to avoid referencing CU_DEV_SM_RESOURCE_GROUP_PARAMS

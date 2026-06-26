@@ -102,7 +102,7 @@ class ResourceDescriptor:
     def from_array(cls, array):
         """Build a resource descriptor backed by a :class:`CUDAArray`."""
         if not isinstance(array, CUDAArray):
-            raise TypeError(f"array must be an CUDAArray, got {type(array).__name__}")
+            raise TypeError(f"array must be a CUDAArray, got {type(array).__name__}")
         self = cls.__new__(cls)
         self._kind = "array"
         self._source = array

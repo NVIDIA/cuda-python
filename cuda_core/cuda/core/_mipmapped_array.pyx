@@ -10,7 +10,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._array cimport _array_from_handle
 from cuda.core._array import ArrayFormat, _validate_array_shape, _validate_format_channels
 from cuda.core._resource_handles cimport (
-    ArrayHandle,
+    CUDAArrayHandle,
     MipmappedArrayHandle,
     as_intptr,
     create_array_level_handle,
@@ -133,7 +133,7 @@ cdef class MipmappedArray:
                 f"level ({lvl}) must be < num_levels ({self._num_levels})"
             )
 
-        cdef ArrayHandle h_level = create_array_level_handle(self._handle, <unsigned int>lvl)
+        cdef CUDAArrayHandle h_level = create_array_level_handle(self._handle, <unsigned int>lvl)
         if not h_level:
             HANDLE_RETURN(get_last_error())
         # The returned CUDAArray is non-owning; its C++ box embeds this mipmap's

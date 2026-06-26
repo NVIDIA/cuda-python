@@ -50,7 +50,7 @@ cdef class SurfaceObject:
         The array must have been created with ``is_surface_load_store=True``.
         """
         if not isinstance(array, CUDAArray):
-            raise TypeError(f"array must be an CUDAArray, got {type(array).__name__}")
+            raise TypeError(f"array must be a CUDAArray, got {type(array).__name__}")
         return cls.from_descriptor(resource=ResourceDescriptor.from_array(array))
 
     @classmethod
