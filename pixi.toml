@@ -53,6 +53,13 @@ cmd = [
     'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_core" -e "$PIXI_ENVIRONMENT_NAME" test',
 ]
 
+[target.linux.tasks.test-samples]
+cmd = [
+    "bash",
+    "-c",
+    'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_core" test-samples',
+]
+
 [target.linux.tasks.test]
 depends-on = [
     { task = "test-pathfinder" },

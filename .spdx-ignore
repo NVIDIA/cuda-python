@@ -8,6 +8,10 @@ LICENSE
 requirements*.txt
 cuda_bindings/examples/*
 
+# Samples are synced to NVIDIA/cuda-samples on release and carry the upstream
+# verbose BSD-style copyright header instead of the SPDX identifiers.
+samples/**/*.py
+
 # Vendored
 cuda_core/cuda/core/_include/dlpack.h
 cuda_core/cuda/core/_include/aoti_shim.h

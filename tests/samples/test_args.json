@@ -1,0 +1,17 @@
+{
+  "simpleP2P": {
+    "min_gpus": 2
+  },
+  "reductionMultiBlockCG": {
+    "python": {
+      "args": ["--cuda-include-dir=$CUDA_HOME/include:$CUDA_HOME/include/cccl"]
+    }
+  },
+  "multiGPUGradientAverage": {
+    "min_gpus": 2,
+    "python": {
+      "launcher": ["mpirun", "--allow-run-as-root", "-np", "2"],
+      "args": ["--size", "1024"]
+    }
+  }
+}

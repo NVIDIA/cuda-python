@@ -32,7 +32,9 @@ TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
     "cuda_python": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
     "cuda_python_test_helpers": "Apache-2.0",
     "qa": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "samples": "Apache-2.0",
     "scripts": "Apache-2.0",
+    "tests": "Apache-2.0",
     "toolshed": "Apache-2.0",
 }
 

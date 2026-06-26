@@ -41,6 +41,10 @@ def pytest_collection_modifyitems(config, items):  # noqa: ARG001
         if nodeid.startswith("tests/integration/") or "/tests/integration/" in nodeid:
             item.add_marker(pytest.mark.smoke)
 
+        # Sample tests (orchestrator under tests/samples/, sample sources under samples/)
+        if nodeid.startswith("tests/samples/") or "/tests/samples/" in nodeid:
+            item.add_marker(pytest.mark.samples)
+
         # Cython tests (any tests/cython subtree)
         if (
             "/tests/cython/" in nodeid
