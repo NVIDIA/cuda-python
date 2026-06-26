@@ -28,9 +28,9 @@ from cuda.core.texture._texture import (
 __all__ = [
     "AddressMode",
     "ArrayFormat",
-    "OpaqueArray",
     "FilterMode",
     "MipmappedArray",
+    "OpaqueArray",
     "ReadMode",
     "ResourceDescriptor",
     "SurfaceObject",

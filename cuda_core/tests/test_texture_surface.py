@@ -12,9 +12,9 @@ from cuda.core import (
 from cuda.core.texture import (
     AddressMode,
     ArrayFormat,
-    OpaqueArray,
     FilterMode,
     MipmappedArray,
+    OpaqueArray,
     ReadMode,
     ResourceDescriptor,
     SurfaceObject,
