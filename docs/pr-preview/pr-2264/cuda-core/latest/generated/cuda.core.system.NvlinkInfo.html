@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=77c69c8c"></script>
+    <script src="../_static/documentation_options.js?v=7cf8581c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev87';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev91';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -711,9 +711,8 @@
 <h1>cuda.core.system.NvlinkInfo<a class="headerlink" href="#cuda-core-system-nvlinkinfo" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.system.NvlinkInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">NvlinkInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Device</span> <span class="pre">device:</span> <span class="pre">Device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">link:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.NvlinkInfo" title="Link to this definition">#</a></dt>
-<dd><p>Nvlink information for a device.</p>
-<p class="rubric">Methods</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">NvlinkInfo</span></span><a class="headerlink" href="#cuda.core.system.NvlinkInfo" title="Link to this definition">#</a></dt>
+<dd><p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.NvlinkInfo.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.NvlinkInfo.__init__" title="Link to this definition">#</a></dt>
@@ -721,14 +720,10 @@
 
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.system.NvlinkInfo.max_links">
-<span class="sig-name descname"><span class="pre">max_links</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">18</span></em><a class="headerlink" href="#cuda.core.system.NvlinkInfo.max_links" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.NvlinkInfo.state">
 <span class="sig-name descname"><span class="pre">state</span></span><a class="headerlink" href="#cuda.core.system.NvlinkInfo.state" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the state of the device’s Nvlink for the device and link specified.</p>
+<dd><p>bool</p>
+<p>Retrieves the state of the device’s Nvlink for the device and link specified.</p>
 <p>For Pascal™ or newer fully supported devices.</p>
 <p>For all products with Nvlink support.</p>
 <dl class="field-list simple">
@@ -737,6 +732,9 @@
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_NvlinkInfo.state</p>
 </dd>
 </dl>
 </dd></dl>
@@ -753,6 +751,9 @@
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+</dd>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_NvlinkInfo.version</p>
 </dd>
 </dl>
 </dd></dl>
@@ -812,7 +813,6 @@
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.NvlinkInfo"><code class="docutils literal notranslate"><span class="pre">NvlinkInfo</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.NvlinkInfo.__init__"><code class="docutils literal notranslate"><span class="pre">NvlinkInfo.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.NvlinkInfo.max_links"><code class="docutils literal notranslate"><span class="pre">NvlinkInfo.max_links</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.NvlinkInfo.state"><code class="docutils literal notranslate"><span class="pre">NvlinkInfo.state</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.NvlinkInfo.version"><code class="docutils literal notranslate"><span class="pre">NvlinkInfo.version</span></code></a></li>
 </ul>
