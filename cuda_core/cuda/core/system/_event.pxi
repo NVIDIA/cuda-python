@@ -91,12 +91,10 @@ cdef class DeviceEvents:
     """
     Represents a set of events that can be waited on for a specific device.
     """
-    cdef intptr_t _event_set
+    cdef NvmlEventSetHandle _h_event_set
     cdef intptr_t _device_handle
 
     def __init__(self, device_handle: intptr_t, events: EventType | str | list[EventType | str]):
-        self._event_set = 0
-
         cdef unsigned long long event_bitmask
         if isinstance(events, (str, EventType)):
             events = [events]
@@ -116,14 +114,15 @@ cdef class DeviceEvents:
             raise TypeError("events must be an EventType, str, or list of EventType or str")
 
         self._device_handle = device_handle
-        self._event_set = nvml.event_set_create()
-        # If this raises, the event needs to be freed and this is handled by
-        # this class's __dealloc__ method.
-        nvml.device_register_events(self._device_handle, event_bitmask, self._event_set)
+        cdef intptr_t raw_set = nvml.event_set_create()
+        # If device_register_events raises, create_nvml_event_set_handle already
+        # owns the handle and its shared_ptr deleter will free it.
+        self._h_event_set = create_nvml_event_set_handle(raw_set)
+        nvml.device_register_events(self._device_handle, event_bitmask, raw_set)
 
-    def __dealloc__(self) -> None:
-        if self._event_set != 0:
-            nvml.event_set_free(self._event_set)
+    cpdef close(self):
+        """Destroy the device event set, releasing its NVML resources."""
+        self._h_event_set.reset()
 
     def wait(self, timeout_ms: int = 0) -> EventData:
         """
@@ -167,4 +166,4 @@ cdef class DeviceEvents:
         :class:`cuda.core.system.GpuIsLostError`
             If the GPU has fallen off the bus or is otherwise inaccessible.
         """
-        return EventData(nvml.event_set_wait_v2(self._event_set, timeout_ms))
+        return EventData(nvml.event_set_wait_v2(as_intptr(self._h_event_set), timeout_ms))

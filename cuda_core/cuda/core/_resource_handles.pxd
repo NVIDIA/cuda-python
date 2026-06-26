@@ -41,6 +41,15 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const NvvmProgramValue] NvvmProgramHandle
     ctypedef shared_ptr[const NvJitLinkValue] NvJitLinkHandle
 
+    # NvmlEventSetValue and NvmlSysEventSetValue are TaggedHandle<intptr_t, Tag>
+    # instantiations to distinguish the two NVML event set handle types.
+    cppclass NvmlEventSetValue "cuda_core::NvmlEventSetValue":
+        pass
+    cppclass NvmlSysEventSetValue "cuda_core::NvmlSysEventSetValue":
+        pass
+    ctypedef shared_ptr[const NvmlEventSetValue] NvmlEventSetHandle
+    ctypedef shared_ptr[const NvmlSysEventSetValue] NvmlSysEventSetHandle
+
     ctypedef shared_ptr[const cydriver.CUlinkState] CuLinkHandle
     ctypedef shared_ptr[const int] FileDescriptorHandle
 
@@ -78,6 +87,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     intptr_t as_intptr(NvJitLinkHandle h) noexcept nogil
     intptr_t as_intptr(CuLinkHandle h) noexcept nogil
     intptr_t as_intptr(FileDescriptorHandle h) noexcept nogil
+    intptr_t as_intptr(NvmlEventSetHandle h) noexcept nogil
+    intptr_t as_intptr(NvmlSysEventSetHandle h) noexcept nogil
 
     # as_py() - convert handle to Python wrapper object (inline C++; requires GIL)
     object as_py(ContextHandle h)
@@ -223,6 +234,12 @@ cdef CuLinkHandle create_culink_handle_ref(cydriver.CUlinkState state) except+ n
 # File descriptor handles
 cdef FileDescriptorHandle create_fd_handle(int fd) except+ nogil
 cdef FileDescriptorHandle create_fd_handle_ref(int fd) except+ nogil
+
+# NVML event set handles
+cdef void register_nvml_event_set_fn_pointers(
+    intptr_t event_set_free_fn, intptr_t sys_event_set_free_fn) noexcept
+cdef NvmlEventSetHandle create_nvml_event_set_handle(intptr_t handle) noexcept nogil
+cdef NvmlSysEventSetHandle create_nvml_sys_event_set_handle(intptr_t handle) noexcept nogil
 
 # SM resource split (13.1+ — calls through function pointer, safe on older bindings)
 # groupParams is void* here to avoid referencing CU_DEV_SM_RESOURCE_GROUP_PARAMS

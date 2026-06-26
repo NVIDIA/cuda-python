@@ -18,5 +18,7 @@ GraphicsResourceHandle = shared_ptr
 NvrtcProgramHandle = shared_ptr
 NvvmProgramHandle = shared_ptr
 NvJitLinkHandle = shared_ptr
+NvmlEventSetHandle = shared_ptr
+NvmlSysEventSetHandle = shared_ptr
 CuLinkHandle = shared_ptr
 FileDescriptorHandle = shared_ptr

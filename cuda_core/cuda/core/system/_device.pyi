@@ -271,10 +271,10 @@ class DeviceEvents:
     Represents a set of events that can be waited on for a specific device.
     """
 
-    def __init__(self, device_handle: int, events: EventType | str | list[EventType | str]):
-        ...
+    def close(self):
+        """Destroy the device event set, releasing its NVML resources."""
 
-    def __dealloc__(self) -> None:
+    def __init__(self, device_handle: int, events: EventType | str | list[EventType | str]):
         ...
 
     def wait(self, timeout_ms: int=0) -> EventData:

@@ -55,10 +55,10 @@ class RegisteredSystemEvents:
     Represents a set of events that can be waited on for a specific device.
     """
 
-    def __init__(self, events: SystemEventType | str | list[SystemEventType | str]):
-        ...
+    def close(self):
+        """Destroy the system event set, releasing its NVML resources."""
 
-    def __dealloc__(self) -> None:
+    def __init__(self, events: SystemEventType | str | list[SystemEventType | str]):
         ...
 
     def wait(self, timeout_ms: int=0, buffer_size: int=1) -> SystemEvents:

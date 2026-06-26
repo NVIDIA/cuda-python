@@ -1338,6 +1338,77 @@ FileDescriptorHandle create_fd_handle_ref(int fd) {
 }
 
 // ============================================================================
+// NVML event set function pointers and registration
+// ============================================================================
+
+NvmlEventSetFreeFn p_nvmlEventSetFree = nullptr;
+NvmlSysEventSetFreeFn p_nvmlSysEventSetFree = nullptr;
+
+void register_nvml_event_set_fn_pointers(intptr_t event_set_free_fn,
+                                         intptr_t sys_event_set_free_fn) noexcept {
+    p_nvmlEventSetFree = reinterpret_cast<NvmlEventSetFreeFn>(event_set_free_fn);
+    p_nvmlSysEventSetFree = reinterpret_cast<NvmlSysEventSetFreeFn>(sys_event_set_free_fn);
+}
+
+// ============================================================================
+// NVML Event Set Handles (device-scope)
+// ============================================================================
+
+namespace {
+struct NvmlEventSetBox {
+    NvmlEventSetValue resource;
+};
+}  // namespace
+
+NvmlEventSetHandle create_nvml_event_set_handle(intptr_t handle) {
+    if (!p_nvmlEventSetFree) {
+        return NvmlEventSetHandle{};
+    }
+    auto box = std::shared_ptr<NvmlEventSetBox>(
+        new NvmlEventSetBox{{handle}},
+        [](NvmlEventSetBox* b) {
+            if (p_nvmlEventSetFree && b->resource.raw) {
+                p_nvmlEventSetFree(reinterpret_cast<void*>(b->resource.raw));
+            }
+            delete b;
+        }
+    );
+    return NvmlEventSetHandle(box, &box->resource);
+}
+
+// ============================================================================
+// NVML System Event Set Handles (system-scope)
+// ============================================================================
+
+namespace {
+struct NvmlSysEventSetBox {
+    NvmlSysEventSetValue resource;
+};
+}  // namespace
+
+NvmlSysEventSetHandle create_nvml_sys_event_set_handle(intptr_t handle) {
+    if (!p_nvmlSysEventSetFree) {
+        return NvmlSysEventSetHandle{};
+    }
+    auto box = std::shared_ptr<NvmlSysEventSetBox>(
+        new NvmlSysEventSetBox{{handle}},
+        [](NvmlSysEventSetBox* b) {
+            if (p_nvmlSysEventSetFree && b->resource.raw) {
+                // Matches NVML_STRUCT_VERSION(SystemEventSetFreeRequest, 1):
+                // version = sizeof(struct) | (1 << 24). Both our struct and the
+                // NVML header struct have the same layout ({unsigned int, void*}).
+                NvmlSysEventSetFreeRequest req;
+                req.set = reinterpret_cast<void*>(b->resource.raw);
+                req.version = (unsigned int)(sizeof(NvmlSysEventSetFreeRequest) | (1u << 24u));
+                p_nvmlSysEventSetFree(&req);
+            }
+            delete b;
+        }
+    );
+    return NvmlSysEventSetHandle(box, &box->resource);
+}
+
+// ============================================================================
 // SM resource split wrapper
 // ============================================================================
 

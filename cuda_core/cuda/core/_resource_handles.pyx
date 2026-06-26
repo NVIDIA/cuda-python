@@ -193,6 +193,14 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     FileDescriptorHandle create_fd_handle_ref "cuda_core::create_fd_handle_ref" (
         int fd) except+ nogil
 
+    # NVML event set handles
+    void register_nvml_event_set_fn_pointers "cuda_core::register_nvml_event_set_fn_pointers" (
+        intptr_t event_set_free_fn, intptr_t sys_event_set_free_fn) noexcept
+    NvmlEventSetHandle create_nvml_event_set_handle "cuda_core::create_nvml_event_set_handle" (
+        intptr_t handle) noexcept nogil
+    NvmlSysEventSetHandle create_nvml_sys_event_set_handle "cuda_core::create_nvml_sys_event_set_handle" (
+        intptr_t handle) noexcept nogil
+
     # SM resource split (13.1+ wrapper — avoids direct cydriver cimport)
     # groupParams is void* to avoid referencing CU_DEV_SM_RESOURCE_GROUP_PARAMS
     # (which doesn't exist in cuda-bindings 13.0 .pxd). The C++ side casts it.
