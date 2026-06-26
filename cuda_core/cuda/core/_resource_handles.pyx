@@ -203,19 +203,19 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     bint has_sm_resource_split "cuda_core::has_sm_resource_split" () noexcept nogil
 
     # Array / mipmapped-array / texture / surface handles (PR #467)
-    CUDAArrayHandle create_array_handle "cuda_core::create_array_handle" (
+    OpaqueArrayHandle create_array_handle "cuda_core::create_array_handle" (
         const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
-    CUDAArrayHandle create_array_handle_ref "cuda_core::create_array_handle_ref" (
+    OpaqueArrayHandle create_array_handle_ref "cuda_core::create_array_handle_ref" (
         cydriver.CUarray arr) except+ nogil
-    CUDAArrayHandle create_array_handle_owning "cuda_core::create_array_handle_owning" (
+    OpaqueArrayHandle create_array_handle_owning "cuda_core::create_array_handle_owning" (
         cydriver.CUarray arr) except+ nogil
-    CUDAArrayHandle create_array_level_handle "cuda_core::create_array_level_handle" (
+    OpaqueArrayHandle create_array_level_handle "cuda_core::create_array_level_handle" (
         const MipmappedArrayHandle& h_mip, unsigned int level) except+ nogil
     MipmappedArrayHandle create_mipmapped_array_handle "cuda_core::create_mipmapped_array_handle" (
         const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc, unsigned int num_levels) except+ nogil
     TexObjectHandle create_tex_object_handle_array "cuda_core::create_tex_object_handle_array" (
         const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
-        const CUDAArrayHandle& h_backing) except+ nogil
+        const OpaqueArrayHandle& h_backing) except+ nogil
     TexObjectHandle create_tex_object_handle_mipmap "cuda_core::create_tex_object_handle_mipmap" (
         const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
         const MipmappedArrayHandle& h_backing) except+ nogil
@@ -223,7 +223,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
         const DevicePtrHandle& h_backing) except+ nogil
     SurfObjectHandle create_surf_object_handle "cuda_core::create_surf_object_handle" (
-        const cydriver.CUDA_RESOURCE_DESC& res, const CUDAArrayHandle& h_backing) except+ nogil
+        const cydriver.CUDA_RESOURCE_DESC& res, const OpaqueArrayHandle& h_backing) except+ nogil
 
 
 # =============================================================================

@@ -10,7 +10,7 @@ class SurfaceObject:
     has no sampling state (no filtering, no addressing modes, no normalization);
     kernels read and write through it using integer pixel coordinates.
 
-    The backing :class:`CUDAArray` must have been created with
+    The backing :class:`OpaqueArray` must have been created with
     ``is_surface_load_store=True`` and is kept alive for the lifetime of this
     object to prevent dangling handles.
 
@@ -31,7 +31,7 @@ class SurfaceObject:
 
     @classmethod
     def from_array(cls, array):
-        """Create a surface object directly from an :class:`CUDAArray`.
+        """Create a surface object directly from an :class:`OpaqueArray`.
 
         The array must have been created with ``is_surface_load_store=True``.
         """
@@ -43,7 +43,7 @@ class SurfaceObject:
         Parameters
         ----------
         resource : ResourceDescriptor
-            Must wrap an :class:`CUDAArray` allocated with
+            Must wrap an :class:`OpaqueArray` allocated with
             ``is_surface_load_store=True``. Linear/pitch2d resources are not
             valid surface backings.
         """

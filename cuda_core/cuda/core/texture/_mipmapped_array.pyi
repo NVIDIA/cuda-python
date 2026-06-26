@@ -8,9 +8,9 @@ class MipmappedArray:
 
     Wraps ``CUmipmappedArray``. Each mip level is a distinct, hardware-laid-out
     allocation accessible only via a :class:`TextureObject` (or by retrieving
-    the level's :class:`CUDAArray` and binding it as a :class:`SurfaceObject`).
+    the level's :class:`OpaqueArray` and binding it as a :class:`SurfaceObject`).
     Destroying the :class:`MipmappedArray` destroys all level arrays
-    implicitly, so the :class:`CUDAArray` instances returned by :meth:`get_level`
+    implicitly, so the :class:`OpaqueArray` instances returned by :meth:`get_level`
     are non-owning and hold a strong reference back to their parent.
 
     Construct via :meth:`from_descriptor`.
@@ -20,7 +20,7 @@ class MipmappedArray:
         """Release this object's reference to the underlying ``CUmipmappedArray``.
 
         Destruction (``cuMipmappedArrayDestroy``) happens via the handle's
-        deleter when the last reference is dropped. A level :class:`CUDAArray`
+        deleter when the last reference is dropped. A level :class:`OpaqueArray`
         from :meth:`get_level` holds its own reference to this mipmap's storage,
         so it stays valid until both it and this object are released. Idempotent.
         """
@@ -56,7 +56,7 @@ class MipmappedArray:
         """
 
     def get_level(self, level):
-        """Return a non-owning :class:`CUDAArray` view of the given mip level.
+        """Return a non-owning :class:`OpaqueArray` view of the given mip level.
 
         Parameters
         ----------
@@ -65,10 +65,10 @@ class MipmappedArray:
 
         Returns
         -------
-        CUDAArray
-            A non-owning :class:`CUDAArray` wrapping the level's ``CUarray``.
+        OpaqueArray
+            A non-owning :class:`OpaqueArray` wrapping the level's ``CUarray``.
             The :class:`MipmappedArray` is kept alive for the lifetime of the
-            returned :class:`CUDAArray`; the underlying storage is released only
+            returned :class:`OpaqueArray`; the underlying storage is released only
             when this :class:`MipmappedArray` is destroyed.
         """
 

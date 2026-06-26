@@ -10,7 +10,7 @@ from cuda.bindings cimport cydriver
 from cuda.core.texture._array cimport _array_from_handle
 from cuda.core.texture._array import ArrayFormat, _validate_array_shape, _validate_format_channels
 from cuda.core._resource_handles cimport (
-    CUDAArrayHandle,
+    OpaqueArrayHandle,
     MipmappedArrayHandle,
     as_intptr,
     create_array_level_handle,
@@ -28,9 +28,9 @@ cdef class MipmappedArray:
 
     Wraps ``CUmipmappedArray``. Each mip level is a distinct, hardware-laid-out
     allocation accessible only via a :class:`TextureObject` (or by retrieving
-    the level's :class:`CUDAArray` and binding it as a :class:`SurfaceObject`).
+    the level's :class:`OpaqueArray` and binding it as a :class:`SurfaceObject`).
     Destroying the :class:`MipmappedArray` destroys all level arrays
-    implicitly, so the :class:`CUDAArray` instances returned by :meth:`get_level`
+    implicitly, so the :class:`OpaqueArray` instances returned by :meth:`get_level`
     are non-owning and hold a strong reference back to their parent.
 
     Construct via :meth:`from_descriptor`.
@@ -110,7 +110,7 @@ cdef class MipmappedArray:
         return self
 
     def get_level(self, level):
-        """Return a non-owning :class:`CUDAArray` view of the given mip level.
+        """Return a non-owning :class:`OpaqueArray` view of the given mip level.
 
         Parameters
         ----------
@@ -119,10 +119,10 @@ cdef class MipmappedArray:
 
         Returns
         -------
-        CUDAArray
-            A non-owning :class:`CUDAArray` wrapping the level's ``CUarray``.
+        OpaqueArray
+            A non-owning :class:`OpaqueArray` wrapping the level's ``CUarray``.
             The :class:`MipmappedArray` is kept alive for the lifetime of the
-            returned :class:`CUDAArray`; the underlying storage is released only
+            returned :class:`OpaqueArray`; the underlying storage is released only
             when this :class:`MipmappedArray` is destroyed.
         """
         lvl = int(level)
@@ -133,10 +133,10 @@ cdef class MipmappedArray:
                 f"level ({lvl}) must be < num_levels ({self._num_levels})"
             )
 
-        cdef CUDAArrayHandle h_level = create_array_level_handle(self._handle, <unsigned int>lvl)
+        cdef OpaqueArrayHandle h_level = create_array_level_handle(self._handle, <unsigned int>lvl)
         if not h_level:
             HANDLE_RETURN(get_last_error())
-        # The returned CUDAArray is non-owning; its C++ box embeds this mipmap's
+        # The returned OpaqueArray is non-owning; its C++ box embeds this mipmap's
         # handle, so the parent's storage structurally outlives the level view
         # (no Python parent reference needed).
         return _array_from_handle(h_level, self._device_id)
@@ -182,7 +182,7 @@ cdef class MipmappedArray:
         """Release this object's reference to the underlying ``CUmipmappedArray``.
 
         Destruction (``cuMipmappedArrayDestroy``) happens via the handle's
-        deleter when the last reference is dropped. A level :class:`CUDAArray`
+        deleter when the last reference is dropped. A level :class:`OpaqueArray`
         from :meth:`get_level` holds its own reference to this mipmap's storage,
         so it stays valid until both it and this object are released. Idempotent.
         """

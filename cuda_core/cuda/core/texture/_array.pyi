@@ -8,7 +8,7 @@ from cuda.bindings import cydriver
 
 
 class ArrayFormat(IntEnum):
-    """Element format for a :class:`CUDAArray` allocation.
+    """Element format for a :class:`OpaqueArray` allocation.
 
     Mirrors ``CUarray_format`` from the CUDA driver API.
     """
@@ -21,7 +21,7 @@ class ArrayFormat(IntEnum):
     FLOAT16 = cydriver.CU_AD_FORMAT_HALF
     FLOAT32 = cydriver.CU_AD_FORMAT_FLOAT
 
-class CUDAArray:
+class OpaqueArray:
     """An opaque, hardware-laid-out GPU allocation for texture/surface access.
 
     Distinct from :class:`Buffer`: a ``CUarray`` has no exposed device pointer
@@ -30,7 +30,7 @@ class CUDAArray:
     spatial locality.
 
     **Copy-only interop.** Because the layout is opaque and there is no linear
-    device pointer, a ``CUDAArray`` cannot expose ``__cuda_array_interface__`` /
+    device pointer, a ``OpaqueArray`` cannot expose ``__cuda_array_interface__`` /
     DLPack and cannot be shared zero-copy with NumPy, CuPy, numba-cuda, or
     PyTorch. Moving data in or out is therefore always a copy: use
     :meth:`copy_from` / :meth:`copy_to` against a linear :class:`Buffer` or a
@@ -75,7 +75,7 @@ class CUDAArray:
 
         Returns
         -------
-        CUDAArray
+        OpaqueArray
         """
 
     @classmethod

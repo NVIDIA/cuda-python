@@ -37,7 +37,7 @@ class ResourceDescriptor:
 
     Construct via the ``from_*`` classmethods:
 
-    - :meth:`from_array` wraps a :class:`CUDAArray` (works for both
+    - :meth:`from_array` wraps a :class:`OpaqueArray` (works for both
       :class:`TextureObject` and :class:`SurfaceObject`).
     - :meth:`from_mipmapped_array` wraps a :class:`MipmappedArray` for mipmapped
       sampling (texture only, not surface).
@@ -48,7 +48,7 @@ class ResourceDescriptor:
       Supports filtering and 2D addressing, but only 2D access.
 
     Linear and pitch2D resources cannot back a :class:`SurfaceObject` — those
-    require an :class:`CUDAArray` allocated with ``is_surface_load_store=True``.
+    require an :class:`OpaqueArray` allocated with ``is_surface_load_store=True``.
     """
     __slots__ = ('_kind', '_source', '_format', '_num_channels', '_size_bytes', '_width', '_height', '_pitch_bytes')
 
@@ -57,7 +57,7 @@ class ResourceDescriptor:
 
     @classmethod
     def from_array(cls, array):
-        """Build a resource descriptor backed by a :class:`CUDAArray`."""
+        """Build a resource descriptor backed by a :class:`OpaqueArray`."""
 
     @classmethod
     def from_mipmapped_array(cls, mipmapped_array):
@@ -65,7 +65,7 @@ class ResourceDescriptor:
 
         Suitable for binding to a :class:`TextureObject` for mipmapped
         sampling. Not valid as a :class:`SurfaceObject` backing: surfaces
-        require a single :class:`CUDAArray` level (obtain via
+        require a single :class:`OpaqueArray` level (obtain via
         :meth:`MipmappedArray.get_level`).
         """
 
@@ -201,7 +201,7 @@ class TextureObject:
     """A bindless texture handle for kernel-side sampled reads.
 
     Wraps ``cuTexObjectCreate``. The underlying memory resource (e.g. the
-    :class:`CUDAArray` referenced by the descriptor) is kept alive for the
+    :class:`OpaqueArray` referenced by the descriptor) is kept alive for the
     lifetime of this object to prevent dangling handles.
 
     Construct via :meth:`from_descriptor`. Passes to kernels as a 64-bit

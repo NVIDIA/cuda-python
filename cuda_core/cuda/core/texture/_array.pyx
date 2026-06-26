@@ -11,7 +11,7 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._resource_handles cimport (
-    CUDAArrayHandle,
+    OpaqueArrayHandle,
     as_cu,
     as_intptr,
     create_array_handle,
@@ -29,7 +29,7 @@ from enum import IntEnum
 
 
 class ArrayFormat(IntEnum):
-    """Element format for a :class:`CUDAArray` allocation.
+    """Element format for a :class:`OpaqueArray` allocation.
 
     Mirrors ``CUarray_format`` from the CUDA driver API.
     """
@@ -81,7 +81,7 @@ def _validate_array_shape(shape):
 
 
 cdef void _fill_array_endpoint(
-    cydriver.CUDA_MEMCPY3D* p, CUDAArray arr, bint is_src
+    cydriver.CUDA_MEMCPY3D* p, OpaqueArray arr, bint is_src
 ) noexcept:
     """Populate the src or dst array fields of a CUDA_MEMCPY3D struct."""
     if is_src:
@@ -188,7 +188,7 @@ cdef int _fill_linear_endpoint(
     )
 
 
-cdef _copy3d(CUDAArray arr, object other, Stream stream, bint to_array):
+cdef _copy3d(OpaqueArray arr, object other, Stream stream, bint to_array):
     """Issue a full-array async 3D memcpy between ``arr`` and ``other``.
 
     Direction is determined by ``to_array``: True copies *into* arr, False
@@ -228,7 +228,7 @@ cdef _copy3d(CUDAArray arr, object other, Stream stream, bint to_array):
             cpython.PyBuffer_Release(&pybuf)
 
 
-cdef class CUDAArray:
+cdef class OpaqueArray:
     """An opaque, hardware-laid-out GPU allocation for texture/surface access.
 
     Distinct from :class:`Buffer`: a ``CUarray`` has no exposed device pointer
@@ -237,7 +237,7 @@ cdef class CUDAArray:
     spatial locality.
 
     **Copy-only interop.** Because the layout is opaque and there is no linear
-    device pointer, a ``CUDAArray`` cannot expose ``__cuda_array_interface__`` /
+    device pointer, a ``OpaqueArray`` cannot expose ``__cuda_array_interface__`` /
     DLPack and cannot be shared zero-copy with NumPy, CuPy, numba-cuda, or
     PyTorch. Moving data in or out is therefore always a copy: use
     :meth:`copy_from` / :meth:`copy_to` against a linear :class:`Buffer` or a
@@ -252,7 +252,7 @@ cdef class CUDAArray:
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
-            "CUDAArray cannot be instantiated directly. Use CUDAArray.from_descriptor()."
+            "OpaqueArray cannot be instantiated directly. Use OpaqueArray.from_descriptor()."
         )
 
     @classmethod
@@ -275,7 +275,7 @@ cdef class CUDAArray:
 
         Returns
         -------
-        CUDAArray
+        OpaqueArray
         """
         _validate_format_channels(format, num_channels)
         shape_t = _validate_array_shape(shape)
@@ -297,11 +297,11 @@ cdef class CUDAArray:
         desc3d.NumChannels = <unsigned int>num_channels
         desc3d.Flags = flags
 
-        cdef CUDAArrayHandle h = create_array_handle(desc3d)
+        cdef OpaqueArrayHandle h = create_array_handle(desc3d)
         if not h:
             HANDLE_RETURN(get_last_error())
 
-        cdef CUDAArray self = cls.__new__(cls)
+        cdef OpaqueArray self = cls.__new__(cls)
         self._handle = h
         self._shape = shape_t
         self._format = c_format
@@ -320,7 +320,7 @@ cdef class CUDAArray:
         and channel count are queried from the driver.
         """
         cdef cydriver.CUarray raw = <cydriver.CUarray><void*>handle
-        cdef CUDAArrayHandle h
+        cdef OpaqueArrayHandle h
         if owning:
             h = create_array_handle_owning(raw)
         else:
@@ -435,14 +435,14 @@ cdef class CUDAArray:
 
     def __repr__(self):
         return (
-            f"CUDAArray(shape={self._shape}, "
+            f"OpaqueArray(shape={self._shape}, "
             f"format={ArrayFormat(self._format).name}, "
             f"num_channels={self._num_channels})"
         )
 
 
-cdef CUDAArray _array_from_handle(CUDAArrayHandle h, int device_id):
-    """Wrap an existing CUDAArrayHandle as a CUDAArray, querying the driver for the
+cdef OpaqueArray _array_from_handle(OpaqueArrayHandle h, int device_id):
+    """Wrap an existing OpaqueArrayHandle as a OpaqueArray, querying the driver for the
     array's shape/format/channels/surface-flag metadata.
 
     Any owning/non-owning semantics and parent (mipmap) dependency are already
@@ -451,7 +451,7 @@ cdef CUDAArray _array_from_handle(CUDAArrayHandle h, int device_id):
     if not h:
         HANDLE_RETURN(get_last_error())
 
-    cdef CUDAArray self = CUDAArray.__new__(CUDAArray)
+    cdef OpaqueArray self = OpaqueArray.__new__(OpaqueArray)
     self._handle = h
     self._device_id = device_id
 
