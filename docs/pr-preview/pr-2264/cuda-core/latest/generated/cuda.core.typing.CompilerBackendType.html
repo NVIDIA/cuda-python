@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ef78566f"></script>
+    <script src="../_static/documentation_options.js?v=5f6b6b13"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev93';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -591,12 +591,16 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArray.html">cuda.core.texture.OpaqueArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArray.html">cuda.core.texture.MipmappedArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -720,7 +724,7 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.typing.CompilerBackendType" title="Link to this definition">#</a></dt>
-<dd><p>Compiler backend inferred from the program’s code type and exposed on <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.backend" title="cuda.core.Program.backend"><code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code></a>.</p>
+<dd><p>Compiler backend inferred from the program’s code type and exposed on <code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code>.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">NVRTC</span></code> — NVIDIA Runtime Compilation.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">NVVM</span></code> — NVVM LLVM backend.</p></li>
@@ -728,28 +732,28 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">DRIVER</span></code> — CUDA driver PTX JIT compiler.</p></li>
 </ul>
 <dl class="simple">
-<dt><strong>NVRTC</strong>: NVRTC</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.backend" title="cuda.core.Program.backend"><code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code></a>.
+<dt><strong>NVRTC</strong>: NVRTC</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code>.
 
     * <code class="docutils literal notranslate"><span class="pre">NVRTC</span></code> — NVIDIA Runtime Compilation.
     * <code class="docutils literal notranslate"><span class="pre">NVVM</span></code> — NVVM LLVM backend.
     * <code class="docutils literal notranslate"><span class="pre">NVJITLINK</span></code> — nvJitLink device-side linker.
     * <code class="docutils literal notranslate"><span class="pre">DRIVER</span></code> — CUDA driver PTX JIT compiler.</p>
 </dd>
-<dt><strong>NVVM</strong>: NVVM</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.backend" title="cuda.core.Program.backend"><code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code></a>.
+<dt><strong>NVVM</strong>: NVVM</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code>.
 
     * <code class="docutils literal notranslate"><span class="pre">NVRTC</span></code> — NVIDIA Runtime Compilation.
     * <code class="docutils literal notranslate"><span class="pre">NVVM</span></code> — NVVM LLVM backend.
     * <code class="docutils literal notranslate"><span class="pre">NVJITLINK</span></code> — nvJitLink device-side linker.
     * <code class="docutils literal notranslate"><span class="pre">DRIVER</span></code> — CUDA driver PTX JIT compiler.</p>
 </dd>
-<dt><strong>NVJITLINK</strong>: nvJitLink</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.backend" title="cuda.core.Program.backend"><code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code></a>.
+<dt><strong>NVJITLINK</strong>: nvJitLink</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code>.
 
     * <code class="docutils literal notranslate"><span class="pre">NVRTC</span></code> — NVIDIA Runtime Compilation.
     * <code class="docutils literal notranslate"><span class="pre">NVVM</span></code> — NVVM LLVM backend.
     * <code class="docutils literal notranslate"><span class="pre">NVJITLINK</span></code> — nvJitLink device-side linker.
     * <code class="docutils literal notranslate"><span class="pre">DRIVER</span></code> — CUDA driver PTX JIT compiler.</p>
 </dd>
-<dt><strong>DRIVER</strong>: driver</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.backend" title="cuda.core.Program.backend"><code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code></a>.
+<dt><strong>DRIVER</strong>: driver</dt><dd><p>Compiler backend inferred from the program’s code type and exposed on <code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code>.
 
     * <code class="docutils literal notranslate"><span class="pre">NVRTC</span></code> — NVIDIA Runtime Compilation.
     * <code class="docutils literal notranslate"><span class="pre">NVVM</span></code> — NVVM LLVM backend.

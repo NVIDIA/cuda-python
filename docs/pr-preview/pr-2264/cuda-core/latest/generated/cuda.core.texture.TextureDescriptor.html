@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.Program &#8212; cuda.core</title>
+    <title>cuda.core.texture.TextureDescriptor &#8212; cuda.core</title>
   
   
   
@@ -44,28 +44,28 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ef78566f"></script>
+    <script src="../_static/documentation_options.js?v=5f6b6b13"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.Program';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.texture.TextureDescriptor';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev93';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2264/cuda-core/latest/generated/cuda.core.Program.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2264/cuda-core/latest/generated/cuda.core.texture.TextureDescriptor.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.Linker" href="cuda.core.Linker.html" />
-    <link rel="prev" title="cuda.core.TensorMapDescriptorOptions" href="cuda.core.TensorMapDescriptorOptions.html" />
+    <link rel="next" title="cuda.core.texture.ArrayFormat" href="cuda.core.texture.ArrayFormat.html" />
+    <link rel="prev" title="cuda.core.texture.SurfaceObject" href="cuda.core.texture.SurfaceObject.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -593,12 +593,16 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArray.html">cuda.core.texture.OpaqueArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArray.html">cuda.core.texture.MipmappedArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.texture.TextureDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -690,7 +694,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.Program</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.texture.TextureDescriptor</span></li>
   </ul>
 </nav>
 </div>
@@ -707,154 +711,170 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-program">
-<h1>cuda.core.Program<a class="headerlink" href="#cuda-core-program" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-texture-texturedescriptor">
+<h1>cuda.core.texture.TextureDescriptor<a class="headerlink" href="#cuda-core-texture-texturedescriptor" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.Program">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">Program</span></span><span class="sig-paren">(</span>
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.texture.</span></span><span class="sig-name descname"><span class="pre">TextureDescriptor</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytearray" title="(in Python v3.14)"><span class="pre">bytearray</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">code_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.typing.SourceCodeType.html#cuda.core.typing.SourceCodeType" title="cuda.core.typing.SourceCodeType"><span class="pre">SourceCodeType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><span class="pre">ProgramOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">address_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.AddressMode.html#cuda.core.texture.AddressMode" title="cuda.core.texture._texture.AddressMode"><span class="pre">AddressMode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cuda.core.texture.AddressMode.html#cuda.core.texture.AddressMode" title="cuda.core.texture._texture.AddressMode"><span class="pre">AddressMode</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">AddressMode.CLAMP</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">filter_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.FilterMode.html#cuda.core.texture.FilterMode" title="cuda.core.texture._texture.FilterMode"><span class="pre">FilterMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">FilterMode.POINT</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">read_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.ReadMode.html#cuda.core.texture.ReadMode" title="cuda.core.texture._texture.ReadMode"><span class="pre">ReadMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ReadMode.ELEMENT_TYPE</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">normalized_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">srgb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">disable_trilinear_optimization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">seamless_cubemap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">max_anisotropy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">mipmap_filter_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.FilterMode.html#cuda.core.texture.FilterMode" title="cuda.core.texture._texture.FilterMode"><span class="pre">FilterMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">FilterMode.POINT</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">mipmap_level_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">min_mipmap_level_clamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">max_mipmap_level_clamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">border_color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Program" title="Link to this definition">#</a></dt>
-<dd><p>Represent a compilation machinery to process programs into
-<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>.</p>
-<p>This object provides a unified interface to multiple underlying
-compiler libraries. Compilation support is enabled for a wide
-range of code types and compilation types.</p>
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor" title="Link to this definition">#</a></dt>
+<dd><p>Sampling state for a <a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureObject</span></code></a> (mirrors <code class="docutils literal notranslate"><span class="pre">CUDA_TEXTURE_DESC</span></code>).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.address_mode">
+<span class="sig-name descname"><span class="pre">address_mode</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.address_mode" title="Link to this definition">#</a></dt>
+<dd><p>Boundary behavior per axis. May be a single <a class="reference internal" href="cuda.core.texture.AddressMode.html#cuda.core.texture.AddressMode" title="cuda.core.texture.AddressMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressMode</span></code></a> (applied
+to all axes) or a tuple of 1-3 entries (one per dimension).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytearray" title="(in Python v3.14)"><em>bytearray</em></a>) – The source code to compile. For C++ and PTX, must be a string.
-For NVVM IR, can be str, bytes, or bytearray.</p></li>
-<li><p><strong>code_type</strong> (<a class="reference internal" href="cuda.core.typing.SourceCodeType.html#cuda.core.typing.SourceCodeType" title="cuda.core.typing.SourceCodeType"><em>SourceCodeType</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The type of source code. Must be one of <code class="docutils literal notranslate"><span class="pre">&quot;c++&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ptx&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;nvvm&quot;</span></code>.</p></li>
-<li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a>, optional) – Options to customize the compilation process.</p></li>
-</ul>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> of <a class="reference internal" href="cuda.core.texture.AddressMode.html#cuda.core.texture.AddressMode" title="cuda.core.texture.AddressMode">AddressMode</a></p>
 </dd>
 </dl>
-<p class="rubric">Methods</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Program.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Program.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Program.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Program.close" title="Link to this definition">#</a></dt>
-<dd><p>Destroy this program.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Program.compile">
-<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">target_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.typing.ObjectCodeFormatType.html#cuda.core.typing.ObjectCodeFormatType" title="cuda.core.typing.ObjectCodeFormatType"><span class="pre">ObjectCodeFormatType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">name_expressions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><span class="pre">ProgramCacheResource</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.Program.compile" title="Link to this definition">#</a></dt>
-<dd><p>Compile the program to the specified target type.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.filter_mode">
+<span class="sig-name descname"><span class="pre">filter_mode</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.filter_mode" title="Link to this definition">#</a></dt>
+<dd><p>Texel sampling mode. Default <code class="docutils literal notranslate"><span class="pre">POINT</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>target_type</strong> (<a class="reference internal" href="cuda.core.typing.ObjectCodeFormatType.html#cuda.core.typing.ObjectCodeFormatType" title="cuda.core.typing.ObjectCodeFormatType"><em>ObjectCodeFormatType</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The compilation target. Must be one of <code class="docutils literal notranslate"><span class="pre">&quot;ptx&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cubin&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;ltoir&quot;</span></code>.</p></li>
-<li><p><strong>name_expressions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>, </em><em>optional</em>) – Sequence of name expressions to make accessible in the compiled code.
-Used for template instantiation and similar cases.</p></li>
-<li><p><strong>logs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – Object with a <code class="docutils literal notranslate"><span class="pre">write</span></code> method to receive compilation logs.
-On a cache hit no compilation runs and <code class="docutils literal notranslate"><span class="pre">logs</span></code> receives
-nothing – callers that rely on log output to confirm a
-compile happened should compile without <code class="docutils literal notranslate"><span class="pre">cache=</span></code>.</p></li>
-<li><p><strong>cache</strong> (<a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a>, optional) – <p>If provided, the compiled binary is looked up in <code class="docutils literal notranslate"><span class="pre">cache</span></code> via a
-key derived from the program’s code, options, and <code class="docutils literal notranslate"><span class="pre">target_type</span></code>.
-On a hit the cached bytes are wrapped in a fresh
-<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> (with the same <code class="docutils literal notranslate"><span class="pre">target_type</span></code>
-and <code class="docutils literal notranslate"><span class="pre">ProgramOptions.name</span></code>) and returned without re-compiling;
-on a miss the compile output is stored as raw bytes (the cache
-extracts <code class="docutils literal notranslate"><span class="pre">bytes(object_code.code)</span></code>). Passing a non-empty
-<code class="docutils literal notranslate"><span class="pre">name_expressions</span></code> together with <code class="docutils literal notranslate"><span class="pre">cache=</span></code> raises
-<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>: NVRTC populates
-<code class="docutils literal notranslate"><span class="pre">ObjectCode.symbol_mapping</span></code> at compile time and that mapping
-is not carried in the binary the cache stores, so cache hits
-would silently miss <code class="docutils literal notranslate"><span class="pre">get_kernel(name_expression)</span></code> lookups.
-Options that require an <code class="docutils literal notranslate"><span class="pre">extra_digest</span></code> (<code class="docutils literal notranslate"><span class="pre">include_path</span></code>,
-<code class="docutils literal notranslate"><span class="pre">pre_include</span></code>, <code class="docutils literal notranslate"><span class="pre">pch</span></code>, <code class="docutils literal notranslate"><span class="pre">use_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>, NVVM
-<code class="docutils literal notranslate"><span class="pre">use_libdevice=True</span></code>, or NVRTC <code class="docutils literal notranslate"><span class="pre">options.name</span></code> with a
-directory component) raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> via
-<a class="reference internal" href="cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a>; for those
-compiles, use the manual <code class="docutils literal notranslate"><span class="pre">make_program_cache_key(...)</span></code>
-pattern directly.</p>
-<p><code class="docutils literal notranslate"><span class="pre">cache=</span></code> is independent of <code class="docutils literal notranslate"><span class="pre">ProgramOptions.no_cache</span></code>: the
-former controls this program-level cache (compiled-output
-reuse across calls), while <code class="docutils literal notranslate"><span class="pre">no_cache</span></code> is forwarded to the
-Linker to disable its in-process JIT cache for cuLink/nvJitLink.
-Setting <code class="docutils literal notranslate"><span class="pre">options.no_cache=True</span></code> does not bypass <code class="docutils literal notranslate"><span class="pre">cache=</span></code>,
-and vice-versa.</p>
-</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The compiled object code.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a></p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.texture.FilterMode.html#cuda.core.texture.FilterMode" title="cuda.core.texture.FilterMode">FilterMode</a></p>
 </dd>
 </dl>
 </dd></dl>
 
-<p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Program.backend">
-<span class="sig-name descname"><span class="pre">backend</span></span><a class="headerlink" href="#cuda.core.Program.backend" title="Link to this definition">#</a></dt>
-<dd><p>Return this Program instance’s underlying <code class="xref py py-class docutils literal notranslate"><span class="pre">CompilerBackendType</span></code>.</p>
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.read_mode">
+<span class="sig-name descname"><span class="pre">read_mode</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.read_mode" title="Link to this definition">#</a></dt>
+<dd><p>How sampled integer values are returned. Default <code class="docutils literal notranslate"><span class="pre">ELEMENT_TYPE</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.texture.ReadMode.html#cuda.core.texture.ReadMode" title="cuda.core.texture.ReadMode">ReadMode</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Program.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.Program.handle" title="Link to this definition">#</a></dt>
-<dd><p>Return the underlying handle object.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The type of the returned object depends on the backend.</p>
-</div>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>This handle is a Python object. To get the memory address of the underlying C
-handle, call <code class="docutils literal notranslate"><span class="pre">int(Program.handle)</span></code>.</p>
-</div>
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.normalized_coords">
+<span class="sig-name descname"><span class="pre">normalized_coords</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.normalized_coords" title="Link to this definition">#</a></dt>
+<dd><p>If True, coordinates are in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> instead of pixel indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Program.pch_status">
-<span class="sig-name descname"><span class="pre">pch_status</span></span><a class="headerlink" href="#cuda.core.Program.pch_status" title="Link to this definition">#</a></dt>
-<dd><p>PCHStatusType | None</p>
-<p>PCH creation outcome from the most recent <a class="reference internal" href="#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a> call.</p>
-<p>Possible values:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;created&quot;</span></code> — PCH file was written successfully.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;not_attempted&quot;</span></code> — PCH creation was not attempted (e.g. the
-compiler decided not to, or automatic PCH processing skipped it).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;failed&quot;</span></code> — an error prevented PCH creation.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> — PCH was not requested, the program has not been
-compiled yet, the backend is not NVRTC (e.g. PTX or NVVM),
-or the NVRTC bindings are too old to report status.</p></li>
-</ul>
-<p>When <code class="docutils literal notranslate"><span class="pre">create_pch</span></code> is set in <a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a> and the PCH
-heap is too small, <a class="reference internal" href="#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a> automatically resizes the heap
-and retries, so <code class="docutils literal notranslate"><span class="pre">&quot;created&quot;</span></code> should be the common outcome.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>PCH is only supported for <code class="docutils literal notranslate"><span class="pre">code_type=&quot;c++&quot;</span></code> programs that
-use the NVRTC backend. For PTX and NVVM programs this property
-always returns <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
-</div>
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.srgb">
+<span class="sig-name descname"><span class="pre">srgb</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.srgb" title="Link to this definition">#</a></dt>
+<dd><p>If True, perform sRGB → linear conversion on read (8-bit formats only).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.disable_trilinear_optimization">
+<span class="sig-name descname"><span class="pre">disable_trilinear_optimization</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.disable_trilinear_optimization" title="Link to this definition">#</a></dt>
+<dd><p>If True, request exact trilinear filtering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.seamless_cubemap">
+<span class="sig-name descname"><span class="pre">seamless_cubemap</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.seamless_cubemap" title="Link to this definition">#</a></dt>
+<dd><p>If True, enable seamless cubemap edge filtering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.max_anisotropy">
+<span class="sig-name descname"><span class="pre">max_anisotropy</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.max_anisotropy" title="Link to this definition">#</a></dt>
+<dd><p>Maximum anisotropy; 0 disables anisotropic filtering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.mipmap_filter_mode">
+<span class="sig-name descname"><span class="pre">mipmap_filter_mode</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.mipmap_filter_mode" title="Link to this definition">#</a></dt>
+<dd><p>Filtering between mipmap levels. Default <code class="docutils literal notranslate"><span class="pre">POINT</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.texture.FilterMode.html#cuda.core.texture.FilterMode" title="cuda.core.texture.FilterMode">FilterMode</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.mipmap_level_bias">
+<span class="sig-name descname"><span class="pre">mipmap_level_bias</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.mipmap_level_bias" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.min_mipmap_level_clamp">
+<span class="sig-name descname"><span class="pre">min_mipmap_level_clamp</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.min_mipmap_level_clamp" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.max_mipmap_level_clamp">
+<span class="sig-name descname"><span class="pre">max_mipmap_level_clamp</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.max_mipmap_level_clamp" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.TextureDescriptor.border_color">
+<span class="sig-name descname"><span class="pre">border_color</span></span><a class="headerlink" href="#cuda.core.texture.TextureDescriptor.border_color" title="Link to this definition">#</a></dt>
+<dd><p>4-tuple used when <code class="docutils literal notranslate"><span class="pre">address_mode</span></code> includes <code class="docutils literal notranslate"><span class="pre">BORDER</span></code>; <code class="docutils literal notranslate"><span class="pre">None</span></code> means
+zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a> or None</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -872,20 +892,20 @@ always returns <code class="docutils literal notranslate"><span class="pre">None
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.TensorMapDescriptorOptions.html"
+       href="cuda.core.texture.SurfaceObject.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.TensorMapDescriptorOptions</p>
+        <p class="prev-next-title">cuda.core.texture.SurfaceObject</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.Linker.html"
+       href="cuda.core.texture.ArrayFormat.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.Linker</p>
+        <p class="prev-next-title">cuda.core.texture.ArrayFormat</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -910,13 +930,20 @@ always returns <code class="docutils literal notranslate"><span class="pre">None
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program"><code class="docutils literal notranslate"><span class="pre">Program</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.__init__"><code class="docutils literal notranslate"><span class="pre">Program.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.close"><code class="docutils literal notranslate"><span class="pre">Program.close()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.compile"><code class="docutils literal notranslate"><span class="pre">Program.compile()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.backend"><code class="docutils literal notranslate"><span class="pre">Program.backend</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.handle"><code class="docutils literal notranslate"><span class="pre">Program.handle</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.pch_status"><code class="docutils literal notranslate"><span class="pre">Program.pch_status</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.address_mode"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.address_mode</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.filter_mode"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.filter_mode</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.read_mode"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.read_mode</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.normalized_coords"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.normalized_coords</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.srgb"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.srgb</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.disable_trilinear_optimization"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.disable_trilinear_optimization</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.seamless_cubemap"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.seamless_cubemap</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.max_anisotropy"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.max_anisotropy</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.mipmap_filter_mode"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.mipmap_filter_mode</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.mipmap_level_bias"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.mipmap_level_bias</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.min_mipmap_level_clamp"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.min_mipmap_level_clamp</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.max_mipmap_level_clamp"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.max_mipmap_level_clamp</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureDescriptor.border_color"><code class="docutils literal notranslate"><span class="pre">TextureDescriptor.border_color</span></code></a></li>
 </ul>
 </li>
 </ul>

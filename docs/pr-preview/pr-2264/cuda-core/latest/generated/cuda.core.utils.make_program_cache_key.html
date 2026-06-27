@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ef78566f"></script>
+    <script src="../_static/documentation_options.js?v=5f6b6b13"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev93';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -593,12 +593,16 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArray.html">cuda.core.texture.OpaqueArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArray.html">cuda.core.texture.MipmappedArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -717,7 +721,7 @@
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">code_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core._program.ProgramOptions"><span class="pre">ProgramOptions</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ProgramOptions</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">target_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">name_expressions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytearray" title="(in Python v3.14)"><span class="pre">bytearray</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">extra_digest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -730,7 +734,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>code</strong> – Source text. <code class="docutils literal notranslate"><span class="pre">str</span></code> is encoded as UTF-8.</p></li>
 <li><p><strong>code_type</strong> – One of <code class="docutils literal notranslate"><span class="pre">&quot;c++&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ptx&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;nvvm&quot;</span></code>.</p></li>
-<li><p><strong>options</strong> – A <a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.ProgramOptions</span></code></a>. Its <code class="docutils literal notranslate"><span class="pre">arch</span></code> must be set (the
+<li><p><strong>options</strong> – A <code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.ProgramOptions</span></code>. Its <code class="docutils literal notranslate"><span class="pre">arch</span></code> must be set (the
 default <code class="docutils literal notranslate"><span class="pre">ProgramOptions.__post_init__</span></code> populates it from the current
 device).</p></li>
 <li><p><strong>target_type</strong> – One of <code class="docutils literal notranslate"><span class="pre">&quot;ptx&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cubin&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ltoir&quot;</span></code>.</p></li>
@@ -742,7 +746,7 @@ lookups must use the same type the cache key recorded. <code class="docutils lit
 is rejected because <code class="docutils literal notranslate"><span class="pre">Program.compile</span></code> stores each element as a
 dict key and <code class="docutils literal notranslate"><span class="pre">bytearray</span></code> is unhashable.</p></li>
 <li><p><strong>extra_digest</strong> – Caller-supplied bytes mixed into the key. Required whenever
-<a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.ProgramOptions</span></code></a> sets any option that pulls in
+<code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.ProgramOptions</span></code> sets any option that pulls in
 external file content (<code class="docutils literal notranslate"><span class="pre">include_path</span></code>, <code class="docutils literal notranslate"><span class="pre">pre_include</span></code>, <code class="docutils literal notranslate"><span class="pre">pch</span></code>,
 <code class="docutils literal notranslate"><span class="pre">use_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>) – the cache cannot read those files on
 the caller’s behalf, so the caller must fingerprint the header /
@@ -769,9 +773,9 @@ inputs too (embedded kernels, generated sources, etc.).</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>For most workflows you should not call <code class="docutils literal notranslate"><span class="pre">make_program_cache_key</span></code>
-yourself – pass <code class="docutils literal notranslate"><span class="pre">cache=</span></code> to <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda.core.Program.compile()</span></code></a>,
+yourself – pass <code class="docutils literal notranslate"><span class="pre">cache=</span></code> to <code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda.core.Program.compile()</span></code>,
 which derives the key, returns the cached
-<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> on hit, and stores the compile
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code> on hit, and stores the compile
 result on miss:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Program</span><span class="p">,</span> <span class="n">ProgramOptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileStreamProgramCache</span>
@@ -809,7 +813,7 @@ refuses those inputs with a <code class="docutils literal notranslate"><span cla
 <p>The cache stores raw binary bytes – cubin / PTX / LTO-IR with no
 pickle, JSON, or framing – so entry files are directly consumable
 by external NVIDIA tools (<code class="docutils literal notranslate"><span class="pre">cuobjdump</span></code>, <code class="docutils literal notranslate"><span class="pre">nvdisasm</span></code>, …). Note
-that an <a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> round-tripped through the
+that an <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code> round-tripped through the
 cache loses <code class="docutils literal notranslate"><span class="pre">symbol_mapping</span></code>: callers that compile with
 <code class="docutils literal notranslate"><span class="pre">name_expressions</span></code> and rely on <code class="docutils literal notranslate"><span class="pre">get_kernel(name_expression)</span></code>
 after a cache hit must either compile fresh or look up the mangled
