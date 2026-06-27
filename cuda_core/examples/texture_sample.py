@@ -4,7 +4,7 @@
 
 # ################################################################################
 #
-# This example demonstrates building a 2D CUDA CUDAArray, binding it as a
+# This example demonstrates building a 2D CUDA OpaqueArray, binding it as a
 # bindless TextureObject, and sampling it from a kernel with both POINT-exact
 # and LINEAR-interpolated coordinates.
 #
@@ -29,10 +29,10 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
-from cuda.core.textures import (
+from cuda.core.texture import (
     AddressMode,
     ArrayFormat,
-    CUDAArray,
+    OpaqueArray,
     FilterMode,
     ReadMode,
     ResourceDescriptor,
@@ -65,12 +65,12 @@ def main():
 
     pinned_mr = LegacyPinnedMemoryResource()
     try:
-        # Allocate a 2D CUDAArray: shape=(W, H), single-channel float32.
-        # Note: CUDAArray.from_descriptor takes shape=(width, height), so the host
+        # Allocate a 2D OpaqueArray: shape=(W, H), single-channel float32.
+        # Note: OpaqueArray.from_descriptor takes shape=(width, height), so the host
         # buffer fed into copy_from must be laid out as H rows of W elements
         # (row-major), i.e. host_pattern.shape == (H, W).
         width, height = 16, 16
-        with CUDAArray.from_descriptor(
+        with OpaqueArray.from_descriptor(
             shape=(width, height),
             format=ArrayFormat.FLOAT32,
             num_channels=1,

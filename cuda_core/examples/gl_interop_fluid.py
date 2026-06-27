@@ -4,7 +4,7 @@
 
 # ################################################################################
 #
-# This example demonstrates cuda.core.CUDAArray, TextureObject, and SurfaceObject
+# This example demonstrates cuda.core.OpaqueArray, TextureObject, and SurfaceObject
 # in combination with GraphicsResource for CUDA/OpenGL interop. It runs a
 # real-time Stable Fluids (Jos Stam) smoke/ink solver entirely on the GPU:
 # velocity, pressure, and dye fields live in ping-ponged CUDA arrays, are read
@@ -107,10 +107,10 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
-from cuda.core.textures import (
+from cuda.core.texture import (
     AddressMode,
     ArrayFormat,
-    CUDAArray,
+    OpaqueArray,
     FilterMode,
     ReadMode,
     ResourceDescriptor,
@@ -164,7 +164,7 @@ REF_FPS = 60.0
 # ============================= Helper functions =============================
 #
 # The functions below set up CUDA and OpenGL. If you're here to learn about
-# CUDAArray/TextureObject/SurfaceObject, skip ahead to main() -- the interesting
+# OpaqueArray/TextureObject/SurfaceObject, skip ahead to main() -- the interesting
 # part is there. These helpers exist so that main() reads like a short story
 # instead of a wall of boilerplate.
 # ============================================================================
@@ -248,7 +248,7 @@ def create_window():
     window = pyglet.window.Window(
         WIDTH,
         HEIGHT,
-        caption="cuda.core CUDAArray/Texture/Surface - Stable Fluids",
+        caption="cuda.core OpaqueArray/Texture/Surface - Stable Fluids",
         vsync=False,
     )
     return window, _gl, pyglet
@@ -397,11 +397,11 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 
 # ============================ API MAP (cuda.core) ===========================
 #
-# The three helpers below are where every CUDAArray / ResourceDescriptor /
+# The three helpers below are where every OpaqueArray / ResourceDescriptor /
 # TextureDescriptor / TextureObject / SurfaceObject knob in this example is set.
 # Each visible setting maps to a concrete piece of cuda.core / CUDA behavior:
 #
-#   CUDAArray.from_descriptor(...)   -> allocates a CUDA *array* (opaque, tiled
+#   OpaqueArray.from_descriptor(...)   -> allocates a CUDA *array* (opaque, tiled
 #                                       layout optimized for 2D texture fetches),
 #                                       not linear device memory.
 #   ArrayFormat.FLOAT32              -> each channel is a 32-bit float texel.
@@ -414,7 +414,7 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 #                                       is what lets each field be sampled and
 #                                       then written back in the ping-pong.
 #
-#   ResourceDescriptor.from_array(arr) -> wraps the CUDAArray as the resource a
+#   ResourceDescriptor.from_array(arr) -> wraps the OpaqueArray as the resource a
 #                                         TextureObject reads from.
 #   FilterMode.LINEAR                -> free HARDWARE bilinear interpolation;
 #                                       this is what makes semi-Lagrangian
@@ -438,7 +438,7 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 
 def make_velocity_array():
     """Allocate a `float2` velocity CUDA array (channel 0 = vx, channel 1 = vy)."""
-    return CUDAArray.from_descriptor(
+    return OpaqueArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.FLOAT32,
         num_channels=2,
@@ -448,7 +448,7 @@ def make_velocity_array():
 
 def make_scalar_array():
     """Allocate a single-channel `float` CUDA array (pressure / divergence / dye)."""
-    return CUDAArray.from_descriptor(
+    return OpaqueArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.FLOAT32,
         num_channels=1,
@@ -464,7 +464,7 @@ def make_color_array():
     surface-write machinery as the scalar fields -- only the channel count
     (and the surf2Dwrite byte stride, sizeof(float4) = 16) differ.
     """
-    return CUDAArray.from_descriptor(
+    return OpaqueArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
         format=ArrayFormat.FLOAT32,
         num_channels=4,
@@ -876,7 +876,7 @@ def main():
         if now - fps_time >= 1.0:
             fps = frame_count / (now - fps_time)
             window.set_caption(
-                "cuda.core CUDAArray/Texture/Surface - Stable Fluids"
+                "cuda.core OpaqueArray/Texture/Surface - Stable Fluids"
                 f" ({WIDTH}x{HEIGHT}, {fps:.0f} FPS,"
                 f" {PRESSURE_ITERS} pressure iters)"
                 " | TextureObject[LINEAR|CLAMP|norm|float2]"

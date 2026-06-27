@@ -21,7 +21,7 @@
 # =======================================
 #   cuda.core / CUDA C++                  ->  numba-cuda (this file)
 #   --------------------------------------    -----------------------------------
-#   CUDAArray(num_channels=2) as texture  ->  cuda.device_array((H, W, 2), f32)
+#   OpaqueArray(num_channels=2) as texture  ->  cuda.device_array((H, W, 2), f32)
 #   tex2D<float2>(tex, u, v)  [HW LINEAR] ->  sample_vec(arr, px, py)  [manual lerp]
 #   AddressMode.CLAMP                     ->  index clamp inside sample_*()
 #   surf2Dwrite(v, surf, x*8, y)          ->  arr[y, x, 0] = v.x; arr[y, x, 1] = v.y
