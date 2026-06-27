@@ -32,8 +32,8 @@ from cuda.core import (
 from cuda.core.texture import (
     AddressMode,
     ArrayFormat,
-    OpaqueArray,
     FilterMode,
+    OpaqueArray,
     ReadMode,
     ResourceDescriptor,
     TextureDescriptor,
