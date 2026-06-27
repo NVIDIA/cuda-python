@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=ef78566f"></script>
+    <script src="_static/documentation_options.js?v=24f1c6a2"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev93';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev94';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -760,11 +760,11 @@ a few iterations to ensure correctness.</p>
 for extracting the metadata (such as pointer address, shape, strides, and
 dtype) from any Python objects supporting either CAI or DLPack and returning a
 <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> object. See the
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/1e53cc6da5238c8c56bfbf17bd1a8f88c9243a9d/cuda_core/examples/strided_memory_view_constructors.py">strided_memory_view_constructors.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/b377f29730ad35fced659a5bfa006bb78698a36d/cuda_core/examples/strided_memory_view_constructors.py">strided_memory_view_constructors.py</a>
 example for the explicit constructors, or
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/1e53cc6da5238c8c56bfbf17bd1a8f88c9243a9d/cuda_core/examples/strided_memory_view_cpu.py">strided_memory_view_cpu.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/b377f29730ad35fced659a5bfa006bb78698a36d/cuda_core/examples/strided_memory_view_cpu.py">strided_memory_view_cpu.py</a>
 and
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/1e53cc6da5238c8c56bfbf17bd1a8f88c9243a9d/cuda_core/examples/strided_memory_view_gpu.py">strided_memory_view_gpu.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/b377f29730ad35fced659a5bfa006bb78698a36d/cuda_core/examples/strided_memory_view_gpu.py">strided_memory_view_gpu.py</a>
 for decorator-based workflows. This provides a <em>concrete implementation</em> to
 both protocols that is <strong>array-library-agnostic</strong>, so that all Python projects
 can just rely on this without either re-implementing (the consumer-side of)
