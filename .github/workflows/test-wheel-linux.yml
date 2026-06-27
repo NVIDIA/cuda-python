@@ -100,7 +100,7 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> "$GITHUB_OUTPUT"
 
   test:
-    name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.TORCH_VER && format(', {0}', matrix.TORCH_VER) || '' }}${{ matrix.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
+    name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
     timeout-minutes: 60
     needs: compute-matrix
     strategy:
@@ -400,8 +400,6 @@ jobs:
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
-          TORCH_VER: ${{ matrix.TORCH_VER }}
-          TORCH_CUDA: ${{ matrix.TORCH_CUDA }}
         run: run-tests nightly-pytorch
 
       - name: Install cuda-python wheels + numba-cuda
