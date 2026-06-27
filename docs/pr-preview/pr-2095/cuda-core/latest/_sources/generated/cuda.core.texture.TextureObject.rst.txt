@@ -1,12 +1,12 @@
 ﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-cuda.core.textures.SurfaceObject
-================================
+cuda.core.texture.TextureObject
+===============================
 
-.. currentmodule:: cuda.core.textures
+.. currentmodule:: cuda.core.texture
 
-.. autoclass:: SurfaceObject
+.. autoclass:: TextureObject
 
    
    
@@ -15,7 +15,6 @@ cuda.core.textures.SurfaceObject
    
    .. automethod:: __init__
    .. automethod:: close
-   .. automethod:: from_array
    .. automethod:: from_descriptor
 
    
@@ -29,5 +28,6 @@ cuda.core.textures.SurfaceObject
    .. autoattribute:: device
    .. autoattribute:: handle
    .. autoattribute:: resource
+   .. autoattribute:: texture_descriptor
    
    

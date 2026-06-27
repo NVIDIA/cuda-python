@@ -1,6 +1,0 @@
-﻿cuda.core.textures.AddressMode
-==============================
-
-.. currentmodule:: cuda.core.textures
-
-.. autoenum:: AddressMode
