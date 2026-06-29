@@ -40,7 +40,6 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   - run: `pytest tests/cython/`
 - **Examples**: validate affected examples in `examples/` when changing user
   workflows or public APIs.
-- **Orchestrated run**: from repo root, `scripts/run_tests.sh core`.
 
 ## Runtime/build environment notes
 
