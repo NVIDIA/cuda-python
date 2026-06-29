@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.cuFileError
-================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autoexception:: cuFileError
