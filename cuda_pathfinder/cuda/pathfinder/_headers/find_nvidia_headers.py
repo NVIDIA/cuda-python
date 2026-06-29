@@ -19,6 +19,7 @@ from cuda.pathfinder._headers.header_descriptor import (
     platform_include_subdirs,
     resolve_conda_anchor,
 )
+from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAMES
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
@@ -121,7 +122,7 @@ def find_via_ctk_root_canary(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """
     if not desc.use_ctk_root_canary:
         return None
-    canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess("cudart")
+    canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess(CTK_ROOT_CANARY_ANCHOR_LIBNAMES[0])
     if canary_abs_path is None:
         return None
     ctk_root = derive_ctk_root(canary_abs_path)

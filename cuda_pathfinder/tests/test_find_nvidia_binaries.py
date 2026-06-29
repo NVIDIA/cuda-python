@@ -304,7 +304,7 @@ class TestResolveInTrustedDirs:
 
     def test_cwd_is_not_searched(self, tmp_path, monkeypatch):
         # Regression for #2119: a binary in the process CWD must never shadow
-        # the trusted directories the way shutil.which does on Windows.
+        # the trusted directories.
         trusted = tmp_path / "trusted"
         trusted.mkdir()
         evil_cwd = tmp_path / "cwd"
@@ -315,7 +315,7 @@ class TestResolveInTrustedDirs:
         self._make_executable(evil_cwd, "nvcc")  # the decoy that must be ignored
         monkeypatch.chdir(evil_cwd)
 
-        # The only trusted dir given has no binary -> None, never the CWD copy.
+        # A trusted dir with no binary returns None, never the CWD copy.
         assert binary_finder_module._resolve_in_trusted_dirs("nvcc", [str(empty)]) is None
         # When a trusted dir holds it, that path wins regardless of CWD.
         assert binary_finder_module._resolve_in_trusted_dirs("nvcc", [str(empty), str(trusted)]) == trusted_nvcc
@@ -329,12 +329,16 @@ class TestResolveInTrustedDirs:
         self._make_executable(second, "nvcc")
         assert binary_finder_module._resolve_in_trusted_dirs("nvcc", [str(first), str(second)]) == first_nvcc
 
-    def test_empty_and_duplicate_dirs_skipped(self, tmp_path):
+    def test_duplicate_dirs_skipped(self, tmp_path):
         present = tmp_path / "p"
         present.mkdir()
         nvcc = self._make_executable(present, "nvcc")
-        assert binary_finder_module._resolve_in_trusted_dirs("nvcc", ["", str(present), str(present)]) == nvcc
+        assert binary_finder_module._resolve_in_trusted_dirs("nvcc", [str(present), str(present)]) == nvcc
         assert binary_finder_module._resolve_in_trusted_dirs("nvcc", []) is None
+
+    def test_empty_dir_asserts(self):
+        with pytest.raises(AssertionError):
+            binary_finder_module._resolve_in_trusted_dirs("nvcc", [""])
 
     @pytest.mark.skipif(binary_finder_module.IS_WINDOWS, reason="POSIX execute-bit semantics")
     def test_non_executable_file_rejected_on_posix(self, tmp_path):

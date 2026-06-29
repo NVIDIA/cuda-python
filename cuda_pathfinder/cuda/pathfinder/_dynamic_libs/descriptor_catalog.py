@@ -8,6 +8,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
+from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAMES
+
 PackagedWith = Literal["ctk", "other", "driver"]
 
 
@@ -73,7 +75,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvcc/nvvm/bin"),
         anchor_rel_dirs_linux=("nvvm/lib64",),
         anchor_rel_dirs_windows=("nvvm/bin/*", "nvvm/bin"),
-        ctk_root_canary_anchor_libnames=("cudart",),
+        ctk_root_canary_anchor_libnames=CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
     ),
     DescriptorSpec(
         name="cublas",
@@ -291,7 +293,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cuda_cupti/bin"),
         anchor_rel_dirs_linux=("extras/CUPTI/lib64", "lib"),
         anchor_rel_dirs_windows=("extras/CUPTI/lib64", "bin"),
-        ctk_root_canary_anchor_libnames=("cudart",),
+        ctk_root_canary_anchor_libnames=CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
     ),
     DescriptorSpec(
         name="cudla",
