@@ -297,7 +297,13 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         name="cudla",
         packaged_with="ctk",
         linux_sonames=("libcudla.so.1",),
+        windows_dlls=("cudla.dll",),
         site_packages_linux=("nvidia/cu13/lib",),
+        # No Windows pip wheel ships cudla.dll today; it is loaded from the local
+        # CUDA Toolkit only, so site_packages_windows is intentionally left empty.
+        # The Windows CUDA Toolkit ships cudla.dll under per-architecture bin
+        # subdirs (e.g. bin/arm64 on N1X); search those ahead of the defaults.
+        anchor_rel_dirs_windows=("bin/arm64", "bin/x64", "bin"),
     ),
     # -----------------------------------------------------------------------
     # Third-party / separately packaged libraries
