@@ -42,6 +42,7 @@ def test_devices_are_the_same_architecture(all_devices):
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="Test not supported on Windows")
+@pytest.mark.thread_unsafe(reason="nvml init affects other threads")
 def test_init_ref_count():
     """
     Verifies that we can call NVML shutdown and init(2) multiple times, and that ref counting works

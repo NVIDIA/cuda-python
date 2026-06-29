@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 -------
@@ -299,7 +299,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorIncompatibleDriverContext
 
 
-        This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see :py:obj:`~.Interactions`with the CUDA Driver API" for more information.
+        This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see `Interactions with the CUDA Driver API`_ for more information.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorMissingConfiguration
@@ -4078,43 +4078,43 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::accessPolicyWindow.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.accessPolicyWindow`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeCooperative
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::cooperative.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.cooperative`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeSynchronizationPolicy
 
 
-        Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue`::syncPolicy.
+        Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue.syncPolicy`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeClusterDimension
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::clusterDim.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeClusterSchedulingPolicyPreference
 
 
-        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::clusterSchedulingPolicyPreference.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.clusterSchedulingPolicyPreference`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticStreamSerialization
 
 
-        Valid for launches. Setting :py:obj:`~.cudaLaunchAttributeValue`::programmaticStreamSerializationAllowed to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
+        Valid for launches. Setting :py:obj:`~.cudaLaunchAttributeValue.programmaticStreamSerializationAllowed` to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticEvent
 
 
-        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue`::programmaticEvent to record the event. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event programmatically in a future CUDA release. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling :py:obj:`~.cudaEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cudaEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. Note also this type of dependency allows, but does not guarantee, concurrent execution of tasks. 
+        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue.programmaticEvent` to record the event. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event programmatically in a future CUDA release. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling :py:obj:`~.cudaEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cudaEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. Note also this type of dependency allows, but does not guarantee, concurrent execution of tasks. 
 
          The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the :py:obj:`~.cudaEventDisableTiming` flag set).
 
@@ -4122,25 +4122,25 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePriority
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::priority.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.priority`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomainMap
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::memSyncDomainMap.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.memSyncDomainMap`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomain
 
 
-        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue`::memSyncDomain.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.memSyncDomain`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePreferredClusterDimension
 
 
-        Valid for graph nodes and launches. Set :py:obj:`~.cudaLaunchAttributeValue`::preferredClusterDim to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with :py:obj:`~.cudaLaunchAttributeClusterDimension` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible. 
+        Valid for graph nodes and launches. Set :py:obj:`~.cudaLaunchAttributeValue.preferredClusterDim` to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with :py:obj:`~.cudaLaunchAttributeClusterDimension` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible. 
 
          Each type of cluster will have its enumeration / coordinate setup as if the grid consists solely of its type of cluster. For example, if the preferred substitute cluster dimensions double the regular cluster dimensions, there might be simultaneously a regular cluster indexed at (1,0,0), and a preferred cluster indexed at (1,0,0). In this example, the preferred substitute cluster (1,0,0) replaces regular clusters (2,0,0) and (3,0,0) and groups their blocks. 
 
@@ -4150,7 +4150,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent
 
 
-        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue`::launchCompletionEvent to record the event. 
+        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue.launchCompletionEvent` to record the event. 
 
          Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock. 
 
@@ -4164,7 +4164,7 @@ Data types used by CUDA Runtime
 
         Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error. 
 
-         :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.cudaLaunchAttributeValue`::deviceUpdatableKernelNode::devNode which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
+         :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode` which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
 
          Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via :py:obj:`~.cudaGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via :py:obj:`~.cudaGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to :py:obj:`~.cudaGraphExecUpdate`. 
 
@@ -4174,7 +4174,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout
 
 
-        Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.cudaLaunchAttributeValue`::sharedMemCarveout to a percentage between 0-100 signals sets the shared memory carveout preference in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is only a hint, and the driver can choose a different configuration if required for the launch.
+        Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.cudaLaunchAttributeValue.sharedMemCarveout` to a percentage between 0-100 signals sets the shared memory carveout preference in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is only a hint, and the driver can choose a different configuration if required for the launch.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeNvlinkUtilCentricScheduling
@@ -4188,13 +4188,13 @@ Data types used by CUDA Runtime
 
          This attribute is a hint only. CUDA makes no functional or performance guarantee. Its applicability can be affected by many different factors, including driver version (i.e. CUDA doesn't guarantee the performance characteristics will be maintained between driver versions or a driver update could alter or regress previously observed perf characteristics.) It also doesn't guarantee a successful result, i.e. applying the attribute may not improve the performance of either the targeted kernel or the encapsulating application. 
 
-         Valid values for :py:obj:`~.cudaLaunchAttributeValue`::nvlinkUtilCentricScheduling are 0 (disabled) and 1 (enabled).
+         Valid values for :py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0 (disabled) and 1 (enabled).
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePortableClusterSizeMode
 
 
-        Valid for graph nodes, launches. This indicates whether the kernel launch is allowed to use a non-portable cluster size. Valid values for :py:obj:`~.cudaLaunchAttributeValue`::portableClusterSizeMode are values for :py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will return :py:obj:`~.cudaErrorInvalidValue`
+        Valid for graph nodes, launches. This indicates whether the kernel launch is allowed to use a non-portable cluster size. Valid values for :py:obj:`~.cudaLaunchAttributeValue.portableClusterSizeMode` are values for :py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will return :py:obj:`~.cudaErrorInvalidValue`
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeSharedMemoryMode

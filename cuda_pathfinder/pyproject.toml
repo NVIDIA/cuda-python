@@ -12,10 +12,10 @@ dependencies = []
 
 [dependency-groups]
 test = [
-    "pytest>=6.2.4",
-    "pytest-mock",
-    "pytest-repeat",
-    "pytest-randomly",
+    "pytest==9.1.0",
+    "pytest-mock==3.15.1",
+    "pytest-repeat==0.9.4",
+    "pytest-randomly==4.1.0",
 ]
 # Internal organization of test dependencies.
 cu12 = [
@@ -29,7 +29,7 @@ cu12 = [
     "nvidia-cusparselt-cu12",
     "nvidia-libmathdx-cu12",
     "nvidia-nccl-cu12; sys_platform != 'win32'",
-    "nvidia-nvshmem-cu12; sys_platform != 'win32'",
+    "nvidia-nvshmem-cu12!=3.7.0; sys_platform != 'win32'",
 ]
 cu13 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,cupti,profiler,nvvm]==13.*",
@@ -43,10 +43,11 @@ cu13 = [
     "nvidia-cusparselt-cu13",
     "nvidia-libmathdx-cu13",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
-    "nvidia-nvshmem-cu13; sys_platform != 'win32'",
+    "nvidia-nvshmem-cu13!=3.7.0; sys_platform != 'win32'",
 ]
 host = [
-    "nvidia-cutlass",
+    # TODO: remove the Python 3.15 guard once 3.15 is officially supported
+    "nvidia-cutlass; python_version < '3.15'",
     "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 
@@ -87,7 +88,7 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 [build-system]
 requires = [
     "setuptools>=80.0.0",
-    "setuptools_scm[simple]>=8",
+    "setuptools_scm[simple]>=8,!=10.1",
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
@@ -101,8 +102,18 @@ git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--ma
 
 [tool.pytest.ini_options]
 addopts = "--showlocals"
+thread_unsafe_fixtures = ['mocker']
+# Keep this authorship marker registry in sync across all pytest config roots.
+# Search for "agent_authored(model)" before editing.
+markers = [
+    "agent_authored(model): agent-authored test not yet materially human-reviewed",
+    "human_reviewed: agent-authored test materially reviewed or rewritten by a human",
+    "human_authored: test authored primarily by a human",
+]
 
 [tool.mypy]
+# Try to keep the mypy configuration similar between the subprojects
+
 # Basic settings
 python_version = "3.10"
 explicit_package_bases = true

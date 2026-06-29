@@ -43,6 +43,11 @@ def callableBinary(name):
     return shutil.which(name) is not None
 
 
+@pytest.mark.skipif(True, reason="Always skip!")
+def test_always_skip():
+    pass
+
+
 def test_cuda_memcpy():
     # Get device
 
@@ -456,6 +461,7 @@ def test_cuda_mem_range_attr(device):
 
 
 @pytest.mark.skipif(driverVersionLessThan(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported")
+@pytest.mark.thread_unsafe(reason="used high memory can be higher if threaded.")
 def test_cuda_graphMem_attr(device):
     err, stream = cuda.cuStreamCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -862,7 +868,7 @@ def test_cuCheckpointProcessGetState_failure():
 
 
 def test_private_function_pointer_inspector():
-    from cuda.bindings._bindings.cydriver import _inspect_function_pointer
+    from cuda.bindings._internal.driver import _inspect_function_pointer
 
     assert _inspect_function_pointer("__cuGetErrorString") != 0
 

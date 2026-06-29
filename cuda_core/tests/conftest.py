@@ -10,14 +10,8 @@ from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
 
-from cuda.pathfinder import get_cuda_path_or_home
-
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
-
 import cuda.core
+from cuda.bindings import driver
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -29,6 +23,7 @@ from cuda.core import (
     _device,
 )
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
+from cuda.pathfinder import get_cuda_path_or_home
 
 try:
     from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
@@ -295,6 +290,9 @@ def ipc_memory_resource(request, ipc_device):
     assert mr.is_ipc_enabled
     yield mr
     mr.close()
+    # TODO(seberg): Make sure the `mr` and it's buffers are fully torn down.
+    # May be unnecessary as `mr.close()` is not parallel with other work.
+    ipc_device.sync()
 
 
 @pytest.fixture

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # These graphics API are the reimplemented version of what's supported by CUDA Runtime.
@@ -13,7 +13,7 @@
 # c.b._lib.cyruntime.utils), but was merged into one.
 
 from libc.string cimport memset
-cimport cuda.bindings._bindings.cydriver as cydriver
+cimport cuda.bindings._internal.driver as cydriver
 
 cdef cudaError_t _cudaEGLStreamProducerPresentFrame(cyruntime.cudaEglStreamConnection* conn, cyruntime.cudaEglFrame eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef cudaError_t err = cudaSuccess
@@ -25,7 +25,7 @@ cdef cudaError_t _cudaEGLStreamProducerPresentFrame(cyruntime.cudaEglStreamConne
     err = getDriverEglFrame(&cueglFrame, eglframe)
     if err != cudaSuccess:
         return err
-    err = <cudaError_t>cydriver._cuEGLStreamProducerPresentFrame(<cydriver.CUeglStreamConnection*>conn, cueglFrame, pStream)
+    err = <cudaError_t>cydriver._cuEGLStreamProducerPresentFrame(<cydriver.CUeglStreamConnection*>conn, cueglFrame, <cydriver.CUstream*>pStream)
     return err
 
 cdef cudaError_t _cudaEGLStreamProducerReturnFrame(cyruntime.cudaEglStreamConnection* conn, cyruntime.cudaEglFrame* eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -38,7 +38,7 @@ cdef cudaError_t _cudaEGLStreamProducerReturnFrame(cyruntime.cudaEglStreamConnec
         err = cudaErrorInvalidResourceHandle
         return err
     cdef cydriver.CUeglFrame cueglFrame
-    err = <cudaError_t>cydriver._cuEGLStreamProducerReturnFrame(<cydriver.CUeglStreamConnection*>conn, &cueglFrame, pStream)
+    err = <cudaError_t>cydriver._cuEGLStreamProducerReturnFrame(<cydriver.CUeglStreamConnection*>conn, &cueglFrame, <cydriver.CUstream*>pStream)
     if err != cudaSuccess:
         return err
     err = getRuntimeEglFrame(eglframe, cueglFrame)

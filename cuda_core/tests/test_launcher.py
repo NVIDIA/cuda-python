@@ -133,34 +133,17 @@ def test_to_native_launch_config_no_cluster():
     assert list(native.attrs) == [], f"Expected empty attrs, got {list(native.attrs)}"
 
 
-def test_launch_config_cooperative_unsupported(monkeypatch):
-    """LaunchConfig(is_cooperative=True) raises when device does not support it."""
-    from cuda.core import _launch_config as _lc_mod
-
-    class _FakeProps:
-        cooperative_launch = False
-
-    class _FakeDev:
-        properties = _FakeProps()
-
-    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
-    with pytest.raises(CUDAError, match="cooperative kernels are not supported"):
-        LaunchConfig(grid=1, block=1, is_cooperative=True)
+@pytest.mark.human_reviewed
+def test_launch_config_cooperative_defers_device_check():
+    """LaunchConfig(is_cooperative=True) is pure config construction."""
+    config = LaunchConfig(grid=1, block=1, is_cooperative=True)
+    assert config.is_cooperative is True
 
 
-def test_to_native_launch_config_cooperative(monkeypatch):
-    """Covers the is_cooperative branch of _to_native_launch_config; Device is mocked so it runs on any GPU."""
+def test_to_native_launch_config_cooperative():
+    """Covers the is_cooperative branch of _to_native_launch_config."""
     from cuda.bindings import driver
-    from cuda.core import _launch_config as _lc_mod
     from cuda.core._launch_config import _to_native_launch_config
-
-    class _FakeProps:
-        cooperative_launch = True
-
-    class _FakeDev:
-        properties = _FakeProps()
-
-    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
 
     config = LaunchConfig(grid=2, block=4, is_cooperative=True)
     native = _to_native_launch_config(config)
@@ -172,6 +155,46 @@ def test_to_native_launch_config_cooperative(monkeypatch):
         f"Expected CU_LAUNCH_ATTRIBUTE_COOPERATIVE, got {attr.id}"
     )
     assert attr.value.cooperative == 1, f"Expected cooperative=1, got {attr.value.cooperative}"
+
+
+@pytest.mark.human_reviewed
+def test_launch_config_cluster_defers_device_check():
+    """LaunchConfig accepts ``cluster`` without consulting the current device."""
+    config = LaunchConfig(grid=(2, 3), cluster=(2, 2), block=32)
+    assert config.cluster == (2, 2, 1)
+    assert config.grid == (2, 3, 1)
+
+
+def test_to_native_launch_config_cluster_branch():
+    """Covers the cluster branch of ``_to_native_launch_config`` (grid is
+    converted from cluster units to block units, plus the cluster-dimension
+    attribute) without requiring Hopper.
+
+    The cc gate lives in launch-time validation, so constructing cluster
+    configs and converting them to native launch configs can run on any GPU.
+
+    Note: this exercises the standalone ``cpdef _to_native_launch_config``
+    function (a duplicate of the ``LaunchConfig._to_native_launch_config``
+    cdef method, slated for removal once all modules are cythonized), not the
+    cdef method that ``launch`` / ``Module`` actually call in production.
+    """
+    from cuda.bindings import driver
+    from cuda.core._launch_config import _to_native_launch_config
+
+    config = LaunchConfig(grid=(2, 3, 4), cluster=(2, 2, 2), block=(5, 6, 7))
+    native = _to_native_launch_config(config)
+
+    # grid (in cluster units) * cluster -> block units
+    assert native.gridDimX == 4
+    assert native.gridDimY == 6
+    assert native.gridDimZ == 8
+    assert native.blockDimX == 5
+    assert native.blockDimY == 6
+    assert native.blockDimZ == 7
+    assert native.numAttrs == 1
+    attr = native.attrs[0]
+    assert attr.id == driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+    assert (attr.value.clusterDim.x, attr.value.clusterDim.y, attr.value.clusterDim.z) == (2, 2, 2)
 
 
 def test_launch_invalid_values(init_cuda):

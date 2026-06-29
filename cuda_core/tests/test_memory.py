@@ -4,10 +4,7 @@
 import ctypes
 import sys
 
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
+from cuda.bindings import driver
 
 try:
     import numpy as np
@@ -1106,6 +1103,8 @@ def test_device_memory_resource_with_options(init_cuda):
     device.sync()
     dst_buffer.close()
     src_buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
 
 
 def test_pinned_memory_resource_with_options(init_cuda):
@@ -1152,6 +1151,8 @@ def test_pinned_memory_resource_with_options(init_cuda):
     device.sync()
     dst_buffer.close()
     src_buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
 
 
 def test_managed_memory_resource_with_options(init_cuda):
@@ -1326,6 +1327,7 @@ def test_managed_memory_resource_preferred_location_validation(init_cuda):
         )
 
 
+@pytest.mark.thread_unsafe(reason="Uses mock.")
 def test_managed_memory_resource_host_numa_auto_resolve_failure(init_cuda):
     """host_numa with None raises RuntimeError when NUMA ID cannot be determined."""
     from unittest.mock import MagicMock, patch
@@ -1367,6 +1369,8 @@ def test_mempool_ipc_errors(mempool_device):
         Buffer.from_ipc_descriptor(mr, handle, stream=device.default_stream)
 
     buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
 
 
 def test_pinned_mempool_ipc_basic():
@@ -1407,6 +1411,8 @@ def test_pinned_mempool_ipc_basic():
     assert ipc_desc.size == 1024
 
     buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
     mr.close()
 
 
@@ -1438,6 +1444,8 @@ def test_pinned_mempool_ipc_errors():
         Buffer.from_ipc_descriptor(mr, handle, stream=device.default_stream)
 
     buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
     mr.close()
 
 

@@ -28,11 +28,14 @@ from cuda.core._stream cimport Stream, Stream_accept, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
-from typing import TypeVar
+from typing import TYPE_CHECKING
 
 from cuda.core._utils.pycompat import BufferProtocol
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
+
+if TYPE_CHECKING:
+    from cuda.core.graph import GraphBuilder
 
 
 # =============================================================================
@@ -83,19 +86,26 @@ cdef class Buffer:
     allocations.
 
     Support for data interchange mechanisms are provided by DLPack.
+
+    Note
+    ----
+    Pickling an IPC-enabled :class:`Buffer` embeds an
+    :class:`~_memory.IPCBufferDescriptor`. Unpickling reconstructs the buffer
+    by calling :meth:`from_ipc_descriptor` and therefore performs an IPC
+    import. Do not unpickle buffers from untrusted sources.
     """
-    def __cinit__(self):
+    def __cinit__(self) -> None:
         self._clear()
 
-    def _clear(self):
+    def _clear(self) -> None:
         self._h_ptr.reset()  # Release the handle
         self._size = 0
         self._memory_resource = None
         self._ipc_data = None
         self._owner = None
-        self._mem_attrs_inited = False
+        self._mem_attrs_inited.store(False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Buffer objects cannot be instantiated directly. "
                            "Please use MemoryResource APIs.")
 
@@ -104,7 +114,7 @@ cdef class Buffer:
         cls, ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         ipc_descriptor: IPCBufferDescriptor | None = None,
         owner : object | None = None
-    ):
+    ) -> Buffer:
         """Create a Buffer from a raw pointer.
 
         When ``mr`` is provided, the buffer takes ownership: ``mr.deallocate()``
@@ -123,7 +133,7 @@ cdef class Buffer:
         self._memory_resource = mr
         self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
         self._owner = owner
-        self._mem_attrs_inited = False
+        self._mem_attrs_inited.store(False)
         return self
 
     @staticmethod
@@ -134,7 +144,9 @@ cdef class Buffer:
         # stream; the receiver can override via buffer.close(stream).
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
+        # Unpickling performs a live CUDA IPC import from descriptor bytes in the
+        # pickle stream. Only deserialize Buffers from a trusted principal.
         # Must not serialize the parent's stream!
         return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
@@ -184,6 +196,12 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream`
             Keyword-only. The stream used for asynchronous deallocation when
             the buffer is closed or garbage collected.
+
+        Note
+        ----
+        The descriptor payload and ``size`` are supplied by the exporting peer
+        and must be treated as untrusted input unless the peer is known to be
+        cooperating.
         """
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
@@ -194,7 +212,7 @@ cdef class Buffer:
             self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
         return self._ipc_data.ipc_descriptor
 
-    def close(self, stream: Stream | GraphBuilder | None = None):
+    def close(self, stream: Stream | GraphBuilder | None = None) -> None:
         """Deallocate this buffer asynchronously on the given stream.
 
         This buffer is released back to their memory resource
@@ -215,7 +233,7 @@ cdef class Buffer:
         self.close()
         return False
 
-    def copy_to(self, dst: Buffer = None, *, stream: Stream | GraphBuilder) -> Buffer:
+    def copy_to(self, dst: Buffer | None = None, *, stream: Stream | GraphBuilder) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
         Copies the data from this buffer to the provided dst buffer.
@@ -251,7 +269,7 @@ cdef class Buffer:
                 as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, as_cu(s._h_stream)))
         return dst
 
-    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder):
+    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
         Parameters
@@ -275,7 +293,7 @@ cdef class Buffer:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(
                 as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, as_cu(s._h_stream)))
 
-    def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder):
+    def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:
         """Fill this buffer with a repeating byte pattern.
 
         Parameters
@@ -327,7 +345,7 @@ cdef class Buffer:
         max_version: tuple[int, int] | None = None,
         dl_device: tuple[int, int] | None = None,
         copy: bool | None = None,
-    ) -> TypeVar("PyCapsule"):
+    ) -> object:
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
         if dl_device is not None:
@@ -353,7 +371,7 @@ cdef class Buffer:
         #   2. This Buffer object is host accessible
         raise NotImplementedError("WIP: Buffer.__buffer__ hasn't been implemented yet.")
 
-    def __release_buffer__(self, buffer: memoryview, /):
+    def __release_buffer__(self, buffer: memoryview, /) -> None:
         # Supporting method paired with __buffer__.
         raise NotImplementedError("WIP: Buffer.__release_buffer__ hasn't been implemented yet.")
 
@@ -366,7 +384,7 @@ cdef class Buffer:
         return self._mem_attrs.device_id
 
     @property
-    def handle(self) -> DevicePointerType:
+    def handle(self) -> int:
         """Return the buffer handle object.
 
         .. caution::
@@ -378,7 +396,7 @@ cdef class Buffer:
         # that expect a raw pointer value
         return as_intptr(self._h_ptr)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Buffer):
             return NotImplemented
         cdef Buffer other_buf = <Buffer>other
@@ -444,9 +462,9 @@ cdef class Buffer:
 # ------------------------------
 cdef inline void _init_mem_attrs(Buffer self):
     """Initialize memory attributes by querying the pointer."""
-    if not self._mem_attrs_inited:
+    if not self._mem_attrs_inited.load(memory_order_acquire):
         _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
-        self._mem_attrs_inited = True
+        self._mem_attrs_inited.store(True, memory_order_release)
 
 
 cdef inline int _query_memory_attrs(
@@ -535,7 +553,13 @@ cdef class MemoryResource:
         """
         raise TypeError("MemoryResource.allocate must be implemented by subclasses.")
 
-    def deallocate(self, ptr: DevicePointerType, size_t size, *, stream: Stream | GraphBuilder):
+    def deallocate(
+        self,
+        ptr: DevicePointerType,
+        size_t size,
+        *,
+        stream: Stream | GraphBuilder
+    ) -> None:
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -588,7 +612,7 @@ cdef Buffer Buffer_from_deviceptr_handle(
     buf._memory_resource = mr
     buf._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
     buf._owner = None
-    buf._mem_attrs_inited = False
+    buf._mem_attrs_inited.store(False)
     return buf
 
 

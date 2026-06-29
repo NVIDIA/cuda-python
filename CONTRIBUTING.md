@@ -9,18 +9,50 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     them for a release. If you believe the issue needs priority attention
     comment on the issue to notify the team.
 2. You want to implement a feature, improvement, or bug fix:
-    - Please refer to each component's guideline:
+   - Before starting work on an existing issue, please comment on the issue to express your interest and wait to be assigned by a maintainer. This helps avoid redundant effort in case the issue is already being worked on by another contributor or an NVIDIA team member.
+   - Please refer to each component's guideline:
        - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
        - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
        - [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
 
 ## Table of Contents
 
-- [Pre-commit](#pre-commit)
-- [Code signing](#code-signing)
-- [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
-- [CI infrastructure overview](#ci-infrastructure-overview)
+- [Contributing to CUDA Python](#contributing-to-cuda-python)
+  - [Table of Contents](#table-of-contents)
+  - [Type stubs for cuda.core](#type-stubs-for-cudacore)
+  - [Pre-commit](#pre-commit)
+  - [Code signing](#code-signing)
+  - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
+  - [CI infrastructure overview](#ci-infrastructure-overview)
+    - [CI Pipeline Flow](#ci-pipeline-flow)
+    - [Pipeline Execution Details](#pipeline-execution-details)
+    - [Branch-specific Artifact Flow](#branch-specific-artifact-flow)
+      - [Main Branch](#main-branch)
+      - [Backport Branches](#backport-branches)
+    - [Key Infrastructure Details](#key-infrastructure-details)
+  - [Code coverage](#code-coverage)
 
+
+## Type stubs for cuda.core
+
+`cuda.core` is a PEP 561-compliant package: it ships a `py.typed` marker and
+`.pyi` stub files alongside the Cython extensions.  The stubs
+are checked into the repository.
+
+**You do not need to run stubgen-pyx manually.**  A pre-commit hook
+regenerates the corresponding `.pyi` files automatically when you commit.
+The results are then also tested with `mypy`.
+
+A few things to keep in mind:
+
+- **Do not edit `.pyi` files by hand.**  They are regenerated from the Cython
+  sources on every commit that touches those sources; manual edits will be
+  overwritten.
+- **Type annotations belong in the `.pyx`/`.pxd` source.**  stubgen-pyx reads
+  Cython type annotations and docstrings to build the stubs, so keeping the
+  source well-annotated is the right way to improve stub quality.
+- **To run mypy manually (outside of pre-commit)**: `python -m mypy
+  --config-file cuda_core/pyproject.toml
 
 ## Pre-commit
 This project uses [pre-commit.ci](https://pre-commit.ci/) with GitHub Actions. All pull requests are automatically checked for pre-commit compliance, and any pre-commit failures will block merging until resolved.

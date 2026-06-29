@@ -51,7 +51,7 @@ cdef class KernelAttributes:
     is visible through the others.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
     @staticmethod
@@ -83,10 +83,10 @@ cdef class KernelAttributes:
         cdef int result
         with nogil:
             HANDLE_RETURN(cydriver.cuKernelGetAttribute(&result, attribute, as_cu(self._h_kernel), device_id))
-        self._cache[cache_key] = result
+        self._cache[cache_key] = result  # setdefault not needed for ints
         return result
 
-    def __getitem__(self, device) -> KernelAttributes:
+    def __getitem__(self, device: Device | int) -> KernelAttributes:
         """Return a view of these attributes bound to a specific device.
 
         Parameters
@@ -234,7 +234,9 @@ cdef class KernelAttributes:
         )
 
 
-MaxPotentialBlockSizeOccupancyResult = namedtuple("MaxPotential", ("min_grid_size", "max_block_size"))
+MaxPotentialBlockSizeOccupancyResult = namedtuple(
+    "MaxPotentialBlockSizeOccupancyResult", ("min_grid_size", "max_block_size")
+)
 
 
 cdef class KernelOccupancy:
@@ -242,7 +244,7 @@ cdef class KernelOccupancy:
     launch parameters such as block size, grid size, and shared memory usage.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("KernelOccupancy cannot be instantiated directly. Please use Kernel APIs.")
 
     @staticmethod
@@ -440,7 +442,7 @@ cdef class Kernel:
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
     @staticmethod
@@ -506,7 +508,7 @@ cdef class Kernel:
         return self._occupancy
 
     @property
-    def handle(self):
+    def handle(self) -> object:
         """Return the underlying kernel handle object.
 
         .. caution::
@@ -517,11 +519,11 @@ cdef class Kernel:
         return as_py(self._h_kernel)
 
     @property
-    def _handle(self):
+    def _handle(self) -> object:
         return self.handle
 
     @staticmethod
-    def from_handle(handle, mod: ObjectCode = None) -> Kernel:
+    def from_handle(handle, mod: ObjectCode | None = None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a kernel handle.
 
         Parameters
@@ -562,7 +564,7 @@ cdef class Kernel:
             k._keepalive = mod
         return k
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Kernel):
             return NotImplemented
         return as_intptr(self._h_kernel) == as_intptr((<Kernel>other)._h_kernel)
@@ -592,14 +594,14 @@ cdef class ObjectCode:
     :class:`~cuda.core.Program`
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError(
             "ObjectCode objects cannot be instantiated directly. "
             "Please use ObjectCode APIs (from_cubin, from_ptx) or Program APIs (compile)."
         )
 
     @classmethod
-    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict | None = None):
+    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         assert code_type in _supported_code_type, f"{code_type=} is not supported"
         cdef ObjectCode self = ObjectCode.__new__(ObjectCode)
 
@@ -623,11 +625,11 @@ cdef class ObjectCode:
     def _reduce_helper(module, code_type, name, symbol_mapping):
         return ObjectCode._init(module, code_type, name=name if name else "", symbol_mapping=symbol_mapping)
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_cubin(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
@@ -646,7 +648,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.CUBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ptx(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
@@ -665,7 +667,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.PTX, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ltoir(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
@@ -684,7 +686,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.LTOIR, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: bytes | str | PathLike, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_fatbin(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
@@ -703,7 +705,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.FATBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing object code.
 
         Parameters
@@ -721,7 +723,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.OBJECT, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing library.
 
         Parameters
@@ -761,7 +763,7 @@ cdef class ObjectCode:
             HANDLE_RETURN(get_last_error())
         return 0
 
-    def get_kernel(self, name) -> Kernel:
+    def get_kernel(self, name: str | bytes) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
         Parameters
@@ -806,12 +808,12 @@ cdef class ObjectCode:
         return self._code_type
 
     @property
-    def symbol_mapping(self) -> dict:
+    def symbol_mapping(self) -> dict[str, str]:
         """Return a copy of the symbol mapping dictionary."""
         return dict(self._sym_map)
 
     @property
-    def handle(self):
+    def handle(self) -> object:
         """Return the underlying handle object.
 
         .. caution::
@@ -822,7 +824,7 @@ cdef class ObjectCode:
         self._lazy_load_module()
         return as_py(self._h_library)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, ObjectCode):
             return NotImplemented
         # Trigger lazy load for both objects to compare handles

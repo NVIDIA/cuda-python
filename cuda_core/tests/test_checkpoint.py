@@ -33,8 +33,26 @@ def _checkpoint_available():
     try:
         checkpoint._get_driver()
         return True
-    except RuntimeError:
-        return False
+    except RuntimeError as exc:
+        if _checkpoint_unavailable_can_skip(str(exc)):
+            return False
+        raise
+
+
+def _checkpoint_unavailable_can_skip(message):
+    if message.startswith(
+        (
+            "CUDA checkpointing is not supported by the installed NVIDIA driver.",
+            "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. Found cuda.bindings ",
+        )
+    ):
+        return True
+
+    return (
+        checkpoint._binding_version()[0] == 12
+        and message
+        == "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. Missing: CUcheckpointGpuPair"
+    )
 
 
 needs_checkpoint = pytest.mark.skipif(

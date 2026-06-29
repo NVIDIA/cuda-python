@@ -61,7 +61,7 @@ jobs:
       MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
       - name: Validate Test Type
         run: |
@@ -81,8 +81,11 @@ jobs:
           # Read base matrix from YAML file for the specific architecture
           TEST_MATRIX=$(yq -o json ".windows[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
-          # Apply matrix filter and wrap in include structure
-          MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
+          # Apply matrix filter; add a RUNNER_DRIVER field that maps any
+          # custom DRIVER version back to 'latest' (install_gpu_driver.ps1
+          # swaps the driver itself, so the runner must be the one that
+          # ships the most recent pre-installed driver); wrap in include.
+          MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | map(. + {RUNNER_DRIVER: (if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)}) | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
 
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
@@ -95,10 +98,12 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
-    runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-${{ matrix.GPU_COUNT }}"
+    # TODO: remove continue-on-error once 3.15 is officially supported
+    continue-on-error: ${{ startsWith(matrix.PY_VER, '3.15') }}
+    runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.RUNNER_DRIVER }}-${{ matrix.GPU_COUNT }}"
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -106,12 +111,19 @@ jobs:
         with:
           enable-apt: true
 
-      - name: Update driver
+      - name: Install GPU driver
+        if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
         env:
-          DRIVER_MODE: ${{ matrix.DRIVER_MODE }}
+          DRIVER: ${{ matrix.DRIVER }}
           GPU_TYPE: ${{ matrix.GPU }}
         run: |
           ci/tools/install_gpu_driver.ps1
+
+      - name: Configure driver mode
+        env:
+          DRIVER_MODE: ${{ matrix.DRIVER_MODE }}
+        run: |
+          ci/tools/configure_driver_mode.ps1
 
       - name: Ensure GPU is working
         run: |
@@ -136,6 +148,13 @@ jobs:
           SKIP_BINDINGS_TEST_OVERRIDE: ${{ inputs.skip-bindings-test && '1' || '0' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: ./ci/tools/env-vars test
+
+      - name: Apply extra matrix environment variables
+        if: ${{ matrix.ENV }}
+        env:
+          MATRIX_ENV: ${{ toJSON(matrix.ENV) }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: echo "$MATRIX_ENV" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> "$GITHUB_ENV"
 
       - name: Download cuda-pathfinder build artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
@@ -240,6 +259,19 @@ jobs:
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
+      - name: Download cuda.core test binaries
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
+          path: ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Display structure of downloaded cuda.core test binaries
+        run: |
+          Get-Location
+          Get-ChildItem -Recurse -Force $env:CUDA_CORE_TEST_BINARIES_DIR | Select-Object Mode, LastWriteTime, Length, FullName
+
       - name: Set up Python ${{ matrix.PY_VER }}
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
@@ -261,6 +293,19 @@ jobs:
         with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
+
+      # TODO: remove the numpy wheel steps once 3.15 is officially supported
+      - name: Download numpy wheel (pre-release Python)
+        if: ${{ startsWith(matrix.PY_VER, '3.15') }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: numpy-python${{ env.PYTHON_VERSION_FORMATTED }}-${{ inputs.host-platform }}
+          path: numpy-wheel
+
+      - name: Install numpy wheel (pre-release Python)
+        if: ${{ startsWith(matrix.PY_VER, '3.15') }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: pip install numpy-wheel/*.whl
 
       - name: Set up test repetition on nightly runs
         shell: bash --noprofile --norc -xeuo pipefail {0}

@@ -4,6 +4,7 @@
 
 cimport cpython
 
+from libc.stddef cimport size_t
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
 from cuda.core._memory._memory_pool cimport _MemPool
@@ -45,56 +46,63 @@ cdef is_supported():
 
 cdef class IPCDataForBuffer:
     """Data members related to sharing memory buffers via IPC."""
-    def __cinit__(self, IPCBufferDescriptor ipc_descriptor, bint is_mapped):
+    def __cinit__(self, IPCBufferDescriptor ipc_descriptor, bint is_mapped) -> None:
         self._ipc_descriptor = ipc_descriptor
         self._is_mapped = is_mapped
 
     @property
-    def ipc_descriptor(self):
+    def ipc_descriptor(self) -> IPCBufferDescriptor:
         return self._ipc_descriptor
 
     @property
-    def is_mapped(self):
+    def is_mapped(self) -> bool:
         return self._is_mapped
 
 
 cdef class IPCDataForMR:
     """Data members related to sharing memory resources via IPC."""
-    def __cinit__(self, IPCAllocationHandle alloc_handle, bint is_mapped):
+    def __cinit__(self, IPCAllocationHandle alloc_handle, bint is_mapped) -> None:
         self._alloc_handle = alloc_handle
         self._is_mapped = is_mapped
 
     @property
-    def alloc_handle(self):
+    def alloc_handle(self) -> IPCAllocationHandle:
         return self._alloc_handle
 
     @property
-    def is_mapped(self):
+    def is_mapped(self) -> bool:
         return self._is_mapped
 
     @property
-    def uuid(self):
+    def uuid(self) -> uuid.UUID | None:
         return getattr(self._alloc_handle, 'uuid', None)
 
 
 cdef class IPCBufferDescriptor:
-    """Serializable object describing a buffer that can be shared between processes."""
+    """Serializable object describing a buffer that can be shared between processes.
 
-    def __init__(self, *arg, **kwargs):
+    Note
+    ----
+    The payload and ``size`` fields are controlled by the exporting peer.
+    Receivers must treat them as untrusted and import only through
+    :meth:`Buffer.from_ipc_descriptor`.
+    """
+
+    def __init__(self, *arg, **kwargs) -> None:
         raise RuntimeError("IPCBufferDescriptor objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @staticmethod
-    def _init(reserved: bytes, size: int):
+    def _init(reserved: bytes, size: int) -> IPCBufferDescriptor:
         cdef IPCBufferDescriptor self = IPCBufferDescriptor.__new__(IPCBufferDescriptor)
         self._payload = reserved
         self._size = size
         return self
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
         return IPCBufferDescriptor._init, (self._payload, self._size)
 
     @property
-    def size(self):
+    def size(self) -> int:
         return self._size
 
     cdef const void* payload_ptr(self) noexcept:
@@ -105,13 +113,14 @@ cdef class IPCBufferDescriptor:
 cdef class IPCAllocationHandle:
     """Shareable handle to an IPC-enabled device memory pool."""
 
-    def __init__(self, *arg, **kwargs):
+    def __init__(self, *arg, **kwargs) -> None:
         raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, handle: int, uuid):  # no-cython-lint
+    def _init(cls, handle: int, uuid: uuid.UUID | None) -> IPCAllocationHandle:  # no-cython-lint
         cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
-        assert handle >= 0
+        if handle < 0:
+            raise ValueError(f"Invalid allocation handle (fd) {handle}: must be non-negative")
         self._h_fd = create_fd_handle(handle)
         self._uuid = uuid
         return self
@@ -136,13 +145,13 @@ cdef class IPCAllocationHandle:
         return self._uuid
 
 
-def _reduce_allocation_handle(alloc_handle):
+def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -> tuple[object, ...]:
     check_multiprocessing_start_method()
     df = multiprocessing.reduction.DupFd(alloc_handle.handle)
     return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)
 
 
-def _reconstruct_allocation_handle(cls, df, uuid):  # no-cython-lint
+def _reconstruct_allocation_handle(cls: type, df: object, uuid: uuid.UUID | None) -> IPCAllocationHandle:  # no-cython-lint
     return cls._init(df.detach(), uuid)
 
 
@@ -170,6 +179,13 @@ cdef Buffer Buffer_from_ipc_descriptor(
     """Import a buffer that was exported from another process."""
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
+    cdef size_t payload_size = len(ipc_descriptor._payload)
+    cdef size_t expected_size = sizeof(cydriver.CUmemPoolPtrExportData)
+    if payload_size < expected_size:
+        raise ValueError(
+            f"IPC buffer descriptor payload is {payload_size} bytes; "
+            f"expected at least {expected_size}"
+        )
     cdef Stream s = Stream_accept(stream)
     cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
         mr._h_pool,
@@ -178,7 +194,20 @@ cdef Buffer Buffer_from_ipc_descriptor(
     )
     if not h_ptr:
         HANDLE_RETURN(get_last_error())
-    return Buffer_from_deviceptr_handle(h_ptr, ipc_descriptor.size, mr, ipc_descriptor)
+    cdef size_t mapped_size = 0
+    cdef size_t claimed_size = ipc_descriptor.size
+    with nogil:
+        HANDLE_RETURN(cydriver.cuPointerGetAttribute(
+            &mapped_size,
+            cydriver.CU_POINTER_ATTRIBUTE_RANGE_SIZE,
+            as_cu(h_ptr)))
+    if claimed_size > mapped_size:
+        h_ptr.reset()
+        raise ValueError(
+            f"IPC buffer descriptor size ({claimed_size}) exceeds "
+            f"mapped allocation extent ({mapped_size} bytes)"
+        )
+    return Buffer_from_deviceptr_handle(h_ptr, claimed_size, mr, ipc_descriptor)
 
 
 # _MemPool IPC Implementation

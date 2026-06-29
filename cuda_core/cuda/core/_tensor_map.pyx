@@ -10,11 +10,15 @@ from cuda.core._dlpack cimport kDLInt, kDLUInt, kDLFloat, kDLBfloat, _kDLCUDA
 
 import enum
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import numpy
 
 from cuda.core._memoryview import StridedMemoryView
 from cuda.core._utils.cuda_utils import check_or_create_options
+
+if TYPE_CHECKING:
+    from cuda.core._device import Device
 
 cdef extern from "_cpp/tensor_map_cccl.h":
     int cuda_core_cccl_make_tma_descriptor_tiled(
@@ -200,7 +204,7 @@ class TensorMapDescriptorOptions:
     l2_promotion: TensorMapL2Promotion = TensorMapL2Promotion.NONE
     oob_fill: TensorMapOOBFill = TensorMapOOBFill.NONE
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.box_dim = _normalize_tensor_map_sequence("box_dim", self.box_dim)
         if self.element_strides is not None:
             self.element_strides = _normalize_tensor_map_sequence("element_strides", self.element_strides)
@@ -501,11 +505,12 @@ cdef class TensorMapDescriptor:
         return 0
 
     @property
-    def device(self):
+    def device(self) -> Device | None:
         """Return the :obj:`~cuda.core.Device` associated with this descriptor."""
         if self._device_id >= 0:
             from cuda.core._device import Device
             return Device(self._device_id)
+        return None
 
     @classmethod
     def _from_tiled(cls, view, box_dim=None, *,
@@ -1052,7 +1057,7 @@ cdef class TensorMapDescriptor:
 
             return desc
 
-    def replace_address(self, tensor):
+    def replace_address(self, tensor: object) -> None:
         """Replace the global memory address in this tensor map descriptor.
 
         This is useful when the tensor data has been reallocated but the
@@ -1083,7 +1088,7 @@ cdef class TensorMapDescriptor:
         self._source_ref = view.exporting_obj
         self._view_ref = view
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         info = self._repr_info
         if info is None:
             return "TensorMapDescriptor()"

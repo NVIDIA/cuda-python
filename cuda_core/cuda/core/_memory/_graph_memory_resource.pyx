@@ -18,7 +18,12 @@ from cuda.core._resource_handles cimport (
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
-from functools import cache
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cuda.core._device import Device
+    from cuda.core.graph import GraphBuilder
+    from cuda.core.typing import DevicePointerType
 
 __all__ = ['GraphMemoryResource']
 
@@ -27,16 +32,16 @@ cdef class GraphMemoryResourceAttributes:
     cdef:
         int _device_id
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("GraphMemoryResourceAttributes cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, device_id: int):
+    def _init(cls, device_id: int) -> GraphMemoryResourceAttributes:
         cdef GraphMemoryResourceAttributes self = GraphMemoryResourceAttributes.__new__(cls)
         self._device_id = device_id
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(%s)" % ", ".join(
             f"{attr}={getattr(self, attr)}" for attr in dir(self)
                                             if not attr.startswith("_")
@@ -53,14 +58,14 @@ cdef class GraphMemoryResourceAttributes:
         return 0
 
     @property
-    def reserved_mem_current(self):
+    def reserved_mem_current(self) -> int:
         """Current amount of backing memory allocated."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT, &value)
         return int(value)
 
     @property
-    def reserved_mem_high(self):
+    def reserved_mem_high(self) -> int:
         """
         High watermark of backing memory allocated. It can be set to zero to
         reset it to the current usage.
@@ -70,21 +75,21 @@ cdef class GraphMemoryResourceAttributes:
         return int(value)
 
     @reserved_mem_high.setter
-    def reserved_mem_high(self, value: int):
+    def reserved_mem_high(self, value: int) -> None:
         if value != 0:
             raise AttributeError(f"Attribute 'reserved_mem_high' may only be set to zero (got {value}).")
         cdef cydriver.cuuint64_t zero = 0
         self._setattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH, &zero)
 
     @property
-    def used_mem_current(self):
+    def used_mem_current(self) -> int:
         """Current amount of memory in use."""
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT, &value)
         return int(value)
 
     @property
-    def used_mem_high(self):
+    def used_mem_high(self) -> int:
         """
         High watermark of memory in use. It can be set to zero to reset it to
         the current usage.
@@ -94,7 +99,7 @@ cdef class GraphMemoryResourceAttributes:
         return int(value)
 
     @used_mem_high.setter
-    def used_mem_high(self, value: int):
+    def used_mem_high(self, value: int) -> None:
         if value != 0:
             raise AttributeError(f"Attribute 'used_mem_high' may only be set to zero (got {value}).")
         cdef cydriver.cuuint64_t zero = 0
@@ -102,7 +107,7 @@ cdef class GraphMemoryResourceAttributes:
 
 
 cdef class cyGraphMemoryResource(MemoryResource):
-    def __cinit__(self, int device_id):
+    def __cinit__(self, int device_id) -> None:
         self._device_id = device_id
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
@@ -112,18 +117,24 @@ cdef class cyGraphMemoryResource(MemoryResource):
         cdef Stream s = Stream_accept(stream)
         return GMR_allocate(self, size, s)
 
-    def deallocate(self, ptr: "DevicePointerType", size_t size, *, stream: Stream | GraphBuilder):
+    def deallocate(
+        self,
+        ptr: DevicePointerType,
+        size_t size,
+        *,
+        stream: Stream | GraphBuilder
+    ) -> None:
         """
         Deallocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """
         cdef Stream s = Stream_accept(stream)
         return GMR_deallocate(ptr, size, s)
 
-    def close(self):
+    def close(self) -> None:
         """No operation (provided for compatibility)."""
         pass
 
-    def trim(self):
+    def trim(self) -> None:
         """Free unused memory that was cached on the specified device for use with graphs back to the OS."""
         with nogil:
              HANDLE_RETURN(cydriver.cuDeviceGraphMemTrim(self._device_id))
@@ -149,6 +160,8 @@ cdef class cyGraphMemoryResource(MemoryResource):
         return False
 
 
+cdef dict _mem_resource_cache = {}
+
 class GraphMemoryResource(cyGraphMemoryResource):
     """
     A memory resource for memory related to graphs.
@@ -168,14 +181,21 @@ class GraphMemoryResource(cyGraphMemoryResource):
         Device or Device ordinal for which a graph memory resource is obtained.
     """
 
-    def __new__(cls, device_id: int | Device):
+    def __new__(cls, device_id: int | Device) -> GraphMemoryResource:
         cdef int c_device_id = getattr(device_id, 'device_id', device_id)
         return cls._create(c_device_id)
 
     @classmethod
-    @cache
-    def _create(cls, int device_id):
-        return cyGraphMemoryResource.__new__(cls, device_id)
+    def _create(cls, int device_id) -> GraphMemoryResource:
+        # we use a dict currently, because functools.cache is currently less
+        # thread-safe see also: https://github.com/python/cpython/issues/150708
+        res = _mem_resource_cache.get(device_id)
+        if res is not None:
+            return res
+
+        # create new instance, but in case of a race may return another:
+        new = cyGraphMemoryResource.__new__(cls, device_id)
+        return _mem_resource_cache.setdefault(device_id, new)
 
 
 # Raise an exception if the given stream is capturing.

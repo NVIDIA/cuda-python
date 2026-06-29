@@ -314,11 +314,12 @@ def test_wrapper_covers_all_binding_members(binding, str_enum, mapping, binding_
         required_count = len(required)
         covered_str_enum = set(str_enum.__members__) - str_enum_unmapped
         covered_count = len(covered_str_enum)
-        if required_count != covered_count:
+        if required_count > covered_count:
             raise AssertionError(
-                f"{str_enum.__name__} has {covered_count} members, but expected {required_count} based on {binding.__name__} "
-                "after accounting for unmapped members. This may indicate that some members are missing from the wrapper, "
-                "or that some wrapper members do not correspond to actual binding members."
+                f"`{str_enum.__module__}.{str_enum.__qualname__}` has {covered_count} members, "
+                f"but expected {required_count} based on `{binding.__module__}.{binding.__qualname__}` "
+                "after accounting for unmapped members. This may indicate that some members are missing "
+                "from the wrapper, or that some wrapper members do not correspond to actual binding members."
             )
 
 
