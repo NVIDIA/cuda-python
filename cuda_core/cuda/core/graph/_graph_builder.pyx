@@ -266,8 +266,7 @@ cdef class GraphBuilder:
 
     def close(self):
         """Destroy the graph builder."""
-        with nogil:
-            GB_end_capture_if_needed(self, True)
+        GB_end_capture_if_needed(self, True)
         self._h_graph.reset()
         self._h_stream.reset()
         self._state = CLOSED
@@ -363,8 +362,9 @@ cdef class GraphBuilder:
         if not self.is_building:
             raise RuntimeError("Graph builder is not building.")
         cdef cydriver.CUstream c_stream = as_cu(self._h_stream)
+        cdef cydriver.CUgraph c_graph
         with nogil:
-            HANDLE_RETURN(cydriver.cuStreamEndCapture(c_stream, NULL))
+            HANDLE_RETURN(cydriver.cuStreamEndCapture(c_stream, &c_graph))
 
         # TODO: Resolving https://github.com/NVIDIA/cuda-python/issues/617 would allow us to
         #       resume the build process after the first call to end_building()
@@ -791,17 +791,18 @@ cdef inline int GB_end_capture_if_needed(GraphBuilder gb, bint check_status) exc
     capture. A FORKED builder must not call cuStreamEndCapture: the driver
     requires forked streams to be joined first.
 
-    A NULL phGraph ends the capture and discards the graph; the driver
-    guards every write to phGraph (cuapiStreamEndCaptureCommon).
-
     check_status=True checks the driver return (close()); False ignores it
     (__dealloc__).
     """
+    cdef cydriver.CUgraph c_graph
+    cdef cydriver.CUresult err
+    cdef cydriver.CUstream c_stream
     if gb._h_stream and gb._state == CAPTURING and gb._kind != FORKED:
-        if check_status:
-            HANDLE_RETURN(cydriver.cuStreamEndCapture(as_cu(gb._h_stream), NULL))
-        else:
-            cydriver.cuStreamEndCapture(as_cu(gb._h_stream), NULL)
+        c_stream = as_cu(gb._h_stream)
+        with nogil:
+            err = cydriver.cuStreamEndCapture(c_stream, &c_graph)
+            if check_status:
+                HANDLE_RETURN(err)
     return 0
 
 
