@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260626. Do not modify it directly.
 
 from ._internal cimport nvvm as _nvvm
 
@@ -15,53 +15,53 @@ cdef const char* nvvmGetErrorString(nvvmResult result) except?NULL nogil:
     return _nvvm._nvvmGetErrorString(result)
 
 
-cdef nvvmResult nvvmVersion(int* major, int* minor) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmVersion(int* major, int* minor) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmVersion(major, minor)
 
 
-cdef nvvmResult nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmIRVersion(majorIR, minorIR, majorDbg, minorDbg)
 
 
-cdef nvvmResult nvvmCreateProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmCreateProgram(nvvmProgram* prog) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmCreateProgram(prog)
 
 
-cdef nvvmResult nvvmDestroyProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmDestroyProgram(nvvmProgram* prog) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmDestroyProgram(prog)
 
 
-cdef nvvmResult nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmAddModuleToProgram(prog, buffer, size, name)
 
 
-cdef nvvmResult nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmLazyAddModuleToProgram(prog, buffer, size, name)
 
 
-cdef nvvmResult nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmCompileProgram(prog, numOptions, options)
 
 
-cdef nvvmResult nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmVerifyProgram(prog, numOptions, options)
 
 
-cdef nvvmResult nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRet) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRet) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmGetCompiledResultSize(prog, bufferSizeRet)
 
 
-cdef nvvmResult nvvmGetCompiledResult(nvvmProgram prog, char* buffer) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmGetCompiledResult(nvvmProgram prog, char* buffer) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmGetCompiledResult(prog, buffer)
 
 
-cdef nvvmResult nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmGetProgramLogSize(prog, bufferSizeRet)
 
 
-cdef nvvmResult nvvmGetProgramLog(nvvmProgram prog, char* buffer) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmGetProgramLog(nvvmProgram prog, char* buffer) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmGetProgramLog(prog, buffer)
 
 
-cdef nvvmResult nvvmLLVMVersion(const char* arch, int* major) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult nvvmLLVMVersion(const char* arch, int* major) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmLLVMVersion(arch, major)

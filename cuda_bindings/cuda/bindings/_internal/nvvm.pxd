@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260626. Do not modify it directly.
 
 from ..cynvvm cimport *
 
@@ -12,16 +12,16 @@ from ..cynvvm cimport *
 ###############################################################################
 
 cdef const char* _nvvmGetErrorString(nvvmResult result) except?NULL nogil
-cdef nvvmResult _nvvmVersion(int* major, int* minor) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRet) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmGetCompiledResult(nvvmProgram prog, char* buffer) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmGetProgramLog(nvvmProgram prog, char* buffer) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvvmResult _nvvmLLVMVersion(const char* arch, int* major) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmVersion(int* major, int* minor) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRet) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmGetCompiledResult(nvvmProgram prog, char* buffer) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmGetProgramLog(nvvmProgram prog, char* buffer) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvvmResult _nvvmLLVMVersion(const char* arch, int* major) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil

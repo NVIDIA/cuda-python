@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.4.1 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260626. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -222,7 +222,7 @@ cdef const char* _nvFatbinGetErrorString(nvFatbinResult result) except?NULL nogi
         result)
 
 
-cdef nvFatbinResult _nvFatbinCreate(nvFatbinHandle* handle_indirect, const char** options, size_t optionsCount) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvFatbinResult _nvFatbinCreate(nvFatbinHandle* handle_indirect, const char** options, size_t optionsCount) except?<nvFatbinResult>_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinCreate
     _check_or_init_nvfatbin()
     if __nvFatbinCreate == NULL:
@@ -232,7 +232,7 @@ cdef nvFatbinResult _nvFatbinCreate(nvFatbinHandle* handle_indirect, const char*
         handle_indirect, options, optionsCount)
 
 
-cdef nvFatbinResult _nvFatbinDestroy(nvFatbinHandle* handle_indirect) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvFatbinResult _nvFatbinDestroy(nvFatbinHandle* handle_indirect) except?<nvFatbinResult>_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinDestroy
     _check_or_init_nvfatbin()
     if __nvFatbinDestroy == NULL:
@@ -242,7 +242,7 @@ cdef nvFatbinResult _nvFatbinDestroy(nvFatbinHandle* handle_indirect) except?_NV
         handle_indirect)
 
 
-cdef nvFatbinResult _nvFatbinAddPTX(nvFatbinHandle handle, const char* code, size_t size, const char* arch, const char* identifier, const char* optionsCmdLine) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvFatbinResult _nvFatbinAddPTX(nvFatbinHandle handle, const char* code, size_t size, const char* arch, const char* identifier, const char* optionsCmdLine) except?<nvFatbinResult>_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinAddPTX
     _check_or_init_nvfatbin()
     if __nvFatbinAddPTX == NULL:
@@ -252,7 +252,7 @@ cdef nvFatbinResult _nvFatbinAddPTX(nvFatbinHandle handle, const char* code, siz
         handle, code, size, arch, identifier, optionsCmdLine)
 
 
-cdef nvFatbinResult _nvFatbinAddCubin(nvFatbinHandle handle, const void* code, size_t size, const char* arch, const char* identifier) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvFatbinResult _nvFatbinAddCubin(nvFatbinHandle handle, const void* code, size_t size, const char* arch, const char* identifier) except?<nvFatbinResult>_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinAddCubin
     _check_or_init_nvfatbin()
     if __nvFatbinAddCubin == NULL:
@@ -262,7 +262,7 @@ cdef nvFatbinResult _nvFatbinAddCubin(nvFatbinHandle handle, const void* code, s
         handle, code, size, arch, identifier)
 
 
-cdef nvFatbinResult _nvFatbinAddLTOIR(nvFatbinHandle handle, const void* code, size_t size, const char* arch, const char* identifier, const char* optionsCmdLine) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvFatbinResult _nvFatbinAddLTOIR(nvFatbinHandle handle, const void* code, size_t size, const char* arch, const char* identifier, const char* optionsCmdLine) except?<nvFatbinResult>_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinAddLTOIR
     _check_or_init_nvfatbin()
     if __nvFatbinAddLTOIR == NULL:
@@ -272,7 +272,7 @@ cdef nvFatbinResult _nvFatbinAddLTOIR(nvFatbinHandle handle, const void* code, s
         handle, code, size, arch, identifier, optionsCmdLine)
 
 
-cdef nvFatbinResult _nvFatbinSize(nvFatbinHandle handle, size_t* size) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvFatbinResult _nvFatbinSize(nvFatbinHandle handle, size_t* size) except?<nvFatbinResult>_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinSize
     _check_or_init_nvfatbin()
     if __nvFatbinSize == NULL:
@@ -282,7 +282,7 @@ cdef nvFatbinResult _nvFatbinSize(nvFatbinHandle handle, size_t* size) except?_N
         handle, size)
 
 
-cdef nvFatbinResult _nvFatbinGet(nvFatbinHandle handle, void* buffer) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvFatbinResult _nvFatbinGet(nvFatbinHandle handle, void* buffer) except?<nvFatbinResult>_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinGet
     _check_or_init_nvfatbin()
     if __nvFatbinGet == NULL:
@@ -292,7 +292,7 @@ cdef nvFatbinResult _nvFatbinGet(nvFatbinHandle handle, void* buffer) except?_NV
         handle, buffer)
 
 
-cdef nvFatbinResult _nvFatbinVersion(unsigned int* major, unsigned int* minor) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvFatbinResult _nvFatbinVersion(unsigned int* major, unsigned int* minor) except?<nvFatbinResult>_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinVersion
     _check_or_init_nvfatbin()
     if __nvFatbinVersion == NULL:
@@ -302,7 +302,7 @@ cdef nvFatbinResult _nvFatbinVersion(unsigned int* major, unsigned int* minor) e
         major, minor)
 
 
-cdef nvFatbinResult _nvFatbinAddIndex(nvFatbinHandle handle, const void* code, size_t size, const char* identifier) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvFatbinResult _nvFatbinAddIndex(nvFatbinHandle handle, const void* code, size_t size, const char* identifier) except?<nvFatbinResult>_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinAddIndex
     _check_or_init_nvfatbin()
     if __nvFatbinAddIndex == NULL:
@@ -312,7 +312,7 @@ cdef nvFatbinResult _nvFatbinAddIndex(nvFatbinHandle handle, const void* code, s
         handle, code, size, identifier)
 
 
-cdef nvFatbinResult _nvFatbinAddReloc(nvFatbinHandle handle, const void* code, size_t size) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvFatbinResult _nvFatbinAddReloc(nvFatbinHandle handle, const void* code, size_t size) except?<nvFatbinResult>_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinAddReloc
     _check_or_init_nvfatbin()
     if __nvFatbinAddReloc == NULL:
@@ -322,7 +322,7 @@ cdef nvFatbinResult _nvFatbinAddReloc(nvFatbinHandle handle, const void* code, s
         handle, code, size)
 
 
-cdef nvFatbinResult _nvFatbinAddTileIR(nvFatbinHandle handle, const void* code, size_t size, const char* identifier, const char* optionsCmdLine) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvFatbinResult _nvFatbinAddTileIR(nvFatbinHandle handle, const void* code, size_t size, const char* identifier, const char* optionsCmdLine) except?<nvFatbinResult>_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinAddTileIR
     _check_or_init_nvfatbin()
     if __nvFatbinAddTileIR == NULL:

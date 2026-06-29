@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated across versions from 1.5.0 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated across versions from 1.5.0 to 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260626. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -255,7 +255,7 @@ cpdef _inspect_function_pointer(str name):
 # Wrapper functions
 ###############################################################################
 
-cdef cudlaStatus _cudlaGetVersion(uint64_t* const version) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaGetVersion(uint64_t* const version) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaGetVersion
     _check_or_init_cudla()
     if __cudlaGetVersion == NULL:
@@ -265,7 +265,7 @@ cdef cudlaStatus _cudlaGetVersion(uint64_t* const version) except?_CUDLASTATUS_I
         version)
 
 
-cdef cudlaStatus _cudlaDeviceGetCount(uint64_t* const pNumDevices) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaDeviceGetCount(uint64_t* const pNumDevices) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaDeviceGetCount
     _check_or_init_cudla()
     if __cudlaDeviceGetCount == NULL:
@@ -275,7 +275,7 @@ cdef cudlaStatus _cudlaDeviceGetCount(uint64_t* const pNumDevices) except?_CUDLA
         pNumDevices)
 
 
-cdef cudlaStatus _cudlaCreateDevice(const uint64_t device, cudlaDevHandle* const devHandle, const uint32_t flags) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaCreateDevice(const uint64_t device, cudlaDevHandle* const devHandle, const uint32_t flags) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaCreateDevice
     _check_or_init_cudla()
     if __cudlaCreateDevice == NULL:
@@ -285,7 +285,7 @@ cdef cudlaStatus _cudlaCreateDevice(const uint64_t device, cudlaDevHandle* const
         device, devHandle, flags)
 
 
-cdef cudlaStatus _cudlaMemRegister(const cudlaDevHandle devHandle, const uint64_t* const ptr, const size_t size, uint64_t** const devPtr, const uint32_t flags) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaMemRegister(const cudlaDevHandle devHandle, const uint64_t* const ptr, const size_t size, uint64_t** const devPtr, const uint32_t flags) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaMemRegister
     _check_or_init_cudla()
     if __cudlaMemRegister == NULL:
@@ -295,7 +295,7 @@ cdef cudlaStatus _cudlaMemRegister(const cudlaDevHandle devHandle, const uint64_
         devHandle, ptr, size, devPtr, flags)
 
 
-cdef cudlaStatus _cudlaModuleLoadFromMemory(const cudlaDevHandle devHandle, const uint8_t* const pModule, const size_t moduleSize, cudlaModule* const hModule, const uint32_t flags) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaModuleLoadFromMemory(const cudlaDevHandle devHandle, const uint8_t* const pModule, const size_t moduleSize, cudlaModule* const hModule, const uint32_t flags) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaModuleLoadFromMemory
     _check_or_init_cudla()
     if __cudlaModuleLoadFromMemory == NULL:
@@ -305,7 +305,7 @@ cdef cudlaStatus _cudlaModuleLoadFromMemory(const cudlaDevHandle devHandle, cons
         devHandle, pModule, moduleSize, hModule, flags)
 
 
-cdef cudlaStatus _cudlaModuleGetAttributes(const cudlaModule hModule, const cudlaModuleAttributeType attrType, cudlaModuleAttribute* const attribute) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaModuleGetAttributes(const cudlaModule hModule, const cudlaModuleAttributeType attrType, cudlaModuleAttribute* const attribute) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaModuleGetAttributes
     _check_or_init_cudla()
     if __cudlaModuleGetAttributes == NULL:
@@ -315,7 +315,7 @@ cdef cudlaStatus _cudlaModuleGetAttributes(const cudlaModule hModule, const cudl
         hModule, attrType, attribute)
 
 
-cdef cudlaStatus _cudlaModuleUnload(const cudlaModule hModule, const uint32_t flags) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaModuleUnload(const cudlaModule hModule, const uint32_t flags) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaModuleUnload
     _check_or_init_cudla()
     if __cudlaModuleUnload == NULL:
@@ -325,7 +325,7 @@ cdef cudlaStatus _cudlaModuleUnload(const cudlaModule hModule, const uint32_t fl
         hModule, flags)
 
 
-cdef cudlaStatus _cudlaSubmitTask(const cudlaDevHandle devHandle, const cudlaTask* const ptrToTasks, const uint32_t numTasks, void* const stream, const uint32_t flags) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaSubmitTask(const cudlaDevHandle devHandle, const cudlaTask* const ptrToTasks, const uint32_t numTasks, void* const stream, const uint32_t flags) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaSubmitTask
     _check_or_init_cudla()
     if __cudlaSubmitTask == NULL:
@@ -335,7 +335,7 @@ cdef cudlaStatus _cudlaSubmitTask(const cudlaDevHandle devHandle, const cudlaTas
         devHandle, ptrToTasks, numTasks, stream, flags)
 
 
-cdef cudlaStatus _cudlaDeviceGetAttribute(const cudlaDevHandle devHandle, const cudlaDevAttributeType attrib, cudlaDevAttribute* const pAttribute) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaDeviceGetAttribute(const cudlaDevHandle devHandle, const cudlaDevAttributeType attrib, cudlaDevAttribute* const pAttribute) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaDeviceGetAttribute
     _check_or_init_cudla()
     if __cudlaDeviceGetAttribute == NULL:
@@ -345,7 +345,7 @@ cdef cudlaStatus _cudlaDeviceGetAttribute(const cudlaDevHandle devHandle, const 
         devHandle, attrib, pAttribute)
 
 
-cdef cudlaStatus _cudlaMemUnregister(const cudlaDevHandle devHandle, const uint64_t* const devPtr) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaMemUnregister(const cudlaDevHandle devHandle, const uint64_t* const devPtr) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaMemUnregister
     _check_or_init_cudla()
     if __cudlaMemUnregister == NULL:
@@ -355,7 +355,7 @@ cdef cudlaStatus _cudlaMemUnregister(const cudlaDevHandle devHandle, const uint6
         devHandle, devPtr)
 
 
-cdef cudlaStatus _cudlaGetLastError(const cudlaDevHandle devHandle) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaGetLastError(const cudlaDevHandle devHandle) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaGetLastError
     _check_or_init_cudla()
     if __cudlaGetLastError == NULL:
@@ -365,7 +365,7 @@ cdef cudlaStatus _cudlaGetLastError(const cudlaDevHandle devHandle) except?_CUDL
         devHandle)
 
 
-cdef cudlaStatus _cudlaDestroyDevice(const cudlaDevHandle devHandle) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaDestroyDevice(const cudlaDevHandle devHandle) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaDestroyDevice
     _check_or_init_cudla()
     if __cudlaDestroyDevice == NULL:
@@ -375,7 +375,7 @@ cdef cudlaStatus _cudlaDestroyDevice(const cudlaDevHandle devHandle) except?_CUD
         devHandle)
 
 
-cdef cudlaStatus _cudlaSetTaskTimeoutInMs(const cudlaDevHandle devHandle, const uint32_t timeout) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+cdef cudlaStatus _cudlaSetTaskTimeoutInMs(const cudlaDevHandle devHandle, const uint32_t timeout) except?<cudlaStatus>_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
     global __cudlaSetTaskTimeoutInMs
     _check_or_init_cudla()
     if __cudlaSetTaskTimeoutInMs == NULL:

@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260626. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -289,7 +289,7 @@ cpdef _inspect_function_pointer(str name):
 # Wrapper functions
 ###############################################################################
 
-cdef nvJitLinkResult _nvJitLinkCreate(nvJitLinkHandle* handle, uint32_t numOptions, const char** options) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkCreate(nvJitLinkHandle* handle, uint32_t numOptions, const char** options) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkCreate
     _check_or_init_nvjitlink()
     if __nvJitLinkCreate == NULL:
@@ -299,7 +299,7 @@ cdef nvJitLinkResult _nvJitLinkCreate(nvJitLinkHandle* handle, uint32_t numOptio
         handle, numOptions, options)
 
 
-cdef nvJitLinkResult _nvJitLinkDestroy(nvJitLinkHandle* handle) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkDestroy(nvJitLinkHandle* handle) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkDestroy
     _check_or_init_nvjitlink()
     if __nvJitLinkDestroy == NULL:
@@ -309,7 +309,7 @@ cdef nvJitLinkResult _nvJitLinkDestroy(nvJitLinkHandle* handle) except?_NVJITLIN
         handle)
 
 
-cdef nvJitLinkResult _nvJitLinkAddData(nvJitLinkHandle handle, nvJitLinkInputType inputType, const void* data, size_t size, const char* name) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkAddData(nvJitLinkHandle handle, nvJitLinkInputType inputType, const void* data, size_t size, const char* name) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkAddData
     _check_or_init_nvjitlink()
     if __nvJitLinkAddData == NULL:
@@ -319,7 +319,7 @@ cdef nvJitLinkResult _nvJitLinkAddData(nvJitLinkHandle handle, nvJitLinkInputTyp
         handle, inputType, data, size, name)
 
 
-cdef nvJitLinkResult _nvJitLinkAddFile(nvJitLinkHandle handle, nvJitLinkInputType inputType, const char* fileName) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkAddFile(nvJitLinkHandle handle, nvJitLinkInputType inputType, const char* fileName) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkAddFile
     _check_or_init_nvjitlink()
     if __nvJitLinkAddFile == NULL:
@@ -329,7 +329,7 @@ cdef nvJitLinkResult _nvJitLinkAddFile(nvJitLinkHandle handle, nvJitLinkInputTyp
         handle, inputType, fileName)
 
 
-cdef nvJitLinkResult _nvJitLinkComplete(nvJitLinkHandle handle) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkComplete(nvJitLinkHandle handle) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkComplete
     _check_or_init_nvjitlink()
     if __nvJitLinkComplete == NULL:
@@ -339,7 +339,7 @@ cdef nvJitLinkResult _nvJitLinkComplete(nvJitLinkHandle handle) except?_NVJITLIN
         handle)
 
 
-cdef nvJitLinkResult _nvJitLinkGetLinkedCubinSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkGetLinkedCubinSize(nvJitLinkHandle handle, size_t* size) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkGetLinkedCubinSize
     _check_or_init_nvjitlink()
     if __nvJitLinkGetLinkedCubinSize == NULL:
@@ -349,7 +349,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedCubinSize(nvJitLinkHandle handle, size_t
         handle, size)
 
 
-cdef nvJitLinkResult _nvJitLinkGetLinkedCubin(nvJitLinkHandle handle, void* cubin) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkGetLinkedCubin(nvJitLinkHandle handle, void* cubin) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkGetLinkedCubin
     _check_or_init_nvjitlink()
     if __nvJitLinkGetLinkedCubin == NULL:
@@ -359,7 +359,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedCubin(nvJitLinkHandle handle, void* cubi
         handle, cubin)
 
 
-cdef nvJitLinkResult _nvJitLinkGetLinkedPtxSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkGetLinkedPtxSize(nvJitLinkHandle handle, size_t* size) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkGetLinkedPtxSize
     _check_or_init_nvjitlink()
     if __nvJitLinkGetLinkedPtxSize == NULL:
@@ -369,7 +369,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedPtxSize(nvJitLinkHandle handle, size_t* 
         handle, size)
 
 
-cdef nvJitLinkResult _nvJitLinkGetLinkedPtx(nvJitLinkHandle handle, char* ptx) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkGetLinkedPtx(nvJitLinkHandle handle, char* ptx) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkGetLinkedPtx
     _check_or_init_nvjitlink()
     if __nvJitLinkGetLinkedPtx == NULL:
@@ -379,7 +379,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedPtx(nvJitLinkHandle handle, char* ptx) e
         handle, ptx)
 
 
-cdef nvJitLinkResult _nvJitLinkGetErrorLogSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkGetErrorLogSize(nvJitLinkHandle handle, size_t* size) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkGetErrorLogSize
     _check_or_init_nvjitlink()
     if __nvJitLinkGetErrorLogSize == NULL:
@@ -389,7 +389,7 @@ cdef nvJitLinkResult _nvJitLinkGetErrorLogSize(nvJitLinkHandle handle, size_t* s
         handle, size)
 
 
-cdef nvJitLinkResult _nvJitLinkGetErrorLog(nvJitLinkHandle handle, char* log) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkGetErrorLog(nvJitLinkHandle handle, char* log) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkGetErrorLog
     _check_or_init_nvjitlink()
     if __nvJitLinkGetErrorLog == NULL:
@@ -399,7 +399,7 @@ cdef nvJitLinkResult _nvJitLinkGetErrorLog(nvJitLinkHandle handle, char* log) ex
         handle, log)
 
 
-cdef nvJitLinkResult _nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, size_t* size) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkGetInfoLogSize
     _check_or_init_nvjitlink()
     if __nvJitLinkGetInfoLogSize == NULL:
@@ -409,7 +409,7 @@ cdef nvJitLinkResult _nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, size_t* si
         handle, size)
 
 
-cdef nvJitLinkResult _nvJitLinkGetInfoLog(nvJitLinkHandle handle, char* log) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkGetInfoLog(nvJitLinkHandle handle, char* log) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkGetInfoLog
     _check_or_init_nvjitlink()
     if __nvJitLinkGetInfoLog == NULL:
@@ -419,7 +419,7 @@ cdef nvJitLinkResult _nvJitLinkGetInfoLog(nvJitLinkHandle handle, char* log) exc
         handle, log)
 
 
-cdef nvJitLinkResult _nvJitLinkVersion(unsigned int* major, unsigned int* minor) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkVersion(unsigned int* major, unsigned int* minor) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkVersion
     _check_or_init_nvjitlink()
     if __nvJitLinkVersion == NULL:
@@ -429,7 +429,7 @@ cdef nvJitLinkResult _nvJitLinkVersion(unsigned int* major, unsigned int* minor)
         major, minor)
 
 
-cdef nvJitLinkResult _nvJitLinkGetLinkedLTOIRSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkGetLinkedLTOIRSize(nvJitLinkHandle handle, size_t* size) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkGetLinkedLTOIRSize
     _check_or_init_nvjitlink()
     if __nvJitLinkGetLinkedLTOIRSize == NULL:
@@ -439,7 +439,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedLTOIRSize(nvJitLinkHandle handle, size_t
         handle, size)
 
 
-cdef nvJitLinkResult _nvJitLinkGetLinkedLTOIR(nvJitLinkHandle handle, void* ltoir) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvJitLinkResult _nvJitLinkGetLinkedLTOIR(nvJitLinkHandle handle, void* ltoir) except?<nvJitLinkResult>_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvJitLinkGetLinkedLTOIR
     _check_or_init_nvjitlink()
     if __nvJitLinkGetLinkedLTOIR == NULL:
