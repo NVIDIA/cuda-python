@@ -164,9 +164,6 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
 
-    Raises:
-        OSError: If the library is loaded but its absolute path cannot be
-            resolved via dlinfo (surfaced from abs_path_for_dynamic_library).
     """
     for soname in _candidate_sonames(desc):
         try:
@@ -174,10 +171,8 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
         except OSError:
             pass
         else:
-            # abs_path_for_dynamic_library never returns None: it returns a
-            # resolved path or raises OSError. Let that error surface rather
-            # than masking it, consistent with the deterministic-loader policy.
             abs_path = abs_path_for_dynamic_library(desc.name, handle)
+            assert abs_path
             return LoadedDL(abs_path, False, handle._handle, "system-search")
     return None
 
