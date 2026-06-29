@@ -78,6 +78,16 @@ decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
 decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources = nullptr;
 decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource = nullptr;
 
+decltype(&cuArray3DCreate) p_cuArray3DCreate = nullptr;
+decltype(&cuArrayDestroy) p_cuArrayDestroy = nullptr;
+decltype(&cuMipmappedArrayCreate) p_cuMipmappedArrayCreate = nullptr;
+decltype(&cuMipmappedArrayDestroy) p_cuMipmappedArrayDestroy = nullptr;
+decltype(&cuMipmappedArrayGetLevel) p_cuMipmappedArrayGetLevel = nullptr;
+decltype(&cuTexObjectCreate) p_cuTexObjectCreate = nullptr;
+decltype(&cuTexObjectDestroy) p_cuTexObjectDestroy = nullptr;
+decltype(&cuSurfObjectCreate) p_cuSurfObjectCreate = nullptr;
+decltype(&cuSurfObjectDestroy) p_cuSurfObjectDestroy = nullptr;
+
 // SM resource split (13.1+ — may be null on older drivers/bindings)
 #if CUDA_VERSION >= 13010
 decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit = nullptr;
@@ -1358,6 +1368,163 @@ FileDescriptorHandle create_fd_handle_ref(int fd) {
 #else
     return std::make_shared<const int>(fd);
 #endif
+}
+
+// ============================================================================
+// Array / mipmapped-array / texture / surface handles (PR #467)
+// ============================================================================
+
+namespace {
+struct ArrayBox {
+    CUarray resource;
+    // Non-null only for a mipmap-level view: keeps the parent mipmap (the real
+    // owner of the level's storage) alive for as long as the level is held.
+    MipmappedArrayHandle h_parent;
+};
+
+struct MipmappedArrayBox {
+    CUmipmappedArray resource;
+};
+
+struct TexObjectBox {
+    // Tagged so TexObjectHandle is a distinct C++ type from DevicePtrHandle /
+    // SurfObjectHandle (all wrap `unsigned long long`).
+    TexObjectValue resource;
+    // Type-erased backing dependency (OpaqueArrayHandle / MipmappedArrayHandle /
+    // DevicePtrHandle). The texture's resource is a union; we only need to keep
+    // whichever backing it was built from alive, never to dereference it.
+    std::shared_ptr<const void> h_backing;
+};
+
+struct SurfObjectBox {
+    SurfObjectValue resource;
+    OpaqueArrayHandle h_array;  // surfaces are always array-backed
+};
+}  // namespace
+
+OpaqueArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc) {
+    GILReleaseGuard gil;
+    CUarray arr;
+    if (CUDA_SUCCESS != (err = p_cuArray3DCreate(&arr, &desc))) {
+        return {};
+    }
+    // Allocation and adoption share the same owning lifetime; the only
+    // difference is who calls cuArray3DCreate. Delegate so the owning box and
+    // its destroy-on-last-ref deleter are defined in exactly one place.
+    return create_array_handle_owning(arr);
+}
+
+OpaqueArrayHandle create_array_handle_ref(CUarray arr) {
+    if (!arr) {
+        return {};
+    }
+    auto box = std::make_shared<const ArrayBox>(ArrayBox{arr, {}});
+    return OpaqueArrayHandle(box, &box->resource);
+}
+
+OpaqueArrayHandle create_array_handle_owning(CUarray arr) {
+    if (!arr) {
+        return {};
+    }
+    auto box = std::shared_ptr<const ArrayBox>(
+        new ArrayBox{arr, {}},
+        [](const ArrayBox* b) {
+            GILReleaseGuard gil;
+            p_cuArrayDestroy(b->resource);
+            delete b;
+        }
+    );
+    return OpaqueArrayHandle(box, &box->resource);
+}
+
+OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level) {
+    GILReleaseGuard gil;
+    CUarray arr;
+    if (CUDA_SUCCESS != (err = p_cuMipmappedArrayGetLevel(&arr, as_cu(h_mip), level))) {
+        return {};
+    }
+    // Non-owning level view: storage belongs to the mipmap. Embed the mipmap
+    // handle so the parent outlives this level; the deleter does not destroy.
+    auto box = std::shared_ptr<const ArrayBox>(
+        new ArrayBox{arr, h_mip},
+        [](const ArrayBox* b) { delete b; }
+    );
+    return OpaqueArrayHandle(box, &box->resource);
+}
+
+MipmappedArrayHandle create_mipmapped_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc,
+                                                   unsigned int num_levels) {
+    GILReleaseGuard gil;
+    CUmipmappedArray mip;
+    if (CUDA_SUCCESS != (err = p_cuMipmappedArrayCreate(&mip, &desc, num_levels))) {
+        return {};
+    }
+    auto box = std::shared_ptr<const MipmappedArrayBox>(
+        new MipmappedArrayBox{mip},
+        [](const MipmappedArrayBox* b) {
+            GILReleaseGuard gil;
+            p_cuMipmappedArrayDestroy(b->resource);
+            delete b;
+        }
+    );
+    return MipmappedArrayHandle(box, &box->resource);
+}
+
+namespace {
+TexObjectHandle make_tex_object_handle(const CUDA_RESOURCE_DESC& res,
+                                       const CUDA_TEXTURE_DESC& tex,
+                                       std::shared_ptr<const void> h_backing) {
+    GILReleaseGuard gil;
+    CUtexObject obj;
+    if (CUDA_SUCCESS != (err = p_cuTexObjectCreate(&obj, &res, &tex, nullptr))) {
+        return {};
+    }
+    auto box = std::shared_ptr<const TexObjectBox>(
+        new TexObjectBox{TexObjectValue{obj}, std::move(h_backing)},
+        [](const TexObjectBox* b) {
+            GILReleaseGuard gil;
+            p_cuTexObjectDestroy(b->resource.raw);
+            delete b;
+        }
+    );
+    return TexObjectHandle(box, &box->resource);
+}
+}  // namespace
+
+TexObjectHandle create_tex_object_handle_array(const CUDA_RESOURCE_DESC& res,
+                                               const CUDA_TEXTURE_DESC& tex,
+                                               const OpaqueArrayHandle& h_backing) {
+    return make_tex_object_handle(res, tex, h_backing);
+}
+
+TexObjectHandle create_tex_object_handle_mipmap(const CUDA_RESOURCE_DESC& res,
+                                                const CUDA_TEXTURE_DESC& tex,
+                                                const MipmappedArrayHandle& h_backing) {
+    return make_tex_object_handle(res, tex, h_backing);
+}
+
+TexObjectHandle create_tex_object_handle_linear(const CUDA_RESOURCE_DESC& res,
+                                                const CUDA_TEXTURE_DESC& tex,
+                                                const DevicePtrHandle& h_backing) {
+    return make_tex_object_handle(res, tex, h_backing);
+}
+
+SurfObjectHandle create_surf_object_handle(const CUDA_RESOURCE_DESC& res,
+                                           const OpaqueArrayHandle& h_backing) {
+    GILReleaseGuard gil;
+    CUsurfObject obj;
+    if (CUDA_SUCCESS != (err = p_cuSurfObjectCreate(&obj, &res))) {
+        return {};
+    }
+    auto box = std::shared_ptr<const SurfObjectBox>(
+        new SurfObjectBox{SurfObjectValue{obj}, h_backing},
+        [](const SurfObjectBox* b) {
+            GILReleaseGuard gil;
+            p_cuSurfObjectDestroy(b->resource.raw);
+            delete b;
+        }
+    );
+    return SurfObjectHandle(box, &box->resource);
 }
 
 // ============================================================================
