@@ -12,4 +12,4 @@ Highlights
 * Add support for the Windows CTK 13.3.1 CUPTI DLL name
   ``cupti64_2026.2.1.dll`` so ``load_nvidia_dynamic_lib("cupti")`` can
   recognize the installed library on CTK 13.3.1 systems.
-  (`PR #9999 <https://github.com/NVIDIA/cuda-python/pull/9999>`_)
+  (`PR #2276 <https://github.com/NVIDIA/cuda-python/pull/2276>`_)
