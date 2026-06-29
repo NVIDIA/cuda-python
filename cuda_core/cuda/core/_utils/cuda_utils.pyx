@@ -69,6 +69,14 @@ cdef int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil:
     return 0
 
 
+cdef int _get_current_device_id() except? -1:
+    """Return the current thread's bound CUdevice ordinal."""
+    cdef cydriver.CUdevice dev
+    with nogil:
+        HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
+    return <int>dev
+
+
 cdef int HANDLE_RETURN_NVRTC(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) except?-1 nogil:
     """Handle NVRTC result codes, raising NVRTCError with program log on failure."""
     if err == cynvrtc.nvrtcResult.NVRTC_SUCCESS:
