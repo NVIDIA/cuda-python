@@ -8,6 +8,8 @@ from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.graph._graph_definition import GraphCondition, GraphDefinition
 
+_BuilderKind = int
+_CaptureState = int
 
 @dataclass
 class GraphDebugPrintOptions:
@@ -106,22 +108,18 @@ class GraphBuilder:
 
     """
 
-    class _MembersNeededForFinalize:
-        __slots__ = ('conditional_graph', 'graph', 'is_join_required', 'is_stream_owner', 'stream')
-
-        def __init__(self, graph_builder_obj: GraphBuilder, stream_obj: Stream | None, is_stream_owner: bool, conditional_graph, is_join_required: bool) -> None:
-            ...
-
-        def close(self) -> None:
-            ...
-    __slots__ = ('__weakref__', '_building_ended', '_mnff')
-
-    def __init__(self) -> None:
+    def __init__(self):
         ...
 
-    @classmethod
-    def _init(cls, stream: Stream | None, is_stream_owner: bool, conditional_graph: object=None, is_join_required: bool=False) -> GraphBuilder:
+    def __dealloc__(self):
         ...
+
+    @staticmethod
+    def _init(stream: Stream):
+        ...
+
+    def close(self):
+        """Destroy the graph builder."""
 
     @property
     def stream(self) -> Stream:
@@ -155,7 +153,7 @@ class GraphBuilder:
     def end_building(self) -> GraphBuilder:
         """Ends the building process."""
 
-    def complete(self, options: GraphCompleteOptions | None=None) -> 'Graph':
+    def complete(self, options: GraphCompleteOptions | None=None) -> Graph:
         """Completes the graph builder and returns the built :obj:`~graph.Graph` object.
 
         Parameters
@@ -245,9 +243,6 @@ class GraphBuilder:
             A condition variable for controlling conditional execution.
         """
 
-    def _cond_with_params(self, node_params: object) -> tuple[GraphBuilder, ...]:
-        ...
-
     def if_then(self, condition: GraphCondition) -> GraphBuilder:
         """Adds an if condition branch and returns a new graph builder for it.
 
@@ -335,15 +330,7 @@ class GraphBuilder:
 
         """
 
-    def close(self) -> None:
-        """Destroy the graph builder.
-
-        Closes the associated stream if we own it. Borrowed stream
-        object will instead have their references released.
-
-        """
-
-    def embed(self, child: GraphBuilder) -> None:
+    def embed(self, child: GraphBuilder):
         """Embed a previously-built :obj:`~graph.GraphBuilder` as a child node.
 
         Parameters
@@ -392,21 +379,7 @@ class Graph:
 
     """
 
-    class _MembersNeededForFinalize:
-        __slots__ = 'graph'
-
-        def __init__(self, graph_obj: Graph, graph: driver.CUgraphExec) -> None:
-            ...
-
-        def close(self) -> None:
-            ...
-    __slots__ = ('__weakref__', '_mnff')
-
-    def __init__(self) -> None:
-        ...
-
-    @classmethod
-    def _init(cls, graph: driver.CUgraphExec) -> Graph:
+    def __init__(self):
         ...
 
     def close(self) -> None:
@@ -457,5 +430,5 @@ class Graph:
         """
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 
-def _instantiate_graph(h_graph, options: GraphCompleteOptions | None=None) -> 'Graph':
+def _instantiate_graph(h_graph, options: GraphCompleteOptions | None=None) -> Graph:
     ...

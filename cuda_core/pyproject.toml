@@ -5,8 +5,7 @@
 [build-system]
 requires = [
     "setuptools>=80",
-    "setuptools-scm[simple]>=8,<10.1",
-    "vcs-versioning<2.0",
+    "setuptools-scm[simple]>=8,!=10.1",
     "Cython>=3.2,<3.3",
     "cuda-pathfinder>=1.5"
 ]
@@ -147,6 +146,10 @@ implicit_reexport = true
 
 # Ignore missing imports for now (you can tighten this later)
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "cuda.core._vendored.*"
+ignore_errors = true
 
 [[tool.mypy.overrides]]
 # cpdef functions with Cython-native tuple return types can't carry type args
