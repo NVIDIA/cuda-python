@@ -1,12 +1,12 @@
 ﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-cuda.core.Linker
-================
+cuda.core.texture.TextureObject
+===============================
 
-.. currentmodule:: cuda.core
+.. currentmodule:: cuda.core.texture
 
-.. autoclass:: Linker
+.. autoclass:: TextureObject
 
    
    
@@ -15,10 +15,7 @@ cuda.core.Linker
    
    .. automethod:: __init__
    .. automethod:: close
-   .. automethod:: get_error_log
-   .. automethod:: get_info_log
-   .. automethod:: link
-   .. automethod:: which_backend
+   .. automethod:: from_descriptor
 
    
    
@@ -28,6 +25,9 @@ cuda.core.Linker
    .. rubric:: Attributes
 
    
+   .. autoattribute:: device
    .. autoattribute:: handle
+   .. autoattribute:: resource
+   .. autoattribute:: texture_descriptor
    
    

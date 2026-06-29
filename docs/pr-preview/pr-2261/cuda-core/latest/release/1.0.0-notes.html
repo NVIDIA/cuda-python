@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4b00d276"></script>
+    <script src="../_static/documentation_options.js?v=6bcdfcfa"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev92';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev105';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -593,12 +593,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Program.html">cuda.core.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.OpaqueArray.html">cuda.core.texture.OpaqueArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.MipmappedArray.html">cuda.core.texture.MipmappedArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -732,7 +736,7 @@ operations, and GPU UUID remapping support for restore.
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code></a> now accepts an optional <code class="docutils literal notranslate"><span class="pre">cache=</span></code> keyword argument
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code> now accepts an optional <code class="docutils literal notranslate"><span class="pre">cache=</span></code> keyword argument
 for avoiding recompilation of identical source + options + target. Two
 concrete implementations of the <a class="reference internal" href="../generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a> ABC are
 provided: <a class="reference internal" href="../generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache" title="cuda.core.utils.InMemoryProgramCache"><code class="xref py py-class docutils literal notranslate"><span class="pre">InMemoryProgramCache</span></code></a> (thread-safe, single-process
@@ -877,7 +881,7 @@ use indexing
 <li><p>The 17 attribute methods (<code class="docutils literal notranslate"><span class="pre">max_threads_per_block</span></code>, <code class="docutils literal notranslate"><span class="pre">num_regs</span></code>,
 <code class="docutils literal notranslate"><span class="pre">shared_size_bytes</span></code>, <code class="docutils literal notranslate"><span class="pre">cluster_scheduling_policy_preference</span></code>, etc.)
 that previously took a <code class="docutils literal notranslate"><span class="pre">device_id</span></code> argument are now properties on
-the view returned by <a class="reference internal" href="../generated/cuda.core.Kernel.html#cuda.core.Kernel.attributes" title="cuda.core.Kernel.attributes"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Kernel.attributes</span></code></a>. The view is bound to
+the view returned by <code class="xref py py-attr docutils literal notranslate"><span class="pre">Kernel.attributes</span></code>. The view is bound to
 the current device by default; <code class="docutils literal notranslate"><span class="pre">kernel.attributes[device]</span></code> returns
 a view bound to a specific <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> or device ordinal. The
 cache is shared across views of the same kernel.</p></li>
@@ -917,7 +921,7 @@ argument to <code class="docutils literal notranslate"><span class="pre">launch(
 extracted explicitly.</p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker.which_backend" title="cuda.core.Linker.which_backend"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Linker.which_backend()</span></code></a> is now a classmethod instead of the former
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Linker.which_backend()</span></code> is now a classmethod instead of the former
 <code class="docutils literal notranslate"><span class="pre">backend</span></code> instance property. Call sites must use <code class="docutils literal notranslate"><span class="pre">Linker.which_backend()</span></code>
 (with parentheses) instead of <code class="docutils literal notranslate"><span class="pre">linker.backend</span></code>. This allows querying the
 linking backend without constructing a <code class="docutils literal notranslate"><span class="pre">Linker</span></code> instance — for example, to
@@ -1039,7 +1043,7 @@ driver pointer attribute and the memory resource.
 <a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.clear_field_values" title="cuda.core.system.Device.clear_field_values"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.clear_field_values()</span></code></a> with an empty list no longer raise
 <code class="docutils literal notranslate"><span class="pre">InvalidArgumentError</span></code>.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1982">#1982</a>)</p></li>
-<li><p><a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> error and info log retrieval now properly checks return codes
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code> error and info log retrieval now properly checks return codes
 from nvJitLink, raising exceptions on failure instead of silently ignoring
 errors.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1993">#1993</a>)</p></li>
