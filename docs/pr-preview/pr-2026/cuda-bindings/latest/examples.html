@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,29 +37,29 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
 
 
-    <script src="_static/documentation_options.js?v=a86adfc4"></script>
+    <script src="_static/documentation_options.js?v=ee471ff7"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.3.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/examples.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2026/cuda-bindings/latest/examples.html" />
     <link rel="icon" href="_static/favicon.png"/>
 
     <link rel="index" title="Index" href="genindex.html" />
@@ -304,11 +304,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
     </div>
     
@@ -502,11 +509,18 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
       </div>
     
@@ -523,6 +537,8 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.3.1-notes.html">13.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.3.0-notes.html">13.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.1.0-notes.html">13.1.0</a></li>
@@ -530,6 +546,7 @@
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.4-notes.html">12.9.4</a></li>
@@ -576,6 +593,7 @@
 <li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html">nvjitlink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvvm.html">nvvm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvfatbin.html">nvfatbin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/cudla.html">cudla</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="module/cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
@@ -1283,26 +1301,26 @@
   <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
 <p>This page links to the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> examples shipped in the
-<a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/|cuda_bindings_github_ref|/cuda_bindings/examples">cuda-python repository</a>.
+<a class="extlink-cuda-bindings-examples reference external" href="https://github.com/NVIDIA/cuda-python/tree/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/">cuda-python repository</a>.
 Use it as a quick index when you want a runnable sample for a specific API area
 or CUDA feature.</p>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/clock_nvrtc.py">clock_nvrtc.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/0_Introduction/clock_nvrtc.py">clock_nvrtc.py</a>
 uses NVRTC-compiled CUDA code and the device clock to time a reduction
 kernel.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>
 demonstrates cubemap texture sampling and transformation.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/simple_p2p.py">simple_p2p.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/0_Introduction/simple_p2p.py">simple_p2p.py</a>
 shows peer-to-peer memory access and transfers between multiple GPUs.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/simple_zero_copy.py">simple_zero_copy.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/0_Introduction/simple_zero_copy.py">simple_zero_copy.py</a>
 uses zero-copy mapped host memory for vector addition.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/system_wide_atomics.py">system_wide_atomics.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/0_Introduction/system_wide_atomics.py">system_wide_atomics.py</a>
 demonstrates system-wide atomic operations on managed memory.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/vector_add_drv.py">vector_add_drv.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/0_Introduction/vector_add_drv.py">vector_add_drv.py</a>
 uses the CUDA Driver API and unified virtual addressing for vector addition.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/vector_add_mmap.py">vector_add_mmap.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/0_Introduction/vector_add_mmap.py">vector_add_mmap.py</a>
 uses virtual memory management APIs such as <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> and
 <code class="docutils literal notranslate"><span class="pre">cuMemMap</span></code> for vector addition.</p></li>
 </ul>
@@ -1310,7 +1328,7 @@ uses virtual memory management APIs such as <code class="docutils literal notran
 <section id="concepts-and-techniques">
 <h2>Concepts and techniques<a class="headerlink" href="#concepts-and-techniques" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/2_Concepts_and_Techniques/stream_ordered_allocation.py">stream_ordered_allocation.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/2_Concepts_and_Techniques/stream_ordered_allocation.py">stream_ordered_allocation.py</a>
 demonstrates <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> together with
 memory-pool release thresholds.</p></li>
 </ul>
@@ -1318,30 +1336,30 @@ memory-pool release thresholds.</p></li>
 <section id="cuda-features">
 <h2>CUDA features<a class="headerlink" href="#cuda-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/3_CUDA_Features/global_to_shmem_async_copy.py">global_to_shmem_async_copy.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/3_CUDA_Features/global_to_shmem_async_copy.py">global_to_shmem_async_copy.py</a>
 compares asynchronous global-to-shared-memory copy strategies in matrix
 multiplication kernels.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/3_CUDA_Features/simple_cuda_graphs.py">simple_cuda_graphs.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/3_CUDA_Features/simple_cuda_graphs.py">simple_cuda_graphs.py</a>
 shows both manual CUDA graph construction and stream-capture-based replay.</p></li>
 </ul>
 </section>
 <section id="libraries-and-tools">
 <h2>Libraries and tools<a class="headerlink" href="#libraries-and-tools" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/4_CUDA_Libraries/conjugate_gradient_multi_block_cg.py">conjugate_gradient_multi_block_cg.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/4_CUDA_Libraries/conjugate_gradient_multi_block_cg.py">conjugate_gradient_multi_block_cg.py</a>
 implements a conjugate-gradient solver with cooperative groups and
 multi-block synchronization.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/4_CUDA_Libraries/nvidia_smi.py">nvidia_smi.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/4_CUDA_Libraries/nvidia_smi.py">nvidia_smi.py</a>
 uses NVML to implement a Python subset of <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code>.</p></li>
 </ul>
 </section>
 <section id="advanced-and-interoperability">
 <h2>Advanced and interoperability<a class="headerlink" href="#advanced-and-interoperability" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/extra/iso_fd_modelling.py">iso_fd_modelling.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/extra/iso_fd_modelling.py">iso_fd_modelling.py</a>
 runs isotropic finite-difference wave propagation across multiple GPUs with
 peer-to-peer halo exchange.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/extra/jit_program.py">jit_program.py</a>
+<li><p><a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0604b18472a8e6c2cf66b34b23025cb603d49b41/cuda_bindings/examples/extra/jit_program.py">jit_program.py</a>
 JIT-compiles a SAXPY kernel with NVRTC and launches it through the Driver
 API.</p></li>
 </ul>
@@ -1420,8 +1438,8 @@ API.</p></li>
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
 
 
   <footer class="bd-footer">

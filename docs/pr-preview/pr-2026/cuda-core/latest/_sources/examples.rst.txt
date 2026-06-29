@@ -5,55 +5,55 @@ Examples
 ========
 
 This page links to the ``cuda.core`` examples shipped in the
-`cuda-python repository <https://github.com/NVIDIA/cuda-python/tree/|cuda_core_github_ref|/cuda_core/examples>`_.
+:cuda-core-examples:`cuda-python repository </>`.
 Use it as a quick index when you want a runnable starting point for a specific
 workflow.
 
 Compilation and kernel launch
 -----------------------------
 
-- `vector_add.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/vector_add.py>`_
+- :cuda-core-example:`vector_add.py <vector_add.py>`
   compiles and launches a simple vector-add kernel with CuPy arrays.
-- `saxpy.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/saxpy.py>`_
+- :cuda-core-example:`saxpy.py <saxpy.py>`
   JIT-compiles a templated SAXPY kernel and launches both float and double
   instantiations.
-- `pytorch_example.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/pytorch_example.py>`_
+- :cuda-core-example:`pytorch_example.py <pytorch_example.py>`
   launches a CUDA kernel with PyTorch tensors and a wrapped PyTorch stream.
 
 Multi-device and advanced launch configuration
 ----------------------------------------------
 
-- `simple_multi_gpu_example.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/simple_multi_gpu_example.py>`_
+- :cuda-core-example:`simple_multi_gpu_example.py <simple_multi_gpu_example.py>`
   compiles and launches kernels across multiple GPUs.
-- `thread_block_cluster.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/thread_block_cluster.py>`_
+- :cuda-core-example:`thread_block_cluster.py <thread_block_cluster.py>`
   demonstrates thread block cluster launch configuration on Hopper-class GPUs.
-- `tma_tensor_map.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/tma_tensor_map.py>`_
+- :cuda-core-example:`tma_tensor_map.py <tma_tensor_map.py>`
   demonstrates Tensor Memory Accelerator descriptors and TMA-based bulk copies.
 
 Linking and graphs
 ------------------
 
-- `jit_lto_fractal.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/jit_lto_fractal.py>`_
+- :cuda-core-example:`jit_lto_fractal.py <jit_lto_fractal.py>`
   uses JIT link-time optimization to link user-provided device code into a
   fractal workflow at runtime.
-- `cuda_graphs.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/cuda_graphs.py>`_
+- :cuda-core-example:`cuda_graphs.py <cuda_graphs.py>`
   captures and replays a multi-kernel CUDA graph to reduce launch overhead.
 
 Interoperability and memory access
 ----------------------------------
 
-- `memory_ops.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/memory_ops.py>`_
+- :cuda-core-example:`memory_ops.py <memory_ops.py>`
   covers memory resources, pinned memory, device transfers, and DLPack interop.
-- `strided_memory_view_cpu.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_cpu.py>`_
+- :cuda-core-example:`strided_memory_view_cpu.py <strided_memory_view_cpu.py>`
   uses ``StridedMemoryView`` with JIT-compiled CPU code via ``cffi``.
-- `strided_memory_view_gpu.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_gpu.py>`_
+- :cuda-core-example:`strided_memory_view_gpu.py <strided_memory_view_gpu.py>`
   uses ``StridedMemoryView`` with JIT-compiled GPU code and foreign GPU buffers.
-- `gl_interop_plasma.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/gl_interop_plasma.py>`_
+- :cuda-core-example:`gl_interop_plasma.py <gl_interop_plasma.py>`
   renders a CUDA-generated plasma effect through OpenGL interop without CPU
   copies.
 
 System inspection
 -----------------
 
-- `show_device_properties.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/show_device_properties.py>`_
+- :cuda-core-example:`show_device_properties.py <show_device_properties.py>`
   prints a detailed report of the CUDA devices available on the system.
