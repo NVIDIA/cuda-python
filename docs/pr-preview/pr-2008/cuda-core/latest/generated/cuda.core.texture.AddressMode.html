@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.Kernel &#8212; cuda.core</title>
+    <title>cuda.core.texture.AddressMode &#8212; cuda.core</title>
   
   
   
@@ -44,28 +44,28 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=13094cc8"></script>
+    <script src="../_static/documentation_options.js?v=b42fd552"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.Kernel';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.texture.AddressMode';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev97';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev109';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2008/cuda-core/latest/generated/cuda.core.Kernel.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2008/cuda-core/latest/generated/cuda.core.texture.AddressMode.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.ProgramOptions" href="cuda.core.ProgramOptions.html" />
-    <link rel="prev" title="cuda.core.ObjectCode" href="cuda.core.ObjectCode.html" />
+    <link rel="next" title="cuda.core.texture.FilterMode" href="cuda.core.texture.FilterMode.html" />
+    <link rel="prev" title="cuda.core.texture.ArrayFormat" href="cuda.core.texture.ArrayFormat.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -593,12 +593,16 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArray.html">cuda.core.texture.OpaqueArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArray.html">cuda.core.texture.MipmappedArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.texture.AddressMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -690,7 +694,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.Kernel</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.texture.AddressMode</span></li>
   </ul>
 </nav>
 </div>
@@ -707,83 +711,35 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-kernel">
-<h1>cuda.core.Kernel<a class="headerlink" href="#cuda-core-kernel" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-texture-addressmode">
+<h1>cuda.core.texture.AddressMode<a class="headerlink" href="#cuda-core-texture-addressmode" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.Kernel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">Kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Kernel" title="Link to this definition">#</a></dt>
-<dd><p>Represent a compiled kernel that had been loaded onto the device.</p>
-<p>Kernel instances can execution when passed directly into the
-<a class="reference internal" href="cuda.core.launch.html#cuda.core.launch" title="cuda.core.launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code></a> function.</p>
-<p>Directly creating a <a class="reference internal" href="#cuda.core.Kernel" title="cuda.core._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> is not supported, and they
-should instead be created through a <a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> object.</p>
-<p class="rubric">Methods</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Kernel.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Kernel.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Kernel.from_handle">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span>
+<dt class="sig sig-object py" id="cuda.core.texture.AddressMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.texture.</span></span><span class="sig-name descname"><span class="pre">AddressMode</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">handle</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">ObjectCode</span> <span class="pre">mod:</span> <span class="pre">ObjectCode</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.Kernel" title="cuda.core.Kernel"><span class="pre">Kernel</span></a></span></span><a class="headerlink" href="#cuda.core.Kernel.from_handle" title="Link to this definition">#</a></dt>
-<dd><p>Creates a new <a class="reference internal" href="#cuda.core.Kernel" title="cuda.core.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> object from a kernel handle.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Kernel handle representing the address of a foreign
-kernel object (CUkernel).</p></li>
-<li><p><strong>mod</strong> (<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>, optional) – The ObjectCode object associated with this kernel. Provides
-library lifetime for foreign kernels not created by
-cuda.core.</p></li>
-</ul>
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.texture.AddressMode" title="Link to this definition">#</a></dt>
+<dd><p>Boundary behavior for out-of-range texture coordinates.</p>
+<dl class="simple">
+<dt><strong>WRAP</strong>: 0</dt><dd><p>Boundary behavior for out-of-range texture coordinates.</p>
+</dd>
+<dt><strong>CLAMP</strong>: 1</dt><dd><p>Boundary behavior for out-of-range texture coordinates.</p>
+</dd>
+<dt><strong>MIRROR</strong>: 2</dt><dd><p>Boundary behavior for out-of-range texture coordinates.</p>
+</dd>
+<dt><strong>BORDER</strong>: 3</dt><dd><p>Boundary behavior for out-of-range texture coordinates.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<p class="rubric">Attributes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Kernel.arguments_info">
-<span class="sig-name descname"><span class="pre">arguments_info</span></span><a class="headerlink" href="#cuda.core.Kernel.arguments_info" title="Link to this definition">#</a></dt>
-<dd><p>list[ParamInfo]</p>
-<p>list[ParamInfo]: (offset, size) for each argument of this function</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Kernel.attributes">
-<span class="sig-name descname"><span class="pre">attributes</span></span><a class="headerlink" href="#cuda.core.Kernel.attributes" title="Link to this definition">#</a></dt>
-<dd><p>Get the read-only attributes of this kernel.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Kernel.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.Kernel.handle" title="Link to this definition">#</a></dt>
-<dd><p>Return the underlying kernel handle object.</p>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>This handle is a Python object. To get the memory address of the underlying C
-handle, call <code class="docutils literal notranslate"><span class="pre">int(Kernel.handle)</span></code>.</p>
-</div>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Kernel.num_arguments">
-<span class="sig-name descname"><span class="pre">num_arguments</span></span><a class="headerlink" href="#cuda.core.Kernel.num_arguments" title="Link to this definition">#</a></dt>
-<dd><p>int : The number of arguments of this function</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Kernel.occupancy">
-<span class="sig-name descname"><span class="pre">occupancy</span></span><a class="headerlink" href="#cuda.core.Kernel.occupancy" title="Link to this definition">#</a></dt>
-<dd><p>Get the occupancy information for launching this kernel.</p>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -799,20 +755,20 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Ke
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.ObjectCode.html"
+       href="cuda.core.texture.ArrayFormat.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.ObjectCode</p>
+        <p class="prev-next-title">cuda.core.texture.ArrayFormat</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.ProgramOptions.html"
+       href="cuda.core.texture.FilterMode.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.ProgramOptions</p>
+        <p class="prev-next-title">cuda.core.texture.FilterMode</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -837,16 +793,7 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Ke
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel"><code class="docutils literal notranslate"><span class="pre">Kernel</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.__init__"><code class="docutils literal notranslate"><span class="pre">Kernel.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.from_handle"><code class="docutils literal notranslate"><span class="pre">Kernel.from_handle()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.arguments_info"><code class="docutils literal notranslate"><span class="pre">Kernel.arguments_info</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.attributes"><code class="docutils literal notranslate"><span class="pre">Kernel.attributes</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.handle"><code class="docutils literal notranslate"><span class="pre">Kernel.handle</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.num_arguments"><code class="docutils literal notranslate"><span class="pre">Kernel.num_arguments</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.occupancy"><code class="docutils literal notranslate"><span class="pre">Kernel.occupancy</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.AddressMode"><code class="docutils literal notranslate"><span class="pre">AddressMode</span></code></a></li>
 </ul>
   </nav></div>
 
