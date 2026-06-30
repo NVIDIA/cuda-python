@@ -1,0 +1,6 @@
+﻿cuda.core.texture.TextureDescriptor
+===================================
+
+.. currentmodule:: cuda.core.texture
+
+.. autoclass:: TextureDescriptor
