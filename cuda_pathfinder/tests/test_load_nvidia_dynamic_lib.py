@@ -50,7 +50,7 @@ def test_supported_libnames_windows_site_packages_libdirs_ctk_consistency():
     # a supported Windows libname, not the other way around.
     site_packages_libnames = set(supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK.keys())
     supported_libnames = set(supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS)
-    assert site_packages_libnames <= supported_libnames, sorted(site_packages_libnames - supported_libnames)
+    assert site_packages_libnames <= supported_libnames
 
 
 @pytest.mark.parametrize("dict_name", ["SUPPORTED_LINUX_SONAMES", "SUPPORTED_WINDOWS_DLLS"])
