@@ -182,7 +182,7 @@ def _read_saxpy_rdc(kind: str) -> bytes:
 
     In CI: produced by the build stage.
     In local dev: auto-built on demand if nvcc is available; if you edit
-    saxpy.cu, remove stale RDC files to force a rebuild.
+    saxpy.cu, remove stale RDC files (i.e. saxpy.o, saxpy.a, or saxpy.lib) to force a rebuild.
     """
     binaries_dir = Path(__file__).parent / "test_binaries"
     if kind == "object":
