@@ -17,4 +17,10 @@ fi
 nvcc -dc "${NVCC_EXTRA_FLAGS[@]}" -arch=all-major \
     -o "${SCRIPTPATH}/saxpy.o" "${SCRIPTPATH}/saxpy.cu"
 
-ls -lah "${SCRIPTPATH}/saxpy.o"
+if [[ "${OS:-}" == "Windows_NT" ]]; then
+    nvcc -lib -o "${SCRIPTPATH}/saxpy.lib" "${SCRIPTPATH}/saxpy.o"
+    ls -lah "${SCRIPTPATH}/saxpy.o" "${SCRIPTPATH}/saxpy.lib"
+else
+    nvcc -lib -o "${SCRIPTPATH}/saxpy.a" "${SCRIPTPATH}/saxpy.o"
+    ls -lah "${SCRIPTPATH}/saxpy.o" "${SCRIPTPATH}/saxpy.a"
+fi

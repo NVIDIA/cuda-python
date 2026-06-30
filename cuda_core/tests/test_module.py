@@ -203,6 +203,33 @@ def get_saxpy_object():
     return obj_path.read_bytes()
 
 
+@pytest.fixture(scope="module")
+def get_saxpy_library():
+    """Read the pre-built saxpy.a (Linux) or saxpy.lib (Windows).
+
+    In CI: produced by build stage alongside saxpy.o.
+    In local dev: auto-built on demand if nvcc is available; if you edit
+    saxpy.cu, remove stale saxpy.o / saxpy.a to force a rebuild.
+    """
+    binaries_dir = Path(__file__).parent / "test_binaries"
+    lib_name = "saxpy.lib" if os.name == "nt" else "saxpy.a"
+    lib_path = binaries_dir / lib_name
+
+    if not lib_path.is_file():
+        if find_nvidia_binary_utility("nvcc") is None:
+            pytest.skip(
+                f"{lib_name} not found at {lib_path} and nvcc is unavailable. "
+                "In CI this is downloaded from the build stage."
+            )
+        subprocess.run(  # noqa: S603
+            ["bash", str(binaries_dir / "build_test_binaries.sh")],  # noqa: S607
+            check=True,
+            env=os.environ,
+        )
+
+    return lib_path.read_bytes()
+
+
 def test_get_kernel(init_cuda):
     kernel = """extern "C" __global__ void ABC() { }"""
 
@@ -395,6 +422,66 @@ def test_object_code_load_object_with_linker(get_saxpy_object, init_cuda):
     linked = Linker(
         kernel_code,
         ObjectCode.from_object(get_saxpy_object),
+        options=LinkerOptions(arch=arch),
+    ).link("cubin")
+    kernel = linked.get_kernel("linked_kernel")
+
+    stream = init_cuda.create_stream()
+    host_buf = cuda.core.LegacyPinnedMemoryResource().allocate(4)
+    result = np.from_dlpack(host_buf).view(np.float32)
+    result[:] = 0.0
+    dev_buf = init_cuda.memory_resource.allocate(4, stream=init_cuda.default_stream)
+
+    cuda.core.launch(
+        stream,
+        cuda.core.LaunchConfig(grid=1, block=1),
+        kernel,
+        np.float32(2.0),
+        np.float32(3.0),
+        np.float32(4.0),
+        dev_buf,
+    )
+    dev_buf.copy_to(host_buf, stream=stream)
+    stream.sync()
+
+    assert result[0] == 10.0
+
+
+def test_object_code_load_library(get_saxpy_library):
+    lib = get_saxpy_library
+    assert isinstance(lib, bytes)
+    mod_obj = ObjectCode.from_library(lib)
+    assert mod_obj.code == lib
+    assert mod_obj.code_type == "library"
+    with pytest.raises(RuntimeError, match=r'Unsupported code type "library"'):
+        mod_obj.get_kernel("saxpy<float>")
+
+
+def test_object_code_load_library_from_file(get_saxpy_library, tmp_path):
+    lib_ext = ".lib" if os.name == "nt" else ".a"
+    lib_file = tmp_path / f"test{lib_ext}"
+    lib_file.write_bytes(get_saxpy_library)
+    arg = str(lib_file)
+    mod_obj = ObjectCode.from_library(arg)
+    assert mod_obj.code == arg
+    assert mod_obj.code_type == "library"
+
+
+def test_object_code_load_library_with_linker(get_saxpy_library, init_cuda):
+    arch = f"sm_{init_cuda.arch}"
+    kernel_code = Program(
+        r"""
+        extern __device__ float saxpy_step(float a, float x, float y);
+        extern "C" __global__ void linked_kernel(float a, float x, float y, float* out) {
+            if (threadIdx.x == 0 && blockIdx.x == 0) *out = saxpy_step(a, x, y);
+        }
+        """,
+        "c++",
+        ProgramOptions(relocatable_device_code=True, arch=arch),
+    ).compile("cubin")
+    linked = Linker(
+        kernel_code,
+        ObjectCode.from_library(get_saxpy_library),
         options=LinkerOptions(arch=arch),
     ).link("cubin")
     kernel = linked.get_kernel("linked_kernel")
