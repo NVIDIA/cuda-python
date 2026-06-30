@@ -59,7 +59,7 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.3.2/overview.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html" />
     <link rel="icon" href="_static/favicon.png"/>
 
     <link rel="index" title="Index" href="genindex.html" />
@@ -119,6 +119,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -1782,7 +1785,7 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
 <h3>CUDA objects<a class="headerlink" href="#cuda-objects" title="Link to this heading">#</a></h3>
 <p>Certain CUDA kernels use native CUDA types as their parameters such as <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>. These types require special handling since they’re neither a primitive ctype nor a custom user type. Since <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> exposes each of them as Python classes, they each implement <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> and <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#">Tips and Tricks</a>.</p>
 <p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from
-<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/cuda-pathfinder-v1.5.6/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>.
+<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/77f2757c9426ae11f36192e1b385ac194f35a4b6/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>.
 The <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page links to more samples covering textures, graphs,
 memory mapping, and multi-GPU workflows.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simpleCubemapTexture</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
