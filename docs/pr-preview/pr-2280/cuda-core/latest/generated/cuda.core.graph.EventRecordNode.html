@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5f6b6b13"></script>
+    <script src="../_static/documentation_options.js?v=f84df289"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev99';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev107';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -783,16 +783,7 @@ memory allocation nodes per CUDA documentation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.callback">
-<span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode"><span class="pre">HostCallbackNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.callback" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.callback" title="Link to this definition">#</a></dt>
 <dd><p>Add a host callback node depending on this node.</p>
 <p>The callback runs on the host CPU when the graph reaches this node.
 Two modes are supported:</p>
@@ -847,7 +838,7 @@ copied and its lifetime is tied to the graph.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.destroy">
-<span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.destroy" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.destroy" title="Link to this definition">#</a></dt>
 <dd><p>Destroy this node and remove all its edges from the parent graph.</p>
 <p>After this call, <a class="reference internal" href="#cuda.core.graph.EventRecordNode.is_valid" title="cuda.core.graph.EventRecordNode.is_valid"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_valid</span></code></a> returns <code class="docutils literal notranslate"><span class="pre">False</span></code> and the node
 cannot be re-added to any graph.  Safe to call on an
@@ -1178,7 +1169,7 @@ evaluates to a non-zero value.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.graph">
 <span class="sig-name descname"><span class="pre">graph</span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.graph" title="Link to this definition">#</a></dt>
-<dd><p>‘GraphDefinition’</p>
+<dd><p>GraphDefinition</p>
 <p>Return the GraphDefinition this node belongs to.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -1203,32 +1194,54 @@ evaluates to a non-zero value.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.is_valid">
 <span class="sig-name descname"><span class="pre">is_valid</span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.is_valid" title="Link to this definition">#</a></dt>
-<dd><p>Whether this node is valid (not destroyed).</p>
+<dd><p>bool</p>
+<p>Whether this node is valid (not destroyed).</p>
 <p>Returns <code class="docutils literal notranslate"><span class="pre">False</span></code> after <a class="reference internal" href="#cuda.core.graph.EventRecordNode.destroy" title="cuda.core.graph.EventRecordNode.destroy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">destroy()</span></code></a> has been called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.is_valid</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.pred">
 <span class="sig-name descname"><span class="pre">pred</span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.pred" title="Link to this definition">#</a></dt>
-<dd><p>A mutable set-like view of this node’s predecessors.</p>
+<dd><p>AdjacencySetProxy</p>
+<p>A mutable set-like view of this node’s predecessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.pred</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.succ">
 <span class="sig-name descname"><span class="pre">succ</span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.succ" title="Link to this definition">#</a></dt>
-<dd><p>A mutable set-like view of this node’s successors.</p>
+<dd><p>AdjacencySetProxy</p>
+<p>A mutable set-like view of this node’s successors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.succ</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.type">
 <span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.type" title="Link to this definition">#</a></dt>
-<dd><p>Return the CUDA graph node type.</p>
+<dd><p>driver.CUgraphNodeType | None</p>
+<p>Return the CUDA graph node type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The node type enum value, or None for the entry node.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>CUgraphNodeType or None</p>
+</dd>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.type</p>
 </dd>
 </dl>
 </dd></dl>
