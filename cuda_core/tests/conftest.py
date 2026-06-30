@@ -91,6 +91,76 @@ except PackageNotFoundError as exc:
         sys.path.insert(0, test_helpers_root)
 
 
+from cuda_python_test_helpers.pytest_run_parallel import (
+    install_run_parallel_worker_context_patch,
+    mark_item_for_worker_context,
+)
+
+
+def pytest_configure(config):
+    install_run_parallel_worker_context_patch()
+
+
+@contextmanager
+def _init_cuda_context():
+    # TODO: rename this to e.g. init_context
+    device = Device(0)
+    device.set_current()
+
+    # Set option to avoid spin-waiting on synchronization.
+    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
+        handle_return(
+            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
+        )
+
+    try:
+        yield device
+    finally:
+        _ = _device_unset_current()
+
+
+@contextmanager
+def _cuda_core_worker_context(*, thread_index, iteration_index, kwargs):
+    with _init_cuda_context() as device:
+        if "init_cuda" in kwargs:
+            kwargs["init_cuda"] = device
+        if "mempool_device" in kwargs:
+            kwargs["mempool_device"] = device
+        if "ipc_device" in kwargs:
+            kwargs["ipc_device"] = device
+        if "mempool_device_x2" in kwargs:
+            kwargs["mempool_device_x2"] = _mempool_device_impl(2)
+        if "mempool_device_x3" in kwargs:
+            kwargs["mempool_device_x3"] = _mempool_device_impl(3)
+        if "ipc_mempool_device_x2" in kwargs:
+            kwargs["ipc_mempool_device_x2"] = _require_ipc_mempool_devices(_mempool_device_impl(2))
+        yield
+
+
+_CUDA_CONTEXT_FIXTURES = frozenset(
+    {
+        "init_cuda",
+        "ipc_device",
+        "ipc_memory_resource",
+        "mempool_device",
+        "mempool_device_x2",
+        "mempool_device_x3",
+        "ipc_mempool_device_x2",
+        "memory_resource_factory",
+    }
+)
+
+
+def _item_needs_thread_ctx(item):
+    return bool(_CUDA_CONTEXT_FIXTURES & set(getattr(item, "fixturenames", ())))
+
+
+def pytest_collection_modifyitems(config, items):
+    for item in items:
+        if _item_needs_thread_ctx(item):
+            mark_item_for_worker_context(item, _cuda_core_worker_context)
+
+
 def skip_if_pinned_memory_unsupported(device):
     try:
         if not device.properties.host_memory_pools_supported:
@@ -194,18 +264,8 @@ def session_setup():
 
 @pytest.fixture
 def init_cuda():
-    # TODO: rename this to e.g. init_context
-    device = Device(0)
-    device.set_current()
-
-    # Set option to avoid spin-waiting on synchronization.
-    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
-        handle_return(
-            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
-        )
-
-    yield device
-    _ = _device_unset_current()
+    with _init_cuda_context() as device:
+        yield device
 
 
 def _device_unset_current() -> bool:
