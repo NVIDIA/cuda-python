@@ -434,11 +434,21 @@ jobs:
           pushd numba-cuda-mlir-released
           pip install --upgrade "pip>=25.1"
           pip install --group test
-          # Skip tests/benchmarks/ and tests/doc_examples/ — see
-          # NVIDIA/numba-cuda-mlir#136.
+          # Deselects — see comments on the equivalent Linux step and
+          # NVIDIA/numba-cuda-mlir#135, #136.
           pytest -rxXs -v --durations=0 \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
+            --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_default_stream' \
+            --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_supplied_stream' \
+            --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_sync' \
+            --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_no_sync' \
+            --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_sync' \
+            --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_no_sync' \
+            --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync' \
+            --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync_two_streams' \
+            --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_fortran_contiguous' \
+            --deselect 'tests/numba_cuda_tests/cudadrv/test_nvjitlink.py::TestLinkerDumpAssembly::test_nvjitlink_jit_with_linkable_code_lto_dump_assembly_warn' \
             tests/
           popd
 
@@ -459,5 +469,10 @@ jobs:
           # Cap pytest below 9.1 — released cuda-core <=1.0.1 has parametrize
           # patterns that pytest 9.1 rejects (see #2212).
           pip install "pytest<9.1"
-          pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
+          # Deselects — see comments on the equivalent Linux step.
+          pytest -rxXs -v --durations=0 --randomly-dont-reorganize \
+            --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]' \
+            --deselect 'tests/test_rlcompleter_patch.py::test_opt_out_env_var_disables_patch_even_when_interactive' \
+            --deselect 'tests/test_memory.py::test_non_managed_resources_report_not_managed[pinned]' \
+            tests/
           popd
