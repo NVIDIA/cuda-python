@@ -114,32 +114,16 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     popd
   elif [[ "${test_module}" == "nightly-cuda-core" ]]; then
     # Test the *released* cuda-core (from PyPI) against *main*-built pathfinder
-    # and cuda-bindings. Fetches the released cuda-core's own test suite from
-    # the matching git tag so we exercise its full compiled surface, not the
-    # current main tests (which may reference APIs the released core doesn't
-    # have).
+    # and cuda-bindings. The workflow follows up with an actions/checkout of the
+    # matching cuda-core-v<X.Y.Z> tag so the released version's own test suite
+    # (which is not shipped in the wheel) can be exercised.
     echo "Installing pathfinder + bindings from main + released cuda-core from PyPI"
     pip install "${PATHFINDER_WHL[@]}" "${BINDINGS_ARGS[@]}" "cuda-core[cu${TEST_CUDA_MAJOR}]"
 
     released_ver=$(pip show cuda-core | awk '/^Version:/{print $2}')
-    tag="cuda-core-v${released_ver}"
-    tests_dir="${TMPDIR:-/tmp}/cuda-core-released-${released_ver}"
-    echo "Fetching cuda-core tests from tag ${tag}"
-    if ! git fetch origin --tags "+refs/tags/${tag}:refs/tags/${tag}" >/dev/null 2>&1; then
-      echo "Warning: tag ${tag} not fetchable; skipping released cuda-core tests"
-      exit 0
-    fi
-    mkdir -p "${tests_dir}"
-    git archive "${tag}" cuda_core | tar -x -C "${tests_dir}"
-
-    # Install test deps from the released tag's pyproject.toml, not main's.
-    pushd "${tests_dir}/cuda_core"
-    echo "Installing cuda-core test deps from tag ${tag}"
-    pip install --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
-    popd
-
     if [[ -n "${GITHUB_ENV:-}" ]]; then
-      echo "CUDA_CORE_RELEASED_TESTS_DIR=${tests_dir}" >> "${GITHUB_ENV}"
+      echo "CUDA_CORE_RELEASED_VER=${released_ver}" >> "${GITHUB_ENV}"
+      echo "CUDA_CORE_TEST_GROUP=test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" >> "${GITHUB_ENV}"
     fi
     echo "Installed packages before released cuda-core tests:"
     pip list
@@ -188,23 +172,12 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     popd
 
     if [[ "${test_module}" == "nightly-numba-cuda-mlir" ]]; then
-      # Fetch numba-cuda-mlir's own test suite from the matching git tag —
-      # the wheel does not ship test_*.py files.
+      # Expose the installed numba-cuda-mlir version so the workflow can
+      # actions/checkout the matching v<X.Y.Z> tag from NVIDIA/numba-cuda-mlir
+      # (the wheel does not ship test_*.py files).
       installed_ver=$(pip show numba-cuda-mlir | awk '/^Version:/{print $2}')
-      tag="v${installed_ver}"
-      tests_dir="${TMPDIR:-/tmp}/numba-cuda-mlir-${installed_ver}"
-      echo "Cloning numba-cuda-mlir tests at tag ${tag}"
-      if git clone --depth 1 --branch "${tag}" https://github.com/NVIDIA/numba-cuda-mlir "${tests_dir}"; then
-        pushd "${tests_dir}"
-        # --group requires pip 25.1+; Ubuntu 24.04 stock ships older.
-        pip install --upgrade "pip>=25.1"
-        pip install --group test
-        popd
-        if [[ -n "${GITHUB_ENV:-}" ]]; then
-          echo "NUMBA_CUDA_MLIR_TESTS_DIR=${tests_dir}" >> "${GITHUB_ENV}"
-        fi
-      else
-        echo "Warning: numba-cuda-mlir tag ${tag} not clonable; skipping tests"
+      if [[ -n "${GITHUB_ENV:-}" ]]; then
+        echo "NUMBA_CUDA_MLIR_VER=${installed_ver}" >> "${GITHUB_ENV}"
       fi
     fi
   fi

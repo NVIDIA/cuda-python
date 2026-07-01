@@ -419,18 +419,42 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: python -m numba.runtests numba.cuda.tests
 
+      - name: Checkout numba-cuda-mlir tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          repository: NVIDIA/numba-cuda-mlir
+          ref: v${{ env.NUMBA_CUDA_MLIR_VER }}
+          path: numba-cuda-mlir-released
+
       - name: Run numba-cuda-mlir tests
-        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_TESTS_DIR != '' }}
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          pushd "${NUMBA_CUDA_MLIR_TESTS_DIR}"
-          pytest -rxXs -v --durations=0 tests/
+          pushd numba-cuda-mlir-released
+          pip install --upgrade "pip>=25.1"
+          pip install --group test
+          # Skip tests/benchmarks/ and tests/doc_examples/ — see
+          # NVIDIA/numba-cuda-mlir#136.
+          pytest -rxXs -v --durations=0 \
+            --ignore=tests/benchmarks \
+            --ignore=tests/doc_examples \
+            tests/
           popd
 
+      - name: Checkout released cuda-core tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' && env.CUDA_CORE_RELEASED_VER != '' }}
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          ref: cuda-core-v${{ env.CUDA_CORE_RELEASED_VER }}
+          path: cuda-core-released
+
       - name: Run released cuda-core tests
-        if: ${{ inputs.test-mode == 'nightly-cuda-core' && env.CUDA_CORE_RELEASED_TESTS_DIR != '' }}
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' && env.CUDA_CORE_RELEASED_VER != '' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          pushd "${CUDA_CORE_RELEASED_TESTS_DIR}/cuda_core"
+          pushd cuda-core-released/cuda_core
+          pip install --upgrade "pip>=25.1"
+          pip install --group "${CUDA_CORE_TEST_GROUP}"
           pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
           popd
