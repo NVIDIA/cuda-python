@@ -29,7 +29,7 @@
 #         subsequent steps (including the cuda.bindings and cuda.core test
 #         steps). Nightly rows also use ENV.MODE as a matrix-filter tag (see
 #         ci-nightly.yml). Examples:
-#           ENV: { CUDA_PYTHON_PER_THREAD_DEFAULT_STREAM: '1' }
+#           ENV: { CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM: '1' }
 #           ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.12.1', TORCH_CUDA: 'cu126' }
 
 linux:
@@ -41,7 +41,7 @@ linux:
     - { ARCH: 'amd64', PY_VER: '3.11',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.11',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.11',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', ENV: { CUDA_PYTHON_PER_THREAD_DEFAULT_STREAM: '1' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', ENV: { CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM: '1' } }
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'v100',       GPU_COUNT: '1', DRIVER: 'latest' }
@@ -124,7 +124,7 @@ windows:
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
-    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM', ENV: { CUDA_PYTHON_PER_THREAD_DEFAULT_STREAM: '1' } }
+    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM', ENV: { CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM: '1' } }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'v100',       GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
