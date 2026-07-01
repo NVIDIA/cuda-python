@@ -336,7 +336,7 @@ array of ones:
    import cupy as cp
 
    a = cp.ones(n, dtype=cp.float32)
-   dev.sync()  # CuPy fills `a` on its own stream; sync before our stream reads it
+   dev.sync()  # CuPy fills "a" on its own stream; sync before our stream reads it
    launch(stream, config, scale, a.data.ptr, np.float32(2.0), np.uint64(a.size))
    stream.sync()
    assert bool((a == 2).all())
@@ -409,7 +409,7 @@ are released when garbage-collected, but you can release them explicitly with
    host.close(stream=stream)
    stream.close()
 
-   # or scope a buffer with `with`:
+   # or scope a buffer with a with-statement:
    with dev.allocate(nbytes, stream=stream) as tmp:
        ...  # tmp is freed at the end of the block
 
