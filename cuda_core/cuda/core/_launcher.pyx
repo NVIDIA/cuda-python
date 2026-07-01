@@ -17,6 +17,7 @@ from cuda.core._utils.cuda_utils cimport (
 )
 from cuda.core._module import Kernel
 from cuda.core._stream import Stream
+from cuda.core._utils.cuda_utils import CUDAError
 from math import prod
 from typing import TYPE_CHECKING
 
@@ -62,14 +63,26 @@ def launch(
 
     drv_cfg = conf._to_native_launch_config()
     drv_cfg.hStream = as_cu(s._h_stream)
+    if conf.cluster is not None:
+        _check_cluster_launch(conf, s)
     if conf.is_cooperative:
         _check_cooperative_launch(kernel, conf, s)
     with nogil:
         HANDLE_RETURN(cydriver.cuLaunchKernelEx(&drv_cfg, func_handle, args_ptr, NULL))
 
 
+cdef _check_cluster_launch(config: LaunchConfig, stream: Stream):
+    cc = stream.device.compute_capability
+    if cc < (9, 0):
+        raise CUDAError(
+            f"thread block clusters are not supported on devices with compute capability < 9.0 (got {cc})"
+        )
+
+
 cdef _check_cooperative_launch(kernel: Kernel, config: LaunchConfig, stream: Stream):
     dev = stream.device
+    if not dev.properties.cooperative_launch:
+        raise CUDAError("cooperative kernels are not supported on this device")
     num_sm = dev.properties.multiprocessor_count
     max_grid_size = (
         kernel.occupancy.max_active_blocks_per_multiprocessor(prod(config.block), config.shmem_size) * num_sm
