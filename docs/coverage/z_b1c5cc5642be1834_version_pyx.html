@@ -8,7 +8,7 @@
     <script type="text/javascript">
         contexts = {
   "a": "(empty)",
-  "b": "tests/test_module.py::test_num_args_error_handling|run",
+  "b": "tests/graph/test_graph_update.py::test_graph_update_conditional|run",
   "c": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[0]|run",
   "d": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[1]|run",
   "e": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[False]|run",
@@ -35,23 +35,23 @@
   "z": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[1]|run",
   "A": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[False]|run",
   "B": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[True]|run",
-  "C": "tests/graph/test_graph_update.py::test_graph_update_conditional|run",
-  "D": "tests/graph/test_options.py::test_graph_dot_print_options|run",
-  "E": "tests/test_green_context.py::TestGreenContextLifecycle::test_create_stream_explicit|setup",
-  "F": "tests/test_green_context.py::TestSMResourceQuery::test_arch_constraints_hopper_plus|setup",
-  "G": "tests/test_green_context.py::TestWorkqueueResource::test_configure_invalid_scope_raises|setup",
-  "H": "tests/test_module.py::test_kernel_keeps_library_alive|run",
-  "I": "tests/test_module.py::test_num_arguments[int-0]|run",
-  "J": "tests/test_module.py::test_num_arguments[int-1]|run",
-  "K": "tests/test_module.py::test_num_arguments[int-2]|run",
-  "L": "tests/test_module.py::test_num_arguments[int-3]|run",
-  "M": "tests/test_module.py::test_num_arguments[int-16]|run",
-  "N": "tests/test_module.py::test_num_arguments[short-0]|run",
-  "O": "tests/test_module.py::test_num_arguments[short-1]|run",
-  "P": "tests/test_module.py::test_num_arguments[short-2]|run",
-  "Q": "tests/test_module.py::test_num_arguments[short-3]|run",
-  "R": "tests/test_module.py::test_num_arguments[short-16]|run",
-  "S": "tests/test_module.py::test_saxpy_arguments|run",
+  "C": "tests/graph/test_options.py::test_graph_dot_print_options|run",
+  "D": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_with_workqueue_resource|setup",
+  "E": "tests/test_green_context.py::TestGreenContextLifecycle::test_set_current_swap_regression|setup",
+  "F": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  "G": "tests/test_module.py::test_num_args_error_handling|run",
+  "H": "tests/test_module.py::test_num_arguments[int-0]|run",
+  "I": "tests/test_module.py::test_num_arguments[int-1]|run",
+  "J": "tests/test_module.py::test_num_arguments[int-2]|run",
+  "K": "tests/test_module.py::test_num_arguments[int-3]|run",
+  "L": "tests/test_module.py::test_num_arguments[int-16]|run",
+  "M": "tests/test_module.py::test_num_arguments[short-0]|run",
+  "N": "tests/test_module.py::test_num_arguments[short-1]|run",
+  "O": "tests/test_module.py::test_num_arguments[short-2]|run",
+  "P": "tests/test_module.py::test_num_arguments[short-3]|run",
+  "Q": "tests/test_module.py::test_num_arguments[short-16]|run",
+  "R": "tests/test_module.py::test_saxpy_arguments|run",
+  "S": "tests/graph/test_graph_definition_lifetime.py::test_python_callable_callback_survives_del|run",
   "T": "tests/graph/test_graph_builder.py::test_graph_capture_callback_ctypes|run",
   "U": "tests/graph/test_graph_builder.py::test_graph_capture_callback_python|run",
   "V": "tests/graph/test_graph_builder.py::test_graph_capture_errors|run",
@@ -99,41 +99,40 @@
   "ab": "tests/graph/test_graph_definition_lifetime.py::test_kernel_args_buffer_lifetime|run",
   "bb": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
   "cb": "tests/graph/test_graph_definition_lifetime.py::test_kernel_survives_graph_instantiation_and_execution|run",
-  "db": "tests/graph/test_graph_definition_lifetime.py::test_python_callable_callback_survives_del|run",
-  "eb": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_baseline|run",
-  "fb": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a1|run",
-  "gb": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a2|run",
-  "hb": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_joint|run",
-  "ib": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_insert_b|run",
-  "jb": "tests/graph/test_graph_definition_mutation.py::test_convert_linear_to_fan_in|run",
-  "kb": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[global]|run",
-  "lb": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[relaxed]|run",
-  "mb": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[thread_local]|run",
-  "nb": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[global]|run",
-  "ob": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[relaxed]|run",
-  "pb": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[thread_local]|run",
-  "qb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-global]|run",
-  "rb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-relaxed]|run",
-  "sb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-thread_local]|run",
-  "tb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-global]|run",
-  "ub": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-relaxed]|run",
-  "vb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-thread_local]|run",
-  "wb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[global]|run",
-  "xb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[relaxed]|run",
-  "yb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[thread_local]|run",
-  "zb": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[global]|run",
-  "Ab": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[relaxed]|run",
-  "Bb": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[thread_local]|run",
-  "Cb": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[global]|run",
-  "Db": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[relaxed]|run",
-  "Eb": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[thread_local]|run",
-  "Fb": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphBuilder]|run",
-  "Gb": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDefinition]|run",
-  "Hb": "tests/graph/test_graph_update.py::test_graph_update_topology_mismatch|run",
-  "Ib": "tests/graph/test_graph_update.py::test_graph_update_unfinished_builder|run",
-  "Jb": "tests/graph/test_graph_update.py::test_graph_update_wrong_type|run",
-  "Kb": "tests/graph/test_options.py::test_graph_complete_options|run",
-  "Lb": "tests/test_texture_surface.py::test_array_copy_accepts_graph_builder|run"
+  "db": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_baseline|run",
+  "eb": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a1|run",
+  "fb": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a2|run",
+  "gb": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_joint|run",
+  "hb": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_insert_b|run",
+  "ib": "tests/graph/test_graph_definition_mutation.py::test_convert_linear_to_fan_in|run",
+  "jb": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[global]|run",
+  "kb": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[relaxed]|run",
+  "lb": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[thread_local]|run",
+  "mb": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[global]|run",
+  "nb": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[relaxed]|run",
+  "ob": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[thread_local]|run",
+  "pb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-global]|run",
+  "qb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-relaxed]|run",
+  "rb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-thread_local]|run",
+  "sb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-global]|run",
+  "tb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-relaxed]|run",
+  "ub": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-thread_local]|run",
+  "vb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[global]|run",
+  "wb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[relaxed]|run",
+  "xb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[thread_local]|run",
+  "yb": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[global]|run",
+  "zb": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[relaxed]|run",
+  "Ab": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[thread_local]|run",
+  "Bb": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[global]|run",
+  "Cb": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[relaxed]|run",
+  "Db": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[thread_local]|run",
+  "Eb": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphBuilder]|run",
+  "Fb": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDefinition]|run",
+  "Gb": "tests/graph/test_graph_update.py::test_graph_update_topology_mismatch|run",
+  "Hb": "tests/graph/test_graph_update.py::test_graph_update_unfinished_builder|run",
+  "Ib": "tests/graph/test_graph_update.py::test_graph_update_wrong_type|run",
+  "Jb": "tests/graph/test_options.py::test_graph_complete_options|run",
+  "Kb": "tests/test_texture_surface.py::test_array_copy_accepts_graph_builder|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -196,7 +195,7 @@
             <a id="nextFileLink" class="nav" href="z_2f8b98bdecb6e8b7__adjacency_set_proxy_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-06-30 01:26 +0000
+            created at 2026-07-01 01:34 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -244,16 +243,16 @@
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">cdef tuple cy_binding_version():</span>&nbsp;</span><span class="r"><label for="ctxs32" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">    global _cached_binding_version</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    if _cached_binding_version is None:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">126 ctx</label></span><span class="ctxs">2T U V W X Y Z 0 1 2 3 c d e f g h i j k l m n o p q r s t u v w x y z A B 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbC FbGbHbIbJbKbD E F G H b I J K L M N O P Q R S Lb</span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        _cached_binding_version = binding_version()</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return _cached_binding_version</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">126 ctx</label></span><span class="ctxs">2T U V W X Y Z 0 1 2 3 c d e f g h i j k l m n o p q r s t u v w x y z A B 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbC FbGbHbIbJbKbD E F G H b I J K L M N O P Q R S Lb</span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    if _cached_binding_version is None:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">125 ctx</label></span><span class="ctxs">2T U V W X Y Z 0 1 2 3 c d e f g h i j k l m n o p q r s t u v w x y z A B 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbS dbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbb EbFbGbHbIbJbC D E F G H I J K L M N O P Q R Kb</span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        _cached_binding_version = binding_version()</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">1 ctx</label></span><span class="ctxs">1S</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return _cached_binding_version</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">125 ctx</label></span><span class="ctxs">2T U V W X Y Z 0 1 2 3 c d e f g h i j k l m n o p q r s t u v w x y z A B 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbS dbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbb EbFbGbHbIbJbC D E F G H I J K L M N O P Q R Kb</span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">cdef tuple cy_driver_version():</span>&nbsp;</span><span class="r"><label for="ctxs39" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    global _cached_driver_version</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    if _cached_driver_version is None:</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">44 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHbIJKLMNOPQRS</span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    if _cached_driver_version is None:</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">43 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABbCDEFGHIJKLMNOPQR</span></p>
     <p class="run"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">        _cached_driver_version = driver_version()</span>&nbsp;</span><input type="checkbox" id="ctxs42"><span class="r"><label for="ctxs42" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
-    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    return _cached_driver_version</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">44 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHbIJKLMNOPQRS</span></p>
+    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    return _cached_driver_version</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">43 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABbCDEFGHIJKLMNOPQR</span></p>
 </main>
 <footer>
     <div class="content">
@@ -263,7 +262,7 @@
             <a class="nav" href="z_2f8b98bdecb6e8b7__adjacency_set_proxy_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-06-30 01:26 +0000
+            created at 2026-07-01 01:34 +0000
         </p>
     </div>
 </footer>
