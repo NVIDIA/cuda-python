@@ -5,7 +5,6 @@ requires = [
     "setuptools>=80.0.0",
     "setuptools_scm[simple]>=8,!=10.1",
     "cython>=3.2,<3.3",
-    "pyclibrary>=0.1.7",
     "cuda-pathfinder>=1.5",
 ]
 build-backend = "build_hooks"

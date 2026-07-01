@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1781+g72872c498. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -339,76 +339,74 @@ __CUDART_API_VERSION = cyruntime.__CUDART_API_VERSION
 #: Maximum number of planes per frame
 CUDA_EGL_MAX_PLANES = cyruntime.CUDA_EGL_MAX_PLANES
 
-{{if 'cudaError' in found_types}}
-
 class cudaError_t(_FastEnum):
     """
     impl_private CUDA error types
     """
-    {{if 'cudaSuccess' in found_values}}
+
 
     cudaSuccess = (
         cyruntime.cudaError.cudaSuccess,
         'The API call returned with no errors. In the case of query calls, this also\n'
         'means that the operation being queried is complete (see\n'
         ':py:obj:`~.cudaEventQuery()` and :py:obj:`~.cudaStreamQuery()`).\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidValue' in found_values}}
+    )
+
 
     cudaErrorInvalidValue = (
         cyruntime.cudaError.cudaErrorInvalidValue,
         'This indicates that one or more of the parameters passed to the API call is\n'
         'not within an acceptable range of values.\n'
-    ){{endif}}
-    {{if 'cudaErrorMemoryAllocation' in found_values}}
+    )
+
 
     cudaErrorMemoryAllocation = (
         cyruntime.cudaError.cudaErrorMemoryAllocation,
         'The API call failed because it was unable to allocate enough memory or\n'
         'other resources to perform the requested operation.\n'
-    ){{endif}}
-    {{if 'cudaErrorInitializationError' in found_values}}
+    )
+
 
     cudaErrorInitializationError = (
         cyruntime.cudaError.cudaErrorInitializationError,
         'The API call failed because the CUDA driver and runtime could not be\n'
         'initialized.\n'
-    ){{endif}}
-    {{if 'cudaErrorCudartUnloading' in found_values}}
+    )
+
 
     cudaErrorCudartUnloading = (
         cyruntime.cudaError.cudaErrorCudartUnloading,
         'This indicates that a CUDA Runtime API call cannot be executed because it\n'
         'is being called during process shut down, at a point in time after CUDA\n'
         'driver has been unloaded.\n'
-    ){{endif}}
-    {{if 'cudaErrorProfilerDisabled' in found_values}}
+    )
+
 
     cudaErrorProfilerDisabled = (
         cyruntime.cudaError.cudaErrorProfilerDisabled,
         'This indicates profiler is not initialized for this run. This can happen\n'
         'when the application is running with external profiling tools like visual\n'
         'profiler.\n'
-    ){{endif}}
-    {{if 'cudaErrorProfilerNotInitialized' in found_values}}
+    )
+
 
     cudaErrorProfilerNotInitialized = (
         cyruntime.cudaError.cudaErrorProfilerNotInitialized,
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorProfilerAlreadyStarted' in found_values}}
+    )
+
 
     cudaErrorProfilerAlreadyStarted = (
         cyruntime.cudaError.cudaErrorProfilerAlreadyStarted,
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorProfilerAlreadyStopped' in found_values}}
+    )
+
 
     cudaErrorProfilerAlreadyStopped = (
         cyruntime.cudaError.cudaErrorProfilerAlreadyStopped,
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidConfiguration' in found_values}}
+    )
+
 
     cudaErrorInvalidConfiguration = (
         cyruntime.cudaError.cudaErrorInvalidConfiguration,
@@ -417,196 +415,196 @@ class cudaError_t(_FastEnum):
         'than the device supports will trigger this error, as will requesting too\n'
         'many threads or blocks. See :py:obj:`~.cudaDeviceProp` for more device\n'
         'limitations.\n'
-    ){{endif}}
-    {{if 'cudaErrorVersionTranslation' in found_values}}
+    )
+
 
     cudaErrorVersionTranslation = (
         cyruntime.cudaError.cudaErrorVersionTranslation,
         'This indicates that the driver is newer than the runtime version and\n'
         'returned graph node parameter information that the runtime does not\n'
         'understand and is unable to translate.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidPitchValue' in found_values}}
+    )
+
 
     cudaErrorInvalidPitchValue = (
         cyruntime.cudaError.cudaErrorInvalidPitchValue,
         'This indicates that one or more of the pitch-related parameters passed to\n'
         'the API call is not within the acceptable range for pitch.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidSymbol' in found_values}}
+    )
+
 
     cudaErrorInvalidSymbol = (
         cyruntime.cudaError.cudaErrorInvalidSymbol,
         'This indicates that the symbol name/identifier passed to the API call is\n'
         'not a valid name or identifier.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidHostPointer' in found_values}}
+    )
+
 
     cudaErrorInvalidHostPointer = (
         cyruntime.cudaError.cudaErrorInvalidHostPointer,
         'This indicates that at least one host pointer passed to the API call is not\n'
         'a valid host pointer.\n'
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidDevicePointer' in found_values}}
+    )
+
 
     cudaErrorInvalidDevicePointer = (
         cyruntime.cudaError.cudaErrorInvalidDevicePointer,
         'This indicates that at least one device pointer passed to the API call is\n'
         'not a valid device pointer.\n'
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidTexture' in found_values}}
+    )
+
 
     cudaErrorInvalidTexture = (
         cyruntime.cudaError.cudaErrorInvalidTexture,
         'This indicates that the texture passed to the API call is not a valid\n'
         'texture.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidTextureBinding' in found_values}}
+    )
+
 
     cudaErrorInvalidTextureBinding = (
         cyruntime.cudaError.cudaErrorInvalidTextureBinding,
         'This indicates that the texture binding is not valid. This occurs if you\n'
         'call :py:obj:`~.cudaGetTextureAlignmentOffset()` with an unbound texture.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidChannelDescriptor' in found_values}}
+    )
+
 
     cudaErrorInvalidChannelDescriptor = (
         cyruntime.cudaError.cudaErrorInvalidChannelDescriptor,
         'This indicates that the channel descriptor passed to the API call is not\n'
         'valid. This occurs if the format is not one of the formats specified by\n'
         ':py:obj:`~.cudaChannelFormatKind`, or if one of the dimensions is invalid.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidMemcpyDirection' in found_values}}
+    )
+
 
     cudaErrorInvalidMemcpyDirection = (
         cyruntime.cudaError.cudaErrorInvalidMemcpyDirection,
         'This indicates that the direction of the memcpy passed to the API call is\n'
         'not one of the types specified by :py:obj:`~.cudaMemcpyKind`.\n'
-    ){{endif}}
-    {{if 'cudaErrorAddressOfConstant' in found_values}}
+    )
+
 
     cudaErrorAddressOfConstant = (
         cyruntime.cudaError.cudaErrorAddressOfConstant,
         'This indicated that the user has taken the address of a constant variable,\n'
         'which was forbidden up until the CUDA 3.1 release.\n'
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorTextureFetchFailed' in found_values}}
+    )
+
 
     cudaErrorTextureFetchFailed = (
         cyruntime.cudaError.cudaErrorTextureFetchFailed,
         'This indicated that a texture fetch was not able to be performed. This was\n'
         'previously used for device emulation of texture operations.\n'
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorTextureNotBound' in found_values}}
+    )
+
 
     cudaErrorTextureNotBound = (
         cyruntime.cudaError.cudaErrorTextureNotBound,
         'This indicated that a texture was not bound for access. This was previously\n'
         'used for device emulation of texture operations.\n'
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorSynchronizationError' in found_values}}
+    )
+
 
     cudaErrorSynchronizationError = (
         cyruntime.cudaError.cudaErrorSynchronizationError,
         'This indicated that a synchronization operation had failed. This was\n'
         'previously used for some device emulation functions.\n'
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidFilterSetting' in found_values}}
+    )
+
 
     cudaErrorInvalidFilterSetting = (
         cyruntime.cudaError.cudaErrorInvalidFilterSetting,
         'This indicates that a non-float texture was being accessed with linear\n'
         'filtering. This is not supported by CUDA.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidNormSetting' in found_values}}
+    )
+
 
     cudaErrorInvalidNormSetting = (
         cyruntime.cudaError.cudaErrorInvalidNormSetting,
         'This indicates that an attempt was made to read an unsupported data type as\n'
         'a normalized float. This is not supported by CUDA.\n'
-    ){{endif}}
-    {{if 'cudaErrorMixedDeviceExecution' in found_values}}
+    )
+
 
     cudaErrorMixedDeviceExecution = (
         cyruntime.cudaError.cudaErrorMixedDeviceExecution,
         'Mixing of device and device emulation code was not allowed.\n'
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorNotYetImplemented' in found_values}}
+    )
+
 
     cudaErrorNotYetImplemented = (
         cyruntime.cudaError.cudaErrorNotYetImplemented,
         'This indicates that the API call is not yet implemented. Production\n'
         'releases of CUDA will never return this error.\n'
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorMemoryValueTooLarge' in found_values}}
+    )
+
 
     cudaErrorMemoryValueTooLarge = (
         cyruntime.cudaError.cudaErrorMemoryValueTooLarge,
         'This indicated that an emulated device pointer exceeded the 32-bit address\n'
         'range.\n'
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorStubLibrary' in found_values}}
+    )
+
 
     cudaErrorStubLibrary = (
         cyruntime.cudaError.cudaErrorStubLibrary,
         'This indicates that the CUDA driver that the application has loaded is a\n'
         'stub library. Applications that run with the stub rather than a real driver\n'
         'loaded will result in CUDA API returning this error.\n'
-    ){{endif}}
-    {{if 'cudaErrorInsufficientDriver' in found_values}}
+    )
+
 
     cudaErrorInsufficientDriver = (
         cyruntime.cudaError.cudaErrorInsufficientDriver,
         'This indicates that the installed NVIDIA CUDA driver is older than the CUDA\n'
         'runtime library. This is not a supported configuration. Users should\n'
         'install an updated NVIDIA display driver to allow the application to run.\n'
-    ){{endif}}
-    {{if 'cudaErrorCallRequiresNewerDriver' in found_values}}
+    )
+
 
     cudaErrorCallRequiresNewerDriver = (
         cyruntime.cudaError.cudaErrorCallRequiresNewerDriver,
         'This indicates that the API call requires a newer CUDA driver than the one\n'
         'currently installed. Users should install an updated NVIDIA CUDA driver to\n'
         'allow the API call to succeed.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidSurface' in found_values}}
+    )
+
 
     cudaErrorInvalidSurface = (
         cyruntime.cudaError.cudaErrorInvalidSurface,
         'This indicates that the surface passed to the API call is not a valid\n'
         'surface.\n'
-    ){{endif}}
-    {{if 'cudaErrorDuplicateVariableName' in found_values}}
+    )
+
 
     cudaErrorDuplicateVariableName = (
         cyruntime.cudaError.cudaErrorDuplicateVariableName,
         'This indicates that multiple global or constant variables (across separate\n'
         'CUDA source files in the application) share the same string name.\n'
-    ){{endif}}
-    {{if 'cudaErrorDuplicateTextureName' in found_values}}
+    )
+
 
     cudaErrorDuplicateTextureName = (
         cyruntime.cudaError.cudaErrorDuplicateTextureName,
         'This indicates that multiple textures (across separate CUDA source files in\n'
         'the application) share the same string name.\n'
-    ){{endif}}
-    {{if 'cudaErrorDuplicateSurfaceName' in found_values}}
+    )
+
 
     cudaErrorDuplicateSurfaceName = (
         cyruntime.cudaError.cudaErrorDuplicateSurfaceName,
         'This indicates that multiple surfaces (across separate CUDA source files in\n'
         'the application) share the same string name.\n'
-    ){{endif}}
-    {{if 'cudaErrorDevicesUnavailable' in found_values}}
+    )
+
 
     cudaErrorDevicesUnavailable = (
         cyruntime.cudaError.cudaErrorDevicesUnavailable,
@@ -617,8 +615,8 @@ class cudaError_t(_FastEnum):
         'kernels have filled up the GPU and are blocking new work from starting.\n'
         'They can also be unavailable due to memory constraints on a device that\n'
         'already has active CUDA work being performed.\n'
-    ){{endif}}
-    {{if 'cudaErrorIncompatibleDriverContext' in found_values}}
+    )
+
 
     cudaErrorIncompatibleDriverContext = (
         cyruntime.cudaError.cudaErrorIncompatibleDriverContext,
@@ -630,32 +628,32 @@ class cudaError_t(_FastEnum):
         'Runtime API call expects a primary driver context and the Driver context is\n'
         'not primary, or because the Driver context has been destroyed. Please see\n'
         ':py:obj:`~.Interactions with the CUDA Driver API` for more information.\n'
-    ){{endif}}
-    {{if 'cudaErrorMissingConfiguration' in found_values}}
+    )
+
 
     cudaErrorMissingConfiguration = (
         cyruntime.cudaError.cudaErrorMissingConfiguration,
         'The device function being invoked (usually via\n'
         ':py:obj:`~.cudaLaunchKernel()`) was not previously configured via the\n'
         ':py:obj:`~.cudaConfigureCall()` function.\n'
-    ){{endif}}
-    {{if 'cudaErrorPriorLaunchFailure' in found_values}}
+    )
+
 
     cudaErrorPriorLaunchFailure = (
         cyruntime.cudaError.cudaErrorPriorLaunchFailure,
         'This indicated that a previous kernel launch failed. This was previously\n'
         'used for device emulation of kernel launches.\n'
         '[Deprecated]\n'
-    ){{endif}}
-    {{if 'cudaErrorLaunchMaxDepthExceeded' in found_values}}
+    )
+
 
     cudaErrorLaunchMaxDepthExceeded = (
         cyruntime.cudaError.cudaErrorLaunchMaxDepthExceeded,
         'This error indicates that a device runtime grid launch did not occur\n'
         'because the depth of the child grid would exceed the maximum supported\n'
         'number of nested grid launches.\n'
-    ){{endif}}
-    {{if 'cudaErrorLaunchFileScopedTex' in found_values}}
+    )
+
 
     cudaErrorLaunchFileScopedTex = (
         cyruntime.cudaError.cudaErrorLaunchFileScopedTex,
@@ -663,8 +661,8 @@ class cudaError_t(_FastEnum):
         'uses file-scoped textures which are unsupported by the device runtime.\n'
         'Kernels launched via the device runtime only support textures created with\n'
         "the Texture Object API's.\n"
-    ){{endif}}
-    {{if 'cudaErrorLaunchFileScopedSurf' in found_values}}
+    )
+
 
     cudaErrorLaunchFileScopedSurf = (
         cyruntime.cudaError.cudaErrorLaunchFileScopedSurf,
@@ -672,8 +670,8 @@ class cudaError_t(_FastEnum):
         'uses file-scoped surfaces which are unsupported by the device runtime.\n'
         'Kernels launched via the device runtime only support surfaces created with\n'
         "the Surface Object API's.\n"
-    ){{endif}}
-    {{if 'cudaErrorSyncDepthExceeded' in found_values}}
+    )
+
 
     cudaErrorSyncDepthExceeded = (
         cyruntime.cudaError.cudaErrorSyncDepthExceeded,
@@ -690,8 +688,8 @@ class cudaError_t(_FastEnum):
         'be used for user allocations. Note that :py:obj:`~.cudaDeviceSynchronize`\n'
         'made from device runtime is only supported on devices of compute capability\n'
         '< 9.0.\n'
-    ){{endif}}
-    {{if 'cudaErrorLaunchPendingCountExceeded' in found_values}}
+    )
+
 
     cudaErrorLaunchPendingCountExceeded = (
         cyruntime.cudaError.cudaErrorLaunchPendingCountExceeded,
@@ -704,36 +702,36 @@ class cudaError_t(_FastEnum):
         'runtime. Keep in mind that raising the limit of pending device runtime\n'
         'launches will require the runtime to reserve device memory that cannot be\n'
         'used for user allocations.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidDeviceFunction' in found_values}}
+    )
+
 
     cudaErrorInvalidDeviceFunction = (
         cyruntime.cudaError.cudaErrorInvalidDeviceFunction,
         'The requested device function does not exist or is not compiled for the\n'
         'proper device architecture.\n'
-    ){{endif}}
-    {{if 'cudaErrorNoDevice' in found_values}}
+    )
+
 
     cudaErrorNoDevice = (
         cyruntime.cudaError.cudaErrorNoDevice,
         'This indicates that no CUDA-capable devices were detected by the installed\n'
         'CUDA driver.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidDevice' in found_values}}
+    )
+
 
     cudaErrorInvalidDevice = (
         cyruntime.cudaError.cudaErrorInvalidDevice,
         'This indicates that the device ordinal supplied by the user does not\n'
         'correspond to a valid CUDA device or that the action requested is invalid\n'
         'for the specified device.\n'
-    ){{endif}}
-    {{if 'cudaErrorDeviceNotLicensed' in found_values}}
+    )
+
 
     cudaErrorDeviceNotLicensed = (
         cyruntime.cudaError.cudaErrorDeviceNotLicensed,
         "This indicates that the device doesn't have a valid Grid License.\n"
-    ){{endif}}
-    {{if 'cudaErrorSoftwareValidityNotEstablished' in found_values}}
+    )
+
 
     cudaErrorSoftwareValidityNotEstablished = (
         cyruntime.cudaError.cudaErrorSoftwareValidityNotEstablished,
@@ -742,20 +740,20 @@ class cudaError_t(_FastEnum):
         'CUDA 11.2, this error return indicates that at least one of these tests has\n'
         'failed and the validity of either the runtime or the driver could not be\n'
         'established.\n'
-    ){{endif}}
-    {{if 'cudaErrorStartupFailure' in found_values}}
+    )
+
 
     cudaErrorStartupFailure = (
         cyruntime.cudaError.cudaErrorStartupFailure,
         'This indicates an internal startup failure in the CUDA runtime.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidKernelImage' in found_values}}
+    )
+
 
     cudaErrorInvalidKernelImage = (
         cyruntime.cudaError.cudaErrorInvalidKernelImage,
         'This indicates that the device kernel image is invalid.\n'
-    ){{endif}}
-    {{if 'cudaErrorDeviceUninitialized' in found_values}}
+    )
+
 
     cudaErrorDeviceUninitialized = (
         cyruntime.cudaError.cudaErrorDeviceUninitialized,
@@ -765,33 +763,33 @@ class cudaError_t(_FastEnum):
         ':py:obj:`~.cuCtxDestroy()` invoked on it). This can also be returned if a\n'
         'user mixes different API versions (i.e. 3010 context with 3020 API calls).\n'
         'See :py:obj:`~.cuCtxGetApiVersion()` for more details.\n'
-    ){{endif}}
-    {{if 'cudaErrorMapBufferObjectFailed' in found_values}}
+    )
+
 
     cudaErrorMapBufferObjectFailed = (
         cyruntime.cudaError.cudaErrorMapBufferObjectFailed,
         'This indicates that the buffer object could not be mapped.\n'
-    ){{endif}}
-    {{if 'cudaErrorUnmapBufferObjectFailed' in found_values}}
+    )
+
 
     cudaErrorUnmapBufferObjectFailed = (
         cyruntime.cudaError.cudaErrorUnmapBufferObjectFailed,
         'This indicates that the buffer object could not be unmapped.\n'
-    ){{endif}}
-    {{if 'cudaErrorArrayIsMapped' in found_values}}
+    )
+
 
     cudaErrorArrayIsMapped = (
         cyruntime.cudaError.cudaErrorArrayIsMapped,
         'This indicates that the specified array is currently mapped and thus cannot\n'
         'be destroyed.\n'
-    ){{endif}}
-    {{if 'cudaErrorAlreadyMapped' in found_values}}
+    )
+
 
     cudaErrorAlreadyMapped = (
         cyruntime.cudaError.cudaErrorAlreadyMapped,
         'This indicates that the resource is already mapped.\n'
-    ){{endif}}
-    {{if 'cudaErrorNoKernelImageForDevice' in found_values}}
+    )
+
 
     cudaErrorNoKernelImageForDevice = (
         cyruntime.cudaError.cudaErrorNoKernelImageForDevice,
@@ -799,82 +797,82 @@ class cudaError_t(_FastEnum):
         'the device. This can occur when a user specifies code generation options\n'
         'for a particular CUDA source file that do not include the corresponding\n'
         'device configuration.\n'
-    ){{endif}}
-    {{if 'cudaErrorAlreadyAcquired' in found_values}}
+    )
+
 
     cudaErrorAlreadyAcquired = (
         cyruntime.cudaError.cudaErrorAlreadyAcquired,
         'This indicates that a resource has already been acquired.\n'
-    ){{endif}}
-    {{if 'cudaErrorNotMapped' in found_values}}
+    )
+
 
     cudaErrorNotMapped = (
         cyruntime.cudaError.cudaErrorNotMapped,
         'This indicates that a resource is not mapped.\n'
-    ){{endif}}
-    {{if 'cudaErrorNotMappedAsArray' in found_values}}
+    )
+
 
     cudaErrorNotMappedAsArray = (
         cyruntime.cudaError.cudaErrorNotMappedAsArray,
         'This indicates that a mapped resource is not available for access as an\n'
         'array.\n'
-    ){{endif}}
-    {{if 'cudaErrorNotMappedAsPointer' in found_values}}
+    )
+
 
     cudaErrorNotMappedAsPointer = (
         cyruntime.cudaError.cudaErrorNotMappedAsPointer,
         'This indicates that a mapped resource is not available for access as a\n'
         'pointer.\n'
-    ){{endif}}
-    {{if 'cudaErrorECCUncorrectable' in found_values}}
+    )
+
 
     cudaErrorECCUncorrectable = (
         cyruntime.cudaError.cudaErrorECCUncorrectable,
         'This indicates that an uncorrectable ECC error was detected during\n'
         'execution.\n'
-    ){{endif}}
-    {{if 'cudaErrorUnsupportedLimit' in found_values}}
+    )
+
 
     cudaErrorUnsupportedLimit = (
         cyruntime.cudaError.cudaErrorUnsupportedLimit,
         'This indicates that the :py:obj:`~.cudaLimit` passed to the API call is not\n'
         'supported by the active device.\n'
-    ){{endif}}
-    {{if 'cudaErrorDeviceAlreadyInUse' in found_values}}
+    )
+
 
     cudaErrorDeviceAlreadyInUse = (
         cyruntime.cudaError.cudaErrorDeviceAlreadyInUse,
         'This indicates that a call tried to access an exclusive-thread device that\n'
         'is already in use by a different thread.\n'
-    ){{endif}}
-    {{if 'cudaErrorPeerAccessUnsupported' in found_values}}
+    )
+
 
     cudaErrorPeerAccessUnsupported = (
         cyruntime.cudaError.cudaErrorPeerAccessUnsupported,
         'This error indicates that P2P access is not supported across the given\n'
         'devices.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidPtx' in found_values}}
+    )
+
 
     cudaErrorInvalidPtx = (
         cyruntime.cudaError.cudaErrorInvalidPtx,
         'A PTX compilation failed. The runtime may fall back to compiling PTX if an\n'
         'application does not contain a suitable binary for the current device.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidGraphicsContext' in found_values}}
+    )
+
 
     cudaErrorInvalidGraphicsContext = (
         cyruntime.cudaError.cudaErrorInvalidGraphicsContext,
         'This indicates an error with the OpenGL or DirectX context.\n'
-    ){{endif}}
-    {{if 'cudaErrorNvlinkUncorrectable' in found_values}}
+    )
+
 
     cudaErrorNvlinkUncorrectable = (
         cyruntime.cudaError.cudaErrorNvlinkUncorrectable,
         'This indicates that an uncorrectable NVLink error was detected during the\n'
         'execution.\n'
-    ){{endif}}
-    {{if 'cudaErrorJitCompilerNotFound' in found_values}}
+    )
+
 
     cudaErrorJitCompilerNotFound = (
         cyruntime.cudaError.cudaErrorJitCompilerNotFound,
@@ -882,8 +880,8 @@ class cudaError_t(_FastEnum):
         'Compiler library is used for PTX compilation. The runtime may fall back to\n'
         'compiling PTX if an application does not contain a suitable binary for the\n'
         'current device.\n'
-    ){{endif}}
-    {{if 'cudaErrorUnsupportedPtxVersion' in found_values}}
+    )
+
 
     cudaErrorUnsupportedPtxVersion = (
         cyruntime.cudaError.cudaErrorUnsupportedPtxVersion,
@@ -891,30 +889,30 @@ class cudaError_t(_FastEnum):
         'toolchain. The most common reason for this, is the PTX was generated by a\n'
         'compiler newer than what is supported by the CUDA driver and PTX JIT\n'
         'compiler.\n'
-    ){{endif}}
-    {{if 'cudaErrorJitCompilationDisabled' in found_values}}
+    )
+
 
     cudaErrorJitCompilationDisabled = (
         cyruntime.cudaError.cudaErrorJitCompilationDisabled,
         'This indicates that the JIT compilation was disabled. The JIT compilation\n'
         'compiles PTX. The runtime may fall back to compiling PTX if an application\n'
         'does not contain a suitable binary for the current device.\n'
-    ){{endif}}
-    {{if 'cudaErrorUnsupportedExecAffinity' in found_values}}
+    )
+
 
     cudaErrorUnsupportedExecAffinity = (
         cyruntime.cudaError.cudaErrorUnsupportedExecAffinity,
         'This indicates that the provided execution affinity is not supported by the\n'
         'device.\n'
-    ){{endif}}
-    {{if 'cudaErrorUnsupportedDevSideSync' in found_values}}
+    )
+
 
     cudaErrorUnsupportedDevSideSync = (
         cyruntime.cudaError.cudaErrorUnsupportedDevSideSync,
         'This indicates that the code to be compiled by the PTX JIT contains\n'
         'unsupported call to cudaDeviceSynchronize.\n'
-    ){{endif}}
-    {{if 'cudaErrorContained' in found_values}}
+    )
+
 
     cudaErrorContained = (
         cyruntime.cudaError.cudaErrorContained,
@@ -924,53 +922,53 @@ class cudaError_t(_FastEnum):
         'classes of hardware errors This leaves the process in an inconsistent state\n'
         'and any further CUDA work will return the same error. To continue using\n'
         'CUDA, the process must be terminated and relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidSource' in found_values}}
+    )
+
 
     cudaErrorInvalidSource = (
         cyruntime.cudaError.cudaErrorInvalidSource,
         'This indicates that the device kernel source is invalid.\n'
-    ){{endif}}
-    {{if 'cudaErrorFileNotFound' in found_values}}
+    )
+
 
     cudaErrorFileNotFound = (
         cyruntime.cudaError.cudaErrorFileNotFound,
         'This indicates that the file specified was not found.\n'
-    ){{endif}}
-    {{if 'cudaErrorSharedObjectSymbolNotFound' in found_values}}
+    )
+
 
     cudaErrorSharedObjectSymbolNotFound = (
         cyruntime.cudaError.cudaErrorSharedObjectSymbolNotFound,
         'This indicates that a link to a shared object failed to resolve.\n'
-    ){{endif}}
-    {{if 'cudaErrorSharedObjectInitFailed' in found_values}}
+    )
+
 
     cudaErrorSharedObjectInitFailed = (
         cyruntime.cudaError.cudaErrorSharedObjectInitFailed,
         'This indicates that initialization of a shared object failed.\n'
-    ){{endif}}
-    {{if 'cudaErrorOperatingSystem' in found_values}}
+    )
+
 
     cudaErrorOperatingSystem = (
         cyruntime.cudaError.cudaErrorOperatingSystem,
         'This error indicates that an OS call failed.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidResourceHandle' in found_values}}
+    )
+
 
     cudaErrorInvalidResourceHandle = (
         cyruntime.cudaError.cudaErrorInvalidResourceHandle,
         'This indicates that a resource handle passed to the API call was not valid.\n'
         'Resource handles are opaque types like :py:obj:`~.cudaStream_t` and\n'
         ':py:obj:`~.cudaEvent_t`.\n'
-    ){{endif}}
-    {{if 'cudaErrorIllegalState' in found_values}}
+    )
+
 
     cudaErrorIllegalState = (
         cyruntime.cudaError.cudaErrorIllegalState,
         'This indicates that a resource required by the API call is not in a valid\n'
         'state to perform the requested operation.\n'
-    ){{endif}}
-    {{if 'cudaErrorLossyQuery' in found_values}}
+    )
+
 
     cudaErrorLossyQuery = (
         cyruntime.cudaError.cudaErrorLossyQuery,
@@ -978,16 +976,16 @@ class cudaError_t(_FastEnum):
         'would discard semantically important information. This is either due to the\n'
         'object using funtionality newer than the API version used to introspect it\n'
         'or omission of optional return arguments.\n'
-    ){{endif}}
-    {{if 'cudaErrorSymbolNotFound' in found_values}}
+    )
+
 
     cudaErrorSymbolNotFound = (
         cyruntime.cudaError.cudaErrorSymbolNotFound,
         'This indicates that a named symbol was not found. Examples of symbols are\n'
         'global/constant variable names, driver function names, texture names, and\n'
         'surface names.\n'
-    ){{endif}}
-    {{if 'cudaErrorNotReady' in found_values}}
+    )
+
 
     cudaErrorNotReady = (
         cyruntime.cudaError.cudaErrorNotReady,
@@ -996,8 +994,8 @@ class cudaError_t(_FastEnum):
         'differently than :py:obj:`~.cudaSuccess` (which indicates completion).\n'
         'Calls that may return this value include :py:obj:`~.cudaEventQuery()` and\n'
         ':py:obj:`~.cudaStreamQuery()`.\n'
-    ){{endif}}
-    {{if 'cudaErrorIllegalAddress' in found_values}}
+    )
+
 
     cudaErrorIllegalAddress = (
         cyruntime.cudaError.cudaErrorIllegalAddress,
@@ -1005,8 +1003,8 @@ class cudaError_t(_FastEnum):
         'address. This leaves the process in an inconsistent state and any further\n'
         'CUDA work will return the same error. To continue using CUDA, the process\n'
         'must be terminated and relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorLaunchOutOfResources' in found_values}}
+    )
+
 
     cudaErrorLaunchOutOfResources = (
         cyruntime.cudaError.cudaErrorLaunchOutOfResources,
@@ -1016,8 +1014,8 @@ class cudaError_t(_FastEnum):
         'that the user has attempted to pass too many arguments to the device\n'
         "kernel, or the kernel launch specifies too many threads for the kernel's\n"
         'register count.\n'
-    ){{endif}}
-    {{if 'cudaErrorLaunchTimeout' in found_values}}
+    )
+
 
     cudaErrorLaunchTimeout = (
         cyruntime.cudaError.cudaErrorLaunchTimeout,
@@ -1027,31 +1025,31 @@ class cudaError_t(_FastEnum):
         'the process in an inconsistent state and any further CUDA work will return\n'
         'the same error. To continue using CUDA, the process must be terminated and\n'
         'relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorLaunchIncompatibleTexturing' in found_values}}
+    )
+
 
     cudaErrorLaunchIncompatibleTexturing = (
         cyruntime.cudaError.cudaErrorLaunchIncompatibleTexturing,
         'This error indicates a kernel launch that uses an incompatible texturing\n'
         'mode.\n'
-    ){{endif}}
-    {{if 'cudaErrorPeerAccessAlreadyEnabled' in found_values}}
+    )
+
 
     cudaErrorPeerAccessAlreadyEnabled = (
         cyruntime.cudaError.cudaErrorPeerAccessAlreadyEnabled,
         'This error indicates that a call to\n'
         ':py:obj:`~.cudaDeviceEnablePeerAccess()` is trying to re-enable peer\n'
         'addressing on from a context which has already had peer addressing enabled.\n'
-    ){{endif}}
-    {{if 'cudaErrorPeerAccessNotEnabled' in found_values}}
+    )
+
 
     cudaErrorPeerAccessNotEnabled = (
         cyruntime.cudaError.cudaErrorPeerAccessNotEnabled,
         'This error indicates that :py:obj:`~.cudaDeviceDisablePeerAccess()` is\n'
         'trying to disable peer addressing which has not been enabled yet via\n'
         ':py:obj:`~.cudaDeviceEnablePeerAccess()`.\n'
-    ){{endif}}
-    {{if 'cudaErrorSetOnActiveProcess' in found_values}}
+    )
+
 
     cudaErrorSetOnActiveProcess = (
         cyruntime.cudaError.cudaErrorSetOnActiveProcess,
@@ -1064,47 +1062,47 @@ class cudaError_t(_FastEnum):
         'launching kernels are examples of non-device management operations). This\n'
         'error can also be returned if using runtime/driver interoperability and\n'
         'there is an existing :py:obj:`~.CUcontext` active on the host thread.\n'
-    ){{endif}}
-    {{if 'cudaErrorContextIsDestroyed' in found_values}}
+    )
+
 
     cudaErrorContextIsDestroyed = (
         cyruntime.cudaError.cudaErrorContextIsDestroyed,
         'This error indicates that the context current to the calling thread has\n'
         'been destroyed using :py:obj:`~.cuCtxDestroy`, or is a primary context\n'
         'which has not yet been initialized.\n'
-    ){{endif}}
-    {{if 'cudaErrorAssert' in found_values}}
+    )
+
 
     cudaErrorAssert = (
         cyruntime.cudaError.cudaErrorAssert,
         'An assert triggered in device code during kernel execution. The device\n'
         'cannot be used again. All existing allocations are invalid. To continue\n'
         'using CUDA, the process must be terminated and relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorTooManyPeers' in found_values}}
+    )
+
 
     cudaErrorTooManyPeers = (
         cyruntime.cudaError.cudaErrorTooManyPeers,
         'This error indicates that the hardware resources required to enable peer\n'
         'access have been exhausted for one or more of the devices passed to\n'
         ':py:obj:`~.cudaEnablePeerAccess()`.\n'
-    ){{endif}}
-    {{if 'cudaErrorHostMemoryAlreadyRegistered' in found_values}}
+    )
+
 
     cudaErrorHostMemoryAlreadyRegistered = (
         cyruntime.cudaError.cudaErrorHostMemoryAlreadyRegistered,
         'This error indicates that the memory range passed to\n'
         ':py:obj:`~.cudaHostRegister()` has already been registered.\n'
-    ){{endif}}
-    {{if 'cudaErrorHostMemoryNotRegistered' in found_values}}
+    )
+
 
     cudaErrorHostMemoryNotRegistered = (
         cyruntime.cudaError.cudaErrorHostMemoryNotRegistered,
         'This error indicates that the pointer passed to\n'
         ':py:obj:`~.cudaHostUnregister()` does not correspond to any currently\n'
         'registered memory region.\n'
-    ){{endif}}
-    {{if 'cudaErrorHardwareStackError' in found_values}}
+    )
+
 
     cudaErrorHardwareStackError = (
         cyruntime.cudaError.cudaErrorHardwareStackError,
@@ -1113,8 +1111,8 @@ class cudaError_t(_FastEnum):
         'leaves the process in an inconsistent state and any further CUDA work will\n'
         'return the same error. To continue using CUDA, the process must be\n'
         'terminated and relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorIllegalInstruction' in found_values}}
+    )
+
 
     cudaErrorIllegalInstruction = (
         cyruntime.cudaError.cudaErrorIllegalInstruction,
@@ -1122,8 +1120,8 @@ class cudaError_t(_FastEnum):
         'leaves the process in an inconsistent state and any further CUDA work will\n'
         'return the same error. To continue using CUDA, the process must be\n'
         'terminated and relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorMisalignedAddress' in found_values}}
+    )
+
 
     cudaErrorMisalignedAddress = (
         cyruntime.cudaError.cudaErrorMisalignedAddress,
@@ -1131,8 +1129,8 @@ class cudaError_t(_FastEnum):
         'which is not aligned. This leaves the process in an inconsistent state and\n'
         'any further CUDA work will return the same error. To continue using CUDA,\n'
         'the process must be terminated and relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidAddressSpace' in found_values}}
+    )
+
 
     cudaErrorInvalidAddressSpace = (
         cyruntime.cudaError.cudaErrorInvalidAddressSpace,
@@ -1142,8 +1140,8 @@ class cudaError_t(_FastEnum):
         'address space. This leaves the process in an inconsistent state and any\n'
         'further CUDA work will return the same error. To continue using CUDA, the\n'
         'process must be terminated and relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidPc' in found_values}}
+    )
+
 
     cudaErrorInvalidPc = (
         cyruntime.cudaError.cudaErrorInvalidPc,
@@ -1151,8 +1149,8 @@ class cudaError_t(_FastEnum):
         'in an inconsistent state and any further CUDA work will return the same\n'
         'error. To continue using CUDA, the process must be terminated and\n'
         'relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorLaunchFailure' in found_values}}
+    )
+
 
     cudaErrorLaunchFailure = (
         cyruntime.cudaError.cudaErrorLaunchFailure,
@@ -1163,8 +1161,8 @@ class cudaError_t(_FastEnum):
         'leaves the process in an inconsistent state and any further CUDA work will\n'
         'return the same error. To continue using CUDA, the process must be\n'
         'terminated and relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorCooperativeLaunchTooLarge' in found_values}}
+    )
+
 
     cudaErrorCooperativeLaunchTooLarge = (
         cyruntime.cudaError.cudaErrorCooperativeLaunchTooLarge,
@@ -1175,8 +1173,8 @@ class cudaError_t(_FastEnum):
         ':py:obj:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags` times\n'
         'the number of multiprocessors as specified by the device attribute\n'
         ':py:obj:`~.cudaDevAttrMultiProcessorCount`.\n'
-    ){{endif}}
-    {{if 'cudaErrorTensorMemoryLeak' in found_values}}
+    )
+
 
     cudaErrorTensorMemoryLeak = (
         cyruntime.cudaError.cudaErrorTensorMemoryLeak,
@@ -1185,21 +1183,21 @@ class cudaError_t(_FastEnum):
         'process in an inconsistent state and any further CUDA work will return the\n'
         'same error. To continue using CUDA, the process must be terminated and\n'
         'relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorNotPermitted' in found_values}}
+    )
+
 
     cudaErrorNotPermitted = (
         cyruntime.cudaError.cudaErrorNotPermitted,
         'This error indicates the attempted operation is not permitted.\n'
-    ){{endif}}
-    {{if 'cudaErrorNotSupported' in found_values}}
+    )
+
 
     cudaErrorNotSupported = (
         cyruntime.cudaError.cudaErrorNotSupported,
         'This error indicates the attempted operation is not supported on the\n'
         'current system or device.\n'
-    ){{endif}}
-    {{if 'cudaErrorSystemNotReady' in found_values}}
+    )
+
 
     cudaErrorSystemNotReady = (
         cyruntime.cudaError.cudaErrorSystemNotReady,
@@ -1208,16 +1206,16 @@ class cudaError_t(_FastEnum):
         'state and all required driver daemons are actively running. More\n'
         'information about this error can be found in the system specific user\n'
         'guide.\n'
-    ){{endif}}
-    {{if 'cudaErrorSystemDriverMismatch' in found_values}}
+    )
+
 
     cudaErrorSystemDriverMismatch = (
         cyruntime.cudaError.cudaErrorSystemDriverMismatch,
         'This error indicates that there is a mismatch between the versions of the\n'
         'display driver and the CUDA driver. Refer to the compatibility\n'
         'documentation for supported versions.\n'
-    ){{endif}}
-    {{if 'cudaErrorCompatNotSupportedOnDevice' in found_values}}
+    )
+
 
     cudaErrorCompatNotSupportedOnDevice = (
         cyruntime.cudaError.cudaErrorCompatNotSupportedOnDevice,
@@ -1226,120 +1224,120 @@ class cudaError_t(_FastEnum):
         'this configuration. Refer to the compatibility documentation for the\n'
         'supported hardware matrix or ensure that only supported hardware is visible\n'
         'during initialization via the CUDA_VISIBLE_DEVICES environment variable.\n'
-    ){{endif}}
-    {{if 'cudaErrorMpsConnectionFailed' in found_values}}
+    )
+
 
     cudaErrorMpsConnectionFailed = (
         cyruntime.cudaError.cudaErrorMpsConnectionFailed,
         'This error indicates that the MPS client failed to connect to the MPS\n'
         'control daemon or the MPS server.\n'
-    ){{endif}}
-    {{if 'cudaErrorMpsRpcFailure' in found_values}}
+    )
+
 
     cudaErrorMpsRpcFailure = (
         cyruntime.cudaError.cudaErrorMpsRpcFailure,
         'This error indicates that the remote procedural call between the MPS server\n'
         'and the MPS client failed.\n'
-    ){{endif}}
-    {{if 'cudaErrorMpsServerNotReady' in found_values}}
+    )
+
 
     cudaErrorMpsServerNotReady = (
         cyruntime.cudaError.cudaErrorMpsServerNotReady,
         'This error indicates that the MPS server is not ready to accept new MPS\n'
         'client requests. This error can be returned when the MPS server is in the\n'
         'process of recovering from a fatal failure.\n'
-    ){{endif}}
-    {{if 'cudaErrorMpsMaxClientsReached' in found_values}}
+    )
+
 
     cudaErrorMpsMaxClientsReached = (
         cyruntime.cudaError.cudaErrorMpsMaxClientsReached,
         'This error indicates that the hardware resources required to create MPS\n'
         'client have been exhausted.\n'
-    ){{endif}}
-    {{if 'cudaErrorMpsMaxConnectionsReached' in found_values}}
+    )
+
 
     cudaErrorMpsMaxConnectionsReached = (
         cyruntime.cudaError.cudaErrorMpsMaxConnectionsReached,
         'This error indicates the the hardware resources required to device\n'
         'connections have been exhausted.\n'
-    ){{endif}}
-    {{if 'cudaErrorMpsClientTerminated' in found_values}}
+    )
+
 
     cudaErrorMpsClientTerminated = (
         cyruntime.cudaError.cudaErrorMpsClientTerminated,
         'This error indicates that the MPS client has been terminated by the server.\n'
         'To continue using CUDA, the process must be terminated and relaunched.\n'
-    ){{endif}}
-    {{if 'cudaErrorCdpNotSupported' in found_values}}
+    )
+
 
     cudaErrorCdpNotSupported = (
         cyruntime.cudaError.cudaErrorCdpNotSupported,
         'This error indicates, that the program is using CUDA Dynamic Parallelism,\n'
         'but the current configuration, like MPS, does not support it.\n'
-    ){{endif}}
-    {{if 'cudaErrorCdpVersionMismatch' in found_values}}
+    )
+
 
     cudaErrorCdpVersionMismatch = (
         cyruntime.cudaError.cudaErrorCdpVersionMismatch,
         'This error indicates, that the program contains an unsupported interaction\n'
         'between different versions of CUDA Dynamic Parallelism.\n'
-    ){{endif}}
-    {{if 'cudaErrorStreamCaptureUnsupported' in found_values}}
+    )
+
 
     cudaErrorStreamCaptureUnsupported = (
         cyruntime.cudaError.cudaErrorStreamCaptureUnsupported,
         'The operation is not permitted when the stream is capturing.\n'
-    ){{endif}}
-    {{if 'cudaErrorStreamCaptureInvalidated' in found_values}}
+    )
+
 
     cudaErrorStreamCaptureInvalidated = (
         cyruntime.cudaError.cudaErrorStreamCaptureInvalidated,
         'The current capture sequence on the stream has been invalidated due to a\n'
         'previous error.\n'
-    ){{endif}}
-    {{if 'cudaErrorStreamCaptureMerge' in found_values}}
+    )
+
 
     cudaErrorStreamCaptureMerge = (
         cyruntime.cudaError.cudaErrorStreamCaptureMerge,
         'The operation would have resulted in a merge of two independent capture\n'
         'sequences.\n'
-    ){{endif}}
-    {{if 'cudaErrorStreamCaptureUnmatched' in found_values}}
+    )
+
 
     cudaErrorStreamCaptureUnmatched = (
         cyruntime.cudaError.cudaErrorStreamCaptureUnmatched,
         'The capture was not initiated in this stream.\n'
-    ){{endif}}
-    {{if 'cudaErrorStreamCaptureUnjoined' in found_values}}
+    )
+
 
     cudaErrorStreamCaptureUnjoined = (
         cyruntime.cudaError.cudaErrorStreamCaptureUnjoined,
         'The capture sequence contains a fork that was not joined to the primary\n'
         'stream.\n'
-    ){{endif}}
-    {{if 'cudaErrorStreamCaptureIsolation' in found_values}}
+    )
+
 
     cudaErrorStreamCaptureIsolation = (
         cyruntime.cudaError.cudaErrorStreamCaptureIsolation,
         'A dependency would have been created which crosses the capture sequence\n'
         'boundary. Only implicit in-stream ordering dependencies are allowed to\n'
         'cross the boundary.\n'
-    ){{endif}}
-    {{if 'cudaErrorStreamCaptureImplicit' in found_values}}
+    )
+
 
     cudaErrorStreamCaptureImplicit = (
         cyruntime.cudaError.cudaErrorStreamCaptureImplicit,
         'The operation would have resulted in a disallowed implicit dependency on a\n'
         'current capture sequence from cudaStreamLegacy.\n'
-    ){{endif}}
-    {{if 'cudaErrorCapturedEvent' in found_values}}
+    )
+
 
     cudaErrorCapturedEvent = (
         cyruntime.cudaError.cudaErrorCapturedEvent,
         'The operation is not permitted on an event which was last recorded in a\n'
         'capturing stream.\n'
-    ){{endif}}
-    {{if 'cudaErrorStreamCaptureWrongThread' in found_values}}
+    )
+
 
     cudaErrorStreamCaptureWrongThread = (
         cyruntime.cudaError.cudaErrorStreamCaptureWrongThread,
@@ -1347,22 +1345,22 @@ class cudaError_t(_FastEnum):
         ':py:obj:`~.cudaStreamCaptureModeRelaxed` argument to\n'
         ':py:obj:`~.cudaStreamBeginCapture` was passed to\n'
         ':py:obj:`~.cudaStreamEndCapture` in a different thread.\n'
-    ){{endif}}
-    {{if 'cudaErrorTimeout' in found_values}}
+    )
+
 
     cudaErrorTimeout = (
         cyruntime.cudaError.cudaErrorTimeout,
         'This indicates that the wait operation has timed out.\n'
-    ){{endif}}
-    {{if 'cudaErrorGraphExecUpdateFailure' in found_values}}
+    )
+
 
     cudaErrorGraphExecUpdateFailure = (
         cyruntime.cudaError.cudaErrorGraphExecUpdateFailure,
         'This error indicates that the graph update was not performed because it\n'
         'included changes which violated constraints specific to instantiated graph\n'
         'update.\n'
-    ){{endif}}
-    {{if 'cudaErrorExternalDevice' in found_values}}
+    )
+
 
     cudaErrorExternalDevice = (
         cyruntime.cudaError.cudaErrorExternalDevice,
@@ -1376,36 +1374,36 @@ class cudaError_t(_FastEnum):
         'process must be terminated and relaunched. In case of synchronous error, it\n'
         'means that one or more external devices have encountered an error and\n'
         'cannot complete the operation.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidClusterSize' in found_values}}
+    )
+
 
     cudaErrorInvalidClusterSize = (
         cyruntime.cudaError.cudaErrorInvalidClusterSize,
         'This indicates that a kernel launch error has occurred due to cluster\n'
         'misconfiguration.\n'
-    ){{endif}}
-    {{if 'cudaErrorFunctionNotLoaded' in found_values}}
+    )
+
 
     cudaErrorFunctionNotLoaded = (
         cyruntime.cudaError.cudaErrorFunctionNotLoaded,
         'Indiciates a function handle is not loaded when calling an API that\n'
         'requires a loaded function.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidResourceType' in found_values}}
+    )
+
 
     cudaErrorInvalidResourceType = (
         cyruntime.cudaError.cudaErrorInvalidResourceType,
         'This error indicates one or more resources passed in are not valid resource\n'
         'types for the operation.\n'
-    ){{endif}}
-    {{if 'cudaErrorInvalidResourceConfiguration' in found_values}}
+    )
+
 
     cudaErrorInvalidResourceConfiguration = (
         cyruntime.cudaError.cudaErrorInvalidResourceConfiguration,
         'This error indicates one or more resources are insufficient or non-\n'
         'applicable for the operation.\n'
-    ){{endif}}
-    {{if 'cudaErrorStreamDetached' in found_values}}
+    )
+
 
     cudaErrorStreamDetached = (
         cyruntime.cudaError.cudaErrorStreamDetached,
@@ -1413,69 +1411,63 @@ class cudaError_t(_FastEnum):
         'the stream is in a detached state. This can occur if the green context\n'
         "associated with the stream has been destroyed, limiting the stream's\n"
         'operational capabilities.\n'
-    ){{endif}}
-    {{if 'cudaErrorGraphRecaptureFailure' in found_values}}
+    )
+
 
     cudaErrorGraphRecaptureFailure = (
         cyruntime.cudaError.cudaErrorGraphRecaptureFailure,
         'This error indicates that a graph recapture failed and had to be\n'
         'terminated.\n'
-    ){{endif}}
-    {{if 'cudaErrorUnknown' in found_values}}
+    )
+
 
     cudaErrorUnknown = (
         cyruntime.cudaError.cudaErrorUnknown,
         'This indicates that an unknown internal error has occurred.\n'
-    ){{endif}}
-    {{if 'cudaErrorApiFailureBase' in found_values}}
-    cudaErrorApiFailureBase = cyruntime.cudaError.cudaErrorApiFailureBase{{endif}}
+    )
 
-{{endif}}
-{{if 'cudaSharedMemoryMode' in found_types}}
+    cudaErrorApiFailureBase = cyruntime.cudaError.cudaErrorApiFailureBase
 
 class cudaSharedMemoryMode(_FastEnum):
     """
     Shared memory related attributes for use with
     :py:obj:`~.cuLaunchKernelEx`
     """
-    {{if 'cudaSharedMemoryModeDefault' in found_values}}
+
 
     cudaSharedMemoryModeDefault = (
         cyruntime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault,
         'The default to use for allowing non-portable shared memory size on launch -\n'
         'uses current function attributes for\n'
         ':py:obj:`~.cudaFuncAttributeMaxDynamicSharedMemorySize`\n'
-    ){{endif}}
-    {{if 'cudaSharedMemoryModeRequirePortable' in found_values}}
+    )
+
 
     cudaSharedMemoryModeRequirePortable = (
         cyruntime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable,
         'Specifies that the shared memory size requested must be a portable size\n'
         'within :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlock`\n'
-    ){{endif}}
-    {{if 'cudaSharedMemoryModeAllowNonPortable' in found_values}}
+    )
+
 
     cudaSharedMemoryModeAllowNonPortable = (
         cyruntime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable,
         'Specifies that the shared memory size requested may be a non-portable size\n'
         'up to :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlockOptin`\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphDependencyType_enum' in found_types}}
+    )
 
 class cudaGraphDependencyType(_FastEnum):
     """
     Type annotations that can be applied to graph edges as part of
     :py:obj:`~.cudaGraphEdgeData`.
     """
-    {{if 'cudaGraphDependencyTypeDefault' in found_values}}
+
 
     cudaGraphDependencyTypeDefault = (
         cyruntime.cudaGraphDependencyType_enum.cudaGraphDependencyTypeDefault,
         'This is an ordinary dependency.\n'
-    ){{endif}}
-    {{if 'cudaGraphDependencyTypeProgrammatic' in found_values}}
+    )
+
 
     cudaGraphDependencyTypeProgrammatic = (
         cyruntime.cudaGraphDependencyType_enum.cudaGraphDependencyTypeProgrammatic,
@@ -1484,57 +1476,51 @@ class cudaGraphDependencyType(_FastEnum):
         'nodes, and must be used with either the\n'
         ':py:obj:`~.cudaGraphKernelNodePortProgrammatic` or\n'
         ':py:obj:`~.cudaGraphKernelNodePortLaunchCompletion` outgoing port.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphInstantiateResult' in found_types}}
+    )
 
 class cudaGraphInstantiateResult(_FastEnum):
     """
     Graph instantiation results
     """
-    {{if 'cudaGraphInstantiateSuccess' in found_values}}
+
 
     cudaGraphInstantiateSuccess = (
         cyruntime.cudaGraphInstantiateResult.cudaGraphInstantiateSuccess,
         'Instantiation succeeded\n'
-    ){{endif}}
-    {{if 'cudaGraphInstantiateError' in found_values}}
+    )
+
 
     cudaGraphInstantiateError = (
         cyruntime.cudaGraphInstantiateResult.cudaGraphInstantiateError,
         'Instantiation failed for an unexpected reason which is described in the\n'
         'return value of the function\n'
-    ){{endif}}
-    {{if 'cudaGraphInstantiateInvalidStructure' in found_values}}
+    )
+
 
     cudaGraphInstantiateInvalidStructure = (
         cyruntime.cudaGraphInstantiateResult.cudaGraphInstantiateInvalidStructure,
         'Instantiation failed due to invalid structure, such as cycles\n'
-    ){{endif}}
-    {{if 'cudaGraphInstantiateNodeOperationNotSupported' in found_values}}
+    )
+
 
     cudaGraphInstantiateNodeOperationNotSupported = (
         cyruntime.cudaGraphInstantiateResult.cudaGraphInstantiateNodeOperationNotSupported,
         'Instantiation for device launch failed because the graph contained an\n'
         'unsupported operation\n'
-    ){{endif}}
-    {{if 'cudaGraphInstantiateMultipleDevicesNotSupported' in found_values}}
+    )
+
 
     cudaGraphInstantiateMultipleDevicesNotSupported = (
         cyruntime.cudaGraphInstantiateResult.cudaGraphInstantiateMultipleDevicesNotSupported,
         'Instantiation for device launch failed due to the nodes belonging to\n'
         'different contexts\n'
-    ){{endif}}
-    {{if 'cudaGraphInstantiateConditionalHandleUnused' in found_values}}
+    )
+
 
     cudaGraphInstantiateConditionalHandleUnused = (
         cyruntime.cudaGraphInstantiateResult.cudaGraphInstantiateConditionalHandleUnused,
         'One or more conditional handles are not associated with conditional nodes\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaLaunchMemSyncDomain' in found_types}}
+    )
 
 class cudaLaunchMemSyncDomain(_FastEnum):
     """
@@ -1557,97 +1543,91 @@ class cudaLaunchMemSyncDomain(_FastEnum):
     by kernels in another memory synchronization domain even if they
     are on the same GPU.
     """
-    {{if 'cudaLaunchMemSyncDomainDefault' in found_values}}
+
 
     cudaLaunchMemSyncDomainDefault = (
         cyruntime.cudaLaunchMemSyncDomain.cudaLaunchMemSyncDomainDefault,
         'Launch kernels in the default domain\n'
-    ){{endif}}
-    {{if 'cudaLaunchMemSyncDomainRemote' in found_values}}
+    )
+
 
     cudaLaunchMemSyncDomainRemote = (
         cyruntime.cudaLaunchMemSyncDomain.cudaLaunchMemSyncDomainRemote,
         'Launch kernels in the remote domain\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaLaunchAttributePortableClusterMode' in found_types}}
+    )
 
 class cudaLaunchAttributePortableClusterMode(_FastEnum):
     """
     Enum for defining applicability of portable cluster size, used with
     :py:obj:`~.cudaLaunchKernelEx`
     """
-    {{if 'cudaLaunchPortableClusterModeDefault' in found_values}}
+
 
     cudaLaunchPortableClusterModeDefault = (
         cyruntime.cudaLaunchAttributePortableClusterMode.cudaLaunchPortableClusterModeDefault,
         'The default to use for allowing non-portable cluster size on launch - uses\n'
         'current function attribute for\n'
         ':py:obj:`~.cudaFuncAttributeNonPortableClusterSizeAllowed`\n'
-    ){{endif}}
-    {{if 'cudaLaunchPortableClusterModeRequirePortable' in found_values}}
+    )
+
 
     cudaLaunchPortableClusterModeRequirePortable = (
         cyruntime.cudaLaunchAttributePortableClusterMode.cudaLaunchPortableClusterModeRequirePortable,
         'Specifies that the cluster size requested must be a portable size\n'
-    ){{endif}}
-    {{if 'cudaLaunchPortableClusterModeAllowNonPortable' in found_values}}
+    )
+
 
     cudaLaunchPortableClusterModeAllowNonPortable = (
         cyruntime.cudaLaunchAttributePortableClusterMode.cudaLaunchPortableClusterModeAllowNonPortable,
         'Specifies that the cluster size requested may be a non-portable size\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaLaunchAttributeID' in found_types}}
+    )
 
 class cudaLaunchAttributeID(_FastEnum):
     """
     Launch attributes enum; used as id field of
     :py:obj:`~.cudaLaunchAttribute`
     """
-    {{if 'cudaLaunchAttributeIgnore' in found_values}}
+
 
     cudaLaunchAttributeIgnore = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeIgnore,
         'Ignored entry, for convenient composition\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeAccessPolicyWindow' in found_values}}
+    )
+
 
     cudaLaunchAttributeAccessPolicyWindow = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.accessPolicyWindow`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeCooperative' in found_values}}
+    )
+
 
     cudaLaunchAttributeCooperative = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeCooperative,
         'Valid for graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.cooperative`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeSynchronizationPolicy' in found_values}}
+    )
+
 
     cudaLaunchAttributeSynchronizationPolicy = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeSynchronizationPolicy,
         'Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue.syncPolicy`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeClusterDimension' in found_values}}
+    )
+
 
     cudaLaunchAttributeClusterDimension = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeClusterDimension,
         'Valid for graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.clusterDim`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeClusterSchedulingPolicyPreference' in found_values}}
+    )
+
 
     cudaLaunchAttributeClusterSchedulingPolicyPreference = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeClusterSchedulingPolicyPreference,
         'Valid for graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.clusterSchedulingPolicyPreference`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeProgrammaticStreamSerialization' in found_values}}
+    )
+
 
     cudaLaunchAttributeProgrammaticStreamSerialization = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticStreamSerialization,
@@ -1659,8 +1639,8 @@ class cudaLaunchAttributeID(_FastEnum):
         'that kernel requests the overlap. The dependent launches can choose to wait\n'
         'on the dependency using the programmatic sync\n'
         '(cudaGridDependencySynchronize() or equivalent PTX instructions).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeProgrammaticEvent' in found_values}}
+    )
+
 
     cudaLaunchAttributeProgrammaticEvent = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticEvent,
@@ -1684,29 +1664,29 @@ class cudaLaunchAttributeID(_FastEnum):
         ' The event supplied must not be an interprocess or interop event. The event\n'
         'must disable timing (i.e. must be created with the\n'
         ':py:obj:`~.cudaEventDisableTiming` flag set).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePriority' in found_values}}
+    )
+
 
     cudaLaunchAttributePriority = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePriority,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.priority`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeMemSyncDomainMap' in found_values}}
+    )
+
 
     cudaLaunchAttributeMemSyncDomainMap = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomainMap,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.memSyncDomainMap`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeMemSyncDomain' in found_values}}
+    )
+
 
     cudaLaunchAttributeMemSyncDomain = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomain,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.memSyncDomain`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePreferredClusterDimension' in found_values}}
+    )
+
 
     cudaLaunchAttributePreferredClusterDimension = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePreferredClusterDimension,
@@ -1739,8 +1719,8 @@ class cudaLaunchAttributeID(_FastEnum):
         'than the maximum value the driver can support. Otherwise, setting this\n'
         'attribute to a value physically unable to fit on any particular device is\n'
         'permitted.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeLaunchCompletionEvent' in found_values}}
+    )
+
 
     cudaLaunchAttributeLaunchCompletionEvent = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent,
@@ -1761,8 +1741,8 @@ class cudaLaunchAttributeID(_FastEnum):
         ' The event supplied must not be an interprocess or interop event. The event\n'
         'must disable timing (i.e. must be created with the\n'
         ':py:obj:`~.cudaEventDisableTiming` flag set).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeDeviceUpdatableKernelNode' in found_values}}
+    )
+
 
     cudaLaunchAttributeDeviceUpdatableKernelNode = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
@@ -1793,8 +1773,8 @@ class cudaLaunchAttributeID(_FastEnum):
         ':py:obj:`~.cuGraphUpload` before it is launched. For such a graph, if host-\n'
         'side executable graph updates are made to the device-updatable nodes, the\n'
         'graph must be uploaded before it is launched again.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePreferredSharedMemoryCarveout' in found_values}}
+    )
+
 
     cudaLaunchAttributePreferredSharedMemoryCarveout = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout,
@@ -1806,8 +1786,8 @@ class cudaLaunchAttributeID(_FastEnum):
         'precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`.\n'
         'This is only a hint, and the driver can choose a different configuration if\n'
         'required for the launch.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeNvlinkUtilCentricScheduling' in found_values}}
+    )
+
 
     cudaLaunchAttributeNvlinkUtilCentricScheduling = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeNvlinkUtilCentricScheduling,
@@ -1828,8 +1808,8 @@ class cudaLaunchAttributeID(_FastEnum):
         ' Valid values for\n'
         ':py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0\n'
         '(disabled) and 1 (enabled).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePortableClusterSizeMode' in found_values}}
+    )
+
 
     cudaLaunchAttributePortableClusterSizeMode = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePortableClusterSizeMode,
@@ -1838,244 +1818,217 @@ class cudaLaunchAttributeID(_FastEnum):
         ':py:obj:`~.cudaLaunchAttributeValue.portableClusterSizeMode` are values for\n'
         ':py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will\n'
         'return :py:obj:`~.cudaErrorInvalidValue`\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeSharedMemoryMode' in found_values}}
+    )
+
 
     cudaLaunchAttributeSharedMemoryMode = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeSharedMemoryMode,
         'Valid for graph nodes, launches. This indicates that the kernel launch is\n'
         'allowed to use a non-portable shared memory mode.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaAsyncNotificationType_enum' in found_types}}
+    )
 
 class cudaAsyncNotificationType(_FastEnum):
     """
     Types of async notification that can occur
     """
-    {{if 'cudaAsyncNotificationTypeOverBudget' in found_values}}
+
 
     cudaAsyncNotificationTypeOverBudget = (
         cyruntime.cudaAsyncNotificationType_enum.cudaAsyncNotificationTypeOverBudget,
         'Sent when the process has exceeded its device memory budget\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'CUDAlogLevel_enum' in found_types}}
+    )
 
 class cudaLogLevel(_FastEnum):
     """
 
     """
-    {{if 'cudaLogLevelError' in found_values}}
-    cudaLogLevelError = cyruntime.CUDAlogLevel_enum.cudaLogLevelError{{endif}}
-    {{if 'cudaLogLevelWarning' in found_values}}
-    cudaLogLevelWarning = cyruntime.CUDAlogLevel_enum.cudaLogLevelWarning{{endif}}
 
-{{endif}}
-{{if 'cudaDataType_t' in found_types}}
+    cudaLogLevelError = cyruntime.CUDAlogLevel_enum.cudaLogLevelError
+
+    cudaLogLevelWarning = cyruntime.CUDAlogLevel_enum.cudaLogLevelWarning
 
 class cudaDataType(_FastEnum):
     """
 
     """
-    {{if 'CUDA_R_32F' in found_values}}
-    CUDA_R_32F = cyruntime.cudaDataType_t.CUDA_R_32F{{endif}}
-    {{if 'CUDA_R_64F' in found_values}}
-    CUDA_R_64F = cyruntime.cudaDataType_t.CUDA_R_64F{{endif}}
-    {{if 'CUDA_R_16F' in found_values}}
-    CUDA_R_16F = cyruntime.cudaDataType_t.CUDA_R_16F{{endif}}
-    {{if 'CUDA_R_8I' in found_values}}
-    CUDA_R_8I = cyruntime.cudaDataType_t.CUDA_R_8I{{endif}}
-    {{if 'CUDA_C_32F' in found_values}}
-    CUDA_C_32F = cyruntime.cudaDataType_t.CUDA_C_32F{{endif}}
-    {{if 'CUDA_C_64F' in found_values}}
-    CUDA_C_64F = cyruntime.cudaDataType_t.CUDA_C_64F{{endif}}
-    {{if 'CUDA_C_16F' in found_values}}
-    CUDA_C_16F = cyruntime.cudaDataType_t.CUDA_C_16F{{endif}}
-    {{if 'CUDA_C_8I' in found_values}}
-    CUDA_C_8I = cyruntime.cudaDataType_t.CUDA_C_8I{{endif}}
-    {{if 'CUDA_R_8U' in found_values}}
-    CUDA_R_8U = cyruntime.cudaDataType_t.CUDA_R_8U{{endif}}
-    {{if 'CUDA_C_8U' in found_values}}
-    CUDA_C_8U = cyruntime.cudaDataType_t.CUDA_C_8U{{endif}}
-    {{if 'CUDA_R_32I' in found_values}}
-    CUDA_R_32I = cyruntime.cudaDataType_t.CUDA_R_32I{{endif}}
-    {{if 'CUDA_C_32I' in found_values}}
-    CUDA_C_32I = cyruntime.cudaDataType_t.CUDA_C_32I{{endif}}
-    {{if 'CUDA_R_32U' in found_values}}
-    CUDA_R_32U = cyruntime.cudaDataType_t.CUDA_R_32U{{endif}}
-    {{if 'CUDA_C_32U' in found_values}}
-    CUDA_C_32U = cyruntime.cudaDataType_t.CUDA_C_32U{{endif}}
-    {{if 'CUDA_R_16BF' in found_values}}
-    CUDA_R_16BF = cyruntime.cudaDataType_t.CUDA_R_16BF{{endif}}
-    {{if 'CUDA_C_16BF' in found_values}}
-    CUDA_C_16BF = cyruntime.cudaDataType_t.CUDA_C_16BF{{endif}}
-    {{if 'CUDA_R_4I' in found_values}}
-    CUDA_R_4I = cyruntime.cudaDataType_t.CUDA_R_4I{{endif}}
-    {{if 'CUDA_C_4I' in found_values}}
-    CUDA_C_4I = cyruntime.cudaDataType_t.CUDA_C_4I{{endif}}
-    {{if 'CUDA_R_4U' in found_values}}
-    CUDA_R_4U = cyruntime.cudaDataType_t.CUDA_R_4U{{endif}}
-    {{if 'CUDA_C_4U' in found_values}}
-    CUDA_C_4U = cyruntime.cudaDataType_t.CUDA_C_4U{{endif}}
-    {{if 'CUDA_R_16I' in found_values}}
-    CUDA_R_16I = cyruntime.cudaDataType_t.CUDA_R_16I{{endif}}
-    {{if 'CUDA_C_16I' in found_values}}
-    CUDA_C_16I = cyruntime.cudaDataType_t.CUDA_C_16I{{endif}}
-    {{if 'CUDA_R_16U' in found_values}}
-    CUDA_R_16U = cyruntime.cudaDataType_t.CUDA_R_16U{{endif}}
-    {{if 'CUDA_C_16U' in found_values}}
-    CUDA_C_16U = cyruntime.cudaDataType_t.CUDA_C_16U{{endif}}
-    {{if 'CUDA_R_64I' in found_values}}
-    CUDA_R_64I = cyruntime.cudaDataType_t.CUDA_R_64I{{endif}}
-    {{if 'CUDA_C_64I' in found_values}}
-    CUDA_C_64I = cyruntime.cudaDataType_t.CUDA_C_64I{{endif}}
-    {{if 'CUDA_R_64U' in found_values}}
-    CUDA_R_64U = cyruntime.cudaDataType_t.CUDA_R_64U{{endif}}
-    {{if 'CUDA_C_64U' in found_values}}
-    CUDA_C_64U = cyruntime.cudaDataType_t.CUDA_C_64U{{endif}}
-    {{if 'CUDA_R_8F_E4M3' in found_values}}
-    CUDA_R_8F_E4M3 = cyruntime.cudaDataType_t.CUDA_R_8F_E4M3{{endif}}
-    {{if 'CUDA_R_8F_UE4M3' in found_values}}
-    CUDA_R_8F_UE4M3 = cyruntime.cudaDataType_t.CUDA_R_8F_UE4M3{{endif}}
-    {{if 'CUDA_R_8F_E5M2' in found_values}}
-    CUDA_R_8F_E5M2 = cyruntime.cudaDataType_t.CUDA_R_8F_E5M2{{endif}}
-    {{if 'CUDA_R_8F_UE8M0' in found_values}}
-    CUDA_R_8F_UE8M0 = cyruntime.cudaDataType_t.CUDA_R_8F_UE8M0{{endif}}
-    {{if 'CUDA_R_6F_E2M3' in found_values}}
-    CUDA_R_6F_E2M3 = cyruntime.cudaDataType_t.CUDA_R_6F_E2M3{{endif}}
-    {{if 'CUDA_R_6F_E3M2' in found_values}}
-    CUDA_R_6F_E3M2 = cyruntime.cudaDataType_t.CUDA_R_6F_E3M2{{endif}}
-    {{if 'CUDA_R_4F_E2M1' in found_values}}
-    CUDA_R_4F_E2M1 = cyruntime.cudaDataType_t.CUDA_R_4F_E2M1{{endif}}
 
-{{endif}}
-{{if 'cudaEmulationStrategy_t' in found_types}}
+    CUDA_R_32F = cyruntime.cudaDataType_t.CUDA_R_32F
+
+    CUDA_R_64F = cyruntime.cudaDataType_t.CUDA_R_64F
+
+    CUDA_R_16F = cyruntime.cudaDataType_t.CUDA_R_16F
+
+    CUDA_R_8I = cyruntime.cudaDataType_t.CUDA_R_8I
+
+    CUDA_C_32F = cyruntime.cudaDataType_t.CUDA_C_32F
+
+    CUDA_C_64F = cyruntime.cudaDataType_t.CUDA_C_64F
+
+    CUDA_C_16F = cyruntime.cudaDataType_t.CUDA_C_16F
+
+    CUDA_C_8I = cyruntime.cudaDataType_t.CUDA_C_8I
+
+    CUDA_R_8U = cyruntime.cudaDataType_t.CUDA_R_8U
+
+    CUDA_C_8U = cyruntime.cudaDataType_t.CUDA_C_8U
+
+    CUDA_R_32I = cyruntime.cudaDataType_t.CUDA_R_32I
+
+    CUDA_C_32I = cyruntime.cudaDataType_t.CUDA_C_32I
+
+    CUDA_R_32U = cyruntime.cudaDataType_t.CUDA_R_32U
+
+    CUDA_C_32U = cyruntime.cudaDataType_t.CUDA_C_32U
+
+    CUDA_R_16BF = cyruntime.cudaDataType_t.CUDA_R_16BF
+
+    CUDA_C_16BF = cyruntime.cudaDataType_t.CUDA_C_16BF
+
+    CUDA_R_4I = cyruntime.cudaDataType_t.CUDA_R_4I
+
+    CUDA_C_4I = cyruntime.cudaDataType_t.CUDA_C_4I
+
+    CUDA_R_4U = cyruntime.cudaDataType_t.CUDA_R_4U
+
+    CUDA_C_4U = cyruntime.cudaDataType_t.CUDA_C_4U
+
+    CUDA_R_16I = cyruntime.cudaDataType_t.CUDA_R_16I
+
+    CUDA_C_16I = cyruntime.cudaDataType_t.CUDA_C_16I
+
+    CUDA_R_16U = cyruntime.cudaDataType_t.CUDA_R_16U
+
+    CUDA_C_16U = cyruntime.cudaDataType_t.CUDA_C_16U
+
+    CUDA_R_64I = cyruntime.cudaDataType_t.CUDA_R_64I
+
+    CUDA_C_64I = cyruntime.cudaDataType_t.CUDA_C_64I
+
+    CUDA_R_64U = cyruntime.cudaDataType_t.CUDA_R_64U
+
+    CUDA_C_64U = cyruntime.cudaDataType_t.CUDA_C_64U
+
+    CUDA_R_8F_E4M3 = cyruntime.cudaDataType_t.CUDA_R_8F_E4M3
+
+    CUDA_R_8F_UE4M3 = cyruntime.cudaDataType_t.CUDA_R_8F_UE4M3
+
+    CUDA_R_8F_E5M2 = cyruntime.cudaDataType_t.CUDA_R_8F_E5M2
+
+    CUDA_R_8F_UE8M0 = cyruntime.cudaDataType_t.CUDA_R_8F_UE8M0
+
+    CUDA_R_6F_E2M3 = cyruntime.cudaDataType_t.CUDA_R_6F_E2M3
+
+    CUDA_R_6F_E3M2 = cyruntime.cudaDataType_t.CUDA_R_6F_E3M2
+
+    CUDA_R_4F_E2M1 = cyruntime.cudaDataType_t.CUDA_R_4F_E2M1
 
 class cudaEmulationStrategy(_FastEnum):
     """
     Enum for specifying how to leverage floating-point emulation
     algorithms
     """
-    {{if 'CUDA_EMULATION_STRATEGY_DEFAULT' in found_values}}
+
 
     CUDA_EMULATION_STRATEGY_DEFAULT = (
         cyruntime.cudaEmulationStrategy_t.CUDA_EMULATION_STRATEGY_DEFAULT,
         'The default emulation strategy. For emulated computations, this is\n'
         'equivalent to CUDA_EMULATION_STRATEGY_PERFORMANT, unless a library\n'
         'dependent environment variable is set\n'
-    ){{endif}}
-    {{if 'CUDA_EMULATION_STRATEGY_PERFORMANT' in found_values}}
+    )
+
 
     CUDA_EMULATION_STRATEGY_PERFORMANT = (
         cyruntime.cudaEmulationStrategy_t.CUDA_EMULATION_STRATEGY_PERFORMANT,
         'An emulation strategy which configures libraries to use emulation when it\n'
         'provides a performance benefit\n'
-    ){{endif}}
-    {{if 'CUDA_EMULATION_STRATEGY_EAGER' in found_values}}
+    )
+
 
     CUDA_EMULATION_STRATEGY_EAGER = (
         cyruntime.cudaEmulationStrategy_t.CUDA_EMULATION_STRATEGY_EAGER,
         'An emulation strategy which configures libraries to use emulation whenever\n'
         'possible\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaEmulationMantissaControl_t' in found_types}}
+    )
 
 class cudaEmulationMantissaControl(_FastEnum):
     """
     Enum to configure the mantissa related parameters for floating-
     point emulation algorithms
     """
-    {{if 'CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC' in found_values}}
+
 
     CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC = (
         cyruntime.cudaEmulationMantissaControl_t.CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC,
         'The number of retained mantissa bits are computed at runtime to ensure the\n'
         'same or better accuracy than the floating point representation being\n'
         'emulated\n'
-    ){{endif}}
-    {{if 'CUDA_EMULATION_MANTISSA_CONTROL_FIXED' in found_values}}
+    )
+
 
     CUDA_EMULATION_MANTISSA_CONTROL_FIXED = (
         cyruntime.cudaEmulationMantissaControl_t.CUDA_EMULATION_MANTISSA_CONTROL_FIXED,
         'The number of retained mantissa bits are known at runtime\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaEmulationSpecialValuesSupport_t' in found_types}}
+    )
 
 class cudaEmulationSpecialValuesSupport(_FastEnum):
     """
     Enum to configure how special floating-point values will be handled
     by emulation algorithms
     """
-    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE' in found_values}}
+
 
     CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE = (
         cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE,
         'There are no requirements for emulation algorithms to support special\n'
         'values\n'
-    ){{endif}}
-    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY' in found_values}}
+    )
+
 
     CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY = (
         cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY,
         'Require emulation algorithms to handle signed infinity inputs and outputs\n'
-    ){{endif}}
-    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN' in found_values}}
+    )
+
 
     CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN = (
         cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN,
         'Require emulation algorithms to handle NaN inputs and outputs\n'
-    ){{endif}}
-    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT' in found_values}}
+    )
+
 
     CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT = (
         cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT,
         'The default special value support mask which contains support for signed\n'
         'infinities and NaN values\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'libraryPropertyType_t' in found_types}}
+    )
 
 class libraryPropertyType(_FastEnum):
     """
 
     """
-    {{if 'MAJOR_VERSION' in found_values}}
-    MAJOR_VERSION = cyruntime.libraryPropertyType_t.MAJOR_VERSION{{endif}}
-    {{if 'MINOR_VERSION' in found_values}}
-    MINOR_VERSION = cyruntime.libraryPropertyType_t.MINOR_VERSION{{endif}}
-    {{if 'PATCH_LEVEL' in found_values}}
-    PATCH_LEVEL = cyruntime.libraryPropertyType_t.PATCH_LEVEL{{endif}}
 
-{{endif}}
-{{if True}}
+    MAJOR_VERSION = cyruntime.libraryPropertyType_t.MAJOR_VERSION
+
+    MINOR_VERSION = cyruntime.libraryPropertyType_t.MINOR_VERSION
+
+    PATCH_LEVEL = cyruntime.libraryPropertyType_t.PATCH_LEVEL
 
 class cudaEglFrameType(_FastEnum):
     """
     CUDA EglFrame type - array or pointer
     """
-    {{if True}}
+
 
     cudaEglFrameTypeArray = (
         cyruntime.cudaEglFrameType_enum.cudaEglFrameTypeArray,
         'Frame type CUDA array\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglFrameTypePitch = (
         cyruntime.cudaEglFrameType_enum.cudaEglFrameTypePitch,
         'Frame type CUDA pointer\n'
-    ){{endif}}
-
-{{endif}}
-{{if True}}
+    )
 
 class cudaEglResourceLocationFlags(_FastEnum):
     """
@@ -2091,1227 +2044,1203 @@ class cudaEglResourceLocationFlags(_FastEnum):
     CUDA.  There may be an additional latency due to new allocation and
     data migration, if the frame is produced on a different memory.
     """
-    {{if True}}
+
 
     cudaEglResourceLocationSysmem = (
         cyruntime.cudaEglResourceLocationFlags_enum.cudaEglResourceLocationSysmem,
         'Resource location sysmem\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglResourceLocationVidmem = (
         cyruntime.cudaEglResourceLocationFlags_enum.cudaEglResourceLocationVidmem,
         'Resource location vidmem\n'
-    ){{endif}}
-
-{{endif}}
-{{if True}}
+    )
 
 class cudaEglColorFormat(_FastEnum):
     """
     CUDA EGL Color Format - The different planar and multiplanar
     formats currently supported for CUDA_EGL interops.
     """
-    {{if True}}
+
 
     cudaEglColorFormatYUV420Planar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV420Planar,
         'Y, U, V in three surfaces, each in a separate surface, U/V width = 1/2 Y\n'
         'width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV420SemiPlanar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV420SemiPlanar,
         'Y, UV in two surfaces (UV as one surface) with VU byte ordering, width,\n'
         'height ratio same as YUV420Planar.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV422Planar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV422Planar,
         'Y, U, V each in a separate surface, U/V width = 1/2 Y width, U/V height = Y\n'
         'height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV422SemiPlanar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV422SemiPlanar,
         'Y, UV in two surfaces with VU byte ordering, width, height ratio same as\n'
         'YUV422Planar.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatARGB = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatARGB,
         'R/G/B/A four channels in one surface with BGRA byte ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatRGBA = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatRGBA,
         'R/G/B/A four channels in one surface with ABGR byte ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatL = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatL,
         'single luminance channel in one surface.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatR = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatR,
         'single color channel in one surface.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV444Planar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV444Planar,
         'Y, U, V in three surfaces, each in a separate surface, U/V width = Y width,\n'
         'U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV444SemiPlanar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV444SemiPlanar,
         'Y, UV in two surfaces (UV as one surface) with VU byte ordering, width,\n'
         'height ratio same as YUV444Planar.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUYV422 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUYV422,
         'Y, U, V in one surface, interleaved as UYVY in one channel.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatUYVY422 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatUYVY422,
         'Y, U, V in one surface, interleaved as YUYV in one channel.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatABGR = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatABGR,
         'R/G/B/A four channels in one surface with RGBA byte ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBGRA = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBGRA,
         'R/G/B/A four channels in one surface with ARGB byte ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatA = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatA,
         'Alpha color format - one channel in one surface.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatRG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatRG,
         'R/G color format - two channels in one surface with GR byte ordering\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatAYUV = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatAYUV,
         'Y, U, V, A four channels in one surface, interleaved as VUYA.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU444SemiPlanar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU444SemiPlanar,
         'Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width\n'
         '= Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU422SemiPlanar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU422SemiPlanar,
         'Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width\n'
         '= 1/2 Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU420SemiPlanar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU420SemiPlanar,
         'Y, VU in two surfaces (VU as one surface) with UV byte ordering, U/V width\n'
         '= 1/2 Y width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10V10U10_444SemiPlanar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_444SemiPlanar,
         'Y10, V10U10 in two surfaces (VU as one surface) with UV byte ordering, U/V\n'
         'width = Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10V10U10_420SemiPlanar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_420SemiPlanar,
         'Y10, V10U10 in two surfaces (VU as one surface) with UV byte ordering, U/V\n'
         'width = 1/2 Y width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY12V12U12_444SemiPlanar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_444SemiPlanar,
         'Y12, V12U12 in two surfaces (VU as one surface) with UV byte ordering, U/V\n'
         'width = Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY12V12U12_420SemiPlanar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_420SemiPlanar,
         'Y12, V12U12 in two surfaces (VU as one surface) with UV byte ordering, U/V\n'
         'width = 1/2 Y width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatVYUY_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatVYUY_ER,
         'Extended Range Y, U, V in one surface, interleaved as YVYU in one channel.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatUYVY_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatUYVY_ER,
         'Extended Range Y, U, V in one surface, interleaved as YUYV in one channel.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUYV_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUYV_ER,
         'Extended Range Y, U, V in one surface, interleaved as UYVY in one channel.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVYU_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVYU_ER,
         'Extended Range Y, U, V in one surface, interleaved as VYUY in one channel.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUVA_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUVA_ER,
         'Extended Range Y, U, V, A four channels in one surface, interleaved as\n'
         'AVUY.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatAYUV_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatAYUV_ER,
         'Extended Range Y, U, V, A four channels in one surface, interleaved as\n'
         'VUYA.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV444Planar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV444Planar_ER,
         'Extended Range Y, U, V in three surfaces, U/V width = Y width, U/V height =\n'
         'Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV422Planar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV422Planar_ER,
         'Extended Range Y, U, V in three surfaces, U/V width = 1/2 Y width, U/V\n'
         'height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV420Planar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV420Planar_ER,
         'Extended Range Y, U, V in three surfaces, U/V width = 1/2 Y width, U/V\n'
         'height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV444SemiPlanar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV444SemiPlanar_ER,
         'Extended Range Y, UV in two surfaces (UV as one surface) with VU byte\n'
         'ordering, U/V width = Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV422SemiPlanar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV422SemiPlanar_ER,
         'Extended Range Y, UV in two surfaces (UV as one surface) with VU byte\n'
         'ordering, U/V width = 1/2 Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV420SemiPlanar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV420SemiPlanar_ER,
         'Extended Range Y, UV in two surfaces (UV as one surface) with VU byte\n'
         'ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU444Planar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU444Planar_ER,
         'Extended Range Y, V, U in three surfaces, U/V width = Y width, U/V height =\n'
         'Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU422Planar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU422Planar_ER,
         'Extended Range Y, V, U in three surfaces, U/V width = 1/2 Y width, U/V\n'
         'height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU420Planar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU420Planar_ER,
         'Extended Range Y, V, U in three surfaces, U/V width = 1/2 Y width, U/V\n'
         'height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU444SemiPlanar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU444SemiPlanar_ER,
         'Extended Range Y, VU in two surfaces (VU as one surface) with UV byte\n'
         'ordering, U/V width = Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU422SemiPlanar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU422SemiPlanar_ER,
         'Extended Range Y, VU in two surfaces (VU as one surface) with UV byte\n'
         'ordering, U/V width = 1/2 Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU420SemiPlanar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU420SemiPlanar_ER,
         'Extended Range Y, VU in two surfaces (VU as one surface) with UV byte\n'
         'ordering, U/V width = 1/2 Y width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerRGGB = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerRGGB,
         'Bayer format - one channel in one surface with interleaved RGGB ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerBGGR = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerBGGR,
         'Bayer format - one channel in one surface with interleaved BGGR ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerGRBG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerGRBG,
         'Bayer format - one channel in one surface with interleaved GRBG ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerGBRG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerGBRG,
         'Bayer format - one channel in one surface with interleaved GBRG ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer10RGGB = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer10RGGB,
         'Bayer10 format - one channel in one surface with interleaved RGGB ordering.\n'
         'Out of 16 bits, 10 bits used 6 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer10BGGR = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer10BGGR,
         'Bayer10 format - one channel in one surface with interleaved BGGR ordering.\n'
         'Out of 16 bits, 10 bits used 6 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer10GRBG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer10GRBG,
         'Bayer10 format - one channel in one surface with interleaved GRBG ordering.\n'
         'Out of 16 bits, 10 bits used 6 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer10GBRG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer10GBRG,
         'Bayer10 format - one channel in one surface with interleaved GBRG ordering.\n'
         'Out of 16 bits, 10 bits used 6 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer12RGGB = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer12RGGB,
         'Bayer12 format - one channel in one surface with interleaved RGGB ordering.\n'
         'Out of 16 bits, 12 bits used 4 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer12BGGR = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer12BGGR,
         'Bayer12 format - one channel in one surface with interleaved BGGR ordering.\n'
         'Out of 16 bits, 12 bits used 4 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer12GRBG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer12GRBG,
         'Bayer12 format - one channel in one surface with interleaved GRBG ordering.\n'
         'Out of 16 bits, 12 bits used 4 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer12GBRG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer12GBRG,
         'Bayer12 format - one channel in one surface with interleaved GBRG ordering.\n'
         'Out of 16 bits, 12 bits used 4 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer14RGGB = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer14RGGB,
         'Bayer14 format - one channel in one surface with interleaved RGGB ordering.\n'
         'Out of 16 bits, 14 bits used 2 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer14BGGR = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer14BGGR,
         'Bayer14 format - one channel in one surface with interleaved BGGR ordering.\n'
         'Out of 16 bits, 14 bits used 2 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer14GRBG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer14GRBG,
         'Bayer14 format - one channel in one surface with interleaved GRBG ordering.\n'
         'Out of 16 bits, 14 bits used 2 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer14GBRG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer14GBRG,
         'Bayer14 format - one channel in one surface with interleaved GBRG ordering.\n'
         'Out of 16 bits, 14 bits used 2 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer20RGGB = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer20RGGB,
         'Bayer20 format - one channel in one surface with interleaved RGGB ordering.\n'
         'Out of 32 bits, 20 bits used 12 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer20BGGR = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer20BGGR,
         'Bayer20 format - one channel in one surface with interleaved BGGR ordering.\n'
         'Out of 32 bits, 20 bits used 12 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer20GRBG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer20GRBG,
         'Bayer20 format - one channel in one surface with interleaved GRBG ordering.\n'
         'Out of 32 bits, 20 bits used 12 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer20GBRG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer20GBRG,
         'Bayer20 format - one channel in one surface with interleaved GBRG ordering.\n'
         'Out of 32 bits, 20 bits used 12 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU444Planar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU444Planar,
         'Y, V, U in three surfaces, each in a separate surface, U/V width = Y width,\n'
         'U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU422Planar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU422Planar,
         'Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y\n'
         'width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU420Planar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU420Planar,
         'Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y\n'
         'width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerIspRGGB = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerIspRGGB,
         'Nvidia proprietary Bayer ISP format - one channel in one surface with\n'
         'interleaved RGGB ordering and mapped to opaque integer datatype.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerIspBGGR = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerIspBGGR,
         'Nvidia proprietary Bayer ISP format - one channel in one surface with\n'
         'interleaved BGGR ordering and mapped to opaque integer datatype.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerIspGRBG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerIspGRBG,
         'Nvidia proprietary Bayer ISP format - one channel in one surface with\n'
         'interleaved GRBG ordering and mapped to opaque integer datatype.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerIspGBRG = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerIspGBRG,
         'Nvidia proprietary Bayer ISP format - one channel in one surface with\n'
         'interleaved GBRG ordering and mapped to opaque integer datatype.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerBCCR = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerBCCR,
         'Bayer format - one channel in one surface with interleaved BCCR ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerRCCB = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerRCCB,
         'Bayer format - one channel in one surface with interleaved RCCB ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerCRBC = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerCRBC,
         'Bayer format - one channel in one surface with interleaved CRBC ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayerCBRC = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayerCBRC,
         'Bayer format - one channel in one surface with interleaved CBRC ordering.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer10CCCC = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer10CCCC,
         'Bayer10 format - one channel in one surface with interleaved CCCC ordering.\n'
         'Out of 16 bits, 10 bits used 6 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer12BCCR = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer12BCCR,
         'Bayer12 format - one channel in one surface with interleaved BCCR ordering.\n'
         'Out of 16 bits, 12 bits used 4 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer12RCCB = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer12RCCB,
         'Bayer12 format - one channel in one surface with interleaved RCCB ordering.\n'
         'Out of 16 bits, 12 bits used 4 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer12CRBC = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer12CRBC,
         'Bayer12 format - one channel in one surface with interleaved CRBC ordering.\n'
         'Out of 16 bits, 12 bits used 4 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer12CBRC = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer12CBRC,
         'Bayer12 format - one channel in one surface with interleaved CBRC ordering.\n'
         'Out of 16 bits, 12 bits used 4 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatBayer12CCCC = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatBayer12CCCC,
         'Bayer12 format - one channel in one surface with interleaved CCCC ordering.\n'
         'Out of 16 bits, 12 bits used 4 bits No-op.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY,
         'Color format for single Y plane.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV420SemiPlanar_2020 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV420SemiPlanar_2020,
         'Y, UV in two surfaces (UV as one surface) U/V width = 1/2 Y width, U/V\n'
         'height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU420SemiPlanar_2020 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU420SemiPlanar_2020,
         'Y, VU in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V\n'
         'height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV420Planar_2020 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV420Planar_2020,
         'Y, U, V in three surfaces, each in a separate surface, U/V width = 1/2 Y\n'
         'width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU420Planar_2020 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU420Planar_2020,
         'Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y\n'
         'width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV420SemiPlanar_709 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV420SemiPlanar_709,
         'Y, UV in two surfaces (UV as one surface) U/V width = 1/2 Y width, U/V\n'
         'height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU420SemiPlanar_709 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU420SemiPlanar_709,
         'Y, VU in two surfaces (VU as one surface) U/V width = 1/2 Y width, U/V\n'
         'height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUV420Planar_709 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUV420Planar_709,
         'Y, U, V in three surfaces, each in a separate surface, U/V width = 1/2 Y\n'
         'width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVU420Planar_709 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVU420Planar_709,
         'Y, V, U in three surfaces, each in a separate surface, U/V width = 1/2 Y\n'
         'width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10V10U10_420SemiPlanar_709 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_420SemiPlanar_709,
         'Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width,\n'
         'U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10V10U10_420SemiPlanar_2020 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_420SemiPlanar_2020,
         'Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width,\n'
         'U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10V10U10_422SemiPlanar_2020 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_422SemiPlanar_2020,
         'Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width,\n'
         'U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10V10U10_422SemiPlanar = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_422SemiPlanar,
         'Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width,\n'
         'U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10V10U10_422SemiPlanar_709 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_422SemiPlanar_709,
         'Y10, V10U10 in two surfaces (VU as one surface) U/V width = 1/2 Y width,\n'
         'U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY_ER,
         'Extended Range Color format for single Y plane.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY_709_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY_709_ER,
         'Extended Range Color format for single Y plane.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10_ER,
         'Extended Range Color format for single Y10 plane.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10_709_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10_709_ER,
         'Extended Range Color format for single Y10 plane.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY12_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY12_ER,
         'Extended Range Color format for single Y12 plane.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY12_709_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY12_709_ER,
         'Extended Range Color format for single Y12 plane.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYUVA = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYUVA,
         'Y, U, V, A four channels in one surface, interleaved as AVUY.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatYVYU = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatYVYU,
         'Y, U, V in one surface, interleaved as YVYU in one channel.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatVYUY = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatVYUY,
         'Y, U, V in one surface, interleaved as VYUY in one channel.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10V10U10_420SemiPlanar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_420SemiPlanar_ER,
         'Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width =\n'
         '1/2 Y width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER,
         'Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width =\n'
         '1/2 Y width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10V10U10_444SemiPlanar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_444SemiPlanar_ER,
         'Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width =\n'
         'Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER,
         'Extended Range Y10, V10U10 in two surfaces (VU as one surface) U/V width =\n'
         'Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY12V12U12_420SemiPlanar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_420SemiPlanar_ER,
         'Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width =\n'
         '1/2 Y width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER,
         'Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width =\n'
         '1/2 Y width, U/V height = 1/2 Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY12V12U12_444SemiPlanar_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_444SemiPlanar_ER,
         'Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width =\n'
         'Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER,
         'Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width =\n'
         'Y width, U/V height = Y height.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatUYVY709 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatUYVY709,
         'Y, U, V in one surface, interleaved as UYVY in one channel.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatUYVY709_ER = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatUYVY709_ER,
         'Extended Range Y, U, V in one surface, interleaved as UYVY in one channel.\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaEglColorFormatUYVY2020 = (
         cyruntime.cudaEglColorFormat_enum.cudaEglColorFormatUYVY2020,
         'Y, U, V in one surface, interleaved as UYVY in one channel.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaChannelFormatKind' in found_types}}
+    )
 
 class cudaChannelFormatKind(_FastEnum):
     """
     Channel format kind
     """
-    {{if 'cudaChannelFormatKindSigned' in found_values}}
+
 
     cudaChannelFormatKindSigned = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindSigned,
         'Signed channel format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned,
         'Unsigned channel format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindFloat' in found_values}}
+    )
+
 
     cudaChannelFormatKindFloat = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindFloat,
         'Float channel format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindNone' in found_values}}
+    )
+
 
     cudaChannelFormatKindNone = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindNone,
         'No channel format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindNV12' in found_values}}
+    )
+
 
     cudaChannelFormatKindNV12 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindNV12,
         'Unsigned 8-bit integers, planar 4:2:0 YUV format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedNormalized8X1' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedNormalized8X1 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X1,
         '1 channel unsigned 8-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedNormalized8X2' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedNormalized8X2 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X2,
         '2 channel unsigned 8-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedNormalized8X4' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedNormalized8X4 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X4,
         '4 channel unsigned 8-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedNormalized16X1' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedNormalized16X1 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X1,
         '1 channel unsigned 16-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedNormalized16X2' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedNormalized16X2 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X2,
         '2 channel unsigned 16-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedNormalized16X4' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedNormalized16X4 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X4,
         '4 channel unsigned 16-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindSignedNormalized8X1' in found_values}}
+    )
+
 
     cudaChannelFormatKindSignedNormalized8X1 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X1,
         '1 channel signed 8-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindSignedNormalized8X2' in found_values}}
+    )
+
 
     cudaChannelFormatKindSignedNormalized8X2 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X2,
         '2 channel signed 8-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindSignedNormalized8X4' in found_values}}
+    )
+
 
     cudaChannelFormatKindSignedNormalized8X4 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X4,
         '4 channel signed 8-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindSignedNormalized16X1' in found_values}}
+    )
+
 
     cudaChannelFormatKindSignedNormalized16X1 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X1,
         '1 channel signed 16-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindSignedNormalized16X2' in found_values}}
+    )
+
 
     cudaChannelFormatKindSignedNormalized16X2 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X2,
         '2 channel signed 16-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindSignedNormalized16X4' in found_values}}
+    )
+
 
     cudaChannelFormatKindSignedNormalized16X4 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X4,
         '4 channel signed 16-bit normalized integer\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedBlockCompressed1' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedBlockCompressed1 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed1,
         '4 channel unsigned normalized block-compressed (BC1 compression) format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedBlockCompressed1SRGB' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedBlockCompressed1SRGB = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed1SRGB,
         '4 channel unsigned normalized block-compressed (BC1 compression) format\n'
         'with sRGB encoding\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedBlockCompressed2' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedBlockCompressed2 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed2,
         '4 channel unsigned normalized block-compressed (BC2 compression) format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedBlockCompressed2SRGB' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedBlockCompressed2SRGB = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed2SRGB,
         '4 channel unsigned normalized block-compressed (BC2 compression) format\n'
         'with sRGB encoding\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedBlockCompressed3' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedBlockCompressed3 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed3,
         '4 channel unsigned normalized block-compressed (BC3 compression) format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedBlockCompressed3SRGB' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedBlockCompressed3SRGB = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed3SRGB,
         '4 channel unsigned normalized block-compressed (BC3 compression) format\n'
         'with sRGB encoding\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedBlockCompressed4' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedBlockCompressed4 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed4,
         '1 channel unsigned normalized block-compressed (BC4 compression) format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindSignedBlockCompressed4' in found_values}}
+    )
+
 
     cudaChannelFormatKindSignedBlockCompressed4 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed4,
         '1 channel signed normalized block-compressed (BC4 compression) format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedBlockCompressed5' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedBlockCompressed5 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed5,
         '2 channel unsigned normalized block-compressed (BC5 compression) format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindSignedBlockCompressed5' in found_values}}
+    )
+
 
     cudaChannelFormatKindSignedBlockCompressed5 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed5,
         '2 channel signed normalized block-compressed (BC5 compression) format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedBlockCompressed6H' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedBlockCompressed6H = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed6H,
         '3 channel unsigned half-float block-compressed (BC6H compression) format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindSignedBlockCompressed6H' in found_values}}
+    )
+
 
     cudaChannelFormatKindSignedBlockCompressed6H = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed6H,
         '3 channel signed half-float block-compressed (BC6H compression) format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedBlockCompressed7' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedBlockCompressed7 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7,
         '4 channel unsigned normalized block-compressed (BC7 compression) format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedBlockCompressed7SRGB' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedBlockCompressed7SRGB = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7SRGB,
         '4 channel unsigned normalized block-compressed (BC7 compression) format\n'
         'with sRGB encoding\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsignedNormalized1010102' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsignedNormalized1010102 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102,
         '4 channel unsigned normalized (10-bit, 10-bit, 10-bit, 2-bit) format\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned8Packed422' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned8Packed422 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422,
         '4 channel unsigned 8-bit packed format, with 4:2:2 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned8Packed444' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned8Packed444 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444,
         '4 channel unsigned 8-bit packed format, with 4:4:4 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned8SemiPlanar420' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned8SemiPlanar420 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420,
         '3 channel unsigned 8-bit semi-planar format, with 4:2:0 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned16SemiPlanar420' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned16SemiPlanar420 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420,
         '3 channel unsigned 16-bit semi-planar format, with 4:2:0 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned8SemiPlanar422' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned8SemiPlanar422 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422,
         '3 channel unsigned 8-bit semi-planar format, with 4:2:2 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned16SemiPlanar422' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned16SemiPlanar422 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422,
         '3 channel unsigned 16-bit semi-planar format, with 4:2:2 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned8SemiPlanar444' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned8SemiPlanar444 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444,
         '3 channel unsigned 8-bit semi-planar format, with 4:4:4 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned16SemiPlanar444' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned16SemiPlanar444 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444,
         '3 channel unsigned 16-bit semi-planar format, with 4:4:4 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned8Planar420' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned8Planar420 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420,
         '3 channel unsigned 8-bit planar format, with 4:2:0 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned16Planar420' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned16Planar420 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420,
         '3 channel unsigned 16-bit planar format, with 4:2:0 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned8Planar422' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned8Planar422 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422,
         '3 channel unsigned 8-bit planar format, with 4:2:2 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned16Planar422' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned16Planar422 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422,
         '3 channel unsigned 16-bit planar format, with 4:2:2 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned8Planar444' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned8Planar444 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444,
         '3 channel unsigned 8-bit planar format, with 4:4:4 sampling\n'
-    ){{endif}}
-    {{if 'cudaChannelFormatKindUnsigned16Planar444' in found_values}}
+    )
+
 
     cudaChannelFormatKindUnsigned16Planar444 = (
         cyruntime.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444,
         '3 channel unsigned 16-bit planar format, with 4:4:4 sampling\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaMemoryType' in found_types}}
+    )
 
 class cudaMemoryType(_FastEnum):
     """
     CUDA memory types
     """
-    {{if 'cudaMemoryTypeUnregistered' in found_values}}
+
 
     cudaMemoryTypeUnregistered = (
         cyruntime.cudaMemoryType.cudaMemoryTypeUnregistered,
         'Unregistered memory\n'
-    ){{endif}}
-    {{if 'cudaMemoryTypeHost' in found_values}}
+    )
+
 
     cudaMemoryTypeHost = (
         cyruntime.cudaMemoryType.cudaMemoryTypeHost,
         'Host memory\n'
-    ){{endif}}
-    {{if 'cudaMemoryTypeDevice' in found_values}}
+    )
+
 
     cudaMemoryTypeDevice = (
         cyruntime.cudaMemoryType.cudaMemoryTypeDevice,
         'Device memory\n'
-    ){{endif}}
-    {{if 'cudaMemoryTypeManaged' in found_values}}
+    )
+
 
     cudaMemoryTypeManaged = (
         cyruntime.cudaMemoryType.cudaMemoryTypeManaged,
         'Managed memory\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaMemcpyKind' in found_types}}
+    )
 
 class cudaMemcpyKind(_FastEnum):
     """
     CUDA memory copy types
     """
-    {{if 'cudaMemcpyHostToHost' in found_values}}
+
 
     cudaMemcpyHostToHost = (
         cyruntime.cudaMemcpyKind.cudaMemcpyHostToHost,
         'Host -> Host\n'
-    ){{endif}}
-    {{if 'cudaMemcpyHostToDevice' in found_values}}
+    )
+
 
     cudaMemcpyHostToDevice = (
         cyruntime.cudaMemcpyKind.cudaMemcpyHostToDevice,
         'Host -> Device\n'
-    ){{endif}}
-    {{if 'cudaMemcpyDeviceToHost' in found_values}}
+    )
+
 
     cudaMemcpyDeviceToHost = (
         cyruntime.cudaMemcpyKind.cudaMemcpyDeviceToHost,
         'Device -> Host\n'
-    ){{endif}}
-    {{if 'cudaMemcpyDeviceToDevice' in found_values}}
+    )
+
 
     cudaMemcpyDeviceToDevice = (
         cyruntime.cudaMemcpyKind.cudaMemcpyDeviceToDevice,
         'Device -> Device\n'
-    ){{endif}}
-    {{if 'cudaMemcpyDefault' in found_values}}
+    )
+
 
     cudaMemcpyDefault = (
         cyruntime.cudaMemcpyKind.cudaMemcpyDefault,
         'Direction of the transfer is inferred from the pointer values. Requires\n'
         'unified virtual addressing\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaAccessProperty' in found_types}}
+    )
 
 class cudaAccessProperty(_FastEnum):
     """
     Specifies performance hint with :py:obj:`~.cudaAccessPolicyWindow`
     for hitProp and missProp members.
     """
-    {{if 'cudaAccessPropertyNormal' in found_values}}
+
 
     cudaAccessPropertyNormal = (
         cyruntime.cudaAccessProperty.cudaAccessPropertyNormal,
         'Normal cache persistence.\n'
-    ){{endif}}
-    {{if 'cudaAccessPropertyStreaming' in found_values}}
+    )
+
 
     cudaAccessPropertyStreaming = (
         cyruntime.cudaAccessProperty.cudaAccessPropertyStreaming,
         'Streaming access is less likely to persit from cache.\n'
-    ){{endif}}
-    {{if 'cudaAccessPropertyPersisting' in found_values}}
+    )
+
 
     cudaAccessPropertyPersisting = (
         cyruntime.cudaAccessProperty.cudaAccessPropertyPersisting,
         'Persisting access is more likely to persist in cache.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaStreamCaptureStatus' in found_types}}
+    )
 
 class cudaStreamCaptureStatus(_FastEnum):
     """
     Possible stream capture statuses returned by
     :py:obj:`~.cudaStreamIsCapturing`
     """
-    {{if 'cudaStreamCaptureStatusNone' in found_values}}
+
 
     cudaStreamCaptureStatusNone = (
         cyruntime.cudaStreamCaptureStatus.cudaStreamCaptureStatusNone,
         'Stream is not capturing\n'
-    ){{endif}}
-    {{if 'cudaStreamCaptureStatusActive' in found_values}}
+    )
+
 
     cudaStreamCaptureStatusActive = (
         cyruntime.cudaStreamCaptureStatus.cudaStreamCaptureStatusActive,
         'Stream is actively capturing\n'
-    ){{endif}}
-    {{if 'cudaStreamCaptureStatusInvalidated' in found_values}}
+    )
+
 
     cudaStreamCaptureStatusInvalidated = (
         cyruntime.cudaStreamCaptureStatus.cudaStreamCaptureStatusInvalidated,
         'Stream is part of a capture sequence that has been invalidated, but not\n'
         'terminated\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphRecaptureStatus' in found_types}}
+    )
 
 class cudaGraphRecaptureStatus(_FastEnum):
     """
     Possible recapture statuses that can be returned to the user
     callback
     """
-    {{if 'cudaGraphRecaptureEligibleForUpdate' in found_values}}
+
 
     cudaGraphRecaptureEligibleForUpdate = (
         cyruntime.cudaGraphRecaptureStatus.cudaGraphRecaptureEligibleForUpdate,
         'Node is eligible for update in an instantiated graph.\n'
-    ){{endif}}
-    {{if 'cudaGraphRecaptureIneligibleForUpdate' in found_values}}
+    )
+
 
     cudaGraphRecaptureIneligibleForUpdate = (
         cyruntime.cudaGraphRecaptureStatus.cudaGraphRecaptureIneligibleForUpdate,
         'Parameter changes in the node cannot be applied to an instantiated graph.\n'
-    ){{endif}}
-    {{if 'cudaGraphRecaptureError' in found_values}}
+    )
+
 
     cudaGraphRecaptureError = (
         cyruntime.cudaGraphRecaptureStatus.cudaGraphRecaptureError,
         'Error while attempting to recapture the node. The recapture will be ended\n'
         'regardless of the return value from the callback.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaStreamCaptureMode' in found_types}}
+    )
 
 class cudaStreamCaptureMode(_FastEnum):
     """
@@ -3319,1548 +3248,1476 @@ class cudaStreamCaptureMode(_FastEnum):
     details see :py:obj:`~.cudaStreamBeginCapture` and
     :py:obj:`~.cudaThreadExchangeStreamCaptureMode`
     """
-    {{if 'cudaStreamCaptureModeGlobal' in found_values}}
-    cudaStreamCaptureModeGlobal = cyruntime.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal{{endif}}
-    {{if 'cudaStreamCaptureModeThreadLocal' in found_values}}
-    cudaStreamCaptureModeThreadLocal = cyruntime.cudaStreamCaptureMode.cudaStreamCaptureModeThreadLocal{{endif}}
-    {{if 'cudaStreamCaptureModeRelaxed' in found_values}}
-    cudaStreamCaptureModeRelaxed = cyruntime.cudaStreamCaptureMode.cudaStreamCaptureModeRelaxed{{endif}}
 
-{{endif}}
-{{if 'cudaSynchronizationPolicy' in found_types}}
+    cudaStreamCaptureModeGlobal = cyruntime.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal
+
+    cudaStreamCaptureModeThreadLocal = cyruntime.cudaStreamCaptureMode.cudaStreamCaptureModeThreadLocal
+
+    cudaStreamCaptureModeRelaxed = cyruntime.cudaStreamCaptureMode.cudaStreamCaptureModeRelaxed
 
 class cudaSynchronizationPolicy(_FastEnum):
     """
 
     """
-    {{if 'cudaSyncPolicyAuto' in found_values}}
-    cudaSyncPolicyAuto = cyruntime.cudaSynchronizationPolicy.cudaSyncPolicyAuto{{endif}}
-    {{if 'cudaSyncPolicySpin' in found_values}}
-    cudaSyncPolicySpin = cyruntime.cudaSynchronizationPolicy.cudaSyncPolicySpin{{endif}}
-    {{if 'cudaSyncPolicyYield' in found_values}}
-    cudaSyncPolicyYield = cyruntime.cudaSynchronizationPolicy.cudaSyncPolicyYield{{endif}}
-    {{if 'cudaSyncPolicyBlockingSync' in found_values}}
-    cudaSyncPolicyBlockingSync = cyruntime.cudaSynchronizationPolicy.cudaSyncPolicyBlockingSync{{endif}}
 
-{{endif}}
-{{if 'cudaClusterSchedulingPolicy' in found_types}}
+    cudaSyncPolicyAuto = cyruntime.cudaSynchronizationPolicy.cudaSyncPolicyAuto
+
+    cudaSyncPolicySpin = cyruntime.cudaSynchronizationPolicy.cudaSyncPolicySpin
+
+    cudaSyncPolicyYield = cyruntime.cudaSynchronizationPolicy.cudaSyncPolicyYield
+
+    cudaSyncPolicyBlockingSync = cyruntime.cudaSynchronizationPolicy.cudaSyncPolicyBlockingSync
 
 class cudaClusterSchedulingPolicy(_FastEnum):
     """
     Cluster scheduling policies. These may be passed to
     :py:obj:`~.cudaFuncSetAttribute`
     """
-    {{if 'cudaClusterSchedulingPolicyDefault' in found_values}}
+
 
     cudaClusterSchedulingPolicyDefault = (
         cyruntime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyDefault,
         'the default policy\n'
-    ){{endif}}
-    {{if 'cudaClusterSchedulingPolicySpread' in found_values}}
+    )
+
 
     cudaClusterSchedulingPolicySpread = (
         cyruntime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicySpread,
         'spread the blocks within a cluster to the SMs\n'
-    ){{endif}}
-    {{if 'cudaClusterSchedulingPolicyLoadBalancing' in found_values}}
+    )
+
 
     cudaClusterSchedulingPolicyLoadBalancing = (
         cyruntime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyLoadBalancing,
         'allow the hardware to load-balance the blocks in a cluster to the SMs\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaStreamUpdateCaptureDependenciesFlags' in found_types}}
+    )
 
 class cudaStreamUpdateCaptureDependenciesFlags(_FastEnum):
     """
     Flags for :py:obj:`~.cudaStreamUpdateCaptureDependencies`
     """
-    {{if 'cudaStreamAddCaptureDependencies' in found_values}}
+
 
     cudaStreamAddCaptureDependencies = (
         cyruntime.cudaStreamUpdateCaptureDependenciesFlags.cudaStreamAddCaptureDependencies,
         'Add new nodes to the dependency set\n'
-    ){{endif}}
-    {{if 'cudaStreamSetCaptureDependencies' in found_values}}
+    )
+
 
     cudaStreamSetCaptureDependencies = (
         cyruntime.cudaStreamUpdateCaptureDependenciesFlags.cudaStreamSetCaptureDependencies,
         'Replace the dependency set with the new nodes\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaUserObjectFlags' in found_types}}
+    )
 
 class cudaUserObjectFlags(_FastEnum):
     """
     Flags for user objects for graphs
     """
-    {{if 'cudaUserObjectNoDestructorSync' in found_values}}
+
 
     cudaUserObjectNoDestructorSync = (
         cyruntime.cudaUserObjectFlags.cudaUserObjectNoDestructorSync,
         'Indicates the destructor execution is not synchronized by any CUDA handle.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaUserObjectRetainFlags' in found_types}}
+    )
 
 class cudaUserObjectRetainFlags(_FastEnum):
     """
     Flags for retaining user object references for graphs
     """
-    {{if 'cudaGraphUserObjectMove' in found_values}}
+
 
     cudaGraphUserObjectMove = (
         cyruntime.cudaUserObjectRetainFlags.cudaGraphUserObjectMove,
         'Transfer references from the caller rather than creating new references.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaHostTaskSyncMode' in found_types}}
+    )
 
 class cudaHostTaskSyncMode(_FastEnum):
     """
     Flags for host task sync mode
     """
-    {{if 'cudaHostTaskBlocking' in found_values}}
-    cudaHostTaskBlocking = cyruntime.cudaHostTaskSyncMode.cudaHostTaskBlocking{{endif}}
-    {{if 'cudaHostTaskSpinWait' in found_values}}
-    cudaHostTaskSpinWait = cyruntime.cudaHostTaskSyncMode.cudaHostTaskSpinWait{{endif}}
 
-{{endif}}
-{{if 'cudaGraphicsRegisterFlags' in found_types}}
+    cudaHostTaskBlocking = cyruntime.cudaHostTaskSyncMode.cudaHostTaskBlocking
+
+    cudaHostTaskSpinWait = cyruntime.cudaHostTaskSyncMode.cudaHostTaskSpinWait
 
 class cudaGraphicsRegisterFlags(_FastEnum):
     """
     CUDA graphics interop register flags
     """
-    {{if 'cudaGraphicsRegisterFlagsNone' in found_values}}
+
 
     cudaGraphicsRegisterFlagsNone = (
         cyruntime.cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsNone,
         'Default\n'
-    ){{endif}}
-    {{if 'cudaGraphicsRegisterFlagsReadOnly' in found_values}}
+    )
+
 
     cudaGraphicsRegisterFlagsReadOnly = (
         cyruntime.cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsReadOnly,
         'CUDA will not write to this resource\n'
-    ){{endif}}
-    {{if 'cudaGraphicsRegisterFlagsWriteDiscard' in found_values}}
+    )
+
 
     cudaGraphicsRegisterFlagsWriteDiscard = (
         cyruntime.cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsWriteDiscard,
         'CUDA will only write to and will not read from this resource\n'
-    ){{endif}}
-    {{if 'cudaGraphicsRegisterFlagsSurfaceLoadStore' in found_values}}
+    )
+
 
     cudaGraphicsRegisterFlagsSurfaceLoadStore = (
         cyruntime.cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsSurfaceLoadStore,
         'CUDA will bind this resource to a surface reference\n'
-    ){{endif}}
-    {{if 'cudaGraphicsRegisterFlagsTextureGather' in found_values}}
+    )
+
 
     cudaGraphicsRegisterFlagsTextureGather = (
         cyruntime.cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsTextureGather,
         'CUDA will perform texture gather operations on this resource\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphicsMapFlags' in found_types}}
+    )
 
 class cudaGraphicsMapFlags(_FastEnum):
     """
     CUDA graphics interop map flags
     """
-    {{if 'cudaGraphicsMapFlagsNone' in found_values}}
+
 
     cudaGraphicsMapFlagsNone = (
         cyruntime.cudaGraphicsMapFlags.cudaGraphicsMapFlagsNone,
         'Default; Assume resource can be read/written\n'
-    ){{endif}}
-    {{if 'cudaGraphicsMapFlagsReadOnly' in found_values}}
+    )
+
 
     cudaGraphicsMapFlagsReadOnly = (
         cyruntime.cudaGraphicsMapFlags.cudaGraphicsMapFlagsReadOnly,
         'CUDA will not write to this resource\n'
-    ){{endif}}
-    {{if 'cudaGraphicsMapFlagsWriteDiscard' in found_values}}
+    )
+
 
     cudaGraphicsMapFlagsWriteDiscard = (
         cyruntime.cudaGraphicsMapFlags.cudaGraphicsMapFlagsWriteDiscard,
         'CUDA will only write to and will not read from this resource\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphicsCubeFace' in found_types}}
+    )
 
 class cudaGraphicsCubeFace(_FastEnum):
     """
     CUDA graphics interop array indices for cube maps
     """
-    {{if 'cudaGraphicsCubeFacePositiveX' in found_values}}
+
 
     cudaGraphicsCubeFacePositiveX = (
         cyruntime.cudaGraphicsCubeFace.cudaGraphicsCubeFacePositiveX,
         'Positive X face of cubemap\n'
-    ){{endif}}
-    {{if 'cudaGraphicsCubeFaceNegativeX' in found_values}}
+    )
+
 
     cudaGraphicsCubeFaceNegativeX = (
         cyruntime.cudaGraphicsCubeFace.cudaGraphicsCubeFaceNegativeX,
         'Negative X face of cubemap\n'
-    ){{endif}}
-    {{if 'cudaGraphicsCubeFacePositiveY' in found_values}}
+    )
+
 
     cudaGraphicsCubeFacePositiveY = (
         cyruntime.cudaGraphicsCubeFace.cudaGraphicsCubeFacePositiveY,
         'Positive Y face of cubemap\n'
-    ){{endif}}
-    {{if 'cudaGraphicsCubeFaceNegativeY' in found_values}}
+    )
+
 
     cudaGraphicsCubeFaceNegativeY = (
         cyruntime.cudaGraphicsCubeFace.cudaGraphicsCubeFaceNegativeY,
         'Negative Y face of cubemap\n'
-    ){{endif}}
-    {{if 'cudaGraphicsCubeFacePositiveZ' in found_values}}
+    )
+
 
     cudaGraphicsCubeFacePositiveZ = (
         cyruntime.cudaGraphicsCubeFace.cudaGraphicsCubeFacePositiveZ,
         'Positive Z face of cubemap\n'
-    ){{endif}}
-    {{if 'cudaGraphicsCubeFaceNegativeZ' in found_values}}
+    )
+
 
     cudaGraphicsCubeFaceNegativeZ = (
         cyruntime.cudaGraphicsCubeFace.cudaGraphicsCubeFaceNegativeZ,
         'Negative Z face of cubemap\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaResourceType' in found_types}}
+    )
 
 class cudaResourceType(_FastEnum):
     """
     CUDA resource types
     """
-    {{if 'cudaResourceTypeArray' in found_values}}
+
 
     cudaResourceTypeArray = (
         cyruntime.cudaResourceType.cudaResourceTypeArray,
         'Array resource\n'
-    ){{endif}}
-    {{if 'cudaResourceTypeMipmappedArray' in found_values}}
+    )
+
 
     cudaResourceTypeMipmappedArray = (
         cyruntime.cudaResourceType.cudaResourceTypeMipmappedArray,
         'Mipmapped array resource\n'
-    ){{endif}}
-    {{if 'cudaResourceTypeLinear' in found_values}}
+    )
+
 
     cudaResourceTypeLinear = (
         cyruntime.cudaResourceType.cudaResourceTypeLinear,
         'Linear resource\n'
-    ){{endif}}
-    {{if 'cudaResourceTypePitch2D' in found_values}}
+    )
+
 
     cudaResourceTypePitch2D = (
         cyruntime.cudaResourceType.cudaResourceTypePitch2D,
         'Pitch 2D resource\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaResourceViewFormat' in found_types}}
+    )
 
 class cudaResourceViewFormat(_FastEnum):
     """
     CUDA texture resource view formats
     """
-    {{if 'cudaResViewFormatNone' in found_values}}
+
 
     cudaResViewFormatNone = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatNone,
         'No resource view format (use underlying resource format)\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedChar1' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedChar1 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedChar1,
         '1 channel unsigned 8-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedChar2' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedChar2 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedChar2,
         '2 channel unsigned 8-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedChar4' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedChar4 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedChar4,
         '4 channel unsigned 8-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedChar1' in found_values}}
+    )
+
 
     cudaResViewFormatSignedChar1 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedChar1,
         '1 channel signed 8-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedChar2' in found_values}}
+    )
+
 
     cudaResViewFormatSignedChar2 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedChar2,
         '2 channel signed 8-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedChar4' in found_values}}
+    )
+
 
     cudaResViewFormatSignedChar4 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedChar4,
         '4 channel signed 8-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedShort1' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedShort1 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedShort1,
         '1 channel unsigned 16-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedShort2' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedShort2 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedShort2,
         '2 channel unsigned 16-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedShort4' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedShort4 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedShort4,
         '4 channel unsigned 16-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedShort1' in found_values}}
+    )
+
 
     cudaResViewFormatSignedShort1 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedShort1,
         '1 channel signed 16-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedShort2' in found_values}}
+    )
+
 
     cudaResViewFormatSignedShort2 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedShort2,
         '2 channel signed 16-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedShort4' in found_values}}
+    )
+
 
     cudaResViewFormatSignedShort4 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedShort4,
         '4 channel signed 16-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedInt1' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedInt1 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedInt1,
         '1 channel unsigned 32-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedInt2' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedInt2 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedInt2,
         '2 channel unsigned 32-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedInt4' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedInt4 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedInt4,
         '4 channel unsigned 32-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedInt1' in found_values}}
+    )
+
 
     cudaResViewFormatSignedInt1 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedInt1,
         '1 channel signed 32-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedInt2' in found_values}}
+    )
+
 
     cudaResViewFormatSignedInt2 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedInt2,
         '2 channel signed 32-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedInt4' in found_values}}
+    )
+
 
     cudaResViewFormatSignedInt4 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedInt4,
         '4 channel signed 32-bit integers\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatHalf1' in found_values}}
+    )
+
 
     cudaResViewFormatHalf1 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatHalf1,
         '1 channel 16-bit floating point\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatHalf2' in found_values}}
+    )
+
 
     cudaResViewFormatHalf2 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatHalf2,
         '2 channel 16-bit floating point\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatHalf4' in found_values}}
+    )
+
 
     cudaResViewFormatHalf4 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatHalf4,
         '4 channel 16-bit floating point\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatFloat1' in found_values}}
+    )
+
 
     cudaResViewFormatFloat1 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatFloat1,
         '1 channel 32-bit floating point\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatFloat2' in found_values}}
+    )
+
 
     cudaResViewFormatFloat2 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatFloat2,
         '2 channel 32-bit floating point\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatFloat4' in found_values}}
+    )
+
 
     cudaResViewFormatFloat4 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatFloat4,
         '4 channel 32-bit floating point\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedBlockCompressed1' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedBlockCompressed1 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed1,
         'Block compressed 1\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedBlockCompressed2' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedBlockCompressed2 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed2,
         'Block compressed 2\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedBlockCompressed3' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedBlockCompressed3 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed3,
         'Block compressed 3\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedBlockCompressed4' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedBlockCompressed4 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed4,
         'Block compressed 4 unsigned\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedBlockCompressed4' in found_values}}
+    )
+
 
     cudaResViewFormatSignedBlockCompressed4 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedBlockCompressed4,
         'Block compressed 4 signed\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedBlockCompressed5' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedBlockCompressed5 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed5,
         'Block compressed 5 unsigned\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedBlockCompressed5' in found_values}}
+    )
+
 
     cudaResViewFormatSignedBlockCompressed5 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedBlockCompressed5,
         'Block compressed 5 signed\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedBlockCompressed6H' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedBlockCompressed6H = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed6H,
         'Block compressed 6 unsigned half-float\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatSignedBlockCompressed6H' in found_values}}
+    )
+
 
     cudaResViewFormatSignedBlockCompressed6H = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatSignedBlockCompressed6H,
         'Block compressed 6 signed half-float\n'
-    ){{endif}}
-    {{if 'cudaResViewFormatUnsignedBlockCompressed7' in found_values}}
+    )
+
 
     cudaResViewFormatUnsignedBlockCompressed7 = (
         cyruntime.cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed7,
         'Block compressed 7\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaFuncAttribute' in found_types}}
+    )
 
 class cudaFuncAttribute(_FastEnum):
     """
     CUDA function attributes that can be set using
     :py:obj:`~.cudaFuncSetAttribute`
     """
-    {{if 'cudaFuncAttributeMaxDynamicSharedMemorySize' in found_values}}
+
 
     cudaFuncAttributeMaxDynamicSharedMemorySize = (
         cyruntime.cudaFuncAttribute.cudaFuncAttributeMaxDynamicSharedMemorySize,
         'Maximum dynamic shared memory size\n'
-    ){{endif}}
-    {{if 'cudaFuncAttributePreferredSharedMemoryCarveout' in found_values}}
+    )
+
 
     cudaFuncAttributePreferredSharedMemoryCarveout = (
         cyruntime.cudaFuncAttribute.cudaFuncAttributePreferredSharedMemoryCarveout,
         'Preferred shared memory-L1 cache split\n'
-    ){{endif}}
-    {{if 'cudaFuncAttributeClusterDimMustBeSet' in found_values}}
+    )
+
 
     cudaFuncAttributeClusterDimMustBeSet = (
         cyruntime.cudaFuncAttribute.cudaFuncAttributeClusterDimMustBeSet,
         'Indicator to enforce valid cluster dimension specification on kernel launch\n'
-    ){{endif}}
-    {{if 'cudaFuncAttributeRequiredClusterWidth' in found_values}}
+    )
+
 
     cudaFuncAttributeRequiredClusterWidth = (
         cyruntime.cudaFuncAttribute.cudaFuncAttributeRequiredClusterWidth,
         'Required cluster width\n'
-    ){{endif}}
-    {{if 'cudaFuncAttributeRequiredClusterHeight' in found_values}}
+    )
+
 
     cudaFuncAttributeRequiredClusterHeight = (
         cyruntime.cudaFuncAttribute.cudaFuncAttributeRequiredClusterHeight,
         'Required cluster height\n'
-    ){{endif}}
-    {{if 'cudaFuncAttributeRequiredClusterDepth' in found_values}}
+    )
+
 
     cudaFuncAttributeRequiredClusterDepth = (
         cyruntime.cudaFuncAttribute.cudaFuncAttributeRequiredClusterDepth,
         'Required cluster depth\n'
-    ){{endif}}
-    {{if 'cudaFuncAttributeNonPortableClusterSizeAllowed' in found_values}}
+    )
+
 
     cudaFuncAttributeNonPortableClusterSizeAllowed = (
         cyruntime.cudaFuncAttribute.cudaFuncAttributeNonPortableClusterSizeAllowed,
         'Whether non-portable cluster scheduling policy is supported\n'
-    ){{endif}}
-    {{if 'cudaFuncAttributeClusterSchedulingPolicyPreference' in found_values}}
+    )
+
 
     cudaFuncAttributeClusterSchedulingPolicyPreference = (
         cyruntime.cudaFuncAttribute.cudaFuncAttributeClusterSchedulingPolicyPreference,
         'Required cluster scheduling policy preference\n'
-    ){{endif}}
-    {{if 'cudaFuncAttributeMax' in found_values}}
-    cudaFuncAttributeMax = cyruntime.cudaFuncAttribute.cudaFuncAttributeMax{{endif}}
+    )
 
-{{endif}}
-{{if 'cudaFuncCache' in found_types}}
+    cudaFuncAttributeMax = cyruntime.cudaFuncAttribute.cudaFuncAttributeMax
 
 class cudaFuncCache(_FastEnum):
     """
     CUDA function cache configurations
     """
-    {{if 'cudaFuncCachePreferNone' in found_values}}
+
 
     cudaFuncCachePreferNone = (
         cyruntime.cudaFuncCache.cudaFuncCachePreferNone,
         'Default function cache configuration, no preference\n'
-    ){{endif}}
-    {{if 'cudaFuncCachePreferShared' in found_values}}
+    )
+
 
     cudaFuncCachePreferShared = (
         cyruntime.cudaFuncCache.cudaFuncCachePreferShared,
         'Prefer larger shared memory and smaller L1 cache\n'
-    ){{endif}}
-    {{if 'cudaFuncCachePreferL1' in found_values}}
+    )
+
 
     cudaFuncCachePreferL1 = (
         cyruntime.cudaFuncCache.cudaFuncCachePreferL1,
         'Prefer larger L1 cache and smaller shared memory\n'
-    ){{endif}}
-    {{if 'cudaFuncCachePreferEqual' in found_values}}
+    )
+
 
     cudaFuncCachePreferEqual = (
         cyruntime.cudaFuncCache.cudaFuncCachePreferEqual,
         'Prefer equal size L1 cache and shared memory\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaSharedMemConfig' in found_types}}
+    )
 
 class cudaSharedMemConfig(_FastEnum):
     """
     CUDA shared memory configuration  [Deprecated]
     """
-    {{if 'cudaSharedMemBankSizeDefault' in found_values}}
-    cudaSharedMemBankSizeDefault = cyruntime.cudaSharedMemConfig.cudaSharedMemBankSizeDefault{{endif}}
-    {{if 'cudaSharedMemBankSizeFourByte' in found_values}}
-    cudaSharedMemBankSizeFourByte = cyruntime.cudaSharedMemConfig.cudaSharedMemBankSizeFourByte{{endif}}
-    {{if 'cudaSharedMemBankSizeEightByte' in found_values}}
-    cudaSharedMemBankSizeEightByte = cyruntime.cudaSharedMemConfig.cudaSharedMemBankSizeEightByte{{endif}}
 
-{{endif}}
-{{if 'cudaSharedCarveout' in found_types}}
+    cudaSharedMemBankSizeDefault = cyruntime.cudaSharedMemConfig.cudaSharedMemBankSizeDefault
+
+    cudaSharedMemBankSizeFourByte = cyruntime.cudaSharedMemConfig.cudaSharedMemBankSizeFourByte
+
+    cudaSharedMemBankSizeEightByte = cyruntime.cudaSharedMemConfig.cudaSharedMemBankSizeEightByte
 
 class cudaSharedCarveout(_FastEnum):
     """
     Shared memory carveout configurations. These may be passed to
     cudaFuncSetAttribute
     """
-    {{if 'cudaSharedmemCarveoutDefault' in found_values}}
+
 
     cudaSharedmemCarveoutDefault = (
         cyruntime.cudaSharedCarveout.cudaSharedmemCarveoutDefault,
         'No preference for shared memory or L1 (default)\n'
-    ){{endif}}
-    {{if 'cudaSharedmemCarveoutMaxL1' in found_values}}
+    )
+
 
     cudaSharedmemCarveoutMaxL1 = (
         cyruntime.cudaSharedCarveout.cudaSharedmemCarveoutMaxL1,
         'Prefer maximum available L1 cache, minimum shared memory\n'
-    ){{endif}}
-    {{if 'cudaSharedmemCarveoutMaxShared' in found_values}}
+    )
+
 
     cudaSharedmemCarveoutMaxShared = (
         cyruntime.cudaSharedCarveout.cudaSharedmemCarveoutMaxShared,
         'Prefer maximum available shared memory, minimum L1 cache\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaComputeMode' in found_types}}
+    )
 
 class cudaComputeMode(_FastEnum):
     """
     CUDA device compute modes
     """
-    {{if 'cudaComputeModeDefault' in found_values}}
+
 
     cudaComputeModeDefault = (
         cyruntime.cudaComputeMode.cudaComputeModeDefault,
         'Default compute mode (Multiple threads can use :py:obj:`~.cudaSetDevice()`\n'
         'with this device)\n'
-    ){{endif}}
-    {{if 'cudaComputeModeExclusive' in found_values}}
+    )
+
 
     cudaComputeModeExclusive = (
         cyruntime.cudaComputeMode.cudaComputeModeExclusive,
         'Compute-exclusive-thread mode (Only one thread in one process will be able\n'
         'to use :py:obj:`~.cudaSetDevice()` with this device)\n'
-    ){{endif}}
-    {{if 'cudaComputeModeProhibited' in found_values}}
+    )
+
 
     cudaComputeModeProhibited = (
         cyruntime.cudaComputeMode.cudaComputeModeProhibited,
         'Compute-prohibited mode (No threads can use :py:obj:`~.cudaSetDevice()`\n'
         'with this device)\n'
-    ){{endif}}
-    {{if 'cudaComputeModeExclusiveProcess' in found_values}}
+    )
+
 
     cudaComputeModeExclusiveProcess = (
         cyruntime.cudaComputeMode.cudaComputeModeExclusiveProcess,
         'Compute-exclusive-process mode (Many threads in one process will be able to\n'
         'use :py:obj:`~.cudaSetDevice()` with this device)\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaLimit' in found_types}}
+    )
 
 class cudaLimit(_FastEnum):
     """
     CUDA Limits
     """
-    {{if 'cudaLimitStackSize' in found_values}}
+
 
     cudaLimitStackSize = (
         cyruntime.cudaLimit.cudaLimitStackSize,
         'GPU thread stack size\n'
-    ){{endif}}
-    {{if 'cudaLimitPrintfFifoSize' in found_values}}
+    )
+
 
     cudaLimitPrintfFifoSize = (
         cyruntime.cudaLimit.cudaLimitPrintfFifoSize,
         'GPU printf FIFO size\n'
-    ){{endif}}
-    {{if 'cudaLimitMallocHeapSize' in found_values}}
+    )
+
 
     cudaLimitMallocHeapSize = (
         cyruntime.cudaLimit.cudaLimitMallocHeapSize,
         'GPU malloc heap size\n'
-    ){{endif}}
-    {{if 'cudaLimitDevRuntimeSyncDepth' in found_values}}
+    )
+
 
     cudaLimitDevRuntimeSyncDepth = (
         cyruntime.cudaLimit.cudaLimitDevRuntimeSyncDepth,
         'GPU device runtime synchronize depth\n'
-    ){{endif}}
-    {{if 'cudaLimitDevRuntimePendingLaunchCount' in found_values}}
+    )
+
 
     cudaLimitDevRuntimePendingLaunchCount = (
         cyruntime.cudaLimit.cudaLimitDevRuntimePendingLaunchCount,
         'GPU device runtime pending launch count\n'
-    ){{endif}}
-    {{if 'cudaLimitMaxL2FetchGranularity' in found_values}}
+    )
+
 
     cudaLimitMaxL2FetchGranularity = (
         cyruntime.cudaLimit.cudaLimitMaxL2FetchGranularity,
         'A value between 0 and 128 that indicates the maximum fetch granularity of\n'
         'L2 (in Bytes). This is a hint\n'
-    ){{endif}}
-    {{if 'cudaLimitPersistingL2CacheSize' in found_values}}
+    )
+
 
     cudaLimitPersistingL2CacheSize = (
         cyruntime.cudaLimit.cudaLimitPersistingL2CacheSize,
         'A size in bytes for L2 persisting lines cache size\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaMemoryAdvise' in found_types}}
+    )
 
 class cudaMemoryAdvise(_FastEnum):
     """
     CUDA Memory Advise values
     """
-    {{if 'cudaMemAdviseSetReadMostly' in found_values}}
+
 
     cudaMemAdviseSetReadMostly = (
         cyruntime.cudaMemoryAdvise.cudaMemAdviseSetReadMostly,
         'Data will mostly be read and only occassionally be written to\n'
-    ){{endif}}
-    {{if 'cudaMemAdviseUnsetReadMostly' in found_values}}
+    )
+
 
     cudaMemAdviseUnsetReadMostly = (
         cyruntime.cudaMemoryAdvise.cudaMemAdviseUnsetReadMostly,
         'Undo the effect of :py:obj:`~.cudaMemAdviseSetReadMostly`\n'
-    ){{endif}}
-    {{if 'cudaMemAdviseSetPreferredLocation' in found_values}}
+    )
+
 
     cudaMemAdviseSetPreferredLocation = (
         cyruntime.cudaMemoryAdvise.cudaMemAdviseSetPreferredLocation,
         'Set the preferred location for the data as the specified device\n'
-    ){{endif}}
-    {{if 'cudaMemAdviseUnsetPreferredLocation' in found_values}}
+    )
+
 
     cudaMemAdviseUnsetPreferredLocation = (
         cyruntime.cudaMemoryAdvise.cudaMemAdviseUnsetPreferredLocation,
         'Clear the preferred location for the data\n'
-    ){{endif}}
-    {{if 'cudaMemAdviseSetAccessedBy' in found_values}}
+    )
+
 
     cudaMemAdviseSetAccessedBy = (
         cyruntime.cudaMemoryAdvise.cudaMemAdviseSetAccessedBy,
         'Data will be accessed by the specified device, so prevent page faults as\n'
         'much as possible\n'
-    ){{endif}}
-    {{if 'cudaMemAdviseUnsetAccessedBy' in found_values}}
+    )
+
 
     cudaMemAdviseUnsetAccessedBy = (
         cyruntime.cudaMemoryAdvise.cudaMemAdviseUnsetAccessedBy,
         'Let the Unified Memory subsystem decide on the page faulting policy for the\n'
         'specified device\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaMemRangeAttribute' in found_types}}
+    )
 
 class cudaMemRangeAttribute(_FastEnum):
     """
     CUDA range attributes
     """
-    {{if 'cudaMemRangeAttributeReadMostly' in found_values}}
+
 
     cudaMemRangeAttributeReadMostly = (
         cyruntime.cudaMemRangeAttribute.cudaMemRangeAttributeReadMostly,
         'Whether the range will mostly be read and only occassionally be written to\n'
-    ){{endif}}
-    {{if 'cudaMemRangeAttributePreferredLocation' in found_values}}
+    )
+
 
     cudaMemRangeAttributePreferredLocation = (
         cyruntime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocation,
         'The preferred location of the range\n'
-    ){{endif}}
-    {{if 'cudaMemRangeAttributeAccessedBy' in found_values}}
+    )
+
 
     cudaMemRangeAttributeAccessedBy = (
         cyruntime.cudaMemRangeAttribute.cudaMemRangeAttributeAccessedBy,
         'Memory range has :py:obj:`~.cudaMemAdviseSetAccessedBy` set for specified\n'
         'device\n'
-    ){{endif}}
-    {{if 'cudaMemRangeAttributeLastPrefetchLocation' in found_values}}
+    )
+
 
     cudaMemRangeAttributeLastPrefetchLocation = (
         cyruntime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocation,
         'The last location to which the range was prefetched\n'
-    ){{endif}}
-    {{if 'cudaMemRangeAttributePreferredLocationType' in found_values}}
+    )
+
 
     cudaMemRangeAttributePreferredLocationType = (
         cyruntime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationType,
         'The preferred location type of the range\n'
-    ){{endif}}
-    {{if 'cudaMemRangeAttributePreferredLocationId' in found_values}}
+    )
+
 
     cudaMemRangeAttributePreferredLocationId = (
         cyruntime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationId,
         'The preferred location id of the range\n'
-    ){{endif}}
-    {{if 'cudaMemRangeAttributeLastPrefetchLocationType' in found_values}}
+    )
+
 
     cudaMemRangeAttributeLastPrefetchLocationType = (
         cyruntime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationType,
         'The last location type to which the range was prefetched\n'
-    ){{endif}}
-    {{if 'cudaMemRangeAttributeLastPrefetchLocationId' in found_values}}
+    )
+
 
     cudaMemRangeAttributeLastPrefetchLocationId = (
         cyruntime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationId,
         'The last location id to which the range was prefetched\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaFlushGPUDirectRDMAWritesOptions' in found_types}}
+    )
 
 class cudaFlushGPUDirectRDMAWritesOptions(_FastEnum):
     """
     CUDA GPUDirect RDMA flush writes APIs supported on the device
     """
-    {{if 'cudaFlushGPUDirectRDMAWritesOptionHost' in found_values}}
+
 
     cudaFlushGPUDirectRDMAWritesOptionHost = (
         cyruntime.cudaFlushGPUDirectRDMAWritesOptions.cudaFlushGPUDirectRDMAWritesOptionHost,
         ':py:obj:`~.cudaDeviceFlushGPUDirectRDMAWrites()` and its CUDA Driver API\n'
         'counterpart are supported on the device.\n'
-    ){{endif}}
-    {{if 'cudaFlushGPUDirectRDMAWritesOptionMemOps' in found_values}}
+    )
+
 
     cudaFlushGPUDirectRDMAWritesOptionMemOps = (
         cyruntime.cudaFlushGPUDirectRDMAWritesOptions.cudaFlushGPUDirectRDMAWritesOptionMemOps,
         'The :py:obj:`~.CU_STREAM_WAIT_VALUE_FLUSH` flag and the\n'
         ':py:obj:`~.CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES` MemOp are supported on the\n'
         'CUDA device.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGPUDirectRDMAWritesOrdering' in found_types}}
+    )
 
 class cudaGPUDirectRDMAWritesOrdering(_FastEnum):
     """
     CUDA GPUDirect RDMA flush writes ordering features of the device
     """
-    {{if 'cudaGPUDirectRDMAWritesOrderingNone' in found_values}}
+
 
     cudaGPUDirectRDMAWritesOrderingNone = (
         cyruntime.cudaGPUDirectRDMAWritesOrdering.cudaGPUDirectRDMAWritesOrderingNone,
         'The device does not natively support ordering of GPUDirect RDMA writes.\n'
         ':py:obj:`~.cudaFlushGPUDirectRDMAWrites()` can be leveraged if supported.\n'
-    ){{endif}}
-    {{if 'cudaGPUDirectRDMAWritesOrderingOwner' in found_values}}
+    )
+
 
     cudaGPUDirectRDMAWritesOrderingOwner = (
         cyruntime.cudaGPUDirectRDMAWritesOrdering.cudaGPUDirectRDMAWritesOrderingOwner,
         'Natively, the device can consistently consume GPUDirect RDMA writes,\n'
         'although other CUDA devices may not.\n'
-    ){{endif}}
-    {{if 'cudaGPUDirectRDMAWritesOrderingAllDevices' in found_values}}
+    )
+
 
     cudaGPUDirectRDMAWritesOrderingAllDevices = (
         cyruntime.cudaGPUDirectRDMAWritesOrdering.cudaGPUDirectRDMAWritesOrderingAllDevices,
         'Any CUDA device in the system can consistently consume GPUDirect RDMA\n'
         'writes to this device.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaFlushGPUDirectRDMAWritesScope' in found_types}}
+    )
 
 class cudaFlushGPUDirectRDMAWritesScope(_FastEnum):
     """
     CUDA GPUDirect RDMA flush writes scopes
     """
-    {{if 'cudaFlushGPUDirectRDMAWritesToOwner' in found_values}}
+
 
     cudaFlushGPUDirectRDMAWritesToOwner = (
         cyruntime.cudaFlushGPUDirectRDMAWritesScope.cudaFlushGPUDirectRDMAWritesToOwner,
         'Blocks until remote writes are visible to the CUDA device context owning\n'
         'the data.\n'
-    ){{endif}}
-    {{if 'cudaFlushGPUDirectRDMAWritesToAllDevices' in found_values}}
+    )
+
 
     cudaFlushGPUDirectRDMAWritesToAllDevices = (
         cyruntime.cudaFlushGPUDirectRDMAWritesScope.cudaFlushGPUDirectRDMAWritesToAllDevices,
         'Blocks until remote writes are visible to all CUDA device contexts.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaFlushGPUDirectRDMAWritesTarget' in found_types}}
+    )
 
 class cudaFlushGPUDirectRDMAWritesTarget(_FastEnum):
     """
     CUDA GPUDirect RDMA flush writes targets
     """
-    {{if 'cudaFlushGPUDirectRDMAWritesTargetCurrentDevice' in found_values}}
+
 
     cudaFlushGPUDirectRDMAWritesTargetCurrentDevice = (
         cyruntime.cudaFlushGPUDirectRDMAWritesTarget.cudaFlushGPUDirectRDMAWritesTargetCurrentDevice,
         'Sets the target for :py:obj:`~.cudaDeviceFlushGPUDirectRDMAWrites()` to the\n'
         'currently active CUDA device context.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaDeviceAttr' in found_types}}
+    )
 
 class cudaDeviceAttr(_FastEnum):
     """
     CUDA device attributes
     """
-    {{if 'cudaDevAttrMaxThreadsPerBlock' in found_values}}
+
 
     cudaDevAttrMaxThreadsPerBlock = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxThreadsPerBlock,
         'Maximum number of threads per block\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxBlockDimX' in found_values}}
+    )
+
 
     cudaDevAttrMaxBlockDimX = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxBlockDimX,
         'Maximum block dimension X\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxBlockDimY' in found_values}}
+    )
+
 
     cudaDevAttrMaxBlockDimY = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxBlockDimY,
         'Maximum block dimension Y\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxBlockDimZ' in found_values}}
+    )
+
 
     cudaDevAttrMaxBlockDimZ = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxBlockDimZ,
         'Maximum block dimension Z\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxGridDimX' in found_values}}
+    )
+
 
     cudaDevAttrMaxGridDimX = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxGridDimX,
         'Maximum grid dimension X\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxGridDimY' in found_values}}
+    )
+
 
     cudaDevAttrMaxGridDimY = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxGridDimY,
         'Maximum grid dimension Y\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxGridDimZ' in found_values}}
+    )
+
 
     cudaDevAttrMaxGridDimZ = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxGridDimZ,
         'Maximum grid dimension Z\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSharedMemoryPerBlock' in found_values}}
+    )
+
 
     cudaDevAttrMaxSharedMemoryPerBlock = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlock,
         'Maximum shared memory available per block in bytes\n'
-    ){{endif}}
-    {{if 'cudaDevAttrTotalConstantMemory' in found_values}}
+    )
+
 
     cudaDevAttrTotalConstantMemory = (
         cyruntime.cudaDeviceAttr.cudaDevAttrTotalConstantMemory,
         'Memory available on device for constant variables in a CUDA C kernel in\n'
         'bytes\n'
-    ){{endif}}
-    {{if 'cudaDevAttrWarpSize' in found_values}}
+    )
+
 
     cudaDevAttrWarpSize = (
         cyruntime.cudaDeviceAttr.cudaDevAttrWarpSize,
         'Warp size in threads\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxPitch' in found_values}}
+    )
+
 
     cudaDevAttrMaxPitch = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxPitch,
         'Maximum pitch in bytes allowed by memory copies\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxRegistersPerBlock' in found_values}}
+    )
+
 
     cudaDevAttrMaxRegistersPerBlock = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxRegistersPerBlock,
         'Maximum number of 32-bit registers available per block\n'
-    ){{endif}}
-    {{if 'cudaDevAttrClockRate' in found_values}}
+    )
+
 
     cudaDevAttrClockRate = (
         cyruntime.cudaDeviceAttr.cudaDevAttrClockRate,
         'Peak clock frequency in kilohertz\n'
-    ){{endif}}
-    {{if 'cudaDevAttrTextureAlignment' in found_values}}
+    )
+
 
     cudaDevAttrTextureAlignment = (
         cyruntime.cudaDeviceAttr.cudaDevAttrTextureAlignment,
         'Alignment requirement for textures\n'
-    ){{endif}}
-    {{if 'cudaDevAttrGpuOverlap' in found_values}}
+    )
+
 
     cudaDevAttrGpuOverlap = (
         cyruntime.cudaDeviceAttr.cudaDevAttrGpuOverlap,
         'Device can possibly copy memory and execute a kernel concurrently\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMultiProcessorCount' in found_values}}
+    )
+
 
     cudaDevAttrMultiProcessorCount = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMultiProcessorCount,
         'Number of multiprocessors on device\n'
-    ){{endif}}
-    {{if 'cudaDevAttrKernelExecTimeout' in found_values}}
+    )
+
 
     cudaDevAttrKernelExecTimeout = (
         cyruntime.cudaDeviceAttr.cudaDevAttrKernelExecTimeout,
         'Specifies whether there is a run time limit on kernels\n'
-    ){{endif}}
-    {{if 'cudaDevAttrIntegrated' in found_values}}
+    )
+
 
     cudaDevAttrIntegrated = (
         cyruntime.cudaDeviceAttr.cudaDevAttrIntegrated,
         'Device is integrated with host memory\n'
-    ){{endif}}
-    {{if 'cudaDevAttrCanMapHostMemory' in found_values}}
+    )
+
 
     cudaDevAttrCanMapHostMemory = (
         cyruntime.cudaDeviceAttr.cudaDevAttrCanMapHostMemory,
         'Device can map host memory into CUDA address space\n'
-    ){{endif}}
-    {{if 'cudaDevAttrComputeMode' in found_values}}
+    )
+
 
     cudaDevAttrComputeMode = (
         cyruntime.cudaDeviceAttr.cudaDevAttrComputeMode,
         'Compute mode (See :py:obj:`~.cudaComputeMode` for details)\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture1DWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture1DWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture1DWidth,
         'Maximum 1D texture width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DWidth,
         'Maximum 2D texture width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DHeight' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DHeight = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DHeight,
         'Maximum 2D texture height\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture3DWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture3DWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture3DWidth,
         'Maximum 3D texture width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture3DHeight' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture3DHeight = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture3DHeight,
         'Maximum 3D texture height\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture3DDepth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture3DDepth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture3DDepth,
         'Maximum 3D texture depth\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DLayeredWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DLayeredWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DLayeredWidth,
         'Maximum 2D layered texture width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DLayeredHeight' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DLayeredHeight = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DLayeredHeight,
         'Maximum 2D layered texture height\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DLayeredLayers' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DLayeredLayers = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DLayeredLayers,
         'Maximum layers in a 2D layered texture\n'
-    ){{endif}}
-    {{if 'cudaDevAttrSurfaceAlignment' in found_values}}
+    )
+
 
     cudaDevAttrSurfaceAlignment = (
         cyruntime.cudaDeviceAttr.cudaDevAttrSurfaceAlignment,
         'Alignment requirement for surfaces\n'
-    ){{endif}}
-    {{if 'cudaDevAttrConcurrentKernels' in found_values}}
+    )
+
 
     cudaDevAttrConcurrentKernels = (
         cyruntime.cudaDeviceAttr.cudaDevAttrConcurrentKernels,
         'Device can possibly execute multiple kernels concurrently\n'
-    ){{endif}}
-    {{if 'cudaDevAttrEccEnabled' in found_values}}
+    )
+
 
     cudaDevAttrEccEnabled = (
         cyruntime.cudaDeviceAttr.cudaDevAttrEccEnabled,
         'Device has ECC support enabled\n'
-    ){{endif}}
-    {{if 'cudaDevAttrPciBusId' in found_values}}
+    )
+
 
     cudaDevAttrPciBusId = (
         cyruntime.cudaDeviceAttr.cudaDevAttrPciBusId,
         'PCI bus ID of the device\n'
-    ){{endif}}
-    {{if 'cudaDevAttrPciDeviceId' in found_values}}
+    )
+
 
     cudaDevAttrPciDeviceId = (
         cyruntime.cudaDeviceAttr.cudaDevAttrPciDeviceId,
         'PCI device ID of the device\n'
-    ){{endif}}
-    {{if 'cudaDevAttrTccDriver' in found_values}}
+    )
+
 
     cudaDevAttrTccDriver = (
         cyruntime.cudaDeviceAttr.cudaDevAttrTccDriver,
         'Device is using TCC driver model\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMemoryClockRate' in found_values}}
+    )
+
 
     cudaDevAttrMemoryClockRate = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMemoryClockRate,
         'Peak memory clock frequency in kilohertz\n'
-    ){{endif}}
-    {{if 'cudaDevAttrGlobalMemoryBusWidth' in found_values}}
+    )
+
 
     cudaDevAttrGlobalMemoryBusWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrGlobalMemoryBusWidth,
         'Global memory bus width in bits\n'
-    ){{endif}}
-    {{if 'cudaDevAttrL2CacheSize' in found_values}}
+    )
+
 
     cudaDevAttrL2CacheSize = (
         cyruntime.cudaDeviceAttr.cudaDevAttrL2CacheSize,
         'Size of L2 cache in bytes\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxThreadsPerMultiProcessor' in found_values}}
+    )
+
 
     cudaDevAttrMaxThreadsPerMultiProcessor = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxThreadsPerMultiProcessor,
         'Maximum resident threads per multiprocessor\n'
-    ){{endif}}
-    {{if 'cudaDevAttrAsyncEngineCount' in found_values}}
+    )
+
 
     cudaDevAttrAsyncEngineCount = (
         cyruntime.cudaDeviceAttr.cudaDevAttrAsyncEngineCount,
         'Number of asynchronous engines\n'
-    ){{endif}}
-    {{if 'cudaDevAttrUnifiedAddressing' in found_values}}
+    )
+
 
     cudaDevAttrUnifiedAddressing = (
         cyruntime.cudaDeviceAttr.cudaDevAttrUnifiedAddressing,
         'Device shares a unified address space with the host\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture1DLayeredWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture1DLayeredWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture1DLayeredWidth,
         'Maximum 1D layered texture width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture1DLayeredLayers' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture1DLayeredLayers = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture1DLayeredLayers,
         'Maximum layers in a 1D layered texture\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DGatherWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DGatherWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DGatherWidth,
         'Maximum 2D texture width if cudaArrayTextureGather is set\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DGatherHeight' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DGatherHeight = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DGatherHeight,
         'Maximum 2D texture height if cudaArrayTextureGather is set\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture3DWidthAlt' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture3DWidthAlt = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture3DWidthAlt,
         'Alternate maximum 3D texture width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture3DHeightAlt' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture3DHeightAlt = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture3DHeightAlt,
         'Alternate maximum 3D texture height\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture3DDepthAlt' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture3DDepthAlt = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture3DDepthAlt,
         'Alternate maximum 3D texture depth\n'
-    ){{endif}}
-    {{if 'cudaDevAttrPciDomainId' in found_values}}
+    )
+
 
     cudaDevAttrPciDomainId = (
         cyruntime.cudaDeviceAttr.cudaDevAttrPciDomainId,
         'PCI domain ID of the device\n'
-    ){{endif}}
-    {{if 'cudaDevAttrTexturePitchAlignment' in found_values}}
+    )
+
 
     cudaDevAttrTexturePitchAlignment = (
         cyruntime.cudaDeviceAttr.cudaDevAttrTexturePitchAlignment,
         'Pitch alignment requirement for textures\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTextureCubemapWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTextureCubemapWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTextureCubemapWidth,
         'Maximum cubemap texture width/height\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTextureCubemapLayeredWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTextureCubemapLayeredWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTextureCubemapLayeredWidth,
         'Maximum cubemap layered texture width/height\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTextureCubemapLayeredLayers' in found_values}}
+    )
+
 
     cudaDevAttrMaxTextureCubemapLayeredLayers = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTextureCubemapLayeredLayers,
         'Maximum layers in a cubemap layered texture\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurface1DWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurface1DWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurface1DWidth,
         'Maximum 1D surface width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurface2DWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurface2DWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurface2DWidth,
         'Maximum 2D surface width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurface2DHeight' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurface2DHeight = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurface2DHeight,
         'Maximum 2D surface height\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurface3DWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurface3DWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurface3DWidth,
         'Maximum 3D surface width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurface3DHeight' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurface3DHeight = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurface3DHeight,
         'Maximum 3D surface height\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurface3DDepth' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurface3DDepth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurface3DDepth,
         'Maximum 3D surface depth\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurface1DLayeredWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurface1DLayeredWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurface1DLayeredWidth,
         'Maximum 1D layered surface width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurface1DLayeredLayers' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurface1DLayeredLayers = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurface1DLayeredLayers,
         'Maximum layers in a 1D layered surface\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurface2DLayeredWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurface2DLayeredWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurface2DLayeredWidth,
         'Maximum 2D layered surface width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurface2DLayeredHeight' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurface2DLayeredHeight = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurface2DLayeredHeight,
         'Maximum 2D layered surface height\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurface2DLayeredLayers' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurface2DLayeredLayers = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurface2DLayeredLayers,
         'Maximum layers in a 2D layered surface\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurfaceCubemapWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurfaceCubemapWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurfaceCubemapWidth,
         'Maximum cubemap surface width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurfaceCubemapLayeredWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurfaceCubemapLayeredWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurfaceCubemapLayeredWidth,
         'Maximum cubemap layered surface width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSurfaceCubemapLayeredLayers' in found_values}}
+    )
+
 
     cudaDevAttrMaxSurfaceCubemapLayeredLayers = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSurfaceCubemapLayeredLayers,
         'Maximum layers in a cubemap layered surface\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture1DLinearWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture1DLinearWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture1DLinearWidth,
         'Maximum 1D linear texture width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DLinearWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DLinearWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DLinearWidth,
         'Maximum 2D linear texture width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DLinearHeight' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DLinearHeight = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DLinearHeight,
         'Maximum 2D linear texture height\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DLinearPitch' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DLinearPitch = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DLinearPitch,
         'Maximum 2D linear texture pitch in bytes\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DMipmappedWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DMipmappedWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DMipmappedWidth,
         'Maximum mipmapped 2D texture width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture2DMipmappedHeight' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture2DMipmappedHeight = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture2DMipmappedHeight,
         'Maximum mipmapped 2D texture height\n'
-    ){{endif}}
-    {{if 'cudaDevAttrComputeCapabilityMajor' in found_values}}
+    )
+
 
     cudaDevAttrComputeCapabilityMajor = (
         cyruntime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor,
         'Major compute capability version number\n'
-    ){{endif}}
-    {{if 'cudaDevAttrComputeCapabilityMinor' in found_values}}
+    )
+
 
     cudaDevAttrComputeCapabilityMinor = (
         cyruntime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor,
         'Minor compute capability version number\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxTexture1DMipmappedWidth' in found_values}}
+    )
+
 
     cudaDevAttrMaxTexture1DMipmappedWidth = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxTexture1DMipmappedWidth,
         'Maximum mipmapped 1D texture width\n'
-    ){{endif}}
-    {{if 'cudaDevAttrStreamPrioritiesSupported' in found_values}}
+    )
+
 
     cudaDevAttrStreamPrioritiesSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrStreamPrioritiesSupported,
         'Device supports stream priorities\n'
-    ){{endif}}
-    {{if 'cudaDevAttrGlobalL1CacheSupported' in found_values}}
+    )
+
 
     cudaDevAttrGlobalL1CacheSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrGlobalL1CacheSupported,
         'Device supports caching globals in L1\n'
-    ){{endif}}
-    {{if 'cudaDevAttrLocalL1CacheSupported' in found_values}}
+    )
+
 
     cudaDevAttrLocalL1CacheSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrLocalL1CacheSupported,
         'Device supports caching locals in L1\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxSharedMemoryPerMultiprocessor' in found_values}}
+    )
+
 
     cudaDevAttrMaxSharedMemoryPerMultiprocessor = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerMultiprocessor,
         'Maximum shared memory available per multiprocessor in bytes\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxRegistersPerMultiprocessor' in found_values}}
+    )
+
 
     cudaDevAttrMaxRegistersPerMultiprocessor = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxRegistersPerMultiprocessor,
         'Maximum number of 32-bit registers available per multiprocessor\n'
-    ){{endif}}
-    {{if 'cudaDevAttrManagedMemory' in found_values}}
+    )
+
 
     cudaDevAttrManagedMemory = (
         cyruntime.cudaDeviceAttr.cudaDevAttrManagedMemory,
         'Device can allocate managed memory on this system\n'
-    ){{endif}}
-    {{if 'cudaDevAttrIsMultiGpuBoard' in found_values}}
+    )
+
 
     cudaDevAttrIsMultiGpuBoard = (
         cyruntime.cudaDeviceAttr.cudaDevAttrIsMultiGpuBoard,
         'Device is on a multi-GPU board\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMultiGpuBoardGroupID' in found_values}}
+    )
+
 
     cudaDevAttrMultiGpuBoardGroupID = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMultiGpuBoardGroupID,
         'Unique identifier for a group of devices on the same multi-GPU board\n'
-    ){{endif}}
-    {{if 'cudaDevAttrHostNativeAtomicSupported' in found_values}}
+    )
+
 
     cudaDevAttrHostNativeAtomicSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrHostNativeAtomicSupported,
         'Link between the device and the host supports native atomic operations\n'
-    ){{endif}}
-    {{if 'cudaDevAttrSingleToDoublePrecisionPerfRatio' in found_values}}
+    )
+
 
     cudaDevAttrSingleToDoublePrecisionPerfRatio = (
         cyruntime.cudaDeviceAttr.cudaDevAttrSingleToDoublePrecisionPerfRatio,
         'Ratio of single precision performance (in floating-point operations per\n'
         'second) to double precision performance\n'
-    ){{endif}}
-    {{if 'cudaDevAttrPageableMemoryAccess' in found_values}}
+    )
+
 
     cudaDevAttrPageableMemoryAccess = (
         cyruntime.cudaDeviceAttr.cudaDevAttrPageableMemoryAccess,
         'Device supports coherently accessing pageable memory without calling\n'
         'cudaHostRegister on it\n'
-    ){{endif}}
-    {{if 'cudaDevAttrConcurrentManagedAccess' in found_values}}
+    )
+
 
     cudaDevAttrConcurrentManagedAccess = (
         cyruntime.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess,
         'Device can coherently access managed memory concurrently with the CPU\n'
-    ){{endif}}
-    {{if 'cudaDevAttrComputePreemptionSupported' in found_values}}
+    )
+
 
     cudaDevAttrComputePreemptionSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrComputePreemptionSupported,
         'Device supports Compute Preemption\n'
-    ){{endif}}
-    {{if 'cudaDevAttrCanUseHostPointerForRegisteredMem' in found_values}}
+    )
+
 
     cudaDevAttrCanUseHostPointerForRegisteredMem = (
         cyruntime.cudaDeviceAttr.cudaDevAttrCanUseHostPointerForRegisteredMem,
         'Device can access host registered memory at the same virtual address as the\n'
         'CPU\n'
-    ){{endif}}
-    {{if 'cudaDevAttrReserved92' in found_values}}
-    cudaDevAttrReserved92 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved92{{endif}}
-    {{if 'cudaDevAttrReserved93' in found_values}}
-    cudaDevAttrReserved93 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved93{{endif}}
-    {{if 'cudaDevAttrReserved94' in found_values}}
-    cudaDevAttrReserved94 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved94{{endif}}
-    {{if 'cudaDevAttrCooperativeLaunch' in found_values}}
+    )
+
+    cudaDevAttrReserved92 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved92
+
+    cudaDevAttrReserved93 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved93
+
+    cudaDevAttrReserved94 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved94
+
 
     cudaDevAttrCooperativeLaunch = (
         cyruntime.cudaDeviceAttr.cudaDevAttrCooperativeLaunch,
         'Device supports launching cooperative kernels via\n'
         ':py:obj:`~.cudaLaunchCooperativeKernel`\n'
-    ){{endif}}
-    {{if 'cudaDevAttrReserved96' in found_values}}
-    cudaDevAttrReserved96 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved96{{endif}}
-    {{if 'cudaDevAttrMaxSharedMemoryPerBlockOptin' in found_values}}
+    )
+
+    cudaDevAttrReserved96 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved96
+
 
     cudaDevAttrMaxSharedMemoryPerBlockOptin = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlockOptin,
         'The maximum optin shared memory per block. This value may vary by chip. See\n'
         ':py:obj:`~.cudaFuncSetAttribute`\n'
-    ){{endif}}
-    {{if 'cudaDevAttrCanFlushRemoteWrites' in found_values}}
+    )
+
 
     cudaDevAttrCanFlushRemoteWrites = (
         cyruntime.cudaDeviceAttr.cudaDevAttrCanFlushRemoteWrites,
         'Device supports flushing of outstanding remote writes.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrHostRegisterSupported' in found_values}}
+    )
+
 
     cudaDevAttrHostRegisterSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrHostRegisterSupported,
         'Device supports host memory registration via :py:obj:`~.cudaHostRegister`.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrPageableMemoryAccessUsesHostPageTables' in found_values}}
+    )
+
 
     cudaDevAttrPageableMemoryAccessUsesHostPageTables = (
         cyruntime.cudaDeviceAttr.cudaDevAttrPageableMemoryAccessUsesHostPageTables,
         "Device accesses pageable memory via the host's page tables.\n"
-    ){{endif}}
-    {{if 'cudaDevAttrDirectManagedMemAccessFromHost' in found_values}}
+    )
+
 
     cudaDevAttrDirectManagedMemAccessFromHost = (
         cyruntime.cudaDeviceAttr.cudaDevAttrDirectManagedMemAccessFromHost,
         'Host can directly access managed memory on the device without migration.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxBlocksPerMultiprocessor' in found_values}}
+    )
+
 
     cudaDevAttrMaxBlocksPerMultiprocessor = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxBlocksPerMultiprocessor,
         'Maximum number of blocks per multiprocessor\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxPersistingL2CacheSize' in found_values}}
+    )
+
 
     cudaDevAttrMaxPersistingL2CacheSize = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxPersistingL2CacheSize,
         'Maximum L2 persisting lines capacity setting in bytes.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMaxAccessPolicyWindowSize' in found_values}}
+    )
+
 
     cudaDevAttrMaxAccessPolicyWindowSize = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMaxAccessPolicyWindowSize,
         'Maximum value of :py:obj:`~.cudaAccessPolicyWindow.num_bytes`.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrReservedSharedMemoryPerBlock' in found_values}}
+    )
+
 
     cudaDevAttrReservedSharedMemoryPerBlock = (
         cyruntime.cudaDeviceAttr.cudaDevAttrReservedSharedMemoryPerBlock,
         'Shared memory reserved by CUDA driver per block in bytes\n'
-    ){{endif}}
-    {{if 'cudaDevAttrSparseCudaArraySupported' in found_values}}
+    )
+
 
     cudaDevAttrSparseCudaArraySupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrSparseCudaArraySupported,
         'Device supports sparse CUDA arrays and sparse CUDA mipmapped arrays\n'
-    ){{endif}}
-    {{if 'cudaDevAttrHostRegisterReadOnlySupported' in found_values}}
+    )
+
 
     cudaDevAttrHostRegisterReadOnlySupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrHostRegisterReadOnlySupported,
         'Device supports using the :py:obj:`~.cudaHostRegister` flag\n'
         'cudaHostRegisterReadOnly to register memory that must be mapped as read-\n'
         'only to the GPU\n'
-    ){{endif}}
-    {{if 'cudaDevAttrTimelineSemaphoreInteropSupported' in found_values}}
+    )
+
 
     cudaDevAttrTimelineSemaphoreInteropSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrTimelineSemaphoreInteropSupported,
         'External timeline semaphore interop is supported on the device\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMemoryPoolsSupported' in found_values}}
+    )
+
 
     cudaDevAttrMemoryPoolsSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported,
         'Device supports using the :py:obj:`~.cudaMallocAsync` and\n'
         ':py:obj:`~.cudaMemPool` family of APIs\n'
-    ){{endif}}
-    {{if 'cudaDevAttrGPUDirectRDMASupported' in found_values}}
+    )
+
 
     cudaDevAttrGPUDirectRDMASupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrGPUDirectRDMASupported,
         'Device supports GPUDirect RDMA APIs, like nvidia_p2p_get_pages (see\n'
         'https://docs.nvidia.com/cuda/gpudirect-rdma for more information)\n'
-    ){{endif}}
-    {{if 'cudaDevAttrGPUDirectRDMAFlushWritesOptions' in found_values}}
+    )
+
 
     cudaDevAttrGPUDirectRDMAFlushWritesOptions = (
         cyruntime.cudaDeviceAttr.cudaDevAttrGPUDirectRDMAFlushWritesOptions,
         'The returned attribute shall be interpreted as a bitmask, where the\n'
         'individual bits are listed in the\n'
         ':py:obj:`~.cudaFlushGPUDirectRDMAWritesOptions` enum\n'
-    ){{endif}}
-    {{if 'cudaDevAttrGPUDirectRDMAWritesOrdering' in found_values}}
+    )
+
 
     cudaDevAttrGPUDirectRDMAWritesOrdering = (
         cyruntime.cudaDeviceAttr.cudaDevAttrGPUDirectRDMAWritesOrdering,
@@ -4868,156 +4725,153 @@ class cudaDeviceAttr(_FastEnum):
         'within the scope indicated by the returned attribute. See\n'
         ':py:obj:`~.cudaGPUDirectRDMAWritesOrdering` for the numerical values\n'
         'returned here.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMemoryPoolSupportedHandleTypes' in found_values}}
+    )
+
 
     cudaDevAttrMemoryPoolSupportedHandleTypes = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMemoryPoolSupportedHandleTypes,
         'Handle types supported with mempool based IPC\n'
-    ){{endif}}
-    {{if 'cudaDevAttrClusterLaunch' in found_values}}
+    )
+
 
     cudaDevAttrClusterLaunch = (
         cyruntime.cudaDeviceAttr.cudaDevAttrClusterLaunch,
         'Indicates device supports cluster launch\n'
-    ){{endif}}
-    {{if 'cudaDevAttrDeferredMappingCudaArraySupported' in found_values}}
+    )
+
 
     cudaDevAttrDeferredMappingCudaArraySupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrDeferredMappingCudaArraySupported,
         'Device supports deferred mapping CUDA arrays and CUDA mipmapped arrays\n'
-    ){{endif}}
-    {{if 'cudaDevAttrReserved122' in found_values}}
-    cudaDevAttrReserved122 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved122{{endif}}
-    {{if 'cudaDevAttrReserved123' in found_values}}
-    cudaDevAttrReserved123 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved123{{endif}}
-    {{if 'cudaDevAttrReserved124' in found_values}}
-    cudaDevAttrReserved124 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved124{{endif}}
-    {{if 'cudaDevAttrIpcEventSupport' in found_values}}
+    )
+
+    cudaDevAttrReserved122 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved122
+
+    cudaDevAttrReserved123 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved123
+
+    cudaDevAttrReserved124 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved124
+
 
     cudaDevAttrIpcEventSupport = (
         cyruntime.cudaDeviceAttr.cudaDevAttrIpcEventSupport,
         'Device supports IPC Events.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMemSyncDomainCount' in found_values}}
+    )
+
 
     cudaDevAttrMemSyncDomainCount = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMemSyncDomainCount,
         'Number of memory synchronization domains the device supports.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrReserved127' in found_values}}
-    cudaDevAttrReserved127 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved127{{endif}}
-    {{if 'cudaDevAttrReserved128' in found_values}}
-    cudaDevAttrReserved128 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved128{{endif}}
-    {{if 'cudaDevAttrReserved129' in found_values}}
-    cudaDevAttrReserved129 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved129{{endif}}
-    {{if 'cudaDevAttrNumaConfig' in found_values}}
+    )
+
+    cudaDevAttrReserved127 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved127
+
+    cudaDevAttrReserved128 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved128
+
+    cudaDevAttrReserved129 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved129
+
 
     cudaDevAttrNumaConfig = (
         cyruntime.cudaDeviceAttr.cudaDevAttrNumaConfig,
         'NUMA configuration of a device: value is of type\n'
         ':py:obj:`~.cudaDeviceNumaConfig` enum\n'
-    ){{endif}}
-    {{if 'cudaDevAttrNumaId' in found_values}}
+    )
+
 
     cudaDevAttrNumaId = (
         cyruntime.cudaDeviceAttr.cudaDevAttrNumaId,
         'NUMA node ID of the GPU memory\n'
-    ){{endif}}
-    {{if 'cudaDevAttrReserved132' in found_values}}
-    cudaDevAttrReserved132 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved132{{endif}}
-    {{if 'cudaDevAttrMpsEnabled' in found_values}}
+    )
+
+    cudaDevAttrReserved132 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved132
+
 
     cudaDevAttrMpsEnabled = (
         cyruntime.cudaDeviceAttr.cudaDevAttrMpsEnabled,
         'Contexts created on this device will be shared via MPS\n'
-    ){{endif}}
-    {{if 'cudaDevAttrHostNumaId' in found_values}}
+    )
+
 
     cudaDevAttrHostNumaId = (
         cyruntime.cudaDeviceAttr.cudaDevAttrHostNumaId,
         'NUMA ID of the host node closest to the device or -1 when system does not\n'
         'support NUMA\n'
-    ){{endif}}
-    {{if 'cudaDevAttrD3D12CigSupported' in found_values}}
+    )
+
 
     cudaDevAttrD3D12CigSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrD3D12CigSupported,
         'Device supports CIG with D3D12.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrVulkanCigSupported' in found_values}}
+    )
+
 
     cudaDevAttrVulkanCigSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrVulkanCigSupported,
         'Device supports CIG with Vulkan.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrGpuPciDeviceId' in found_values}}
+    )
+
 
     cudaDevAttrGpuPciDeviceId = (
         cyruntime.cudaDeviceAttr.cudaDevAttrGpuPciDeviceId,
         'The combined 16-bit PCI device ID and 16-bit PCI vendor ID.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrGpuPciSubsystemId' in found_values}}
+    )
+
 
     cudaDevAttrGpuPciSubsystemId = (
         cyruntime.cudaDeviceAttr.cudaDevAttrGpuPciSubsystemId,
         'The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrReserved141' in found_values}}
-    cudaDevAttrReserved141 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved141{{endif}}
-    {{if 'cudaDevAttrHostNumaMemoryPoolsSupported' in found_values}}
+    )
+
+    cudaDevAttrReserved141 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved141
+
 
     cudaDevAttrHostNumaMemoryPoolsSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrHostNumaMemoryPoolsSupported,
         'Device supports HOST_NUMA location with the :py:obj:`~.cudaMallocAsync` and\n'
         ':py:obj:`~.cudaMemPool` family of APIs\n'
-    ){{endif}}
-    {{if 'cudaDevAttrHostNumaMultinodeIpcSupported' in found_values}}
+    )
+
 
     cudaDevAttrHostNumaMultinodeIpcSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrHostNumaMultinodeIpcSupported,
         'Device supports HostNuma location IPC between nodes in a multi-node system.\n'
-    ){{endif}}
-    {{if 'cudaDevAttrHostMemoryPoolsSupported' in found_values}}
+    )
+
 
     cudaDevAttrHostMemoryPoolsSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrHostMemoryPoolsSupported,
         'Device suports HOST location with the :py:obj:`~.cuMemAllocAsync` and\n'
         ':py:obj:`~.cuMemPool` family of APIs\n'
-    ){{endif}}
-    {{if 'cudaDevAttrReserved145' in found_values}}
-    cudaDevAttrReserved145 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved145{{endif}}
-    {{if 'cudaDevAttrOnlyPartialHostNativeAtomicSupported' in found_values}}
+    )
+
+    cudaDevAttrReserved145 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved145
+
 
     cudaDevAttrOnlyPartialHostNativeAtomicSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrOnlyPartialHostNativeAtomicSupported,
         'Link between the device and the host supports only some native atomic\n'
         'operations\n'
-    ){{endif}}
-    {{if 'cudaDevAttrAtomicReductionSupported' in found_values}}
+    )
+
 
     cudaDevAttrAtomicReductionSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrAtomicReductionSupported,
         'Device supports atomic reduction operations in stream batch memory\n'
         'operations\n'
-    ){{endif}}
-    {{if 'cudaDevAttrCigStreamsSupported' in found_values}}
+    )
+
 
     cudaDevAttrCigStreamsSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrCigStreamsSupported,
         'Device supports CIG streams\n'
-    ){{endif}}
-    {{if 'cudaDevAttrMax' in found_values}}
-    cudaDevAttrMax = cyruntime.cudaDeviceAttr.cudaDevAttrMax{{endif}}
+    )
 
-{{endif}}
-{{if 'cudaMemPoolAttr' in found_types}}
+    cudaDevAttrMax = cyruntime.cudaDeviceAttr.cudaDevAttrMax
 
 class cudaMemPoolAttr(_FastEnum):
     """
     CUDA memory pool attributes
     """
-    {{if 'cudaMemPoolReuseFollowEventDependencies' in found_values}}
+
 
     cudaMemPoolReuseFollowEventDependencies = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolReuseFollowEventDependencies,
@@ -5026,23 +4880,23 @@ class cudaMemPoolAttr(_FastEnum):
         'allocating stream on the free action exists. Cuda events and null stream\n'
         'interactions can create the required stream ordered dependencies. (default\n'
         'enabled)\n'
-    ){{endif}}
-    {{if 'cudaMemPoolReuseAllowOpportunistic' in found_values}}
+    )
+
 
     cudaMemPoolReuseAllowOpportunistic = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolReuseAllowOpportunistic,
         '(value type = int) Allow reuse of already completed frees when there is no\n'
         'dependency between the free and allocation. (default enabled)\n'
-    ){{endif}}
-    {{if 'cudaMemPoolReuseAllowInternalDependencies' in found_values}}
+    )
+
 
     cudaMemPoolReuseAllowInternalDependencies = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolReuseAllowInternalDependencies,
         '(value type = int) Allow cuMemAllocAsync to insert new stream dependencies\n'
         'in order to establish the stream ordering required to reuse a piece of\n'
         'memory released by cuFreeAsync (default enabled).\n'
-    ){{endif}}
-    {{if 'cudaMemPoolAttrReleaseThreshold' in found_values}}
+    )
+
 
     cudaMemPoolAttrReleaseThreshold = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrReleaseThreshold,
@@ -5051,61 +4905,61 @@ class cudaMemPoolAttr(_FastEnum):
         'threshold bytes of memory are held by the memory pool, the allocator will\n'
         'try to release memory back to the OS on the next call to stream, event or\n'
         'context synchronize. (default 0)\n'
-    ){{endif}}
-    {{if 'cudaMemPoolAttrReservedMemCurrent' in found_values}}
+    )
+
 
     cudaMemPoolAttrReservedMemCurrent = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrReservedMemCurrent,
         '(value type = cuuint64_t) Amount of backing memory currently allocated for\n'
         'the mempool.\n'
-    ){{endif}}
-    {{if 'cudaMemPoolAttrReservedMemHigh' in found_values}}
+    )
+
 
     cudaMemPoolAttrReservedMemHigh = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrReservedMemHigh,
         '(value type = cuuint64_t) High watermark of backing memory allocated for\n'
         'the mempool since the last time it was reset. High watermark can only be\n'
         'reset to zero.\n'
-    ){{endif}}
-    {{if 'cudaMemPoolAttrUsedMemCurrent' in found_values}}
+    )
+
 
     cudaMemPoolAttrUsedMemCurrent = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrUsedMemCurrent,
         '(value type = cuuint64_t) Amount of memory from the pool that is currently\n'
         'in use by the application.\n'
-    ){{endif}}
-    {{if 'cudaMemPoolAttrUsedMemHigh' in found_values}}
+    )
+
 
     cudaMemPoolAttrUsedMemHigh = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrUsedMemHigh,
         '(value type = cuuint64_t) High watermark of the amount of memory from the\n'
         'pool that was in use by the application since the last time it was reset.\n'
         'High watermark can only be reset to zero.\n'
-    ){{endif}}
-    {{if 'cudaMemPoolAttrAllocationType' in found_values}}
+    )
+
 
     cudaMemPoolAttrAllocationType = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrAllocationType,
         '(value type = :py:obj:`~.cudaMemAllocationType`) The allocation type of the\n'
         'mempool\n'
-    ){{endif}}
-    {{if 'cudaMemPoolAttrExportHandleTypes' in found_values}}
+    )
+
 
     cudaMemPoolAttrExportHandleTypes = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrExportHandleTypes,
         '(value type = :py:obj:`~.cudaMemAllocationHandleType`) Available export\n'
         'handle types for the mempool. For imported pools this value is always\n'
         'cudaMemHandleTypeNone as an imported pool cannot be re-exported\n'
-    ){{endif}}
-    {{if 'cudaMemPoolAttrLocationId' in found_values}}
+    )
+
 
     cudaMemPoolAttrLocationId = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrLocationId,
         '(value type = int) The location id for the mempool. If the location type\n'
         'for this pool is cudaMemLocationTypeInvisible then ID will be\n'
         'cudaInvalidDeviceId\n'
-    ){{endif}}
-    {{if 'cudaMemPoolAttrLocationType' in found_values}}
+    )
+
 
     cudaMemPoolAttrLocationType = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrLocationType,
@@ -5113,8 +4967,8 @@ class cudaMemPoolAttr(_FastEnum):
         'mempool. For imported memory pools where the device is not directly visible\n'
         'to the importing process or pools imported via fabric handles across nodes\n'
         'this will be cudaMemLocationTypeInvisible\n'
-    ){{endif}}
-    {{if 'cudaMemPoolAttrMaxPoolSize' in found_values}}
+    )
+
 
     cudaMemPoolAttrMaxPoolSize = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrMaxPoolSize,
@@ -5123,230 +4977,209 @@ class cudaMemPoolAttr(_FastEnum):
         'alignment requirements. A value of 0 indicates no maximum size. For\n'
         'cudaMemAllocationTypeManaged and IPC imported pools this value will be\n'
         'system dependent.\n'
-    ){{endif}}
-    {{if 'cudaMemPoolAttrHwDecompressEnabled' in found_values}}
+    )
+
 
     cudaMemPoolAttrHwDecompressEnabled = (
         cyruntime.cudaMemPoolAttr.cudaMemPoolAttrHwDecompressEnabled,
         '(value type = int) Indicates whether the pool has hardware compresssion\n'
         'enabled\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaMemLocationType' in found_types}}
+    )
 
 class cudaMemLocationType(_FastEnum):
     """
     Specifies the type of location
     """
-    {{if 'cudaMemLocationTypeInvalid' in found_values}}
-    cudaMemLocationTypeInvalid = cyruntime.cudaMemLocationType.cudaMemLocationTypeInvalid{{endif}}
-    {{if 'cudaMemLocationTypeNone' in found_values}}
+
+    cudaMemLocationTypeInvalid = cyruntime.cudaMemLocationType.cudaMemLocationTypeInvalid
+
 
     cudaMemLocationTypeNone = (
         cyruntime.cudaMemLocationType.cudaMemLocationTypeNone,
         'Location is unspecified. This is used when creating a managed memory pool\n'
         'to indicate no preferred location for the pool\n'
-    ){{endif}}
-    {{if 'cudaMemLocationTypeDevice' in found_values}}
+    )
+
 
     cudaMemLocationTypeDevice = (
         cyruntime.cudaMemLocationType.cudaMemLocationTypeDevice,
         'Location is a device location, thus id is a device ordinal\n'
-    ){{endif}}
-    {{if 'cudaMemLocationTypeHost' in found_values}}
+    )
+
 
     cudaMemLocationTypeHost = (
         cyruntime.cudaMemLocationType.cudaMemLocationTypeHost,
         'Location is host, id is ignored\n'
-    ){{endif}}
-    {{if 'cudaMemLocationTypeHostNuma' in found_values}}
+    )
+
 
     cudaMemLocationTypeHostNuma = (
         cyruntime.cudaMemLocationType.cudaMemLocationTypeHostNuma,
         'Location is a host NUMA node, thus id is a host NUMA node id\n'
-    ){{endif}}
-    {{if 'cudaMemLocationTypeHostNumaCurrent' in found_values}}
+    )
+
 
     cudaMemLocationTypeHostNumaCurrent = (
         cyruntime.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent,
         "Location is the host NUMA node closest to the current thread's CPU, id is\n"
         'ignored\n'
-    ){{endif}}
-    {{if 'cudaMemLocationTypeInvisible' in found_values}}
+    )
+
 
     cudaMemLocationTypeInvisible = (
         cyruntime.cudaMemLocationType.cudaMemLocationTypeInvisible,
         'Location is not visible but device is accessible, id is always\n'
         'cudaInvalidDeviceId\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaMemAccessFlags' in found_types}}
+    )
 
 class cudaMemAccessFlags(_FastEnum):
     """
     Specifies the memory protection flags for mapping.
     """
-    {{if 'cudaMemAccessFlagsProtNone' in found_values}}
+
 
     cudaMemAccessFlagsProtNone = (
         cyruntime.cudaMemAccessFlags.cudaMemAccessFlagsProtNone,
         'Default, make the address range not accessible\n'
-    ){{endif}}
-    {{if 'cudaMemAccessFlagsProtRead' in found_values}}
+    )
+
 
     cudaMemAccessFlagsProtRead = (
         cyruntime.cudaMemAccessFlags.cudaMemAccessFlagsProtRead,
         'Make the address range read accessible\n'
-    ){{endif}}
-    {{if 'cudaMemAccessFlagsProtReadWrite' in found_values}}
+    )
+
 
     cudaMemAccessFlagsProtReadWrite = (
         cyruntime.cudaMemAccessFlags.cudaMemAccessFlagsProtReadWrite,
         'Make the address range read-write accessible\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaMemAllocationType' in found_types}}
+    )
 
 class cudaMemAllocationType(_FastEnum):
     """
     Defines the allocation types available
     """
-    {{if 'cudaMemAllocationTypeInvalid' in found_values}}
-    cudaMemAllocationTypeInvalid = cyruntime.cudaMemAllocationType.cudaMemAllocationTypeInvalid{{endif}}
-    {{if 'cudaMemAllocationTypePinned' in found_values}}
+
+    cudaMemAllocationTypeInvalid = cyruntime.cudaMemAllocationType.cudaMemAllocationTypeInvalid
+
 
     cudaMemAllocationTypePinned = (
         cyruntime.cudaMemAllocationType.cudaMemAllocationTypePinned,
         "This allocation type is 'pinned', i.e. cannot migrate from its current\n"
         'location while the application is actively using it\n'
-    ){{endif}}
-    {{if 'cudaMemAllocationTypeManaged' in found_values}}
+    )
+
 
     cudaMemAllocationTypeManaged = (
         cyruntime.cudaMemAllocationType.cudaMemAllocationTypeManaged,
         'This allocation type is managed memory\n'
-    ){{endif}}
-    {{if 'cudaMemAllocationTypeMax' in found_values}}
-    cudaMemAllocationTypeMax = cyruntime.cudaMemAllocationType.cudaMemAllocationTypeMax{{endif}}
+    )
 
-{{endif}}
-{{if 'cudaMemAllocationHandleType' in found_types}}
+    cudaMemAllocationTypeMax = cyruntime.cudaMemAllocationType.cudaMemAllocationTypeMax
 
 class cudaMemAllocationHandleType(_FastEnum):
     """
     Flags for specifying particular handle types
     """
-    {{if 'cudaMemHandleTypeNone' in found_values}}
+
 
     cudaMemHandleTypeNone = (
         cyruntime.cudaMemAllocationHandleType.cudaMemHandleTypeNone,
         'Does not allow any export mechanism. >\n'
-    ){{endif}}
-    {{if 'cudaMemHandleTypePosixFileDescriptor' in found_values}}
+    )
+
 
     cudaMemHandleTypePosixFileDescriptor = (
         cyruntime.cudaMemAllocationHandleType.cudaMemHandleTypePosixFileDescriptor,
         'Allows a file descriptor to be used for exporting. Permitted only on POSIX\n'
         'systems. (int)\n'
-    ){{endif}}
-    {{if 'cudaMemHandleTypeWin32' in found_values}}
+    )
+
 
     cudaMemHandleTypeWin32 = (
         cyruntime.cudaMemAllocationHandleType.cudaMemHandleTypeWin32,
         'Allows a Win32 NT handle to be used for exporting. (HANDLE)\n'
-    ){{endif}}
-    {{if 'cudaMemHandleTypeWin32Kmt' in found_values}}
+    )
+
 
     cudaMemHandleTypeWin32Kmt = (
         cyruntime.cudaMemAllocationHandleType.cudaMemHandleTypeWin32Kmt,
         'Allows a Win32 KMT handle to be used for exporting. (D3DKMT_HANDLE)\n'
-    ){{endif}}
-    {{if 'cudaMemHandleTypeFabric' in found_values}}
+    )
+
 
     cudaMemHandleTypeFabric = (
         cyruntime.cudaMemAllocationHandleType.cudaMemHandleTypeFabric,
         'Allows a fabric handle to be used for exporting.\n'
         '(:py:obj:`~.cudaMemFabricHandle_t`)\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphMemAttributeType' in found_types}}
+    )
 
 class cudaGraphMemAttributeType(_FastEnum):
     """
     Graph memory attributes
     """
-    {{if 'cudaGraphMemAttrUsedMemCurrent' in found_values}}
+
 
     cudaGraphMemAttrUsedMemCurrent = (
         cyruntime.cudaGraphMemAttributeType.cudaGraphMemAttrUsedMemCurrent,
         '(value type = cuuint64_t) Amount of memory, in bytes, currently associated\n'
         'with graphs.\n'
-    ){{endif}}
-    {{if 'cudaGraphMemAttrUsedMemHigh' in found_values}}
+    )
+
 
     cudaGraphMemAttrUsedMemHigh = (
         cyruntime.cudaGraphMemAttributeType.cudaGraphMemAttrUsedMemHigh,
         '(value type = cuuint64_t) High watermark of memory, in bytes, associated\n'
         'with graphs since the last time it was reset. High watermark can only be\n'
         'reset to zero.\n'
-    ){{endif}}
-    {{if 'cudaGraphMemAttrReservedMemCurrent' in found_values}}
+    )
+
 
     cudaGraphMemAttrReservedMemCurrent = (
         cyruntime.cudaGraphMemAttributeType.cudaGraphMemAttrReservedMemCurrent,
         '(value type = cuuint64_t) Amount of memory, in bytes, currently allocated\n'
         'for use by the CUDA graphs asynchronous allocator.\n'
-    ){{endif}}
-    {{if 'cudaGraphMemAttrReservedMemHigh' in found_values}}
+    )
+
 
     cudaGraphMemAttrReservedMemHigh = (
         cyruntime.cudaGraphMemAttributeType.cudaGraphMemAttrReservedMemHigh,
         '(value type = cuuint64_t) High watermark of memory, in bytes, currently\n'
         'allocated for use by the CUDA graphs asynchronous allocator.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaMemcpyFlags' in found_types}}
+    )
 
 class cudaMemcpyFlags(_FastEnum):
     """
     Flags to specify for copies within a batch. For more details see
     :py:obj:`~.cudaMemcpyBatchAsync`.
     """
-    {{if 'cudaMemcpyFlagDefault' in found_values}}
-    cudaMemcpyFlagDefault = cyruntime.cudaMemcpyFlags.cudaMemcpyFlagDefault{{endif}}
-    {{if 'cudaMemcpyFlagPreferOverlapWithCompute' in found_values}}
+
+    cudaMemcpyFlagDefault = cyruntime.cudaMemcpyFlags.cudaMemcpyFlagDefault
+
 
     cudaMemcpyFlagPreferOverlapWithCompute = (
         cyruntime.cudaMemcpyFlags.cudaMemcpyFlagPreferOverlapWithCompute,
         'Hint to the driver to try and overlap the copy with compute work on the\n'
         'SMs.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaMemcpySrcAccessOrder' in found_types}}
+    )
 
 class cudaMemcpySrcAccessOrder(_FastEnum):
     """
 
     """
-    {{if 'cudaMemcpySrcAccessOrderInvalid' in found_values}}
+
 
     cudaMemcpySrcAccessOrderInvalid = (
         cyruntime.cudaMemcpySrcAccessOrder.cudaMemcpySrcAccessOrderInvalid,
         'Default invalid.\n'
-    ){{endif}}
-    {{if 'cudaMemcpySrcAccessOrderStream' in found_values}}
+    )
+
 
     cudaMemcpySrcAccessOrderStream = (
         cyruntime.cudaMemcpySrcAccessOrder.cudaMemcpySrcAccessOrderStream,
         'Indicates that access to the source pointer must be in stream order.\n'
-    ){{endif}}
-    {{if 'cudaMemcpySrcAccessOrderDuringApiCall' in found_values}}
+    )
+
 
     cudaMemcpySrcAccessOrderDuringApiCall = (
         cyruntime.cudaMemcpySrcAccessOrder.cudaMemcpySrcAccessOrderDuringApiCall,
@@ -5358,8 +5191,8 @@ class cudaMemcpySrcAccessOrder(_FastEnum):
         'was declared in. Specifying this flag allows the driver to optimize the\n'
         'copy and removes the need for the user to synchronize the stream after the\n'
         'API call.\n'
-    ){{endif}}
-    {{if 'cudaMemcpySrcAccessOrderAny' in found_values}}
+    )
+
 
     cudaMemcpySrcAccessOrderAny = (
         cyruntime.cudaMemcpySrcAccessOrder.cudaMemcpySrcAccessOrderAny,
@@ -5369,345 +5202,312 @@ class cudaMemcpySrcAccessOrder(_FastEnum):
         'known that no prior operations in the stream can be accessing the memory.\n'
         'Specifying this flag allows the driver to optimize the copy on certain\n'
         'platforms.\n'
-    ){{endif}}
-    {{if 'cudaMemcpySrcAccessOrderMax' in found_values}}
-    cudaMemcpySrcAccessOrderMax = cyruntime.cudaMemcpySrcAccessOrder.cudaMemcpySrcAccessOrderMax{{endif}}
+    )
 
-{{endif}}
-{{if 'cudaMemcpy3DOperandType' in found_types}}
+    cudaMemcpySrcAccessOrderMax = cyruntime.cudaMemcpySrcAccessOrder.cudaMemcpySrcAccessOrderMax
 
 class cudaMemcpy3DOperandType(_FastEnum):
     """
     These flags allow applications to convey the operand type for
     individual copies specified in :py:obj:`~.cudaMemcpy3DBatchAsync`.
     """
-    {{if 'cudaMemcpyOperandTypePointer' in found_values}}
+
 
     cudaMemcpyOperandTypePointer = (
         cyruntime.cudaMemcpy3DOperandType.cudaMemcpyOperandTypePointer,
         'Memcpy operand is a valid pointer.\n'
-    ){{endif}}
-    {{if 'cudaMemcpyOperandTypeArray' in found_values}}
+    )
+
 
     cudaMemcpyOperandTypeArray = (
         cyruntime.cudaMemcpy3DOperandType.cudaMemcpyOperandTypeArray,
         'Memcpy operand is a CUarray.\n'
-    ){{endif}}
-    {{if 'cudaMemcpyOperandTypeMax' in found_values}}
-    cudaMemcpyOperandTypeMax = cyruntime.cudaMemcpy3DOperandType.cudaMemcpyOperandTypeMax{{endif}}
+    )
 
-{{endif}}
-{{if 'cudaDeviceP2PAttr' in found_types}}
+    cudaMemcpyOperandTypeMax = cyruntime.cudaMemcpy3DOperandType.cudaMemcpyOperandTypeMax
 
 class cudaDeviceP2PAttr(_FastEnum):
     """
     CUDA device P2P attributes
     """
-    {{if 'cudaDevP2PAttrPerformanceRank' in found_values}}
+
 
     cudaDevP2PAttrPerformanceRank = (
         cyruntime.cudaDeviceP2PAttr.cudaDevP2PAttrPerformanceRank,
         'A relative value indicating the performance of the link between two devices\n'
-    ){{endif}}
-    {{if 'cudaDevP2PAttrAccessSupported' in found_values}}
+    )
+
 
     cudaDevP2PAttrAccessSupported = (
         cyruntime.cudaDeviceP2PAttr.cudaDevP2PAttrAccessSupported,
         'Peer access is enabled\n'
-    ){{endif}}
-    {{if 'cudaDevP2PAttrNativeAtomicSupported' in found_values}}
+    )
+
 
     cudaDevP2PAttrNativeAtomicSupported = (
         cyruntime.cudaDeviceP2PAttr.cudaDevP2PAttrNativeAtomicSupported,
         'Native atomic operation over the link supported\n'
-    ){{endif}}
-    {{if 'cudaDevP2PAttrCudaArrayAccessSupported' in found_values}}
+    )
+
 
     cudaDevP2PAttrCudaArrayAccessSupported = (
         cyruntime.cudaDeviceP2PAttr.cudaDevP2PAttrCudaArrayAccessSupported,
         'Accessing CUDA arrays over the link supported\n'
-    ){{endif}}
-    {{if 'cudaDevP2PAttrOnlyPartialNativeAtomicSupported' in found_values}}
+    )
+
 
     cudaDevP2PAttrOnlyPartialNativeAtomicSupported = (
         cyruntime.cudaDeviceP2PAttr.cudaDevP2PAttrOnlyPartialNativeAtomicSupported,
         'Only some CUDA-valid atomic operations over the link are supported.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaAtomicOperation' in found_types}}
+    )
 
 class cudaAtomicOperation(_FastEnum):
     """
     CUDA-valid Atomic Operations
     """
-    {{if 'cudaAtomicOperationIntegerAdd' in found_values}}
-    cudaAtomicOperationIntegerAdd = cyruntime.cudaAtomicOperation.cudaAtomicOperationIntegerAdd{{endif}}
-    {{if 'cudaAtomicOperationIntegerMin' in found_values}}
-    cudaAtomicOperationIntegerMin = cyruntime.cudaAtomicOperation.cudaAtomicOperationIntegerMin{{endif}}
-    {{if 'cudaAtomicOperationIntegerMax' in found_values}}
-    cudaAtomicOperationIntegerMax = cyruntime.cudaAtomicOperation.cudaAtomicOperationIntegerMax{{endif}}
-    {{if 'cudaAtomicOperationIntegerIncrement' in found_values}}
-    cudaAtomicOperationIntegerIncrement = cyruntime.cudaAtomicOperation.cudaAtomicOperationIntegerIncrement{{endif}}
-    {{if 'cudaAtomicOperationIntegerDecrement' in found_values}}
-    cudaAtomicOperationIntegerDecrement = cyruntime.cudaAtomicOperation.cudaAtomicOperationIntegerDecrement{{endif}}
-    {{if 'cudaAtomicOperationAnd' in found_values}}
-    cudaAtomicOperationAnd = cyruntime.cudaAtomicOperation.cudaAtomicOperationAnd{{endif}}
-    {{if 'cudaAtomicOperationOr' in found_values}}
-    cudaAtomicOperationOr = cyruntime.cudaAtomicOperation.cudaAtomicOperationOr{{endif}}
-    {{if 'cudaAtomicOperationXOR' in found_values}}
-    cudaAtomicOperationXOR = cyruntime.cudaAtomicOperation.cudaAtomicOperationXOR{{endif}}
-    {{if 'cudaAtomicOperationExchange' in found_values}}
-    cudaAtomicOperationExchange = cyruntime.cudaAtomicOperation.cudaAtomicOperationExchange{{endif}}
-    {{if 'cudaAtomicOperationCAS' in found_values}}
-    cudaAtomicOperationCAS = cyruntime.cudaAtomicOperation.cudaAtomicOperationCAS{{endif}}
-    {{if 'cudaAtomicOperationFloatAdd' in found_values}}
-    cudaAtomicOperationFloatAdd = cyruntime.cudaAtomicOperation.cudaAtomicOperationFloatAdd{{endif}}
-    {{if 'cudaAtomicOperationFloatMin' in found_values}}
-    cudaAtomicOperationFloatMin = cyruntime.cudaAtomicOperation.cudaAtomicOperationFloatMin{{endif}}
-    {{if 'cudaAtomicOperationFloatMax' in found_values}}
-    cudaAtomicOperationFloatMax = cyruntime.cudaAtomicOperation.cudaAtomicOperationFloatMax{{endif}}
 
-{{endif}}
-{{if 'cudaAtomicOperationCapability' in found_types}}
+    cudaAtomicOperationIntegerAdd = cyruntime.cudaAtomicOperation.cudaAtomicOperationIntegerAdd
+
+    cudaAtomicOperationIntegerMin = cyruntime.cudaAtomicOperation.cudaAtomicOperationIntegerMin
+
+    cudaAtomicOperationIntegerMax = cyruntime.cudaAtomicOperation.cudaAtomicOperationIntegerMax
+
+    cudaAtomicOperationIntegerIncrement = cyruntime.cudaAtomicOperation.cudaAtomicOperationIntegerIncrement
+
+    cudaAtomicOperationIntegerDecrement = cyruntime.cudaAtomicOperation.cudaAtomicOperationIntegerDecrement
+
+    cudaAtomicOperationAnd = cyruntime.cudaAtomicOperation.cudaAtomicOperationAnd
+
+    cudaAtomicOperationOr = cyruntime.cudaAtomicOperation.cudaAtomicOperationOr
+
+    cudaAtomicOperationXOR = cyruntime.cudaAtomicOperation.cudaAtomicOperationXOR
+
+    cudaAtomicOperationExchange = cyruntime.cudaAtomicOperation.cudaAtomicOperationExchange
+
+    cudaAtomicOperationCAS = cyruntime.cudaAtomicOperation.cudaAtomicOperationCAS
+
+    cudaAtomicOperationFloatAdd = cyruntime.cudaAtomicOperation.cudaAtomicOperationFloatAdd
+
+    cudaAtomicOperationFloatMin = cyruntime.cudaAtomicOperation.cudaAtomicOperationFloatMin
+
+    cudaAtomicOperationFloatMax = cyruntime.cudaAtomicOperation.cudaAtomicOperationFloatMax
 
 class cudaAtomicOperationCapability(_FastEnum):
     """
     CUDA-valid Atomic Operation capabilities
     """
-    {{if 'cudaAtomicCapabilitySigned' in found_values}}
-    cudaAtomicCapabilitySigned = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilitySigned{{endif}}
-    {{if 'cudaAtomicCapabilityUnsigned' in found_values}}
-    cudaAtomicCapabilityUnsigned = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityUnsigned{{endif}}
-    {{if 'cudaAtomicCapabilityReduction' in found_values}}
-    cudaAtomicCapabilityReduction = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityReduction{{endif}}
-    {{if 'cudaAtomicCapabilityScalar32' in found_values}}
-    cudaAtomicCapabilityScalar32 = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityScalar32{{endif}}
-    {{if 'cudaAtomicCapabilityScalar64' in found_values}}
-    cudaAtomicCapabilityScalar64 = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityScalar64{{endif}}
-    {{if 'cudaAtomicCapabilityScalar128' in found_values}}
-    cudaAtomicCapabilityScalar128 = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityScalar128{{endif}}
-    {{if 'cudaAtomicCapabilityVector32x4' in found_values}}
-    cudaAtomicCapabilityVector32x4 = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityVector32x4{{endif}}
 
-{{endif}}
-{{if 'cudaExternalMemoryHandleType' in found_types}}
+    cudaAtomicCapabilitySigned = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilitySigned
+
+    cudaAtomicCapabilityUnsigned = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityUnsigned
+
+    cudaAtomicCapabilityReduction = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityReduction
+
+    cudaAtomicCapabilityScalar32 = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityScalar32
+
+    cudaAtomicCapabilityScalar64 = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityScalar64
+
+    cudaAtomicCapabilityScalar128 = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityScalar128
+
+    cudaAtomicCapabilityVector32x4 = cyruntime.cudaAtomicOperationCapability.cudaAtomicCapabilityVector32x4
 
 class cudaExternalMemoryHandleType(_FastEnum):
     """
     External memory handle types
     """
-    {{if 'cudaExternalMemoryHandleTypeOpaqueFd' in found_values}}
+
 
     cudaExternalMemoryHandleTypeOpaqueFd = (
         cyruntime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueFd,
         'Handle is an opaque file descriptor\n'
-    ){{endif}}
-    {{if 'cudaExternalMemoryHandleTypeOpaqueWin32' in found_values}}
+    )
+
 
     cudaExternalMemoryHandleTypeOpaqueWin32 = (
         cyruntime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueWin32,
         'Handle is an opaque shared NT handle\n'
-    ){{endif}}
-    {{if 'cudaExternalMemoryHandleTypeOpaqueWin32Kmt' in found_values}}
+    )
+
 
     cudaExternalMemoryHandleTypeOpaqueWin32Kmt = (
         cyruntime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueWin32Kmt,
         'Handle is an opaque, globally shared handle\n'
-    ){{endif}}
-    {{if 'cudaExternalMemoryHandleTypeD3D12Heap' in found_values}}
+    )
+
 
     cudaExternalMemoryHandleTypeD3D12Heap = (
         cyruntime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeD3D12Heap,
         'Handle is a D3D12 heap object\n'
-    ){{endif}}
-    {{if 'cudaExternalMemoryHandleTypeD3D12Resource' in found_values}}
+    )
+
 
     cudaExternalMemoryHandleTypeD3D12Resource = (
         cyruntime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeD3D12Resource,
         'Handle is a D3D12 committed resource\n'
-    ){{endif}}
-    {{if 'cudaExternalMemoryHandleTypeD3D11Resource' in found_values}}
+    )
+
 
     cudaExternalMemoryHandleTypeD3D11Resource = (
         cyruntime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeD3D11Resource,
         'Handle is a shared NT handle to a D3D11 resource\n'
-    ){{endif}}
-    {{if 'cudaExternalMemoryHandleTypeD3D11ResourceKmt' in found_values}}
+    )
+
 
     cudaExternalMemoryHandleTypeD3D11ResourceKmt = (
         cyruntime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeD3D11ResourceKmt,
         'Handle is a globally shared handle to a D3D11 resource\n'
-    ){{endif}}
-    {{if 'cudaExternalMemoryHandleTypeNvSciBuf' in found_values}}
+    )
+
 
     cudaExternalMemoryHandleTypeNvSciBuf = (
         cyruntime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeNvSciBuf,
         'Handle is an NvSciBuf object\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaExternalSemaphoreHandleType' in found_types}}
+    )
 
 class cudaExternalSemaphoreHandleType(_FastEnum):
     """
     External semaphore handle types
     """
-    {{if 'cudaExternalSemaphoreHandleTypeOpaqueFd' in found_values}}
+
 
     cudaExternalSemaphoreHandleTypeOpaqueFd = (
         cyruntime.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeOpaqueFd,
         'Handle is an opaque file descriptor\n'
-    ){{endif}}
-    {{if 'cudaExternalSemaphoreHandleTypeOpaqueWin32' in found_values}}
+    )
+
 
     cudaExternalSemaphoreHandleTypeOpaqueWin32 = (
         cyruntime.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeOpaqueWin32,
         'Handle is an opaque shared NT handle\n'
-    ){{endif}}
-    {{if 'cudaExternalSemaphoreHandleTypeOpaqueWin32Kmt' in found_values}}
+    )
+
 
     cudaExternalSemaphoreHandleTypeOpaqueWin32Kmt = (
         cyruntime.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeOpaqueWin32Kmt,
         'Handle is an opaque, globally shared handle\n'
-    ){{endif}}
-    {{if 'cudaExternalSemaphoreHandleTypeD3D12Fence' in found_values}}
+    )
+
 
     cudaExternalSemaphoreHandleTypeD3D12Fence = (
         cyruntime.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeD3D12Fence,
         'Handle is a shared NT handle referencing a D3D12 fence object\n'
-    ){{endif}}
-    {{if 'cudaExternalSemaphoreHandleTypeD3D11Fence' in found_values}}
+    )
+
 
     cudaExternalSemaphoreHandleTypeD3D11Fence = (
         cyruntime.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeD3D11Fence,
         'Handle is a shared NT handle referencing a D3D11 fence object\n'
-    ){{endif}}
-    {{if 'cudaExternalSemaphoreHandleTypeNvSciSync' in found_values}}
+    )
+
 
     cudaExternalSemaphoreHandleTypeNvSciSync = (
         cyruntime.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeNvSciSync,
         'Opaque handle to NvSciSync Object\n'
-    ){{endif}}
-    {{if 'cudaExternalSemaphoreHandleTypeKeyedMutex' in found_values}}
+    )
+
 
     cudaExternalSemaphoreHandleTypeKeyedMutex = (
         cyruntime.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeKeyedMutex,
         'Handle is a shared NT handle referencing a D3D11 keyed mutex object\n'
-    ){{endif}}
-    {{if 'cudaExternalSemaphoreHandleTypeKeyedMutexKmt' in found_values}}
+    )
+
 
     cudaExternalSemaphoreHandleTypeKeyedMutexKmt = (
         cyruntime.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeKeyedMutexKmt,
         'Handle is a shared KMT handle referencing a D3D11 keyed mutex object\n'
-    ){{endif}}
-    {{if 'cudaExternalSemaphoreHandleTypeTimelineSemaphoreFd' in found_values}}
+    )
+
 
     cudaExternalSemaphoreHandleTypeTimelineSemaphoreFd = (
         cyruntime.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeTimelineSemaphoreFd,
         'Handle is an opaque handle file descriptor referencing a timeline semaphore\n'
-    ){{endif}}
-    {{if 'cudaExternalSemaphoreHandleTypeTimelineSemaphoreWin32' in found_values}}
+    )
+
 
     cudaExternalSemaphoreHandleTypeTimelineSemaphoreWin32 = (
         cyruntime.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeTimelineSemaphoreWin32,
         'Handle is an opaque handle file descriptor referencing a timeline semaphore\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaDevSmResourceGroup_flags' in found_types}}
+    )
 
 class cudaDevSmResourceGroup_flags(_FastEnum):
     """
     Flags for a CUdevSmResource group
     """
-    {{if 'cudaDevSmResourceGroupDefault' in found_values}}
-    cudaDevSmResourceGroupDefault = cyruntime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupDefault{{endif}}
-    {{if 'cudaDevSmResourceGroupBackfill' in found_values}}
+
+    cudaDevSmResourceGroupDefault = cyruntime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupDefault
+
 
     cudaDevSmResourceGroupBackfill = (
         cyruntime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill,
         'Lets smCount be a non-multiple of minCoscheduledCount, filling the\n'
         'difference with other SMs.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaDevSmResourceSplitByCount_flags' in found_types}}
+    )
 
 class cudaDevSmResourceSplitByCount_flags(_FastEnum):
     """
 
     """
-    {{if 'cudaDevSmResourceSplitIgnoreSmCoscheduling' in found_values}}
-    cudaDevSmResourceSplitIgnoreSmCoscheduling = cyruntime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitIgnoreSmCoscheduling{{endif}}
-    {{if 'cudaDevSmResourceSplitMaxPotentialClusterSize' in found_values}}
-    cudaDevSmResourceSplitMaxPotentialClusterSize = cyruntime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitMaxPotentialClusterSize{{endif}}
 
-{{endif}}
-{{if 'cudaDevResourceType' in found_types}}
+    cudaDevSmResourceSplitIgnoreSmCoscheduling = cyruntime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitIgnoreSmCoscheduling
+
+    cudaDevSmResourceSplitMaxPotentialClusterSize = cyruntime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitMaxPotentialClusterSize
 
 class cudaDevResourceType(_FastEnum):
     """
     Type of resource
     """
-    {{if 'cudaDevResourceTypeInvalid' in found_values}}
-    cudaDevResourceTypeInvalid = cyruntime.cudaDevResourceType.cudaDevResourceTypeInvalid{{endif}}
-    {{if 'cudaDevResourceTypeSm' in found_values}}
+
+    cudaDevResourceTypeInvalid = cyruntime.cudaDevResourceType.cudaDevResourceTypeInvalid
+
 
     cudaDevResourceTypeSm = (
         cyruntime.cudaDevResourceType.cudaDevResourceTypeSm,
         'Streaming multiprocessors related information\n'
-    ){{endif}}
-    {{if 'cudaDevResourceTypeWorkqueueConfig' in found_values}}
+    )
+
 
     cudaDevResourceTypeWorkqueueConfig = (
         cyruntime.cudaDevResourceType.cudaDevResourceTypeWorkqueueConfig,
         'Workqueue configuration related information\n'
-    ){{endif}}
-    {{if 'cudaDevResourceTypeWorkqueue' in found_values}}
+    )
+
 
     cudaDevResourceTypeWorkqueue = (
         cyruntime.cudaDevResourceType.cudaDevResourceTypeWorkqueue,
         'Pre-existing workqueue related information\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaDevWorkqueueConfigScope' in found_types}}
+    )
 
 class cudaDevWorkqueueConfigScope(_FastEnum):
     """
     Sharing scope for workqueues
     """
-    {{if 'cudaDevWorkqueueConfigScopeDeviceCtx' in found_values}}
+
 
     cudaDevWorkqueueConfigScopeDeviceCtx = (
         cyruntime.cudaDevWorkqueueConfigScope.cudaDevWorkqueueConfigScopeDeviceCtx,
         'Use all shared workqueue resources on the device. Default driver behaviour.\n'
-    ){{endif}}
-    {{if 'cudaDevWorkqueueConfigScopeGreenCtxBalanced' in found_values}}
+    )
+
 
     cudaDevWorkqueueConfigScopeGreenCtxBalanced = (
         cyruntime.cudaDevWorkqueueConfigScope.cudaDevWorkqueueConfigScopeGreenCtxBalanced,
         'When possible, use non-overlapping workqueue resources with other balanced\n'
         'green contexts.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaJitOption' in found_types}}
+    )
 
 class cudaJitOption(_FastEnum):
     """
     Online compiler and linker options
     """
-    {{if 'cudaJitMaxRegisters' in found_values}}
+
 
     cudaJitMaxRegisters = (
         cyruntime.cudaJitOption.cudaJitMaxRegisters,
         'Max number of registers that a thread may use.\n'
         'Option type: unsigned int\n'
         'Applies to: compiler only\n'
-    ){{endif}}
-    {{if 'cudaJitThreadsPerBlock' in found_values}}
+    )
+
 
     cudaJitThreadsPerBlock = (
         cyruntime.cudaJitOption.cudaJitThreadsPerBlock,
@@ -5720,8 +5520,8 @@ class cudaJitOption(_FastEnum):
         'utilization.\n'
         'Option type: unsigned int\n'
         'Applies to: compiler only\n'
-    ){{endif}}
-    {{if 'cudaJitWallTime' in found_values}}
+    )
+
 
     cudaJitWallTime = (
         cyruntime.cudaJitOption.cudaJitWallTime,
@@ -5729,8 +5529,8 @@ class cudaJitOption(_FastEnum):
         'milliseconds, spent in the compiler and linker\n'
         'Option type: float\n'
         'Applies to: compiler and linker\n'
-    ){{endif}}
-    {{if 'cudaJitInfoLogBuffer' in found_values}}
+    )
+
 
     cudaJitInfoLogBuffer = (
         cyruntime.cudaJitOption.cudaJitInfoLogBuffer,
@@ -5739,8 +5539,8 @@ class cudaJitOption(_FastEnum):
         ':py:obj:`~.cudaJitInfoLogBufferSizeBytes`)\n'
         'Option type: char *\n'
         'Applies to: compiler and linker\n'
-    ){{endif}}
-    {{if 'cudaJitInfoLogBufferSizeBytes' in found_values}}
+    )
+
 
     cudaJitInfoLogBufferSizeBytes = (
         cyruntime.cudaJitOption.cudaJitInfoLogBufferSizeBytes,
@@ -5749,8 +5549,8 @@ class cudaJitOption(_FastEnum):
         'OUT: Amount of log buffer filled with messages\n'
         'Option type: unsigned int\n'
         'Applies to: compiler and linker\n'
-    ){{endif}}
-    {{if 'cudaJitErrorLogBuffer' in found_values}}
+    )
+
 
     cudaJitErrorLogBuffer = (
         cyruntime.cudaJitOption.cudaJitErrorLogBuffer,
@@ -5759,8 +5559,8 @@ class cudaJitOption(_FastEnum):
         ':py:obj:`~.cudaJitErrorLogBufferSizeBytes`)\n'
         'Option type: char *\n'
         'Applies to: compiler and linker\n'
-    ){{endif}}
-    {{if 'cudaJitErrorLogBufferSizeBytes' in found_values}}
+    )
+
 
     cudaJitErrorLogBufferSizeBytes = (
         cyruntime.cudaJitOption.cudaJitErrorLogBufferSizeBytes,
@@ -5769,8 +5569,8 @@ class cudaJitOption(_FastEnum):
         'OUT: Amount of log buffer filled with messages\n'
         'Option type: unsigned int\n'
         'Applies to: compiler and linker\n'
-    ){{endif}}
-    {{if 'cudaJitOptimizationLevel' in found_values}}
+    )
+
 
     cudaJitOptimizationLevel = (
         cyruntime.cudaJitOption.cudaJitOptimizationLevel,
@@ -5778,8 +5578,8 @@ class cudaJitOption(_FastEnum):
         'default and highest level of optimizations.\n'
         'Option type: unsigned int\n'
         'Applies to: compiler only\n'
-    ){{endif}}
-    {{if 'cudaJitFallbackStrategy' in found_values}}
+    )
+
 
     cudaJitFallbackStrategy = (
         cyruntime.cudaJitOption.cudaJitFallbackStrategy,
@@ -5787,8 +5587,8 @@ class cudaJitOption(_FastEnum):
         'Choice is based on supplied :py:obj:`~.cudaJit_Fallback`. Option type:\n'
         'unsigned int for enumerated type :py:obj:`~.cudaJit_Fallback`\n'
         'Applies to: compiler only\n'
-    ){{endif}}
-    {{if 'cudaJitGenerateDebugInfo' in found_values}}
+    )
+
 
     cudaJitGenerateDebugInfo = (
         cyruntime.cudaJitOption.cudaJitGenerateDebugInfo,
@@ -5796,24 +5596,24 @@ class cudaJitOption(_FastEnum):
         'default)\n'
         'Option type: int\n'
         'Applies to: compiler and linker\n'
-    ){{endif}}
-    {{if 'cudaJitLogVerbose' in found_values}}
+    )
+
 
     cudaJitLogVerbose = (
         cyruntime.cudaJitOption.cudaJitLogVerbose,
         'Generate verbose log messages (0: false, default)\n'
         'Option type: int\n'
         'Applies to: compiler and linker\n'
-    ){{endif}}
-    {{if 'cudaJitGenerateLineInfo' in found_values}}
+    )
+
 
     cudaJitGenerateLineInfo = (
         cyruntime.cudaJitOption.cudaJitGenerateLineInfo,
         'Generate line number information (-lineinfo) (0: false, default)\n'
         'Option type: int\n'
         'Applies to: compiler only\n'
-    ){{endif}}
-    {{if 'cudaJitCacheMode' in found_values}}
+    )
+
 
     cudaJitCacheMode = (
         cyruntime.cudaJitOption.cudaJitCacheMode,
@@ -5821,16 +5621,16 @@ class cudaJitOption(_FastEnum):
         'Choice is based on supplied :py:obj:`~.cudaJit_CacheMode`.\n'
         'Option type: unsigned int for enumerated type :py:obj:`~.cudaJit_CacheMode`\n'
         'Applies to: compiler only\n'
-    ){{endif}}
-    {{if 'cudaJitPositionIndependentCode' in found_values}}
+    )
+
 
     cudaJitPositionIndependentCode = (
         cyruntime.cudaJitOption.cudaJitPositionIndependentCode,
         'Generate position independent code (0: false)\n'
         'Option type: int\n'
         'Applies to: compiler only\n'
-    ){{endif}}
-    {{if 'cudaJitMinCtaPerSm' in found_values}}
+    )
+
 
     cudaJitMinCtaPerSm = (
         cyruntime.cudaJitOption.cudaJitMinCtaPerSm,
@@ -5843,8 +5643,8 @@ class cudaJitOption(_FastEnum):
         'default. Use :py:obj:`~.cudaJitOverrideDirectiveValues` to let this option\n'
         'take precedence over the PTX directive. Option type: unsigned int\n'
         'Applies to: compiler only\n'
-    ){{endif}}
-    {{if 'cudaJitMaxThreadsPerBlock' in found_values}}
+    )
+
 
     cudaJitMaxThreadsPerBlock = (
         cyruntime.cudaJitOption.cudaJitMaxThreadsPerBlock,
@@ -5856,8 +5656,8 @@ class cudaJitOption(_FastEnum):
         'be ignored by default. Use :py:obj:`~.cudaJitOverrideDirectiveValues` to\n'
         'let this option take precedence over the PTX directive. Option type: int\n'
         'Applies to: compiler only\n'
-    ){{endif}}
-    {{if 'cudaJitOverrideDirectiveValues' in found_values}}
+    )
+
 
     cudaJitOverrideDirectiveValues = (
         cyruntime.cudaJitOption.cudaJitOverrideDirectiveValues,
@@ -5867,10 +5667,7 @@ class cudaJitOption(_FastEnum):
         'take precedence over any PTX directives. (0: Disable, default; 1: Enable)\n'
         'Option type: int\n'
         'Applies to: compiler only\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaLibraryOption' in found_types}}
+    )
 
 class cudaLibraryOption(_FastEnum):
     """
@@ -5878,9 +5675,9 @@ class cudaLibraryOption(_FastEnum):
     :py:obj:`~.cudaLibraryLoadData()` or
     :py:obj:`~.cudaLibraryLoadFromFile()`
     """
-    {{if 'cudaLibraryHostUniversalFunctionAndDataTable' in found_values}}
-    cudaLibraryHostUniversalFunctionAndDataTable = cyruntime.cudaLibraryOption.cudaLibraryHostUniversalFunctionAndDataTable{{endif}}
-    {{if 'cudaLibraryBinaryIsPreserved' in found_values}}
+
+    cudaLibraryHostUniversalFunctionAndDataTable = cyruntime.cudaLibraryOption.cudaLibraryHostUniversalFunctionAndDataTable
+
 
     cudaLibraryBinaryIsPreserved = (
         cyruntime.cudaLibraryOption.cudaLibraryBinaryIsPreserved,
@@ -5892,238 +5689,217 @@ class cudaLibraryOption(_FastEnum):
         'memory usage optimization hint and the driver can choose to ignore it if\n'
         'required. Specifying this option with :py:obj:`~.cudaLibraryLoadFromFile()`\n'
         'is invalid and will return :py:obj:`~.cudaErrorInvalidValue`.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaJit_CacheMode' in found_types}}
+    )
 
 class cudaJit_CacheMode(_FastEnum):
     """
     Caching modes for dlcm
     """
-    {{if 'cudaJitCacheOptionNone' in found_values}}
+
 
     cudaJitCacheOptionNone = (
         cyruntime.cudaJit_CacheMode.cudaJitCacheOptionNone,
         'Compile with no -dlcm flag specified\n'
-    ){{endif}}
-    {{if 'cudaJitCacheOptionCG' in found_values}}
+    )
+
 
     cudaJitCacheOptionCG = (
         cyruntime.cudaJit_CacheMode.cudaJitCacheOptionCG,
         'Compile with L1 cache disabled\n'
-    ){{endif}}
-    {{if 'cudaJitCacheOptionCA' in found_values}}
+    )
+
 
     cudaJitCacheOptionCA = (
         cyruntime.cudaJit_CacheMode.cudaJitCacheOptionCA,
         'Compile with L1 cache enabled\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaJit_Fallback' in found_types}}
+    )
 
 class cudaJit_Fallback(_FastEnum):
     """
     Cubin matching fallback strategies
     """
-    {{if 'cudaPreferPtx' in found_values}}
+
 
     cudaPreferPtx = (
         cyruntime.cudaJit_Fallback.cudaPreferPtx,
         'Prefer to compile ptx if exact binary match not found\n'
-    ){{endif}}
-    {{if 'cudaPreferBinary' in found_values}}
+    )
+
 
     cudaPreferBinary = (
         cyruntime.cudaJit_Fallback.cudaPreferBinary,
         'Prefer to fall back to compatible binary code if exact match not found\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaCGScope' in found_types}}
+    )
 
 class cudaCGScope(_FastEnum):
     """
     CUDA cooperative group scope
     """
-    {{if 'cudaCGScopeInvalid' in found_values}}
+
 
     cudaCGScopeInvalid = (
         cyruntime.cudaCGScope.cudaCGScopeInvalid,
         'Invalid cooperative group scope\n'
-    ){{endif}}
-    {{if 'cudaCGScopeGrid' in found_values}}
+    )
+
 
     cudaCGScopeGrid = (
         cyruntime.cudaCGScope.cudaCGScopeGrid,
         'Scope represented by a grid_group\n'
-    ){{endif}}
-    {{if 'cudaCGScopeReserved' in found_values}}
+    )
+
 
     cudaCGScopeReserved = (
         cyruntime.cudaCGScope.cudaCGScopeReserved,
         'Reserved\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaKernelFunctionType' in found_types}}
+    )
 
 class cudaKernelFunctionType(_FastEnum):
     """
     CUDA Kernel Function Handle Type
     """
-    {{if 'cudaKernelFunctionTypeUnspecified' in found_values}}
+
 
     cudaKernelFunctionTypeUnspecified = (
         cyruntime.cudaKernelFunctionType.cudaKernelFunctionTypeUnspecified,
         'CUDA will attempt to deduce the type of the function handle\n'
-    ){{endif}}
-    {{if 'cudaKernelFunctionTypeDeviceEntry' in found_values}}
+    )
+
 
     cudaKernelFunctionTypeDeviceEntry = (
         cyruntime.cudaKernelFunctionType.cudaKernelFunctionTypeDeviceEntry,
         'Function handle is a device-entry function pointer(i.e. global function\n'
         'pointer)\n'
-    ){{endif}}
-    {{if 'cudaKernelFunctionTypeKernel' in found_values}}
+    )
+
 
     cudaKernelFunctionTypeKernel = (
         cyruntime.cudaKernelFunctionType.cudaKernelFunctionTypeKernel,
         'Function handle is a :py:obj:`~.cudaKernel_t`\n'
-    ){{endif}}
-    {{if 'cudaKernelFunctionTypeFunction' in found_values}}
+    )
+
 
     cudaKernelFunctionTypeFunction = (
         cyruntime.cudaKernelFunctionType.cudaKernelFunctionTypeFunction,
         'Function handle is a :py:obj:`~.cudaFunction_t`\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphConditionalHandleFlags' in found_types}}
+    )
 
 class cudaGraphConditionalHandleFlags(_FastEnum):
     """
 
     """
-    {{if 'cudaGraphCondAssignDefault' in found_values}}
+
 
     cudaGraphCondAssignDefault = (
         cyruntime.cudaGraphConditionalHandleFlags.cudaGraphCondAssignDefault,
         'Apply default handle value when graph is launched.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphConditionalNodeType' in found_types}}
+    )
 
 class cudaGraphConditionalNodeType(_FastEnum):
     """
     CUDA conditional node types
     """
-    {{if 'cudaGraphCondTypeIf' in found_values}}
+
 
     cudaGraphCondTypeIf = (
         cyruntime.cudaGraphConditionalNodeType.cudaGraphCondTypeIf,
         "Conditional 'if/else' Node. Body[0] executed if condition is non-zero. If\n"
         '`size` == 2, an optional ELSE graph is created and this is executed if the\n'
         'condition is zero.\n'
-    ){{endif}}
-    {{if 'cudaGraphCondTypeWhile' in found_values}}
+    )
+
 
     cudaGraphCondTypeWhile = (
         cyruntime.cudaGraphConditionalNodeType.cudaGraphCondTypeWhile,
         "Conditional 'while' Node. Body executed repeatedly while condition value is\n"
         'non-zero.\n'
-    ){{endif}}
-    {{if 'cudaGraphCondTypeSwitch' in found_values}}
+    )
+
 
     cudaGraphCondTypeSwitch = (
         cyruntime.cudaGraphConditionalNodeType.cudaGraphCondTypeSwitch,
         "Conditional 'switch' Node. Body[n] is executed once, where 'n' is the value\n"
         'of the condition. If the condition does not match a body index, no body is\n'
         'launched.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphNodeType' in found_types}}
+    )
 
 class cudaGraphNodeType(_FastEnum):
     """
     CUDA Graph node types
     """
-    {{if 'cudaGraphNodeTypeKernel' in found_values}}
+
 
     cudaGraphNodeTypeKernel = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeKernel,
         'GPU kernel node\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeMemcpy' in found_values}}
+    )
+
 
     cudaGraphNodeTypeMemcpy = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeMemcpy,
         'Memcpy node\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeMemset' in found_values}}
+    )
+
 
     cudaGraphNodeTypeMemset = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeMemset,
         'Memset node\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeHost' in found_values}}
+    )
+
 
     cudaGraphNodeTypeHost = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeHost,
         'Host (executable) node\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeGraph' in found_values}}
+    )
+
 
     cudaGraphNodeTypeGraph = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeGraph,
         'Node which executes an embedded graph\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeEmpty' in found_values}}
+    )
+
 
     cudaGraphNodeTypeEmpty = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeEmpty,
         'Empty (no-op) node\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeWaitEvent' in found_values}}
+    )
+
 
     cudaGraphNodeTypeWaitEvent = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeWaitEvent,
         'External event wait node\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeEventRecord' in found_values}}
+    )
+
 
     cudaGraphNodeTypeEventRecord = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeEventRecord,
         'External event record node\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeExtSemaphoreSignal' in found_values}}
+    )
+
 
     cudaGraphNodeTypeExtSemaphoreSignal = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeExtSemaphoreSignal,
         'External semaphore signal node\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeExtSemaphoreWait' in found_values}}
+    )
+
 
     cudaGraphNodeTypeExtSemaphoreWait = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeExtSemaphoreWait,
         'External semaphore wait node\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeMemAlloc' in found_values}}
+    )
+
 
     cudaGraphNodeTypeMemAlloc = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeMemAlloc,
         'Memory allocation node\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeMemFree' in found_values}}
+    )
+
 
     cudaGraphNodeTypeMemFree = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeMemFree,
         'Memory free node\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeConditional' in found_values}}
+    )
+
 
     cudaGraphNodeTypeConditional = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeConditional,
@@ -6149,39 +5925,36 @@ class cudaGraphNodeType(_FastEnum):
         'default value when creating the handle and/or\n'
         '                                   call :py:obj:`~.cudaGraphSetConditional`\n'
         'from device code.\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeReserved16' in found_values}}
+    )
+
 
     cudaGraphNodeTypeReserved16 = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeReserved16,
         'Reserved.\n'
-    ){{endif}}
-    {{if 'cudaGraphNodeTypeCount' in found_values}}
-    cudaGraphNodeTypeCount = cyruntime.cudaGraphNodeType.cudaGraphNodeTypeCount{{endif}}
+    )
 
-{{endif}}
-{{if 'cudaGraphChildGraphNodeOwnership' in found_types}}
+    cudaGraphNodeTypeCount = cyruntime.cudaGraphNodeType.cudaGraphNodeTypeCount
 
 class cudaGraphChildGraphNodeOwnership(_FastEnum):
     """
     Child graph node ownership
     """
-    {{if 'cudaGraphChildGraphOwnershipInvalid' in found_values}}
+
 
     cudaGraphChildGraphOwnershipInvalid = (
         cyruntime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipInvalid,
         'Invalid ownership flag. Set when params are queried to prevent accidentally\n'
         'reusing the driver-owned graph object\n'
-    ){{endif}}
-    {{if 'cudaGraphChildGraphOwnershipClone' in found_values}}
+    )
+
 
     cudaGraphChildGraphOwnershipClone = (
         cyruntime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipClone,
         'Default behavior for a child graph node. Child graph is cloned into the\n'
         "parent and memory allocation/free nodes can't be present in the child\n"
         'graph.\n'
-    ){{endif}}
-    {{if 'cudaGraphChildGraphOwnershipMove' in found_values}}
+    )
+
 
     cudaGraphChildGraphOwnershipMove = (
         cyruntime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipMove,
@@ -6192,110 +5965,101 @@ class cudaGraphChildGraphNodeOwnership(_FastEnum):
         'as a child graph of a separate parent graph; Cannot be used as an argument\n'
         'to cudaGraphExecUpdate; Cannot have additional memory allocation or free\n'
         'nodes added.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphExecUpdateResult' in found_types}}
+    )
 
 class cudaGraphExecUpdateResult(_FastEnum):
     """
     CUDA Graph Update error types
     """
-    {{if 'cudaGraphExecUpdateSuccess' in found_values}}
+
 
     cudaGraphExecUpdateSuccess = (
         cyruntime.cudaGraphExecUpdateResult.cudaGraphExecUpdateSuccess,
         'The update succeeded\n'
-    ){{endif}}
-    {{if 'cudaGraphExecUpdateError' in found_values}}
+    )
+
 
     cudaGraphExecUpdateError = (
         cyruntime.cudaGraphExecUpdateResult.cudaGraphExecUpdateError,
         'The update failed for an unexpected reason which is described in the return\n'
         'value of the function\n'
-    ){{endif}}
-    {{if 'cudaGraphExecUpdateErrorTopologyChanged' in found_values}}
+    )
+
 
     cudaGraphExecUpdateErrorTopologyChanged = (
         cyruntime.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorTopologyChanged,
         'The update failed because the topology changed\n'
-    ){{endif}}
-    {{if 'cudaGraphExecUpdateErrorNodeTypeChanged' in found_values}}
+    )
+
 
     cudaGraphExecUpdateErrorNodeTypeChanged = (
         cyruntime.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorNodeTypeChanged,
         'The update failed because a node type changed\n'
-    ){{endif}}
-    {{if 'cudaGraphExecUpdateErrorFunctionChanged' in found_values}}
+    )
+
 
     cudaGraphExecUpdateErrorFunctionChanged = (
         cyruntime.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorFunctionChanged,
         'The update failed because the function of a kernel node changed (CUDA\n'
         'driver < 11.2)\n'
-    ){{endif}}
-    {{if 'cudaGraphExecUpdateErrorParametersChanged' in found_values}}
+    )
+
 
     cudaGraphExecUpdateErrorParametersChanged = (
         cyruntime.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorParametersChanged,
         'The update failed because the parameters changed in a way that is not\n'
         'supported\n'
-    ){{endif}}
-    {{if 'cudaGraphExecUpdateErrorNotSupported' in found_values}}
+    )
+
 
     cudaGraphExecUpdateErrorNotSupported = (
         cyruntime.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorNotSupported,
         'The update failed because something about the node is not supported\n'
-    ){{endif}}
-    {{if 'cudaGraphExecUpdateErrorUnsupportedFunctionChange' in found_values}}
+    )
+
 
     cudaGraphExecUpdateErrorUnsupportedFunctionChange = (
         cyruntime.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorUnsupportedFunctionChange,
         'The update failed because the function of a kernel node changed in an\n'
         'unsupported way\n'
-    ){{endif}}
-    {{if 'cudaGraphExecUpdateErrorAttributesChanged' in found_values}}
+    )
+
 
     cudaGraphExecUpdateErrorAttributesChanged = (
         cyruntime.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorAttributesChanged,
         'The update failed because the node attributes changed in a way that is not\n'
         'supported\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphKernelNodeField' in found_types}}
+    )
 
 class cudaGraphKernelNodeField(_FastEnum):
     """
     Specifies the field to update when performing multiple node updates
     from the device
     """
-    {{if 'cudaGraphKernelNodeFieldInvalid' in found_values}}
+
 
     cudaGraphKernelNodeFieldInvalid = (
         cyruntime.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldInvalid,
         'Invalid field\n'
-    ){{endif}}
-    {{if 'cudaGraphKernelNodeFieldGridDim' in found_values}}
+    )
+
 
     cudaGraphKernelNodeFieldGridDim = (
         cyruntime.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldGridDim,
         'Grid dimension update\n'
-    ){{endif}}
-    {{if 'cudaGraphKernelNodeFieldParam' in found_values}}
+    )
+
 
     cudaGraphKernelNodeFieldParam = (
         cyruntime.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldParam,
         'Kernel parameter update\n'
-    ){{endif}}
-    {{if 'cudaGraphKernelNodeFieldEnabled' in found_values}}
+    )
+
 
     cudaGraphKernelNodeFieldEnabled = (
         cyruntime.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldEnabled,
         'Node enable/disable\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGetDriverEntryPointFlags' in found_types}}
+    )
 
 class cudaGetDriverEntryPointFlags(_FastEnum):
     """
@@ -6303,140 +6067,131 @@ class cudaGetDriverEntryPointFlags(_FastEnum):
     :py:obj:`~.cudaGetDriverEntryPoint` For more details see
     :py:obj:`~.cuGetProcAddress`
     """
-    {{if 'cudaEnableDefault' in found_values}}
+
 
     cudaEnableDefault = (
         cyruntime.cudaGetDriverEntryPointFlags.cudaEnableDefault,
         'Default search mode for driver symbols.\n'
-    ){{endif}}
-    {{if 'cudaEnableLegacyStream' in found_values}}
+    )
+
 
     cudaEnableLegacyStream = (
         cyruntime.cudaGetDriverEntryPointFlags.cudaEnableLegacyStream,
         'Search for legacy versions of driver symbols.\n'
-    ){{endif}}
-    {{if 'cudaEnablePerThreadDefaultStream' in found_values}}
+    )
+
 
     cudaEnablePerThreadDefaultStream = (
         cyruntime.cudaGetDriverEntryPointFlags.cudaEnablePerThreadDefaultStream,
         'Search for per-thread versions of driver symbols.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaDriverEntryPointQueryResult' in found_types}}
+    )
 
 class cudaDriverEntryPointQueryResult(_FastEnum):
     """
     Enum for status from obtaining driver entry points, used with
     :py:obj:`~.cudaApiGetDriverEntryPoint`
     """
-    {{if 'cudaDriverEntryPointSuccess' in found_values}}
+
 
     cudaDriverEntryPointSuccess = (
         cyruntime.cudaDriverEntryPointQueryResult.cudaDriverEntryPointSuccess,
         'Search for symbol found a match\n'
-    ){{endif}}
-    {{if 'cudaDriverEntryPointSymbolNotFound' in found_values}}
+    )
+
 
     cudaDriverEntryPointSymbolNotFound = (
         cyruntime.cudaDriverEntryPointQueryResult.cudaDriverEntryPointSymbolNotFound,
         'Search for symbol was not found\n'
-    ){{endif}}
-    {{if 'cudaDriverEntryPointVersionNotSufficent' in found_values}}
+    )
+
 
     cudaDriverEntryPointVersionNotSufficent = (
         cyruntime.cudaDriverEntryPointQueryResult.cudaDriverEntryPointVersionNotSufficent,
         "Search for symbol was found but version wasn't great enough\n"
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphDebugDotFlags' in found_types}}
+    )
 
 class cudaGraphDebugDotFlags(_FastEnum):
     """
     CUDA Graph debug write options
     """
-    {{if 'cudaGraphDebugDotFlagsVerbose' in found_values}}
+
 
     cudaGraphDebugDotFlagsVerbose = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsVerbose,
         'Output all debug data as if every debug flag is enabled\n'
-    ){{endif}}
-    {{if 'cudaGraphDebugDotFlagsKernelNodeParams' in found_values}}
+    )
+
 
     cudaGraphDebugDotFlagsKernelNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeParams,
         'Adds :py:obj:`~.cudaKernelNodeParams` to output\n'
-    ){{endif}}
-    {{if 'cudaGraphDebugDotFlagsMemcpyNodeParams' in found_values}}
+    )
+
 
     cudaGraphDebugDotFlagsMemcpyNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemcpyNodeParams,
         'Adds :py:obj:`~.cudaMemcpy3DParms` to output\n'
-    ){{endif}}
-    {{if 'cudaGraphDebugDotFlagsMemsetNodeParams' in found_values}}
+    )
+
 
     cudaGraphDebugDotFlagsMemsetNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemsetNodeParams,
         'Adds :py:obj:`~.cudaMemsetParams` to output\n'
-    ){{endif}}
-    {{if 'cudaGraphDebugDotFlagsHostNodeParams' in found_values}}
+    )
+
 
     cudaGraphDebugDotFlagsHostNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsHostNodeParams,
         'Adds :py:obj:`~.cudaHostNodeParams` to output\n'
-    ){{endif}}
-    {{if 'cudaGraphDebugDotFlagsEventNodeParams' in found_values}}
+    )
+
 
     cudaGraphDebugDotFlagsEventNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsEventNodeParams,
         'Adds :py:obj:`~.cudaEvent_t` handle from record and wait nodes to output\n'
-    ){{endif}}
-    {{if 'cudaGraphDebugDotFlagsExtSemasSignalNodeParams' in found_values}}
+    )
+
 
     cudaGraphDebugDotFlagsExtSemasSignalNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasSignalNodeParams,
         'Adds :py:obj:`~.cudaExternalSemaphoreSignalNodeParams` values to output\n'
-    ){{endif}}
-    {{if 'cudaGraphDebugDotFlagsExtSemasWaitNodeParams' in found_values}}
+    )
+
 
     cudaGraphDebugDotFlagsExtSemasWaitNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsExtSemasWaitNodeParams,
         'Adds :py:obj:`~.cudaExternalSemaphoreWaitNodeParams` to output\n'
-    ){{endif}}
-    {{if 'cudaGraphDebugDotFlagsKernelNodeAttributes' in found_values}}
+    )
+
 
     cudaGraphDebugDotFlagsKernelNodeAttributes = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeAttributes,
         'Adds cudaKernelNodeAttrID values to output\n'
-    ){{endif}}
-    {{if 'cudaGraphDebugDotFlagsHandles' in found_values}}
+    )
+
 
     cudaGraphDebugDotFlagsHandles = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsHandles,
         'Adds node handles and every kernel function handle to output\n'
-    ){{endif}}
-    {{if 'cudaGraphDebugDotFlagsConditionalNodeParams' in found_values}}
+    )
+
 
     cudaGraphDebugDotFlagsConditionalNodeParams = (
         cyruntime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsConditionalNodeParams,
         'Adds :py:obj:`~.cudaConditionalNodeParams` to output\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaGraphInstantiateFlags' in found_types}}
+    )
 
 class cudaGraphInstantiateFlags(_FastEnum):
     """
     Flags for instantiating a graph
     """
-    {{if 'cudaGraphInstantiateFlagAutoFreeOnLaunch' in found_values}}
+
 
     cudaGraphInstantiateFlagAutoFreeOnLaunch = (
         cyruntime.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagAutoFreeOnLaunch,
         'Automatically free memory allocated in a graph before relaunching.\n'
-    ){{endif}}
-    {{if 'cudaGraphInstantiateFlagUpload' in found_values}}
+    )
+
 
     cudaGraphInstantiateFlagUpload = (
         cyruntime.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagUpload,
@@ -6444,316 +6199,277 @@ class cudaGraphInstantiateFlags(_FastEnum):
         ' :py:obj:`~.cudaGraphInstantiateWithParams`. The upload will be performed\n'
         'using the\n'
         ' stream provided in `instantiateParams`.\n'
-    ){{endif}}
-    {{if 'cudaGraphInstantiateFlagDeviceLaunch' in found_values}}
+    )
+
 
     cudaGraphInstantiateFlagDeviceLaunch = (
         cyruntime.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagDeviceLaunch,
         'Instantiate the graph to be launchable from the device. This flag can only\n'
         ' be used on platforms which support unified addressing. This flag cannot be\n'
         ' used in conjunction with cudaGraphInstantiateFlagAutoFreeOnLaunch.\n'
-    ){{endif}}
-    {{if 'cudaGraphInstantiateFlagUseNodePriority' in found_values}}
+    )
+
 
     cudaGraphInstantiateFlagUseNodePriority = (
         cyruntime.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagUseNodePriority,
         'Run the graph using the per-node priority attributes rather than the\n'
         'priority of the stream it is launched into.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaDeviceNumaConfig' in found_types}}
+    )
 
 class cudaDeviceNumaConfig(_FastEnum):
     """
     CUDA device NUMA config
     """
-    {{if 'cudaDeviceNumaConfigNone' in found_values}}
+
 
     cudaDeviceNumaConfigNone = (
         cyruntime.cudaDeviceNumaConfig.cudaDeviceNumaConfigNone,
         'The GPU is not a NUMA node\n'
-    ){{endif}}
-    {{if 'cudaDeviceNumaConfigNumaNode' in found_values}}
+    )
+
 
     cudaDeviceNumaConfigNumaNode = (
         cyruntime.cudaDeviceNumaConfig.cudaDeviceNumaConfigNumaNode,
         'The GPU is a NUMA node, cudaDevAttrNumaId contains its NUMA ID\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaFabricOpStatusSource' in found_types}}
+    )
 
 class cudaFabricOpStatusSource(_FastEnum):
     """
     Fabric operation status source
     """
-    {{if 'cudaFabricOpStatusSourceMbarrierV1' in found_values}}
+
 
     cudaFabricOpStatusSourceMbarrierV1 = (
         cyruntime.cudaFabricOpStatusSource.cudaFabricOpStatusSourceMbarrierV1,
         '1B-aligned 1B-wide status from an mbarrier.layout::v1\n'
-    ){{endif}}
-    {{if 'cudaFabricOpStatusSourceMax' in found_values}}
-    cudaFabricOpStatusSourceMax = cyruntime.cudaFabricOpStatusSource.cudaFabricOpStatusSourceMax{{endif}}
+    )
 
-{{endif}}
-{{if 'cudaFabricOpStatusInfo' in found_types}}
+    cudaFabricOpStatusSourceMax = cyruntime.cudaFabricOpStatusSource.cudaFabricOpStatusSourceMax
 
 class cudaFabricOpStatusInfo(_FastEnum):
     """
     Fabric operation status info
     """
-    {{if 'cudaFabricOpStatusInfoSuccess' in found_values}}
-    cudaFabricOpStatusInfoSuccess = cyruntime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoSuccess{{endif}}
-    {{if 'cudaFabricOpStatusInfoLast' in found_values}}
-    cudaFabricOpStatusInfoLast = cyruntime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoLast{{endif}}
-    {{if 'cudaFabricOpStatusInfoMax' in found_values}}
-    cudaFabricOpStatusInfoMax = cyruntime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoMax{{endif}}
 
-{{endif}}
-{{if 'cudaSurfaceBoundaryMode' in found_types}}
+    cudaFabricOpStatusInfoSuccess = cyruntime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoSuccess
+
+    cudaFabricOpStatusInfoLast = cyruntime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoLast
+
+    cudaFabricOpStatusInfoMax = cyruntime.cudaFabricOpStatusInfo.cudaFabricOpStatusInfoMax
 
 class cudaSurfaceBoundaryMode(_FastEnum):
     """
     CUDA Surface boundary modes
     """
-    {{if 'cudaBoundaryModeZero' in found_values}}
+
 
     cudaBoundaryModeZero = (
         cyruntime.cudaSurfaceBoundaryMode.cudaBoundaryModeZero,
         'Zero boundary mode\n'
-    ){{endif}}
-    {{if 'cudaBoundaryModeClamp' in found_values}}
+    )
+
 
     cudaBoundaryModeClamp = (
         cyruntime.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp,
         'Clamp boundary mode\n'
-    ){{endif}}
-    {{if 'cudaBoundaryModeTrap' in found_values}}
+    )
+
 
     cudaBoundaryModeTrap = (
         cyruntime.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap,
         'Trap boundary mode\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaSurfaceFormatMode' in found_types}}
+    )
 
 class cudaSurfaceFormatMode(_FastEnum):
     """
     CUDA Surface format modes
     """
-    {{if 'cudaFormatModeForced' in found_values}}
+
 
     cudaFormatModeForced = (
         cyruntime.cudaSurfaceFormatMode.cudaFormatModeForced,
         'Forced format mode\n'
-    ){{endif}}
-    {{if 'cudaFormatModeAuto' in found_values}}
+    )
+
 
     cudaFormatModeAuto = (
         cyruntime.cudaSurfaceFormatMode.cudaFormatModeAuto,
         'Auto format mode\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaTextureAddressMode' in found_types}}
+    )
 
 class cudaTextureAddressMode(_FastEnum):
     """
     CUDA texture address modes
     """
-    {{if 'cudaAddressModeWrap' in found_values}}
+
 
     cudaAddressModeWrap = (
         cyruntime.cudaTextureAddressMode.cudaAddressModeWrap,
         'Wrapping address mode\n'
-    ){{endif}}
-    {{if 'cudaAddressModeClamp' in found_values}}
+    )
+
 
     cudaAddressModeClamp = (
         cyruntime.cudaTextureAddressMode.cudaAddressModeClamp,
         'Clamp to edge address mode\n'
-    ){{endif}}
-    {{if 'cudaAddressModeMirror' in found_values}}
+    )
+
 
     cudaAddressModeMirror = (
         cyruntime.cudaTextureAddressMode.cudaAddressModeMirror,
         'Mirror address mode\n'
-    ){{endif}}
-    {{if 'cudaAddressModeBorder' in found_values}}
+    )
+
 
     cudaAddressModeBorder = (
         cyruntime.cudaTextureAddressMode.cudaAddressModeBorder,
         'Border address mode\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaTextureFilterMode' in found_types}}
+    )
 
 class cudaTextureFilterMode(_FastEnum):
     """
     CUDA texture filter modes
     """
-    {{if 'cudaFilterModePoint' in found_values}}
+
 
     cudaFilterModePoint = (
         cyruntime.cudaTextureFilterMode.cudaFilterModePoint,
         'Point filter mode\n'
-    ){{endif}}
-    {{if 'cudaFilterModeLinear' in found_values}}
+    )
+
 
     cudaFilterModeLinear = (
         cyruntime.cudaTextureFilterMode.cudaFilterModeLinear,
         'Linear filter mode\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaTextureReadMode' in found_types}}
+    )
 
 class cudaTextureReadMode(_FastEnum):
     """
     CUDA texture read modes
     """
-    {{if 'cudaReadModeElementType' in found_values}}
+
 
     cudaReadModeElementType = (
         cyruntime.cudaTextureReadMode.cudaReadModeElementType,
         'Read texture as specified element type\n'
-    ){{endif}}
-    {{if 'cudaReadModeNormalizedFloat' in found_values}}
+    )
+
 
     cudaReadModeNormalizedFloat = (
         cyruntime.cudaTextureReadMode.cudaReadModeNormalizedFloat,
         'Read texture as normalized float\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaRoundMode' in found_types}}
+    )
 
 class cudaRoundMode(_FastEnum):
     """
 
     """
-    {{if 'cudaRoundNearest' in found_values}}
-    cudaRoundNearest = cyruntime.cudaRoundMode.cudaRoundNearest{{endif}}
-    {{if 'cudaRoundZero' in found_values}}
-    cudaRoundZero = cyruntime.cudaRoundMode.cudaRoundZero{{endif}}
-    {{if 'cudaRoundPosInf' in found_values}}
-    cudaRoundPosInf = cyruntime.cudaRoundMode.cudaRoundPosInf{{endif}}
-    {{if 'cudaRoundMinInf' in found_values}}
-    cudaRoundMinInf = cyruntime.cudaRoundMode.cudaRoundMinInf{{endif}}
 
-{{endif}}
-{{if True}}
+    cudaRoundNearest = cyruntime.cudaRoundMode.cudaRoundNearest
+
+    cudaRoundZero = cyruntime.cudaRoundMode.cudaRoundZero
+
+    cudaRoundPosInf = cyruntime.cudaRoundMode.cudaRoundPosInf
+
+    cudaRoundMinInf = cyruntime.cudaRoundMode.cudaRoundMinInf
 
 class cudaGLDeviceList(_FastEnum):
     """
     CUDA devices corresponding to the current OpenGL context
     """
-    {{if True}}
+
 
     cudaGLDeviceListAll = (
         cyruntime.cudaGLDeviceList.cudaGLDeviceListAll,
         'The CUDA devices for all GPUs used by the current OpenGL context\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaGLDeviceListCurrentFrame = (
         cyruntime.cudaGLDeviceList.cudaGLDeviceListCurrentFrame,
         'The CUDA devices for the GPUs used by the current OpenGL context in its\n'
         'currently rendering frame\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaGLDeviceListNextFrame = (
         cyruntime.cudaGLDeviceList.cudaGLDeviceListNextFrame,
         'The CUDA devices for the GPUs to be used by the current OpenGL context in\n'
         'the next frame\n'
-    ){{endif}}
-
-{{endif}}
-{{if True}}
+    )
 
 class cudaGLMapFlags(_FastEnum):
     """
     CUDA GL Map Flags
     """
-    {{if True}}
+
 
     cudaGLMapFlagsNone = (
         cyruntime.cudaGLMapFlags.cudaGLMapFlagsNone,
         'Default; Assume resource can be read/written\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaGLMapFlagsReadOnly = (
         cyruntime.cudaGLMapFlags.cudaGLMapFlagsReadOnly,
         'CUDA kernels will not write to this resource\n'
-    ){{endif}}
-    {{if True}}
+    )
+
 
     cudaGLMapFlagsWriteDiscard = (
         cyruntime.cudaGLMapFlags.cudaGLMapFlagsWriteDiscard,
         'CUDA kernels will only write to and will not read from this resource\n'
-    ){{endif}}
-
-{{endif}}
+    )
 
 cdef object _cudaError_t = cudaError_t
 cdef object _cudaError_t_SUCCESS = cudaError_t.cudaSuccess
-
-
-
-{{if 'cudaLaunchAttributeID' in found_types}}
 
 class cudaStreamAttrID(_FastEnum):
     """
     Launch attributes enum; used as id field of
     :py:obj:`~.cudaLaunchAttribute`
     """
-    {{if 'cudaLaunchAttributeIgnore' in found_values}}
+
 
     cudaLaunchAttributeIgnore = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeIgnore,
         'Ignored entry, for convenient composition\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeAccessPolicyWindow' in found_values}}
+    )
+
 
     cudaLaunchAttributeAccessPolicyWindow = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.accessPolicyWindow`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeCooperative' in found_values}}
+    )
+
 
     cudaLaunchAttributeCooperative = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeCooperative,
         'Valid for graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.cooperative`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeSynchronizationPolicy' in found_values}}
+    )
+
 
     cudaLaunchAttributeSynchronizationPolicy = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeSynchronizationPolicy,
         'Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue.syncPolicy`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeClusterDimension' in found_values}}
+    )
+
 
     cudaLaunchAttributeClusterDimension = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeClusterDimension,
         'Valid for graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.clusterDim`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeClusterSchedulingPolicyPreference' in found_values}}
+    )
+
 
     cudaLaunchAttributeClusterSchedulingPolicyPreference = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeClusterSchedulingPolicyPreference,
         'Valid for graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.clusterSchedulingPolicyPreference`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeProgrammaticStreamSerialization' in found_values}}
+    )
+
 
     cudaLaunchAttributeProgrammaticStreamSerialization = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticStreamSerialization,
@@ -6765,8 +6481,8 @@ class cudaStreamAttrID(_FastEnum):
         'that kernel requests the overlap. The dependent launches can choose to wait\n'
         'on the dependency using the programmatic sync\n'
         '(cudaGridDependencySynchronize() or equivalent PTX instructions).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeProgrammaticEvent' in found_values}}
+    )
+
 
     cudaLaunchAttributeProgrammaticEvent = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticEvent,
@@ -6790,29 +6506,29 @@ class cudaStreamAttrID(_FastEnum):
         ' The event supplied must not be an interprocess or interop event. The event\n'
         'must disable timing (i.e. must be created with the\n'
         ':py:obj:`~.cudaEventDisableTiming` flag set).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePriority' in found_values}}
+    )
+
 
     cudaLaunchAttributePriority = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePriority,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.priority`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeMemSyncDomainMap' in found_values}}
+    )
+
 
     cudaLaunchAttributeMemSyncDomainMap = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomainMap,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.memSyncDomainMap`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeMemSyncDomain' in found_values}}
+    )
+
 
     cudaLaunchAttributeMemSyncDomain = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomain,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.memSyncDomain`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePreferredClusterDimension' in found_values}}
+    )
+
 
     cudaLaunchAttributePreferredClusterDimension = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePreferredClusterDimension,
@@ -6845,8 +6561,8 @@ class cudaStreamAttrID(_FastEnum):
         'than the maximum value the driver can support. Otherwise, setting this\n'
         'attribute to a value physically unable to fit on any particular device is\n'
         'permitted.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeLaunchCompletionEvent' in found_values}}
+    )
+
 
     cudaLaunchAttributeLaunchCompletionEvent = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent,
@@ -6867,8 +6583,8 @@ class cudaStreamAttrID(_FastEnum):
         ' The event supplied must not be an interprocess or interop event. The event\n'
         'must disable timing (i.e. must be created with the\n'
         ':py:obj:`~.cudaEventDisableTiming` flag set).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeDeviceUpdatableKernelNode' in found_values}}
+    )
+
 
     cudaLaunchAttributeDeviceUpdatableKernelNode = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
@@ -6899,8 +6615,8 @@ class cudaStreamAttrID(_FastEnum):
         ':py:obj:`~.cuGraphUpload` before it is launched. For such a graph, if host-\n'
         'side executable graph updates are made to the device-updatable nodes, the\n'
         'graph must be uploaded before it is launched again.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePreferredSharedMemoryCarveout' in found_values}}
+    )
+
 
     cudaLaunchAttributePreferredSharedMemoryCarveout = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout,
@@ -6912,8 +6628,8 @@ class cudaStreamAttrID(_FastEnum):
         'precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`.\n'
         'This is only a hint, and the driver can choose a different configuration if\n'
         'required for the launch.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeNvlinkUtilCentricScheduling' in found_values}}
+    )
+
 
     cudaLaunchAttributeNvlinkUtilCentricScheduling = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeNvlinkUtilCentricScheduling,
@@ -6934,8 +6650,8 @@ class cudaStreamAttrID(_FastEnum):
         ' Valid values for\n'
         ':py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0\n'
         '(disabled) and 1 (enabled).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePortableClusterSizeMode' in found_values}}
+    )
+
 
     cudaLaunchAttributePortableClusterSizeMode = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePortableClusterSizeMode,
@@ -6944,64 +6660,61 @@ class cudaStreamAttrID(_FastEnum):
         ':py:obj:`~.cudaLaunchAttributeValue.portableClusterSizeMode` are values for\n'
         ':py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will\n'
         'return :py:obj:`~.cudaErrorInvalidValue`\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeSharedMemoryMode' in found_values}}
+    )
+
 
     cudaLaunchAttributeSharedMemoryMode = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeSharedMemoryMode,
         'Valid for graph nodes, launches. This indicates that the kernel launch is\n'
         'allowed to use a non-portable shared memory mode.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaLaunchAttributeID' in found_types}}
+    )
 
 class cudaKernelNodeAttrID(_FastEnum):
     """
     Launch attributes enum; used as id field of
     :py:obj:`~.cudaLaunchAttribute`
     """
-    {{if 'cudaLaunchAttributeIgnore' in found_values}}
+
 
     cudaLaunchAttributeIgnore = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeIgnore,
         'Ignored entry, for convenient composition\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeAccessPolicyWindow' in found_values}}
+    )
+
 
     cudaLaunchAttributeAccessPolicyWindow = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.accessPolicyWindow`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeCooperative' in found_values}}
+    )
+
 
     cudaLaunchAttributeCooperative = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeCooperative,
         'Valid for graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.cooperative`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeSynchronizationPolicy' in found_values}}
+    )
+
 
     cudaLaunchAttributeSynchronizationPolicy = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeSynchronizationPolicy,
         'Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue.syncPolicy`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeClusterDimension' in found_values}}
+    )
+
 
     cudaLaunchAttributeClusterDimension = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeClusterDimension,
         'Valid for graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.clusterDim`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeClusterSchedulingPolicyPreference' in found_values}}
+    )
+
 
     cudaLaunchAttributeClusterSchedulingPolicyPreference = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeClusterSchedulingPolicyPreference,
         'Valid for graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.clusterSchedulingPolicyPreference`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeProgrammaticStreamSerialization' in found_values}}
+    )
+
 
     cudaLaunchAttributeProgrammaticStreamSerialization = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticStreamSerialization,
@@ -7013,8 +6726,8 @@ class cudaKernelNodeAttrID(_FastEnum):
         'that kernel requests the overlap. The dependent launches can choose to wait\n'
         'on the dependency using the programmatic sync\n'
         '(cudaGridDependencySynchronize() or equivalent PTX instructions).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeProgrammaticEvent' in found_values}}
+    )
+
 
     cudaLaunchAttributeProgrammaticEvent = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticEvent,
@@ -7038,29 +6751,29 @@ class cudaKernelNodeAttrID(_FastEnum):
         ' The event supplied must not be an interprocess or interop event. The event\n'
         'must disable timing (i.e. must be created with the\n'
         ':py:obj:`~.cudaEventDisableTiming` flag set).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePriority' in found_values}}
+    )
+
 
     cudaLaunchAttributePriority = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePriority,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.priority`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeMemSyncDomainMap' in found_values}}
+    )
+
 
     cudaLaunchAttributeMemSyncDomainMap = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomainMap,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.memSyncDomainMap`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeMemSyncDomain' in found_values}}
+    )
+
 
     cudaLaunchAttributeMemSyncDomain = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomain,
         'Valid for streams, graph nodes, launches. See\n'
         ':py:obj:`~.cudaLaunchAttributeValue.memSyncDomain`.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePreferredClusterDimension' in found_values}}
+    )
+
 
     cudaLaunchAttributePreferredClusterDimension = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePreferredClusterDimension,
@@ -7093,8 +6806,8 @@ class cudaKernelNodeAttrID(_FastEnum):
         'than the maximum value the driver can support. Otherwise, setting this\n'
         'attribute to a value physically unable to fit on any particular device is\n'
         'permitted.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeLaunchCompletionEvent' in found_values}}
+    )
+
 
     cudaLaunchAttributeLaunchCompletionEvent = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent,
@@ -7115,8 +6828,8 @@ class cudaKernelNodeAttrID(_FastEnum):
         ' The event supplied must not be an interprocess or interop event. The event\n'
         'must disable timing (i.e. must be created with the\n'
         ':py:obj:`~.cudaEventDisableTiming` flag set).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeDeviceUpdatableKernelNode' in found_values}}
+    )
+
 
     cudaLaunchAttributeDeviceUpdatableKernelNode = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
@@ -7147,8 +6860,8 @@ class cudaKernelNodeAttrID(_FastEnum):
         ':py:obj:`~.cuGraphUpload` before it is launched. For such a graph, if host-\n'
         'side executable graph updates are made to the device-updatable nodes, the\n'
         'graph must be uploaded before it is launched again.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePreferredSharedMemoryCarveout' in found_values}}
+    )
+
 
     cudaLaunchAttributePreferredSharedMemoryCarveout = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout,
@@ -7160,8 +6873,8 @@ class cudaKernelNodeAttrID(_FastEnum):
         'precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`.\n'
         'This is only a hint, and the driver can choose a different configuration if\n'
         'required for the launch.\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeNvlinkUtilCentricScheduling' in found_values}}
+    )
+
 
     cudaLaunchAttributeNvlinkUtilCentricScheduling = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeNvlinkUtilCentricScheduling,
@@ -7182,8 +6895,8 @@ class cudaKernelNodeAttrID(_FastEnum):
         ' Valid values for\n'
         ':py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0\n'
         '(disabled) and 1 (enabled).\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributePortableClusterSizeMode' in found_values}}
+    )
+
 
     cudaLaunchAttributePortableClusterSizeMode = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePortableClusterSizeMode,
@@ -7192,17 +6905,14 @@ class cudaKernelNodeAttrID(_FastEnum):
         ':py:obj:`~.cudaLaunchAttributeValue.portableClusterSizeMode` are values for\n'
         ':py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will\n'
         'return :py:obj:`~.cudaErrorInvalidValue`\n'
-    ){{endif}}
-    {{if 'cudaLaunchAttributeSharedMemoryMode' in found_values}}
+    )
+
 
     cudaLaunchAttributeSharedMemoryMode = (
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeSharedMemoryMode,
         'Valid for graph nodes, launches. This indicates that the kernel launch is\n'
         'allowed to use a non-portable shared memory mode.\n'
-    ){{endif}}
-
-{{endif}}
-{{if 'cudaDevResourceDesc_t' in found_types}}
+    )
 
 cdef class cudaDevResourceDesc_t:
     """
@@ -7237,9 +6947,6 @@ cdef class cudaDevResourceDesc_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaExecutionContext_t' in found_types}}
 
 cdef class cudaExecutionContext_t:
     """
@@ -7274,9 +6981,6 @@ cdef class cudaExecutionContext_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaArray_t' in found_types}}
 
 cdef class cudaArray_t:
     """
@@ -7311,9 +7015,6 @@ cdef class cudaArray_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaArray_const_t' in found_types}}
 
 cdef class cudaArray_const_t:
     """
@@ -7348,9 +7049,6 @@ cdef class cudaArray_const_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaMipmappedArray_t' in found_types}}
 
 cdef class cudaMipmappedArray_t:
     """
@@ -7385,9 +7083,6 @@ cdef class cudaMipmappedArray_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaMipmappedArray_const_t' in found_types}}
 
 cdef class cudaMipmappedArray_const_t:
     """
@@ -7422,9 +7117,6 @@ cdef class cudaMipmappedArray_const_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaGraphicsResource_t' in found_types}}
 
 cdef class cudaGraphicsResource_t:
     """
@@ -7459,9 +7151,6 @@ cdef class cudaGraphicsResource_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaExternalMemory_t' in found_types}}
 
 cdef class cudaExternalMemory_t:
     """
@@ -7496,9 +7185,6 @@ cdef class cudaExternalMemory_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaExternalSemaphore_t' in found_types}}
 
 cdef class cudaExternalSemaphore_t:
     """
@@ -7533,9 +7219,6 @@ cdef class cudaExternalSemaphore_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaKernel_t' in found_types}}
 
 cdef class cudaKernel_t:
     """
@@ -7570,9 +7253,6 @@ cdef class cudaKernel_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaLibrary_t' in found_types}}
 
 cdef class cudaLibrary_t:
     """
@@ -7607,9 +7287,6 @@ cdef class cudaLibrary_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaGraphDeviceNode_t' in found_types}}
 
 cdef class cudaGraphDeviceNode_t:
     """
@@ -7644,9 +7321,6 @@ cdef class cudaGraphDeviceNode_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaAsyncCallbackHandle_t' in found_types}}
 
 cdef class cudaAsyncCallbackHandle_t:
     """
@@ -7681,9 +7355,6 @@ cdef class cudaAsyncCallbackHandle_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaLogsCallbackHandle' in found_types}}
 
 cdef class cudaLogsCallbackHandle:
     """
@@ -7716,9 +7387,6 @@ cdef class cudaLogsCallbackHandle:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if True}}
 
 cdef class EGLImageKHR:
     """
@@ -7751,9 +7419,6 @@ cdef class EGLImageKHR:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if True}}
 
 cdef class EGLStreamKHR:
     """
@@ -7786,9 +7451,6 @@ cdef class EGLStreamKHR:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if True}}
 
 cdef class EGLSyncKHR:
     """
@@ -7821,9 +7483,6 @@ cdef class EGLSyncKHR:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaHostFn_t' in found_types}}
 
 cdef class cudaHostFn_t:
     """
@@ -7850,9 +7509,6 @@ cdef class cudaHostFn_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaAsyncCallback' in found_types}}
 
 cdef class cudaAsyncCallback:
     """
@@ -7879,9 +7535,6 @@ cdef class cudaAsyncCallback:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaStreamCallback_t' in found_types}}
 
 cdef class cudaStreamCallback_t:
     """
@@ -7908,9 +7561,6 @@ cdef class cudaStreamCallback_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaGraphRecaptureCallback_t' in found_types}}
 
 cdef class cudaGraphRecaptureCallback_t:
     """
@@ -7937,9 +7587,6 @@ cdef class cudaGraphRecaptureCallback_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaLogsCallback_t' in found_types}}
 
 cdef class cudaLogsCallback_t:
     """
@@ -7966,26 +7613,23 @@ cdef class cudaLogsCallback_t:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'dim3' in found_struct}}
 
 cdef class dim3:
     """
     Attributes
     ----------
-    {{if 'dim3.x' in found_struct}}
+
     x : unsigned int
 
-    {{endif}}
-    {{if 'dim3.y' in found_struct}}
+
+
     y : unsigned int
 
-    {{endif}}
-    {{if 'dim3.z' in found_struct}}
+
+
     z : unsigned int
 
-    {{endif}}
+
 
     Methods
     -------
@@ -8006,53 +7650,51 @@ cdef class dim3:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'dim3.x' in found_struct}}
+
             try:
                 str_list += ['x : ' + str(self.x)]
             except ValueError:
                 str_list += ['x : <ValueError>']
-            {{endif}}
-            {{if 'dim3.y' in found_struct}}
+
+
             try:
                 str_list += ['y : ' + str(self.y)]
             except ValueError:
                 str_list += ['y : <ValueError>']
-            {{endif}}
-            {{if 'dim3.z' in found_struct}}
+
+
             try:
                 str_list += ['z : ' + str(self.z)]
             except ValueError:
                 str_list += ['z : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'dim3.x' in found_struct}}
+
     @property
     def x(self):
         return self._pvt_ptr[0].x
     @x.setter
     def x(self, unsigned int x):
         self._pvt_ptr[0].x = x
-    {{endif}}
-    {{if 'dim3.y' in found_struct}}
+
+
     @property
     def y(self):
         return self._pvt_ptr[0].y
     @y.setter
     def y(self, unsigned int y):
         self._pvt_ptr[0].y = y
-    {{endif}}
-    {{if 'dim3.z' in found_struct}}
+
+
     @property
     def z(self):
         return self._pvt_ptr[0].z
     @z.setter
     def z(self, unsigned int z):
         self._pvt_ptr[0].z = z
-    {{endif}}
-{{endif}}
-{{if 'cudaChannelFormatDesc' in found_struct}}
+
 
 cdef class cudaChannelFormatDesc:
     """
@@ -8060,26 +7702,26 @@ cdef class cudaChannelFormatDesc:
 
     Attributes
     ----------
-    {{if 'cudaChannelFormatDesc.x' in found_struct}}
+
     x : int
         x
-    {{endif}}
-    {{if 'cudaChannelFormatDesc.y' in found_struct}}
+
+
     y : int
         y
-    {{endif}}
-    {{if 'cudaChannelFormatDesc.z' in found_struct}}
+
+
     z : int
         z
-    {{endif}}
-    {{if 'cudaChannelFormatDesc.w' in found_struct}}
+
+
     w : int
         w
-    {{endif}}
-    {{if 'cudaChannelFormatDesc.f' in found_struct}}
+
+
     f : cudaChannelFormatKind
         Channel format kind
-    {{endif}}
+
 
     Methods
     -------
@@ -8100,98 +7742,96 @@ cdef class cudaChannelFormatDesc:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaChannelFormatDesc.x' in found_struct}}
+
             try:
                 str_list += ['x : ' + str(self.x)]
             except ValueError:
                 str_list += ['x : <ValueError>']
-            {{endif}}
-            {{if 'cudaChannelFormatDesc.y' in found_struct}}
+
+
             try:
                 str_list += ['y : ' + str(self.y)]
             except ValueError:
                 str_list += ['y : <ValueError>']
-            {{endif}}
-            {{if 'cudaChannelFormatDesc.z' in found_struct}}
+
+
             try:
                 str_list += ['z : ' + str(self.z)]
             except ValueError:
                 str_list += ['z : <ValueError>']
-            {{endif}}
-            {{if 'cudaChannelFormatDesc.w' in found_struct}}
+
+
             try:
                 str_list += ['w : ' + str(self.w)]
             except ValueError:
                 str_list += ['w : <ValueError>']
-            {{endif}}
-            {{if 'cudaChannelFormatDesc.f' in found_struct}}
+
+
             try:
                 str_list += ['f : ' + str(self.f)]
             except ValueError:
                 str_list += ['f : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaChannelFormatDesc.x' in found_struct}}
+
     @property
     def x(self):
         return self._pvt_ptr[0].x
     @x.setter
     def x(self, int x):
         self._pvt_ptr[0].x = x
-    {{endif}}
-    {{if 'cudaChannelFormatDesc.y' in found_struct}}
+
+
     @property
     def y(self):
         return self._pvt_ptr[0].y
     @y.setter
     def y(self, int y):
         self._pvt_ptr[0].y = y
-    {{endif}}
-    {{if 'cudaChannelFormatDesc.z' in found_struct}}
+
+
     @property
     def z(self):
         return self._pvt_ptr[0].z
     @z.setter
     def z(self, int z):
         self._pvt_ptr[0].z = z
-    {{endif}}
-    {{if 'cudaChannelFormatDesc.w' in found_struct}}
+
+
     @property
     def w(self):
         return self._pvt_ptr[0].w
     @w.setter
     def w(self, int w):
         self._pvt_ptr[0].w = w
-    {{endif}}
-    {{if 'cudaChannelFormatDesc.f' in found_struct}}
+
+
     @property
     def f(self):
         return cudaChannelFormatKind(self._pvt_ptr[0].f)
     @f.setter
     def f(self, f not None : cudaChannelFormatKind):
-        self._pvt_ptr[0].f = int(f)
-    {{endif}}
-{{endif}}
-{{if 'cudaArraySparseProperties.tileExtent' in found_struct}}
+        self._pvt_ptr[0].f = <cyruntime.cudaChannelFormatKind><int>int(f)
+
 
 cdef class anon_struct0:
     """
     Attributes
     ----------
-    {{if 'cudaArraySparseProperties.tileExtent.width' in found_struct}}
+
     width : unsigned int
 
-    {{endif}}
-    {{if 'cudaArraySparseProperties.tileExtent.height' in found_struct}}
+
+
     height : unsigned int
 
-    {{endif}}
-    {{if 'cudaArraySparseProperties.tileExtent.depth' in found_struct}}
+
+
     depth : unsigned int
 
-    {{endif}}
+
 
     Methods
     -------
@@ -8210,53 +7850,51 @@ cdef class anon_struct0:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaArraySparseProperties.tileExtent.width' in found_struct}}
+
             try:
                 str_list += ['width : ' + str(self.width)]
             except ValueError:
                 str_list += ['width : <ValueError>']
-            {{endif}}
-            {{if 'cudaArraySparseProperties.tileExtent.height' in found_struct}}
+
+
             try:
                 str_list += ['height : ' + str(self.height)]
             except ValueError:
                 str_list += ['height : <ValueError>']
-            {{endif}}
-            {{if 'cudaArraySparseProperties.tileExtent.depth' in found_struct}}
+
+
             try:
                 str_list += ['depth : ' + str(self.depth)]
             except ValueError:
                 str_list += ['depth : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaArraySparseProperties.tileExtent.width' in found_struct}}
+
     @property
     def width(self):
         return self._pvt_ptr[0].tileExtent.width
     @width.setter
     def width(self, unsigned int width):
         self._pvt_ptr[0].tileExtent.width = width
-    {{endif}}
-    {{if 'cudaArraySparseProperties.tileExtent.height' in found_struct}}
+
+
     @property
     def height(self):
         return self._pvt_ptr[0].tileExtent.height
     @height.setter
     def height(self, unsigned int height):
         self._pvt_ptr[0].tileExtent.height = height
-    {{endif}}
-    {{if 'cudaArraySparseProperties.tileExtent.depth' in found_struct}}
+
+
     @property
     def depth(self):
         return self._pvt_ptr[0].tileExtent.depth
     @depth.setter
     def depth(self, unsigned int depth):
         self._pvt_ptr[0].tileExtent.depth = depth
-    {{endif}}
-{{endif}}
-{{if 'cudaArraySparseProperties' in found_struct}}
+
 
 cdef class cudaArraySparseProperties:
     """
@@ -8264,26 +7902,26 @@ cdef class cudaArraySparseProperties:
 
     Attributes
     ----------
-    {{if 'cudaArraySparseProperties.tileExtent' in found_struct}}
+
     tileExtent : anon_struct0
 
-    {{endif}}
-    {{if 'cudaArraySparseProperties.miptailFirstLevel' in found_struct}}
+
+
     miptailFirstLevel : unsigned int
         First mip level at which the mip tail begins
-    {{endif}}
-    {{if 'cudaArraySparseProperties.miptailSize' in found_struct}}
+
+
     miptailSize : unsigned long long
         Total size of the mip tail.
-    {{endif}}
-    {{if 'cudaArraySparseProperties.flags' in found_struct}}
+
+
     flags : unsigned int
         Flags will either be zero or cudaArraySparsePropertiesSingleMipTail
-    {{endif}}
-    {{if 'cudaArraySparseProperties.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
 
-    {{endif}}
+
 
     Methods
     -------
@@ -8297,9 +7935,9 @@ cdef class cudaArraySparseProperties:
             self._pvt_ptr = <cyruntime.cudaArraySparseProperties *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaArraySparseProperties.tileExtent' in found_struct}}
+
         self._tileExtent = anon_struct0(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -8307,81 +7945,79 @@ cdef class cudaArraySparseProperties:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaArraySparseProperties.tileExtent' in found_struct}}
+
             try:
                 str_list += ['tileExtent :\n' + '\n'.join(['    ' + line for line in str(self.tileExtent).splitlines()])]
             except ValueError:
                 str_list += ['tileExtent : <ValueError>']
-            {{endif}}
-            {{if 'cudaArraySparseProperties.miptailFirstLevel' in found_struct}}
+
+
             try:
                 str_list += ['miptailFirstLevel : ' + str(self.miptailFirstLevel)]
             except ValueError:
                 str_list += ['miptailFirstLevel : <ValueError>']
-            {{endif}}
-            {{if 'cudaArraySparseProperties.miptailSize' in found_struct}}
+
+
             try:
                 str_list += ['miptailSize : ' + str(self.miptailSize)]
             except ValueError:
                 str_list += ['miptailSize : <ValueError>']
-            {{endif}}
-            {{if 'cudaArraySparseProperties.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
-            {{if 'cudaArraySparseProperties.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaArraySparseProperties.tileExtent' in found_struct}}
+
     @property
     def tileExtent(self):
         return self._tileExtent
     @tileExtent.setter
     def tileExtent(self, tileExtent not None : anon_struct0):
         string.memcpy(&self._pvt_ptr[0].tileExtent, <void*><void_ptr>tileExtent.getPtr(), sizeof(self._pvt_ptr[0].tileExtent))
-    {{endif}}
-    {{if 'cudaArraySparseProperties.miptailFirstLevel' in found_struct}}
+
+
     @property
     def miptailFirstLevel(self):
         return self._pvt_ptr[0].miptailFirstLevel
     @miptailFirstLevel.setter
     def miptailFirstLevel(self, unsigned int miptailFirstLevel):
         self._pvt_ptr[0].miptailFirstLevel = miptailFirstLevel
-    {{endif}}
-    {{if 'cudaArraySparseProperties.miptailSize' in found_struct}}
+
+
     @property
     def miptailSize(self):
         return self._pvt_ptr[0].miptailSize
     @miptailSize.setter
     def miptailSize(self, unsigned long long miptailSize):
         self._pvt_ptr[0].miptailSize = miptailSize
-    {{endif}}
-    {{if 'cudaArraySparseProperties.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-    {{if 'cudaArraySparseProperties.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaArrayMemoryRequirements' in found_struct}}
+
 
 cdef class cudaArrayMemoryRequirements:
     """
@@ -8389,18 +8025,18 @@ cdef class cudaArrayMemoryRequirements:
 
     Attributes
     ----------
-    {{if 'cudaArrayMemoryRequirements.size' in found_struct}}
+
     size : size_t
         Total size of the array.
-    {{endif}}
-    {{if 'cudaArrayMemoryRequirements.alignment' in found_struct}}
+
+
     alignment : size_t
         Alignment necessary for mapping the array.
-    {{endif}}
-    {{if 'cudaArrayMemoryRequirements.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
 
-    {{endif}}
+
 
     Methods
     -------
@@ -8421,53 +8057,51 @@ cdef class cudaArrayMemoryRequirements:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaArrayMemoryRequirements.size' in found_struct}}
+
             try:
                 str_list += ['size : ' + str(self.size)]
             except ValueError:
                 str_list += ['size : <ValueError>']
-            {{endif}}
-            {{if 'cudaArrayMemoryRequirements.alignment' in found_struct}}
+
+
             try:
                 str_list += ['alignment : ' + str(self.alignment)]
             except ValueError:
                 str_list += ['alignment : <ValueError>']
-            {{endif}}
-            {{if 'cudaArrayMemoryRequirements.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaArrayMemoryRequirements.size' in found_struct}}
+
     @property
     def size(self):
         return self._pvt_ptr[0].size
     @size.setter
     def size(self, size_t size):
         self._pvt_ptr[0].size = size
-    {{endif}}
-    {{if 'cudaArrayMemoryRequirements.alignment' in found_struct}}
+
+
     @property
     def alignment(self):
         return self._pvt_ptr[0].alignment
     @alignment.setter
     def alignment(self, size_t alignment):
         self._pvt_ptr[0].alignment = alignment
-    {{endif}}
-    {{if 'cudaArrayMemoryRequirements.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaPitchedPtr' in found_struct}}
+
 
 cdef class cudaPitchedPtr:
     """
@@ -8475,22 +8109,22 @@ cdef class cudaPitchedPtr:
 
     Attributes
     ----------
-    {{if 'cudaPitchedPtr.ptr' in found_struct}}
+
     ptr : Any
         Pointer to allocated memory
-    {{endif}}
-    {{if 'cudaPitchedPtr.pitch' in found_struct}}
+
+
     pitch : size_t
         Pitch of allocated memory in bytes
-    {{endif}}
-    {{if 'cudaPitchedPtr.xsize' in found_struct}}
+
+
     xsize : size_t
         Logical width of allocation in elements
-    {{endif}}
-    {{if 'cudaPitchedPtr.ysize' in found_struct}}
+
+
     ysize : size_t
         Logical height of allocation in elements
-    {{endif}}
+
 
     Methods
     -------
@@ -8511,34 +8145,34 @@ cdef class cudaPitchedPtr:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaPitchedPtr.ptr' in found_struct}}
+
             try:
                 str_list += ['ptr : ' + hex(self.ptr)]
             except ValueError:
                 str_list += ['ptr : <ValueError>']
-            {{endif}}
-            {{if 'cudaPitchedPtr.pitch' in found_struct}}
+
+
             try:
                 str_list += ['pitch : ' + str(self.pitch)]
             except ValueError:
                 str_list += ['pitch : <ValueError>']
-            {{endif}}
-            {{if 'cudaPitchedPtr.xsize' in found_struct}}
+
+
             try:
                 str_list += ['xsize : ' + str(self.xsize)]
             except ValueError:
                 str_list += ['xsize : <ValueError>']
-            {{endif}}
-            {{if 'cudaPitchedPtr.ysize' in found_struct}}
+
+
             try:
                 str_list += ['ysize : ' + str(self.ysize)]
             except ValueError:
                 str_list += ['ysize : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaPitchedPtr.ptr' in found_struct}}
+
     @property
     def ptr(self):
         return <void_ptr>self._pvt_ptr[0].ptr
@@ -8546,33 +8180,31 @@ cdef class cudaPitchedPtr:
     def ptr(self, ptr):
         self._cyptr = _HelperInputVoidPtr(ptr)
         self._pvt_ptr[0].ptr = <void*><void_ptr>self._cyptr.cptr
-    {{endif}}
-    {{if 'cudaPitchedPtr.pitch' in found_struct}}
+
+
     @property
     def pitch(self):
         return self._pvt_ptr[0].pitch
     @pitch.setter
     def pitch(self, size_t pitch):
         self._pvt_ptr[0].pitch = pitch
-    {{endif}}
-    {{if 'cudaPitchedPtr.xsize' in found_struct}}
+
+
     @property
     def xsize(self):
         return self._pvt_ptr[0].xsize
     @xsize.setter
     def xsize(self, size_t xsize):
         self._pvt_ptr[0].xsize = xsize
-    {{endif}}
-    {{if 'cudaPitchedPtr.ysize' in found_struct}}
+
+
     @property
     def ysize(self):
         return self._pvt_ptr[0].ysize
     @ysize.setter
     def ysize(self, size_t ysize):
         self._pvt_ptr[0].ysize = ysize
-    {{endif}}
-{{endif}}
-{{if 'cudaExtent' in found_struct}}
+
 
 cdef class cudaExtent:
     """
@@ -8580,19 +8212,19 @@ cdef class cudaExtent:
 
     Attributes
     ----------
-    {{if 'cudaExtent.width' in found_struct}}
+
     width : size_t
         Width in elements when referring to array memory, in bytes when
         referring to linear memory
-    {{endif}}
-    {{if 'cudaExtent.height' in found_struct}}
+
+
     height : size_t
         Height in elements
-    {{endif}}
-    {{if 'cudaExtent.depth' in found_struct}}
+
+
     depth : size_t
         Depth in elements
-    {{endif}}
+
 
     Methods
     -------
@@ -8613,53 +8245,51 @@ cdef class cudaExtent:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExtent.width' in found_struct}}
+
             try:
                 str_list += ['width : ' + str(self.width)]
             except ValueError:
                 str_list += ['width : <ValueError>']
-            {{endif}}
-            {{if 'cudaExtent.height' in found_struct}}
+
+
             try:
                 str_list += ['height : ' + str(self.height)]
             except ValueError:
                 str_list += ['height : <ValueError>']
-            {{endif}}
-            {{if 'cudaExtent.depth' in found_struct}}
+
+
             try:
                 str_list += ['depth : ' + str(self.depth)]
             except ValueError:
                 str_list += ['depth : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExtent.width' in found_struct}}
+
     @property
     def width(self):
         return self._pvt_ptr[0].width
     @width.setter
     def width(self, size_t width):
         self._pvt_ptr[0].width = width
-    {{endif}}
-    {{if 'cudaExtent.height' in found_struct}}
+
+
     @property
     def height(self):
         return self._pvt_ptr[0].height
     @height.setter
     def height(self, size_t height):
         self._pvt_ptr[0].height = height
-    {{endif}}
-    {{if 'cudaExtent.depth' in found_struct}}
+
+
     @property
     def depth(self):
         return self._pvt_ptr[0].depth
     @depth.setter
     def depth(self, size_t depth):
         self._pvt_ptr[0].depth = depth
-    {{endif}}
-{{endif}}
-{{if 'cudaPos' in found_struct}}
+
 
 cdef class cudaPos:
     """
@@ -8667,18 +8297,18 @@ cdef class cudaPos:
 
     Attributes
     ----------
-    {{if 'cudaPos.x' in found_struct}}
+
     x : size_t
         x
-    {{endif}}
-    {{if 'cudaPos.y' in found_struct}}
+
+
     y : size_t
         y
-    {{endif}}
-    {{if 'cudaPos.z' in found_struct}}
+
+
     z : size_t
         z
-    {{endif}}
+
 
     Methods
     -------
@@ -8699,53 +8329,51 @@ cdef class cudaPos:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaPos.x' in found_struct}}
+
             try:
                 str_list += ['x : ' + str(self.x)]
             except ValueError:
                 str_list += ['x : <ValueError>']
-            {{endif}}
-            {{if 'cudaPos.y' in found_struct}}
+
+
             try:
                 str_list += ['y : ' + str(self.y)]
             except ValueError:
                 str_list += ['y : <ValueError>']
-            {{endif}}
-            {{if 'cudaPos.z' in found_struct}}
+
+
             try:
                 str_list += ['z : ' + str(self.z)]
             except ValueError:
                 str_list += ['z : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaPos.x' in found_struct}}
+
     @property
     def x(self):
         return self._pvt_ptr[0].x
     @x.setter
     def x(self, size_t x):
         self._pvt_ptr[0].x = x
-    {{endif}}
-    {{if 'cudaPos.y' in found_struct}}
+
+
     @property
     def y(self):
         return self._pvt_ptr[0].y
     @y.setter
     def y(self, size_t y):
         self._pvt_ptr[0].y = y
-    {{endif}}
-    {{if 'cudaPos.z' in found_struct}}
+
+
     @property
     def z(self):
         return self._pvt_ptr[0].z
     @z.setter
     def z(self, size_t z):
         self._pvt_ptr[0].z = z
-    {{endif}}
-{{endif}}
-{{if 'cudaMemcpy3DParms' in found_struct}}
+
 
 cdef class cudaMemcpy3DParms:
     """
@@ -8753,38 +8381,38 @@ cdef class cudaMemcpy3DParms:
 
     Attributes
     ----------
-    {{if 'cudaMemcpy3DParms.srcArray' in found_struct}}
+
     srcArray : cudaArray_t
         Source memory address
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.srcPos' in found_struct}}
+
+
     srcPos : cudaPos
         Source position offset
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.srcPtr' in found_struct}}
+
+
     srcPtr : cudaPitchedPtr
         Pitched source memory address
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.dstArray' in found_struct}}
+
+
     dstArray : cudaArray_t
         Destination memory address
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.dstPos' in found_struct}}
+
+
     dstPos : cudaPos
         Destination position offset
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.dstPtr' in found_struct}}
+
+
     dstPtr : cudaPitchedPtr
         Pitched destination memory address
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.extent' in found_struct}}
+
+
     extent : cudaExtent
         Requested memory copy size
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.kind' in found_struct}}
+
+
     kind : cudaMemcpyKind
         Type of transfer
-    {{endif}}
+
 
     Methods
     -------
@@ -8798,27 +8426,27 @@ cdef class cudaMemcpy3DParms:
             self._pvt_ptr = <cyruntime.cudaMemcpy3DParms *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaMemcpy3DParms.srcArray' in found_struct}}
+
         self._srcArray = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].srcArray)
-        {{endif}}
-        {{if 'cudaMemcpy3DParms.srcPos' in found_struct}}
+
+
         self._srcPos = cudaPos(_ptr=<void_ptr>&self._pvt_ptr[0].srcPos)
-        {{endif}}
-        {{if 'cudaMemcpy3DParms.srcPtr' in found_struct}}
+
+
         self._srcPtr = cudaPitchedPtr(_ptr=<void_ptr>&self._pvt_ptr[0].srcPtr)
-        {{endif}}
-        {{if 'cudaMemcpy3DParms.dstArray' in found_struct}}
+
+
         self._dstArray = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].dstArray)
-        {{endif}}
-        {{if 'cudaMemcpy3DParms.dstPos' in found_struct}}
+
+
         self._dstPos = cudaPos(_ptr=<void_ptr>&self._pvt_ptr[0].dstPos)
-        {{endif}}
-        {{if 'cudaMemcpy3DParms.dstPtr' in found_struct}}
+
+
         self._dstPtr = cudaPitchedPtr(_ptr=<void_ptr>&self._pvt_ptr[0].dstPtr)
-        {{endif}}
-        {{if 'cudaMemcpy3DParms.extent' in found_struct}}
+
+
         self._extent = cudaExtent(_ptr=<void_ptr>&self._pvt_ptr[0].extent)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -8826,58 +8454,58 @@ cdef class cudaMemcpy3DParms:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemcpy3DParms.srcArray' in found_struct}}
+
             try:
                 str_list += ['srcArray : ' + str(self.srcArray)]
             except ValueError:
                 str_list += ['srcArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DParms.srcPos' in found_struct}}
+
+
             try:
                 str_list += ['srcPos :\n' + '\n'.join(['    ' + line for line in str(self.srcPos).splitlines()])]
             except ValueError:
                 str_list += ['srcPos : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DParms.srcPtr' in found_struct}}
+
+
             try:
                 str_list += ['srcPtr :\n' + '\n'.join(['    ' + line for line in str(self.srcPtr).splitlines()])]
             except ValueError:
                 str_list += ['srcPtr : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DParms.dstArray' in found_struct}}
+
+
             try:
                 str_list += ['dstArray : ' + str(self.dstArray)]
             except ValueError:
                 str_list += ['dstArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DParms.dstPos' in found_struct}}
+
+
             try:
                 str_list += ['dstPos :\n' + '\n'.join(['    ' + line for line in str(self.dstPos).splitlines()])]
             except ValueError:
                 str_list += ['dstPos : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DParms.dstPtr' in found_struct}}
+
+
             try:
                 str_list += ['dstPtr :\n' + '\n'.join(['    ' + line for line in str(self.dstPtr).splitlines()])]
             except ValueError:
                 str_list += ['dstPtr : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DParms.extent' in found_struct}}
+
+
             try:
                 str_list += ['extent :\n' + '\n'.join(['    ' + line for line in str(self.extent).splitlines()])]
             except ValueError:
                 str_list += ['extent : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DParms.kind' in found_struct}}
+
+
             try:
                 str_list += ['kind : ' + str(self.kind)]
             except ValueError:
                 str_list += ['kind : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemcpy3DParms.srcArray' in found_struct}}
+
     @property
     def srcArray(self):
         return self._srcArray
@@ -8893,24 +8521,24 @@ cdef class cudaMemcpy3DParms:
             psrcArray = int(cudaArray_t(srcArray))
             cysrcArray = <cyruntime.cudaArray_t><void_ptr>psrcArray
         self._srcArray._pvt_ptr[0] = cysrcArray
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.srcPos' in found_struct}}
+
+
     @property
     def srcPos(self):
         return self._srcPos
     @srcPos.setter
     def srcPos(self, srcPos not None : cudaPos):
         string.memcpy(&self._pvt_ptr[0].srcPos, <void*><void_ptr>srcPos.getPtr(), sizeof(self._pvt_ptr[0].srcPos))
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.srcPtr' in found_struct}}
+
+
     @property
     def srcPtr(self):
         return self._srcPtr
     @srcPtr.setter
     def srcPtr(self, srcPtr not None : cudaPitchedPtr):
         string.memcpy(&self._pvt_ptr[0].srcPtr, <void*><void_ptr>srcPtr.getPtr(), sizeof(self._pvt_ptr[0].srcPtr))
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.dstArray' in found_struct}}
+
+
     @property
     def dstArray(self):
         return self._dstArray
@@ -8926,41 +8554,39 @@ cdef class cudaMemcpy3DParms:
             pdstArray = int(cudaArray_t(dstArray))
             cydstArray = <cyruntime.cudaArray_t><void_ptr>pdstArray
         self._dstArray._pvt_ptr[0] = cydstArray
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.dstPos' in found_struct}}
+
+
     @property
     def dstPos(self):
         return self._dstPos
     @dstPos.setter
     def dstPos(self, dstPos not None : cudaPos):
         string.memcpy(&self._pvt_ptr[0].dstPos, <void*><void_ptr>dstPos.getPtr(), sizeof(self._pvt_ptr[0].dstPos))
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.dstPtr' in found_struct}}
+
+
     @property
     def dstPtr(self):
         return self._dstPtr
     @dstPtr.setter
     def dstPtr(self, dstPtr not None : cudaPitchedPtr):
         string.memcpy(&self._pvt_ptr[0].dstPtr, <void*><void_ptr>dstPtr.getPtr(), sizeof(self._pvt_ptr[0].dstPtr))
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.extent' in found_struct}}
+
+
     @property
     def extent(self):
         return self._extent
     @extent.setter
     def extent(self, extent not None : cudaExtent):
         string.memcpy(&self._pvt_ptr[0].extent, <void*><void_ptr>extent.getPtr(), sizeof(self._pvt_ptr[0].extent))
-    {{endif}}
-    {{if 'cudaMemcpy3DParms.kind' in found_struct}}
+
+
     @property
     def kind(self):
         return cudaMemcpyKind(self._pvt_ptr[0].kind)
     @kind.setter
     def kind(self, kind not None : cudaMemcpyKind):
-        self._pvt_ptr[0].kind = int(kind)
-    {{endif}}
-{{endif}}
-{{if 'cudaMemcpyNodeParams' in found_struct}}
+        self._pvt_ptr[0].kind = <cyruntime.cudaMemcpyKind><int>int(kind)
+
 
 cdef class cudaMemcpyNodeParams:
     """
@@ -8968,23 +8594,23 @@ cdef class cudaMemcpyNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaMemcpyNodeParams.flags' in found_struct}}
+
     flags : int
         Must be zero
-    {{endif}}
-    {{if 'cudaMemcpyNodeParams.reserved' in found_struct}}
+
+
     reserved : int
         Must be zero
-    {{endif}}
-    {{if 'cudaMemcpyNodeParams.ctx' in found_struct}}
+
+
     ctx : cudaExecutionContext_t
         Context in which to run the memcpy. If NULL will try to use the
         current context.
-    {{endif}}
-    {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
+
+
     copyParams : cudaMemcpy3DParms
         Parameters for the memory copy
-    {{endif}}
+
 
     Methods
     -------
@@ -8998,12 +8624,12 @@ cdef class cudaMemcpyNodeParams:
             self._pvt_ptr = <cyruntime.cudaMemcpyNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaMemcpyNodeParams.ctx' in found_struct}}
+
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-        {{endif}}
-        {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
+
+
         self._copyParams = cudaMemcpy3DParms(_ptr=<void_ptr>&self._pvt_ptr[0].copyParams)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -9011,50 +8637,50 @@ cdef class cudaMemcpyNodeParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemcpyNodeParams.flags' in found_struct}}
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpyNodeParams.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpyNodeParams.ctx' in found_struct}}
+
+
             try:
                 str_list += ['ctx : ' + str(self.ctx)]
             except ValueError:
                 str_list += ['ctx : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
+
+
             try:
                 str_list += ['copyParams :\n' + '\n'.join(['    ' + line for line in str(self.copyParams).splitlines()])]
             except ValueError:
                 str_list += ['copyParams : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemcpyNodeParams.flags' in found_struct}}
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-    {{if 'cudaMemcpyNodeParams.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, int reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-    {{if 'cudaMemcpyNodeParams.ctx' in found_struct}}
+
+
     @property
     def ctx(self):
         return self._ctx
@@ -9070,17 +8696,15 @@ cdef class cudaMemcpyNodeParams:
             pctx = int(cudaExecutionContext_t(ctx))
             cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
         self._ctx._pvt_ptr[0] = cyctx
-    {{endif}}
-    {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
+
+
     @property
     def copyParams(self):
         return self._copyParams
     @copyParams.setter
     def copyParams(self, copyParams not None : cudaMemcpy3DParms):
         string.memcpy(&self._pvt_ptr[0].copyParams, <void*><void_ptr>copyParams.getPtr(), sizeof(self._pvt_ptr[0].copyParams))
-    {{endif}}
-{{endif}}
-{{if 'cudaMemcpy3DPeerParms' in found_struct}}
+
 
 cdef class cudaMemcpy3DPeerParms:
     """
@@ -9088,42 +8712,42 @@ cdef class cudaMemcpy3DPeerParms:
 
     Attributes
     ----------
-    {{if 'cudaMemcpy3DPeerParms.srcArray' in found_struct}}
+
     srcArray : cudaArray_t
         Source memory address
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.srcPos' in found_struct}}
+
+
     srcPos : cudaPos
         Source position offset
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.srcPtr' in found_struct}}
+
+
     srcPtr : cudaPitchedPtr
         Pitched source memory address
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.srcDevice' in found_struct}}
+
+
     srcDevice : int
         Source device
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.dstArray' in found_struct}}
+
+
     dstArray : cudaArray_t
         Destination memory address
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.dstPos' in found_struct}}
+
+
     dstPos : cudaPos
         Destination position offset
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.dstPtr' in found_struct}}
+
+
     dstPtr : cudaPitchedPtr
         Pitched destination memory address
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.dstDevice' in found_struct}}
+
+
     dstDevice : int
         Destination device
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.extent' in found_struct}}
+
+
     extent : cudaExtent
         Requested memory copy size
-    {{endif}}
+
 
     Methods
     -------
@@ -9137,27 +8761,27 @@ cdef class cudaMemcpy3DPeerParms:
             self._pvt_ptr = <cyruntime.cudaMemcpy3DPeerParms *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaMemcpy3DPeerParms.srcArray' in found_struct}}
+
         self._srcArray = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].srcArray)
-        {{endif}}
-        {{if 'cudaMemcpy3DPeerParms.srcPos' in found_struct}}
+
+
         self._srcPos = cudaPos(_ptr=<void_ptr>&self._pvt_ptr[0].srcPos)
-        {{endif}}
-        {{if 'cudaMemcpy3DPeerParms.srcPtr' in found_struct}}
+
+
         self._srcPtr = cudaPitchedPtr(_ptr=<void_ptr>&self._pvt_ptr[0].srcPtr)
-        {{endif}}
-        {{if 'cudaMemcpy3DPeerParms.dstArray' in found_struct}}
+
+
         self._dstArray = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].dstArray)
-        {{endif}}
-        {{if 'cudaMemcpy3DPeerParms.dstPos' in found_struct}}
+
+
         self._dstPos = cudaPos(_ptr=<void_ptr>&self._pvt_ptr[0].dstPos)
-        {{endif}}
-        {{if 'cudaMemcpy3DPeerParms.dstPtr' in found_struct}}
+
+
         self._dstPtr = cudaPitchedPtr(_ptr=<void_ptr>&self._pvt_ptr[0].dstPtr)
-        {{endif}}
-        {{if 'cudaMemcpy3DPeerParms.extent' in found_struct}}
+
+
         self._extent = cudaExtent(_ptr=<void_ptr>&self._pvt_ptr[0].extent)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -9165,64 +8789,64 @@ cdef class cudaMemcpy3DPeerParms:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemcpy3DPeerParms.srcArray' in found_struct}}
+
             try:
                 str_list += ['srcArray : ' + str(self.srcArray)]
             except ValueError:
                 str_list += ['srcArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DPeerParms.srcPos' in found_struct}}
+
+
             try:
                 str_list += ['srcPos :\n' + '\n'.join(['    ' + line for line in str(self.srcPos).splitlines()])]
             except ValueError:
                 str_list += ['srcPos : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DPeerParms.srcPtr' in found_struct}}
+
+
             try:
                 str_list += ['srcPtr :\n' + '\n'.join(['    ' + line for line in str(self.srcPtr).splitlines()])]
             except ValueError:
                 str_list += ['srcPtr : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DPeerParms.srcDevice' in found_struct}}
+
+
             try:
                 str_list += ['srcDevice : ' + str(self.srcDevice)]
             except ValueError:
                 str_list += ['srcDevice : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DPeerParms.dstArray' in found_struct}}
+
+
             try:
                 str_list += ['dstArray : ' + str(self.dstArray)]
             except ValueError:
                 str_list += ['dstArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DPeerParms.dstPos' in found_struct}}
+
+
             try:
                 str_list += ['dstPos :\n' + '\n'.join(['    ' + line for line in str(self.dstPos).splitlines()])]
             except ValueError:
                 str_list += ['dstPos : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DPeerParms.dstPtr' in found_struct}}
+
+
             try:
                 str_list += ['dstPtr :\n' + '\n'.join(['    ' + line for line in str(self.dstPtr).splitlines()])]
             except ValueError:
                 str_list += ['dstPtr : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DPeerParms.dstDevice' in found_struct}}
+
+
             try:
                 str_list += ['dstDevice : ' + str(self.dstDevice)]
             except ValueError:
                 str_list += ['dstDevice : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DPeerParms.extent' in found_struct}}
+
+
             try:
                 str_list += ['extent :\n' + '\n'.join(['    ' + line for line in str(self.extent).splitlines()])]
             except ValueError:
                 str_list += ['extent : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemcpy3DPeerParms.srcArray' in found_struct}}
+
     @property
     def srcArray(self):
         return self._srcArray
@@ -9238,32 +8862,32 @@ cdef class cudaMemcpy3DPeerParms:
             psrcArray = int(cudaArray_t(srcArray))
             cysrcArray = <cyruntime.cudaArray_t><void_ptr>psrcArray
         self._srcArray._pvt_ptr[0] = cysrcArray
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.srcPos' in found_struct}}
+
+
     @property
     def srcPos(self):
         return self._srcPos
     @srcPos.setter
     def srcPos(self, srcPos not None : cudaPos):
         string.memcpy(&self._pvt_ptr[0].srcPos, <void*><void_ptr>srcPos.getPtr(), sizeof(self._pvt_ptr[0].srcPos))
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.srcPtr' in found_struct}}
+
+
     @property
     def srcPtr(self):
         return self._srcPtr
     @srcPtr.setter
     def srcPtr(self, srcPtr not None : cudaPitchedPtr):
         string.memcpy(&self._pvt_ptr[0].srcPtr, <void*><void_ptr>srcPtr.getPtr(), sizeof(self._pvt_ptr[0].srcPtr))
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.srcDevice' in found_struct}}
+
+
     @property
     def srcDevice(self):
         return self._pvt_ptr[0].srcDevice
     @srcDevice.setter
     def srcDevice(self, int srcDevice):
         self._pvt_ptr[0].srcDevice = srcDevice
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.dstArray' in found_struct}}
+
+
     @property
     def dstArray(self):
         return self._dstArray
@@ -9279,41 +8903,39 @@ cdef class cudaMemcpy3DPeerParms:
             pdstArray = int(cudaArray_t(dstArray))
             cydstArray = <cyruntime.cudaArray_t><void_ptr>pdstArray
         self._dstArray._pvt_ptr[0] = cydstArray
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.dstPos' in found_struct}}
+
+
     @property
     def dstPos(self):
         return self._dstPos
     @dstPos.setter
     def dstPos(self, dstPos not None : cudaPos):
         string.memcpy(&self._pvt_ptr[0].dstPos, <void*><void_ptr>dstPos.getPtr(), sizeof(self._pvt_ptr[0].dstPos))
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.dstPtr' in found_struct}}
+
+
     @property
     def dstPtr(self):
         return self._dstPtr
     @dstPtr.setter
     def dstPtr(self, dstPtr not None : cudaPitchedPtr):
         string.memcpy(&self._pvt_ptr[0].dstPtr, <void*><void_ptr>dstPtr.getPtr(), sizeof(self._pvt_ptr[0].dstPtr))
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.dstDevice' in found_struct}}
+
+
     @property
     def dstDevice(self):
         return self._pvt_ptr[0].dstDevice
     @dstDevice.setter
     def dstDevice(self, int dstDevice):
         self._pvt_ptr[0].dstDevice = dstDevice
-    {{endif}}
-    {{if 'cudaMemcpy3DPeerParms.extent' in found_struct}}
+
+
     @property
     def extent(self):
         return self._extent
     @extent.setter
     def extent(self, extent not None : cudaExtent):
         string.memcpy(&self._pvt_ptr[0].extent, <void*><void_ptr>extent.getPtr(), sizeof(self._pvt_ptr[0].extent))
-    {{endif}}
-{{endif}}
-{{if 'cudaMemsetParams' in found_struct}}
+
 
 cdef class cudaMemsetParams:
     """
@@ -9321,30 +8943,30 @@ cdef class cudaMemsetParams:
 
     Attributes
     ----------
-    {{if 'cudaMemsetParams.dst' in found_struct}}
+
     dst : Any
         Destination device pointer
-    {{endif}}
-    {{if 'cudaMemsetParams.pitch' in found_struct}}
+
+
     pitch : size_t
         Pitch of destination device pointer. Unused if height is 1
-    {{endif}}
-    {{if 'cudaMemsetParams.value' in found_struct}}
+
+
     value : unsigned int
         Value to be set
-    {{endif}}
-    {{if 'cudaMemsetParams.elementSize' in found_struct}}
+
+
     elementSize : unsigned int
         Size of each element in bytes. Must be 1, 2, or 4.
-    {{endif}}
-    {{if 'cudaMemsetParams.width' in found_struct}}
+
+
     width : size_t
         Width of the row in elements
-    {{endif}}
-    {{if 'cudaMemsetParams.height' in found_struct}}
+
+
     height : size_t
         Number of rows
-    {{endif}}
+
 
     Methods
     -------
@@ -9365,46 +8987,46 @@ cdef class cudaMemsetParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemsetParams.dst' in found_struct}}
+
             try:
                 str_list += ['dst : ' + hex(self.dst)]
             except ValueError:
                 str_list += ['dst : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemsetParams.pitch' in found_struct}}
+
+
             try:
                 str_list += ['pitch : ' + str(self.pitch)]
             except ValueError:
                 str_list += ['pitch : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemsetParams.value' in found_struct}}
+
+
             try:
                 str_list += ['value : ' + str(self.value)]
             except ValueError:
                 str_list += ['value : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemsetParams.elementSize' in found_struct}}
+
+
             try:
                 str_list += ['elementSize : ' + str(self.elementSize)]
             except ValueError:
                 str_list += ['elementSize : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemsetParams.width' in found_struct}}
+
+
             try:
                 str_list += ['width : ' + str(self.width)]
             except ValueError:
                 str_list += ['width : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemsetParams.height' in found_struct}}
+
+
             try:
                 str_list += ['height : ' + str(self.height)]
             except ValueError:
                 str_list += ['height : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemsetParams.dst' in found_struct}}
+
     @property
     def dst(self):
         return <void_ptr>self._pvt_ptr[0].dst
@@ -9412,49 +9034,47 @@ cdef class cudaMemsetParams:
     def dst(self, dst):
         self._cydst = _HelperInputVoidPtr(dst)
         self._pvt_ptr[0].dst = <void*><void_ptr>self._cydst.cptr
-    {{endif}}
-    {{if 'cudaMemsetParams.pitch' in found_struct}}
+
+
     @property
     def pitch(self):
         return self._pvt_ptr[0].pitch
     @pitch.setter
     def pitch(self, size_t pitch):
         self._pvt_ptr[0].pitch = pitch
-    {{endif}}
-    {{if 'cudaMemsetParams.value' in found_struct}}
+
+
     @property
     def value(self):
         return self._pvt_ptr[0].value
     @value.setter
     def value(self, unsigned int value):
         self._pvt_ptr[0].value = value
-    {{endif}}
-    {{if 'cudaMemsetParams.elementSize' in found_struct}}
+
+
     @property
     def elementSize(self):
         return self._pvt_ptr[0].elementSize
     @elementSize.setter
     def elementSize(self, unsigned int elementSize):
         self._pvt_ptr[0].elementSize = elementSize
-    {{endif}}
-    {{if 'cudaMemsetParams.width' in found_struct}}
+
+
     @property
     def width(self):
         return self._pvt_ptr[0].width
     @width.setter
     def width(self, size_t width):
         self._pvt_ptr[0].width = width
-    {{endif}}
-    {{if 'cudaMemsetParams.height' in found_struct}}
+
+
     @property
     def height(self):
         return self._pvt_ptr[0].height
     @height.setter
     def height(self, size_t height):
         self._pvt_ptr[0].height = height
-    {{endif}}
-{{endif}}
-{{if 'cudaMemsetParamsV2' in found_struct}}
+
 
 cdef class cudaMemsetParamsV2:
     """
@@ -9462,35 +9082,35 @@ cdef class cudaMemsetParamsV2:
 
     Attributes
     ----------
-    {{if 'cudaMemsetParamsV2.dst' in found_struct}}
+
     dst : Any
         Destination device pointer
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.pitch' in found_struct}}
+
+
     pitch : size_t
         Pitch of destination device pointer. Unused if height is 1
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.value' in found_struct}}
+
+
     value : unsigned int
         Value to be set
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.elementSize' in found_struct}}
+
+
     elementSize : unsigned int
         Size of each element in bytes. Must be 1, 2, or 4.
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.width' in found_struct}}
+
+
     width : size_t
         Width of the row in elements
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.height' in found_struct}}
+
+
     height : size_t
         Number of rows
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.ctx' in found_struct}}
+
+
     ctx : cudaExecutionContext_t
         Context in which to run the memset. If NULL will try to use the
         current context.
-    {{endif}}
+
 
     Methods
     -------
@@ -9504,9 +9124,9 @@ cdef class cudaMemsetParamsV2:
             self._pvt_ptr = <cyruntime.cudaMemsetParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaMemsetParamsV2.ctx' in found_struct}}
+
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -9514,52 +9134,52 @@ cdef class cudaMemsetParamsV2:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemsetParamsV2.dst' in found_struct}}
+
             try:
                 str_list += ['dst : ' + hex(self.dst)]
             except ValueError:
                 str_list += ['dst : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemsetParamsV2.pitch' in found_struct}}
+
+
             try:
                 str_list += ['pitch : ' + str(self.pitch)]
             except ValueError:
                 str_list += ['pitch : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemsetParamsV2.value' in found_struct}}
+
+
             try:
                 str_list += ['value : ' + str(self.value)]
             except ValueError:
                 str_list += ['value : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemsetParamsV2.elementSize' in found_struct}}
+
+
             try:
                 str_list += ['elementSize : ' + str(self.elementSize)]
             except ValueError:
                 str_list += ['elementSize : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemsetParamsV2.width' in found_struct}}
+
+
             try:
                 str_list += ['width : ' + str(self.width)]
             except ValueError:
                 str_list += ['width : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemsetParamsV2.height' in found_struct}}
+
+
             try:
                 str_list += ['height : ' + str(self.height)]
             except ValueError:
                 str_list += ['height : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemsetParamsV2.ctx' in found_struct}}
+
+
             try:
                 str_list += ['ctx : ' + str(self.ctx)]
             except ValueError:
                 str_list += ['ctx : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemsetParamsV2.dst' in found_struct}}
+
     @property
     def dst(self):
         return <void_ptr>self._pvt_ptr[0].dst
@@ -9567,48 +9187,48 @@ cdef class cudaMemsetParamsV2:
     def dst(self, dst):
         self._cydst = _HelperInputVoidPtr(dst)
         self._pvt_ptr[0].dst = <void*><void_ptr>self._cydst.cptr
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.pitch' in found_struct}}
+
+
     @property
     def pitch(self):
         return self._pvt_ptr[0].pitch
     @pitch.setter
     def pitch(self, size_t pitch):
         self._pvt_ptr[0].pitch = pitch
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.value' in found_struct}}
+
+
     @property
     def value(self):
         return self._pvt_ptr[0].value
     @value.setter
     def value(self, unsigned int value):
         self._pvt_ptr[0].value = value
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.elementSize' in found_struct}}
+
+
     @property
     def elementSize(self):
         return self._pvt_ptr[0].elementSize
     @elementSize.setter
     def elementSize(self, unsigned int elementSize):
         self._pvt_ptr[0].elementSize = elementSize
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.width' in found_struct}}
+
+
     @property
     def width(self):
         return self._pvt_ptr[0].width
     @width.setter
     def width(self, size_t width):
         self._pvt_ptr[0].width = width
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.height' in found_struct}}
+
+
     @property
     def height(self):
         return self._pvt_ptr[0].height
     @height.setter
     def height(self, size_t height):
         self._pvt_ptr[0].height = height
-    {{endif}}
-    {{if 'cudaMemsetParamsV2.ctx' in found_struct}}
+
+
     @property
     def ctx(self):
         return self._ctx
@@ -9624,9 +9244,7 @@ cdef class cudaMemsetParamsV2:
             pctx = int(cudaExecutionContext_t(ctx))
             cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
         self._ctx._pvt_ptr[0] = cyctx
-    {{endif}}
-{{endif}}
-{{if 'cudaAccessPolicyWindow' in found_struct}}
+
 
 cdef class cudaAccessPolicyWindow:
     """
@@ -9641,30 +9259,30 @@ cdef class cudaAccessPolicyWindow:
 
     Attributes
     ----------
-    {{if 'cudaAccessPolicyWindow.base_ptr' in found_struct}}
+
     base_ptr : Any
         Starting address of the access policy window. CUDA driver may align
         it.
-    {{endif}}
-    {{if 'cudaAccessPolicyWindow.num_bytes' in found_struct}}
+
+
     num_bytes : size_t
         Size in bytes of the window policy. CUDA driver may restrict the
         maximum size and alignment.
-    {{endif}}
-    {{if 'cudaAccessPolicyWindow.hitRatio' in found_struct}}
+
+
     hitRatio : float
         hitRatio specifies percentage of lines assigned hitProp, rest are
         assigned missProp.
-    {{endif}}
-    {{if 'cudaAccessPolicyWindow.hitProp' in found_struct}}
+
+
     hitProp : cudaAccessProperty
         ::CUaccessProperty set for hit.
-    {{endif}}
-    {{if 'cudaAccessPolicyWindow.missProp' in found_struct}}
+
+
     missProp : cudaAccessProperty
         ::CUaccessProperty set for miss. Must be either NORMAL or
         STREAMING.
-    {{endif}}
+
 
     Methods
     -------
@@ -9685,40 +9303,40 @@ cdef class cudaAccessPolicyWindow:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaAccessPolicyWindow.base_ptr' in found_struct}}
+
             try:
                 str_list += ['base_ptr : ' + hex(self.base_ptr)]
             except ValueError:
                 str_list += ['base_ptr : <ValueError>']
-            {{endif}}
-            {{if 'cudaAccessPolicyWindow.num_bytes' in found_struct}}
+
+
             try:
                 str_list += ['num_bytes : ' + str(self.num_bytes)]
             except ValueError:
                 str_list += ['num_bytes : <ValueError>']
-            {{endif}}
-            {{if 'cudaAccessPolicyWindow.hitRatio' in found_struct}}
+
+
             try:
                 str_list += ['hitRatio : ' + str(self.hitRatio)]
             except ValueError:
                 str_list += ['hitRatio : <ValueError>']
-            {{endif}}
-            {{if 'cudaAccessPolicyWindow.hitProp' in found_struct}}
+
+
             try:
                 str_list += ['hitProp : ' + str(self.hitProp)]
             except ValueError:
                 str_list += ['hitProp : <ValueError>']
-            {{endif}}
-            {{if 'cudaAccessPolicyWindow.missProp' in found_struct}}
+
+
             try:
                 str_list += ['missProp : ' + str(self.missProp)]
             except ValueError:
                 str_list += ['missProp : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaAccessPolicyWindow.base_ptr' in found_struct}}
+
     @property
     def base_ptr(self):
         return <void_ptr>self._pvt_ptr[0].base_ptr
@@ -9726,41 +9344,39 @@ cdef class cudaAccessPolicyWindow:
     def base_ptr(self, base_ptr):
         self._cybase_ptr = _HelperInputVoidPtr(base_ptr)
         self._pvt_ptr[0].base_ptr = <void*><void_ptr>self._cybase_ptr.cptr
-    {{endif}}
-    {{if 'cudaAccessPolicyWindow.num_bytes' in found_struct}}
+
+
     @property
     def num_bytes(self):
         return self._pvt_ptr[0].num_bytes
     @num_bytes.setter
     def num_bytes(self, size_t num_bytes):
         self._pvt_ptr[0].num_bytes = num_bytes
-    {{endif}}
-    {{if 'cudaAccessPolicyWindow.hitRatio' in found_struct}}
+
+
     @property
     def hitRatio(self):
         return self._pvt_ptr[0].hitRatio
     @hitRatio.setter
     def hitRatio(self, float hitRatio):
         self._pvt_ptr[0].hitRatio = hitRatio
-    {{endif}}
-    {{if 'cudaAccessPolicyWindow.hitProp' in found_struct}}
+
+
     @property
     def hitProp(self):
         return cudaAccessProperty(self._pvt_ptr[0].hitProp)
     @hitProp.setter
     def hitProp(self, hitProp not None : cudaAccessProperty):
-        self._pvt_ptr[0].hitProp = int(hitProp)
-    {{endif}}
-    {{if 'cudaAccessPolicyWindow.missProp' in found_struct}}
+        self._pvt_ptr[0].hitProp = <cyruntime.cudaAccessProperty><int>int(hitProp)
+
+
     @property
     def missProp(self):
         return cudaAccessProperty(self._pvt_ptr[0].missProp)
     @missProp.setter
     def missProp(self, missProp not None : cudaAccessProperty):
-        self._pvt_ptr[0].missProp = int(missProp)
-    {{endif}}
-{{endif}}
-{{if 'cudaHostNodeParams' in found_struct}}
+        self._pvt_ptr[0].missProp = <cyruntime.cudaAccessProperty><int>int(missProp)
+
 
 cdef class cudaHostNodeParams:
     """
@@ -9768,14 +9384,14 @@ cdef class cudaHostNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaHostNodeParams.fn' in found_struct}}
+
     fn : cudaHostFn_t
         The function to call when the node executes
-    {{endif}}
-    {{if 'cudaHostNodeParams.userData' in found_struct}}
+
+
     userData : Any
         Argument to pass to the function
-    {{endif}}
+
 
     Methods
     -------
@@ -9789,9 +9405,9 @@ cdef class cudaHostNodeParams:
             self._pvt_ptr = <cyruntime.cudaHostNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaHostNodeParams.fn' in found_struct}}
+
         self._fn = cudaHostFn_t(_ptr=<void_ptr>&self._pvt_ptr[0].fn)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -9799,22 +9415,22 @@ cdef class cudaHostNodeParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaHostNodeParams.fn' in found_struct}}
+
             try:
                 str_list += ['fn : ' + str(self.fn)]
             except ValueError:
                 str_list += ['fn : <ValueError>']
-            {{endif}}
-            {{if 'cudaHostNodeParams.userData' in found_struct}}
+
+
             try:
                 str_list += ['userData : ' + hex(self.userData)]
             except ValueError:
                 str_list += ['userData : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaHostNodeParams.fn' in found_struct}}
+
     @property
     def fn(self):
         return self._fn
@@ -9830,8 +9446,8 @@ cdef class cudaHostNodeParams:
             pfn = int(cudaHostFn_t(fn))
             cyfn = <cyruntime.cudaHostFn_t><void_ptr>pfn
         self._fn._pvt_ptr[0] = cyfn
-    {{endif}}
-    {{if 'cudaHostNodeParams.userData' in found_struct}}
+
+
     @property
     def userData(self):
         return <void_ptr>self._pvt_ptr[0].userData
@@ -9839,9 +9455,7 @@ cdef class cudaHostNodeParams:
     def userData(self, userData):
         self._cyuserData = _HelperInputVoidPtr(userData)
         self._pvt_ptr[0].userData = <void*><void_ptr>self._cyuserData.cptr
-    {{endif}}
-{{endif}}
-{{if 'cudaHostNodeParamsV2' in found_struct}}
+
 
 cdef class cudaHostNodeParamsV2:
     """
@@ -9849,18 +9463,18 @@ cdef class cudaHostNodeParamsV2:
 
     Attributes
     ----------
-    {{if 'cudaHostNodeParamsV2.fn' in found_struct}}
+
     fn : cudaHostFn_t
         The function to call when the node executes
-    {{endif}}
-    {{if 'cudaHostNodeParamsV2.userData' in found_struct}}
+
+
     userData : Any
         Argument to pass to the function
-    {{endif}}
-    {{if 'cudaHostNodeParamsV2.syncMode' in found_struct}}
+
+
     syncMode : unsigned int
         The synchronization mode to use for the host task
-    {{endif}}
+
 
     Methods
     -------
@@ -9874,9 +9488,9 @@ cdef class cudaHostNodeParamsV2:
             self._pvt_ptr = <cyruntime.cudaHostNodeParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaHostNodeParamsV2.fn' in found_struct}}
+
         self._fn = cudaHostFn_t(_ptr=<void_ptr>&self._pvt_ptr[0].fn)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -9884,28 +9498,28 @@ cdef class cudaHostNodeParamsV2:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaHostNodeParamsV2.fn' in found_struct}}
+
             try:
                 str_list += ['fn : ' + str(self.fn)]
             except ValueError:
                 str_list += ['fn : <ValueError>']
-            {{endif}}
-            {{if 'cudaHostNodeParamsV2.userData' in found_struct}}
+
+
             try:
                 str_list += ['userData : ' + hex(self.userData)]
             except ValueError:
                 str_list += ['userData : <ValueError>']
-            {{endif}}
-            {{if 'cudaHostNodeParamsV2.syncMode' in found_struct}}
+
+
             try:
                 str_list += ['syncMode : ' + str(self.syncMode)]
             except ValueError:
                 str_list += ['syncMode : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaHostNodeParamsV2.fn' in found_struct}}
+
     @property
     def fn(self):
         return self._fn
@@ -9921,8 +9535,8 @@ cdef class cudaHostNodeParamsV2:
             pfn = int(cudaHostFn_t(fn))
             cyfn = <cyruntime.cudaHostFn_t><void_ptr>pfn
         self._fn._pvt_ptr[0] = cyfn
-    {{endif}}
-    {{if 'cudaHostNodeParamsV2.userData' in found_struct}}
+
+
     @property
     def userData(self):
         return <void_ptr>self._pvt_ptr[0].userData
@@ -9930,26 +9544,24 @@ cdef class cudaHostNodeParamsV2:
     def userData(self, userData):
         self._cyuserData = _HelperInputVoidPtr(userData)
         self._pvt_ptr[0].userData = <void*><void_ptr>self._cyuserData.cptr
-    {{endif}}
-    {{if 'cudaHostNodeParamsV2.syncMode' in found_struct}}
+
+
     @property
     def syncMode(self):
         return self._pvt_ptr[0].syncMode
     @syncMode.setter
     def syncMode(self, unsigned int syncMode):
         self._pvt_ptr[0].syncMode = syncMode
-    {{endif}}
-{{endif}}
-{{if 'cudaResourceDesc.res.array' in found_struct}}
+
 
 cdef class anon_struct1:
     """
     Attributes
     ----------
-    {{if 'cudaResourceDesc.res.array.array' in found_struct}}
+
     array : cudaArray_t
 
-    {{endif}}
+
 
     Methods
     -------
@@ -9961,9 +9573,9 @@ cdef class anon_struct1:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaResourceDesc.res.array.array' in found_struct}}
+
         self._array = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].res.array.array)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -9971,16 +9583,16 @@ cdef class anon_struct1:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaResourceDesc.res.array.array' in found_struct}}
+
             try:
                 str_list += ['array : ' + str(self.array)]
             except ValueError:
                 str_list += ['array : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaResourceDesc.res.array.array' in found_struct}}
+
     @property
     def array(self):
         return self._array
@@ -9996,18 +9608,16 @@ cdef class anon_struct1:
             parray = int(cudaArray_t(array))
             cyarray = <cyruntime.cudaArray_t><void_ptr>parray
         self._array._pvt_ptr[0] = cyarray
-    {{endif}}
-{{endif}}
-{{if 'cudaResourceDesc.res.mipmap' in found_struct}}
+
 
 cdef class anon_struct2:
     """
     Attributes
     ----------
-    {{if 'cudaResourceDesc.res.mipmap.mipmap' in found_struct}}
+
     mipmap : cudaMipmappedArray_t
 
-    {{endif}}
+
 
     Methods
     -------
@@ -10019,9 +9629,9 @@ cdef class anon_struct2:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaResourceDesc.res.mipmap.mipmap' in found_struct}}
+
         self._mipmap = cudaMipmappedArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].res.mipmap.mipmap)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -10029,16 +9639,16 @@ cdef class anon_struct2:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaResourceDesc.res.mipmap.mipmap' in found_struct}}
+
             try:
                 str_list += ['mipmap : ' + str(self.mipmap)]
             except ValueError:
                 str_list += ['mipmap : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaResourceDesc.res.mipmap.mipmap' in found_struct}}
+
     @property
     def mipmap(self):
         return self._mipmap
@@ -10054,26 +9664,24 @@ cdef class anon_struct2:
             pmipmap = int(cudaMipmappedArray_t(mipmap))
             cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmap
         self._mipmap._pvt_ptr[0] = cymipmap
-    {{endif}}
-{{endif}}
-{{if 'cudaResourceDesc.res.linear' in found_struct}}
+
 
 cdef class anon_struct3:
     """
     Attributes
     ----------
-    {{if 'cudaResourceDesc.res.linear.devPtr' in found_struct}}
+
     devPtr : Any
 
-    {{endif}}
-    {{if 'cudaResourceDesc.res.linear.desc' in found_struct}}
+
+
     desc : cudaChannelFormatDesc
 
-    {{endif}}
-    {{if 'cudaResourceDesc.res.linear.sizeInBytes' in found_struct}}
+
+
     sizeInBytes : size_t
 
-    {{endif}}
+
 
     Methods
     -------
@@ -10085,9 +9693,9 @@ cdef class anon_struct3:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaResourceDesc.res.linear.desc' in found_struct}}
+
         self._desc = cudaChannelFormatDesc(_ptr=<void_ptr>&self._pvt_ptr[0].res.linear.desc)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -10095,28 +9703,28 @@ cdef class anon_struct3:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaResourceDesc.res.linear.devPtr' in found_struct}}
+
             try:
                 str_list += ['devPtr : ' + hex(self.devPtr)]
             except ValueError:
                 str_list += ['devPtr : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.res.linear.desc' in found_struct}}
+
+
             try:
                 str_list += ['desc :\n' + '\n'.join(['    ' + line for line in str(self.desc).splitlines()])]
             except ValueError:
                 str_list += ['desc : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.res.linear.sizeInBytes' in found_struct}}
+
+
             try:
                 str_list += ['sizeInBytes : ' + str(self.sizeInBytes)]
             except ValueError:
                 str_list += ['sizeInBytes : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaResourceDesc.res.linear.devPtr' in found_struct}}
+
     @property
     def devPtr(self):
         return <void_ptr>self._pvt_ptr[0].res.linear.devPtr
@@ -10124,50 +9732,48 @@ cdef class anon_struct3:
     def devPtr(self, devPtr):
         self._cydevPtr = _HelperInputVoidPtr(devPtr)
         self._pvt_ptr[0].res.linear.devPtr = <void*><void_ptr>self._cydevPtr.cptr
-    {{endif}}
-    {{if 'cudaResourceDesc.res.linear.desc' in found_struct}}
+
+
     @property
     def desc(self):
         return self._desc
     @desc.setter
     def desc(self, desc not None : cudaChannelFormatDesc):
         string.memcpy(&self._pvt_ptr[0].res.linear.desc, <void*><void_ptr>desc.getPtr(), sizeof(self._pvt_ptr[0].res.linear.desc))
-    {{endif}}
-    {{if 'cudaResourceDesc.res.linear.sizeInBytes' in found_struct}}
+
+
     @property
     def sizeInBytes(self):
         return self._pvt_ptr[0].res.linear.sizeInBytes
     @sizeInBytes.setter
     def sizeInBytes(self, size_t sizeInBytes):
         self._pvt_ptr[0].res.linear.sizeInBytes = sizeInBytes
-    {{endif}}
-{{endif}}
-{{if 'cudaResourceDesc.res.pitch2D' in found_struct}}
+
 
 cdef class anon_struct4:
     """
     Attributes
     ----------
-    {{if 'cudaResourceDesc.res.pitch2D.devPtr' in found_struct}}
+
     devPtr : Any
 
-    {{endif}}
-    {{if 'cudaResourceDesc.res.pitch2D.desc' in found_struct}}
+
+
     desc : cudaChannelFormatDesc
 
-    {{endif}}
-    {{if 'cudaResourceDesc.res.pitch2D.width' in found_struct}}
+
+
     width : size_t
 
-    {{endif}}
-    {{if 'cudaResourceDesc.res.pitch2D.height' in found_struct}}
+
+
     height : size_t
 
-    {{endif}}
-    {{if 'cudaResourceDesc.res.pitch2D.pitchInBytes' in found_struct}}
+
+
     pitchInBytes : size_t
 
-    {{endif}}
+
 
     Methods
     -------
@@ -10179,9 +9785,9 @@ cdef class anon_struct4:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaResourceDesc.res.pitch2D.desc' in found_struct}}
+
         self._desc = cudaChannelFormatDesc(_ptr=<void_ptr>&self._pvt_ptr[0].res.pitch2D.desc)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -10189,40 +9795,40 @@ cdef class anon_struct4:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaResourceDesc.res.pitch2D.devPtr' in found_struct}}
+
             try:
                 str_list += ['devPtr : ' + hex(self.devPtr)]
             except ValueError:
                 str_list += ['devPtr : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.res.pitch2D.desc' in found_struct}}
+
+
             try:
                 str_list += ['desc :\n' + '\n'.join(['    ' + line for line in str(self.desc).splitlines()])]
             except ValueError:
                 str_list += ['desc : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.res.pitch2D.width' in found_struct}}
+
+
             try:
                 str_list += ['width : ' + str(self.width)]
             except ValueError:
                 str_list += ['width : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.res.pitch2D.height' in found_struct}}
+
+
             try:
                 str_list += ['height : ' + str(self.height)]
             except ValueError:
                 str_list += ['height : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.res.pitch2D.pitchInBytes' in found_struct}}
+
+
             try:
                 str_list += ['pitchInBytes : ' + str(self.pitchInBytes)]
             except ValueError:
                 str_list += ['pitchInBytes : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaResourceDesc.res.pitch2D.devPtr' in found_struct}}
+
     @property
     def devPtr(self):
         return <void_ptr>self._pvt_ptr[0].res.pitch2D.devPtr
@@ -10230,50 +9836,48 @@ cdef class anon_struct4:
     def devPtr(self, devPtr):
         self._cydevPtr = _HelperInputVoidPtr(devPtr)
         self._pvt_ptr[0].res.pitch2D.devPtr = <void*><void_ptr>self._cydevPtr.cptr
-    {{endif}}
-    {{if 'cudaResourceDesc.res.pitch2D.desc' in found_struct}}
+
+
     @property
     def desc(self):
         return self._desc
     @desc.setter
     def desc(self, desc not None : cudaChannelFormatDesc):
         string.memcpy(&self._pvt_ptr[0].res.pitch2D.desc, <void*><void_ptr>desc.getPtr(), sizeof(self._pvt_ptr[0].res.pitch2D.desc))
-    {{endif}}
-    {{if 'cudaResourceDesc.res.pitch2D.width' in found_struct}}
+
+
     @property
     def width(self):
         return self._pvt_ptr[0].res.pitch2D.width
     @width.setter
     def width(self, size_t width):
         self._pvt_ptr[0].res.pitch2D.width = width
-    {{endif}}
-    {{if 'cudaResourceDesc.res.pitch2D.height' in found_struct}}
+
+
     @property
     def height(self):
         return self._pvt_ptr[0].res.pitch2D.height
     @height.setter
     def height(self, size_t height):
         self._pvt_ptr[0].res.pitch2D.height = height
-    {{endif}}
-    {{if 'cudaResourceDesc.res.pitch2D.pitchInBytes' in found_struct}}
+
+
     @property
     def pitchInBytes(self):
         return self._pvt_ptr[0].res.pitch2D.pitchInBytes
     @pitchInBytes.setter
     def pitchInBytes(self, size_t pitchInBytes):
         self._pvt_ptr[0].res.pitch2D.pitchInBytes = pitchInBytes
-    {{endif}}
-{{endif}}
-{{if 'cudaResourceDesc.res.reserved' in found_struct}}
+
 
 cdef class anon_struct5:
     """
     Attributes
     ----------
-    {{if 'cudaResourceDesc.res.reserved.reserved' in found_struct}}
+
     reserved : list[int]
 
-    {{endif}}
+
 
     Methods
     -------
@@ -10292,50 +9896,48 @@ cdef class anon_struct5:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaResourceDesc.res.reserved.reserved' in found_struct}}
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaResourceDesc.res.reserved.reserved' in found_struct}}
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].res.reserved.reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].res.reserved.reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaResourceDesc.res' in found_struct}}
+
 
 cdef class anon_union0:
     """
     Attributes
     ----------
-    {{if 'cudaResourceDesc.res.array' in found_struct}}
+
     array : anon_struct1
 
-    {{endif}}
-    {{if 'cudaResourceDesc.res.mipmap' in found_struct}}
+
+
     mipmap : anon_struct2
 
-    {{endif}}
-    {{if 'cudaResourceDesc.res.linear' in found_struct}}
+
+
     linear : anon_struct3
 
-    {{endif}}
-    {{if 'cudaResourceDesc.res.pitch2D' in found_struct}}
+
+
     pitch2D : anon_struct4
 
-    {{endif}}
-    {{if 'cudaResourceDesc.res.reserved' in found_struct}}
+
+
     reserved : anon_struct5
 
-    {{endif}}
+
 
     Methods
     -------
@@ -10347,21 +9949,21 @@ cdef class anon_union0:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaResourceDesc.res.array' in found_struct}}
+
         self._array = anon_struct1(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaResourceDesc.res.mipmap' in found_struct}}
+
+
         self._mipmap = anon_struct2(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaResourceDesc.res.linear' in found_struct}}
+
+
         self._linear = anon_struct3(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaResourceDesc.res.pitch2D' in found_struct}}
+
+
         self._pitch2D = anon_struct4(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaResourceDesc.res.reserved' in found_struct}}
+
+
         self._reserved = anon_struct5(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -10369,81 +9971,79 @@ cdef class anon_union0:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaResourceDesc.res.array' in found_struct}}
+
             try:
                 str_list += ['array :\n' + '\n'.join(['    ' + line for line in str(self.array).splitlines()])]
             except ValueError:
                 str_list += ['array : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.res.mipmap' in found_struct}}
+
+
             try:
                 str_list += ['mipmap :\n' + '\n'.join(['    ' + line for line in str(self.mipmap).splitlines()])]
             except ValueError:
                 str_list += ['mipmap : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.res.linear' in found_struct}}
+
+
             try:
                 str_list += ['linear :\n' + '\n'.join(['    ' + line for line in str(self.linear).splitlines()])]
             except ValueError:
                 str_list += ['linear : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.res.pitch2D' in found_struct}}
+
+
             try:
                 str_list += ['pitch2D :\n' + '\n'.join(['    ' + line for line in str(self.pitch2D).splitlines()])]
             except ValueError:
                 str_list += ['pitch2D : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.res.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved :\n' + '\n'.join(['    ' + line for line in str(self.reserved).splitlines()])]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaResourceDesc.res.array' in found_struct}}
+
     @property
     def array(self):
         return self._array
     @array.setter
     def array(self, array not None : anon_struct1):
         string.memcpy(&self._pvt_ptr[0].res.array, <void*><void_ptr>array.getPtr(), sizeof(self._pvt_ptr[0].res.array))
-    {{endif}}
-    {{if 'cudaResourceDesc.res.mipmap' in found_struct}}
+
+
     @property
     def mipmap(self):
         return self._mipmap
     @mipmap.setter
     def mipmap(self, mipmap not None : anon_struct2):
         string.memcpy(&self._pvt_ptr[0].res.mipmap, <void*><void_ptr>mipmap.getPtr(), sizeof(self._pvt_ptr[0].res.mipmap))
-    {{endif}}
-    {{if 'cudaResourceDesc.res.linear' in found_struct}}
+
+
     @property
     def linear(self):
         return self._linear
     @linear.setter
     def linear(self, linear not None : anon_struct3):
         string.memcpy(&self._pvt_ptr[0].res.linear, <void*><void_ptr>linear.getPtr(), sizeof(self._pvt_ptr[0].res.linear))
-    {{endif}}
-    {{if 'cudaResourceDesc.res.pitch2D' in found_struct}}
+
+
     @property
     def pitch2D(self):
         return self._pitch2D
     @pitch2D.setter
     def pitch2D(self, pitch2D not None : anon_struct4):
         string.memcpy(&self._pvt_ptr[0].res.pitch2D, <void*><void_ptr>pitch2D.getPtr(), sizeof(self._pvt_ptr[0].res.pitch2D))
-    {{endif}}
-    {{if 'cudaResourceDesc.res.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._reserved
     @reserved.setter
     def reserved(self, reserved not None : anon_struct5):
         string.memcpy(&self._pvt_ptr[0].res.reserved, <void*><void_ptr>reserved.getPtr(), sizeof(self._pvt_ptr[0].res.reserved))
-    {{endif}}
-{{endif}}
-{{if 'cudaResourceDesc' in found_struct}}
+
 
 cdef class cudaResourceDesc:
     """
@@ -10451,18 +10051,18 @@ cdef class cudaResourceDesc:
 
     Attributes
     ----------
-    {{if 'cudaResourceDesc.resType' in found_struct}}
+
     resType : cudaResourceType
         Resource type
-    {{endif}}
-    {{if 'cudaResourceDesc.res' in found_struct}}
+
+
     res : anon_union0
 
-    {{endif}}
-    {{if 'cudaResourceDesc.flags' in found_struct}}
+
+
     flags : unsigned int
         Flags (must be zero)
-    {{endif}}
+
 
     Methods
     -------
@@ -10477,9 +10077,9 @@ cdef class cudaResourceDesc:
             self._pvt_ptr = <cyruntime.cudaResourceDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaResourceDesc.res' in found_struct}}
+
         self._res = anon_union0(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
@@ -10488,53 +10088,51 @@ cdef class cudaResourceDesc:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaResourceDesc.resType' in found_struct}}
+
             try:
                 str_list += ['resType : ' + str(self.resType)]
             except ValueError:
                 str_list += ['resType : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.res' in found_struct}}
+
+
             try:
                 str_list += ['res :\n' + '\n'.join(['    ' + line for line in str(self.res).splitlines()])]
             except ValueError:
                 str_list += ['res : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceDesc.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaResourceDesc.resType' in found_struct}}
+
     @property
     def resType(self):
         return cudaResourceType(self._pvt_ptr[0].resType)
     @resType.setter
     def resType(self, resType not None : cudaResourceType):
-        self._pvt_ptr[0].resType = int(resType)
-    {{endif}}
-    {{if 'cudaResourceDesc.res' in found_struct}}
+        self._pvt_ptr[0].resType = <cyruntime.cudaResourceType><int>int(resType)
+
+
     @property
     def res(self):
         return self._res
     @res.setter
     def res(self, res not None : anon_union0):
         string.memcpy(&self._pvt_ptr[0].res, <void*><void_ptr>res.getPtr(), sizeof(self._pvt_ptr[0].res))
-    {{endif}}
-    {{if 'cudaResourceDesc.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-{{endif}}
-{{if 'cudaResourceViewDesc' in found_struct}}
+
 
 cdef class cudaResourceViewDesc:
     """
@@ -10542,42 +10140,42 @@ cdef class cudaResourceViewDesc:
 
     Attributes
     ----------
-    {{if 'cudaResourceViewDesc.format' in found_struct}}
+
     format : cudaResourceViewFormat
         Resource view format
-    {{endif}}
-    {{if 'cudaResourceViewDesc.width' in found_struct}}
+
+
     width : size_t
         Width of the resource view
-    {{endif}}
-    {{if 'cudaResourceViewDesc.height' in found_struct}}
+
+
     height : size_t
         Height of the resource view
-    {{endif}}
-    {{if 'cudaResourceViewDesc.depth' in found_struct}}
+
+
     depth : size_t
         Depth of the resource view
-    {{endif}}
-    {{if 'cudaResourceViewDesc.firstMipmapLevel' in found_struct}}
+
+
     firstMipmapLevel : unsigned int
         First defined mipmap level
-    {{endif}}
-    {{if 'cudaResourceViewDesc.lastMipmapLevel' in found_struct}}
+
+
     lastMipmapLevel : unsigned int
         Last defined mipmap level
-    {{endif}}
-    {{if 'cudaResourceViewDesc.firstLayer' in found_struct}}
+
+
     firstLayer : unsigned int
         First layer index
-    {{endif}}
-    {{if 'cudaResourceViewDesc.lastLayer' in found_struct}}
+
+
     lastLayer : unsigned int
         Last layer index
-    {{endif}}
-    {{if 'cudaResourceViewDesc.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
         Must be zero
-    {{endif}}
+
 
     Methods
     -------
@@ -10598,137 +10196,135 @@ cdef class cudaResourceViewDesc:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaResourceViewDesc.format' in found_struct}}
+
             try:
                 str_list += ['format : ' + str(self.format)]
             except ValueError:
                 str_list += ['format : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceViewDesc.width' in found_struct}}
+
+
             try:
                 str_list += ['width : ' + str(self.width)]
             except ValueError:
                 str_list += ['width : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceViewDesc.height' in found_struct}}
+
+
             try:
                 str_list += ['height : ' + str(self.height)]
             except ValueError:
                 str_list += ['height : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceViewDesc.depth' in found_struct}}
+
+
             try:
                 str_list += ['depth : ' + str(self.depth)]
             except ValueError:
                 str_list += ['depth : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceViewDesc.firstMipmapLevel' in found_struct}}
+
+
             try:
                 str_list += ['firstMipmapLevel : ' + str(self.firstMipmapLevel)]
             except ValueError:
                 str_list += ['firstMipmapLevel : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceViewDesc.lastMipmapLevel' in found_struct}}
+
+
             try:
                 str_list += ['lastMipmapLevel : ' + str(self.lastMipmapLevel)]
             except ValueError:
                 str_list += ['lastMipmapLevel : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceViewDesc.firstLayer' in found_struct}}
+
+
             try:
                 str_list += ['firstLayer : ' + str(self.firstLayer)]
             except ValueError:
                 str_list += ['firstLayer : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceViewDesc.lastLayer' in found_struct}}
+
+
             try:
                 str_list += ['lastLayer : ' + str(self.lastLayer)]
             except ValueError:
                 str_list += ['lastLayer : <ValueError>']
-            {{endif}}
-            {{if 'cudaResourceViewDesc.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaResourceViewDesc.format' in found_struct}}
+
     @property
     def format(self):
         return cudaResourceViewFormat(self._pvt_ptr[0].format)
     @format.setter
     def format(self, format not None : cudaResourceViewFormat):
-        self._pvt_ptr[0].format = int(format)
-    {{endif}}
-    {{if 'cudaResourceViewDesc.width' in found_struct}}
+        self._pvt_ptr[0].format = <cyruntime.cudaResourceViewFormat><int>int(format)
+
+
     @property
     def width(self):
         return self._pvt_ptr[0].width
     @width.setter
     def width(self, size_t width):
         self._pvt_ptr[0].width = width
-    {{endif}}
-    {{if 'cudaResourceViewDesc.height' in found_struct}}
+
+
     @property
     def height(self):
         return self._pvt_ptr[0].height
     @height.setter
     def height(self, size_t height):
         self._pvt_ptr[0].height = height
-    {{endif}}
-    {{if 'cudaResourceViewDesc.depth' in found_struct}}
+
+
     @property
     def depth(self):
         return self._pvt_ptr[0].depth
     @depth.setter
     def depth(self, size_t depth):
         self._pvt_ptr[0].depth = depth
-    {{endif}}
-    {{if 'cudaResourceViewDesc.firstMipmapLevel' in found_struct}}
+
+
     @property
     def firstMipmapLevel(self):
         return self._pvt_ptr[0].firstMipmapLevel
     @firstMipmapLevel.setter
     def firstMipmapLevel(self, unsigned int firstMipmapLevel):
         self._pvt_ptr[0].firstMipmapLevel = firstMipmapLevel
-    {{endif}}
-    {{if 'cudaResourceViewDesc.lastMipmapLevel' in found_struct}}
+
+
     @property
     def lastMipmapLevel(self):
         return self._pvt_ptr[0].lastMipmapLevel
     @lastMipmapLevel.setter
     def lastMipmapLevel(self, unsigned int lastMipmapLevel):
         self._pvt_ptr[0].lastMipmapLevel = lastMipmapLevel
-    {{endif}}
-    {{if 'cudaResourceViewDesc.firstLayer' in found_struct}}
+
+
     @property
     def firstLayer(self):
         return self._pvt_ptr[0].firstLayer
     @firstLayer.setter
     def firstLayer(self, unsigned int firstLayer):
         self._pvt_ptr[0].firstLayer = firstLayer
-    {{endif}}
-    {{if 'cudaResourceViewDesc.lastLayer' in found_struct}}
+
+
     @property
     def lastLayer(self):
         return self._pvt_ptr[0].lastLayer
     @lastLayer.setter
     def lastLayer(self, unsigned int lastLayer):
         self._pvt_ptr[0].lastLayer = lastLayer
-    {{endif}}
-    {{if 'cudaResourceViewDesc.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaPointerAttributes' in found_struct}}
+
 
 cdef class cudaPointerAttributes:
     """
@@ -10736,12 +10332,12 @@ cdef class cudaPointerAttributes:
 
     Attributes
     ----------
-    {{if 'cudaPointerAttributes.type' in found_struct}}
+
     type : cudaMemoryType
         The type of memory - cudaMemoryTypeUnregistered,
         cudaMemoryTypeHost, cudaMemoryTypeDevice or cudaMemoryTypeManaged.
-    {{endif}}
-    {{if 'cudaPointerAttributes.device' in found_struct}}
+
+
     device : int
         The device against which the memory was allocated or registered. If
         the memory type is cudaMemoryTypeDevice then this identifies the
@@ -10750,23 +10346,23 @@ cdef class cudaPointerAttributes:
         this identifies the device which was current when the memory was
         allocated or registered (and if that device is deinitialized then
         this allocation will vanish with that device's state).
-    {{endif}}
-    {{if 'cudaPointerAttributes.devicePointer' in found_struct}}
+
+
     devicePointer : Any
         The address which may be dereferenced on the current device to
         access the memory or NULL if no such address exists.
-    {{endif}}
-    {{if 'cudaPointerAttributes.hostPointer' in found_struct}}
+
+
     hostPointer : Any
         The address which may be dereferenced on the host to access the
         memory or NULL if no such address exists.  CUDA doesn't check if
         unregistered memory is allocated so this field may contain invalid
         pointer if an invalid pointer has been passed to CUDA.
-    {{endif}}
-    {{if 'cudaPointerAttributes.reserved' in found_struct}}
+
+
     reserved : list[long]
         Must be zero
-    {{endif}}
+
 
     Methods
     -------
@@ -10787,56 +10383,56 @@ cdef class cudaPointerAttributes:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaPointerAttributes.type' in found_struct}}
+
             try:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-            {{endif}}
-            {{if 'cudaPointerAttributes.device' in found_struct}}
+
+
             try:
                 str_list += ['device : ' + str(self.device)]
             except ValueError:
                 str_list += ['device : <ValueError>']
-            {{endif}}
-            {{if 'cudaPointerAttributes.devicePointer' in found_struct}}
+
+
             try:
                 str_list += ['devicePointer : ' + hex(self.devicePointer)]
             except ValueError:
                 str_list += ['devicePointer : <ValueError>']
-            {{endif}}
-            {{if 'cudaPointerAttributes.hostPointer' in found_struct}}
+
+
             try:
                 str_list += ['hostPointer : ' + hex(self.hostPointer)]
             except ValueError:
                 str_list += ['hostPointer : <ValueError>']
-            {{endif}}
-            {{if 'cudaPointerAttributes.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaPointerAttributes.type' in found_struct}}
+
     @property
     def type(self):
         return cudaMemoryType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaMemoryType):
-        self._pvt_ptr[0].type = int(type)
-    {{endif}}
-    {{if 'cudaPointerAttributes.device' in found_struct}}
+        self._pvt_ptr[0].type = <cyruntime.cudaMemoryType><int>int(type)
+
+
     @property
     def device(self):
         return self._pvt_ptr[0].device
     @device.setter
     def device(self, int device):
         self._pvt_ptr[0].device = device
-    {{endif}}
-    {{if 'cudaPointerAttributes.devicePointer' in found_struct}}
+
+
     @property
     def devicePointer(self):
         return <void_ptr>self._pvt_ptr[0].devicePointer
@@ -10844,8 +10440,8 @@ cdef class cudaPointerAttributes:
     def devicePointer(self, devicePointer):
         self._cydevicePointer = _HelperInputVoidPtr(devicePointer)
         self._pvt_ptr[0].devicePointer = <void*><void_ptr>self._cydevicePointer.cptr
-    {{endif}}
-    {{if 'cudaPointerAttributes.hostPointer' in found_struct}}
+
+
     @property
     def hostPointer(self):
         return <void_ptr>self._pvt_ptr[0].hostPointer
@@ -10853,17 +10449,15 @@ cdef class cudaPointerAttributes:
     def hostPointer(self, hostPointer):
         self._cyhostPointer = _HelperInputVoidPtr(hostPointer)
         self._pvt_ptr[0].hostPointer = <void*><void_ptr>self._cyhostPointer.cptr
-    {{endif}}
-    {{if 'cudaPointerAttributes.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaFuncAttributes' in found_struct}}
+
 
 cdef class cudaFuncAttributes:
     """
@@ -10871,57 +10465,57 @@ cdef class cudaFuncAttributes:
 
     Attributes
     ----------
-    {{if 'cudaFuncAttributes.sharedSizeBytes' in found_struct}}
+
     sharedSizeBytes : size_t
         The size in bytes of statically-allocated shared memory per block
         required by this function. This does not include dynamically-
         allocated shared memory requested by the user at runtime.
-    {{endif}}
-    {{if 'cudaFuncAttributes.constSizeBytes' in found_struct}}
+
+
     constSizeBytes : size_t
         The size in bytes of user-allocated constant memory required by
         this function.
-    {{endif}}
-    {{if 'cudaFuncAttributes.localSizeBytes' in found_struct}}
+
+
     localSizeBytes : size_t
         The size in bytes of local memory used by each thread of this
         function.
-    {{endif}}
-    {{if 'cudaFuncAttributes.maxThreadsPerBlock' in found_struct}}
+
+
     maxThreadsPerBlock : int
         The maximum number of threads per block, beyond which a launch of
         the function would fail. This number depends on both the function
         and the device on which the function is currently loaded.
-    {{endif}}
-    {{if 'cudaFuncAttributes.numRegs' in found_struct}}
+
+
     numRegs : int
         The number of registers used by each thread of this function.
-    {{endif}}
-    {{if 'cudaFuncAttributes.ptxVersion' in found_struct}}
+
+
     ptxVersion : int
         The PTX virtual architecture version for which the function was
         compiled. This value is the major PTX version * 10 + the minor PTX
         version, so a PTX version 1.3 function would return the value 13.
-    {{endif}}
-    {{if 'cudaFuncAttributes.binaryVersion' in found_struct}}
+
+
     binaryVersion : int
         The binary architecture version for which the function was
         compiled. This value is the major binary version * 10 + the minor
         binary version, so a binary version 1.3 function would return the
         value 13.
-    {{endif}}
-    {{if 'cudaFuncAttributes.cacheModeCA' in found_struct}}
+
+
     cacheModeCA : int
         The attribute to indicate whether the function has been compiled
         with user specified option "-Xptxas --dlcm=ca" set.
-    {{endif}}
-    {{if 'cudaFuncAttributes.maxDynamicSharedSizeBytes' in found_struct}}
+
+
     maxDynamicSharedSizeBytes : int
         The maximum size in bytes of dynamic shared memory per block for
         this function. Any launch must have a dynamic shared memory size
         smaller than this value.
-    {{endif}}
-    {{if 'cudaFuncAttributes.preferredShmemCarveout' in found_struct}}
+
+
     preferredShmemCarveout : int
         On devices where the L1 cache and shared memory use the same
         hardware resources, this sets the shared memory carveout
@@ -10929,13 +10523,13 @@ cdef class cudaFuncAttributes:
         cudaDevAttrMaxSharedMemoryPerMultiprocessor. This is only a hint,
         and the driver can choose a different ratio if required to execute
         the function. See cudaFuncSetAttribute
-    {{endif}}
-    {{if 'cudaFuncAttributes.clusterDimMustBeSet' in found_struct}}
+
+
     clusterDimMustBeSet : int
         If this attribute is set, the kernel must launch with a valid
         cluster dimension specified.
-    {{endif}}
-    {{if 'cudaFuncAttributes.requiredClusterWidth' in found_struct}}
+
+
     requiredClusterWidth : int
         The required cluster width/height/depth in blocks. The values must
         either all be 0 or all be positive. The validity of the cluster
@@ -10943,20 +10537,20 @@ cdef class cudaFuncAttributes:
         set during compile time, it cannot be set at runtime. Setting it at
         runtime should return cudaErrorNotPermitted. See
         cudaFuncSetAttribute
-    {{endif}}
-    {{if 'cudaFuncAttributes.requiredClusterHeight' in found_struct}}
+
+
     requiredClusterHeight : int
 
-    {{endif}}
-    {{if 'cudaFuncAttributes.requiredClusterDepth' in found_struct}}
+
+
     requiredClusterDepth : int
 
-    {{endif}}
-    {{if 'cudaFuncAttributes.clusterSchedulingPolicyPreference' in found_struct}}
+
+
     clusterSchedulingPolicyPreference : int
         The block scheduling policy of a function. See cudaFuncSetAttribute
-    {{endif}}
-    {{if 'cudaFuncAttributes.nonPortableClusterSizeAllowed' in found_struct}}
+
+
     nonPortableClusterSizeAllowed : int
         Whether the function can be launched with non-portable cluster
         size. 1 is allowed, 0 is disallowed. A non-portable cluster size
@@ -10971,21 +10565,21 @@ cdef class cudaFuncAttributes:
         compute capabilities.  The specific hardware unit may support
         higher cluster sizes that’s not guaranteed to be portable. See
         cudaFuncSetAttribute
-    {{endif}}
-    {{if 'cudaFuncAttributes.deviceNodeUpdateStatus' in found_struct}}
+
+
     deviceNodeUpdateStatus : int
         Whether the function can be updated on device. 1 means device node
         update is supported, 0 is unsupported or driver is too old to check
         the value.
-    {{endif}}
-    {{if 'cudaFuncAttributes.reserved1' in found_struct}}
+
+
     reserved1 : int
 
-    {{endif}}
-    {{if 'cudaFuncAttributes.reserved' in found_struct}}
+
+
     reserved : list[int]
         Reserved for future use.
-    {{endif}}
+
 
     Methods
     -------
@@ -11006,277 +10600,275 @@ cdef class cudaFuncAttributes:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaFuncAttributes.sharedSizeBytes' in found_struct}}
+
             try:
                 str_list += ['sharedSizeBytes : ' + str(self.sharedSizeBytes)]
             except ValueError:
                 str_list += ['sharedSizeBytes : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.constSizeBytes' in found_struct}}
+
+
             try:
                 str_list += ['constSizeBytes : ' + str(self.constSizeBytes)]
             except ValueError:
                 str_list += ['constSizeBytes : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.localSizeBytes' in found_struct}}
+
+
             try:
                 str_list += ['localSizeBytes : ' + str(self.localSizeBytes)]
             except ValueError:
                 str_list += ['localSizeBytes : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.maxThreadsPerBlock' in found_struct}}
+
+
             try:
                 str_list += ['maxThreadsPerBlock : ' + str(self.maxThreadsPerBlock)]
             except ValueError:
                 str_list += ['maxThreadsPerBlock : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.numRegs' in found_struct}}
+
+
             try:
                 str_list += ['numRegs : ' + str(self.numRegs)]
             except ValueError:
                 str_list += ['numRegs : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.ptxVersion' in found_struct}}
+
+
             try:
                 str_list += ['ptxVersion : ' + str(self.ptxVersion)]
             except ValueError:
                 str_list += ['ptxVersion : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.binaryVersion' in found_struct}}
+
+
             try:
                 str_list += ['binaryVersion : ' + str(self.binaryVersion)]
             except ValueError:
                 str_list += ['binaryVersion : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.cacheModeCA' in found_struct}}
+
+
             try:
                 str_list += ['cacheModeCA : ' + str(self.cacheModeCA)]
             except ValueError:
                 str_list += ['cacheModeCA : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.maxDynamicSharedSizeBytes' in found_struct}}
+
+
             try:
                 str_list += ['maxDynamicSharedSizeBytes : ' + str(self.maxDynamicSharedSizeBytes)]
             except ValueError:
                 str_list += ['maxDynamicSharedSizeBytes : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.preferredShmemCarveout' in found_struct}}
+
+
             try:
                 str_list += ['preferredShmemCarveout : ' + str(self.preferredShmemCarveout)]
             except ValueError:
                 str_list += ['preferredShmemCarveout : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.clusterDimMustBeSet' in found_struct}}
+
+
             try:
                 str_list += ['clusterDimMustBeSet : ' + str(self.clusterDimMustBeSet)]
             except ValueError:
                 str_list += ['clusterDimMustBeSet : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.requiredClusterWidth' in found_struct}}
+
+
             try:
                 str_list += ['requiredClusterWidth : ' + str(self.requiredClusterWidth)]
             except ValueError:
                 str_list += ['requiredClusterWidth : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.requiredClusterHeight' in found_struct}}
+
+
             try:
                 str_list += ['requiredClusterHeight : ' + str(self.requiredClusterHeight)]
             except ValueError:
                 str_list += ['requiredClusterHeight : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.requiredClusterDepth' in found_struct}}
+
+
             try:
                 str_list += ['requiredClusterDepth : ' + str(self.requiredClusterDepth)]
             except ValueError:
                 str_list += ['requiredClusterDepth : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.clusterSchedulingPolicyPreference' in found_struct}}
+
+
             try:
                 str_list += ['clusterSchedulingPolicyPreference : ' + str(self.clusterSchedulingPolicyPreference)]
             except ValueError:
                 str_list += ['clusterSchedulingPolicyPreference : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.nonPortableClusterSizeAllowed' in found_struct}}
+
+
             try:
                 str_list += ['nonPortableClusterSizeAllowed : ' + str(self.nonPortableClusterSizeAllowed)]
             except ValueError:
                 str_list += ['nonPortableClusterSizeAllowed : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.deviceNodeUpdateStatus' in found_struct}}
+
+
             try:
                 str_list += ['deviceNodeUpdateStatus : ' + str(self.deviceNodeUpdateStatus)]
             except ValueError:
                 str_list += ['deviceNodeUpdateStatus : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.reserved1' in found_struct}}
+
+
             try:
                 str_list += ['reserved1 : ' + str(self.reserved1)]
             except ValueError:
                 str_list += ['reserved1 : <ValueError>']
-            {{endif}}
-            {{if 'cudaFuncAttributes.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaFuncAttributes.sharedSizeBytes' in found_struct}}
+
     @property
     def sharedSizeBytes(self):
         return self._pvt_ptr[0].sharedSizeBytes
     @sharedSizeBytes.setter
     def sharedSizeBytes(self, size_t sharedSizeBytes):
         self._pvt_ptr[0].sharedSizeBytes = sharedSizeBytes
-    {{endif}}
-    {{if 'cudaFuncAttributes.constSizeBytes' in found_struct}}
+
+
     @property
     def constSizeBytes(self):
         return self._pvt_ptr[0].constSizeBytes
     @constSizeBytes.setter
     def constSizeBytes(self, size_t constSizeBytes):
         self._pvt_ptr[0].constSizeBytes = constSizeBytes
-    {{endif}}
-    {{if 'cudaFuncAttributes.localSizeBytes' in found_struct}}
+
+
     @property
     def localSizeBytes(self):
         return self._pvt_ptr[0].localSizeBytes
     @localSizeBytes.setter
     def localSizeBytes(self, size_t localSizeBytes):
         self._pvt_ptr[0].localSizeBytes = localSizeBytes
-    {{endif}}
-    {{if 'cudaFuncAttributes.maxThreadsPerBlock' in found_struct}}
+
+
     @property
     def maxThreadsPerBlock(self):
         return self._pvt_ptr[0].maxThreadsPerBlock
     @maxThreadsPerBlock.setter
     def maxThreadsPerBlock(self, int maxThreadsPerBlock):
         self._pvt_ptr[0].maxThreadsPerBlock = maxThreadsPerBlock
-    {{endif}}
-    {{if 'cudaFuncAttributes.numRegs' in found_struct}}
+
+
     @property
     def numRegs(self):
         return self._pvt_ptr[0].numRegs
     @numRegs.setter
     def numRegs(self, int numRegs):
         self._pvt_ptr[0].numRegs = numRegs
-    {{endif}}
-    {{if 'cudaFuncAttributes.ptxVersion' in found_struct}}
+
+
     @property
     def ptxVersion(self):
         return self._pvt_ptr[0].ptxVersion
     @ptxVersion.setter
     def ptxVersion(self, int ptxVersion):
         self._pvt_ptr[0].ptxVersion = ptxVersion
-    {{endif}}
-    {{if 'cudaFuncAttributes.binaryVersion' in found_struct}}
+
+
     @property
     def binaryVersion(self):
         return self._pvt_ptr[0].binaryVersion
     @binaryVersion.setter
     def binaryVersion(self, int binaryVersion):
         self._pvt_ptr[0].binaryVersion = binaryVersion
-    {{endif}}
-    {{if 'cudaFuncAttributes.cacheModeCA' in found_struct}}
+
+
     @property
     def cacheModeCA(self):
         return self._pvt_ptr[0].cacheModeCA
     @cacheModeCA.setter
     def cacheModeCA(self, int cacheModeCA):
         self._pvt_ptr[0].cacheModeCA = cacheModeCA
-    {{endif}}
-    {{if 'cudaFuncAttributes.maxDynamicSharedSizeBytes' in found_struct}}
+
+
     @property
     def maxDynamicSharedSizeBytes(self):
         return self._pvt_ptr[0].maxDynamicSharedSizeBytes
     @maxDynamicSharedSizeBytes.setter
     def maxDynamicSharedSizeBytes(self, int maxDynamicSharedSizeBytes):
         self._pvt_ptr[0].maxDynamicSharedSizeBytes = maxDynamicSharedSizeBytes
-    {{endif}}
-    {{if 'cudaFuncAttributes.preferredShmemCarveout' in found_struct}}
+
+
     @property
     def preferredShmemCarveout(self):
         return self._pvt_ptr[0].preferredShmemCarveout
     @preferredShmemCarveout.setter
     def preferredShmemCarveout(self, int preferredShmemCarveout):
         self._pvt_ptr[0].preferredShmemCarveout = preferredShmemCarveout
-    {{endif}}
-    {{if 'cudaFuncAttributes.clusterDimMustBeSet' in found_struct}}
+
+
     @property
     def clusterDimMustBeSet(self):
         return self._pvt_ptr[0].clusterDimMustBeSet
     @clusterDimMustBeSet.setter
     def clusterDimMustBeSet(self, int clusterDimMustBeSet):
         self._pvt_ptr[0].clusterDimMustBeSet = clusterDimMustBeSet
-    {{endif}}
-    {{if 'cudaFuncAttributes.requiredClusterWidth' in found_struct}}
+
+
     @property
     def requiredClusterWidth(self):
         return self._pvt_ptr[0].requiredClusterWidth
     @requiredClusterWidth.setter
     def requiredClusterWidth(self, int requiredClusterWidth):
         self._pvt_ptr[0].requiredClusterWidth = requiredClusterWidth
-    {{endif}}
-    {{if 'cudaFuncAttributes.requiredClusterHeight' in found_struct}}
+
+
     @property
     def requiredClusterHeight(self):
         return self._pvt_ptr[0].requiredClusterHeight
     @requiredClusterHeight.setter
     def requiredClusterHeight(self, int requiredClusterHeight):
         self._pvt_ptr[0].requiredClusterHeight = requiredClusterHeight
-    {{endif}}
-    {{if 'cudaFuncAttributes.requiredClusterDepth' in found_struct}}
+
+
     @property
     def requiredClusterDepth(self):
         return self._pvt_ptr[0].requiredClusterDepth
     @requiredClusterDepth.setter
     def requiredClusterDepth(self, int requiredClusterDepth):
         self._pvt_ptr[0].requiredClusterDepth = requiredClusterDepth
-    {{endif}}
-    {{if 'cudaFuncAttributes.clusterSchedulingPolicyPreference' in found_struct}}
+
+
     @property
     def clusterSchedulingPolicyPreference(self):
         return self._pvt_ptr[0].clusterSchedulingPolicyPreference
     @clusterSchedulingPolicyPreference.setter
     def clusterSchedulingPolicyPreference(self, int clusterSchedulingPolicyPreference):
         self._pvt_ptr[0].clusterSchedulingPolicyPreference = clusterSchedulingPolicyPreference
-    {{endif}}
-    {{if 'cudaFuncAttributes.nonPortableClusterSizeAllowed' in found_struct}}
+
+
     @property
     def nonPortableClusterSizeAllowed(self):
         return self._pvt_ptr[0].nonPortableClusterSizeAllowed
     @nonPortableClusterSizeAllowed.setter
     def nonPortableClusterSizeAllowed(self, int nonPortableClusterSizeAllowed):
         self._pvt_ptr[0].nonPortableClusterSizeAllowed = nonPortableClusterSizeAllowed
-    {{endif}}
-    {{if 'cudaFuncAttributes.deviceNodeUpdateStatus' in found_struct}}
+
+
     @property
     def deviceNodeUpdateStatus(self):
         return self._pvt_ptr[0].deviceNodeUpdateStatus
     @deviceNodeUpdateStatus.setter
     def deviceNodeUpdateStatus(self, int deviceNodeUpdateStatus):
         self._pvt_ptr[0].deviceNodeUpdateStatus = deviceNodeUpdateStatus
-    {{endif}}
-    {{if 'cudaFuncAttributes.reserved1' in found_struct}}
+
+
     @property
     def reserved1(self):
         return self._pvt_ptr[0].reserved1
     @reserved1.setter
     def reserved1(self, int reserved1):
         self._pvt_ptr[0].reserved1 = reserved1
-    {{endif}}
-    {{if 'cudaFuncAttributes.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaMemLocation' in found_struct}}
+
 
 cdef class cudaMemLocation:
     """
@@ -11287,16 +10879,16 @@ cdef class cudaMemLocation:
 
     Attributes
     ----------
-    {{if 'cudaMemLocation.type' in found_struct}}
+
     type : cudaMemLocationType
         Specifies the location type, which modifies the meaning of id.
-    {{endif}}
-    {{if 'cudaMemLocation.id' in found_struct}}
+
+
     id : int
         Identifier for cudaMemLocationType::cudaMemLocationTypeDevice,
         cudaMemLocationType::cudaMemLocationTypeHost, or
         cudaMemLocationType::cudaMemLocationTypeHostNuma.
-    {{endif}}
+
 
     Methods
     -------
@@ -11319,39 +10911,37 @@ cdef class cudaMemLocation:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemLocation.type' in found_struct}}
+
             try:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemLocation.id' in found_struct}}
+
+
             try:
                 str_list += ['id : ' + str(self.id)]
             except ValueError:
                 str_list += ['id : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemLocation.type' in found_struct}}
+
     @property
     def type(self):
         return cudaMemLocationType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaMemLocationType):
-        self._pvt_ptr[0].type = int(type)
-    {{endif}}
-    {{if 'cudaMemLocation.id' in found_struct}}
+        self._pvt_ptr[0].type = <cyruntime.cudaMemLocationType><int>int(type)
+
+
     @property
     def id(self):
         return self._pvt_ptr[0].id
     @id.setter
     def id(self, int id):
         self._pvt_ptr[0].id = id
-    {{endif}}
-{{endif}}
-{{if 'cudaMemAccessDesc' in found_struct}}
+
 
 cdef class cudaMemAccessDesc:
     """
@@ -11359,14 +10949,14 @@ cdef class cudaMemAccessDesc:
 
     Attributes
     ----------
-    {{if 'cudaMemAccessDesc.location' in found_struct}}
+
     location : cudaMemLocation
         Location on which the request is to change it's accessibility
-    {{endif}}
-    {{if 'cudaMemAccessDesc.flags' in found_struct}}
+
+
     flags : cudaMemAccessFlags
         ::CUmemProt accessibility flags to set on the request
-    {{endif}}
+
 
     Methods
     -------
@@ -11380,9 +10970,9 @@ cdef class cudaMemAccessDesc:
             self._pvt_ptr = <cyruntime.cudaMemAccessDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaMemAccessDesc.location' in found_struct}}
+
         self._location = cudaMemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].location)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -11390,39 +10980,37 @@ cdef class cudaMemAccessDesc:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemAccessDesc.location' in found_struct}}
+
             try:
                 str_list += ['location :\n' + '\n'.join(['    ' + line for line in str(self.location).splitlines()])]
             except ValueError:
                 str_list += ['location : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemAccessDesc.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemAccessDesc.location' in found_struct}}
+
     @property
     def location(self):
         return self._location
     @location.setter
     def location(self, location not None : cudaMemLocation):
         string.memcpy(&self._pvt_ptr[0].location, <void*><void_ptr>location.getPtr(), sizeof(self._pvt_ptr[0].location))
-    {{endif}}
-    {{if 'cudaMemAccessDesc.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return cudaMemAccessFlags(self._pvt_ptr[0].flags)
     @flags.setter
     def flags(self, flags not None : cudaMemAccessFlags):
-        self._pvt_ptr[0].flags = int(flags)
-    {{endif}}
-{{endif}}
-{{if 'cudaMemPoolProps' in found_struct}}
+        self._pvt_ptr[0].flags = <cyruntime.cudaMemAccessFlags><int>int(flags)
+
 
 cdef class cudaMemPoolProps:
     """
@@ -11430,40 +11018,40 @@ cdef class cudaMemPoolProps:
 
     Attributes
     ----------
-    {{if 'cudaMemPoolProps.allocType' in found_struct}}
+
     allocType : cudaMemAllocationType
         Allocation type. Currently must be specified as
         cudaMemAllocationTypePinned
-    {{endif}}
-    {{if 'cudaMemPoolProps.handleTypes' in found_struct}}
+
+
     handleTypes : cudaMemAllocationHandleType
         Handle types that will be supported by allocations from the pool.
-    {{endif}}
-    {{if 'cudaMemPoolProps.location' in found_struct}}
+
+
     location : cudaMemLocation
         Location allocations should reside.
-    {{endif}}
-    {{if 'cudaMemPoolProps.win32SecurityAttributes' in found_struct}}
+
+
     win32SecurityAttributes : Any
         Windows-specific LPSECURITYATTRIBUTES required when
         cudaMemHandleTypeWin32 is specified. This security attribute
         defines the scope of which exported allocations may be tranferred
         to other processes. In all other cases, this field is required to
         be zero.
-    {{endif}}
-    {{if 'cudaMemPoolProps.maxSize' in found_struct}}
+
+
     maxSize : size_t
         Maximum pool size. When set to 0, defaults to a system dependent
         value.
-    {{endif}}
-    {{if 'cudaMemPoolProps.usage' in found_struct}}
+
+
     usage : unsigned short
         Bitmask indicating intended usage for the pool.
-    {{endif}}
-    {{if 'cudaMemPoolProps.reserved' in found_struct}}
+
+
     reserved : bytes
         reserved for future use, must be 0
-    {{endif}}
+
 
     Methods
     -------
@@ -11477,9 +11065,9 @@ cdef class cudaMemPoolProps:
             self._pvt_ptr = <cyruntime.cudaMemPoolProps *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaMemPoolProps.location' in found_struct}}
+
         self._location = cudaMemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].location)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -11487,76 +11075,76 @@ cdef class cudaMemPoolProps:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemPoolProps.allocType' in found_struct}}
+
             try:
                 str_list += ['allocType : ' + str(self.allocType)]
             except ValueError:
                 str_list += ['allocType : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemPoolProps.handleTypes' in found_struct}}
+
+
             try:
                 str_list += ['handleTypes : ' + str(self.handleTypes)]
             except ValueError:
                 str_list += ['handleTypes : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemPoolProps.location' in found_struct}}
+
+
             try:
                 str_list += ['location :\n' + '\n'.join(['    ' + line for line in str(self.location).splitlines()])]
             except ValueError:
                 str_list += ['location : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemPoolProps.win32SecurityAttributes' in found_struct}}
+
+
             try:
                 str_list += ['win32SecurityAttributes : ' + hex(self.win32SecurityAttributes)]
             except ValueError:
                 str_list += ['win32SecurityAttributes : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemPoolProps.maxSize' in found_struct}}
+
+
             try:
                 str_list += ['maxSize : ' + str(self.maxSize)]
             except ValueError:
                 str_list += ['maxSize : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemPoolProps.usage' in found_struct}}
+
+
             try:
                 str_list += ['usage : ' + str(self.usage)]
             except ValueError:
                 str_list += ['usage : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemPoolProps.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemPoolProps.allocType' in found_struct}}
+
     @property
     def allocType(self):
         return cudaMemAllocationType(self._pvt_ptr[0].allocType)
     @allocType.setter
     def allocType(self, allocType not None : cudaMemAllocationType):
-        self._pvt_ptr[0].allocType = int(allocType)
-    {{endif}}
-    {{if 'cudaMemPoolProps.handleTypes' in found_struct}}
+        self._pvt_ptr[0].allocType = <cyruntime.cudaMemAllocationType><int>int(allocType)
+
+
     @property
     def handleTypes(self):
         return cudaMemAllocationHandleType(self._pvt_ptr[0].handleTypes)
     @handleTypes.setter
     def handleTypes(self, handleTypes not None : cudaMemAllocationHandleType):
-        self._pvt_ptr[0].handleTypes = int(handleTypes)
-    {{endif}}
-    {{if 'cudaMemPoolProps.location' in found_struct}}
+        self._pvt_ptr[0].handleTypes = <cyruntime.cudaMemAllocationHandleType><int>int(handleTypes)
+
+
     @property
     def location(self):
         return self._location
     @location.setter
     def location(self, location not None : cudaMemLocation):
         string.memcpy(&self._pvt_ptr[0].location, <void*><void_ptr>location.getPtr(), sizeof(self._pvt_ptr[0].location))
-    {{endif}}
-    {{if 'cudaMemPoolProps.win32SecurityAttributes' in found_struct}}
+
+
     @property
     def win32SecurityAttributes(self):
         return <void_ptr>self._pvt_ptr[0].win32SecurityAttributes
@@ -11564,24 +11152,24 @@ cdef class cudaMemPoolProps:
     def win32SecurityAttributes(self, win32SecurityAttributes):
         self._cywin32SecurityAttributes = _HelperInputVoidPtr(win32SecurityAttributes)
         self._pvt_ptr[0].win32SecurityAttributes = <void*><void_ptr>self._cywin32SecurityAttributes.cptr
-    {{endif}}
-    {{if 'cudaMemPoolProps.maxSize' in found_struct}}
+
+
     @property
     def maxSize(self):
         return self._pvt_ptr[0].maxSize
     @maxSize.setter
     def maxSize(self, size_t maxSize):
         self._pvt_ptr[0].maxSize = maxSize
-    {{endif}}
-    {{if 'cudaMemPoolProps.usage' in found_struct}}
+
+
     @property
     def usage(self):
         return self._pvt_ptr[0].usage
     @usage.setter
     def usage(self, unsigned short usage):
         self._pvt_ptr[0].usage = usage
-    {{endif}}
-    {{if 'cudaMemPoolProps.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 54)
@@ -11591,9 +11179,7 @@ cdef class cudaMemPoolProps:
             raise ValueError("reserved length must be 54, is " + str(len(reserved)))
         for i, b in enumerate(reserved):
             self._pvt_ptr[0].reserved[i] = b
-    {{endif}}
-{{endif}}
-{{if 'cudaMemPoolPtrExportData' in found_struct}}
+
 
 cdef class cudaMemPoolPtrExportData:
     """
@@ -11601,10 +11187,10 @@ cdef class cudaMemPoolPtrExportData:
 
     Attributes
     ----------
-    {{if 'cudaMemPoolPtrExportData.reserved' in found_struct}}
+
     reserved : bytes
 
-    {{endif}}
+
 
     Methods
     -------
@@ -11625,16 +11211,16 @@ cdef class cudaMemPoolPtrExportData:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemPoolPtrExportData.reserved' in found_struct}}
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemPoolPtrExportData.reserved' in found_struct}}
+
     @property
     def reserved(self):
         return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 64)
@@ -11644,9 +11230,7 @@ cdef class cudaMemPoolPtrExportData:
             raise ValueError("reserved length must be 64, is " + str(len(reserved)))
         for i, b in enumerate(reserved):
             self._pvt_ptr[0].reserved[i] = b
-    {{endif}}
-{{endif}}
-{{if 'cudaMemAllocNodeParams' in found_struct}}
+
 
 cdef class cudaMemAllocNodeParams:
     """
@@ -11654,30 +11238,30 @@ cdef class cudaMemAllocNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaMemAllocNodeParams.poolProps' in found_struct}}
+
     poolProps : cudaMemPoolProps
         in: location where the allocation should reside (specified in
         ::location). ::handleTypes must be cudaMemHandleTypeNone. IPC is
         not supported. in: array of memory access descriptors. Used to
         describe peer GPU access
-    {{endif}}
-    {{if 'cudaMemAllocNodeParams.accessDescs' in found_struct}}
+
+
     accessDescs : cudaMemAccessDesc
         in: number of memory access descriptors. Must not exceed the number
         of GPUs.
-    {{endif}}
-    {{if 'cudaMemAllocNodeParams.accessDescCount' in found_struct}}
+
+
     accessDescCount : size_t
         in: Number of `accessDescs`s
-    {{endif}}
-    {{if 'cudaMemAllocNodeParams.bytesize' in found_struct}}
+
+
     bytesize : size_t
         in: size in bytes of the requested allocation
-    {{endif}}
-    {{if 'cudaMemAllocNodeParams.dptr' in found_struct}}
+
+
     dptr : Any
         out: address of the allocation returned by CUDA
-    {{endif}}
+
 
     Methods
     -------
@@ -11691,63 +11275,63 @@ cdef class cudaMemAllocNodeParams:
             self._pvt_ptr = <cyruntime.cudaMemAllocNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaMemAllocNodeParams.poolProps' in found_struct}}
+
         self._poolProps = cudaMemPoolProps(_ptr=<void_ptr>&self._pvt_ptr[0].poolProps)
-        {{endif}}
+
     def __dealloc__(self):
         pass
-        {{if 'cudaMemAllocNodeParams.accessDescs' in found_struct}}
+
         if self._accessDescs is not NULL:
             free(self._accessDescs)
             self._pvt_ptr[0].accessDescs = NULL
-        {{endif}}
+
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemAllocNodeParams.poolProps' in found_struct}}
+
             try:
                 str_list += ['poolProps :\n' + '\n'.join(['    ' + line for line in str(self.poolProps).splitlines()])]
             except ValueError:
                 str_list += ['poolProps : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemAllocNodeParams.accessDescs' in found_struct}}
+
+
             try:
                 str_list += ['accessDescs : ' + str(self.accessDescs)]
             except ValueError:
                 str_list += ['accessDescs : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemAllocNodeParams.accessDescCount' in found_struct}}
+
+
             try:
                 str_list += ['accessDescCount : ' + str(self.accessDescCount)]
             except ValueError:
                 str_list += ['accessDescCount : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemAllocNodeParams.bytesize' in found_struct}}
+
+
             try:
                 str_list += ['bytesize : ' + str(self.bytesize)]
             except ValueError:
                 str_list += ['bytesize : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemAllocNodeParams.dptr' in found_struct}}
+
+
             try:
                 str_list += ['dptr : ' + hex(self.dptr)]
             except ValueError:
                 str_list += ['dptr : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemAllocNodeParams.poolProps' in found_struct}}
+
     @property
     def poolProps(self):
         return self._poolProps
     @poolProps.setter
     def poolProps(self, poolProps not None : cudaMemPoolProps):
         string.memcpy(&self._pvt_ptr[0].poolProps, <void*><void_ptr>poolProps.getPtr(), sizeof(self._pvt_ptr[0].poolProps))
-    {{endif}}
-    {{if 'cudaMemAllocNodeParams.accessDescs' in found_struct}}
+
+
     @property
     def accessDescs(self):
         arrs = [<void_ptr>self._pvt_ptr[0].accessDescs + x*sizeof(cyruntime.cudaMemAccessDesc) for x in range(self._accessDescs_length)]
@@ -11770,24 +11354,24 @@ cdef class cudaMemAllocNodeParams:
             for idx in range(len(val)):
                 string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
 
-    {{endif}}
-    {{if 'cudaMemAllocNodeParams.accessDescCount' in found_struct}}
+
+
     @property
     def accessDescCount(self):
         return self._pvt_ptr[0].accessDescCount
     @accessDescCount.setter
     def accessDescCount(self, size_t accessDescCount):
         self._pvt_ptr[0].accessDescCount = accessDescCount
-    {{endif}}
-    {{if 'cudaMemAllocNodeParams.bytesize' in found_struct}}
+
+
     @property
     def bytesize(self):
         return self._pvt_ptr[0].bytesize
     @bytesize.setter
     def bytesize(self, size_t bytesize):
         self._pvt_ptr[0].bytesize = bytesize
-    {{endif}}
-    {{if 'cudaMemAllocNodeParams.dptr' in found_struct}}
+
+
     @property
     def dptr(self):
         return <void_ptr>self._pvt_ptr[0].dptr
@@ -11795,9 +11379,7 @@ cdef class cudaMemAllocNodeParams:
     def dptr(self, dptr):
         self._cydptr = _HelperInputVoidPtr(dptr)
         self._pvt_ptr[0].dptr = <void*><void_ptr>self._cydptr.cptr
-    {{endif}}
-{{endif}}
-{{if 'cudaMemAllocNodeParamsV2' in found_struct}}
+
 
 cdef class cudaMemAllocNodeParamsV2:
     """
@@ -11805,30 +11387,30 @@ cdef class cudaMemAllocNodeParamsV2:
 
     Attributes
     ----------
-    {{if 'cudaMemAllocNodeParamsV2.poolProps' in found_struct}}
+
     poolProps : cudaMemPoolProps
         in: location where the allocation should reside (specified in
         ::location). ::handleTypes must be cudaMemHandleTypeNone. IPC is
         not supported. in: array of memory access descriptors. Used to
         describe peer GPU access
-    {{endif}}
-    {{if 'cudaMemAllocNodeParamsV2.accessDescs' in found_struct}}
+
+
     accessDescs : cudaMemAccessDesc
         in: number of memory access descriptors. Must not exceed the number
         of GPUs.
-    {{endif}}
-    {{if 'cudaMemAllocNodeParamsV2.accessDescCount' in found_struct}}
+
+
     accessDescCount : size_t
         in: Number of `accessDescs`s
-    {{endif}}
-    {{if 'cudaMemAllocNodeParamsV2.bytesize' in found_struct}}
+
+
     bytesize : size_t
         in: size in bytes of the requested allocation
-    {{endif}}
-    {{if 'cudaMemAllocNodeParamsV2.dptr' in found_struct}}
+
+
     dptr : Any
         out: address of the allocation returned by CUDA
-    {{endif}}
+
 
     Methods
     -------
@@ -11842,63 +11424,63 @@ cdef class cudaMemAllocNodeParamsV2:
             self._pvt_ptr = <cyruntime.cudaMemAllocNodeParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaMemAllocNodeParamsV2.poolProps' in found_struct}}
+
         self._poolProps = cudaMemPoolProps(_ptr=<void_ptr>&self._pvt_ptr[0].poolProps)
-        {{endif}}
+
     def __dealloc__(self):
         pass
-        {{if 'cudaMemAllocNodeParamsV2.accessDescs' in found_struct}}
+
         if self._accessDescs is not NULL:
             free(self._accessDescs)
             self._pvt_ptr[0].accessDescs = NULL
-        {{endif}}
+
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemAllocNodeParamsV2.poolProps' in found_struct}}
+
             try:
                 str_list += ['poolProps :\n' + '\n'.join(['    ' + line for line in str(self.poolProps).splitlines()])]
             except ValueError:
                 str_list += ['poolProps : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemAllocNodeParamsV2.accessDescs' in found_struct}}
+
+
             try:
                 str_list += ['accessDescs : ' + str(self.accessDescs)]
             except ValueError:
                 str_list += ['accessDescs : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemAllocNodeParamsV2.accessDescCount' in found_struct}}
+
+
             try:
                 str_list += ['accessDescCount : ' + str(self.accessDescCount)]
             except ValueError:
                 str_list += ['accessDescCount : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemAllocNodeParamsV2.bytesize' in found_struct}}
+
+
             try:
                 str_list += ['bytesize : ' + str(self.bytesize)]
             except ValueError:
                 str_list += ['bytesize : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemAllocNodeParamsV2.dptr' in found_struct}}
+
+
             try:
                 str_list += ['dptr : ' + hex(self.dptr)]
             except ValueError:
                 str_list += ['dptr : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemAllocNodeParamsV2.poolProps' in found_struct}}
+
     @property
     def poolProps(self):
         return self._poolProps
     @poolProps.setter
     def poolProps(self, poolProps not None : cudaMemPoolProps):
         string.memcpy(&self._pvt_ptr[0].poolProps, <void*><void_ptr>poolProps.getPtr(), sizeof(self._pvt_ptr[0].poolProps))
-    {{endif}}
-    {{if 'cudaMemAllocNodeParamsV2.accessDescs' in found_struct}}
+
+
     @property
     def accessDescs(self):
         arrs = [<void_ptr>self._pvt_ptr[0].accessDescs + x*sizeof(cyruntime.cudaMemAccessDesc) for x in range(self._accessDescs_length)]
@@ -11921,24 +11503,24 @@ cdef class cudaMemAllocNodeParamsV2:
             for idx in range(len(val)):
                 string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
 
-    {{endif}}
-    {{if 'cudaMemAllocNodeParamsV2.accessDescCount' in found_struct}}
+
+
     @property
     def accessDescCount(self):
         return self._pvt_ptr[0].accessDescCount
     @accessDescCount.setter
     def accessDescCount(self, size_t accessDescCount):
         self._pvt_ptr[0].accessDescCount = accessDescCount
-    {{endif}}
-    {{if 'cudaMemAllocNodeParamsV2.bytesize' in found_struct}}
+
+
     @property
     def bytesize(self):
         return self._pvt_ptr[0].bytesize
     @bytesize.setter
     def bytesize(self, size_t bytesize):
         self._pvt_ptr[0].bytesize = bytesize
-    {{endif}}
-    {{if 'cudaMemAllocNodeParamsV2.dptr' in found_struct}}
+
+
     @property
     def dptr(self):
         return <void_ptr>self._pvt_ptr[0].dptr
@@ -11946,9 +11528,7 @@ cdef class cudaMemAllocNodeParamsV2:
     def dptr(self, dptr):
         self._cydptr = _HelperInputVoidPtr(dptr)
         self._pvt_ptr[0].dptr = <void*><void_ptr>self._cydptr.cptr
-    {{endif}}
-{{endif}}
-{{if 'cudaMemFreeNodeParams' in found_struct}}
+
 
 cdef class cudaMemFreeNodeParams:
     """
@@ -11956,10 +11536,10 @@ cdef class cudaMemFreeNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaMemFreeNodeParams.dptr' in found_struct}}
+
     dptr : Any
         in: the pointer to free
-    {{endif}}
+
 
     Methods
     -------
@@ -11980,16 +11560,16 @@ cdef class cudaMemFreeNodeParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemFreeNodeParams.dptr' in found_struct}}
+
             try:
                 str_list += ['dptr : ' + hex(self.dptr)]
             except ValueError:
                 str_list += ['dptr : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemFreeNodeParams.dptr' in found_struct}}
+
     @property
     def dptr(self):
         return <void_ptr>self._pvt_ptr[0].dptr
@@ -11997,9 +11577,7 @@ cdef class cudaMemFreeNodeParams:
     def dptr(self, dptr):
         self._cydptr = _HelperInputVoidPtr(dptr)
         self._pvt_ptr[0].dptr = <void*><void_ptr>self._cydptr.cptr
-    {{endif}}
-{{endif}}
-{{if 'cudaMemcpyAttributes' in found_struct}}
+
 
 cdef class cudaMemcpyAttributes:
     """
@@ -12008,26 +11586,26 @@ cdef class cudaMemcpyAttributes:
 
     Attributes
     ----------
-    {{if 'cudaMemcpyAttributes.srcAccessOrder' in found_struct}}
+
     srcAccessOrder : cudaMemcpySrcAccessOrder
         Source access ordering to be observed for copies with this
         attribute.
-    {{endif}}
-    {{if 'cudaMemcpyAttributes.srcLocHint' in found_struct}}
+
+
     srcLocHint : cudaMemLocation
         Hint location for the source operand. Ignored when the pointers are
         not managed memory or memory allocated outside CUDA.
-    {{endif}}
-    {{if 'cudaMemcpyAttributes.dstLocHint' in found_struct}}
+
+
     dstLocHint : cudaMemLocation
         Hint location for the destination operand. Ignored when the
         pointers are not managed memory or memory allocated outside CUDA.
-    {{endif}}
-    {{if 'cudaMemcpyAttributes.flags' in found_struct}}
+
+
     flags : unsigned int
         Additional flags for copies with this attribute. See
         cudaMemcpyFlags.
-    {{endif}}
+
 
     Methods
     -------
@@ -12041,12 +11619,12 @@ cdef class cudaMemcpyAttributes:
             self._pvt_ptr = <cyruntime.cudaMemcpyAttributes *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaMemcpyAttributes.srcLocHint' in found_struct}}
+
         self._srcLocHint = cudaMemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].srcLocHint)
-        {{endif}}
-        {{if 'cudaMemcpyAttributes.dstLocHint' in found_struct}}
+
+
         self._dstLocHint = cudaMemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].dstLocHint)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -12054,67 +11632,65 @@ cdef class cudaMemcpyAttributes:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemcpyAttributes.srcAccessOrder' in found_struct}}
+
             try:
                 str_list += ['srcAccessOrder : ' + str(self.srcAccessOrder)]
             except ValueError:
                 str_list += ['srcAccessOrder : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpyAttributes.srcLocHint' in found_struct}}
+
+
             try:
                 str_list += ['srcLocHint :\n' + '\n'.join(['    ' + line for line in str(self.srcLocHint).splitlines()])]
             except ValueError:
                 str_list += ['srcLocHint : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpyAttributes.dstLocHint' in found_struct}}
+
+
             try:
                 str_list += ['dstLocHint :\n' + '\n'.join(['    ' + line for line in str(self.dstLocHint).splitlines()])]
             except ValueError:
                 str_list += ['dstLocHint : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpyAttributes.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemcpyAttributes.srcAccessOrder' in found_struct}}
+
     @property
     def srcAccessOrder(self):
         return cudaMemcpySrcAccessOrder(self._pvt_ptr[0].srcAccessOrder)
     @srcAccessOrder.setter
     def srcAccessOrder(self, srcAccessOrder not None : cudaMemcpySrcAccessOrder):
-        self._pvt_ptr[0].srcAccessOrder = int(srcAccessOrder)
-    {{endif}}
-    {{if 'cudaMemcpyAttributes.srcLocHint' in found_struct}}
+        self._pvt_ptr[0].srcAccessOrder = <cyruntime.cudaMemcpySrcAccessOrder><int>int(srcAccessOrder)
+
+
     @property
     def srcLocHint(self):
         return self._srcLocHint
     @srcLocHint.setter
     def srcLocHint(self, srcLocHint not None : cudaMemLocation):
         string.memcpy(&self._pvt_ptr[0].srcLocHint, <void*><void_ptr>srcLocHint.getPtr(), sizeof(self._pvt_ptr[0].srcLocHint))
-    {{endif}}
-    {{if 'cudaMemcpyAttributes.dstLocHint' in found_struct}}
+
+
     @property
     def dstLocHint(self):
         return self._dstLocHint
     @dstLocHint.setter
     def dstLocHint(self, dstLocHint not None : cudaMemLocation):
         string.memcpy(&self._pvt_ptr[0].dstLocHint, <void*><void_ptr>dstLocHint.getPtr(), sizeof(self._pvt_ptr[0].dstLocHint))
-    {{endif}}
-    {{if 'cudaMemcpyAttributes.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-{{endif}}
-{{if 'cudaOffset3D' in found_struct}}
+
 
 cdef class cudaOffset3D:
     """
@@ -12122,18 +11698,18 @@ cdef class cudaOffset3D:
 
     Attributes
     ----------
-    {{if 'cudaOffset3D.x' in found_struct}}
+
     x : size_t
 
-    {{endif}}
-    {{if 'cudaOffset3D.y' in found_struct}}
+
+
     y : size_t
 
-    {{endif}}
-    {{if 'cudaOffset3D.z' in found_struct}}
+
+
     z : size_t
 
-    {{endif}}
+
 
     Methods
     -------
@@ -12154,74 +11730,72 @@ cdef class cudaOffset3D:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaOffset3D.x' in found_struct}}
+
             try:
                 str_list += ['x : ' + str(self.x)]
             except ValueError:
                 str_list += ['x : <ValueError>']
-            {{endif}}
-            {{if 'cudaOffset3D.y' in found_struct}}
+
+
             try:
                 str_list += ['y : ' + str(self.y)]
             except ValueError:
                 str_list += ['y : <ValueError>']
-            {{endif}}
-            {{if 'cudaOffset3D.z' in found_struct}}
+
+
             try:
                 str_list += ['z : ' + str(self.z)]
             except ValueError:
                 str_list += ['z : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaOffset3D.x' in found_struct}}
+
     @property
     def x(self):
         return self._pvt_ptr[0].x
     @x.setter
     def x(self, size_t x):
         self._pvt_ptr[0].x = x
-    {{endif}}
-    {{if 'cudaOffset3D.y' in found_struct}}
+
+
     @property
     def y(self):
         return self._pvt_ptr[0].y
     @y.setter
     def y(self, size_t y):
         self._pvt_ptr[0].y = y
-    {{endif}}
-    {{if 'cudaOffset3D.z' in found_struct}}
+
+
     @property
     def z(self):
         return self._pvt_ptr[0].z
     @z.setter
     def z(self, size_t z):
         self._pvt_ptr[0].z = z
-    {{endif}}
-{{endif}}
-{{if 'cudaMemcpy3DOperand.op.ptr' in found_struct}}
+
 
 cdef class anon_struct6:
     """
     Attributes
     ----------
-    {{if 'cudaMemcpy3DOperand.op.ptr.ptr' in found_struct}}
+
     ptr : Any
 
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op.ptr.rowLength' in found_struct}}
+
+
     rowLength : size_t
 
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op.ptr.layerHeight' in found_struct}}
+
+
     layerHeight : size_t
 
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op.ptr.locHint' in found_struct}}
+
+
     locHint : cudaMemLocation
 
-    {{endif}}
+
 
     Methods
     -------
@@ -12233,9 +11807,9 @@ cdef class anon_struct6:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaMemcpy3DOperand.op.ptr.locHint' in found_struct}}
+
         self._locHint = cudaMemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].op.ptr.locHint)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -12243,34 +11817,34 @@ cdef class anon_struct6:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemcpy3DOperand.op.ptr.ptr' in found_struct}}
+
             try:
                 str_list += ['ptr : ' + hex(self.ptr)]
             except ValueError:
                 str_list += ['ptr : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DOperand.op.ptr.rowLength' in found_struct}}
+
+
             try:
                 str_list += ['rowLength : ' + str(self.rowLength)]
             except ValueError:
                 str_list += ['rowLength : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DOperand.op.ptr.layerHeight' in found_struct}}
+
+
             try:
                 str_list += ['layerHeight : ' + str(self.layerHeight)]
             except ValueError:
                 str_list += ['layerHeight : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DOperand.op.ptr.locHint' in found_struct}}
+
+
             try:
                 str_list += ['locHint :\n' + '\n'.join(['    ' + line for line in str(self.locHint).splitlines()])]
             except ValueError:
                 str_list += ['locHint : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemcpy3DOperand.op.ptr.ptr' in found_struct}}
+
     @property
     def ptr(self):
         return <void_ptr>self._pvt_ptr[0].op.ptr.ptr
@@ -12278,46 +11852,44 @@ cdef class anon_struct6:
     def ptr(self, ptr):
         self._cyptr = _HelperInputVoidPtr(ptr)
         self._pvt_ptr[0].op.ptr.ptr = <void*><void_ptr>self._cyptr.cptr
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op.ptr.rowLength' in found_struct}}
+
+
     @property
     def rowLength(self):
         return self._pvt_ptr[0].op.ptr.rowLength
     @rowLength.setter
     def rowLength(self, size_t rowLength):
         self._pvt_ptr[0].op.ptr.rowLength = rowLength
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op.ptr.layerHeight' in found_struct}}
+
+
     @property
     def layerHeight(self):
         return self._pvt_ptr[0].op.ptr.layerHeight
     @layerHeight.setter
     def layerHeight(self, size_t layerHeight):
         self._pvt_ptr[0].op.ptr.layerHeight = layerHeight
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op.ptr.locHint' in found_struct}}
+
+
     @property
     def locHint(self):
         return self._locHint
     @locHint.setter
     def locHint(self, locHint not None : cudaMemLocation):
         string.memcpy(&self._pvt_ptr[0].op.ptr.locHint, <void*><void_ptr>locHint.getPtr(), sizeof(self._pvt_ptr[0].op.ptr.locHint))
-    {{endif}}
-{{endif}}
-{{if 'cudaMemcpy3DOperand.op.array' in found_struct}}
+
 
 cdef class anon_struct7:
     """
     Attributes
     ----------
-    {{if 'cudaMemcpy3DOperand.op.array.array' in found_struct}}
+
     array : cudaArray_t
 
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op.array.offset' in found_struct}}
+
+
     offset : cudaOffset3D
 
-    {{endif}}
+
 
     Methods
     -------
@@ -12329,12 +11901,12 @@ cdef class anon_struct7:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaMemcpy3DOperand.op.array.array' in found_struct}}
+
         self._array = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].op.array.array)
-        {{endif}}
-        {{if 'cudaMemcpy3DOperand.op.array.offset' in found_struct}}
+
+
         self._offset = cudaOffset3D(_ptr=<void_ptr>&self._pvt_ptr[0].op.array.offset)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -12342,22 +11914,22 @@ cdef class anon_struct7:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemcpy3DOperand.op.array.array' in found_struct}}
+
             try:
                 str_list += ['array : ' + str(self.array)]
             except ValueError:
                 str_list += ['array : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DOperand.op.array.offset' in found_struct}}
+
+
             try:
                 str_list += ['offset :\n' + '\n'.join(['    ' + line for line in str(self.offset).splitlines()])]
             except ValueError:
                 str_list += ['offset : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemcpy3DOperand.op.array.array' in found_struct}}
+
     @property
     def array(self):
         return self._array
@@ -12373,30 +11945,28 @@ cdef class anon_struct7:
             parray = int(cudaArray_t(array))
             cyarray = <cyruntime.cudaArray_t><void_ptr>parray
         self._array._pvt_ptr[0] = cyarray
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op.array.offset' in found_struct}}
+
+
     @property
     def offset(self):
         return self._offset
     @offset.setter
     def offset(self, offset not None : cudaOffset3D):
         string.memcpy(&self._pvt_ptr[0].op.array.offset, <void*><void_ptr>offset.getPtr(), sizeof(self._pvt_ptr[0].op.array.offset))
-    {{endif}}
-{{endif}}
-{{if 'cudaMemcpy3DOperand.op' in found_struct}}
+
 
 cdef class anon_union2:
     """
     Attributes
     ----------
-    {{if 'cudaMemcpy3DOperand.op.ptr' in found_struct}}
+
     ptr : anon_struct6
 
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op.array' in found_struct}}
+
+
     array : anon_struct7
 
-    {{endif}}
+
 
     Methods
     -------
@@ -12408,12 +11978,12 @@ cdef class anon_union2:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaMemcpy3DOperand.op.ptr' in found_struct}}
+
         self._ptr = anon_struct6(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaMemcpy3DOperand.op.array' in found_struct}}
+
+
         self._array = anon_struct7(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -12421,39 +11991,37 @@ cdef class anon_union2:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemcpy3DOperand.op.ptr' in found_struct}}
+
             try:
                 str_list += ['ptr :\n' + '\n'.join(['    ' + line for line in str(self.ptr).splitlines()])]
             except ValueError:
                 str_list += ['ptr : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DOperand.op.array' in found_struct}}
+
+
             try:
                 str_list += ['array :\n' + '\n'.join(['    ' + line for line in str(self.array).splitlines()])]
             except ValueError:
                 str_list += ['array : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemcpy3DOperand.op.ptr' in found_struct}}
+
     @property
     def ptr(self):
         return self._ptr
     @ptr.setter
     def ptr(self, ptr not None : anon_struct6):
         string.memcpy(&self._pvt_ptr[0].op.ptr, <void*><void_ptr>ptr.getPtr(), sizeof(self._pvt_ptr[0].op.ptr))
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op.array' in found_struct}}
+
+
     @property
     def array(self):
         return self._array
     @array.setter
     def array(self, array not None : anon_struct7):
         string.memcpy(&self._pvt_ptr[0].op.array, <void*><void_ptr>array.getPtr(), sizeof(self._pvt_ptr[0].op.array))
-    {{endif}}
-{{endif}}
-{{if 'cudaMemcpy3DOperand' in found_struct}}
+
 
 cdef class cudaMemcpy3DOperand:
     """
@@ -12461,14 +12029,14 @@ cdef class cudaMemcpy3DOperand:
 
     Attributes
     ----------
-    {{if 'cudaMemcpy3DOperand.type' in found_struct}}
+
     type : cudaMemcpy3DOperandType
 
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op' in found_struct}}
+
+
     op : anon_union2
 
-    {{endif}}
+
 
     Methods
     -------
@@ -12483,9 +12051,9 @@ cdef class cudaMemcpy3DOperand:
             self._pvt_ptr = <cyruntime.cudaMemcpy3DOperand *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaMemcpy3DOperand.op' in found_struct}}
+
         self._op = anon_union2(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
@@ -12494,65 +12062,63 @@ cdef class cudaMemcpy3DOperand:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemcpy3DOperand.type' in found_struct}}
+
             try:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DOperand.op' in found_struct}}
+
+
             try:
                 str_list += ['op :\n' + '\n'.join(['    ' + line for line in str(self.op).splitlines()])]
             except ValueError:
                 str_list += ['op : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemcpy3DOperand.type' in found_struct}}
+
     @property
     def type(self):
         return cudaMemcpy3DOperandType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaMemcpy3DOperandType):
-        self._pvt_ptr[0].type = int(type)
-    {{endif}}
-    {{if 'cudaMemcpy3DOperand.op' in found_struct}}
+        self._pvt_ptr[0].type = <cyruntime.cudaMemcpy3DOperandType><int>int(type)
+
+
     @property
     def op(self):
         return self._op
     @op.setter
     def op(self, op not None : anon_union2):
         string.memcpy(&self._pvt_ptr[0].op, <void*><void_ptr>op.getPtr(), sizeof(self._pvt_ptr[0].op))
-    {{endif}}
-{{endif}}
-{{if 'cudaMemcpy3DBatchOp' in found_struct}}
+
 
 cdef class cudaMemcpy3DBatchOp:
     """
     Attributes
     ----------
-    {{if 'cudaMemcpy3DBatchOp.src' in found_struct}}
+
     src : cudaMemcpy3DOperand
         Source memcpy operand.
-    {{endif}}
-    {{if 'cudaMemcpy3DBatchOp.dst' in found_struct}}
+
+
     dst : cudaMemcpy3DOperand
         Destination memcpy operand.
-    {{endif}}
-    {{if 'cudaMemcpy3DBatchOp.extent' in found_struct}}
+
+
     extent : cudaExtent
         Extents of the memcpy between src and dst. The width, height and
         depth components must not be 0.
-    {{endif}}
-    {{if 'cudaMemcpy3DBatchOp.srcAccessOrder' in found_struct}}
+
+
     srcAccessOrder : cudaMemcpySrcAccessOrder
         Source access ordering to be observed for copy from src to dst.
-    {{endif}}
-    {{if 'cudaMemcpy3DBatchOp.flags' in found_struct}}
+
+
     flags : unsigned int
         Additional flags for copy from src to dst. See cudaMemcpyFlags.
-    {{endif}}
+
 
     Methods
     -------
@@ -12566,15 +12132,15 @@ cdef class cudaMemcpy3DBatchOp:
             self._pvt_ptr = <cyruntime.cudaMemcpy3DBatchOp *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaMemcpy3DBatchOp.src' in found_struct}}
+
         self._src = cudaMemcpy3DOperand(_ptr=<void_ptr>&self._pvt_ptr[0].src)
-        {{endif}}
-        {{if 'cudaMemcpy3DBatchOp.dst' in found_struct}}
+
+
         self._dst = cudaMemcpy3DOperand(_ptr=<void_ptr>&self._pvt_ptr[0].dst)
-        {{endif}}
-        {{if 'cudaMemcpy3DBatchOp.extent' in found_struct}}
+
+
         self._extent = cudaExtent(_ptr=<void_ptr>&self._pvt_ptr[0].extent)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -12582,90 +12148,88 @@ cdef class cudaMemcpy3DBatchOp:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemcpy3DBatchOp.src' in found_struct}}
+
             try:
                 str_list += ['src :\n' + '\n'.join(['    ' + line for line in str(self.src).splitlines()])]
             except ValueError:
                 str_list += ['src : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DBatchOp.dst' in found_struct}}
+
+
             try:
                 str_list += ['dst :\n' + '\n'.join(['    ' + line for line in str(self.dst).splitlines()])]
             except ValueError:
                 str_list += ['dst : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DBatchOp.extent' in found_struct}}
+
+
             try:
                 str_list += ['extent :\n' + '\n'.join(['    ' + line for line in str(self.extent).splitlines()])]
             except ValueError:
                 str_list += ['extent : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DBatchOp.srcAccessOrder' in found_struct}}
+
+
             try:
                 str_list += ['srcAccessOrder : ' + str(self.srcAccessOrder)]
             except ValueError:
                 str_list += ['srcAccessOrder : <ValueError>']
-            {{endif}}
-            {{if 'cudaMemcpy3DBatchOp.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemcpy3DBatchOp.src' in found_struct}}
+
     @property
     def src(self):
         return self._src
     @src.setter
     def src(self, src not None : cudaMemcpy3DOperand):
         string.memcpy(&self._pvt_ptr[0].src, <void*><void_ptr>src.getPtr(), sizeof(self._pvt_ptr[0].src))
-    {{endif}}
-    {{if 'cudaMemcpy3DBatchOp.dst' in found_struct}}
+
+
     @property
     def dst(self):
         return self._dst
     @dst.setter
     def dst(self, dst not None : cudaMemcpy3DOperand):
         string.memcpy(&self._pvt_ptr[0].dst, <void*><void_ptr>dst.getPtr(), sizeof(self._pvt_ptr[0].dst))
-    {{endif}}
-    {{if 'cudaMemcpy3DBatchOp.extent' in found_struct}}
+
+
     @property
     def extent(self):
         return self._extent
     @extent.setter
     def extent(self, extent not None : cudaExtent):
         string.memcpy(&self._pvt_ptr[0].extent, <void*><void_ptr>extent.getPtr(), sizeof(self._pvt_ptr[0].extent))
-    {{endif}}
-    {{if 'cudaMemcpy3DBatchOp.srcAccessOrder' in found_struct}}
+
+
     @property
     def srcAccessOrder(self):
         return cudaMemcpySrcAccessOrder(self._pvt_ptr[0].srcAccessOrder)
     @srcAccessOrder.setter
     def srcAccessOrder(self, srcAccessOrder not None : cudaMemcpySrcAccessOrder):
-        self._pvt_ptr[0].srcAccessOrder = int(srcAccessOrder)
-    {{endif}}
-    {{if 'cudaMemcpy3DBatchOp.flags' in found_struct}}
+        self._pvt_ptr[0].srcAccessOrder = <cyruntime.cudaMemcpySrcAccessOrder><int>int(srcAccessOrder)
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-{{endif}}
-{{if 'CUuuid_st' in found_struct}}
+
 
 cdef class CUuuid_st:
     """
     Attributes
     ----------
-    {{if 'CUuuid_st.bytes' in found_struct}}
+
     bytes : bytes
         < CUDA definition of UUID
-    {{endif}}
+
 
     Methods
     -------
@@ -12686,22 +12250,20 @@ cdef class CUuuid_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'CUuuid_st.bytes' in found_struct}}
+
             try:
                 str_list += ['bytes : ' + str(self.bytes.hex())]
             except ValueError:
                 str_list += ['bytes : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'CUuuid_st.bytes' in found_struct}}
+
     @property
     def bytes(self):
         return PyBytes_FromStringAndSize(self._pvt_ptr[0].bytes, 16)
-    {{endif}}
-{{endif}}
-{{if 'cudaDeviceProp' in found_struct}}
+
 
 cdef class cudaDeviceProp:
     """
@@ -12709,401 +12271,401 @@ cdef class cudaDeviceProp:
 
     Attributes
     ----------
-    {{if 'cudaDeviceProp.name' in found_struct}}
+
     name : bytes
         ASCII string identifying device
-    {{endif}}
-    {{if 'cudaDeviceProp.uuid' in found_struct}}
+
+
     uuid : cudaUUID_t
         16-byte unique identifier
-    {{endif}}
-    {{if 'cudaDeviceProp.luid' in found_struct}}
+
+
     luid : bytes
         8-byte locally unique identifier. Value is undefined on TCC and
         non-Windows platforms
-    {{endif}}
-    {{if 'cudaDeviceProp.luidDeviceNodeMask' in found_struct}}
+
+
     luidDeviceNodeMask : unsigned int
         LUID device node mask. Value is undefined on TCC and non-Windows
         platforms
-    {{endif}}
-    {{if 'cudaDeviceProp.totalGlobalMem' in found_struct}}
+
+
     totalGlobalMem : size_t
         Global memory available on device in bytes
-    {{endif}}
-    {{if 'cudaDeviceProp.sharedMemPerBlock' in found_struct}}
+
+
     sharedMemPerBlock : size_t
         Shared memory available per block in bytes
-    {{endif}}
-    {{if 'cudaDeviceProp.regsPerBlock' in found_struct}}
+
+
     regsPerBlock : int
         32-bit registers available per block
-    {{endif}}
-    {{if 'cudaDeviceProp.warpSize' in found_struct}}
+
+
     warpSize : int
         Warp size in threads
-    {{endif}}
-    {{if 'cudaDeviceProp.memPitch' in found_struct}}
+
+
     memPitch : size_t
         Maximum pitch in bytes allowed by memory copies
-    {{endif}}
-    {{if 'cudaDeviceProp.maxThreadsPerBlock' in found_struct}}
+
+
     maxThreadsPerBlock : int
         Maximum number of threads per block
-    {{endif}}
-    {{if 'cudaDeviceProp.maxThreadsDim' in found_struct}}
+
+
     maxThreadsDim : list[int]
         Maximum size of each dimension of a block
-    {{endif}}
-    {{if 'cudaDeviceProp.maxGridSize' in found_struct}}
+
+
     maxGridSize : list[int]
         Maximum size of each dimension of a grid
-    {{endif}}
-    {{if 'cudaDeviceProp.totalConstMem' in found_struct}}
+
+
     totalConstMem : size_t
         Constant memory available on device in bytes
-    {{endif}}
-    {{if 'cudaDeviceProp.major' in found_struct}}
+
+
     major : int
         Major compute capability
-    {{endif}}
-    {{if 'cudaDeviceProp.minor' in found_struct}}
+
+
     minor : int
         Minor compute capability
-    {{endif}}
-    {{if 'cudaDeviceProp.textureAlignment' in found_struct}}
+
+
     textureAlignment : size_t
         Alignment requirement for textures
-    {{endif}}
-    {{if 'cudaDeviceProp.texturePitchAlignment' in found_struct}}
+
+
     texturePitchAlignment : size_t
         Pitch alignment requirement for texture references bound to pitched
         memory
-    {{endif}}
-    {{if 'cudaDeviceProp.multiProcessorCount' in found_struct}}
+
+
     multiProcessorCount : int
         Number of multiprocessors on device
-    {{endif}}
-    {{if 'cudaDeviceProp.integrated' in found_struct}}
+
+
     integrated : int
         Device is integrated as opposed to discrete
-    {{endif}}
-    {{if 'cudaDeviceProp.canMapHostMemory' in found_struct}}
+
+
     canMapHostMemory : int
         Device can map host memory with
         cudaHostAlloc/cudaHostGetDevicePointer
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture1D' in found_struct}}
+
+
     maxTexture1D : int
         Maximum 1D texture size
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture1DMipmap' in found_struct}}
+
+
     maxTexture1DMipmap : int
         Maximum 1D mipmapped texture size
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture2D' in found_struct}}
+
+
     maxTexture2D : list[int]
         Maximum 2D texture dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture2DMipmap' in found_struct}}
+
+
     maxTexture2DMipmap : list[int]
         Maximum 2D mipmapped texture dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture2DLinear' in found_struct}}
+
+
     maxTexture2DLinear : list[int]
         Maximum dimensions (width, height, pitch) for 2D textures bound to
         pitched memory
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture2DGather' in found_struct}}
+
+
     maxTexture2DGather : list[int]
         Maximum 2D texture dimensions if texture gather operations have to
         be performed
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture3D' in found_struct}}
+
+
     maxTexture3D : list[int]
         Maximum 3D texture dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture3DAlt' in found_struct}}
+
+
     maxTexture3DAlt : list[int]
         Maximum alternate 3D texture dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTextureCubemap' in found_struct}}
+
+
     maxTextureCubemap : int
         Maximum Cubemap texture dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture1DLayered' in found_struct}}
+
+
     maxTexture1DLayered : list[int]
         Maximum 1D layered texture dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture2DLayered' in found_struct}}
+
+
     maxTexture2DLayered : list[int]
         Maximum 2D layered texture dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTextureCubemapLayered' in found_struct}}
+
+
     maxTextureCubemapLayered : list[int]
         Maximum Cubemap layered texture dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurface1D' in found_struct}}
+
+
     maxSurface1D : int
         Maximum 1D surface size
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurface2D' in found_struct}}
+
+
     maxSurface2D : list[int]
         Maximum 2D surface dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurface3D' in found_struct}}
+
+
     maxSurface3D : list[int]
         Maximum 3D surface dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurface1DLayered' in found_struct}}
+
+
     maxSurface1DLayered : list[int]
         Maximum 1D layered surface dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurface2DLayered' in found_struct}}
+
+
     maxSurface2DLayered : list[int]
         Maximum 2D layered surface dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurfaceCubemap' in found_struct}}
+
+
     maxSurfaceCubemap : int
         Maximum Cubemap surface dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurfaceCubemapLayered' in found_struct}}
+
+
     maxSurfaceCubemapLayered : list[int]
         Maximum Cubemap layered surface dimensions
-    {{endif}}
-    {{if 'cudaDeviceProp.surfaceAlignment' in found_struct}}
+
+
     surfaceAlignment : size_t
         Alignment requirements for surfaces
-    {{endif}}
-    {{if 'cudaDeviceProp.concurrentKernels' in found_struct}}
+
+
     concurrentKernels : int
         Device can possibly execute multiple kernels concurrently
-    {{endif}}
-    {{if 'cudaDeviceProp.ECCEnabled' in found_struct}}
+
+
     ECCEnabled : int
         Device has ECC support enabled
-    {{endif}}
-    {{if 'cudaDeviceProp.pciBusID' in found_struct}}
+
+
     pciBusID : int
         PCI bus ID of the device
-    {{endif}}
-    {{if 'cudaDeviceProp.pciDeviceID' in found_struct}}
+
+
     pciDeviceID : int
         PCI device ID of the device
-    {{endif}}
-    {{if 'cudaDeviceProp.pciDomainID' in found_struct}}
+
+
     pciDomainID : int
         PCI domain ID of the device
-    {{endif}}
-    {{if 'cudaDeviceProp.tccDriver' in found_struct}}
+
+
     tccDriver : int
         1 if device is a Tesla device using TCC driver, 0 otherwise
-    {{endif}}
-    {{if 'cudaDeviceProp.asyncEngineCount' in found_struct}}
+
+
     asyncEngineCount : int
         Number of asynchronous engines
-    {{endif}}
-    {{if 'cudaDeviceProp.unifiedAddressing' in found_struct}}
+
+
     unifiedAddressing : int
         Device shares a unified address space with the host
-    {{endif}}
-    {{if 'cudaDeviceProp.memoryBusWidth' in found_struct}}
+
+
     memoryBusWidth : int
         Global memory bus width in bits
-    {{endif}}
-    {{if 'cudaDeviceProp.l2CacheSize' in found_struct}}
+
+
     l2CacheSize : int
         Size of L2 cache in bytes
-    {{endif}}
-    {{if 'cudaDeviceProp.persistingL2CacheMaxSize' in found_struct}}
+
+
     persistingL2CacheMaxSize : int
         Device's maximum l2 persisting lines capacity setting in bytes
-    {{endif}}
-    {{if 'cudaDeviceProp.maxThreadsPerMultiProcessor' in found_struct}}
+
+
     maxThreadsPerMultiProcessor : int
         Maximum resident threads per multiprocessor
-    {{endif}}
-    {{if 'cudaDeviceProp.streamPrioritiesSupported' in found_struct}}
+
+
     streamPrioritiesSupported : int
         Device supports stream priorities
-    {{endif}}
-    {{if 'cudaDeviceProp.globalL1CacheSupported' in found_struct}}
+
+
     globalL1CacheSupported : int
         Device supports caching globals in L1
-    {{endif}}
-    {{if 'cudaDeviceProp.localL1CacheSupported' in found_struct}}
+
+
     localL1CacheSupported : int
         Device supports caching locals in L1
-    {{endif}}
-    {{if 'cudaDeviceProp.sharedMemPerMultiprocessor' in found_struct}}
+
+
     sharedMemPerMultiprocessor : size_t
         Shared memory available per multiprocessor in bytes
-    {{endif}}
-    {{if 'cudaDeviceProp.regsPerMultiprocessor' in found_struct}}
+
+
     regsPerMultiprocessor : int
         32-bit registers available per multiprocessor
-    {{endif}}
-    {{if 'cudaDeviceProp.managedMemory' in found_struct}}
+
+
     managedMemory : int
         Device supports allocating managed memory on this system
-    {{endif}}
-    {{if 'cudaDeviceProp.isMultiGpuBoard' in found_struct}}
+
+
     isMultiGpuBoard : int
         Device is on a multi-GPU board
-    {{endif}}
-    {{if 'cudaDeviceProp.multiGpuBoardGroupID' in found_struct}}
+
+
     multiGpuBoardGroupID : int
         Unique identifier for a group of devices on the same multi-GPU
         board
-    {{endif}}
-    {{if 'cudaDeviceProp.hostNativeAtomicSupported' in found_struct}}
+
+
     hostNativeAtomicSupported : int
         Link between the device and the host supports native atomic
         operations
-    {{endif}}
-    {{if 'cudaDeviceProp.pageableMemoryAccess' in found_struct}}
+
+
     pageableMemoryAccess : int
         Device supports coherently accessing pageable memory without
         calling cudaHostRegister on it
-    {{endif}}
-    {{if 'cudaDeviceProp.concurrentManagedAccess' in found_struct}}
+
+
     concurrentManagedAccess : int
         Device can coherently access managed memory concurrently with the
         CPU
-    {{endif}}
-    {{if 'cudaDeviceProp.computePreemptionSupported' in found_struct}}
+
+
     computePreemptionSupported : int
         Device supports Compute Preemption
-    {{endif}}
-    {{if 'cudaDeviceProp.canUseHostPointerForRegisteredMem' in found_struct}}
+
+
     canUseHostPointerForRegisteredMem : int
         Device can access host registered memory at the same virtual
         address as the CPU
-    {{endif}}
-    {{if 'cudaDeviceProp.cooperativeLaunch' in found_struct}}
+
+
     cooperativeLaunch : int
         Device supports launching cooperative kernels via
         cudaLaunchCooperativeKernel
-    {{endif}}
-    {{if 'cudaDeviceProp.sharedMemPerBlockOptin' in found_struct}}
+
+
     sharedMemPerBlockOptin : size_t
         Per device maximum shared memory per block usable by special opt in
-    {{endif}}
-    {{if 'cudaDeviceProp.pageableMemoryAccessUsesHostPageTables' in found_struct}}
+
+
     pageableMemoryAccessUsesHostPageTables : int
         Device accesses pageable memory via the host's page tables
-    {{endif}}
-    {{if 'cudaDeviceProp.directManagedMemAccessFromHost' in found_struct}}
+
+
     directManagedMemAccessFromHost : int
         Host can directly access managed memory on the device without
         migration.
-    {{endif}}
-    {{if 'cudaDeviceProp.maxBlocksPerMultiProcessor' in found_struct}}
+
+
     maxBlocksPerMultiProcessor : int
         Maximum number of resident blocks per multiprocessor
-    {{endif}}
-    {{if 'cudaDeviceProp.accessPolicyMaxWindowSize' in found_struct}}
+
+
     accessPolicyMaxWindowSize : int
         The maximum value of cudaAccessPolicyWindow::num_bytes.
-    {{endif}}
-    {{if 'cudaDeviceProp.reservedSharedMemPerBlock' in found_struct}}
+
+
     reservedSharedMemPerBlock : size_t
         Shared memory reserved by CUDA driver per block in bytes
-    {{endif}}
-    {{if 'cudaDeviceProp.hostRegisterSupported' in found_struct}}
+
+
     hostRegisterSupported : int
         Device supports host memory registration via cudaHostRegister.
-    {{endif}}
-    {{if 'cudaDeviceProp.sparseCudaArraySupported' in found_struct}}
+
+
     sparseCudaArraySupported : int
         1 if the device supports sparse CUDA arrays and sparse CUDA
         mipmapped arrays, 0 otherwise
-    {{endif}}
-    {{if 'cudaDeviceProp.hostRegisterReadOnlySupported' in found_struct}}
+
+
     hostRegisterReadOnlySupported : int
         Device supports using the cudaHostRegister flag
         cudaHostRegisterReadOnly to register memory that must be mapped as
         read-only to the GPU
-    {{endif}}
-    {{if 'cudaDeviceProp.timelineSemaphoreInteropSupported' in found_struct}}
+
+
     timelineSemaphoreInteropSupported : int
         External timeline semaphore interop is supported on the device
-    {{endif}}
-    {{if 'cudaDeviceProp.memoryPoolsSupported' in found_struct}}
+
+
     memoryPoolsSupported : int
         1 if the device supports using the cudaMallocAsync and cudaMemPool
         family of APIs, 0 otherwise
-    {{endif}}
-    {{if 'cudaDeviceProp.gpuDirectRDMASupported' in found_struct}}
+
+
     gpuDirectRDMASupported : int
         1 if the device supports GPUDirect RDMA APIs, 0 otherwise
-    {{endif}}
-    {{if 'cudaDeviceProp.gpuDirectRDMAFlushWritesOptions' in found_struct}}
+
+
     gpuDirectRDMAFlushWritesOptions : unsigned int
         Bitmask to be interpreted according to the
         cudaFlushGPUDirectRDMAWritesOptions enum
-    {{endif}}
-    {{if 'cudaDeviceProp.gpuDirectRDMAWritesOrdering' in found_struct}}
+
+
     gpuDirectRDMAWritesOrdering : int
         See the cudaGPUDirectRDMAWritesOrdering enum for numerical values
-    {{endif}}
-    {{if 'cudaDeviceProp.memoryPoolSupportedHandleTypes' in found_struct}}
+
+
     memoryPoolSupportedHandleTypes : unsigned int
         Bitmask of handle types supported with mempool-based IPC
-    {{endif}}
-    {{if 'cudaDeviceProp.deferredMappingCudaArraySupported' in found_struct}}
+
+
     deferredMappingCudaArraySupported : int
         1 if the device supports deferred mapping CUDA arrays and CUDA
         mipmapped arrays
-    {{endif}}
-    {{if 'cudaDeviceProp.ipcEventSupported' in found_struct}}
+
+
     ipcEventSupported : int
         Device supports IPC Events.
-    {{endif}}
-    {{if 'cudaDeviceProp.clusterLaunch' in found_struct}}
+
+
     clusterLaunch : int
         Indicates device supports cluster launch
-    {{endif}}
-    {{if 'cudaDeviceProp.unifiedFunctionPointers' in found_struct}}
+
+
     unifiedFunctionPointers : int
         Indicates device supports unified pointers
-    {{endif}}
-    {{if 'cudaDeviceProp.deviceNumaConfig' in found_struct}}
+
+
     deviceNumaConfig : int
         NUMA configuration of a device: value is of type
         cudaDeviceNumaConfig enum
-    {{endif}}
-    {{if 'cudaDeviceProp.deviceNumaId' in found_struct}}
+
+
     deviceNumaId : int
         NUMA node ID of the GPU memory
-    {{endif}}
-    {{if 'cudaDeviceProp.mpsEnabled' in found_struct}}
+
+
     mpsEnabled : int
         Indicates if contexts created on this device will be shared via MPS
-    {{endif}}
-    {{if 'cudaDeviceProp.hostNumaId' in found_struct}}
+
+
     hostNumaId : int
         NUMA ID of the host node closest to the device or -1 when system
         does not support NUMA
-    {{endif}}
-    {{if 'cudaDeviceProp.gpuPciDeviceID' in found_struct}}
+
+
     gpuPciDeviceID : unsigned int
         The combined 16-bit PCI device ID and 16-bit PCI vendor ID
-    {{endif}}
-    {{if 'cudaDeviceProp.gpuPciSubsystemID' in found_struct}}
+
+
     gpuPciSubsystemID : unsigned int
         The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem
         vendor ID
-    {{endif}}
-    {{if 'cudaDeviceProp.hostNumaMultinodeIpcSupported' in found_struct}}
+
+
     hostNumaMultinodeIpcSupported : int
         1 if the device supports HostNuma location IPC between nodes in a
         multi-node system.
-    {{endif}}
-    {{if 'cudaDeviceProp.reserved' in found_struct}}
+
+
     reserved : list[int]
         Reserved for future use
-    {{endif}}
+
 
     Methods
     -------
@@ -13117,9 +12679,9 @@ cdef class cudaDeviceProp:
             self._pvt_ptr = <cyruntime.cudaDeviceProp *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaDeviceProp.uuid' in found_struct}}
+
         self._uuid = cudaUUID_t(_ptr=<void_ptr>&self._pvt_ptr[0].uuid)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -13127,568 +12689,568 @@ cdef class cudaDeviceProp:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaDeviceProp.name' in found_struct}}
+
             try:
                 str_list += ['name : ' + self.name.decode('utf-8')]
             except ValueError:
                 str_list += ['name : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.uuid' in found_struct}}
+
+
             try:
                 str_list += ['uuid :\n' + '\n'.join(['    ' + line for line in str(self.uuid).splitlines()])]
             except ValueError:
                 str_list += ['uuid : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.luid' in found_struct}}
+
+
             try:
                 str_list += ['luid : ' + self.luid.hex()]
             except ValueError:
                 str_list += ['luid : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.luidDeviceNodeMask' in found_struct}}
+
+
             try:
                 str_list += ['luidDeviceNodeMask : ' + str(self.luidDeviceNodeMask)]
             except ValueError:
                 str_list += ['luidDeviceNodeMask : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.totalGlobalMem' in found_struct}}
+
+
             try:
                 str_list += ['totalGlobalMem : ' + str(self.totalGlobalMem)]
             except ValueError:
                 str_list += ['totalGlobalMem : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.sharedMemPerBlock' in found_struct}}
+
+
             try:
                 str_list += ['sharedMemPerBlock : ' + str(self.sharedMemPerBlock)]
             except ValueError:
                 str_list += ['sharedMemPerBlock : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.regsPerBlock' in found_struct}}
+
+
             try:
                 str_list += ['regsPerBlock : ' + str(self.regsPerBlock)]
             except ValueError:
                 str_list += ['regsPerBlock : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.warpSize' in found_struct}}
+
+
             try:
                 str_list += ['warpSize : ' + str(self.warpSize)]
             except ValueError:
                 str_list += ['warpSize : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.memPitch' in found_struct}}
+
+
             try:
                 str_list += ['memPitch : ' + str(self.memPitch)]
             except ValueError:
                 str_list += ['memPitch : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxThreadsPerBlock' in found_struct}}
+
+
             try:
                 str_list += ['maxThreadsPerBlock : ' + str(self.maxThreadsPerBlock)]
             except ValueError:
                 str_list += ['maxThreadsPerBlock : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxThreadsDim' in found_struct}}
+
+
             try:
                 str_list += ['maxThreadsDim : ' + str(self.maxThreadsDim)]
             except ValueError:
                 str_list += ['maxThreadsDim : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxGridSize' in found_struct}}
+
+
             try:
                 str_list += ['maxGridSize : ' + str(self.maxGridSize)]
             except ValueError:
                 str_list += ['maxGridSize : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.totalConstMem' in found_struct}}
+
+
             try:
                 str_list += ['totalConstMem : ' + str(self.totalConstMem)]
             except ValueError:
                 str_list += ['totalConstMem : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.major' in found_struct}}
+
+
             try:
                 str_list += ['major : ' + str(self.major)]
             except ValueError:
                 str_list += ['major : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.minor' in found_struct}}
+
+
             try:
                 str_list += ['minor : ' + str(self.minor)]
             except ValueError:
                 str_list += ['minor : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.textureAlignment' in found_struct}}
+
+
             try:
                 str_list += ['textureAlignment : ' + str(self.textureAlignment)]
             except ValueError:
                 str_list += ['textureAlignment : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.texturePitchAlignment' in found_struct}}
+
+
             try:
                 str_list += ['texturePitchAlignment : ' + str(self.texturePitchAlignment)]
             except ValueError:
                 str_list += ['texturePitchAlignment : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.multiProcessorCount' in found_struct}}
+
+
             try:
                 str_list += ['multiProcessorCount : ' + str(self.multiProcessorCount)]
             except ValueError:
                 str_list += ['multiProcessorCount : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.integrated' in found_struct}}
+
+
             try:
                 str_list += ['integrated : ' + str(self.integrated)]
             except ValueError:
                 str_list += ['integrated : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.canMapHostMemory' in found_struct}}
+
+
             try:
                 str_list += ['canMapHostMemory : ' + str(self.canMapHostMemory)]
             except ValueError:
                 str_list += ['canMapHostMemory : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTexture1D' in found_struct}}
+
+
             try:
                 str_list += ['maxTexture1D : ' + str(self.maxTexture1D)]
             except ValueError:
                 str_list += ['maxTexture1D : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTexture1DMipmap' in found_struct}}
+
+
             try:
                 str_list += ['maxTexture1DMipmap : ' + str(self.maxTexture1DMipmap)]
             except ValueError:
                 str_list += ['maxTexture1DMipmap : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTexture2D' in found_struct}}
+
+
             try:
                 str_list += ['maxTexture2D : ' + str(self.maxTexture2D)]
             except ValueError:
                 str_list += ['maxTexture2D : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTexture2DMipmap' in found_struct}}
+
+
             try:
                 str_list += ['maxTexture2DMipmap : ' + str(self.maxTexture2DMipmap)]
             except ValueError:
                 str_list += ['maxTexture2DMipmap : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTexture2DLinear' in found_struct}}
+
+
             try:
                 str_list += ['maxTexture2DLinear : ' + str(self.maxTexture2DLinear)]
             except ValueError:
                 str_list += ['maxTexture2DLinear : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTexture2DGather' in found_struct}}
+
+
             try:
                 str_list += ['maxTexture2DGather : ' + str(self.maxTexture2DGather)]
             except ValueError:
                 str_list += ['maxTexture2DGather : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTexture3D' in found_struct}}
+
+
             try:
                 str_list += ['maxTexture3D : ' + str(self.maxTexture3D)]
             except ValueError:
                 str_list += ['maxTexture3D : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTexture3DAlt' in found_struct}}
+
+
             try:
                 str_list += ['maxTexture3DAlt : ' + str(self.maxTexture3DAlt)]
             except ValueError:
                 str_list += ['maxTexture3DAlt : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTextureCubemap' in found_struct}}
+
+
             try:
                 str_list += ['maxTextureCubemap : ' + str(self.maxTextureCubemap)]
             except ValueError:
                 str_list += ['maxTextureCubemap : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTexture1DLayered' in found_struct}}
+
+
             try:
                 str_list += ['maxTexture1DLayered : ' + str(self.maxTexture1DLayered)]
             except ValueError:
                 str_list += ['maxTexture1DLayered : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTexture2DLayered' in found_struct}}
+
+
             try:
                 str_list += ['maxTexture2DLayered : ' + str(self.maxTexture2DLayered)]
             except ValueError:
                 str_list += ['maxTexture2DLayered : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxTextureCubemapLayered' in found_struct}}
+
+
             try:
                 str_list += ['maxTextureCubemapLayered : ' + str(self.maxTextureCubemapLayered)]
             except ValueError:
                 str_list += ['maxTextureCubemapLayered : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxSurface1D' in found_struct}}
+
+
             try:
                 str_list += ['maxSurface1D : ' + str(self.maxSurface1D)]
             except ValueError:
                 str_list += ['maxSurface1D : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxSurface2D' in found_struct}}
+
+
             try:
                 str_list += ['maxSurface2D : ' + str(self.maxSurface2D)]
             except ValueError:
                 str_list += ['maxSurface2D : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxSurface3D' in found_struct}}
+
+
             try:
                 str_list += ['maxSurface3D : ' + str(self.maxSurface3D)]
             except ValueError:
                 str_list += ['maxSurface3D : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxSurface1DLayered' in found_struct}}
+
+
             try:
                 str_list += ['maxSurface1DLayered : ' + str(self.maxSurface1DLayered)]
             except ValueError:
                 str_list += ['maxSurface1DLayered : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxSurface2DLayered' in found_struct}}
+
+
             try:
                 str_list += ['maxSurface2DLayered : ' + str(self.maxSurface2DLayered)]
             except ValueError:
                 str_list += ['maxSurface2DLayered : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxSurfaceCubemap' in found_struct}}
+
+
             try:
                 str_list += ['maxSurfaceCubemap : ' + str(self.maxSurfaceCubemap)]
             except ValueError:
                 str_list += ['maxSurfaceCubemap : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxSurfaceCubemapLayered' in found_struct}}
+
+
             try:
                 str_list += ['maxSurfaceCubemapLayered : ' + str(self.maxSurfaceCubemapLayered)]
             except ValueError:
                 str_list += ['maxSurfaceCubemapLayered : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.surfaceAlignment' in found_struct}}
+
+
             try:
                 str_list += ['surfaceAlignment : ' + str(self.surfaceAlignment)]
             except ValueError:
                 str_list += ['surfaceAlignment : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.concurrentKernels' in found_struct}}
+
+
             try:
                 str_list += ['concurrentKernels : ' + str(self.concurrentKernels)]
             except ValueError:
                 str_list += ['concurrentKernels : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.ECCEnabled' in found_struct}}
+
+
             try:
                 str_list += ['ECCEnabled : ' + str(self.ECCEnabled)]
             except ValueError:
                 str_list += ['ECCEnabled : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.pciBusID' in found_struct}}
+
+
             try:
                 str_list += ['pciBusID : ' + str(self.pciBusID)]
             except ValueError:
                 str_list += ['pciBusID : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.pciDeviceID' in found_struct}}
+
+
             try:
                 str_list += ['pciDeviceID : ' + str(self.pciDeviceID)]
             except ValueError:
                 str_list += ['pciDeviceID : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.pciDomainID' in found_struct}}
+
+
             try:
                 str_list += ['pciDomainID : ' + str(self.pciDomainID)]
             except ValueError:
                 str_list += ['pciDomainID : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.tccDriver' in found_struct}}
+
+
             try:
                 str_list += ['tccDriver : ' + str(self.tccDriver)]
             except ValueError:
                 str_list += ['tccDriver : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.asyncEngineCount' in found_struct}}
+
+
             try:
                 str_list += ['asyncEngineCount : ' + str(self.asyncEngineCount)]
             except ValueError:
                 str_list += ['asyncEngineCount : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.unifiedAddressing' in found_struct}}
+
+
             try:
                 str_list += ['unifiedAddressing : ' + str(self.unifiedAddressing)]
             except ValueError:
                 str_list += ['unifiedAddressing : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.memoryBusWidth' in found_struct}}
+
+
             try:
                 str_list += ['memoryBusWidth : ' + str(self.memoryBusWidth)]
             except ValueError:
                 str_list += ['memoryBusWidth : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.l2CacheSize' in found_struct}}
+
+
             try:
                 str_list += ['l2CacheSize : ' + str(self.l2CacheSize)]
             except ValueError:
                 str_list += ['l2CacheSize : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.persistingL2CacheMaxSize' in found_struct}}
+
+
             try:
                 str_list += ['persistingL2CacheMaxSize : ' + str(self.persistingL2CacheMaxSize)]
             except ValueError:
                 str_list += ['persistingL2CacheMaxSize : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxThreadsPerMultiProcessor' in found_struct}}
+
+
             try:
                 str_list += ['maxThreadsPerMultiProcessor : ' + str(self.maxThreadsPerMultiProcessor)]
             except ValueError:
                 str_list += ['maxThreadsPerMultiProcessor : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.streamPrioritiesSupported' in found_struct}}
+
+
             try:
                 str_list += ['streamPrioritiesSupported : ' + str(self.streamPrioritiesSupported)]
             except ValueError:
                 str_list += ['streamPrioritiesSupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.globalL1CacheSupported' in found_struct}}
+
+
             try:
                 str_list += ['globalL1CacheSupported : ' + str(self.globalL1CacheSupported)]
             except ValueError:
                 str_list += ['globalL1CacheSupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.localL1CacheSupported' in found_struct}}
+
+
             try:
                 str_list += ['localL1CacheSupported : ' + str(self.localL1CacheSupported)]
             except ValueError:
                 str_list += ['localL1CacheSupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.sharedMemPerMultiprocessor' in found_struct}}
+
+
             try:
                 str_list += ['sharedMemPerMultiprocessor : ' + str(self.sharedMemPerMultiprocessor)]
             except ValueError:
                 str_list += ['sharedMemPerMultiprocessor : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.regsPerMultiprocessor' in found_struct}}
+
+
             try:
                 str_list += ['regsPerMultiprocessor : ' + str(self.regsPerMultiprocessor)]
             except ValueError:
                 str_list += ['regsPerMultiprocessor : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.managedMemory' in found_struct}}
+
+
             try:
                 str_list += ['managedMemory : ' + str(self.managedMemory)]
             except ValueError:
                 str_list += ['managedMemory : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.isMultiGpuBoard' in found_struct}}
+
+
             try:
                 str_list += ['isMultiGpuBoard : ' + str(self.isMultiGpuBoard)]
             except ValueError:
                 str_list += ['isMultiGpuBoard : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.multiGpuBoardGroupID' in found_struct}}
+
+
             try:
                 str_list += ['multiGpuBoardGroupID : ' + str(self.multiGpuBoardGroupID)]
             except ValueError:
                 str_list += ['multiGpuBoardGroupID : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.hostNativeAtomicSupported' in found_struct}}
+
+
             try:
                 str_list += ['hostNativeAtomicSupported : ' + str(self.hostNativeAtomicSupported)]
             except ValueError:
                 str_list += ['hostNativeAtomicSupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.pageableMemoryAccess' in found_struct}}
+
+
             try:
                 str_list += ['pageableMemoryAccess : ' + str(self.pageableMemoryAccess)]
             except ValueError:
                 str_list += ['pageableMemoryAccess : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.concurrentManagedAccess' in found_struct}}
+
+
             try:
                 str_list += ['concurrentManagedAccess : ' + str(self.concurrentManagedAccess)]
             except ValueError:
                 str_list += ['concurrentManagedAccess : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.computePreemptionSupported' in found_struct}}
+
+
             try:
                 str_list += ['computePreemptionSupported : ' + str(self.computePreemptionSupported)]
             except ValueError:
                 str_list += ['computePreemptionSupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.canUseHostPointerForRegisteredMem' in found_struct}}
+
+
             try:
                 str_list += ['canUseHostPointerForRegisteredMem : ' + str(self.canUseHostPointerForRegisteredMem)]
             except ValueError:
                 str_list += ['canUseHostPointerForRegisteredMem : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.cooperativeLaunch' in found_struct}}
+
+
             try:
                 str_list += ['cooperativeLaunch : ' + str(self.cooperativeLaunch)]
             except ValueError:
                 str_list += ['cooperativeLaunch : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.sharedMemPerBlockOptin' in found_struct}}
+
+
             try:
                 str_list += ['sharedMemPerBlockOptin : ' + str(self.sharedMemPerBlockOptin)]
             except ValueError:
                 str_list += ['sharedMemPerBlockOptin : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.pageableMemoryAccessUsesHostPageTables' in found_struct}}
+
+
             try:
                 str_list += ['pageableMemoryAccessUsesHostPageTables : ' + str(self.pageableMemoryAccessUsesHostPageTables)]
             except ValueError:
                 str_list += ['pageableMemoryAccessUsesHostPageTables : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.directManagedMemAccessFromHost' in found_struct}}
+
+
             try:
                 str_list += ['directManagedMemAccessFromHost : ' + str(self.directManagedMemAccessFromHost)]
             except ValueError:
                 str_list += ['directManagedMemAccessFromHost : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.maxBlocksPerMultiProcessor' in found_struct}}
+
+
             try:
                 str_list += ['maxBlocksPerMultiProcessor : ' + str(self.maxBlocksPerMultiProcessor)]
             except ValueError:
                 str_list += ['maxBlocksPerMultiProcessor : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.accessPolicyMaxWindowSize' in found_struct}}
+
+
             try:
                 str_list += ['accessPolicyMaxWindowSize : ' + str(self.accessPolicyMaxWindowSize)]
             except ValueError:
                 str_list += ['accessPolicyMaxWindowSize : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.reservedSharedMemPerBlock' in found_struct}}
+
+
             try:
                 str_list += ['reservedSharedMemPerBlock : ' + str(self.reservedSharedMemPerBlock)]
             except ValueError:
                 str_list += ['reservedSharedMemPerBlock : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.hostRegisterSupported' in found_struct}}
+
+
             try:
                 str_list += ['hostRegisterSupported : ' + str(self.hostRegisterSupported)]
             except ValueError:
                 str_list += ['hostRegisterSupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.sparseCudaArraySupported' in found_struct}}
+
+
             try:
                 str_list += ['sparseCudaArraySupported : ' + str(self.sparseCudaArraySupported)]
             except ValueError:
                 str_list += ['sparseCudaArraySupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.hostRegisterReadOnlySupported' in found_struct}}
+
+
             try:
                 str_list += ['hostRegisterReadOnlySupported : ' + str(self.hostRegisterReadOnlySupported)]
             except ValueError:
                 str_list += ['hostRegisterReadOnlySupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.timelineSemaphoreInteropSupported' in found_struct}}
+
+
             try:
                 str_list += ['timelineSemaphoreInteropSupported : ' + str(self.timelineSemaphoreInteropSupported)]
             except ValueError:
                 str_list += ['timelineSemaphoreInteropSupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.memoryPoolsSupported' in found_struct}}
+
+
             try:
                 str_list += ['memoryPoolsSupported : ' + str(self.memoryPoolsSupported)]
             except ValueError:
                 str_list += ['memoryPoolsSupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.gpuDirectRDMASupported' in found_struct}}
+
+
             try:
                 str_list += ['gpuDirectRDMASupported : ' + str(self.gpuDirectRDMASupported)]
             except ValueError:
                 str_list += ['gpuDirectRDMASupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.gpuDirectRDMAFlushWritesOptions' in found_struct}}
+
+
             try:
                 str_list += ['gpuDirectRDMAFlushWritesOptions : ' + str(self.gpuDirectRDMAFlushWritesOptions)]
             except ValueError:
                 str_list += ['gpuDirectRDMAFlushWritesOptions : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.gpuDirectRDMAWritesOrdering' in found_struct}}
+
+
             try:
                 str_list += ['gpuDirectRDMAWritesOrdering : ' + str(self.gpuDirectRDMAWritesOrdering)]
             except ValueError:
                 str_list += ['gpuDirectRDMAWritesOrdering : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.memoryPoolSupportedHandleTypes' in found_struct}}
+
+
             try:
                 str_list += ['memoryPoolSupportedHandleTypes : ' + str(self.memoryPoolSupportedHandleTypes)]
             except ValueError:
                 str_list += ['memoryPoolSupportedHandleTypes : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.deferredMappingCudaArraySupported' in found_struct}}
+
+
             try:
                 str_list += ['deferredMappingCudaArraySupported : ' + str(self.deferredMappingCudaArraySupported)]
             except ValueError:
                 str_list += ['deferredMappingCudaArraySupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.ipcEventSupported' in found_struct}}
+
+
             try:
                 str_list += ['ipcEventSupported : ' + str(self.ipcEventSupported)]
             except ValueError:
                 str_list += ['ipcEventSupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.clusterLaunch' in found_struct}}
+
+
             try:
                 str_list += ['clusterLaunch : ' + str(self.clusterLaunch)]
             except ValueError:
                 str_list += ['clusterLaunch : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.unifiedFunctionPointers' in found_struct}}
+
+
             try:
                 str_list += ['unifiedFunctionPointers : ' + str(self.unifiedFunctionPointers)]
             except ValueError:
                 str_list += ['unifiedFunctionPointers : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.deviceNumaConfig' in found_struct}}
+
+
             try:
                 str_list += ['deviceNumaConfig : ' + str(self.deviceNumaConfig)]
             except ValueError:
                 str_list += ['deviceNumaConfig : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.deviceNumaId' in found_struct}}
+
+
             try:
                 str_list += ['deviceNumaId : ' + str(self.deviceNumaId)]
             except ValueError:
                 str_list += ['deviceNumaId : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.mpsEnabled' in found_struct}}
+
+
             try:
                 str_list += ['mpsEnabled : ' + str(self.mpsEnabled)]
             except ValueError:
                 str_list += ['mpsEnabled : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.hostNumaId' in found_struct}}
+
+
             try:
                 str_list += ['hostNumaId : ' + str(self.hostNumaId)]
             except ValueError:
                 str_list += ['hostNumaId : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.gpuPciDeviceID' in found_struct}}
+
+
             try:
                 str_list += ['gpuPciDeviceID : ' + str(self.gpuPciDeviceID)]
             except ValueError:
                 str_list += ['gpuPciDeviceID : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.gpuPciSubsystemID' in found_struct}}
+
+
             try:
                 str_list += ['gpuPciSubsystemID : ' + str(self.gpuPciSubsystemID)]
             except ValueError:
                 str_list += ['gpuPciSubsystemID : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.hostNumaMultinodeIpcSupported' in found_struct}}
+
+
             try:
                 str_list += ['hostNumaMultinodeIpcSupported : ' + str(self.hostNumaMultinodeIpcSupported)]
             except ValueError:
                 str_list += ['hostNumaMultinodeIpcSupported : <ValueError>']
-            {{endif}}
-            {{if 'cudaDeviceProp.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaDeviceProp.name' in found_struct}}
+
     @property
     def name(self):
         return self._pvt_ptr[0].name
@@ -13696,16 +13258,16 @@ cdef class cudaDeviceProp:
     def name(self, name):
         pass
         self._pvt_ptr[0].name = name
-    {{endif}}
-    {{if 'cudaDeviceProp.uuid' in found_struct}}
+
+
     @property
     def uuid(self):
         return self._uuid
     @uuid.setter
     def uuid(self, uuid not None : cudaUUID_t):
         string.memcpy(&self._pvt_ptr[0].uuid, <void*><void_ptr>uuid.getPtr(), sizeof(self._pvt_ptr[0].uuid))
-    {{endif}}
-    {{if 'cudaDeviceProp.luid' in found_struct}}
+
+
     @property
     def luid(self):
         return PyBytes_FromStringAndSize(self._pvt_ptr[0].luid, 8)
@@ -13723,729 +13285,727 @@ cdef class cudaDeviceProp:
                 if b > 127 and b < 256:
                     b = b - 256
                 self._pvt_ptr[0].luid[i] = b
-    {{endif}}
-    {{if 'cudaDeviceProp.luidDeviceNodeMask' in found_struct}}
+
+
     @property
     def luidDeviceNodeMask(self):
         return self._pvt_ptr[0].luidDeviceNodeMask
     @luidDeviceNodeMask.setter
     def luidDeviceNodeMask(self, unsigned int luidDeviceNodeMask):
         self._pvt_ptr[0].luidDeviceNodeMask = luidDeviceNodeMask
-    {{endif}}
-    {{if 'cudaDeviceProp.totalGlobalMem' in found_struct}}
+
+
     @property
     def totalGlobalMem(self):
         return self._pvt_ptr[0].totalGlobalMem
     @totalGlobalMem.setter
     def totalGlobalMem(self, size_t totalGlobalMem):
         self._pvt_ptr[0].totalGlobalMem = totalGlobalMem
-    {{endif}}
-    {{if 'cudaDeviceProp.sharedMemPerBlock' in found_struct}}
+
+
     @property
     def sharedMemPerBlock(self):
         return self._pvt_ptr[0].sharedMemPerBlock
     @sharedMemPerBlock.setter
     def sharedMemPerBlock(self, size_t sharedMemPerBlock):
         self._pvt_ptr[0].sharedMemPerBlock = sharedMemPerBlock
-    {{endif}}
-    {{if 'cudaDeviceProp.regsPerBlock' in found_struct}}
+
+
     @property
     def regsPerBlock(self):
         return self._pvt_ptr[0].regsPerBlock
     @regsPerBlock.setter
     def regsPerBlock(self, int regsPerBlock):
         self._pvt_ptr[0].regsPerBlock = regsPerBlock
-    {{endif}}
-    {{if 'cudaDeviceProp.warpSize' in found_struct}}
+
+
     @property
     def warpSize(self):
         return self._pvt_ptr[0].warpSize
     @warpSize.setter
     def warpSize(self, int warpSize):
         self._pvt_ptr[0].warpSize = warpSize
-    {{endif}}
-    {{if 'cudaDeviceProp.memPitch' in found_struct}}
+
+
     @property
     def memPitch(self):
         return self._pvt_ptr[0].memPitch
     @memPitch.setter
     def memPitch(self, size_t memPitch):
         self._pvt_ptr[0].memPitch = memPitch
-    {{endif}}
-    {{if 'cudaDeviceProp.maxThreadsPerBlock' in found_struct}}
+
+
     @property
     def maxThreadsPerBlock(self):
         return self._pvt_ptr[0].maxThreadsPerBlock
     @maxThreadsPerBlock.setter
     def maxThreadsPerBlock(self, int maxThreadsPerBlock):
         self._pvt_ptr[0].maxThreadsPerBlock = maxThreadsPerBlock
-    {{endif}}
-    {{if 'cudaDeviceProp.maxThreadsDim' in found_struct}}
+
+
     @property
     def maxThreadsDim(self):
         return self._pvt_ptr[0].maxThreadsDim
     @maxThreadsDim.setter
     def maxThreadsDim(self, maxThreadsDim):
         self._pvt_ptr[0].maxThreadsDim = maxThreadsDim
-    {{endif}}
-    {{if 'cudaDeviceProp.maxGridSize' in found_struct}}
+
+
     @property
     def maxGridSize(self):
         return self._pvt_ptr[0].maxGridSize
     @maxGridSize.setter
     def maxGridSize(self, maxGridSize):
         self._pvt_ptr[0].maxGridSize = maxGridSize
-    {{endif}}
-    {{if 'cudaDeviceProp.totalConstMem' in found_struct}}
+
+
     @property
     def totalConstMem(self):
         return self._pvt_ptr[0].totalConstMem
     @totalConstMem.setter
     def totalConstMem(self, size_t totalConstMem):
         self._pvt_ptr[0].totalConstMem = totalConstMem
-    {{endif}}
-    {{if 'cudaDeviceProp.major' in found_struct}}
+
+
     @property
     def major(self):
         return self._pvt_ptr[0].major
     @major.setter
     def major(self, int major):
         self._pvt_ptr[0].major = major
-    {{endif}}
-    {{if 'cudaDeviceProp.minor' in found_struct}}
+
+
     @property
     def minor(self):
         return self._pvt_ptr[0].minor
     @minor.setter
     def minor(self, int minor):
         self._pvt_ptr[0].minor = minor
-    {{endif}}
-    {{if 'cudaDeviceProp.textureAlignment' in found_struct}}
+
+
     @property
     def textureAlignment(self):
         return self._pvt_ptr[0].textureAlignment
     @textureAlignment.setter
     def textureAlignment(self, size_t textureAlignment):
         self._pvt_ptr[0].textureAlignment = textureAlignment
-    {{endif}}
-    {{if 'cudaDeviceProp.texturePitchAlignment' in found_struct}}
+
+
     @property
     def texturePitchAlignment(self):
         return self._pvt_ptr[0].texturePitchAlignment
     @texturePitchAlignment.setter
     def texturePitchAlignment(self, size_t texturePitchAlignment):
         self._pvt_ptr[0].texturePitchAlignment = texturePitchAlignment
-    {{endif}}
-    {{if 'cudaDeviceProp.multiProcessorCount' in found_struct}}
+
+
     @property
     def multiProcessorCount(self):
         return self._pvt_ptr[0].multiProcessorCount
     @multiProcessorCount.setter
     def multiProcessorCount(self, int multiProcessorCount):
         self._pvt_ptr[0].multiProcessorCount = multiProcessorCount
-    {{endif}}
-    {{if 'cudaDeviceProp.integrated' in found_struct}}
+
+
     @property
     def integrated(self):
         return self._pvt_ptr[0].integrated
     @integrated.setter
     def integrated(self, int integrated):
         self._pvt_ptr[0].integrated = integrated
-    {{endif}}
-    {{if 'cudaDeviceProp.canMapHostMemory' in found_struct}}
+
+
     @property
     def canMapHostMemory(self):
         return self._pvt_ptr[0].canMapHostMemory
     @canMapHostMemory.setter
     def canMapHostMemory(self, int canMapHostMemory):
         self._pvt_ptr[0].canMapHostMemory = canMapHostMemory
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture1D' in found_struct}}
+
+
     @property
     def maxTexture1D(self):
         return self._pvt_ptr[0].maxTexture1D
     @maxTexture1D.setter
     def maxTexture1D(self, int maxTexture1D):
         self._pvt_ptr[0].maxTexture1D = maxTexture1D
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture1DMipmap' in found_struct}}
+
+
     @property
     def maxTexture1DMipmap(self):
         return self._pvt_ptr[0].maxTexture1DMipmap
     @maxTexture1DMipmap.setter
     def maxTexture1DMipmap(self, int maxTexture1DMipmap):
         self._pvt_ptr[0].maxTexture1DMipmap = maxTexture1DMipmap
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture2D' in found_struct}}
+
+
     @property
     def maxTexture2D(self):
         return self._pvt_ptr[0].maxTexture2D
     @maxTexture2D.setter
     def maxTexture2D(self, maxTexture2D):
         self._pvt_ptr[0].maxTexture2D = maxTexture2D
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture2DMipmap' in found_struct}}
+
+
     @property
     def maxTexture2DMipmap(self):
         return self._pvt_ptr[0].maxTexture2DMipmap
     @maxTexture2DMipmap.setter
     def maxTexture2DMipmap(self, maxTexture2DMipmap):
         self._pvt_ptr[0].maxTexture2DMipmap = maxTexture2DMipmap
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture2DLinear' in found_struct}}
+
+
     @property
     def maxTexture2DLinear(self):
         return self._pvt_ptr[0].maxTexture2DLinear
     @maxTexture2DLinear.setter
     def maxTexture2DLinear(self, maxTexture2DLinear):
         self._pvt_ptr[0].maxTexture2DLinear = maxTexture2DLinear
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture2DGather' in found_struct}}
+
+
     @property
     def maxTexture2DGather(self):
         return self._pvt_ptr[0].maxTexture2DGather
     @maxTexture2DGather.setter
     def maxTexture2DGather(self, maxTexture2DGather):
         self._pvt_ptr[0].maxTexture2DGather = maxTexture2DGather
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture3D' in found_struct}}
+
+
     @property
     def maxTexture3D(self):
         return self._pvt_ptr[0].maxTexture3D
     @maxTexture3D.setter
     def maxTexture3D(self, maxTexture3D):
         self._pvt_ptr[0].maxTexture3D = maxTexture3D
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture3DAlt' in found_struct}}
+
+
     @property
     def maxTexture3DAlt(self):
         return self._pvt_ptr[0].maxTexture3DAlt
     @maxTexture3DAlt.setter
     def maxTexture3DAlt(self, maxTexture3DAlt):
         self._pvt_ptr[0].maxTexture3DAlt = maxTexture3DAlt
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTextureCubemap' in found_struct}}
+
+
     @property
     def maxTextureCubemap(self):
         return self._pvt_ptr[0].maxTextureCubemap
     @maxTextureCubemap.setter
     def maxTextureCubemap(self, int maxTextureCubemap):
         self._pvt_ptr[0].maxTextureCubemap = maxTextureCubemap
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture1DLayered' in found_struct}}
+
+
     @property
     def maxTexture1DLayered(self):
         return self._pvt_ptr[0].maxTexture1DLayered
     @maxTexture1DLayered.setter
     def maxTexture1DLayered(self, maxTexture1DLayered):
         self._pvt_ptr[0].maxTexture1DLayered = maxTexture1DLayered
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTexture2DLayered' in found_struct}}
+
+
     @property
     def maxTexture2DLayered(self):
         return self._pvt_ptr[0].maxTexture2DLayered
     @maxTexture2DLayered.setter
     def maxTexture2DLayered(self, maxTexture2DLayered):
         self._pvt_ptr[0].maxTexture2DLayered = maxTexture2DLayered
-    {{endif}}
-    {{if 'cudaDeviceProp.maxTextureCubemapLayered' in found_struct}}
+
+
     @property
     def maxTextureCubemapLayered(self):
         return self._pvt_ptr[0].maxTextureCubemapLayered
     @maxTextureCubemapLayered.setter
     def maxTextureCubemapLayered(self, maxTextureCubemapLayered):
         self._pvt_ptr[0].maxTextureCubemapLayered = maxTextureCubemapLayered
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurface1D' in found_struct}}
+
+
     @property
     def maxSurface1D(self):
         return self._pvt_ptr[0].maxSurface1D
     @maxSurface1D.setter
     def maxSurface1D(self, int maxSurface1D):
         self._pvt_ptr[0].maxSurface1D = maxSurface1D
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurface2D' in found_struct}}
+
+
     @property
     def maxSurface2D(self):
         return self._pvt_ptr[0].maxSurface2D
     @maxSurface2D.setter
     def maxSurface2D(self, maxSurface2D):
         self._pvt_ptr[0].maxSurface2D = maxSurface2D
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurface3D' in found_struct}}
+
+
     @property
     def maxSurface3D(self):
         return self._pvt_ptr[0].maxSurface3D
     @maxSurface3D.setter
     def maxSurface3D(self, maxSurface3D):
         self._pvt_ptr[0].maxSurface3D = maxSurface3D
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurface1DLayered' in found_struct}}
+
+
     @property
     def maxSurface1DLayered(self):
         return self._pvt_ptr[0].maxSurface1DLayered
     @maxSurface1DLayered.setter
     def maxSurface1DLayered(self, maxSurface1DLayered):
         self._pvt_ptr[0].maxSurface1DLayered = maxSurface1DLayered
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurface2DLayered' in found_struct}}
+
+
     @property
     def maxSurface2DLayered(self):
         return self._pvt_ptr[0].maxSurface2DLayered
     @maxSurface2DLayered.setter
     def maxSurface2DLayered(self, maxSurface2DLayered):
         self._pvt_ptr[0].maxSurface2DLayered = maxSurface2DLayered
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurfaceCubemap' in found_struct}}
+
+
     @property
     def maxSurfaceCubemap(self):
         return self._pvt_ptr[0].maxSurfaceCubemap
     @maxSurfaceCubemap.setter
     def maxSurfaceCubemap(self, int maxSurfaceCubemap):
         self._pvt_ptr[0].maxSurfaceCubemap = maxSurfaceCubemap
-    {{endif}}
-    {{if 'cudaDeviceProp.maxSurfaceCubemapLayered' in found_struct}}
+
+
     @property
     def maxSurfaceCubemapLayered(self):
         return self._pvt_ptr[0].maxSurfaceCubemapLayered
     @maxSurfaceCubemapLayered.setter
     def maxSurfaceCubemapLayered(self, maxSurfaceCubemapLayered):
         self._pvt_ptr[0].maxSurfaceCubemapLayered = maxSurfaceCubemapLayered
-    {{endif}}
-    {{if 'cudaDeviceProp.surfaceAlignment' in found_struct}}
+
+
     @property
     def surfaceAlignment(self):
         return self._pvt_ptr[0].surfaceAlignment
     @surfaceAlignment.setter
     def surfaceAlignment(self, size_t surfaceAlignment):
         self._pvt_ptr[0].surfaceAlignment = surfaceAlignment
-    {{endif}}
-    {{if 'cudaDeviceProp.concurrentKernels' in found_struct}}
+
+
     @property
     def concurrentKernels(self):
         return self._pvt_ptr[0].concurrentKernels
     @concurrentKernels.setter
     def concurrentKernels(self, int concurrentKernels):
         self._pvt_ptr[0].concurrentKernels = concurrentKernels
-    {{endif}}
-    {{if 'cudaDeviceProp.ECCEnabled' in found_struct}}
+
+
     @property
     def ECCEnabled(self):
         return self._pvt_ptr[0].ECCEnabled
     @ECCEnabled.setter
     def ECCEnabled(self, int ECCEnabled):
         self._pvt_ptr[0].ECCEnabled = ECCEnabled
-    {{endif}}
-    {{if 'cudaDeviceProp.pciBusID' in found_struct}}
+
+
     @property
     def pciBusID(self):
         return self._pvt_ptr[0].pciBusID
     @pciBusID.setter
     def pciBusID(self, int pciBusID):
         self._pvt_ptr[0].pciBusID = pciBusID
-    {{endif}}
-    {{if 'cudaDeviceProp.pciDeviceID' in found_struct}}
+
+
     @property
     def pciDeviceID(self):
         return self._pvt_ptr[0].pciDeviceID
     @pciDeviceID.setter
     def pciDeviceID(self, int pciDeviceID):
         self._pvt_ptr[0].pciDeviceID = pciDeviceID
-    {{endif}}
-    {{if 'cudaDeviceProp.pciDomainID' in found_struct}}
+
+
     @property
     def pciDomainID(self):
         return self._pvt_ptr[0].pciDomainID
     @pciDomainID.setter
     def pciDomainID(self, int pciDomainID):
         self._pvt_ptr[0].pciDomainID = pciDomainID
-    {{endif}}
-    {{if 'cudaDeviceProp.tccDriver' in found_struct}}
+
+
     @property
     def tccDriver(self):
         return self._pvt_ptr[0].tccDriver
     @tccDriver.setter
     def tccDriver(self, int tccDriver):
         self._pvt_ptr[0].tccDriver = tccDriver
-    {{endif}}
-    {{if 'cudaDeviceProp.asyncEngineCount' in found_struct}}
+
+
     @property
     def asyncEngineCount(self):
         return self._pvt_ptr[0].asyncEngineCount
     @asyncEngineCount.setter
     def asyncEngineCount(self, int asyncEngineCount):
         self._pvt_ptr[0].asyncEngineCount = asyncEngineCount
-    {{endif}}
-    {{if 'cudaDeviceProp.unifiedAddressing' in found_struct}}
+
+
     @property
     def unifiedAddressing(self):
         return self._pvt_ptr[0].unifiedAddressing
     @unifiedAddressing.setter
     def unifiedAddressing(self, int unifiedAddressing):
         self._pvt_ptr[0].unifiedAddressing = unifiedAddressing
-    {{endif}}
-    {{if 'cudaDeviceProp.memoryBusWidth' in found_struct}}
+
+
     @property
     def memoryBusWidth(self):
         return self._pvt_ptr[0].memoryBusWidth
     @memoryBusWidth.setter
     def memoryBusWidth(self, int memoryBusWidth):
         self._pvt_ptr[0].memoryBusWidth = memoryBusWidth
-    {{endif}}
-    {{if 'cudaDeviceProp.l2CacheSize' in found_struct}}
+
+
     @property
     def l2CacheSize(self):
         return self._pvt_ptr[0].l2CacheSize
     @l2CacheSize.setter
     def l2CacheSize(self, int l2CacheSize):
         self._pvt_ptr[0].l2CacheSize = l2CacheSize
-    {{endif}}
-    {{if 'cudaDeviceProp.persistingL2CacheMaxSize' in found_struct}}
+
+
     @property
     def persistingL2CacheMaxSize(self):
         return self._pvt_ptr[0].persistingL2CacheMaxSize
     @persistingL2CacheMaxSize.setter
     def persistingL2CacheMaxSize(self, int persistingL2CacheMaxSize):
         self._pvt_ptr[0].persistingL2CacheMaxSize = persistingL2CacheMaxSize
-    {{endif}}
-    {{if 'cudaDeviceProp.maxThreadsPerMultiProcessor' in found_struct}}
+
+
     @property
     def maxThreadsPerMultiProcessor(self):
         return self._pvt_ptr[0].maxThreadsPerMultiProcessor
     @maxThreadsPerMultiProcessor.setter
     def maxThreadsPerMultiProcessor(self, int maxThreadsPerMultiProcessor):
         self._pvt_ptr[0].maxThreadsPerMultiProcessor = maxThreadsPerMultiProcessor
-    {{endif}}
-    {{if 'cudaDeviceProp.streamPrioritiesSupported' in found_struct}}
+
+
     @property
     def streamPrioritiesSupported(self):
         return self._pvt_ptr[0].streamPrioritiesSupported
     @streamPrioritiesSupported.setter
     def streamPrioritiesSupported(self, int streamPrioritiesSupported):
         self._pvt_ptr[0].streamPrioritiesSupported = streamPrioritiesSupported
-    {{endif}}
-    {{if 'cudaDeviceProp.globalL1CacheSupported' in found_struct}}
+
+
     @property
     def globalL1CacheSupported(self):
         return self._pvt_ptr[0].globalL1CacheSupported
     @globalL1CacheSupported.setter
     def globalL1CacheSupported(self, int globalL1CacheSupported):
         self._pvt_ptr[0].globalL1CacheSupported = globalL1CacheSupported
-    {{endif}}
-    {{if 'cudaDeviceProp.localL1CacheSupported' in found_struct}}
+
+
     @property
     def localL1CacheSupported(self):
         return self._pvt_ptr[0].localL1CacheSupported
     @localL1CacheSupported.setter
     def localL1CacheSupported(self, int localL1CacheSupported):
         self._pvt_ptr[0].localL1CacheSupported = localL1CacheSupported
-    {{endif}}
-    {{if 'cudaDeviceProp.sharedMemPerMultiprocessor' in found_struct}}
+
+
     @property
     def sharedMemPerMultiprocessor(self):
         return self._pvt_ptr[0].sharedMemPerMultiprocessor
     @sharedMemPerMultiprocessor.setter
     def sharedMemPerMultiprocessor(self, size_t sharedMemPerMultiprocessor):
         self._pvt_ptr[0].sharedMemPerMultiprocessor = sharedMemPerMultiprocessor
-    {{endif}}
-    {{if 'cudaDeviceProp.regsPerMultiprocessor' in found_struct}}
+
+
     @property
     def regsPerMultiprocessor(self):
         return self._pvt_ptr[0].regsPerMultiprocessor
     @regsPerMultiprocessor.setter
     def regsPerMultiprocessor(self, int regsPerMultiprocessor):
         self._pvt_ptr[0].regsPerMultiprocessor = regsPerMultiprocessor
-    {{endif}}
-    {{if 'cudaDeviceProp.managedMemory' in found_struct}}
+
+
     @property
     def managedMemory(self):
         return self._pvt_ptr[0].managedMemory
     @managedMemory.setter
     def managedMemory(self, int managedMemory):
         self._pvt_ptr[0].managedMemory = managedMemory
-    {{endif}}
-    {{if 'cudaDeviceProp.isMultiGpuBoard' in found_struct}}
+
+
     @property
     def isMultiGpuBoard(self):
         return self._pvt_ptr[0].isMultiGpuBoard
     @isMultiGpuBoard.setter
     def isMultiGpuBoard(self, int isMultiGpuBoard):
         self._pvt_ptr[0].isMultiGpuBoard = isMultiGpuBoard
-    {{endif}}
-    {{if 'cudaDeviceProp.multiGpuBoardGroupID' in found_struct}}
+
+
     @property
     def multiGpuBoardGroupID(self):
         return self._pvt_ptr[0].multiGpuBoardGroupID
     @multiGpuBoardGroupID.setter
     def multiGpuBoardGroupID(self, int multiGpuBoardGroupID):
         self._pvt_ptr[0].multiGpuBoardGroupID = multiGpuBoardGroupID
-    {{endif}}
-    {{if 'cudaDeviceProp.hostNativeAtomicSupported' in found_struct}}
+
+
     @property
     def hostNativeAtomicSupported(self):
         return self._pvt_ptr[0].hostNativeAtomicSupported
     @hostNativeAtomicSupported.setter
     def hostNativeAtomicSupported(self, int hostNativeAtomicSupported):
         self._pvt_ptr[0].hostNativeAtomicSupported = hostNativeAtomicSupported
-    {{endif}}
-    {{if 'cudaDeviceProp.pageableMemoryAccess' in found_struct}}
+
+
     @property
     def pageableMemoryAccess(self):
         return self._pvt_ptr[0].pageableMemoryAccess
     @pageableMemoryAccess.setter
     def pageableMemoryAccess(self, int pageableMemoryAccess):
         self._pvt_ptr[0].pageableMemoryAccess = pageableMemoryAccess
-    {{endif}}
-    {{if 'cudaDeviceProp.concurrentManagedAccess' in found_struct}}
+
+
     @property
     def concurrentManagedAccess(self):
         return self._pvt_ptr[0].concurrentManagedAccess
     @concurrentManagedAccess.setter
     def concurrentManagedAccess(self, int concurrentManagedAccess):
         self._pvt_ptr[0].concurrentManagedAccess = concurrentManagedAccess
-    {{endif}}
-    {{if 'cudaDeviceProp.computePreemptionSupported' in found_struct}}
+
+
     @property
     def computePreemptionSupported(self):
         return self._pvt_ptr[0].computePreemptionSupported
     @computePreemptionSupported.setter
     def computePreemptionSupported(self, int computePreemptionSupported):
         self._pvt_ptr[0].computePreemptionSupported = computePreemptionSupported
-    {{endif}}
-    {{if 'cudaDeviceProp.canUseHostPointerForRegisteredMem' in found_struct}}
+
+
     @property
     def canUseHostPointerForRegisteredMem(self):
         return self._pvt_ptr[0].canUseHostPointerForRegisteredMem
     @canUseHostPointerForRegisteredMem.setter
     def canUseHostPointerForRegisteredMem(self, int canUseHostPointerForRegisteredMem):
         self._pvt_ptr[0].canUseHostPointerForRegisteredMem = canUseHostPointerForRegisteredMem
-    {{endif}}
-    {{if 'cudaDeviceProp.cooperativeLaunch' in found_struct}}
+
+
     @property
     def cooperativeLaunch(self):
         return self._pvt_ptr[0].cooperativeLaunch
     @cooperativeLaunch.setter
     def cooperativeLaunch(self, int cooperativeLaunch):
         self._pvt_ptr[0].cooperativeLaunch = cooperativeLaunch
-    {{endif}}
-    {{if 'cudaDeviceProp.sharedMemPerBlockOptin' in found_struct}}
+
+
     @property
     def sharedMemPerBlockOptin(self):
         return self._pvt_ptr[0].sharedMemPerBlockOptin
     @sharedMemPerBlockOptin.setter
     def sharedMemPerBlockOptin(self, size_t sharedMemPerBlockOptin):
         self._pvt_ptr[0].sharedMemPerBlockOptin = sharedMemPerBlockOptin
-    {{endif}}
-    {{if 'cudaDeviceProp.pageableMemoryAccessUsesHostPageTables' in found_struct}}
+
+
     @property
     def pageableMemoryAccessUsesHostPageTables(self):
         return self._pvt_ptr[0].pageableMemoryAccessUsesHostPageTables
     @pageableMemoryAccessUsesHostPageTables.setter
     def pageableMemoryAccessUsesHostPageTables(self, int pageableMemoryAccessUsesHostPageTables):
         self._pvt_ptr[0].pageableMemoryAccessUsesHostPageTables = pageableMemoryAccessUsesHostPageTables
-    {{endif}}
-    {{if 'cudaDeviceProp.directManagedMemAccessFromHost' in found_struct}}
+
+
     @property
     def directManagedMemAccessFromHost(self):
         return self._pvt_ptr[0].directManagedMemAccessFromHost
     @directManagedMemAccessFromHost.setter
     def directManagedMemAccessFromHost(self, int directManagedMemAccessFromHost):
         self._pvt_ptr[0].directManagedMemAccessFromHost = directManagedMemAccessFromHost
-    {{endif}}
-    {{if 'cudaDeviceProp.maxBlocksPerMultiProcessor' in found_struct}}
+
+
     @property
     def maxBlocksPerMultiProcessor(self):
         return self._pvt_ptr[0].maxBlocksPerMultiProcessor
     @maxBlocksPerMultiProcessor.setter
     def maxBlocksPerMultiProcessor(self, int maxBlocksPerMultiProcessor):
         self._pvt_ptr[0].maxBlocksPerMultiProcessor = maxBlocksPerMultiProcessor
-    {{endif}}
-    {{if 'cudaDeviceProp.accessPolicyMaxWindowSize' in found_struct}}
+
+
     @property
     def accessPolicyMaxWindowSize(self):
         return self._pvt_ptr[0].accessPolicyMaxWindowSize
     @accessPolicyMaxWindowSize.setter
     def accessPolicyMaxWindowSize(self, int accessPolicyMaxWindowSize):
         self._pvt_ptr[0].accessPolicyMaxWindowSize = accessPolicyMaxWindowSize
-    {{endif}}
-    {{if 'cudaDeviceProp.reservedSharedMemPerBlock' in found_struct}}
+
+
     @property
     def reservedSharedMemPerBlock(self):
         return self._pvt_ptr[0].reservedSharedMemPerBlock
     @reservedSharedMemPerBlock.setter
     def reservedSharedMemPerBlock(self, size_t reservedSharedMemPerBlock):
         self._pvt_ptr[0].reservedSharedMemPerBlock = reservedSharedMemPerBlock
-    {{endif}}
-    {{if 'cudaDeviceProp.hostRegisterSupported' in found_struct}}
+
+
     @property
     def hostRegisterSupported(self):
         return self._pvt_ptr[0].hostRegisterSupported
     @hostRegisterSupported.setter
     def hostRegisterSupported(self, int hostRegisterSupported):
         self._pvt_ptr[0].hostRegisterSupported = hostRegisterSupported
-    {{endif}}
-    {{if 'cudaDeviceProp.sparseCudaArraySupported' in found_struct}}
+
+
     @property
     def sparseCudaArraySupported(self):
         return self._pvt_ptr[0].sparseCudaArraySupported
     @sparseCudaArraySupported.setter
     def sparseCudaArraySupported(self, int sparseCudaArraySupported):
         self._pvt_ptr[0].sparseCudaArraySupported = sparseCudaArraySupported
-    {{endif}}
-    {{if 'cudaDeviceProp.hostRegisterReadOnlySupported' in found_struct}}
+
+
     @property
     def hostRegisterReadOnlySupported(self):
         return self._pvt_ptr[0].hostRegisterReadOnlySupported
     @hostRegisterReadOnlySupported.setter
     def hostRegisterReadOnlySupported(self, int hostRegisterReadOnlySupported):
         self._pvt_ptr[0].hostRegisterReadOnlySupported = hostRegisterReadOnlySupported
-    {{endif}}
-    {{if 'cudaDeviceProp.timelineSemaphoreInteropSupported' in found_struct}}
+
+
     @property
     def timelineSemaphoreInteropSupported(self):
         return self._pvt_ptr[0].timelineSemaphoreInteropSupported
     @timelineSemaphoreInteropSupported.setter
     def timelineSemaphoreInteropSupported(self, int timelineSemaphoreInteropSupported):
         self._pvt_ptr[0].timelineSemaphoreInteropSupported = timelineSemaphoreInteropSupported
-    {{endif}}
-    {{if 'cudaDeviceProp.memoryPoolsSupported' in found_struct}}
+
+
     @property
     def memoryPoolsSupported(self):
         return self._pvt_ptr[0].memoryPoolsSupported
     @memoryPoolsSupported.setter
     def memoryPoolsSupported(self, int memoryPoolsSupported):
         self._pvt_ptr[0].memoryPoolsSupported = memoryPoolsSupported
-    {{endif}}
-    {{if 'cudaDeviceProp.gpuDirectRDMASupported' in found_struct}}
+
+
     @property
     def gpuDirectRDMASupported(self):
         return self._pvt_ptr[0].gpuDirectRDMASupported
     @gpuDirectRDMASupported.setter
     def gpuDirectRDMASupported(self, int gpuDirectRDMASupported):
         self._pvt_ptr[0].gpuDirectRDMASupported = gpuDirectRDMASupported
-    {{endif}}
-    {{if 'cudaDeviceProp.gpuDirectRDMAFlushWritesOptions' in found_struct}}
+
+
     @property
     def gpuDirectRDMAFlushWritesOptions(self):
         return self._pvt_ptr[0].gpuDirectRDMAFlushWritesOptions
     @gpuDirectRDMAFlushWritesOptions.setter
     def gpuDirectRDMAFlushWritesOptions(self, unsigned int gpuDirectRDMAFlushWritesOptions):
         self._pvt_ptr[0].gpuDirectRDMAFlushWritesOptions = gpuDirectRDMAFlushWritesOptions
-    {{endif}}
-    {{if 'cudaDeviceProp.gpuDirectRDMAWritesOrdering' in found_struct}}
+
+
     @property
     def gpuDirectRDMAWritesOrdering(self):
         return self._pvt_ptr[0].gpuDirectRDMAWritesOrdering
     @gpuDirectRDMAWritesOrdering.setter
     def gpuDirectRDMAWritesOrdering(self, int gpuDirectRDMAWritesOrdering):
         self._pvt_ptr[0].gpuDirectRDMAWritesOrdering = gpuDirectRDMAWritesOrdering
-    {{endif}}
-    {{if 'cudaDeviceProp.memoryPoolSupportedHandleTypes' in found_struct}}
+
+
     @property
     def memoryPoolSupportedHandleTypes(self):
         return self._pvt_ptr[0].memoryPoolSupportedHandleTypes
     @memoryPoolSupportedHandleTypes.setter
     def memoryPoolSupportedHandleTypes(self, unsigned int memoryPoolSupportedHandleTypes):
         self._pvt_ptr[0].memoryPoolSupportedHandleTypes = memoryPoolSupportedHandleTypes
-    {{endif}}
-    {{if 'cudaDeviceProp.deferredMappingCudaArraySupported' in found_struct}}
+
+
     @property
     def deferredMappingCudaArraySupported(self):
         return self._pvt_ptr[0].deferredMappingCudaArraySupported
     @deferredMappingCudaArraySupported.setter
     def deferredMappingCudaArraySupported(self, int deferredMappingCudaArraySupported):
         self._pvt_ptr[0].deferredMappingCudaArraySupported = deferredMappingCudaArraySupported
-    {{endif}}
-    {{if 'cudaDeviceProp.ipcEventSupported' in found_struct}}
+
+
     @property
     def ipcEventSupported(self):
         return self._pvt_ptr[0].ipcEventSupported
     @ipcEventSupported.setter
     def ipcEventSupported(self, int ipcEventSupported):
         self._pvt_ptr[0].ipcEventSupported = ipcEventSupported
-    {{endif}}
-    {{if 'cudaDeviceProp.clusterLaunch' in found_struct}}
+
+
     @property
     def clusterLaunch(self):
         return self._pvt_ptr[0].clusterLaunch
     @clusterLaunch.setter
     def clusterLaunch(self, int clusterLaunch):
         self._pvt_ptr[0].clusterLaunch = clusterLaunch
-    {{endif}}
-    {{if 'cudaDeviceProp.unifiedFunctionPointers' in found_struct}}
+
+
     @property
     def unifiedFunctionPointers(self):
         return self._pvt_ptr[0].unifiedFunctionPointers
     @unifiedFunctionPointers.setter
     def unifiedFunctionPointers(self, int unifiedFunctionPointers):
         self._pvt_ptr[0].unifiedFunctionPointers = unifiedFunctionPointers
-    {{endif}}
-    {{if 'cudaDeviceProp.deviceNumaConfig' in found_struct}}
+
+
     @property
     def deviceNumaConfig(self):
         return self._pvt_ptr[0].deviceNumaConfig
     @deviceNumaConfig.setter
     def deviceNumaConfig(self, int deviceNumaConfig):
         self._pvt_ptr[0].deviceNumaConfig = deviceNumaConfig
-    {{endif}}
-    {{if 'cudaDeviceProp.deviceNumaId' in found_struct}}
+
+
     @property
     def deviceNumaId(self):
         return self._pvt_ptr[0].deviceNumaId
     @deviceNumaId.setter
     def deviceNumaId(self, int deviceNumaId):
         self._pvt_ptr[0].deviceNumaId = deviceNumaId
-    {{endif}}
-    {{if 'cudaDeviceProp.mpsEnabled' in found_struct}}
+
+
     @property
     def mpsEnabled(self):
         return self._pvt_ptr[0].mpsEnabled
     @mpsEnabled.setter
     def mpsEnabled(self, int mpsEnabled):
         self._pvt_ptr[0].mpsEnabled = mpsEnabled
-    {{endif}}
-    {{if 'cudaDeviceProp.hostNumaId' in found_struct}}
+
+
     @property
     def hostNumaId(self):
         return self._pvt_ptr[0].hostNumaId
     @hostNumaId.setter
     def hostNumaId(self, int hostNumaId):
         self._pvt_ptr[0].hostNumaId = hostNumaId
-    {{endif}}
-    {{if 'cudaDeviceProp.gpuPciDeviceID' in found_struct}}
+
+
     @property
     def gpuPciDeviceID(self):
         return self._pvt_ptr[0].gpuPciDeviceID
     @gpuPciDeviceID.setter
     def gpuPciDeviceID(self, unsigned int gpuPciDeviceID):
         self._pvt_ptr[0].gpuPciDeviceID = gpuPciDeviceID
-    {{endif}}
-    {{if 'cudaDeviceProp.gpuPciSubsystemID' in found_struct}}
+
+
     @property
     def gpuPciSubsystemID(self):
         return self._pvt_ptr[0].gpuPciSubsystemID
     @gpuPciSubsystemID.setter
     def gpuPciSubsystemID(self, unsigned int gpuPciSubsystemID):
         self._pvt_ptr[0].gpuPciSubsystemID = gpuPciSubsystemID
-    {{endif}}
-    {{if 'cudaDeviceProp.hostNumaMultinodeIpcSupported' in found_struct}}
+
+
     @property
     def hostNumaMultinodeIpcSupported(self):
         return self._pvt_ptr[0].hostNumaMultinodeIpcSupported
     @hostNumaMultinodeIpcSupported.setter
     def hostNumaMultinodeIpcSupported(self, int hostNumaMultinodeIpcSupported):
         self._pvt_ptr[0].hostNumaMultinodeIpcSupported = hostNumaMultinodeIpcSupported
-    {{endif}}
-    {{if 'cudaDeviceProp.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaIpcEventHandle_st' in found_struct}}
+
 
 cdef class cudaIpcEventHandle_st:
     """
@@ -14453,10 +14013,10 @@ cdef class cudaIpcEventHandle_st:
 
     Attributes
     ----------
-    {{if 'cudaIpcEventHandle_st.reserved' in found_struct}}
+
     reserved : bytes
 
-    {{endif}}
+
 
     Methods
     -------
@@ -14477,16 +14037,16 @@ cdef class cudaIpcEventHandle_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaIpcEventHandle_st.reserved' in found_struct}}
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaIpcEventHandle_st.reserved' in found_struct}}
+
     @property
     def reserved(self):
         return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 64)
@@ -14504,9 +14064,7 @@ cdef class cudaIpcEventHandle_st:
                 if b > 127 and b < 256:
                     b = b - 256
                 self._pvt_ptr[0].reserved[i] = b
-    {{endif}}
-{{endif}}
-{{if 'cudaIpcMemHandle_st' in found_struct}}
+
 
 cdef class cudaIpcMemHandle_st:
     """
@@ -14514,10 +14072,10 @@ cdef class cudaIpcMemHandle_st:
 
     Attributes
     ----------
-    {{if 'cudaIpcMemHandle_st.reserved' in found_struct}}
+
     reserved : bytes
 
-    {{endif}}
+
 
     Methods
     -------
@@ -14538,16 +14096,16 @@ cdef class cudaIpcMemHandle_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaIpcMemHandle_st.reserved' in found_struct}}
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaIpcMemHandle_st.reserved' in found_struct}}
+
     @property
     def reserved(self):
         return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 64)
@@ -14565,18 +14123,16 @@ cdef class cudaIpcMemHandle_st:
                 if b > 127 and b < 256:
                     b = b - 256
                 self._pvt_ptr[0].reserved[i] = b
-    {{endif}}
-{{endif}}
-{{if 'cudaMemFabricHandle_st' in found_struct}}
+
 
 cdef class cudaMemFabricHandle_st:
     """
     Attributes
     ----------
-    {{if 'cudaMemFabricHandle_st.reserved' in found_struct}}
+
     reserved : bytes
 
-    {{endif}}
+
 
     Methods
     -------
@@ -14597,16 +14153,16 @@ cdef class cudaMemFabricHandle_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaMemFabricHandle_st.reserved' in found_struct}}
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaMemFabricHandle_st.reserved' in found_struct}}
+
     @property
     def reserved(self):
         return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 64)
@@ -14624,22 +14180,20 @@ cdef class cudaMemFabricHandle_st:
                 if b > 127 and b < 256:
                     b = b - 256
                 self._pvt_ptr[0].reserved[i] = b
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalMemoryHandleDesc.handle.win32' in found_struct}}
+
 
 cdef class anon_struct8:
     """
     Attributes
     ----------
-    {{if 'cudaExternalMemoryHandleDesc.handle.win32.handle' in found_struct}}
+
     handle : Any
 
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.handle.win32.name' in found_struct}}
+
+
     name : Any
 
-    {{endif}}
+
 
     Methods
     -------
@@ -14658,22 +14212,22 @@ cdef class anon_struct8:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalMemoryHandleDesc.handle.win32.handle' in found_struct}}
+
             try:
                 str_list += ['handle : ' + hex(self.handle)]
             except ValueError:
                 str_list += ['handle : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryHandleDesc.handle.win32.name' in found_struct}}
+
+
             try:
                 str_list += ['name : ' + hex(self.name)]
             except ValueError:
                 str_list += ['name : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalMemoryHandleDesc.handle.win32.handle' in found_struct}}
+
     @property
     def handle(self):
         return <void_ptr>self._pvt_ptr[0].handle.win32.handle
@@ -14681,8 +14235,8 @@ cdef class anon_struct8:
     def handle(self, handle):
         self._cyhandle = _HelperInputVoidPtr(handle)
         self._pvt_ptr[0].handle.win32.handle = <void*><void_ptr>self._cyhandle.cptr
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.handle.win32.name' in found_struct}}
+
+
     @property
     def name(self):
         return <void_ptr>self._pvt_ptr[0].handle.win32.name
@@ -14690,26 +14244,24 @@ cdef class anon_struct8:
     def name(self, name):
         self._cyname = _HelperInputVoidPtr(name)
         self._pvt_ptr[0].handle.win32.name = <void*><void_ptr>self._cyname.cptr
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalMemoryHandleDesc.handle' in found_struct}}
+
 
 cdef class anon_union3:
     """
     Attributes
     ----------
-    {{if 'cudaExternalMemoryHandleDesc.handle.fd' in found_struct}}
+
     fd : int
 
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.handle.win32' in found_struct}}
+
+
     win32 : anon_struct8
 
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.handle.nvSciBufObject' in found_struct}}
+
+
     nvSciBufObject : Any
 
-    {{endif}}
+
 
     Methods
     -------
@@ -14721,9 +14273,9 @@ cdef class anon_union3:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaExternalMemoryHandleDesc.handle.win32' in found_struct}}
+
         self._win32 = anon_struct8(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -14731,44 +14283,44 @@ cdef class anon_union3:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalMemoryHandleDesc.handle.fd' in found_struct}}
+
             try:
                 str_list += ['fd : ' + str(self.fd)]
             except ValueError:
                 str_list += ['fd : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryHandleDesc.handle.win32' in found_struct}}
+
+
             try:
                 str_list += ['win32 :\n' + '\n'.join(['    ' + line for line in str(self.win32).splitlines()])]
             except ValueError:
                 str_list += ['win32 : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryHandleDesc.handle.nvSciBufObject' in found_struct}}
+
+
             try:
                 str_list += ['nvSciBufObject : ' + hex(self.nvSciBufObject)]
             except ValueError:
                 str_list += ['nvSciBufObject : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalMemoryHandleDesc.handle.fd' in found_struct}}
+
     @property
     def fd(self):
         return self._pvt_ptr[0].handle.fd
     @fd.setter
     def fd(self, int fd):
         self._pvt_ptr[0].handle.fd = fd
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.handle.win32' in found_struct}}
+
+
     @property
     def win32(self):
         return self._win32
     @win32.setter
     def win32(self, win32 not None : anon_struct8):
         string.memcpy(&self._pvt_ptr[0].handle.win32, <void*><void_ptr>win32.getPtr(), sizeof(self._pvt_ptr[0].handle.win32))
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.handle.nvSciBufObject' in found_struct}}
+
+
     @property
     def nvSciBufObject(self):
         return <void_ptr>self._pvt_ptr[0].handle.nvSciBufObject
@@ -14776,9 +14328,7 @@ cdef class anon_union3:
     def nvSciBufObject(self, nvSciBufObject):
         self._cynvSciBufObject = _HelperInputVoidPtr(nvSciBufObject)
         self._pvt_ptr[0].handle.nvSciBufObject = <void*><void_ptr>self._cynvSciBufObject.cptr
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalMemoryHandleDesc' in found_struct}}
+
 
 cdef class cudaExternalMemoryHandleDesc:
     """
@@ -14786,26 +14336,26 @@ cdef class cudaExternalMemoryHandleDesc:
 
     Attributes
     ----------
-    {{if 'cudaExternalMemoryHandleDesc.type' in found_struct}}
+
     type : cudaExternalMemoryHandleType
         Type of the handle
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.handle' in found_struct}}
+
+
     handle : anon_union3
 
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.size' in found_struct}}
+
+
     size : unsigned long long
         Size of the memory allocation
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.flags' in found_struct}}
+
+
     flags : unsigned int
         Flags must either be zero or cudaExternalMemoryDedicated
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
         Must be zero
-    {{endif}}
+
 
     Methods
     -------
@@ -14820,9 +14370,9 @@ cdef class cudaExternalMemoryHandleDesc:
             self._pvt_ptr = <cyruntime.cudaExternalMemoryHandleDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaExternalMemoryHandleDesc.handle' in found_struct}}
+
         self._handle = anon_union3(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
@@ -14831,81 +14381,79 @@ cdef class cudaExternalMemoryHandleDesc:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalMemoryHandleDesc.type' in found_struct}}
+
             try:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryHandleDesc.handle' in found_struct}}
+
+
             try:
                 str_list += ['handle :\n' + '\n'.join(['    ' + line for line in str(self.handle).splitlines()])]
             except ValueError:
                 str_list += ['handle : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryHandleDesc.size' in found_struct}}
+
+
             try:
                 str_list += ['size : ' + str(self.size)]
             except ValueError:
                 str_list += ['size : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryHandleDesc.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryHandleDesc.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalMemoryHandleDesc.type' in found_struct}}
+
     @property
     def type(self):
         return cudaExternalMemoryHandleType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaExternalMemoryHandleType):
-        self._pvt_ptr[0].type = int(type)
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.handle' in found_struct}}
+        self._pvt_ptr[0].type = <cyruntime.cudaExternalMemoryHandleType><int>int(type)
+
+
     @property
     def handle(self):
         return self._handle
     @handle.setter
     def handle(self, handle not None : anon_union3):
         string.memcpy(&self._pvt_ptr[0].handle, <void*><void_ptr>handle.getPtr(), sizeof(self._pvt_ptr[0].handle))
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.size' in found_struct}}
+
+
     @property
     def size(self):
         return self._pvt_ptr[0].size
     @size.setter
     def size(self, unsigned long long size):
         self._pvt_ptr[0].size = size
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-    {{if 'cudaExternalMemoryHandleDesc.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalMemoryBufferDesc' in found_struct}}
+
 
 cdef class cudaExternalMemoryBufferDesc:
     """
@@ -14913,22 +14461,22 @@ cdef class cudaExternalMemoryBufferDesc:
 
     Attributes
     ----------
-    {{if 'cudaExternalMemoryBufferDesc.offset' in found_struct}}
+
     offset : unsigned long long
         Offset into the memory object where the buffer's base is
-    {{endif}}
-    {{if 'cudaExternalMemoryBufferDesc.size' in found_struct}}
+
+
     size : unsigned long long
         Size of the buffer
-    {{endif}}
-    {{if 'cudaExternalMemoryBufferDesc.flags' in found_struct}}
+
+
     flags : unsigned int
         Flags reserved for future use. Must be zero.
-    {{endif}}
-    {{if 'cudaExternalMemoryBufferDesc.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
         Must be zero
-    {{endif}}
+
 
     Methods
     -------
@@ -14949,67 +14497,65 @@ cdef class cudaExternalMemoryBufferDesc:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalMemoryBufferDesc.offset' in found_struct}}
+
             try:
                 str_list += ['offset : ' + str(self.offset)]
             except ValueError:
                 str_list += ['offset : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryBufferDesc.size' in found_struct}}
+
+
             try:
                 str_list += ['size : ' + str(self.size)]
             except ValueError:
                 str_list += ['size : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryBufferDesc.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryBufferDesc.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalMemoryBufferDesc.offset' in found_struct}}
+
     @property
     def offset(self):
         return self._pvt_ptr[0].offset
     @offset.setter
     def offset(self, unsigned long long offset):
         self._pvt_ptr[0].offset = offset
-    {{endif}}
-    {{if 'cudaExternalMemoryBufferDesc.size' in found_struct}}
+
+
     @property
     def size(self):
         return self._pvt_ptr[0].size
     @size.setter
     def size(self, unsigned long long size):
         self._pvt_ptr[0].size = size
-    {{endif}}
-    {{if 'cudaExternalMemoryBufferDesc.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-    {{if 'cudaExternalMemoryBufferDesc.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalMemoryMipmappedArrayDesc' in found_struct}}
+
 
 cdef class cudaExternalMemoryMipmappedArrayDesc:
     """
@@ -15017,32 +14563,32 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
 
     Attributes
     ----------
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.offset' in found_struct}}
+
     offset : unsigned long long
         Offset into the memory object where the base level of the mipmap
         chain is.
-    {{endif}}
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.formatDesc' in found_struct}}
+
+
     formatDesc : cudaChannelFormatDesc
         Format of base level of the mipmap chain
-    {{endif}}
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.extent' in found_struct}}
+
+
     extent : cudaExtent
         Dimensions of base level of the mipmap chain
-    {{endif}}
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.flags' in found_struct}}
+
+
     flags : unsigned int
         Flags associated with CUDA mipmapped arrays. See
         cudaMallocMipmappedArray
-    {{endif}}
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.numLevels' in found_struct}}
+
+
     numLevels : unsigned int
         Total number of levels in the mipmap chain
-    {{endif}}
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
         Must be zero
-    {{endif}}
+
 
     Methods
     -------
@@ -15056,12 +14602,12 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
             self._pvt_ptr = <cyruntime.cudaExternalMemoryMipmappedArrayDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaExternalMemoryMipmappedArrayDesc.formatDesc' in found_struct}}
+
         self._formatDesc = cudaChannelFormatDesc(_ptr=<void_ptr>&self._pvt_ptr[0].formatDesc)
-        {{endif}}
-        {{if 'cudaExternalMemoryMipmappedArrayDesc.extent' in found_struct}}
+
+
         self._extent = cudaExtent(_ptr=<void_ptr>&self._pvt_ptr[0].extent)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -15069,108 +14615,106 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalMemoryMipmappedArrayDesc.offset' in found_struct}}
+
             try:
                 str_list += ['offset : ' + str(self.offset)]
             except ValueError:
                 str_list += ['offset : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryMipmappedArrayDesc.formatDesc' in found_struct}}
+
+
             try:
                 str_list += ['formatDesc :\n' + '\n'.join(['    ' + line for line in str(self.formatDesc).splitlines()])]
             except ValueError:
                 str_list += ['formatDesc : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryMipmappedArrayDesc.extent' in found_struct}}
+
+
             try:
                 str_list += ['extent :\n' + '\n'.join(['    ' + line for line in str(self.extent).splitlines()])]
             except ValueError:
                 str_list += ['extent : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryMipmappedArrayDesc.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryMipmappedArrayDesc.numLevels' in found_struct}}
+
+
             try:
                 str_list += ['numLevels : ' + str(self.numLevels)]
             except ValueError:
                 str_list += ['numLevels : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalMemoryMipmappedArrayDesc.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.offset' in found_struct}}
+
     @property
     def offset(self):
         return self._pvt_ptr[0].offset
     @offset.setter
     def offset(self, unsigned long long offset):
         self._pvt_ptr[0].offset = offset
-    {{endif}}
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.formatDesc' in found_struct}}
+
+
     @property
     def formatDesc(self):
         return self._formatDesc
     @formatDesc.setter
     def formatDesc(self, formatDesc not None : cudaChannelFormatDesc):
         string.memcpy(&self._pvt_ptr[0].formatDesc, <void*><void_ptr>formatDesc.getPtr(), sizeof(self._pvt_ptr[0].formatDesc))
-    {{endif}}
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.extent' in found_struct}}
+
+
     @property
     def extent(self):
         return self._extent
     @extent.setter
     def extent(self, extent not None : cudaExtent):
         string.memcpy(&self._pvt_ptr[0].extent, <void*><void_ptr>extent.getPtr(), sizeof(self._pvt_ptr[0].extent))
-    {{endif}}
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.numLevels' in found_struct}}
+
+
     @property
     def numLevels(self):
         return self._pvt_ptr[0].numLevels
     @numLevels.setter
     def numLevels(self, unsigned int numLevels):
         self._pvt_ptr[0].numLevels = numLevels
-    {{endif}}
-    {{if 'cudaExternalMemoryMipmappedArrayDesc.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreHandleDesc.handle.win32' in found_struct}}
+
 
 cdef class anon_struct9:
     """
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreHandleDesc.handle.win32.handle' in found_struct}}
+
     handle : Any
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.handle.win32.name' in found_struct}}
+
+
     name : Any
 
-    {{endif}}
+
 
     Methods
     -------
@@ -15189,22 +14733,22 @@ cdef class anon_struct9:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreHandleDesc.handle.win32.handle' in found_struct}}
+
             try:
                 str_list += ['handle : ' + hex(self.handle)]
             except ValueError:
                 str_list += ['handle : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreHandleDesc.handle.win32.name' in found_struct}}
+
+
             try:
                 str_list += ['name : ' + hex(self.name)]
             except ValueError:
                 str_list += ['name : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreHandleDesc.handle.win32.handle' in found_struct}}
+
     @property
     def handle(self):
         return <void_ptr>self._pvt_ptr[0].handle.win32.handle
@@ -15212,8 +14756,8 @@ cdef class anon_struct9:
     def handle(self, handle):
         self._cyhandle = _HelperInputVoidPtr(handle)
         self._pvt_ptr[0].handle.win32.handle = <void*><void_ptr>self._cyhandle.cptr
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.handle.win32.name' in found_struct}}
+
+
     @property
     def name(self):
         return <void_ptr>self._pvt_ptr[0].handle.win32.name
@@ -15221,26 +14765,24 @@ cdef class anon_struct9:
     def name(self, name):
         self._cyname = _HelperInputVoidPtr(name)
         self._pvt_ptr[0].handle.win32.name = <void*><void_ptr>self._cyname.cptr
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreHandleDesc.handle' in found_struct}}
+
 
 cdef class anon_union4:
     """
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreHandleDesc.handle.fd' in found_struct}}
+
     fd : int
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.handle.win32' in found_struct}}
+
+
     win32 : anon_struct9
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.handle.nvSciSyncObj' in found_struct}}
+
+
     nvSciSyncObj : Any
 
-    {{endif}}
+
 
     Methods
     -------
@@ -15252,9 +14794,9 @@ cdef class anon_union4:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaExternalSemaphoreHandleDesc.handle.win32' in found_struct}}
+
         self._win32 = anon_struct9(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -15262,44 +14804,44 @@ cdef class anon_union4:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreHandleDesc.handle.fd' in found_struct}}
+
             try:
                 str_list += ['fd : ' + str(self.fd)]
             except ValueError:
                 str_list += ['fd : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreHandleDesc.handle.win32' in found_struct}}
+
+
             try:
                 str_list += ['win32 :\n' + '\n'.join(['    ' + line for line in str(self.win32).splitlines()])]
             except ValueError:
                 str_list += ['win32 : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreHandleDesc.handle.nvSciSyncObj' in found_struct}}
+
+
             try:
                 str_list += ['nvSciSyncObj : ' + hex(self.nvSciSyncObj)]
             except ValueError:
                 str_list += ['nvSciSyncObj : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreHandleDesc.handle.fd' in found_struct}}
+
     @property
     def fd(self):
         return self._pvt_ptr[0].handle.fd
     @fd.setter
     def fd(self, int fd):
         self._pvt_ptr[0].handle.fd = fd
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.handle.win32' in found_struct}}
+
+
     @property
     def win32(self):
         return self._win32
     @win32.setter
     def win32(self, win32 not None : anon_struct9):
         string.memcpy(&self._pvt_ptr[0].handle.win32, <void*><void_ptr>win32.getPtr(), sizeof(self._pvt_ptr[0].handle.win32))
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.handle.nvSciSyncObj' in found_struct}}
+
+
     @property
     def nvSciSyncObj(self):
         return <void_ptr>self._pvt_ptr[0].handle.nvSciSyncObj
@@ -15307,9 +14849,7 @@ cdef class anon_union4:
     def nvSciSyncObj(self, nvSciSyncObj):
         self._cynvSciSyncObj = _HelperInputVoidPtr(nvSciSyncObj)
         self._pvt_ptr[0].handle.nvSciSyncObj = <void*><void_ptr>self._cynvSciSyncObj.cptr
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreHandleDesc' in found_struct}}
+
 
 cdef class cudaExternalSemaphoreHandleDesc:
     """
@@ -15317,22 +14857,22 @@ cdef class cudaExternalSemaphoreHandleDesc:
 
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreHandleDesc.type' in found_struct}}
+
     type : cudaExternalSemaphoreHandleType
         Type of the handle
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.handle' in found_struct}}
+
+
     handle : anon_union4
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.flags' in found_struct}}
+
+
     flags : unsigned int
         Flags reserved for the future. Must be zero.
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
         Must be zero
-    {{endif}}
+
 
     Methods
     -------
@@ -15347,9 +14887,9 @@ cdef class cudaExternalSemaphoreHandleDesc:
             self._pvt_ptr = <cyruntime.cudaExternalSemaphoreHandleDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaExternalSemaphoreHandleDesc.handle' in found_struct}}
+
         self._handle = anon_union4(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
@@ -15358,76 +14898,74 @@ cdef class cudaExternalSemaphoreHandleDesc:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreHandleDesc.type' in found_struct}}
+
             try:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreHandleDesc.handle' in found_struct}}
+
+
             try:
                 str_list += ['handle :\n' + '\n'.join(['    ' + line for line in str(self.handle).splitlines()])]
             except ValueError:
                 str_list += ['handle : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreHandleDesc.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreHandleDesc.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreHandleDesc.type' in found_struct}}
+
     @property
     def type(self):
         return cudaExternalSemaphoreHandleType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaExternalSemaphoreHandleType):
-        self._pvt_ptr[0].type = int(type)
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.handle' in found_struct}}
+        self._pvt_ptr[0].type = <cyruntime.cudaExternalSemaphoreHandleType><int>int(type)
+
+
     @property
     def handle(self):
         return self._handle
     @handle.setter
     def handle(self, handle not None : anon_union4):
         string.memcpy(&self._pvt_ptr[0].handle, <void*><void_ptr>handle.getPtr(), sizeof(self._pvt_ptr[0].handle))
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreSignalParams.params.fence' in found_struct}}
+
 
 cdef class anon_struct10:
     """
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreSignalParams.params.fence.value' in found_struct}}
+
     value : unsigned long long
 
-    {{endif}}
+
 
     Methods
     -------
@@ -15446,38 +14984,36 @@ cdef class anon_struct10:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreSignalParams.params.fence.value' in found_struct}}
+
             try:
                 str_list += ['value : ' + str(self.value)]
             except ValueError:
                 str_list += ['value : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreSignalParams.params.fence.value' in found_struct}}
+
     @property
     def value(self):
         return self._pvt_ptr[0].params.fence.value
     @value.setter
     def value(self, unsigned long long value):
         self._pvt_ptr[0].params.fence.value = value
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync' in found_struct}}
+
 
 cdef class anon_union5:
     """
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync.fence' in found_struct}}
+
     fence : Any
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync.reserved' in found_struct}}
+
+
     reserved : unsigned long long
 
-    {{endif}}
+
 
     Methods
     -------
@@ -15496,22 +15032,22 @@ cdef class anon_union5:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync.fence' in found_struct}}
+
             try:
                 str_list += ['fence : ' + hex(self.fence)]
             except ValueError:
                 str_list += ['fence : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync.fence' in found_struct}}
+
     @property
     def fence(self):
         return <void_ptr>self._pvt_ptr[0].params.nvSciSync.fence
@@ -15519,26 +15055,24 @@ cdef class anon_union5:
     def fence(self, fence):
         self._cyfence = _HelperInputVoidPtr(fence)
         self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].params.nvSciSync.reserved
     @reserved.setter
     def reserved(self, unsigned long long reserved):
         self._pvt_ptr[0].params.nvSciSync.reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreSignalParams.params.keyedMutex' in found_struct}}
+
 
 cdef class anon_struct11:
     """
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreSignalParams.params.keyedMutex.key' in found_struct}}
+
     key : unsigned long long
 
-    {{endif}}
+
 
     Methods
     -------
@@ -15557,46 +15091,44 @@ cdef class anon_struct11:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreSignalParams.params.keyedMutex.key' in found_struct}}
+
             try:
                 str_list += ['key : ' + str(self.key)]
             except ValueError:
                 str_list += ['key : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreSignalParams.params.keyedMutex.key' in found_struct}}
+
     @property
     def key(self):
         return self._pvt_ptr[0].params.keyedMutex.key
     @key.setter
     def key(self, unsigned long long key):
         self._pvt_ptr[0].params.keyedMutex.key = key
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreSignalParams.params' in found_struct}}
+
 
 cdef class anon_struct12:
     """
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreSignalParams.params.fence' in found_struct}}
+
     fence : anon_struct10
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync' in found_struct}}
+
+
     nvSciSync : anon_union5
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.params.keyedMutex' in found_struct}}
+
+
     keyedMutex : anon_struct11
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.params.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
 
-    {{endif}}
+
 
     Methods
     -------
@@ -15608,15 +15140,15 @@ cdef class anon_struct12:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaExternalSemaphoreSignalParams.params.fence' in found_struct}}
+
         self._fence = anon_struct10(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync' in found_struct}}
+
+
         self._nvSciSync = anon_union5(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaExternalSemaphoreSignalParams.params.keyedMutex' in found_struct}}
+
+
         self._keyedMutex = anon_struct11(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -15624,67 +15156,65 @@ cdef class anon_struct12:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreSignalParams.params.fence' in found_struct}}
+
             try:
                 str_list += ['fence :\n' + '\n'.join(['    ' + line for line in str(self.fence).splitlines()])]
             except ValueError:
                 str_list += ['fence : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync' in found_struct}}
+
+
             try:
                 str_list += ['nvSciSync :\n' + '\n'.join(['    ' + line for line in str(self.nvSciSync).splitlines()])]
             except ValueError:
                 str_list += ['nvSciSync : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreSignalParams.params.keyedMutex' in found_struct}}
+
+
             try:
                 str_list += ['keyedMutex :\n' + '\n'.join(['    ' + line for line in str(self.keyedMutex).splitlines()])]
             except ValueError:
                 str_list += ['keyedMutex : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreSignalParams.params.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreSignalParams.params.fence' in found_struct}}
+
     @property
     def fence(self):
         return self._fence
     @fence.setter
     def fence(self, fence not None : anon_struct10):
         string.memcpy(&self._pvt_ptr[0].params.fence, <void*><void_ptr>fence.getPtr(), sizeof(self._pvt_ptr[0].params.fence))
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync' in found_struct}}
+
+
     @property
     def nvSciSync(self):
         return self._nvSciSync
     @nvSciSync.setter
     def nvSciSync(self, nvSciSync not None : anon_union5):
         string.memcpy(&self._pvt_ptr[0].params.nvSciSync, <void*><void_ptr>nvSciSync.getPtr(), sizeof(self._pvt_ptr[0].params.nvSciSync))
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.params.keyedMutex' in found_struct}}
+
+
     @property
     def keyedMutex(self):
         return self._keyedMutex
     @keyedMutex.setter
     def keyedMutex(self, keyedMutex not None : anon_struct11):
         string.memcpy(&self._pvt_ptr[0].params.keyedMutex, <void*><void_ptr>keyedMutex.getPtr(), sizeof(self._pvt_ptr[0].params.keyedMutex))
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.params.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].params.reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].params.reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreSignalParams' in found_struct}}
+
 
 cdef class cudaExternalSemaphoreSignalParams:
     """
@@ -15692,11 +15222,11 @@ cdef class cudaExternalSemaphoreSignalParams:
 
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreSignalParams.params' in found_struct}}
+
     params : anon_struct12
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.flags' in found_struct}}
+
+
     flags : unsigned int
         Only when cudaExternalSemaphoreSignalParams is used to signal a
         cudaExternalSemaphore_t of type
@@ -15706,11 +15236,11 @@ cdef class cudaExternalSemaphoreSignalParams:
         synchronization operations should be performed for any external
         memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
         all other types of cudaExternalSemaphore_t, flags must be zero.
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
 
-    {{endif}}
+
 
     Methods
     -------
@@ -15724,9 +15254,9 @@ cdef class cudaExternalSemaphoreSignalParams:
             self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaExternalSemaphoreSignalParams.params' in found_struct}}
+
         self._params = anon_struct12(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -15734,62 +15264,60 @@ cdef class cudaExternalSemaphoreSignalParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreSignalParams.params' in found_struct}}
+
             try:
                 str_list += ['params :\n' + '\n'.join(['    ' + line for line in str(self.params).splitlines()])]
             except ValueError:
                 str_list += ['params : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreSignalParams.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreSignalParams.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreSignalParams.params' in found_struct}}
+
     @property
     def params(self):
         return self._params
     @params.setter
     def params(self, params not None : anon_struct12):
         string.memcpy(&self._pvt_ptr[0].params, <void*><void_ptr>params.getPtr(), sizeof(self._pvt_ptr[0].params))
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreWaitParams.params.fence' in found_struct}}
+
 
 cdef class anon_struct13:
     """
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreWaitParams.params.fence.value' in found_struct}}
+
     value : unsigned long long
 
-    {{endif}}
+
 
     Methods
     -------
@@ -15808,38 +15336,36 @@ cdef class anon_struct13:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreWaitParams.params.fence.value' in found_struct}}
+
             try:
                 str_list += ['value : ' + str(self.value)]
             except ValueError:
                 str_list += ['value : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreWaitParams.params.fence.value' in found_struct}}
+
     @property
     def value(self):
         return self._pvt_ptr[0].params.fence.value
     @value.setter
     def value(self, unsigned long long value):
         self._pvt_ptr[0].params.fence.value = value
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync' in found_struct}}
+
 
 cdef class anon_union6:
     """
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync.fence' in found_struct}}
+
     fence : Any
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync.reserved' in found_struct}}
+
+
     reserved : unsigned long long
 
-    {{endif}}
+
 
     Methods
     -------
@@ -15858,22 +15384,22 @@ cdef class anon_union6:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync.fence' in found_struct}}
+
             try:
                 str_list += ['fence : ' + hex(self.fence)]
             except ValueError:
                 str_list += ['fence : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync.fence' in found_struct}}
+
     @property
     def fence(self):
         return <void_ptr>self._pvt_ptr[0].params.nvSciSync.fence
@@ -15881,30 +15407,28 @@ cdef class anon_union6:
     def fence(self, fence):
         self._cyfence = _HelperInputVoidPtr(fence)
         self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].params.nvSciSync.reserved
     @reserved.setter
     def reserved(self, unsigned long long reserved):
         self._pvt_ptr[0].params.nvSciSync.reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex' in found_struct}}
+
 
 cdef class anon_struct14:
     """
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex.key' in found_struct}}
+
     key : unsigned long long
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex.timeoutMs' in found_struct}}
+
+
     timeoutMs : unsigned int
 
-    {{endif}}
+
 
     Methods
     -------
@@ -15923,60 +15447,58 @@ cdef class anon_struct14:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex.key' in found_struct}}
+
             try:
                 str_list += ['key : ' + str(self.key)]
             except ValueError:
                 str_list += ['key : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex.timeoutMs' in found_struct}}
+
+
             try:
                 str_list += ['timeoutMs : ' + str(self.timeoutMs)]
             except ValueError:
                 str_list += ['timeoutMs : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex.key' in found_struct}}
+
     @property
     def key(self):
         return self._pvt_ptr[0].params.keyedMutex.key
     @key.setter
     def key(self, unsigned long long key):
         self._pvt_ptr[0].params.keyedMutex.key = key
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex.timeoutMs' in found_struct}}
+
+
     @property
     def timeoutMs(self):
         return self._pvt_ptr[0].params.keyedMutex.timeoutMs
     @timeoutMs.setter
     def timeoutMs(self, unsigned int timeoutMs):
         self._pvt_ptr[0].params.keyedMutex.timeoutMs = timeoutMs
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreWaitParams.params' in found_struct}}
+
 
 cdef class anon_struct15:
     """
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreWaitParams.params.fence' in found_struct}}
+
     fence : anon_struct13
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync' in found_struct}}
+
+
     nvSciSync : anon_union6
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex' in found_struct}}
+
+
     keyedMutex : anon_struct14
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.params.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
 
-    {{endif}}
+
 
     Methods
     -------
@@ -15988,15 +15510,15 @@ cdef class anon_struct15:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaExternalSemaphoreWaitParams.params.fence' in found_struct}}
+
         self._fence = anon_struct13(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync' in found_struct}}
+
+
         self._nvSciSync = anon_union6(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex' in found_struct}}
+
+
         self._keyedMutex = anon_struct14(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -16004,67 +15526,65 @@ cdef class anon_struct15:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreWaitParams.params.fence' in found_struct}}
+
             try:
                 str_list += ['fence :\n' + '\n'.join(['    ' + line for line in str(self.fence).splitlines()])]
             except ValueError:
                 str_list += ['fence : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync' in found_struct}}
+
+
             try:
                 str_list += ['nvSciSync :\n' + '\n'.join(['    ' + line for line in str(self.nvSciSync).splitlines()])]
             except ValueError:
                 str_list += ['nvSciSync : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex' in found_struct}}
+
+
             try:
                 str_list += ['keyedMutex :\n' + '\n'.join(['    ' + line for line in str(self.keyedMutex).splitlines()])]
             except ValueError:
                 str_list += ['keyedMutex : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreWaitParams.params.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreWaitParams.params.fence' in found_struct}}
+
     @property
     def fence(self):
         return self._fence
     @fence.setter
     def fence(self, fence not None : anon_struct13):
         string.memcpy(&self._pvt_ptr[0].params.fence, <void*><void_ptr>fence.getPtr(), sizeof(self._pvt_ptr[0].params.fence))
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync' in found_struct}}
+
+
     @property
     def nvSciSync(self):
         return self._nvSciSync
     @nvSciSync.setter
     def nvSciSync(self, nvSciSync not None : anon_union6):
         string.memcpy(&self._pvt_ptr[0].params.nvSciSync, <void*><void_ptr>nvSciSync.getPtr(), sizeof(self._pvt_ptr[0].params.nvSciSync))
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex' in found_struct}}
+
+
     @property
     def keyedMutex(self):
         return self._keyedMutex
     @keyedMutex.setter
     def keyedMutex(self, keyedMutex not None : anon_struct14):
         string.memcpy(&self._pvt_ptr[0].params.keyedMutex, <void*><void_ptr>keyedMutex.getPtr(), sizeof(self._pvt_ptr[0].params.keyedMutex))
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.params.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].params.reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].params.reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreWaitParams' in found_struct}}
+
 
 cdef class cudaExternalSemaphoreWaitParams:
     """
@@ -16072,11 +15592,11 @@ cdef class cudaExternalSemaphoreWaitParams:
 
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreWaitParams.params' in found_struct}}
+
     params : anon_struct15
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.flags' in found_struct}}
+
+
     flags : unsigned int
         Only when cudaExternalSemaphoreSignalParams is used to signal a
         cudaExternalSemaphore_t of type
@@ -16086,11 +15606,11 @@ cdef class cudaExternalSemaphoreWaitParams:
         synchronization operations should be performed for any external
         memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
         all other types of cudaExternalSemaphore_t, flags must be zero.
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
 
-    {{endif}}
+
 
     Methods
     -------
@@ -16104,9 +15624,9 @@ cdef class cudaExternalSemaphoreWaitParams:
             self._pvt_ptr = <cyruntime.cudaExternalSemaphoreWaitParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaExternalSemaphoreWaitParams.params' in found_struct}}
+
         self._params = anon_struct15(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -16114,53 +15634,51 @@ cdef class cudaExternalSemaphoreWaitParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreWaitParams.params' in found_struct}}
+
             try:
                 str_list += ['params :\n' + '\n'.join(['    ' + line for line in str(self.params).splitlines()])]
             except ValueError:
                 str_list += ['params : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreWaitParams.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreWaitParams.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreWaitParams.params' in found_struct}}
+
     @property
     def params(self):
         return self._params
     @params.setter
     def params(self, params not None : anon_struct15):
         string.memcpy(&self._pvt_ptr[0].params, <void*><void_ptr>params.getPtr(), sizeof(self._pvt_ptr[0].params))
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaDevSmResource' in found_struct}}
+
 
 cdef class cudaDevSmResource:
     """
@@ -16169,27 +15687,27 @@ cdef class cudaDevSmResource:
 
     Attributes
     ----------
-    {{if 'cudaDevSmResource.smCount' in found_struct}}
+
     smCount : unsigned int
         The amount of streaming multiprocessors available in this resource.
-    {{endif}}
-    {{if 'cudaDevSmResource.minSmPartitionSize' in found_struct}}
+
+
     minSmPartitionSize : unsigned int
         The minimum number of streaming multiprocessors required to
         partition this resource.
-    {{endif}}
-    {{if 'cudaDevSmResource.smCoscheduledAlignment' in found_struct}}
+
+
     smCoscheduledAlignment : unsigned int
         The number of streaming multiprocessors in this resource that are
         guaranteed to be co-scheduled on the same GPU processing cluster.
         smCount will be a multiple of this value, unless the backfill flag
         is set.
-    {{endif}}
-    {{if 'cudaDevSmResource.flags' in found_struct}}
+
+
     flags : unsigned int
         The flags set on this SM resource. For available flags see
         cudaDevSmResourceGroup_flags.
-    {{endif}}
+
 
     Methods
     -------
@@ -16210,67 +15728,65 @@ cdef class cudaDevSmResource:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaDevSmResource.smCount' in found_struct}}
+
             try:
                 str_list += ['smCount : ' + str(self.smCount)]
             except ValueError:
                 str_list += ['smCount : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevSmResource.minSmPartitionSize' in found_struct}}
+
+
             try:
                 str_list += ['minSmPartitionSize : ' + str(self.minSmPartitionSize)]
             except ValueError:
                 str_list += ['minSmPartitionSize : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevSmResource.smCoscheduledAlignment' in found_struct}}
+
+
             try:
                 str_list += ['smCoscheduledAlignment : ' + str(self.smCoscheduledAlignment)]
             except ValueError:
                 str_list += ['smCoscheduledAlignment : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevSmResource.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaDevSmResource.smCount' in found_struct}}
+
     @property
     def smCount(self):
         return self._pvt_ptr[0].smCount
     @smCount.setter
     def smCount(self, unsigned int smCount):
         self._pvt_ptr[0].smCount = smCount
-    {{endif}}
-    {{if 'cudaDevSmResource.minSmPartitionSize' in found_struct}}
+
+
     @property
     def minSmPartitionSize(self):
         return self._pvt_ptr[0].minSmPartitionSize
     @minSmPartitionSize.setter
     def minSmPartitionSize(self, unsigned int minSmPartitionSize):
         self._pvt_ptr[0].minSmPartitionSize = minSmPartitionSize
-    {{endif}}
-    {{if 'cudaDevSmResource.smCoscheduledAlignment' in found_struct}}
+
+
     @property
     def smCoscheduledAlignment(self):
         return self._pvt_ptr[0].smCoscheduledAlignment
     @smCoscheduledAlignment.setter
     def smCoscheduledAlignment(self, unsigned int smCoscheduledAlignment):
         self._pvt_ptr[0].smCoscheduledAlignment = smCoscheduledAlignment
-    {{endif}}
-    {{if 'cudaDevSmResource.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-{{endif}}
-{{if 'cudaDevWorkqueueConfigResource' in found_struct}}
+
 
 cdef class cudaDevWorkqueueConfigResource:
     """
@@ -16278,18 +15794,18 @@ cdef class cudaDevWorkqueueConfigResource:
 
     Attributes
     ----------
-    {{if 'cudaDevWorkqueueConfigResource.device' in found_struct}}
+
     device : int
         The device on which the workqueue resources are available
-    {{endif}}
-    {{if 'cudaDevWorkqueueConfigResource.wqConcurrencyLimit' in found_struct}}
+
+
     wqConcurrencyLimit : unsigned int
         The expected maximum number of concurrent stream-ordered workloads
-    {{endif}}
-    {{if 'cudaDevWorkqueueConfigResource.sharingScope' in found_struct}}
+
+
     sharingScope : cudaDevWorkqueueConfigScope
         The sharing scope for the workqueue resources
-    {{endif}}
+
 
     Methods
     -------
@@ -16310,53 +15826,51 @@ cdef class cudaDevWorkqueueConfigResource:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaDevWorkqueueConfigResource.device' in found_struct}}
+
             try:
                 str_list += ['device : ' + str(self.device)]
             except ValueError:
                 str_list += ['device : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevWorkqueueConfigResource.wqConcurrencyLimit' in found_struct}}
+
+
             try:
                 str_list += ['wqConcurrencyLimit : ' + str(self.wqConcurrencyLimit)]
             except ValueError:
                 str_list += ['wqConcurrencyLimit : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevWorkqueueConfigResource.sharingScope' in found_struct}}
+
+
             try:
                 str_list += ['sharingScope : ' + str(self.sharingScope)]
             except ValueError:
                 str_list += ['sharingScope : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaDevWorkqueueConfigResource.device' in found_struct}}
+
     @property
     def device(self):
         return self._pvt_ptr[0].device
     @device.setter
     def device(self, int device):
         self._pvt_ptr[0].device = device
-    {{endif}}
-    {{if 'cudaDevWorkqueueConfigResource.wqConcurrencyLimit' in found_struct}}
+
+
     @property
     def wqConcurrencyLimit(self):
         return self._pvt_ptr[0].wqConcurrencyLimit
     @wqConcurrencyLimit.setter
     def wqConcurrencyLimit(self, unsigned int wqConcurrencyLimit):
         self._pvt_ptr[0].wqConcurrencyLimit = wqConcurrencyLimit
-    {{endif}}
-    {{if 'cudaDevWorkqueueConfigResource.sharingScope' in found_struct}}
+
+
     @property
     def sharingScope(self):
         return cudaDevWorkqueueConfigScope(self._pvt_ptr[0].sharingScope)
     @sharingScope.setter
     def sharingScope(self, sharingScope not None : cudaDevWorkqueueConfigScope):
-        self._pvt_ptr[0].sharingScope = int(sharingScope)
-    {{endif}}
-{{endif}}
-{{if 'cudaDevWorkqueueResource' in found_struct}}
+        self._pvt_ptr[0].sharingScope = <cyruntime.cudaDevWorkqueueConfigScope><int>int(sharingScope)
+
 
 cdef class cudaDevWorkqueueResource:
     """
@@ -16364,10 +15878,10 @@ cdef class cudaDevWorkqueueResource:
 
     Attributes
     ----------
-    {{if 'cudaDevWorkqueueResource.reserved' in found_struct}}
+
     reserved : bytes
         Reserved for future use
-    {{endif}}
+
 
     Methods
     -------
@@ -16388,16 +15902,16 @@ cdef class cudaDevWorkqueueResource:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaDevWorkqueueResource.reserved' in found_struct}}
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaDevWorkqueueResource.reserved' in found_struct}}
+
     @property
     def reserved(self):
         return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 40)
@@ -16407,9 +15921,7 @@ cdef class cudaDevWorkqueueResource:
             raise ValueError("reserved length must be 40, is " + str(len(reserved)))
         for i, b in enumerate(reserved):
             self._pvt_ptr[0].reserved[i] = b
-    {{endif}}
-{{endif}}
-{{if 'cudaDevSmResourceGroupParams_st' in found_struct}}
+
 
 cdef class cudaDevSmResourceGroupParams_st:
     """
@@ -16417,29 +15929,29 @@ cdef class cudaDevSmResourceGroupParams_st:
 
     Attributes
     ----------
-    {{if 'cudaDevSmResourceGroupParams_st.smCount' in found_struct}}
+
     smCount : unsigned int
         The amount of SMs available in this resource.
-    {{endif}}
-    {{if 'cudaDevSmResourceGroupParams_st.coscheduledSmCount' in found_struct}}
+
+
     coscheduledSmCount : unsigned int
         The amount of co-scheduled SMs grouped together for locality
         purposes.
-    {{endif}}
-    {{if 'cudaDevSmResourceGroupParams_st.preferredCoscheduledSmCount' in found_struct}}
+
+
     preferredCoscheduledSmCount : unsigned int
         When possible, combine co-scheduled groups together into larger
         groups of this size.
-    {{endif}}
-    {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
+
+
     flags : unsigned int
         Combination of `cudaDevSmResourceGroup_flags` values to indicate
         this this group is created.
-    {{endif}}
-    {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
+
+
     reserved : list[unsigned int]
         Reserved for future use - ensure this is zero initialized.
-    {{endif}}
+
 
     Methods
     -------
@@ -16460,81 +15972,79 @@ cdef class cudaDevSmResourceGroupParams_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaDevSmResourceGroupParams_st.smCount' in found_struct}}
+
             try:
                 str_list += ['smCount : ' + str(self.smCount)]
             except ValueError:
                 str_list += ['smCount : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevSmResourceGroupParams_st.coscheduledSmCount' in found_struct}}
+
+
             try:
                 str_list += ['coscheduledSmCount : ' + str(self.coscheduledSmCount)]
             except ValueError:
                 str_list += ['coscheduledSmCount : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevSmResourceGroupParams_st.preferredCoscheduledSmCount' in found_struct}}
+
+
             try:
                 str_list += ['preferredCoscheduledSmCount : ' + str(self.preferredCoscheduledSmCount)]
             except ValueError:
                 str_list += ['preferredCoscheduledSmCount : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaDevSmResourceGroupParams_st.smCount' in found_struct}}
+
     @property
     def smCount(self):
         return self._pvt_ptr[0].smCount
     @smCount.setter
     def smCount(self, unsigned int smCount):
         self._pvt_ptr[0].smCount = smCount
-    {{endif}}
-    {{if 'cudaDevSmResourceGroupParams_st.coscheduledSmCount' in found_struct}}
+
+
     @property
     def coscheduledSmCount(self):
         return self._pvt_ptr[0].coscheduledSmCount
     @coscheduledSmCount.setter
     def coscheduledSmCount(self, unsigned int coscheduledSmCount):
         self._pvt_ptr[0].coscheduledSmCount = coscheduledSmCount
-    {{endif}}
-    {{if 'cudaDevSmResourceGroupParams_st.preferredCoscheduledSmCount' in found_struct}}
+
+
     @property
     def preferredCoscheduledSmCount(self):
         return self._pvt_ptr[0].preferredCoscheduledSmCount
     @preferredCoscheduledSmCount.setter
     def preferredCoscheduledSmCount(self, unsigned int preferredCoscheduledSmCount):
         self._pvt_ptr[0].preferredCoscheduledSmCount = preferredCoscheduledSmCount
-    {{endif}}
-    {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-    {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if 'cudaDevResource_st' in found_struct}}
+
 
 cdef class cudaDevResource_st:
     """
@@ -16556,35 +16066,35 @@ cdef class cudaDevResource_st:
 
     Attributes
     ----------
-    {{if 'cudaDevResource_st.type' in found_struct}}
+
     type : cudaDevResourceType
         Type of resource, dictates which union field was last set
-    {{endif}}
-    {{if 'cudaDevResource_st._internal_padding' in found_struct}}
+
+
     _internal_padding : bytes
 
-    {{endif}}
-    {{if 'cudaDevResource_st.sm' in found_struct}}
+
+
     sm : cudaDevSmResource
         Resource corresponding to cudaDevResourceTypeSm `typename`.
-    {{endif}}
-    {{if 'cudaDevResource_st.wqConfig' in found_struct}}
+
+
     wqConfig : cudaDevWorkqueueConfigResource
         Resource corresponding to cudaDevResourceTypeWorkqueueConfig
         `typename`.
-    {{endif}}
-    {{if 'cudaDevResource_st.wq' in found_struct}}
+
+
     wq : cudaDevWorkqueueResource
         Resource corresponding to cudaDevResourceTypeWorkqueue `typename`.
-    {{endif}}
-    {{if 'cudaDevResource_st._oversize' in found_struct}}
+
+
     _oversize : bytes
 
-    {{endif}}
-    {{if 'cudaDevResource_st.nextResource' in found_struct}}
+
+
     nextResource : cudaDevResource_st
 
-    {{endif}}
+
 
     Methods
     -------
@@ -16599,82 +16109,82 @@ cdef class cudaDevResource_st:
             self._pvt_ptr = <cyruntime.cudaDevResource_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaDevResource_st.sm' in found_struct}}
+
         self._sm = cudaDevSmResource(_ptr=<void_ptr>&self._pvt_ptr[0].sm)
-        {{endif}}
-        {{if 'cudaDevResource_st.wqConfig' in found_struct}}
+
+
         self._wqConfig = cudaDevWorkqueueConfigResource(_ptr=<void_ptr>&self._pvt_ptr[0].wqConfig)
-        {{endif}}
-        {{if 'cudaDevResource_st.wq' in found_struct}}
+
+
         self._wq = cudaDevWorkqueueResource(_ptr=<void_ptr>&self._pvt_ptr[0].wq)
-        {{endif}}
+
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
-        {{if 'cudaDevResource_st.nextResource' in found_struct}}
+
         if self._nextResource is not NULL:
             free(self._nextResource)
             self._pvt_ptr[0].nextResource = NULL
-        {{endif}}
+
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaDevResource_st.type' in found_struct}}
+
             try:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevResource_st._internal_padding' in found_struct}}
+
+
             try:
                 str_list += ['_internal_padding : ' + str(self._internal_padding)]
             except ValueError:
                 str_list += ['_internal_padding : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevResource_st.sm' in found_struct}}
+
+
             try:
                 str_list += ['sm :\n' + '\n'.join(['    ' + line for line in str(self.sm).splitlines()])]
             except ValueError:
                 str_list += ['sm : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevResource_st.wqConfig' in found_struct}}
+
+
             try:
                 str_list += ['wqConfig :\n' + '\n'.join(['    ' + line for line in str(self.wqConfig).splitlines()])]
             except ValueError:
                 str_list += ['wqConfig : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevResource_st.wq' in found_struct}}
+
+
             try:
                 str_list += ['wq :\n' + '\n'.join(['    ' + line for line in str(self.wq).splitlines()])]
             except ValueError:
                 str_list += ['wq : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevResource_st._oversize' in found_struct}}
+
+
             try:
                 str_list += ['_oversize : ' + str(self._oversize)]
             except ValueError:
                 str_list += ['_oversize : <ValueError>']
-            {{endif}}
-            {{if 'cudaDevResource_st.nextResource' in found_struct}}
+
+
             try:
                 str_list += ['nextResource : ' + str(self.nextResource)]
             except ValueError:
                 str_list += ['nextResource : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaDevResource_st.type' in found_struct}}
+
     @property
     def type(self):
         return cudaDevResourceType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaDevResourceType):
-        self._pvt_ptr[0].type = int(type)
-    {{endif}}
-    {{if 'cudaDevResource_st._internal_padding' in found_struct}}
+        self._pvt_ptr[0].type = <cyruntime.cudaDevResourceType><int>int(type)
+
+
     @property
     def _internal_padding(self):
         return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0]._internal_padding, 92)
@@ -16684,32 +16194,32 @@ cdef class cudaDevResource_st:
             raise ValueError("_internal_padding length must be 92, is " + str(len(_internal_padding)))
         for i, b in enumerate(_internal_padding):
             self._pvt_ptr[0]._internal_padding[i] = b
-    {{endif}}
-    {{if 'cudaDevResource_st.sm' in found_struct}}
+
+
     @property
     def sm(self):
         return self._sm
     @sm.setter
     def sm(self, sm not None : cudaDevSmResource):
         string.memcpy(&self._pvt_ptr[0].sm, <void*><void_ptr>sm.getPtr(), sizeof(self._pvt_ptr[0].sm))
-    {{endif}}
-    {{if 'cudaDevResource_st.wqConfig' in found_struct}}
+
+
     @property
     def wqConfig(self):
         return self._wqConfig
     @wqConfig.setter
     def wqConfig(self, wqConfig not None : cudaDevWorkqueueConfigResource):
         string.memcpy(&self._pvt_ptr[0].wqConfig, <void*><void_ptr>wqConfig.getPtr(), sizeof(self._pvt_ptr[0].wqConfig))
-    {{endif}}
-    {{if 'cudaDevResource_st.wq' in found_struct}}
+
+
     @property
     def wq(self):
         return self._wq
     @wq.setter
     def wq(self, wq not None : cudaDevWorkqueueResource):
         string.memcpy(&self._pvt_ptr[0].wq, <void*><void_ptr>wq.getPtr(), sizeof(self._pvt_ptr[0].wq))
-    {{endif}}
-    {{if 'cudaDevResource_st._oversize' in found_struct}}
+
+
     @property
     def _oversize(self):
         return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0]._oversize, 40)
@@ -16719,8 +16229,8 @@ cdef class cudaDevResource_st:
             raise ValueError("_oversize length must be 40, is " + str(len(_oversize)))
         for i, b in enumerate(_oversize):
             self._pvt_ptr[0]._oversize[i] = b
-    {{endif}}
-    {{if 'cudaDevResource_st.nextResource' in found_struct}}
+
+
     @property
     def nextResource(self):
         arrs = [<void_ptr>self._pvt_ptr[0].nextResource + x*sizeof(cyruntime.cudaDevResource_st) for x in range(self._nextResource_length)]
@@ -16743,30 +16253,28 @@ cdef class cudaDevResource_st:
             for idx in range(len(val)):
                 string.memcpy(&self._nextResource[idx], (<cudaDevResource_st>val[idx])._pvt_ptr, sizeof(cyruntime.cudaDevResource_st))
 
-    {{endif}}
-{{endif}}
-{{if 'cudalibraryHostUniversalFunctionAndDataTable' in found_struct}}
+
 
 cdef class cudalibraryHostUniversalFunctionAndDataTable:
     """
     Attributes
     ----------
-    {{if 'cudalibraryHostUniversalFunctionAndDataTable.functionTable' in found_struct}}
+
     functionTable : Any
 
-    {{endif}}
-    {{if 'cudalibraryHostUniversalFunctionAndDataTable.functionWindowSize' in found_struct}}
+
+
     functionWindowSize : size_t
 
-    {{endif}}
-    {{if 'cudalibraryHostUniversalFunctionAndDataTable.dataTable' in found_struct}}
+
+
     dataTable : Any
 
-    {{endif}}
-    {{if 'cudalibraryHostUniversalFunctionAndDataTable.dataWindowSize' in found_struct}}
+
+
     dataWindowSize : size_t
 
-    {{endif}}
+
 
     Methods
     -------
@@ -16787,34 +16295,34 @@ cdef class cudalibraryHostUniversalFunctionAndDataTable:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudalibraryHostUniversalFunctionAndDataTable.functionTable' in found_struct}}
+
             try:
                 str_list += ['functionTable : ' + hex(self.functionTable)]
             except ValueError:
                 str_list += ['functionTable : <ValueError>']
-            {{endif}}
-            {{if 'cudalibraryHostUniversalFunctionAndDataTable.functionWindowSize' in found_struct}}
+
+
             try:
                 str_list += ['functionWindowSize : ' + str(self.functionWindowSize)]
             except ValueError:
                 str_list += ['functionWindowSize : <ValueError>']
-            {{endif}}
-            {{if 'cudalibraryHostUniversalFunctionAndDataTable.dataTable' in found_struct}}
+
+
             try:
                 str_list += ['dataTable : ' + hex(self.dataTable)]
             except ValueError:
                 str_list += ['dataTable : <ValueError>']
-            {{endif}}
-            {{if 'cudalibraryHostUniversalFunctionAndDataTable.dataWindowSize' in found_struct}}
+
+
             try:
                 str_list += ['dataWindowSize : ' + str(self.dataWindowSize)]
             except ValueError:
                 str_list += ['dataWindowSize : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudalibraryHostUniversalFunctionAndDataTable.functionTable' in found_struct}}
+
     @property
     def functionTable(self):
         return <void_ptr>self._pvt_ptr[0].functionTable
@@ -16822,16 +16330,16 @@ cdef class cudalibraryHostUniversalFunctionAndDataTable:
     def functionTable(self, functionTable):
         self._cyfunctionTable = _HelperInputVoidPtr(functionTable)
         self._pvt_ptr[0].functionTable = <void*><void_ptr>self._cyfunctionTable.cptr
-    {{endif}}
-    {{if 'cudalibraryHostUniversalFunctionAndDataTable.functionWindowSize' in found_struct}}
+
+
     @property
     def functionWindowSize(self):
         return self._pvt_ptr[0].functionWindowSize
     @functionWindowSize.setter
     def functionWindowSize(self, size_t functionWindowSize):
         self._pvt_ptr[0].functionWindowSize = functionWindowSize
-    {{endif}}
-    {{if 'cudalibraryHostUniversalFunctionAndDataTable.dataTable' in found_struct}}
+
+
     @property
     def dataTable(self):
         return <void_ptr>self._pvt_ptr[0].dataTable
@@ -16839,17 +16347,15 @@ cdef class cudalibraryHostUniversalFunctionAndDataTable:
     def dataTable(self, dataTable):
         self._cydataTable = _HelperInputVoidPtr(dataTable)
         self._pvt_ptr[0].dataTable = <void*><void_ptr>self._cydataTable.cptr
-    {{endif}}
-    {{if 'cudalibraryHostUniversalFunctionAndDataTable.dataWindowSize' in found_struct}}
+
+
     @property
     def dataWindowSize(self):
         return self._pvt_ptr[0].dataWindowSize
     @dataWindowSize.setter
     def dataWindowSize(self, size_t dataWindowSize):
         self._pvt_ptr[0].dataWindowSize = dataWindowSize
-    {{endif}}
-{{endif}}
-{{if 'cudaKernelNodeParams' in found_struct}}
+
 
 cdef class cudaKernelNodeParams:
     """
@@ -16857,30 +16363,30 @@ cdef class cudaKernelNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaKernelNodeParams.func' in found_struct}}
+
     func : Any
         Kernel to launch
-    {{endif}}
-    {{if 'cudaKernelNodeParams.gridDim' in found_struct}}
+
+
     gridDim : dim3
         Grid dimensions
-    {{endif}}
-    {{if 'cudaKernelNodeParams.blockDim' in found_struct}}
+
+
     blockDim : dim3
         Block dimensions
-    {{endif}}
-    {{if 'cudaKernelNodeParams.sharedMemBytes' in found_struct}}
+
+
     sharedMemBytes : unsigned int
         Dynamic shared-memory size per thread block in bytes
-    {{endif}}
-    {{if 'cudaKernelNodeParams.kernelParams' in found_struct}}
+
+
     kernelParams : Any
         Array of pointers to individual kernel arguments
-    {{endif}}
-    {{if 'cudaKernelNodeParams.extra' in found_struct}}
+
+
     extra : Any
         Pointer to kernel arguments in the "extra" format
-    {{endif}}
+
 
     Methods
     -------
@@ -16894,12 +16400,12 @@ cdef class cudaKernelNodeParams:
             self._pvt_ptr = <cyruntime.cudaKernelNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaKernelNodeParams.gridDim' in found_struct}}
+
         self._gridDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].gridDim)
-        {{endif}}
-        {{if 'cudaKernelNodeParams.blockDim' in found_struct}}
+
+
         self._blockDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].blockDim)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -16907,46 +16413,46 @@ cdef class cudaKernelNodeParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaKernelNodeParams.func' in found_struct}}
+
             try:
                 str_list += ['func : ' + hex(self.func)]
             except ValueError:
                 str_list += ['func : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParams.gridDim' in found_struct}}
+
+
             try:
                 str_list += ['gridDim :\n' + '\n'.join(['    ' + line for line in str(self.gridDim).splitlines()])]
             except ValueError:
                 str_list += ['gridDim : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParams.blockDim' in found_struct}}
+
+
             try:
                 str_list += ['blockDim :\n' + '\n'.join(['    ' + line for line in str(self.blockDim).splitlines()])]
             except ValueError:
                 str_list += ['blockDim : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParams.sharedMemBytes' in found_struct}}
+
+
             try:
                 str_list += ['sharedMemBytes : ' + str(self.sharedMemBytes)]
             except ValueError:
                 str_list += ['sharedMemBytes : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParams.kernelParams' in found_struct}}
+
+
             try:
                 str_list += ['kernelParams : ' + str(self.kernelParams)]
             except ValueError:
                 str_list += ['kernelParams : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParams.extra' in found_struct}}
+
+
             try:
                 str_list += ['extra : ' + str(self.extra)]
             except ValueError:
                 str_list += ['extra : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaKernelNodeParams.func' in found_struct}}
+
     @property
     def func(self):
         return <void_ptr>self._pvt_ptr[0].func
@@ -16954,32 +16460,32 @@ cdef class cudaKernelNodeParams:
     def func(self, func):
         self._cyfunc = _HelperInputVoidPtr(func)
         self._pvt_ptr[0].func = <void*><void_ptr>self._cyfunc.cptr
-    {{endif}}
-    {{if 'cudaKernelNodeParams.gridDim' in found_struct}}
+
+
     @property
     def gridDim(self):
         return self._gridDim
     @gridDim.setter
     def gridDim(self, gridDim not None : dim3):
         string.memcpy(&self._pvt_ptr[0].gridDim, <void*><void_ptr>gridDim.getPtr(), sizeof(self._pvt_ptr[0].gridDim))
-    {{endif}}
-    {{if 'cudaKernelNodeParams.blockDim' in found_struct}}
+
+
     @property
     def blockDim(self):
         return self._blockDim
     @blockDim.setter
     def blockDim(self, blockDim not None : dim3):
         string.memcpy(&self._pvt_ptr[0].blockDim, <void*><void_ptr>blockDim.getPtr(), sizeof(self._pvt_ptr[0].blockDim))
-    {{endif}}
-    {{if 'cudaKernelNodeParams.sharedMemBytes' in found_struct}}
+
+
     @property
     def sharedMemBytes(self):
         return self._pvt_ptr[0].sharedMemBytes
     @sharedMemBytes.setter
     def sharedMemBytes(self, unsigned int sharedMemBytes):
         self._pvt_ptr[0].sharedMemBytes = sharedMemBytes
-    {{endif}}
-    {{if 'cudaKernelNodeParams.kernelParams' in found_struct}}
+
+
     @property
     def kernelParams(self):
         return <void_ptr>self._pvt_ptr[0].kernelParams
@@ -16987,17 +16493,15 @@ cdef class cudaKernelNodeParams:
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
         self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
-    {{endif}}
-    {{if 'cudaKernelNodeParams.extra' in found_struct}}
+
+
     @property
     def extra(self):
         return <void_ptr>self._pvt_ptr[0].extra
     @extra.setter
     def extra(self, void_ptr extra):
         self._pvt_ptr[0].extra = <void**>extra
-    {{endif}}
-{{endif}}
-{{if 'cudaKernelNodeParamsV2' in found_struct}}
+
 
 cdef class cudaKernelNodeParamsV2:
     """
@@ -17005,47 +16509,47 @@ cdef class cudaKernelNodeParamsV2:
 
     Attributes
     ----------
-    {{if 'cudaKernelNodeParamsV2.func' in found_struct}}
+
     func : Any
         functionType = cudaKernelFucntionTypeDevice
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.kern' in found_struct}}
+
+
     kern : cudaKernel_t
         functionType = cudaKernelFucntionTypeKernel
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.cuFunc' in found_struct}}
+
+
     cuFunc : cudaFunction_t
         functionType = cudaKernelFucntionTypeFunction
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
+
+
     gridDim : dim3
         Grid dimensions
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.blockDim' in found_struct}}
+
+
     blockDim : dim3
         Block dimensions
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.sharedMemBytes' in found_struct}}
+
+
     sharedMemBytes : unsigned int
         Dynamic shared-memory size per thread block in bytes
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.kernelParams' in found_struct}}
+
+
     kernelParams : Any
         Array of pointers to individual kernel arguments
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.extra' in found_struct}}
+
+
     extra : Any
         Pointer to kernel arguments in the "extra" format
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.ctx' in found_struct}}
+
+
     ctx : cudaExecutionContext_t
         Context in which to run the kernel. If NULL will try to use the
         current context.
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.functionType' in found_struct}}
+
+
     functionType : cudaKernelFunctionType
         Type of handle passed in the func/kern/cuFunc union above
-    {{endif}}
+
 
     Methods
     -------
@@ -17060,21 +16564,21 @@ cdef class cudaKernelNodeParamsV2:
             self._pvt_ptr = <cyruntime.cudaKernelNodeParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaKernelNodeParamsV2.kern' in found_struct}}
+
         self._kern = cudaKernel_t(_ptr=<void_ptr>&self._pvt_ptr[0].kern)
-        {{endif}}
-        {{if 'cudaKernelNodeParamsV2.cuFunc' in found_struct}}
+
+
         self._cuFunc = cudaFunction_t(_ptr=<void_ptr>&self._pvt_ptr[0].cuFunc)
-        {{endif}}
-        {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
+
+
         self._gridDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].gridDim)
-        {{endif}}
-        {{if 'cudaKernelNodeParamsV2.blockDim' in found_struct}}
+
+
         self._blockDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].blockDim)
-        {{endif}}
-        {{if 'cudaKernelNodeParamsV2.ctx' in found_struct}}
+
+
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-        {{endif}}
+
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
@@ -17083,70 +16587,70 @@ cdef class cudaKernelNodeParamsV2:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaKernelNodeParamsV2.func' in found_struct}}
+
             try:
                 str_list += ['func : ' + hex(self.func)]
             except ValueError:
                 str_list += ['func : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParamsV2.kern' in found_struct}}
+
+
             try:
                 str_list += ['kern : ' + str(self.kern)]
             except ValueError:
                 str_list += ['kern : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParamsV2.cuFunc' in found_struct}}
+
+
             try:
                 str_list += ['cuFunc : ' + str(self.cuFunc)]
             except ValueError:
                 str_list += ['cuFunc : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
+
+
             try:
                 str_list += ['gridDim :\n' + '\n'.join(['    ' + line for line in str(self.gridDim).splitlines()])]
             except ValueError:
                 str_list += ['gridDim : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParamsV2.blockDim' in found_struct}}
+
+
             try:
                 str_list += ['blockDim :\n' + '\n'.join(['    ' + line for line in str(self.blockDim).splitlines()])]
             except ValueError:
                 str_list += ['blockDim : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParamsV2.sharedMemBytes' in found_struct}}
+
+
             try:
                 str_list += ['sharedMemBytes : ' + str(self.sharedMemBytes)]
             except ValueError:
                 str_list += ['sharedMemBytes : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParamsV2.kernelParams' in found_struct}}
+
+
             try:
                 str_list += ['kernelParams : ' + str(self.kernelParams)]
             except ValueError:
                 str_list += ['kernelParams : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParamsV2.extra' in found_struct}}
+
+
             try:
                 str_list += ['extra : ' + str(self.extra)]
             except ValueError:
                 str_list += ['extra : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParamsV2.ctx' in found_struct}}
+
+
             try:
                 str_list += ['ctx : ' + str(self.ctx)]
             except ValueError:
                 str_list += ['ctx : <ValueError>']
-            {{endif}}
-            {{if 'cudaKernelNodeParamsV2.functionType' in found_struct}}
+
+
             try:
                 str_list += ['functionType : ' + str(self.functionType)]
             except ValueError:
                 str_list += ['functionType : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaKernelNodeParamsV2.func' in found_struct}}
+
     @property
     def func(self):
         return <void_ptr>self._pvt_ptr[0].func
@@ -17154,8 +16658,8 @@ cdef class cudaKernelNodeParamsV2:
     def func(self, func):
         self._cyfunc = _HelperInputVoidPtr(func)
         self._pvt_ptr[0].func = <void*><void_ptr>self._cyfunc.cptr
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.kern' in found_struct}}
+
+
     @property
     def kern(self):
         return self._kern
@@ -17171,8 +16675,8 @@ cdef class cudaKernelNodeParamsV2:
             pkern = int(cudaKernel_t(kern))
             cykern = <cyruntime.cudaKernel_t><void_ptr>pkern
         self._kern._pvt_ptr[0] = cykern
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.cuFunc' in found_struct}}
+
+
     @property
     def cuFunc(self):
         return self._cuFunc
@@ -17188,32 +16692,32 @@ cdef class cudaKernelNodeParamsV2:
             pcuFunc = int(cudaFunction_t(cuFunc))
             cycuFunc = <cyruntime.cudaFunction_t><void_ptr>pcuFunc
         self._cuFunc._pvt_ptr[0] = cycuFunc
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
+
+
     @property
     def gridDim(self):
         return self._gridDim
     @gridDim.setter
     def gridDim(self, gridDim not None : dim3):
         string.memcpy(&self._pvt_ptr[0].gridDim, <void*><void_ptr>gridDim.getPtr(), sizeof(self._pvt_ptr[0].gridDim))
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.blockDim' in found_struct}}
+
+
     @property
     def blockDim(self):
         return self._blockDim
     @blockDim.setter
     def blockDim(self, blockDim not None : dim3):
         string.memcpy(&self._pvt_ptr[0].blockDim, <void*><void_ptr>blockDim.getPtr(), sizeof(self._pvt_ptr[0].blockDim))
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.sharedMemBytes' in found_struct}}
+
+
     @property
     def sharedMemBytes(self):
         return self._pvt_ptr[0].sharedMemBytes
     @sharedMemBytes.setter
     def sharedMemBytes(self, unsigned int sharedMemBytes):
         self._pvt_ptr[0].sharedMemBytes = sharedMemBytes
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.kernelParams' in found_struct}}
+
+
     @property
     def kernelParams(self):
         return <void_ptr>self._pvt_ptr[0].kernelParams
@@ -17221,16 +16725,16 @@ cdef class cudaKernelNodeParamsV2:
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
         self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.extra' in found_struct}}
+
+
     @property
     def extra(self):
         return <void_ptr>self._pvt_ptr[0].extra
     @extra.setter
     def extra(self, void_ptr extra):
         self._pvt_ptr[0].extra = <void**>extra
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.ctx' in found_struct}}
+
+
     @property
     def ctx(self):
         return self._ctx
@@ -17246,17 +16750,15 @@ cdef class cudaKernelNodeParamsV2:
             pctx = int(cudaExecutionContext_t(ctx))
             cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
         self._ctx._pvt_ptr[0] = cyctx
-    {{endif}}
-    {{if 'cudaKernelNodeParamsV2.functionType' in found_struct}}
+
+
     @property
     def functionType(self):
         return cudaKernelFunctionType(self._pvt_ptr[0].functionType)
     @functionType.setter
     def functionType(self, functionType not None : cudaKernelFunctionType):
-        self._pvt_ptr[0].functionType = int(functionType)
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreSignalNodeParams' in found_struct}}
+        self._pvt_ptr[0].functionType = <cyruntime.cudaKernelFunctionType><int>int(functionType)
+
 
 cdef class cudaExternalSemaphoreSignalNodeParams:
     """
@@ -17264,19 +16766,19 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreSignalNodeParams.extSemArray' in found_struct}}
+
     extSemArray : cudaExternalSemaphore_t
         Array of external semaphore handles.
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalNodeParams.paramsArray' in found_struct}}
+
+
     paramsArray : cudaExternalSemaphoreSignalParams
         Array of external semaphore signal parameters.
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalNodeParams.numExtSems' in found_struct}}
+
+
     numExtSems : unsigned int
         Number of handles and parameters supplied in extSemArray and
         paramsArray.
-    {{endif}}
+
 
     Methods
     -------
@@ -17292,43 +16794,43 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
         pass
     def __dealloc__(self):
         pass
-        {{if 'cudaExternalSemaphoreSignalNodeParams.extSemArray' in found_struct}}
+
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-        {{endif}}
-        {{if 'cudaExternalSemaphoreSignalNodeParams.paramsArray' in found_struct}}
+
+
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-        {{endif}}
+
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreSignalNodeParams.extSemArray' in found_struct}}
+
             try:
                 str_list += ['extSemArray : ' + str(self.extSemArray)]
             except ValueError:
                 str_list += ['extSemArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreSignalNodeParams.paramsArray' in found_struct}}
+
+
             try:
                 str_list += ['paramsArray : ' + str(self.paramsArray)]
             except ValueError:
                 str_list += ['paramsArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreSignalNodeParams.numExtSems' in found_struct}}
+
+
             try:
                 str_list += ['numExtSems : ' + str(self.numExtSems)]
             except ValueError:
                 str_list += ['numExtSems : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreSignalNodeParams.extSemArray' in found_struct}}
+
     @property
     def extSemArray(self):
         arrs = [<void_ptr>self._pvt_ptr[0].extSemArray + x*sizeof(cyruntime.cudaExternalSemaphore_t) for x in range(self._extSemArray_length)]
@@ -17351,8 +16853,8 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
             for idx in range(len(val)):
                 self._extSemArray[idx] = (<cudaExternalSemaphore_t>val[idx])._pvt_ptr[0]
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalNodeParams.paramsArray' in found_struct}}
+
+
     @property
     def paramsArray(self):
         arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cyruntime.cudaExternalSemaphoreSignalParams) for x in range(self._paramsArray_length)]
@@ -17375,17 +16877,15 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
             for idx in range(len(val)):
                 string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalNodeParams.numExtSems' in found_struct}}
+
+
     @property
     def numExtSems(self):
         return self._pvt_ptr[0].numExtSems
     @numExtSems.setter
     def numExtSems(self, unsigned int numExtSems):
         self._pvt_ptr[0].numExtSems = numExtSems
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreSignalNodeParamsV2' in found_struct}}
+
 
 cdef class cudaExternalSemaphoreSignalNodeParamsV2:
     """
@@ -17393,19 +16893,19 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
 
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreSignalNodeParamsV2.extSemArray' in found_struct}}
+
     extSemArray : cudaExternalSemaphore_t
         Array of external semaphore handles.
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalNodeParamsV2.paramsArray' in found_struct}}
+
+
     paramsArray : cudaExternalSemaphoreSignalParams
         Array of external semaphore signal parameters.
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalNodeParamsV2.numExtSems' in found_struct}}
+
+
     numExtSems : unsigned int
         Number of handles and parameters supplied in extSemArray and
         paramsArray.
-    {{endif}}
+
 
     Methods
     -------
@@ -17421,43 +16921,43 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
         pass
     def __dealloc__(self):
         pass
-        {{if 'cudaExternalSemaphoreSignalNodeParamsV2.extSemArray' in found_struct}}
+
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-        {{endif}}
-        {{if 'cudaExternalSemaphoreSignalNodeParamsV2.paramsArray' in found_struct}}
+
+
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-        {{endif}}
+
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreSignalNodeParamsV2.extSemArray' in found_struct}}
+
             try:
                 str_list += ['extSemArray : ' + str(self.extSemArray)]
             except ValueError:
                 str_list += ['extSemArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreSignalNodeParamsV2.paramsArray' in found_struct}}
+
+
             try:
                 str_list += ['paramsArray : ' + str(self.paramsArray)]
             except ValueError:
                 str_list += ['paramsArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreSignalNodeParamsV2.numExtSems' in found_struct}}
+
+
             try:
                 str_list += ['numExtSems : ' + str(self.numExtSems)]
             except ValueError:
                 str_list += ['numExtSems : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreSignalNodeParamsV2.extSemArray' in found_struct}}
+
     @property
     def extSemArray(self):
         arrs = [<void_ptr>self._pvt_ptr[0].extSemArray + x*sizeof(cyruntime.cudaExternalSemaphore_t) for x in range(self._extSemArray_length)]
@@ -17480,8 +16980,8 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
             for idx in range(len(val)):
                 self._extSemArray[idx] = (<cudaExternalSemaphore_t>val[idx])._pvt_ptr[0]
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalNodeParamsV2.paramsArray' in found_struct}}
+
+
     @property
     def paramsArray(self):
         arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cyruntime.cudaExternalSemaphoreSignalParams) for x in range(self._paramsArray_length)]
@@ -17504,17 +17004,15 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
             for idx in range(len(val)):
                 string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreSignalNodeParamsV2.numExtSems' in found_struct}}
+
+
     @property
     def numExtSems(self):
         return self._pvt_ptr[0].numExtSems
     @numExtSems.setter
     def numExtSems(self, unsigned int numExtSems):
         self._pvt_ptr[0].numExtSems = numExtSems
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreWaitNodeParams' in found_struct}}
+
 
 cdef class cudaExternalSemaphoreWaitNodeParams:
     """
@@ -17522,19 +17020,19 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreWaitNodeParams.extSemArray' in found_struct}}
+
     extSemArray : cudaExternalSemaphore_t
         Array of external semaphore handles.
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitNodeParams.paramsArray' in found_struct}}
+
+
     paramsArray : cudaExternalSemaphoreWaitParams
         Array of external semaphore wait parameters.
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitNodeParams.numExtSems' in found_struct}}
+
+
     numExtSems : unsigned int
         Number of handles and parameters supplied in extSemArray and
         paramsArray.
-    {{endif}}
+
 
     Methods
     -------
@@ -17550,43 +17048,43 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
         pass
     def __dealloc__(self):
         pass
-        {{if 'cudaExternalSemaphoreWaitNodeParams.extSemArray' in found_struct}}
+
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-        {{endif}}
-        {{if 'cudaExternalSemaphoreWaitNodeParams.paramsArray' in found_struct}}
+
+
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-        {{endif}}
+
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreWaitNodeParams.extSemArray' in found_struct}}
+
             try:
                 str_list += ['extSemArray : ' + str(self.extSemArray)]
             except ValueError:
                 str_list += ['extSemArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreWaitNodeParams.paramsArray' in found_struct}}
+
+
             try:
                 str_list += ['paramsArray : ' + str(self.paramsArray)]
             except ValueError:
                 str_list += ['paramsArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreWaitNodeParams.numExtSems' in found_struct}}
+
+
             try:
                 str_list += ['numExtSems : ' + str(self.numExtSems)]
             except ValueError:
                 str_list += ['numExtSems : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreWaitNodeParams.extSemArray' in found_struct}}
+
     @property
     def extSemArray(self):
         arrs = [<void_ptr>self._pvt_ptr[0].extSemArray + x*sizeof(cyruntime.cudaExternalSemaphore_t) for x in range(self._extSemArray_length)]
@@ -17609,8 +17107,8 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
             for idx in range(len(val)):
                 self._extSemArray[idx] = (<cudaExternalSemaphore_t>val[idx])._pvt_ptr[0]
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitNodeParams.paramsArray' in found_struct}}
+
+
     @property
     def paramsArray(self):
         arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cyruntime.cudaExternalSemaphoreWaitParams) for x in range(self._paramsArray_length)]
@@ -17633,17 +17131,15 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
             for idx in range(len(val)):
                 string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitNodeParams.numExtSems' in found_struct}}
+
+
     @property
     def numExtSems(self):
         return self._pvt_ptr[0].numExtSems
     @numExtSems.setter
     def numExtSems(self, unsigned int numExtSems):
         self._pvt_ptr[0].numExtSems = numExtSems
-    {{endif}}
-{{endif}}
-{{if 'cudaExternalSemaphoreWaitNodeParamsV2' in found_struct}}
+
 
 cdef class cudaExternalSemaphoreWaitNodeParamsV2:
     """
@@ -17651,19 +17147,19 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
 
     Attributes
     ----------
-    {{if 'cudaExternalSemaphoreWaitNodeParamsV2.extSemArray' in found_struct}}
+
     extSemArray : cudaExternalSemaphore_t
         Array of external semaphore handles.
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitNodeParamsV2.paramsArray' in found_struct}}
+
+
     paramsArray : cudaExternalSemaphoreWaitParams
         Array of external semaphore wait parameters.
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitNodeParamsV2.numExtSems' in found_struct}}
+
+
     numExtSems : unsigned int
         Number of handles and parameters supplied in extSemArray and
         paramsArray.
-    {{endif}}
+
 
     Methods
     -------
@@ -17679,43 +17175,43 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
         pass
     def __dealloc__(self):
         pass
-        {{if 'cudaExternalSemaphoreWaitNodeParamsV2.extSemArray' in found_struct}}
+
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-        {{endif}}
-        {{if 'cudaExternalSemaphoreWaitNodeParamsV2.paramsArray' in found_struct}}
+
+
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-        {{endif}}
+
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaExternalSemaphoreWaitNodeParamsV2.extSemArray' in found_struct}}
+
             try:
                 str_list += ['extSemArray : ' + str(self.extSemArray)]
             except ValueError:
                 str_list += ['extSemArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreWaitNodeParamsV2.paramsArray' in found_struct}}
+
+
             try:
                 str_list += ['paramsArray : ' + str(self.paramsArray)]
             except ValueError:
                 str_list += ['paramsArray : <ValueError>']
-            {{endif}}
-            {{if 'cudaExternalSemaphoreWaitNodeParamsV2.numExtSems' in found_struct}}
+
+
             try:
                 str_list += ['numExtSems : ' + str(self.numExtSems)]
             except ValueError:
                 str_list += ['numExtSems : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaExternalSemaphoreWaitNodeParamsV2.extSemArray' in found_struct}}
+
     @property
     def extSemArray(self):
         arrs = [<void_ptr>self._pvt_ptr[0].extSemArray + x*sizeof(cyruntime.cudaExternalSemaphore_t) for x in range(self._extSemArray_length)]
@@ -17738,8 +17234,8 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
             for idx in range(len(val)):
                 self._extSemArray[idx] = (<cudaExternalSemaphore_t>val[idx])._pvt_ptr[0]
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitNodeParamsV2.paramsArray' in found_struct}}
+
+
     @property
     def paramsArray(self):
         arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cyruntime.cudaExternalSemaphoreWaitParams) for x in range(self._paramsArray_length)]
@@ -17762,17 +17258,15 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
             for idx in range(len(val)):
                 string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
 
-    {{endif}}
-    {{if 'cudaExternalSemaphoreWaitNodeParamsV2.numExtSems' in found_struct}}
+
+
     @property
     def numExtSems(self):
         return self._pvt_ptr[0].numExtSems
     @numExtSems.setter
     def numExtSems(self, unsigned int numExtSems):
         self._pvt_ptr[0].numExtSems = numExtSems
-    {{endif}}
-{{endif}}
-{{if 'cudaConditionalNodeParams' in found_struct}}
+
 
 cdef class cudaConditionalNodeParams:
     """
@@ -17780,22 +17274,22 @@ cdef class cudaConditionalNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaConditionalNodeParams.handle' in found_struct}}
+
     handle : cudaGraphConditionalHandle
         Conditional node handle. Handles must be created in advance of
         creating the node using cudaGraphConditionalHandleCreate.
-    {{endif}}
-    {{if 'cudaConditionalNodeParams.type' in found_struct}}
+
+
     type : cudaGraphConditionalNodeType
         Type of conditional node.
-    {{endif}}
-    {{if 'cudaConditionalNodeParams.size' in found_struct}}
+
+
     size : unsigned int
         Size of graph output array. Allowed values are 1 for
         cudaGraphCondTypeWhile, 1 or 2 for cudaGraphCondTypeIf, or any
         value greater than zero for cudaGraphCondTypeSwitch.
-    {{endif}}
-    {{if 'cudaConditionalNodeParams.phGraph_out' in found_struct}}
+
+
     phGraph_out : cudaGraph_t
         CUDA-owned array populated with conditional node child graphs
         during creation of the node. Valid for the lifetime of the
@@ -17813,11 +17307,11 @@ cdef class cudaConditionalNodeParams:
         condition is non-zero. cudaGraphCondTypeSwitch: phGraph_out[n] is
         executed when the condition is equal to n. If the condition >=
         `size`, no body graph is executed.
-    {{endif}}
-    {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
+
+
     ctx : cudaExecutionContext_t
         CUDA Execution Context
-    {{endif}}
+
 
     Methods
     -------
@@ -17831,12 +17325,12 @@ cdef class cudaConditionalNodeParams:
             self._pvt_ptr = <cyruntime.cudaConditionalNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaConditionalNodeParams.handle' in found_struct}}
+
         self._handle = cudaGraphConditionalHandle(_ptr=<void_ptr>&self._pvt_ptr[0].handle)
-        {{endif}}
-        {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
+
+
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -17844,40 +17338,40 @@ cdef class cudaConditionalNodeParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaConditionalNodeParams.handle' in found_struct}}
+
             try:
                 str_list += ['handle : ' + str(self.handle)]
             except ValueError:
                 str_list += ['handle : <ValueError>']
-            {{endif}}
-            {{if 'cudaConditionalNodeParams.type' in found_struct}}
+
+
             try:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-            {{endif}}
-            {{if 'cudaConditionalNodeParams.size' in found_struct}}
+
+
             try:
                 str_list += ['size : ' + str(self.size)]
             except ValueError:
                 str_list += ['size : <ValueError>']
-            {{endif}}
-            {{if 'cudaConditionalNodeParams.phGraph_out' in found_struct}}
+
+
             try:
                 str_list += ['phGraph_out : ' + str(self.phGraph_out)]
             except ValueError:
                 str_list += ['phGraph_out : <ValueError>']
-            {{endif}}
-            {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
+
+
             try:
                 str_list += ['ctx : ' + str(self.ctx)]
             except ValueError:
                 str_list += ['ctx : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaConditionalNodeParams.handle' in found_struct}}
+
     @property
     def handle(self):
         return self._handle
@@ -17894,30 +17388,30 @@ cdef class cudaConditionalNodeParams:
             cyhandle = <cyruntime.cudaGraphConditionalHandle><void_ptr>phandle
         self._handle._pvt_ptr[0] = cyhandle
 
-    {{endif}}
-    {{if 'cudaConditionalNodeParams.type' in found_struct}}
+
+
     @property
     def type(self):
         return cudaGraphConditionalNodeType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaGraphConditionalNodeType):
-        self._pvt_ptr[0].type = int(type)
-    {{endif}}
-    {{if 'cudaConditionalNodeParams.size' in found_struct}}
+        self._pvt_ptr[0].type = <cyruntime.cudaGraphConditionalNodeType><int>int(type)
+
+
     @property
     def size(self):
         return self._pvt_ptr[0].size
     @size.setter
     def size(self, unsigned int size):
         self._pvt_ptr[0].size = size
-    {{endif}}
-    {{if 'cudaConditionalNodeParams.phGraph_out' in found_struct}}
+
+
     @property
     def phGraph_out(self):
         arrs = [<void_ptr>self._pvt_ptr[0].phGraph_out + x*sizeof(cyruntime.cudaGraph_t) for x in range(self.size)]
         return [cudaGraph_t(_ptr=arr) for arr in arrs]
-    {{endif}}
-    {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
+
+
     @property
     def ctx(self):
         return self._ctx
@@ -17933,9 +17427,7 @@ cdef class cudaConditionalNodeParams:
             pctx = int(cudaExecutionContext_t(ctx))
             cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
         self._ctx._pvt_ptr[0] = cyctx
-    {{endif}}
-{{endif}}
-{{if 'cudaChildGraphNodeParams' in found_struct}}
+
 
 cdef class cudaChildGraphNodeParams:
     """
@@ -17943,18 +17435,18 @@ cdef class cudaChildGraphNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaChildGraphNodeParams.graph' in found_struct}}
+
     graph : cudaGraph_t
         The child graph to clone into the node for node creation, or a
         handle to the graph owned by the node for node query. The graph
         must not contain conditional nodes. Graphs containing memory
         allocation or memory free nodes must set the ownership to be moved
         to the parent.
-    {{endif}}
-    {{if 'cudaChildGraphNodeParams.ownership' in found_struct}}
+
+
     ownership : cudaGraphChildGraphNodeOwnership
         The ownership relationship of the child graph node.
-    {{endif}}
+
 
     Methods
     -------
@@ -17968,9 +17460,9 @@ cdef class cudaChildGraphNodeParams:
             self._pvt_ptr = <cyruntime.cudaChildGraphNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaChildGraphNodeParams.graph' in found_struct}}
+
         self._graph = cudaGraph_t(_ptr=<void_ptr>&self._pvt_ptr[0].graph)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -17978,22 +17470,22 @@ cdef class cudaChildGraphNodeParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaChildGraphNodeParams.graph' in found_struct}}
+
             try:
                 str_list += ['graph : ' + str(self.graph)]
             except ValueError:
                 str_list += ['graph : <ValueError>']
-            {{endif}}
-            {{if 'cudaChildGraphNodeParams.ownership' in found_struct}}
+
+
             try:
                 str_list += ['ownership : ' + str(self.ownership)]
             except ValueError:
                 str_list += ['ownership : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaChildGraphNodeParams.graph' in found_struct}}
+
     @property
     def graph(self):
         return self._graph
@@ -18009,17 +17501,15 @@ cdef class cudaChildGraphNodeParams:
             pgraph = int(cudaGraph_t(graph))
             cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
         self._graph._pvt_ptr[0] = cygraph
-    {{endif}}
-    {{if 'cudaChildGraphNodeParams.ownership' in found_struct}}
+
+
     @property
     def ownership(self):
         return cudaGraphChildGraphNodeOwnership(self._pvt_ptr[0].ownership)
     @ownership.setter
     def ownership(self, ownership not None : cudaGraphChildGraphNodeOwnership):
-        self._pvt_ptr[0].ownership = int(ownership)
-    {{endif}}
-{{endif}}
-{{if 'cudaEventRecordNodeParams' in found_struct}}
+        self._pvt_ptr[0].ownership = <cyruntime.cudaGraphChildGraphNodeOwnership><int>int(ownership)
+
 
 cdef class cudaEventRecordNodeParams:
     """
@@ -18027,10 +17517,10 @@ cdef class cudaEventRecordNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaEventRecordNodeParams.event' in found_struct}}
+
     event : cudaEvent_t
         The event to record when the node executes
-    {{endif}}
+
 
     Methods
     -------
@@ -18044,9 +17534,9 @@ cdef class cudaEventRecordNodeParams:
             self._pvt_ptr = <cyruntime.cudaEventRecordNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaEventRecordNodeParams.event' in found_struct}}
+
         self._event = cudaEvent_t(_ptr=<void_ptr>&self._pvt_ptr[0].event)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -18054,16 +17544,16 @@ cdef class cudaEventRecordNodeParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaEventRecordNodeParams.event' in found_struct}}
+
             try:
                 str_list += ['event : ' + str(self.event)]
             except ValueError:
                 str_list += ['event : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaEventRecordNodeParams.event' in found_struct}}
+
     @property
     def event(self):
         return self._event
@@ -18079,9 +17569,7 @@ cdef class cudaEventRecordNodeParams:
             pevent = int(cudaEvent_t(event))
             cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
         self._event._pvt_ptr[0] = cyevent
-    {{endif}}
-{{endif}}
-{{if 'cudaEventWaitNodeParams' in found_struct}}
+
 
 cdef class cudaEventWaitNodeParams:
     """
@@ -18089,10 +17577,10 @@ cdef class cudaEventWaitNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaEventWaitNodeParams.event' in found_struct}}
+
     event : cudaEvent_t
         The event to wait on from the node
-    {{endif}}
+
 
     Methods
     -------
@@ -18106,9 +17594,9 @@ cdef class cudaEventWaitNodeParams:
             self._pvt_ptr = <cyruntime.cudaEventWaitNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaEventWaitNodeParams.event' in found_struct}}
+
         self._event = cudaEvent_t(_ptr=<void_ptr>&self._pvt_ptr[0].event)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -18116,16 +17604,16 @@ cdef class cudaEventWaitNodeParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaEventWaitNodeParams.event' in found_struct}}
+
             try:
                 str_list += ['event : ' + str(self.event)]
             except ValueError:
                 str_list += ['event : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaEventWaitNodeParams.event' in found_struct}}
+
     @property
     def event(self):
         return self._event
@@ -18141,9 +17629,7 @@ cdef class cudaEventWaitNodeParams:
             pevent = int(cudaEvent_t(event))
             cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
         self._event._pvt_ptr[0] = cyevent
-    {{endif}}
-{{endif}}
-{{if 'cudaGraphNodeParams' in found_struct}}
+
 
 cdef class cudaGraphNodeParams:
     """
@@ -18151,70 +17637,70 @@ cdef class cudaGraphNodeParams:
 
     Attributes
     ----------
-    {{if 'cudaGraphNodeParams.type' in found_struct}}
+
     type : cudaGraphNodeType
         Type of the node
-    {{endif}}
-    {{if 'cudaGraphNodeParams.reserved0' in found_struct}}
+
+
     reserved0 : list[int]
         Reserved. Must be zero.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.reserved1' in found_struct}}
+
+
     reserved1 : list[long long]
         Padding. Unused bytes must be zero.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.kernel' in found_struct}}
+
+
     kernel : cudaKernelNodeParamsV2
         Kernel node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.memcpy' in found_struct}}
+
+
     memcpy : cudaMemcpyNodeParams
         Memcpy node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.memset' in found_struct}}
+
+
     memset : cudaMemsetParamsV2
         Memset node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.host' in found_struct}}
+
+
     host : cudaHostNodeParamsV2
         Host node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.graph' in found_struct}}
+
+
     graph : cudaChildGraphNodeParams
         Child graph node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.eventWait' in found_struct}}
+
+
     eventWait : cudaEventWaitNodeParams
         Event wait node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.eventRecord' in found_struct}}
+
+
     eventRecord : cudaEventRecordNodeParams
         Event record node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.extSemSignal' in found_struct}}
+
+
     extSemSignal : cudaExternalSemaphoreSignalNodeParamsV2
         External semaphore signal node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.extSemWait' in found_struct}}
+
+
     extSemWait : cudaExternalSemaphoreWaitNodeParamsV2
         External semaphore wait node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.alloc' in found_struct}}
+
+
     alloc : cudaMemAllocNodeParamsV2
         Memory allocation node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.free' in found_struct}}
+
+
     free : cudaMemFreeNodeParams
         Memory free node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.conditional' in found_struct}}
+
+
     conditional : cudaConditionalNodeParams
         Conditional node parameters.
-    {{endif}}
-    {{if 'cudaGraphNodeParams.reserved2' in found_struct}}
+
+
     reserved2 : long long
         Reserved bytes. Must be zero.
-    {{endif}}
+
 
     Methods
     -------
@@ -18229,42 +17715,42 @@ cdef class cudaGraphNodeParams:
             self._pvt_ptr = <cyruntime.cudaGraphNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaGraphNodeParams.kernel' in found_struct}}
+
         self._kernel = cudaKernelNodeParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].kernel)
-        {{endif}}
-        {{if 'cudaGraphNodeParams.memcpy' in found_struct}}
+
+
         self._memcpy = cudaMemcpyNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].memcpy)
-        {{endif}}
-        {{if 'cudaGraphNodeParams.memset' in found_struct}}
+
+
         self._memset = cudaMemsetParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].memset)
-        {{endif}}
-        {{if 'cudaGraphNodeParams.host' in found_struct}}
+
+
         self._host = cudaHostNodeParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].host)
-        {{endif}}
-        {{if 'cudaGraphNodeParams.graph' in found_struct}}
+
+
         self._graph = cudaChildGraphNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].graph)
-        {{endif}}
-        {{if 'cudaGraphNodeParams.eventWait' in found_struct}}
+
+
         self._eventWait = cudaEventWaitNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].eventWait)
-        {{endif}}
-        {{if 'cudaGraphNodeParams.eventRecord' in found_struct}}
+
+
         self._eventRecord = cudaEventRecordNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].eventRecord)
-        {{endif}}
-        {{if 'cudaGraphNodeParams.extSemSignal' in found_struct}}
+
+
         self._extSemSignal = cudaExternalSemaphoreSignalNodeParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].extSemSignal)
-        {{endif}}
-        {{if 'cudaGraphNodeParams.extSemWait' in found_struct}}
+
+
         self._extSemWait = cudaExternalSemaphoreWaitNodeParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].extSemWait)
-        {{endif}}
-        {{if 'cudaGraphNodeParams.alloc' in found_struct}}
+
+
         self._alloc = cudaMemAllocNodeParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].alloc)
-        {{endif}}
-        {{if 'cudaGraphNodeParams.free' in found_struct}}
+
+
         self._free = cudaMemFreeNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].free)
-        {{endif}}
-        {{if 'cudaGraphNodeParams.conditional' in found_struct}}
+
+
         self._conditional = cudaConditionalNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].conditional)
-        {{endif}}
+
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
@@ -18273,235 +17759,233 @@ cdef class cudaGraphNodeParams:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaGraphNodeParams.type' in found_struct}}
+
             try:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.reserved0' in found_struct}}
+
+
             try:
                 str_list += ['reserved0 : ' + str(self.reserved0)]
             except ValueError:
                 str_list += ['reserved0 : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.reserved1' in found_struct}}
+
+
             try:
                 str_list += ['reserved1 : ' + str(self.reserved1)]
             except ValueError:
                 str_list += ['reserved1 : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.kernel' in found_struct}}
+
+
             try:
                 str_list += ['kernel :\n' + '\n'.join(['    ' + line for line in str(self.kernel).splitlines()])]
             except ValueError:
                 str_list += ['kernel : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.memcpy' in found_struct}}
+
+
             try:
                 str_list += ['memcpy :\n' + '\n'.join(['    ' + line for line in str(self.memcpy).splitlines()])]
             except ValueError:
                 str_list += ['memcpy : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.memset' in found_struct}}
+
+
             try:
                 str_list += ['memset :\n' + '\n'.join(['    ' + line for line in str(self.memset).splitlines()])]
             except ValueError:
                 str_list += ['memset : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.host' in found_struct}}
+
+
             try:
                 str_list += ['host :\n' + '\n'.join(['    ' + line for line in str(self.host).splitlines()])]
             except ValueError:
                 str_list += ['host : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.graph' in found_struct}}
+
+
             try:
                 str_list += ['graph :\n' + '\n'.join(['    ' + line for line in str(self.graph).splitlines()])]
             except ValueError:
                 str_list += ['graph : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.eventWait' in found_struct}}
+
+
             try:
                 str_list += ['eventWait :\n' + '\n'.join(['    ' + line for line in str(self.eventWait).splitlines()])]
             except ValueError:
                 str_list += ['eventWait : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.eventRecord' in found_struct}}
+
+
             try:
                 str_list += ['eventRecord :\n' + '\n'.join(['    ' + line for line in str(self.eventRecord).splitlines()])]
             except ValueError:
                 str_list += ['eventRecord : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.extSemSignal' in found_struct}}
+
+
             try:
                 str_list += ['extSemSignal :\n' + '\n'.join(['    ' + line for line in str(self.extSemSignal).splitlines()])]
             except ValueError:
                 str_list += ['extSemSignal : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.extSemWait' in found_struct}}
+
+
             try:
                 str_list += ['extSemWait :\n' + '\n'.join(['    ' + line for line in str(self.extSemWait).splitlines()])]
             except ValueError:
                 str_list += ['extSemWait : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.alloc' in found_struct}}
+
+
             try:
                 str_list += ['alloc :\n' + '\n'.join(['    ' + line for line in str(self.alloc).splitlines()])]
             except ValueError:
                 str_list += ['alloc : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.free' in found_struct}}
+
+
             try:
                 str_list += ['free :\n' + '\n'.join(['    ' + line for line in str(self.free).splitlines()])]
             except ValueError:
                 str_list += ['free : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.conditional' in found_struct}}
+
+
             try:
                 str_list += ['conditional :\n' + '\n'.join(['    ' + line for line in str(self.conditional).splitlines()])]
             except ValueError:
                 str_list += ['conditional : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphNodeParams.reserved2' in found_struct}}
+
+
             try:
                 str_list += ['reserved2 : ' + str(self.reserved2)]
             except ValueError:
                 str_list += ['reserved2 : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaGraphNodeParams.type' in found_struct}}
+
     @property
     def type(self):
         return cudaGraphNodeType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaGraphNodeType):
-        self._pvt_ptr[0].type = int(type)
-    {{endif}}
-    {{if 'cudaGraphNodeParams.reserved0' in found_struct}}
+        self._pvt_ptr[0].type = <cyruntime.cudaGraphNodeType><int>int(type)
+
+
     @property
     def reserved0(self):
         return self._pvt_ptr[0].reserved0
     @reserved0.setter
     def reserved0(self, reserved0):
         self._pvt_ptr[0].reserved0 = reserved0
-    {{endif}}
-    {{if 'cudaGraphNodeParams.reserved1' in found_struct}}
+
+
     @property
     def reserved1(self):
         return self._pvt_ptr[0].reserved1
     @reserved1.setter
     def reserved1(self, reserved1):
         self._pvt_ptr[0].reserved1 = reserved1
-    {{endif}}
-    {{if 'cudaGraphNodeParams.kernel' in found_struct}}
+
+
     @property
     def kernel(self):
         return self._kernel
     @kernel.setter
     def kernel(self, kernel not None : cudaKernelNodeParamsV2):
         string.memcpy(&self._pvt_ptr[0].kernel, <void*><void_ptr>kernel.getPtr(), sizeof(self._pvt_ptr[0].kernel))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.memcpy' in found_struct}}
+
+
     @property
     def memcpy(self):
         return self._memcpy
     @memcpy.setter
     def memcpy(self, memcpy not None : cudaMemcpyNodeParams):
         string.memcpy(&self._pvt_ptr[0].memcpy, <void*><void_ptr>memcpy.getPtr(), sizeof(self._pvt_ptr[0].memcpy))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.memset' in found_struct}}
+
+
     @property
     def memset(self):
         return self._memset
     @memset.setter
     def memset(self, memset not None : cudaMemsetParamsV2):
         string.memcpy(&self._pvt_ptr[0].memset, <void*><void_ptr>memset.getPtr(), sizeof(self._pvt_ptr[0].memset))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.host' in found_struct}}
+
+
     @property
     def host(self):
         return self._host
     @host.setter
     def host(self, host not None : cudaHostNodeParamsV2):
         string.memcpy(&self._pvt_ptr[0].host, <void*><void_ptr>host.getPtr(), sizeof(self._pvt_ptr[0].host))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.graph' in found_struct}}
+
+
     @property
     def graph(self):
         return self._graph
     @graph.setter
     def graph(self, graph not None : cudaChildGraphNodeParams):
         string.memcpy(&self._pvt_ptr[0].graph, <void*><void_ptr>graph.getPtr(), sizeof(self._pvt_ptr[0].graph))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.eventWait' in found_struct}}
+
+
     @property
     def eventWait(self):
         return self._eventWait
     @eventWait.setter
     def eventWait(self, eventWait not None : cudaEventWaitNodeParams):
         string.memcpy(&self._pvt_ptr[0].eventWait, <void*><void_ptr>eventWait.getPtr(), sizeof(self._pvt_ptr[0].eventWait))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.eventRecord' in found_struct}}
+
+
     @property
     def eventRecord(self):
         return self._eventRecord
     @eventRecord.setter
     def eventRecord(self, eventRecord not None : cudaEventRecordNodeParams):
         string.memcpy(&self._pvt_ptr[0].eventRecord, <void*><void_ptr>eventRecord.getPtr(), sizeof(self._pvt_ptr[0].eventRecord))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.extSemSignal' in found_struct}}
+
+
     @property
     def extSemSignal(self):
         return self._extSemSignal
     @extSemSignal.setter
     def extSemSignal(self, extSemSignal not None : cudaExternalSemaphoreSignalNodeParamsV2):
         string.memcpy(&self._pvt_ptr[0].extSemSignal, <void*><void_ptr>extSemSignal.getPtr(), sizeof(self._pvt_ptr[0].extSemSignal))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.extSemWait' in found_struct}}
+
+
     @property
     def extSemWait(self):
         return self._extSemWait
     @extSemWait.setter
     def extSemWait(self, extSemWait not None : cudaExternalSemaphoreWaitNodeParamsV2):
         string.memcpy(&self._pvt_ptr[0].extSemWait, <void*><void_ptr>extSemWait.getPtr(), sizeof(self._pvt_ptr[0].extSemWait))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.alloc' in found_struct}}
+
+
     @property
     def alloc(self):
         return self._alloc
     @alloc.setter
     def alloc(self, alloc not None : cudaMemAllocNodeParamsV2):
         string.memcpy(&self._pvt_ptr[0].alloc, <void*><void_ptr>alloc.getPtr(), sizeof(self._pvt_ptr[0].alloc))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.free' in found_struct}}
+
+
     @property
     def free(self):
         return self._free
     @free.setter
     def free(self, free not None : cudaMemFreeNodeParams):
         string.memcpy(&self._pvt_ptr[0].free, <void*><void_ptr>free.getPtr(), sizeof(self._pvt_ptr[0].free))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.conditional' in found_struct}}
+
+
     @property
     def conditional(self):
         return self._conditional
     @conditional.setter
     def conditional(self, conditional not None : cudaConditionalNodeParams):
         string.memcpy(&self._pvt_ptr[0].conditional, <void*><void_ptr>conditional.getPtr(), sizeof(self._pvt_ptr[0].conditional))
-    {{endif}}
-    {{if 'cudaGraphNodeParams.reserved2' in found_struct}}
+
+
     @property
     def reserved2(self):
         return self._pvt_ptr[0].reserved2
     @reserved2.setter
     def reserved2(self, long long reserved2):
         self._pvt_ptr[0].reserved2 = reserved2
-    {{endif}}
-{{endif}}
-{{if 'cudaGraphEdgeData_st' in found_struct}}
+
 
 cdef class cudaGraphEdgeData_st:
     """
@@ -18512,7 +17996,7 @@ cdef class cudaGraphEdgeData_st:
 
     Attributes
     ----------
-    {{if 'cudaGraphEdgeData_st.from_port' in found_struct}}
+
     from_port : bytes
         This indicates when the dependency is triggered from the upstream
         node on the edge. The meaning is specfic to the node type. A value
@@ -18523,8 +18007,8 @@ cdef class cudaGraphEdgeData_st:
         cudaGraphKernelNodePortDefault,
         cudaGraphKernelNodePortProgrammatic, or
         cudaGraphKernelNodePortLaunchCompletion.
-    {{endif}}
-    {{if 'cudaGraphEdgeData_st.to_port' in found_struct}}
+
+
     to_port : bytes
         This indicates what portion of the downstream node is dependent on
         the upstream node or portion thereof (indicated by `from_port`).
@@ -18532,18 +18016,18 @@ cdef class cudaGraphEdgeData_st:
         means the entirety of the downstream node is dependent on the
         upstream work.   Currently no node types define non-zero ports.
         Accordingly, this field must be set to zero.
-    {{endif}}
-    {{if 'cudaGraphEdgeData_st.type' in found_struct}}
+
+
     type : bytes
         This should be populated with a value from cudaGraphDependencyType.
         (It is typed as char due to compiler-specific layout of bitfields.)
         See cudaGraphDependencyType.
-    {{endif}}
-    {{if 'cudaGraphEdgeData_st.reserved' in found_struct}}
+
+
     reserved : bytes
         These bytes are unused and must be zeroed. This ensures
         compatibility if additional fields are added in the future.
-    {{endif}}
+
 
     Methods
     -------
@@ -18564,58 +18048,58 @@ cdef class cudaGraphEdgeData_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaGraphEdgeData_st.from_port' in found_struct}}
+
             try:
                 str_list += ['from_port : ' + str(self.from_port)]
             except ValueError:
                 str_list += ['from_port : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphEdgeData_st.to_port' in found_struct}}
+
+
             try:
                 str_list += ['to_port : ' + str(self.to_port)]
             except ValueError:
                 str_list += ['to_port : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphEdgeData_st.type' in found_struct}}
+
+
             try:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphEdgeData_st.reserved' in found_struct}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaGraphEdgeData_st.from_port' in found_struct}}
+
     @property
     def from_port(self):
         return self._pvt_ptr[0].from_port
     @from_port.setter
     def from_port(self, unsigned char from_port):
         self._pvt_ptr[0].from_port = from_port
-    {{endif}}
-    {{if 'cudaGraphEdgeData_st.to_port' in found_struct}}
+
+
     @property
     def to_port(self):
         return self._pvt_ptr[0].to_port
     @to_port.setter
     def to_port(self, unsigned char to_port):
         self._pvt_ptr[0].to_port = to_port
-    {{endif}}
-    {{if 'cudaGraphEdgeData_st.type' in found_struct}}
+
+
     @property
     def type(self):
         return self._pvt_ptr[0].type
     @type.setter
     def type(self, unsigned char type):
         self._pvt_ptr[0].type = type
-    {{endif}}
-    {{if 'cudaGraphEdgeData_st.reserved' in found_struct}}
+
+
     @property
     def reserved(self):
         return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 5)
@@ -18625,9 +18109,7 @@ cdef class cudaGraphEdgeData_st:
             raise ValueError("reserved length must be 5, is " + str(len(reserved)))
         for i, b in enumerate(reserved):
             self._pvt_ptr[0].reserved[i] = b
-    {{endif}}
-{{endif}}
-{{if 'cudaGraphInstantiateParams_st' in found_struct}}
+
 
 cdef class cudaGraphInstantiateParams_st:
     """
@@ -18635,22 +18117,22 @@ cdef class cudaGraphInstantiateParams_st:
 
     Attributes
     ----------
-    {{if 'cudaGraphInstantiateParams_st.flags' in found_struct}}
+
     flags : unsigned long long
         Instantiation flags
-    {{endif}}
-    {{if 'cudaGraphInstantiateParams_st.uploadStream' in found_struct}}
+
+
     uploadStream : cudaStream_t
         Upload stream
-    {{endif}}
-    {{if 'cudaGraphInstantiateParams_st.errNode_out' in found_struct}}
+
+
     errNode_out : cudaGraphNode_t
         The node which caused instantiation to fail, if any
-    {{endif}}
-    {{if 'cudaGraphInstantiateParams_st.result_out' in found_struct}}
+
+
     result_out : cudaGraphInstantiateResult
         Whether instantiation was successful. If it failed, the reason why
-    {{endif}}
+
 
     Methods
     -------
@@ -18664,12 +18146,12 @@ cdef class cudaGraphInstantiateParams_st:
             self._pvt_ptr = <cyruntime.cudaGraphInstantiateParams_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaGraphInstantiateParams_st.uploadStream' in found_struct}}
+
         self._uploadStream = cudaStream_t(_ptr=<void_ptr>&self._pvt_ptr[0].uploadStream)
-        {{endif}}
-        {{if 'cudaGraphInstantiateParams_st.errNode_out' in found_struct}}
+
+
         self._errNode_out = cudaGraphNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].errNode_out)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -18677,42 +18159,42 @@ cdef class cudaGraphInstantiateParams_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaGraphInstantiateParams_st.flags' in found_struct}}
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphInstantiateParams_st.uploadStream' in found_struct}}
+
+
             try:
                 str_list += ['uploadStream : ' + str(self.uploadStream)]
             except ValueError:
                 str_list += ['uploadStream : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphInstantiateParams_st.errNode_out' in found_struct}}
+
+
             try:
                 str_list += ['errNode_out : ' + str(self.errNode_out)]
             except ValueError:
                 str_list += ['errNode_out : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphInstantiateParams_st.result_out' in found_struct}}
+
+
             try:
                 str_list += ['result_out : ' + str(self.result_out)]
             except ValueError:
                 str_list += ['result_out : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaGraphInstantiateParams_st.flags' in found_struct}}
+
     @property
     def flags(self):
         return self._pvt_ptr[0].flags
     @flags.setter
     def flags(self, unsigned long long flags):
         self._pvt_ptr[0].flags = flags
-    {{endif}}
-    {{if 'cudaGraphInstantiateParams_st.uploadStream' in found_struct}}
+
+
     @property
     def uploadStream(self):
         return self._uploadStream
@@ -18728,8 +18210,8 @@ cdef class cudaGraphInstantiateParams_st:
             puploadStream = int(cudaStream_t(uploadStream))
             cyuploadStream = <cyruntime.cudaStream_t><void_ptr>puploadStream
         self._uploadStream._pvt_ptr[0] = cyuploadStream
-    {{endif}}
-    {{if 'cudaGraphInstantiateParams_st.errNode_out' in found_struct}}
+
+
     @property
     def errNode_out(self):
         return self._errNode_out
@@ -18745,17 +18227,15 @@ cdef class cudaGraphInstantiateParams_st:
             perrNode_out = int(cudaGraphNode_t(errNode_out))
             cyerrNode_out = <cyruntime.cudaGraphNode_t><void_ptr>perrNode_out
         self._errNode_out._pvt_ptr[0] = cyerrNode_out
-    {{endif}}
-    {{if 'cudaGraphInstantiateParams_st.result_out' in found_struct}}
+
+
     @property
     def result_out(self):
         return cudaGraphInstantiateResult(self._pvt_ptr[0].result_out)
     @result_out.setter
     def result_out(self, result_out not None : cudaGraphInstantiateResult):
-        self._pvt_ptr[0].result_out = int(result_out)
-    {{endif}}
-{{endif}}
-{{if 'cudaGraphExecUpdateResultInfo_st' in found_struct}}
+        self._pvt_ptr[0].result_out = <cyruntime.cudaGraphInstantiateResult><int>int(result_out)
+
 
 cdef class cudaGraphExecUpdateResultInfo_st:
     """
@@ -18763,21 +18243,21 @@ cdef class cudaGraphExecUpdateResultInfo_st:
 
     Attributes
     ----------
-    {{if 'cudaGraphExecUpdateResultInfo_st.result' in found_struct}}
+
     result : cudaGraphExecUpdateResult
         Gives more specific detail when a cuda graph update fails.
-    {{endif}}
-    {{if 'cudaGraphExecUpdateResultInfo_st.errorNode' in found_struct}}
+
+
     errorNode : cudaGraphNode_t
         The "to node" of the error edge when the topologies do not match.
         The error node when the error is associated with a specific node.
         NULL when the error is generic.
-    {{endif}}
-    {{if 'cudaGraphExecUpdateResultInfo_st.errorFromNode' in found_struct}}
+
+
     errorFromNode : cudaGraphNode_t
         The from node of error edge when the topologies do not match.
         Otherwise NULL.
-    {{endif}}
+
 
     Methods
     -------
@@ -18791,12 +18271,12 @@ cdef class cudaGraphExecUpdateResultInfo_st:
             self._pvt_ptr = <cyruntime.cudaGraphExecUpdateResultInfo_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaGraphExecUpdateResultInfo_st.errorNode' in found_struct}}
+
         self._errorNode = cudaGraphNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].errorNode)
-        {{endif}}
-        {{if 'cudaGraphExecUpdateResultInfo_st.errorFromNode' in found_struct}}
+
+
         self._errorFromNode = cudaGraphNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].errorFromNode)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -18804,36 +18284,36 @@ cdef class cudaGraphExecUpdateResultInfo_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaGraphExecUpdateResultInfo_st.result' in found_struct}}
+
             try:
                 str_list += ['result : ' + str(self.result)]
             except ValueError:
                 str_list += ['result : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphExecUpdateResultInfo_st.errorNode' in found_struct}}
+
+
             try:
                 str_list += ['errorNode : ' + str(self.errorNode)]
             except ValueError:
                 str_list += ['errorNode : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphExecUpdateResultInfo_st.errorFromNode' in found_struct}}
+
+
             try:
                 str_list += ['errorFromNode : ' + str(self.errorFromNode)]
             except ValueError:
                 str_list += ['errorFromNode : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaGraphExecUpdateResultInfo_st.result' in found_struct}}
+
     @property
     def result(self):
         return cudaGraphExecUpdateResult(self._pvt_ptr[0].result)
     @result.setter
     def result(self, result not None : cudaGraphExecUpdateResult):
-        self._pvt_ptr[0].result = int(result)
-    {{endif}}
-    {{if 'cudaGraphExecUpdateResultInfo_st.errorNode' in found_struct}}
+        self._pvt_ptr[0].result = <cyruntime.cudaGraphExecUpdateResult><int>int(result)
+
+
     @property
     def errorNode(self):
         return self._errorNode
@@ -18849,8 +18329,8 @@ cdef class cudaGraphExecUpdateResultInfo_st:
             perrorNode = int(cudaGraphNode_t(errorNode))
             cyerrorNode = <cyruntime.cudaGraphNode_t><void_ptr>perrorNode
         self._errorNode._pvt_ptr[0] = cyerrorNode
-    {{endif}}
-    {{if 'cudaGraphExecUpdateResultInfo_st.errorFromNode' in found_struct}}
+
+
     @property
     def errorFromNode(self):
         return self._errorFromNode
@@ -18866,26 +18346,24 @@ cdef class cudaGraphExecUpdateResultInfo_st:
             perrorFromNode = int(cudaGraphNode_t(errorFromNode))
             cyerrorFromNode = <cyruntime.cudaGraphNode_t><void_ptr>perrorFromNode
         self._errorFromNode._pvt_ptr[0] = cyerrorFromNode
-    {{endif}}
-{{endif}}
-{{if 'cudaGraphKernelNodeUpdate.updateData.param' in found_struct}}
+
 
 cdef class anon_struct16:
     """
     Attributes
     ----------
-    {{if 'cudaGraphKernelNodeUpdate.updateData.param.pValue' in found_struct}}
+
     pValue : Any
 
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.updateData.param.offset' in found_struct}}
+
+
     offset : size_t
 
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.updateData.param.size' in found_struct}}
+
+
     size : size_t
 
-    {{endif}}
+
 
     Methods
     -------
@@ -18904,28 +18382,28 @@ cdef class anon_struct16:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaGraphKernelNodeUpdate.updateData.param.pValue' in found_struct}}
+
             try:
                 str_list += ['pValue : ' + hex(self.pValue)]
             except ValueError:
                 str_list += ['pValue : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphKernelNodeUpdate.updateData.param.offset' in found_struct}}
+
+
             try:
                 str_list += ['offset : ' + str(self.offset)]
             except ValueError:
                 str_list += ['offset : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphKernelNodeUpdate.updateData.param.size' in found_struct}}
+
+
             try:
                 str_list += ['size : ' + str(self.size)]
             except ValueError:
                 str_list += ['size : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaGraphKernelNodeUpdate.updateData.param.pValue' in found_struct}}
+
     @property
     def pValue(self):
         return <void_ptr>self._pvt_ptr[0].updateData.param.pValue
@@ -18933,42 +18411,40 @@ cdef class anon_struct16:
     def pValue(self, pValue):
         self._cypValue = _HelperInputVoidPtr(pValue)
         self._pvt_ptr[0].updateData.param.pValue = <void*><void_ptr>self._cypValue.cptr
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.updateData.param.offset' in found_struct}}
+
+
     @property
     def offset(self):
         return self._pvt_ptr[0].updateData.param.offset
     @offset.setter
     def offset(self, size_t offset):
         self._pvt_ptr[0].updateData.param.offset = offset
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.updateData.param.size' in found_struct}}
+
+
     @property
     def size(self):
         return self._pvt_ptr[0].updateData.param.size
     @size.setter
     def size(self, size_t size):
         self._pvt_ptr[0].updateData.param.size = size
-    {{endif}}
-{{endif}}
-{{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
+
 
 cdef class anon_union10:
     """
     Attributes
     ----------
-    {{if 'cudaGraphKernelNodeUpdate.updateData.gridDim' in found_struct}}
+
     gridDim : dim3
 
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.updateData.param' in found_struct}}
+
+
     param : anon_struct16
 
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.updateData.isEnabled' in found_struct}}
+
+
     isEnabled : unsigned int
 
-    {{endif}}
+
 
     Methods
     -------
@@ -18980,12 +18456,12 @@ cdef class anon_union10:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaGraphKernelNodeUpdate.updateData.gridDim' in found_struct}}
+
         self._gridDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].updateData.gridDim)
-        {{endif}}
-        {{if 'cudaGraphKernelNodeUpdate.updateData.param' in found_struct}}
+
+
         self._param = anon_struct16(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -18993,53 +18469,51 @@ cdef class anon_union10:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaGraphKernelNodeUpdate.updateData.gridDim' in found_struct}}
+
             try:
                 str_list += ['gridDim :\n' + '\n'.join(['    ' + line for line in str(self.gridDim).splitlines()])]
             except ValueError:
                 str_list += ['gridDim : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphKernelNodeUpdate.updateData.param' in found_struct}}
+
+
             try:
                 str_list += ['param :\n' + '\n'.join(['    ' + line for line in str(self.param).splitlines()])]
             except ValueError:
                 str_list += ['param : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphKernelNodeUpdate.updateData.isEnabled' in found_struct}}
+
+
             try:
                 str_list += ['isEnabled : ' + str(self.isEnabled)]
             except ValueError:
                 str_list += ['isEnabled : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaGraphKernelNodeUpdate.updateData.gridDim' in found_struct}}
+
     @property
     def gridDim(self):
         return self._gridDim
     @gridDim.setter
     def gridDim(self, gridDim not None : dim3):
         string.memcpy(&self._pvt_ptr[0].updateData.gridDim, <void*><void_ptr>gridDim.getPtr(), sizeof(self._pvt_ptr[0].updateData.gridDim))
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.updateData.param' in found_struct}}
+
+
     @property
     def param(self):
         return self._param
     @param.setter
     def param(self, param not None : anon_struct16):
         string.memcpy(&self._pvt_ptr[0].updateData.param, <void*><void_ptr>param.getPtr(), sizeof(self._pvt_ptr[0].updateData.param))
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.updateData.isEnabled' in found_struct}}
+
+
     @property
     def isEnabled(self):
         return self._pvt_ptr[0].updateData.isEnabled
     @isEnabled.setter
     def isEnabled(self, unsigned int isEnabled):
         self._pvt_ptr[0].updateData.isEnabled = isEnabled
-    {{endif}}
-{{endif}}
-{{if 'cudaGraphKernelNodeUpdate' in found_struct}}
+
 
 cdef class cudaGraphKernelNodeUpdate:
     """
@@ -19048,19 +18522,19 @@ cdef class cudaGraphKernelNodeUpdate:
 
     Attributes
     ----------
-    {{if 'cudaGraphKernelNodeUpdate.node' in found_struct}}
+
     node : cudaGraphDeviceNode_t
         Node to update
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.field' in found_struct}}
+
+
     field : cudaGraphKernelNodeField
         Which type of update to apply. Determines how updateData is
         interpreted
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
+
+
     updateData : anon_union10
         Update data to apply. Which field is used depends on field's value
-    {{endif}}
+
 
     Methods
     -------
@@ -19075,12 +18549,12 @@ cdef class cudaGraphKernelNodeUpdate:
             self._pvt_ptr = <cyruntime.cudaGraphKernelNodeUpdate *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaGraphKernelNodeUpdate.node' in found_struct}}
+
         self._node = cudaGraphDeviceNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].node)
-        {{endif}}
-        {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
+
+
         self._updateData = anon_union10(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
@@ -19089,28 +18563,28 @@ cdef class cudaGraphKernelNodeUpdate:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaGraphKernelNodeUpdate.node' in found_struct}}
+
             try:
                 str_list += ['node : ' + str(self.node)]
             except ValueError:
                 str_list += ['node : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphKernelNodeUpdate.field' in found_struct}}
+
+
             try:
                 str_list += ['field : ' + str(self.field)]
             except ValueError:
                 str_list += ['field : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
+
+
             try:
                 str_list += ['updateData :\n' + '\n'.join(['    ' + line for line in str(self.updateData).splitlines()])]
             except ValueError:
                 str_list += ['updateData : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaGraphKernelNodeUpdate.node' in found_struct}}
+
     @property
     def node(self):
         return self._node
@@ -19126,25 +18600,23 @@ cdef class cudaGraphKernelNodeUpdate:
             pnode = int(cudaGraphDeviceNode_t(node))
             cynode = <cyruntime.cudaGraphDeviceNode_t><void_ptr>pnode
         self._node._pvt_ptr[0] = cynode
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.field' in found_struct}}
+
+
     @property
     def field(self):
         return cudaGraphKernelNodeField(self._pvt_ptr[0].field)
     @field.setter
     def field(self, field not None : cudaGraphKernelNodeField):
-        self._pvt_ptr[0].field = int(field)
-    {{endif}}
-    {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
+        self._pvt_ptr[0].field = <cyruntime.cudaGraphKernelNodeField><int>int(field)
+
+
     @property
     def updateData(self):
         return self._updateData
     @updateData.setter
     def updateData(self, updateData not None : anon_union10):
         string.memcpy(&self._pvt_ptr[0].updateData, <void*><void_ptr>updateData.getPtr(), sizeof(self._pvt_ptr[0].updateData))
-    {{endif}}
-{{endif}}
-{{if 'cudaLaunchMemSyncDomainMap_st' in found_struct}}
+
 
 cdef class cudaLaunchMemSyncDomainMap_st:
     """
@@ -19158,14 +18630,14 @@ cdef class cudaLaunchMemSyncDomainMap_st:
 
     Attributes
     ----------
-    {{if 'cudaLaunchMemSyncDomainMap_st.default_' in found_struct}}
+
     default_ : bytes
         The default domain ID to use for designated kernels
-    {{endif}}
-    {{if 'cudaLaunchMemSyncDomainMap_st.remote' in found_struct}}
+
+
     remote : bytes
         The remote domain ID to use for designated kernels
-    {{endif}}
+
 
     Methods
     -------
@@ -19186,56 +18658,54 @@ cdef class cudaLaunchMemSyncDomainMap_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaLaunchMemSyncDomainMap_st.default_' in found_struct}}
+
             try:
                 str_list += ['default_ : ' + str(self.default_)]
             except ValueError:
                 str_list += ['default_ : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchMemSyncDomainMap_st.remote' in found_struct}}
+
+
             try:
                 str_list += ['remote : ' + str(self.remote)]
             except ValueError:
                 str_list += ['remote : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaLaunchMemSyncDomainMap_st.default_' in found_struct}}
+
     @property
     def default_(self):
         return self._pvt_ptr[0].default_
     @default_.setter
     def default_(self, unsigned char default_):
         self._pvt_ptr[0].default_ = default_
-    {{endif}}
-    {{if 'cudaLaunchMemSyncDomainMap_st.remote' in found_struct}}
+
+
     @property
     def remote(self):
         return self._pvt_ptr[0].remote
     @remote.setter
     def remote(self, unsigned char remote):
         self._pvt_ptr[0].remote = remote
-    {{endif}}
-{{endif}}
-{{if 'cudaLaunchAttributeValue.clusterDim' in found_struct}}
+
 
 cdef class anon_struct17:
     """
     Attributes
     ----------
-    {{if 'cudaLaunchAttributeValue.clusterDim.x' in found_struct}}
+
     x : unsigned int
 
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.clusterDim.y' in found_struct}}
+
+
     y : unsigned int
 
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.clusterDim.z' in found_struct}}
+
+
     z : unsigned int
 
-    {{endif}}
+
 
     Methods
     -------
@@ -19254,70 +18724,68 @@ cdef class anon_struct17:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaLaunchAttributeValue.clusterDim.x' in found_struct}}
+
             try:
                 str_list += ['x : ' + str(self.x)]
             except ValueError:
                 str_list += ['x : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.clusterDim.y' in found_struct}}
+
+
             try:
                 str_list += ['y : ' + str(self.y)]
             except ValueError:
                 str_list += ['y : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.clusterDim.z' in found_struct}}
+
+
             try:
                 str_list += ['z : ' + str(self.z)]
             except ValueError:
                 str_list += ['z : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaLaunchAttributeValue.clusterDim.x' in found_struct}}
+
     @property
     def x(self):
         return self._pvt_ptr[0].clusterDim.x
     @x.setter
     def x(self, unsigned int x):
         self._pvt_ptr[0].clusterDim.x = x
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.clusterDim.y' in found_struct}}
+
+
     @property
     def y(self):
         return self._pvt_ptr[0].clusterDim.y
     @y.setter
     def y(self, unsigned int y):
         self._pvt_ptr[0].clusterDim.y = y
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.clusterDim.z' in found_struct}}
+
+
     @property
     def z(self):
         return self._pvt_ptr[0].clusterDim.z
     @z.setter
     def z(self, unsigned int z):
         self._pvt_ptr[0].clusterDim.z = z
-    {{endif}}
-{{endif}}
-{{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
+
 
 cdef class anon_struct18:
     """
     Attributes
     ----------
-    {{if 'cudaLaunchAttributeValue.programmaticEvent.event' in found_struct}}
+
     event : cudaEvent_t
 
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.programmaticEvent.flags' in found_struct}}
+
+
     flags : int
 
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.programmaticEvent.triggerAtBlockStart' in found_struct}}
+
+
     triggerAtBlockStart : int
 
-    {{endif}}
+
 
     Methods
     -------
@@ -19329,9 +18797,9 @@ cdef class anon_struct18:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaLaunchAttributeValue.programmaticEvent.event' in found_struct}}
+
         self._event = cudaEvent_t(_ptr=<void_ptr>&self._pvt_ptr[0].programmaticEvent.event)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -19339,28 +18807,28 @@ cdef class anon_struct18:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaLaunchAttributeValue.programmaticEvent.event' in found_struct}}
+
             try:
                 str_list += ['event : ' + str(self.event)]
             except ValueError:
                 str_list += ['event : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.programmaticEvent.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.programmaticEvent.triggerAtBlockStart' in found_struct}}
+
+
             try:
                 str_list += ['triggerAtBlockStart : ' + str(self.triggerAtBlockStart)]
             except ValueError:
                 str_list += ['triggerAtBlockStart : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaLaunchAttributeValue.programmaticEvent.event' in found_struct}}
+
     @property
     def event(self):
         return self._event
@@ -19376,42 +18844,40 @@ cdef class anon_struct18:
             pevent = int(cudaEvent_t(event))
             cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
         self._event._pvt_ptr[0] = cyevent
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.programmaticEvent.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].programmaticEvent.flags
     @flags.setter
     def flags(self, int flags):
         self._pvt_ptr[0].programmaticEvent.flags = flags
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.programmaticEvent.triggerAtBlockStart' in found_struct}}
+
+
     @property
     def triggerAtBlockStart(self):
         return self._pvt_ptr[0].programmaticEvent.triggerAtBlockStart
     @triggerAtBlockStart.setter
     def triggerAtBlockStart(self, int triggerAtBlockStart):
         self._pvt_ptr[0].programmaticEvent.triggerAtBlockStart = triggerAtBlockStart
-    {{endif}}
-{{endif}}
-{{if 'cudaLaunchAttributeValue.preferredClusterDim' in found_struct}}
+
 
 cdef class anon_struct19:
     """
     Attributes
     ----------
-    {{if 'cudaLaunchAttributeValue.preferredClusterDim.x' in found_struct}}
+
     x : unsigned int
 
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.preferredClusterDim.y' in found_struct}}
+
+
     y : unsigned int
 
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.preferredClusterDim.z' in found_struct}}
+
+
     z : unsigned int
 
-    {{endif}}
+
 
     Methods
     -------
@@ -19430,66 +18896,64 @@ cdef class anon_struct19:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaLaunchAttributeValue.preferredClusterDim.x' in found_struct}}
+
             try:
                 str_list += ['x : ' + str(self.x)]
             except ValueError:
                 str_list += ['x : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.preferredClusterDim.y' in found_struct}}
+
+
             try:
                 str_list += ['y : ' + str(self.y)]
             except ValueError:
                 str_list += ['y : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.preferredClusterDim.z' in found_struct}}
+
+
             try:
                 str_list += ['z : ' + str(self.z)]
             except ValueError:
                 str_list += ['z : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaLaunchAttributeValue.preferredClusterDim.x' in found_struct}}
+
     @property
     def x(self):
         return self._pvt_ptr[0].preferredClusterDim.x
     @x.setter
     def x(self, unsigned int x):
         self._pvt_ptr[0].preferredClusterDim.x = x
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.preferredClusterDim.y' in found_struct}}
+
+
     @property
     def y(self):
         return self._pvt_ptr[0].preferredClusterDim.y
     @y.setter
     def y(self, unsigned int y):
         self._pvt_ptr[0].preferredClusterDim.y = y
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.preferredClusterDim.z' in found_struct}}
+
+
     @property
     def z(self):
         return self._pvt_ptr[0].preferredClusterDim.z
     @z.setter
     def z(self, unsigned int z):
         self._pvt_ptr[0].preferredClusterDim.z = z
-    {{endif}}
-{{endif}}
-{{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
+
 
 cdef class anon_struct20:
     """
     Attributes
     ----------
-    {{if 'cudaLaunchAttributeValue.launchCompletionEvent.event' in found_struct}}
+
     event : cudaEvent_t
 
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.launchCompletionEvent.flags' in found_struct}}
+
+
     flags : int
 
-    {{endif}}
+
 
     Methods
     -------
@@ -19501,9 +18965,9 @@ cdef class anon_struct20:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaLaunchAttributeValue.launchCompletionEvent.event' in found_struct}}
+
         self._event = cudaEvent_t(_ptr=<void_ptr>&self._pvt_ptr[0].launchCompletionEvent.event)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -19511,22 +18975,22 @@ cdef class anon_struct20:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaLaunchAttributeValue.launchCompletionEvent.event' in found_struct}}
+
             try:
                 str_list += ['event : ' + str(self.event)]
             except ValueError:
                 str_list += ['event : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.launchCompletionEvent.flags' in found_struct}}
+
+
             try:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaLaunchAttributeValue.launchCompletionEvent.event' in found_struct}}
+
     @property
     def event(self):
         return self._event
@@ -19542,30 +19006,28 @@ cdef class anon_struct20:
             pevent = int(cudaEvent_t(event))
             cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
         self._event._pvt_ptr[0] = cyevent
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.launchCompletionEvent.flags' in found_struct}}
+
+
     @property
     def flags(self):
         return self._pvt_ptr[0].launchCompletionEvent.flags
     @flags.setter
     def flags(self, int flags):
         self._pvt_ptr[0].launchCompletionEvent.flags = flags
-    {{endif}}
-{{endif}}
-{{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
+
 
 cdef class anon_struct21:
     """
     Attributes
     ----------
-    {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable' in found_struct}}
+
     deviceUpdatable : int
 
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode' in found_struct}}
+
+
     devNode : cudaGraphDeviceNode_t
 
-    {{endif}}
+
 
     Methods
     -------
@@ -19577,9 +19039,9 @@ cdef class anon_struct21:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode' in found_struct}}
+
         self._devNode = cudaGraphDeviceNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].deviceUpdatableKernelNode.devNode)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -19587,30 +19049,30 @@ cdef class anon_struct21:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable' in found_struct}}
+
             try:
                 str_list += ['deviceUpdatable : ' + str(self.deviceUpdatable)]
             except ValueError:
                 str_list += ['deviceUpdatable : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode' in found_struct}}
+
+
             try:
                 str_list += ['devNode : ' + str(self.devNode)]
             except ValueError:
                 str_list += ['devNode : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable' in found_struct}}
+
     @property
     def deviceUpdatable(self):
         return self._pvt_ptr[0].deviceUpdatableKernelNode.deviceUpdatable
     @deviceUpdatable.setter
     def deviceUpdatable(self, int deviceUpdatable):
         self._pvt_ptr[0].deviceUpdatableKernelNode.deviceUpdatable = deviceUpdatable
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode' in found_struct}}
+
+
     @property
     def devNode(self):
         return self._devNode
@@ -19626,9 +19088,7 @@ cdef class anon_struct21:
             pdevNode = int(cudaGraphDeviceNode_t(devNode))
             cydevNode = <cyruntime.cudaGraphDeviceNode_t><void_ptr>pdevNode
         self._devNode._pvt_ptr[0] = cydevNode
-    {{endif}}
-{{endif}}
-{{if 'cudaLaunchAttributeValue' in found_struct}}
+
 
 cdef class cudaLaunchAttributeValue:
     """
@@ -19636,25 +19096,25 @@ cdef class cudaLaunchAttributeValue:
 
     Attributes
     ----------
-    {{if 'cudaLaunchAttributeValue.pad' in found_struct}}
+
     pad : bytes
 
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.accessPolicyWindow' in found_struct}}
+
+
     accessPolicyWindow : cudaAccessPolicyWindow
         Value of launch attribute cudaLaunchAttributeAccessPolicyWindow.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.cooperative' in found_struct}}
+
+
     cooperative : int
         Value of launch attribute cudaLaunchAttributeCooperative. Nonzero
         indicates a cooperative kernel (see cudaLaunchCooperativeKernel).
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.syncPolicy' in found_struct}}
+
+
     syncPolicy : cudaSynchronizationPolicy
         Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
         cudaSynchronizationPolicy for work queued up in this stream.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.clusterDim' in found_struct}}
+
+
     clusterDim : anon_struct17
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
@@ -19663,19 +19123,19 @@ cdef class cudaLaunchAttributeValue:
         `y` - The Y dimension of the cluster, in blocks. Must be a divisor
         of the grid Y dimension.    - `z` - The Z dimension of the cluster,
         in blocks. Must be a divisor of the grid Z dimension.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.clusterSchedulingPolicyPreference' in found_struct}}
+
+
     clusterSchedulingPolicyPreference : cudaClusterSchedulingPolicy
         Value of launch attribute
         cudaLaunchAttributeClusterSchedulingPolicyPreference. Cluster
         scheduling policy preference for the kernel.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.programmaticStreamSerializationAllowed' in found_struct}}
+
+
     programmaticStreamSerializationAllowed : int
         Value of launch attribute
         cudaLaunchAttributeProgrammaticStreamSerialization.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
+
+
     programmaticEvent : anon_struct18
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
@@ -19683,23 +19143,23 @@ cdef class cudaLaunchAttributeValue:
         cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
         - `int` triggerAtBlockStart - If this is set to non-0, each block
         launch will automatically trigger the event.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
+
+
     priority : int
         Value of launch attribute cudaLaunchAttributePriority. Execution
         priority of the kernel.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.memSyncDomainMap' in found_struct}}
+
+
     memSyncDomainMap : cudaLaunchMemSyncDomainMap
         Value of launch attribute cudaLaunchAttributeMemSyncDomainMap. See
         cudaLaunchMemSyncDomainMap.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.memSyncDomain' in found_struct}}
+
+
     memSyncDomain : cudaLaunchMemSyncDomain
         Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
         cudaLaunchMemSyncDomain.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.preferredClusterDim' in found_struct}}
+
+
     preferredClusterDim : anon_struct19
         Value of launch attribute
         cudaLaunchAttributePreferredClusterDimension that represents the
@@ -19713,16 +19173,16 @@ cdef class cudaLaunchAttributeValue:
         ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
         of the preferred cluster, in blocks. Must be equal to the `z` field
         of ::cudaLaunchAttributeValue::clusterDim.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
+
+
     launchCompletionEvent : anon_struct20
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
         flags, see cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
+
+
     deviceUpdatableKernelNode : anon_struct21
         Value of launch attribute
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
@@ -19730,27 +19190,27 @@ cdef class cudaLaunchAttributeValue:
         kernel node should be device-updatable.    -
         `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
         various device-side update functions.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}
+
+
     sharedMemCarveout : unsigned int
         Value of launch attribute
         cudaLaunchAttributePreferredSharedMemoryCarveout.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.nvlinkUtilCentricScheduling' in found_struct}}
+
+
     nvlinkUtilCentricScheduling : unsigned int
         Value of launch attribute
         cudaLaunchAttributeNvlinkUtilCentricScheduling.
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
+
+
     portableClusterSizeMode : cudaLaunchAttributePortableClusterMode
         Value of launch attribute
         cudaLaunchAttributePortableClusterSizeMode
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
+
+
     sharedMemoryMode : cudaSharedMemoryMode
         Value of launch attribute cudaLaunchAttributeSharedMemoryMode. See
         cudaSharedMemoryMode for acceptable values.
-    {{endif}}
+
 
     Methods
     -------
@@ -19764,27 +19224,27 @@ cdef class cudaLaunchAttributeValue:
             self._pvt_ptr = <cyruntime.cudaLaunchAttributeValue *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaLaunchAttributeValue.accessPolicyWindow' in found_struct}}
+
         self._accessPolicyWindow = cudaAccessPolicyWindow(_ptr=<void_ptr>&self._pvt_ptr[0].accessPolicyWindow)
-        {{endif}}
-        {{if 'cudaLaunchAttributeValue.clusterDim' in found_struct}}
+
+
         self._clusterDim = anon_struct17(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
+
+
         self._programmaticEvent = anon_struct18(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaLaunchAttributeValue.memSyncDomainMap' in found_struct}}
+
+
         self._memSyncDomainMap = cudaLaunchMemSyncDomainMap(_ptr=<void_ptr>&self._pvt_ptr[0].memSyncDomainMap)
-        {{endif}}
-        {{if 'cudaLaunchAttributeValue.preferredClusterDim' in found_struct}}
+
+
         self._preferredClusterDim = anon_struct19(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
+
+
         self._launchCompletionEvent = anon_struct20(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
-        {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
+
+
         self._deviceUpdatableKernelNode = anon_struct21(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -19792,118 +19252,118 @@ cdef class cudaLaunchAttributeValue:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaLaunchAttributeValue.pad' in found_struct}}
+
             try:
                 str_list += ['pad : ' + str(self.pad)]
             except ValueError:
                 str_list += ['pad : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.accessPolicyWindow' in found_struct}}
+
+
             try:
                 str_list += ['accessPolicyWindow :\n' + '\n'.join(['    ' + line for line in str(self.accessPolicyWindow).splitlines()])]
             except ValueError:
                 str_list += ['accessPolicyWindow : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.cooperative' in found_struct}}
+
+
             try:
                 str_list += ['cooperative : ' + str(self.cooperative)]
             except ValueError:
                 str_list += ['cooperative : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.syncPolicy' in found_struct}}
+
+
             try:
                 str_list += ['syncPolicy : ' + str(self.syncPolicy)]
             except ValueError:
                 str_list += ['syncPolicy : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.clusterDim' in found_struct}}
+
+
             try:
                 str_list += ['clusterDim :\n' + '\n'.join(['    ' + line for line in str(self.clusterDim).splitlines()])]
             except ValueError:
                 str_list += ['clusterDim : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.clusterSchedulingPolicyPreference' in found_struct}}
+
+
             try:
                 str_list += ['clusterSchedulingPolicyPreference : ' + str(self.clusterSchedulingPolicyPreference)]
             except ValueError:
                 str_list += ['clusterSchedulingPolicyPreference : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.programmaticStreamSerializationAllowed' in found_struct}}
+
+
             try:
                 str_list += ['programmaticStreamSerializationAllowed : ' + str(self.programmaticStreamSerializationAllowed)]
             except ValueError:
                 str_list += ['programmaticStreamSerializationAllowed : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
+
+
             try:
                 str_list += ['programmaticEvent :\n' + '\n'.join(['    ' + line for line in str(self.programmaticEvent).splitlines()])]
             except ValueError:
                 str_list += ['programmaticEvent : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
+
+
             try:
                 str_list += ['priority : ' + str(self.priority)]
             except ValueError:
                 str_list += ['priority : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.memSyncDomainMap' in found_struct}}
+
+
             try:
                 str_list += ['memSyncDomainMap :\n' + '\n'.join(['    ' + line for line in str(self.memSyncDomainMap).splitlines()])]
             except ValueError:
                 str_list += ['memSyncDomainMap : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.memSyncDomain' in found_struct}}
+
+
             try:
                 str_list += ['memSyncDomain : ' + str(self.memSyncDomain)]
             except ValueError:
                 str_list += ['memSyncDomain : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.preferredClusterDim' in found_struct}}
+
+
             try:
                 str_list += ['preferredClusterDim :\n' + '\n'.join(['    ' + line for line in str(self.preferredClusterDim).splitlines()])]
             except ValueError:
                 str_list += ['preferredClusterDim : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
+
+
             try:
                 str_list += ['launchCompletionEvent :\n' + '\n'.join(['    ' + line for line in str(self.launchCompletionEvent).splitlines()])]
             except ValueError:
                 str_list += ['launchCompletionEvent : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
+
+
             try:
                 str_list += ['deviceUpdatableKernelNode :\n' + '\n'.join(['    ' + line for line in str(self.deviceUpdatableKernelNode).splitlines()])]
             except ValueError:
                 str_list += ['deviceUpdatableKernelNode : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}
+
+
             try:
                 str_list += ['sharedMemCarveout : ' + str(self.sharedMemCarveout)]
             except ValueError:
                 str_list += ['sharedMemCarveout : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.nvlinkUtilCentricScheduling' in found_struct}}
+
+
             try:
                 str_list += ['nvlinkUtilCentricScheduling : ' + str(self.nvlinkUtilCentricScheduling)]
             except ValueError:
                 str_list += ['nvlinkUtilCentricScheduling : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
+
+
             try:
                 str_list += ['portableClusterSizeMode : ' + str(self.portableClusterSizeMode)]
             except ValueError:
                 str_list += ['portableClusterSizeMode : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
+
+
             try:
                 str_list += ['sharedMemoryMode : ' + str(self.sharedMemoryMode)]
             except ValueError:
                 str_list += ['sharedMemoryMode : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaLaunchAttributeValue.pad' in found_struct}}
+
     @property
     def pad(self):
         return PyBytes_FromStringAndSize(self._pvt_ptr[0].pad, 64)
@@ -19921,145 +19381,143 @@ cdef class cudaLaunchAttributeValue:
                 if b > 127 and b < 256:
                     b = b - 256
                 self._pvt_ptr[0].pad[i] = b
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.accessPolicyWindow' in found_struct}}
+
+
     @property
     def accessPolicyWindow(self):
         return self._accessPolicyWindow
     @accessPolicyWindow.setter
     def accessPolicyWindow(self, accessPolicyWindow not None : cudaAccessPolicyWindow):
         string.memcpy(&self._pvt_ptr[0].accessPolicyWindow, <void*><void_ptr>accessPolicyWindow.getPtr(), sizeof(self._pvt_ptr[0].accessPolicyWindow))
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.cooperative' in found_struct}}
+
+
     @property
     def cooperative(self):
         return self._pvt_ptr[0].cooperative
     @cooperative.setter
     def cooperative(self, int cooperative):
         self._pvt_ptr[0].cooperative = cooperative
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.syncPolicy' in found_struct}}
+
+
     @property
     def syncPolicy(self):
         return cudaSynchronizationPolicy(self._pvt_ptr[0].syncPolicy)
     @syncPolicy.setter
     def syncPolicy(self, syncPolicy not None : cudaSynchronizationPolicy):
-        self._pvt_ptr[0].syncPolicy = int(syncPolicy)
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.clusterDim' in found_struct}}
+        self._pvt_ptr[0].syncPolicy = <cyruntime.cudaSynchronizationPolicy><int>int(syncPolicy)
+
+
     @property
     def clusterDim(self):
         return self._clusterDim
     @clusterDim.setter
     def clusterDim(self, clusterDim not None : anon_struct17):
         string.memcpy(&self._pvt_ptr[0].clusterDim, <void*><void_ptr>clusterDim.getPtr(), sizeof(self._pvt_ptr[0].clusterDim))
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.clusterSchedulingPolicyPreference' in found_struct}}
+
+
     @property
     def clusterSchedulingPolicyPreference(self):
         return cudaClusterSchedulingPolicy(self._pvt_ptr[0].clusterSchedulingPolicyPreference)
     @clusterSchedulingPolicyPreference.setter
     def clusterSchedulingPolicyPreference(self, clusterSchedulingPolicyPreference not None : cudaClusterSchedulingPolicy):
-        self._pvt_ptr[0].clusterSchedulingPolicyPreference = int(clusterSchedulingPolicyPreference)
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.programmaticStreamSerializationAllowed' in found_struct}}
+        self._pvt_ptr[0].clusterSchedulingPolicyPreference = <cyruntime.cudaClusterSchedulingPolicy><int>int(clusterSchedulingPolicyPreference)
+
+
     @property
     def programmaticStreamSerializationAllowed(self):
         return self._pvt_ptr[0].programmaticStreamSerializationAllowed
     @programmaticStreamSerializationAllowed.setter
     def programmaticStreamSerializationAllowed(self, int programmaticStreamSerializationAllowed):
         self._pvt_ptr[0].programmaticStreamSerializationAllowed = programmaticStreamSerializationAllowed
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.programmaticEvent' in found_struct}}
+
+
     @property
     def programmaticEvent(self):
         return self._programmaticEvent
     @programmaticEvent.setter
     def programmaticEvent(self, programmaticEvent not None : anon_struct18):
         string.memcpy(&self._pvt_ptr[0].programmaticEvent, <void*><void_ptr>programmaticEvent.getPtr(), sizeof(self._pvt_ptr[0].programmaticEvent))
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
+
+
     @property
     def priority(self):
         return self._pvt_ptr[0].priority
     @priority.setter
     def priority(self, int priority):
         self._pvt_ptr[0].priority = priority
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.memSyncDomainMap' in found_struct}}
+
+
     @property
     def memSyncDomainMap(self):
         return self._memSyncDomainMap
     @memSyncDomainMap.setter
     def memSyncDomainMap(self, memSyncDomainMap not None : cudaLaunchMemSyncDomainMap):
         string.memcpy(&self._pvt_ptr[0].memSyncDomainMap, <void*><void_ptr>memSyncDomainMap.getPtr(), sizeof(self._pvt_ptr[0].memSyncDomainMap))
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.memSyncDomain' in found_struct}}
+
+
     @property
     def memSyncDomain(self):
         return cudaLaunchMemSyncDomain(self._pvt_ptr[0].memSyncDomain)
     @memSyncDomain.setter
     def memSyncDomain(self, memSyncDomain not None : cudaLaunchMemSyncDomain):
-        self._pvt_ptr[0].memSyncDomain = int(memSyncDomain)
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.preferredClusterDim' in found_struct}}
+        self._pvt_ptr[0].memSyncDomain = <cyruntime.cudaLaunchMemSyncDomain><int>int(memSyncDomain)
+
+
     @property
     def preferredClusterDim(self):
         return self._preferredClusterDim
     @preferredClusterDim.setter
     def preferredClusterDim(self, preferredClusterDim not None : anon_struct19):
         string.memcpy(&self._pvt_ptr[0].preferredClusterDim, <void*><void_ptr>preferredClusterDim.getPtr(), sizeof(self._pvt_ptr[0].preferredClusterDim))
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
+
+
     @property
     def launchCompletionEvent(self):
         return self._launchCompletionEvent
     @launchCompletionEvent.setter
     def launchCompletionEvent(self, launchCompletionEvent not None : anon_struct20):
         string.memcpy(&self._pvt_ptr[0].launchCompletionEvent, <void*><void_ptr>launchCompletionEvent.getPtr(), sizeof(self._pvt_ptr[0].launchCompletionEvent))
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
+
+
     @property
     def deviceUpdatableKernelNode(self):
         return self._deviceUpdatableKernelNode
     @deviceUpdatableKernelNode.setter
     def deviceUpdatableKernelNode(self, deviceUpdatableKernelNode not None : anon_struct21):
         string.memcpy(&self._pvt_ptr[0].deviceUpdatableKernelNode, <void*><void_ptr>deviceUpdatableKernelNode.getPtr(), sizeof(self._pvt_ptr[0].deviceUpdatableKernelNode))
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.sharedMemCarveout' in found_struct}}
+
+
     @property
     def sharedMemCarveout(self):
         return self._pvt_ptr[0].sharedMemCarveout
     @sharedMemCarveout.setter
     def sharedMemCarveout(self, unsigned int sharedMemCarveout):
         self._pvt_ptr[0].sharedMemCarveout = sharedMemCarveout
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.nvlinkUtilCentricScheduling' in found_struct}}
+
+
     @property
     def nvlinkUtilCentricScheduling(self):
         return self._pvt_ptr[0].nvlinkUtilCentricScheduling
     @nvlinkUtilCentricScheduling.setter
     def nvlinkUtilCentricScheduling(self, unsigned int nvlinkUtilCentricScheduling):
         self._pvt_ptr[0].nvlinkUtilCentricScheduling = nvlinkUtilCentricScheduling
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
+
+
     @property
     def portableClusterSizeMode(self):
         return cudaLaunchAttributePortableClusterMode(self._pvt_ptr[0].portableClusterSizeMode)
     @portableClusterSizeMode.setter
     def portableClusterSizeMode(self, portableClusterSizeMode not None : cudaLaunchAttributePortableClusterMode):
-        self._pvt_ptr[0].portableClusterSizeMode = int(portableClusterSizeMode)
-    {{endif}}
-    {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
+        self._pvt_ptr[0].portableClusterSizeMode = <cyruntime.cudaLaunchAttributePortableClusterMode><int>int(portableClusterSizeMode)
+
+
     @property
     def sharedMemoryMode(self):
         return cudaSharedMemoryMode(self._pvt_ptr[0].sharedMemoryMode)
     @sharedMemoryMode.setter
     def sharedMemoryMode(self, sharedMemoryMode not None : cudaSharedMemoryMode):
-        self._pvt_ptr[0].sharedMemoryMode = int(sharedMemoryMode)
-    {{endif}}
-{{endif}}
-{{if 'cudaLaunchAttribute_st' in found_struct}}
+        self._pvt_ptr[0].sharedMemoryMode = <cyruntime.cudaSharedMemoryMode><int>int(sharedMemoryMode)
+
 
 cdef class cudaLaunchAttribute_st:
     """
@@ -20067,14 +19525,14 @@ cdef class cudaLaunchAttribute_st:
 
     Attributes
     ----------
-    {{if 'cudaLaunchAttribute_st.id' in found_struct}}
+
     id : cudaLaunchAttributeID
         Attribute to set
-    {{endif}}
-    {{if 'cudaLaunchAttribute_st.val' in found_struct}}
+
+
     val : cudaLaunchAttributeValue
         Value of the attribute
-    {{endif}}
+
 
     Methods
     -------
@@ -20088,9 +19546,9 @@ cdef class cudaLaunchAttribute_st:
             self._pvt_ptr = <cyruntime.cudaLaunchAttribute_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaLaunchAttribute_st.val' in found_struct}}
+
         self._val = cudaLaunchAttributeValue(_ptr=<void_ptr>&self._pvt_ptr[0].val)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -20098,48 +19556,46 @@ cdef class cudaLaunchAttribute_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaLaunchAttribute_st.id' in found_struct}}
+
             try:
                 str_list += ['id : ' + str(self.id)]
             except ValueError:
                 str_list += ['id : <ValueError>']
-            {{endif}}
-            {{if 'cudaLaunchAttribute_st.val' in found_struct}}
+
+
             try:
                 str_list += ['val :\n' + '\n'.join(['    ' + line for line in str(self.val).splitlines()])]
             except ValueError:
                 str_list += ['val : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaLaunchAttribute_st.id' in found_struct}}
+
     @property
     def id(self):
         return cudaLaunchAttributeID(self._pvt_ptr[0].id)
     @id.setter
     def id(self, id not None : cudaLaunchAttributeID):
-        self._pvt_ptr[0].id = int(id)
-    {{endif}}
-    {{if 'cudaLaunchAttribute_st.val' in found_struct}}
+        self._pvt_ptr[0].id = <cyruntime.cudaLaunchAttributeID><int>int(id)
+
+
     @property
     def val(self):
         return self._val
     @val.setter
     def val(self, val not None : cudaLaunchAttributeValue):
         string.memcpy(&self._pvt_ptr[0].val, <void*><void_ptr>val.getPtr(), sizeof(self._pvt_ptr[0].val))
-    {{endif}}
-{{endif}}
-{{if 'cudaAsyncNotificationInfo.info.overBudget' in found_struct}}
+
 
 cdef class anon_struct22:
     """
     Attributes
     ----------
-    {{if 'cudaAsyncNotificationInfo.info.overBudget.bytesOverBudget' in found_struct}}
+
     bytesOverBudget : unsigned long long
 
-    {{endif}}
+
 
     Methods
     -------
@@ -20158,34 +19614,32 @@ cdef class anon_struct22:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaAsyncNotificationInfo.info.overBudget.bytesOverBudget' in found_struct}}
+
             try:
                 str_list += ['bytesOverBudget : ' + str(self.bytesOverBudget)]
             except ValueError:
                 str_list += ['bytesOverBudget : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaAsyncNotificationInfo.info.overBudget.bytesOverBudget' in found_struct}}
+
     @property
     def bytesOverBudget(self):
         return self._pvt_ptr[0].info.overBudget.bytesOverBudget
     @bytesOverBudget.setter
     def bytesOverBudget(self, unsigned long long bytesOverBudget):
         self._pvt_ptr[0].info.overBudget.bytesOverBudget = bytesOverBudget
-    {{endif}}
-{{endif}}
-{{if 'cudaAsyncNotificationInfo.info' in found_struct}}
+
 
 cdef class anon_union11:
     """
     Attributes
     ----------
-    {{if 'cudaAsyncNotificationInfo.info.overBudget' in found_struct}}
+
     overBudget : anon_struct22
 
-    {{endif}}
+
 
     Methods
     -------
@@ -20197,9 +19651,9 @@ cdef class anon_union11:
 
     def __init__(self, void_ptr _ptr):
         pass
-        {{if 'cudaAsyncNotificationInfo.info.overBudget' in found_struct}}
+
         self._overBudget = anon_struct22(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -20207,25 +19661,23 @@ cdef class anon_union11:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaAsyncNotificationInfo.info.overBudget' in found_struct}}
+
             try:
                 str_list += ['overBudget :\n' + '\n'.join(['    ' + line for line in str(self.overBudget).splitlines()])]
             except ValueError:
                 str_list += ['overBudget : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaAsyncNotificationInfo.info.overBudget' in found_struct}}
+
     @property
     def overBudget(self):
         return self._overBudget
     @overBudget.setter
     def overBudget(self, overBudget not None : anon_struct22):
         string.memcpy(&self._pvt_ptr[0].info.overBudget, <void*><void_ptr>overBudget.getPtr(), sizeof(self._pvt_ptr[0].info.overBudget))
-    {{endif}}
-{{endif}}
-{{if 'cudaAsyncNotificationInfo' in found_struct}}
+
 
 cdef class cudaAsyncNotificationInfo:
     """
@@ -20233,15 +19685,15 @@ cdef class cudaAsyncNotificationInfo:
 
     Attributes
     ----------
-    {{if 'cudaAsyncNotificationInfo.type' in found_struct}}
+
     type : cudaAsyncNotificationType
         The type of notification being sent
-    {{endif}}
-    {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
+
+
     info : anon_union11
         Information about the notification. `typename` must be checked in
         order to interpret this field.
-    {{endif}}
+
 
     Methods
     -------
@@ -20256,9 +19708,9 @@ cdef class cudaAsyncNotificationInfo:
             self._pvt_ptr = <cyruntime.cudaAsyncNotificationInfo *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
+
         self._info = anon_union11(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
@@ -20267,39 +19719,37 @@ cdef class cudaAsyncNotificationInfo:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaAsyncNotificationInfo.type' in found_struct}}
+
             try:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-            {{endif}}
-            {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
+
+
             try:
                 str_list += ['info :\n' + '\n'.join(['    ' + line for line in str(self.info).splitlines()])]
             except ValueError:
                 str_list += ['info : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaAsyncNotificationInfo.type' in found_struct}}
+
     @property
     def type(self):
         return cudaAsyncNotificationType(self._pvt_ptr[0].type)
     @type.setter
     def type(self, type not None : cudaAsyncNotificationType):
-        self._pvt_ptr[0].type = int(type)
-    {{endif}}
-    {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
+        self._pvt_ptr[0].type = <cyruntime.cudaAsyncNotificationType><int>int(type)
+
+
     @property
     def info(self):
         return self._info
     @info.setter
     def info(self, info not None : anon_union11):
         string.memcpy(&self._pvt_ptr[0].info, <void*><void_ptr>info.getPtr(), sizeof(self._pvt_ptr[0].info))
-    {{endif}}
-{{endif}}
-{{if 'cudaTextureDesc' in found_struct}}
+
 
 cdef class cudaTextureDesc:
     """
@@ -20307,58 +19757,58 @@ cdef class cudaTextureDesc:
 
     Attributes
     ----------
-    {{if 'cudaTextureDesc.addressMode' in found_struct}}
+
     addressMode : list[cudaTextureAddressMode]
         Texture address mode for up to 3 dimensions
-    {{endif}}
-    {{if 'cudaTextureDesc.filterMode' in found_struct}}
+
+
     filterMode : cudaTextureFilterMode
         Texture filter mode
-    {{endif}}
-    {{if 'cudaTextureDesc.readMode' in found_struct}}
+
+
     readMode : cudaTextureReadMode
         Texture read mode
-    {{endif}}
-    {{if 'cudaTextureDesc.sRGB' in found_struct}}
+
+
     sRGB : int
         Perform sRGB->linear conversion during texture read
-    {{endif}}
-    {{if 'cudaTextureDesc.borderColor' in found_struct}}
+
+
     borderColor : list[float]
         Texture Border Color
-    {{endif}}
-    {{if 'cudaTextureDesc.normalizedCoords' in found_struct}}
+
+
     normalizedCoords : int
         Indicates whether texture reads are normalized or not
-    {{endif}}
-    {{if 'cudaTextureDesc.maxAnisotropy' in found_struct}}
+
+
     maxAnisotropy : unsigned int
         Limit to the anisotropy ratio
-    {{endif}}
-    {{if 'cudaTextureDesc.mipmapFilterMode' in found_struct}}
+
+
     mipmapFilterMode : cudaTextureFilterMode
         Mipmap filter mode
-    {{endif}}
-    {{if 'cudaTextureDesc.mipmapLevelBias' in found_struct}}
+
+
     mipmapLevelBias : float
         Offset applied to the supplied mipmap level
-    {{endif}}
-    {{if 'cudaTextureDesc.minMipmapLevelClamp' in found_struct}}
+
+
     minMipmapLevelClamp : float
         Lower end of the mipmap level range to clamp access to
-    {{endif}}
-    {{if 'cudaTextureDesc.maxMipmapLevelClamp' in found_struct}}
+
+
     maxMipmapLevelClamp : float
         Upper end of the mipmap level range to clamp access to
-    {{endif}}
-    {{if 'cudaTextureDesc.disableTrilinearOptimization' in found_struct}}
+
+
     disableTrilinearOptimization : int
         Disable any trilinear filtering optimizations.
-    {{endif}}
-    {{if 'cudaTextureDesc.seamlessCubemap' in found_struct}}
+
+
     seamlessCubemap : int
         Enable seamless cube map filtering.
-    {{endif}}
+
 
     Methods
     -------
@@ -20379,193 +19829,191 @@ cdef class cudaTextureDesc:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaTextureDesc.addressMode' in found_struct}}
+
             try:
                 str_list += ['addressMode : ' + str(self.addressMode)]
             except ValueError:
                 str_list += ['addressMode : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.filterMode' in found_struct}}
+
+
             try:
                 str_list += ['filterMode : ' + str(self.filterMode)]
             except ValueError:
                 str_list += ['filterMode : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.readMode' in found_struct}}
+
+
             try:
                 str_list += ['readMode : ' + str(self.readMode)]
             except ValueError:
                 str_list += ['readMode : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.sRGB' in found_struct}}
+
+
             try:
                 str_list += ['sRGB : ' + str(self.sRGB)]
             except ValueError:
                 str_list += ['sRGB : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.borderColor' in found_struct}}
+
+
             try:
                 str_list += ['borderColor : ' + str(self.borderColor)]
             except ValueError:
                 str_list += ['borderColor : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.normalizedCoords' in found_struct}}
+
+
             try:
                 str_list += ['normalizedCoords : ' + str(self.normalizedCoords)]
             except ValueError:
                 str_list += ['normalizedCoords : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.maxAnisotropy' in found_struct}}
+
+
             try:
                 str_list += ['maxAnisotropy : ' + str(self.maxAnisotropy)]
             except ValueError:
                 str_list += ['maxAnisotropy : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.mipmapFilterMode' in found_struct}}
+
+
             try:
                 str_list += ['mipmapFilterMode : ' + str(self.mipmapFilterMode)]
             except ValueError:
                 str_list += ['mipmapFilterMode : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.mipmapLevelBias' in found_struct}}
+
+
             try:
                 str_list += ['mipmapLevelBias : ' + str(self.mipmapLevelBias)]
             except ValueError:
                 str_list += ['mipmapLevelBias : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.minMipmapLevelClamp' in found_struct}}
+
+
             try:
                 str_list += ['minMipmapLevelClamp : ' + str(self.minMipmapLevelClamp)]
             except ValueError:
                 str_list += ['minMipmapLevelClamp : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.maxMipmapLevelClamp' in found_struct}}
+
+
             try:
                 str_list += ['maxMipmapLevelClamp : ' + str(self.maxMipmapLevelClamp)]
             except ValueError:
                 str_list += ['maxMipmapLevelClamp : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.disableTrilinearOptimization' in found_struct}}
+
+
             try:
                 str_list += ['disableTrilinearOptimization : ' + str(self.disableTrilinearOptimization)]
             except ValueError:
                 str_list += ['disableTrilinearOptimization : <ValueError>']
-            {{endif}}
-            {{if 'cudaTextureDesc.seamlessCubemap' in found_struct}}
+
+
             try:
                 str_list += ['seamlessCubemap : ' + str(self.seamlessCubemap)]
             except ValueError:
                 str_list += ['seamlessCubemap : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaTextureDesc.addressMode' in found_struct}}
+
     @property
     def addressMode(self):
         return [cudaTextureAddressMode(_x) for _x in list(self._pvt_ptr[0].addressMode)]
     @addressMode.setter
     def addressMode(self, addressMode):
         self._pvt_ptr[0].addressMode = [int(_x) for _x in addressMode]
-    {{endif}}
-    {{if 'cudaTextureDesc.filterMode' in found_struct}}
+
+
     @property
     def filterMode(self):
         return cudaTextureFilterMode(self._pvt_ptr[0].filterMode)
     @filterMode.setter
     def filterMode(self, filterMode not None : cudaTextureFilterMode):
-        self._pvt_ptr[0].filterMode = int(filterMode)
-    {{endif}}
-    {{if 'cudaTextureDesc.readMode' in found_struct}}
+        self._pvt_ptr[0].filterMode = <cyruntime.cudaTextureFilterMode><int>int(filterMode)
+
+
     @property
     def readMode(self):
         return cudaTextureReadMode(self._pvt_ptr[0].readMode)
     @readMode.setter
     def readMode(self, readMode not None : cudaTextureReadMode):
-        self._pvt_ptr[0].readMode = int(readMode)
-    {{endif}}
-    {{if 'cudaTextureDesc.sRGB' in found_struct}}
+        self._pvt_ptr[0].readMode = <cyruntime.cudaTextureReadMode><int>int(readMode)
+
+
     @property
     def sRGB(self):
         return self._pvt_ptr[0].sRGB
     @sRGB.setter
     def sRGB(self, int sRGB):
         self._pvt_ptr[0].sRGB = sRGB
-    {{endif}}
-    {{if 'cudaTextureDesc.borderColor' in found_struct}}
+
+
     @property
     def borderColor(self):
         return self._pvt_ptr[0].borderColor
     @borderColor.setter
     def borderColor(self, borderColor):
         self._pvt_ptr[0].borderColor = borderColor
-    {{endif}}
-    {{if 'cudaTextureDesc.normalizedCoords' in found_struct}}
+
+
     @property
     def normalizedCoords(self):
         return self._pvt_ptr[0].normalizedCoords
     @normalizedCoords.setter
     def normalizedCoords(self, int normalizedCoords):
         self._pvt_ptr[0].normalizedCoords = normalizedCoords
-    {{endif}}
-    {{if 'cudaTextureDesc.maxAnisotropy' in found_struct}}
+
+
     @property
     def maxAnisotropy(self):
         return self._pvt_ptr[0].maxAnisotropy
     @maxAnisotropy.setter
     def maxAnisotropy(self, unsigned int maxAnisotropy):
         self._pvt_ptr[0].maxAnisotropy = maxAnisotropy
-    {{endif}}
-    {{if 'cudaTextureDesc.mipmapFilterMode' in found_struct}}
+
+
     @property
     def mipmapFilterMode(self):
         return cudaTextureFilterMode(self._pvt_ptr[0].mipmapFilterMode)
     @mipmapFilterMode.setter
     def mipmapFilterMode(self, mipmapFilterMode not None : cudaTextureFilterMode):
-        self._pvt_ptr[0].mipmapFilterMode = int(mipmapFilterMode)
-    {{endif}}
-    {{if 'cudaTextureDesc.mipmapLevelBias' in found_struct}}
+        self._pvt_ptr[0].mipmapFilterMode = <cyruntime.cudaTextureFilterMode><int>int(mipmapFilterMode)
+
+
     @property
     def mipmapLevelBias(self):
         return self._pvt_ptr[0].mipmapLevelBias
     @mipmapLevelBias.setter
     def mipmapLevelBias(self, float mipmapLevelBias):
         self._pvt_ptr[0].mipmapLevelBias = mipmapLevelBias
-    {{endif}}
-    {{if 'cudaTextureDesc.minMipmapLevelClamp' in found_struct}}
+
+
     @property
     def minMipmapLevelClamp(self):
         return self._pvt_ptr[0].minMipmapLevelClamp
     @minMipmapLevelClamp.setter
     def minMipmapLevelClamp(self, float minMipmapLevelClamp):
         self._pvt_ptr[0].minMipmapLevelClamp = minMipmapLevelClamp
-    {{endif}}
-    {{if 'cudaTextureDesc.maxMipmapLevelClamp' in found_struct}}
+
+
     @property
     def maxMipmapLevelClamp(self):
         return self._pvt_ptr[0].maxMipmapLevelClamp
     @maxMipmapLevelClamp.setter
     def maxMipmapLevelClamp(self, float maxMipmapLevelClamp):
         self._pvt_ptr[0].maxMipmapLevelClamp = maxMipmapLevelClamp
-    {{endif}}
-    {{if 'cudaTextureDesc.disableTrilinearOptimization' in found_struct}}
+
+
     @property
     def disableTrilinearOptimization(self):
         return self._pvt_ptr[0].disableTrilinearOptimization
     @disableTrilinearOptimization.setter
     def disableTrilinearOptimization(self, int disableTrilinearOptimization):
         self._pvt_ptr[0].disableTrilinearOptimization = disableTrilinearOptimization
-    {{endif}}
-    {{if 'cudaTextureDesc.seamlessCubemap' in found_struct}}
+
+
     @property
     def seamlessCubemap(self):
         return self._pvt_ptr[0].seamlessCubemap
     @seamlessCubemap.setter
     def seamlessCubemap(self, int seamlessCubemap):
         self._pvt_ptr[0].seamlessCubemap = seamlessCubemap
-    {{endif}}
-{{endif}}
-{{if 'cudaGraphRecaptureCallbackData' in found_struct}}
+
 
 cdef class cudaGraphRecaptureCallbackData:
     """
@@ -20574,14 +20022,14 @@ cdef class cudaGraphRecaptureCallbackData:
 
     Attributes
     ----------
-    {{if 'cudaGraphRecaptureCallbackData.callbackFunc' in found_struct}}
+
     callbackFunc : cudaGraphRecaptureCallback_t
         Callback function that will be invoked
-    {{endif}}
-    {{if 'cudaGraphRecaptureCallbackData.userData' in found_struct}}
+
+
     userData : Any
         Generic pointer that is passed to the callback function
-    {{endif}}
+
 
     Methods
     -------
@@ -20595,9 +20043,9 @@ cdef class cudaGraphRecaptureCallbackData:
             self._pvt_ptr = <cyruntime.cudaGraphRecaptureCallbackData *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if 'cudaGraphRecaptureCallbackData.callbackFunc' in found_struct}}
+
         self._callbackFunc = cudaGraphRecaptureCallback_t(_ptr=<void_ptr>&self._pvt_ptr[0].callbackFunc)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -20605,22 +20053,22 @@ cdef class cudaGraphRecaptureCallbackData:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if 'cudaGraphRecaptureCallbackData.callbackFunc' in found_struct}}
+
             try:
                 str_list += ['callbackFunc : ' + str(self.callbackFunc)]
             except ValueError:
                 str_list += ['callbackFunc : <ValueError>']
-            {{endif}}
-            {{if 'cudaGraphRecaptureCallbackData.userData' in found_struct}}
+
+
             try:
                 str_list += ['userData : ' + hex(self.userData)]
             except ValueError:
                 str_list += ['userData : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if 'cudaGraphRecaptureCallbackData.callbackFunc' in found_struct}}
+
     @property
     def callbackFunc(self):
         return self._callbackFunc
@@ -20636,8 +20084,8 @@ cdef class cudaGraphRecaptureCallbackData:
             pcallbackFunc = int(cudaGraphRecaptureCallback_t(callbackFunc))
             cycallbackFunc = <cyruntime.cudaGraphRecaptureCallback_t><void_ptr>pcallbackFunc
         self._callbackFunc._pvt_ptr[0] = cycallbackFunc
-    {{endif}}
-    {{if 'cudaGraphRecaptureCallbackData.userData' in found_struct}}
+
+
     @property
     def userData(self):
         return <void_ptr>self._pvt_ptr[0].userData
@@ -20645,9 +20093,7 @@ cdef class cudaGraphRecaptureCallbackData:
     def userData(self, userData):
         self._cyuserData = _HelperInputVoidPtr(userData)
         self._pvt_ptr[0].userData = <void*><void_ptr>self._cyuserData.cptr
-    {{endif}}
-{{endif}}
-{{if True}}
+
 
 cdef class cudaEglPlaneDesc_st:
     """
@@ -20656,34 +20102,34 @@ cdef class cudaEglPlaneDesc_st:
 
     Attributes
     ----------
-    {{if True}}
+
     width : unsigned int
         Width of plane
-    {{endif}}
-    {{if True}}
+
+
     height : unsigned int
         Height of plane
-    {{endif}}
-    {{if True}}
+
+
     depth : unsigned int
         Depth of plane
-    {{endif}}
-    {{if True}}
+
+
     pitch : unsigned int
         Pitch of plane
-    {{endif}}
-    {{if True}}
+
+
     numChannels : unsigned int
         Number of channels for the plane
-    {{endif}}
-    {{if True}}
+
+
     channelDesc : cudaChannelFormatDesc
         Channel Format Descriptor
-    {{endif}}
-    {{if True}}
+
+
     reserved : list[unsigned int]
         Reserved for future use
-    {{endif}}
+
 
     Methods
     -------
@@ -20697,9 +20143,9 @@ cdef class cudaEglPlaneDesc_st:
             self._pvt_ptr = <cyruntime.cudaEglPlaneDesc_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if True}}
+
         self._channelDesc = cudaChannelFormatDesc(_ptr=<void_ptr>&self._pvt_ptr[0].channelDesc)
-        {{endif}}
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -20707,122 +20153,120 @@ cdef class cudaEglPlaneDesc_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if True}}
+
             try:
                 str_list += ['width : ' + str(self.width)]
             except ValueError:
                 str_list += ['width : <ValueError>']
-            {{endif}}
-            {{if True}}
+
+
             try:
                 str_list += ['height : ' + str(self.height)]
             except ValueError:
                 str_list += ['height : <ValueError>']
-            {{endif}}
-            {{if True}}
+
+
             try:
                 str_list += ['depth : ' + str(self.depth)]
             except ValueError:
                 str_list += ['depth : <ValueError>']
-            {{endif}}
-            {{if True}}
+
+
             try:
                 str_list += ['pitch : ' + str(self.pitch)]
             except ValueError:
                 str_list += ['pitch : <ValueError>']
-            {{endif}}
-            {{if True}}
+
+
             try:
                 str_list += ['numChannels : ' + str(self.numChannels)]
             except ValueError:
                 str_list += ['numChannels : <ValueError>']
-            {{endif}}
-            {{if True}}
+
+
             try:
                 str_list += ['channelDesc :\n' + '\n'.join(['    ' + line for line in str(self.channelDesc).splitlines()])]
             except ValueError:
                 str_list += ['channelDesc : <ValueError>']
-            {{endif}}
-            {{if True}}
+
+
             try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if True}}
+
     @property
     def width(self):
         return self._pvt_ptr[0].width
     @width.setter
     def width(self, unsigned int width):
         self._pvt_ptr[0].width = width
-    {{endif}}
-    {{if True}}
+
+
     @property
     def height(self):
         return self._pvt_ptr[0].height
     @height.setter
     def height(self, unsigned int height):
         self._pvt_ptr[0].height = height
-    {{endif}}
-    {{if True}}
+
+
     @property
     def depth(self):
         return self._pvt_ptr[0].depth
     @depth.setter
     def depth(self, unsigned int depth):
         self._pvt_ptr[0].depth = depth
-    {{endif}}
-    {{if True}}
+
+
     @property
     def pitch(self):
         return self._pvt_ptr[0].pitch
     @pitch.setter
     def pitch(self, unsigned int pitch):
         self._pvt_ptr[0].pitch = pitch
-    {{endif}}
-    {{if True}}
+
+
     @property
     def numChannels(self):
         return self._pvt_ptr[0].numChannels
     @numChannels.setter
     def numChannels(self, unsigned int numChannels):
         self._pvt_ptr[0].numChannels = numChannels
-    {{endif}}
-    {{if True}}
+
+
     @property
     def channelDesc(self):
         return self._channelDesc
     @channelDesc.setter
     def channelDesc(self, channelDesc not None : cudaChannelFormatDesc):
         string.memcpy(&self._pvt_ptr[0].channelDesc, <void*><void_ptr>channelDesc.getPtr(), sizeof(self._pvt_ptr[0].channelDesc))
-    {{endif}}
-    {{if True}}
+
+
     @property
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
     def reserved(self, reserved):
         self._pvt_ptr[0].reserved = reserved
-    {{endif}}
-{{endif}}
-{{if True}}
+
 
 cdef class anon_union12:
     """
     Attributes
     ----------
-    {{if True}}
+
     pArray : list[cudaArray_t]
 
-    {{endif}}
-    {{if True}}
+
+
     pPitch : list[cudaPitchedPtr]
 
-    {{endif}}
+
 
     Methods
     -------
@@ -20841,22 +20285,22 @@ cdef class anon_union12:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if True}}
+
             try:
                 str_list += ['pArray : ' + str(self.pArray)]
             except ValueError:
                 str_list += ['pArray : <ValueError>']
-            {{endif}}
-            {{if True}}
+
+
             try:
                 str_list += ['pPitch :\n' + '\n'.join(['    ' + line for line in str(self.pPitch).splitlines()])]
             except ValueError:
                 str_list += ['pPitch : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if True}}
+
     @property
     def pArray(self):
         return [cudaArray_t(init_value=<void_ptr>_pArray) for _pArray in self._pvt_ptr[0].frame.pArray]
@@ -20868,8 +20312,8 @@ cdef class anon_union12:
         for _idx, _pArray in enumerate(pArray):
             self._pvt_ptr[0].frame.pArray[_idx] = <cyruntime.cudaArray_t><void_ptr>_pArray
 
-    {{endif}}
-    {{if True}}
+
+
     @property
     def pPitch(self):
         out_pPitch = [cudaPitchedPtr() for _pPitch in self._pvt_ptr[0].frame.pPitch]
@@ -20883,9 +20327,7 @@ cdef class anon_union12:
         for _idx in range(len(pPitch)):
             string.memcpy(&self._pvt_ptr[0].frame.pPitch[_idx], <void*><void_ptr>pPitch[_idx].getPtr(), sizeof(cyruntime.cudaPitchedPtr))
 
-    {{endif}}
-{{endif}}
-{{if True}}
+
 
 cdef class cudaEglFrame_st:
     """
@@ -20900,26 +20342,26 @@ cdef class cudaEglFrame_st:
 
     Attributes
     ----------
-    {{if True}}
+
     frame : anon_union12
 
-    {{endif}}
-    {{if True}}
+
+
     planeDesc : list[cudaEglPlaneDesc]
         CUDA EGL Plane Descriptor cudaEglPlaneDesc
-    {{endif}}
-    {{if True}}
+
+
     planeCount : unsigned int
         Number of planes
-    {{endif}}
-    {{if True}}
+
+
     frameType : cudaEglFrameType
         Array or Pitch
-    {{endif}}
-    {{if True}}
+
+
     eglColorFormat : cudaEglColorFormat
         CUDA EGL Color Format
-    {{endif}}
+
 
     Methods
     -------
@@ -20934,9 +20376,9 @@ cdef class cudaEglFrame_st:
             self._pvt_ptr = <cyruntime.cudaEglFrame_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
-        {{if True}}
+
         self._frame = anon_union12(_ptr=<void_ptr>self._pvt_ptr)
-        {{endif}}
+
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
@@ -20945,48 +20387,48 @@ cdef class cudaEglFrame_st:
     def __repr__(self):
         if self._pvt_ptr is not NULL:
             str_list = []
-            {{if True}}
+
             try:
                 str_list += ['frame :\n' + '\n'.join(['    ' + line for line in str(self.frame).splitlines()])]
             except ValueError:
                 str_list += ['frame : <ValueError>']
-            {{endif}}
-            {{if True}}
+
+
             try:
                 str_list += ['planeDesc :\n' + '\n'.join(['    ' + line for line in str(self.planeDesc).splitlines()])]
             except ValueError:
                 str_list += ['planeDesc : <ValueError>']
-            {{endif}}
-            {{if True}}
+
+
             try:
                 str_list += ['planeCount : ' + str(self.planeCount)]
             except ValueError:
                 str_list += ['planeCount : <ValueError>']
-            {{endif}}
-            {{if True}}
+
+
             try:
                 str_list += ['frameType : ' + str(self.frameType)]
             except ValueError:
                 str_list += ['frameType : <ValueError>']
-            {{endif}}
-            {{if True}}
+
+
             try:
                 str_list += ['eglColorFormat : ' + str(self.eglColorFormat)]
             except ValueError:
                 str_list += ['eglColorFormat : <ValueError>']
-            {{endif}}
+
             return '\n'.join(str_list)
         else:
             return ''
-    {{if True}}
+
     @property
     def frame(self):
         return self._frame
     @frame.setter
     def frame(self, frame not None : anon_union12):
         string.memcpy(&self._pvt_ptr[0].frame, <void*><void_ptr>frame.getPtr(), sizeof(self._pvt_ptr[0].frame))
-    {{endif}}
-    {{if True}}
+
+
     @property
     def planeDesc(self):
         out_planeDesc = [cudaEglPlaneDesc() for _planeDesc in self._pvt_ptr[0].planeDesc]
@@ -21000,33 +20442,31 @@ cdef class cudaEglFrame_st:
         for _idx in range(len(planeDesc)):
             string.memcpy(&self._pvt_ptr[0].planeDesc[_idx], <void*><void_ptr>planeDesc[_idx].getPtr(), sizeof(cyruntime.cudaEglPlaneDesc))
 
-    {{endif}}
-    {{if True}}
+
+
     @property
     def planeCount(self):
         return self._pvt_ptr[0].planeCount
     @planeCount.setter
     def planeCount(self, unsigned int planeCount):
         self._pvt_ptr[0].planeCount = planeCount
-    {{endif}}
-    {{if True}}
+
+
     @property
     def frameType(self):
         return cudaEglFrameType(self._pvt_ptr[0].frameType)
     @frameType.setter
     def frameType(self, frameType not None : cudaEglFrameType):
-        self._pvt_ptr[0].frameType = int(frameType)
-    {{endif}}
-    {{if True}}
+        self._pvt_ptr[0].frameType = <cyruntime.cudaEglFrameType><int>int(frameType)
+
+
     @property
     def eglColorFormat(self):
         return cudaEglColorFormat(self._pvt_ptr[0].eglColorFormat)
     @eglColorFormat.setter
     def eglColorFormat(self, eglColorFormat not None : cudaEglColorFormat):
-        self._pvt_ptr[0].eglColorFormat = int(eglColorFormat)
-    {{endif}}
-{{endif}}
-{{if 'cudaGraphConditionalHandle' in found_types}}
+        self._pvt_ptr[0].eglColorFormat = <cyruntime.cudaEglColorFormat><int>int(eglColorFormat)
+
 
 cdef class cudaGraphConditionalHandle:
     """
@@ -21054,9 +20494,6 @@ cdef class cudaGraphConditionalHandle:
         return <unsigned long long>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaLogIterator' in found_types}}
 
 cdef class cudaLogIterator:
     """
@@ -21082,9 +20519,6 @@ cdef class cudaLogIterator:
         return <unsigned int>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaSurfaceObject_t' in found_types}}
 
 cdef class cudaSurfaceObject_t:
     """
@@ -21112,9 +20546,6 @@ cdef class cudaSurfaceObject_t:
         return <unsigned long long>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaTextureObject_t' in found_types}}
 
 cdef class cudaTextureObject_t:
     """
@@ -21142,9 +20573,6 @@ cdef class cudaTextureObject_t:
         return <unsigned long long>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if True}}
 
 cdef class GLenum:
     """
@@ -21170,9 +20598,6 @@ cdef class GLenum:
         return <unsigned int>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if True}}
 
 cdef class GLuint:
     """
@@ -21198,9 +20623,6 @@ cdef class GLuint:
         return <unsigned int>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if True}}
 
 cdef class EGLint:
     """
@@ -21226,9 +20648,6 @@ cdef class EGLint:
         return <unsigned int>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if True}}
 
 cdef class VdpDevice:
     """
@@ -21254,9 +20673,6 @@ cdef class VdpDevice:
         return <uint32_t>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if True}}
 
 cdef class VdpGetProcAddress:
     """
@@ -21282,9 +20698,6 @@ cdef class VdpGetProcAddress:
         return <unsigned long long>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if True}}
 
 cdef class VdpVideoSurface:
     """
@@ -21310,9 +20723,6 @@ cdef class VdpVideoSurface:
         return <uint32_t>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if True}}
 
 cdef class VdpOutputSurface:
     """
@@ -21338,9 +20748,6 @@ cdef class VdpOutputSurface:
         return <uint32_t>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
-
-{{if 'cudaDeviceReset' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceReset():
@@ -21385,9 +20792,6 @@ def cudaDeviceReset():
     with nogil:
         err = cyruntime.cudaDeviceReset()
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceSynchronize' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceSynchronize():
@@ -21412,9 +20816,6 @@ def cudaDeviceSynchronize():
     with nogil:
         err = cyruntime.cudaDeviceSynchronize()
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceSetLimit' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceSetLimit(limit not None : cudaLimit, size_t value):
@@ -21515,9 +20916,6 @@ def cudaDeviceSetLimit(limit not None : cudaLimit, size_t value):
     with nogil:
         err = cyruntime.cudaDeviceSetLimit(cylimit, value)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceGetLimit' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetLimit(limit not None : cudaLimit):
@@ -21575,9 +20973,6 @@ def cudaDeviceGetLimit(limit not None : cudaLimit):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pValue)
-{{endif}}
-
-{{if 'cudaDeviceGetTexture1DLinearMaxWidth' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetTexture1DLinearMaxWidth(fmtDesc : Optional[cudaChannelFormatDesc], int device):
@@ -21613,9 +21008,6 @@ def cudaDeviceGetTexture1DLinearMaxWidth(fmtDesc : Optional[cudaChannelFormatDes
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, maxWidthInElements)
-{{endif}}
-
-{{if 'cudaDeviceGetCacheConfig' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetCacheConfig():
@@ -21663,9 +21055,6 @@ def cudaDeviceGetCacheConfig():
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, cudaFuncCache(pCacheConfig))
-{{endif}}
-
-{{if 'cudaDeviceGetStreamPriorityRange' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetStreamPriorityRange():
@@ -21710,9 +21099,6 @@ def cudaDeviceGetStreamPriorityRange():
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, leastPriority, greatestPriority)
-{{endif}}
-
-{{if 'cudaDeviceSetCacheConfig' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceSetCacheConfig(cacheConfig not None : cudaFuncCache):
@@ -21768,9 +21154,6 @@ def cudaDeviceSetCacheConfig(cacheConfig not None : cudaFuncCache):
     with nogil:
         err = cyruntime.cudaDeviceSetCacheConfig(cycacheConfig)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceGetByPCIBusId' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetByPCIBusId(char* pciBusId):
@@ -21803,9 +21186,6 @@ def cudaDeviceGetByPCIBusId(char* pciBusId):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, device)
-{{endif}}
-
-{{if 'cudaDeviceGetPCIBusId' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetPCIBusId(int length, int device):
@@ -21844,9 +21224,6 @@ def cudaDeviceGetPCIBusId(int length, int device):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pypciBusId)
-{{endif}}
-
-{{if 'cudaIpcGetEventHandle' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaIpcGetEventHandle(event):
@@ -21905,9 +21282,6 @@ def cudaIpcGetEventHandle(event):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, handle)
-{{endif}}
-
-{{if 'cudaIpcOpenEventHandle' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaIpcOpenEventHandle(handle not None : cudaIpcEventHandle_t):
@@ -21952,9 +21326,6 @@ def cudaIpcOpenEventHandle(handle not None : cudaIpcEventHandle_t):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, event)
-{{endif}}
-
-{{if 'cudaIpcGetMemHandle' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaIpcGetMemHandle(devPtr):
@@ -22003,9 +21374,6 @@ def cudaIpcGetMemHandle(devPtr):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, handle)
-{{endif}}
-
-{{if 'cudaIpcOpenMemHandle' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaIpcOpenMemHandle(handle not None : cudaIpcMemHandle_t, unsigned int flags):
@@ -22067,7 +21435,7 @@ def cudaIpcOpenMemHandle(handle not None : cudaIpcMemHandle_t, unsigned int flag
 
     Notes
     -----
-    No guarantees are made about the address returned in `*devPtr`. 
+    No guarantees are made about the address returned in `*devPtr`.
      In particular, multiple processes may not receive the same address for the same `handle`.
     """
     cdef void_ptr devPtr = 0
@@ -22076,9 +21444,6 @@ def cudaIpcOpenMemHandle(handle not None : cudaIpcMemHandle_t, unsigned int flag
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, devPtr)
-{{endif}}
-
-{{if 'cudaIpcCloseMemHandle' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaIpcCloseMemHandle(devPtr):
@@ -22120,9 +21485,6 @@ def cudaIpcCloseMemHandle(devPtr):
         err = cyruntime.cudaIpcCloseMemHandle(cydevPtr)
     _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceFlushGPUDirectRDMAWrites' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceFlushGPUDirectRDMAWrites(target not None : cudaFlushGPUDirectRDMAWritesTarget, scope not None : cudaFlushGPUDirectRDMAWritesScope):
@@ -22165,9 +21527,6 @@ def cudaDeviceFlushGPUDirectRDMAWrites(target not None : cudaFlushGPUDirectRDMAW
     with nogil:
         err = cyruntime.cudaDeviceFlushGPUDirectRDMAWrites(cytarget, cyscope)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceRegisterAsyncNotification' in found_functions}}
 
 ctypedef struct cudaAsyncCallbackData_st:
     cyruntime.cudaAsyncCallback callback
@@ -22254,9 +21613,6 @@ def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, callback)
-{{endif}}
-
-{{if 'cudaDeviceUnregisterAsyncNotification' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceUnregisterAsyncNotification(int device, callback):
@@ -22296,9 +21652,6 @@ def cudaDeviceUnregisterAsyncNotification(int device, callback):
         free(m_global._allocated[pcallback])
         m_global._allocated.erase(<void_ptr>pcallback)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceGetSharedMemConfig' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetSharedMemConfig():
@@ -22340,9 +21693,6 @@ def cudaDeviceGetSharedMemConfig():
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, cudaSharedMemConfig(pConfig))
-{{endif}}
-
-{{if 'cudaDeviceSetSharedMemConfig' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceSetSharedMemConfig(config not None : cudaSharedMemConfig):
@@ -22397,9 +21747,6 @@ def cudaDeviceSetSharedMemConfig(config not None : cudaSharedMemConfig):
     with nogil:
         err = cyruntime.cudaDeviceSetSharedMemConfig(cyconfig)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGetLastError' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetLastError():
@@ -22425,9 +21772,6 @@ def cudaGetLastError():
     with nogil:
         err = cyruntime.cudaGetLastError()
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaPeekAtLastError' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaPeekAtLastError():
@@ -22454,9 +21798,6 @@ def cudaPeekAtLastError():
     with nogil:
         err = cyruntime.cudaPeekAtLastError()
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGetErrorName' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetErrorName(error not None : cudaError_t):
@@ -22486,9 +21827,6 @@ def cudaGetErrorName(error not None : cudaError_t):
     with nogil:
         err = cyruntime.cudaGetErrorName(cyerror)
     return (cudaError_t.cudaSuccess, err)
-{{endif}}
-
-{{if 'cudaGetErrorString' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetErrorString(error not None : cudaError_t):
@@ -22517,9 +21855,6 @@ def cudaGetErrorString(error not None : cudaError_t):
     with nogil:
         err = cyruntime.cudaGetErrorString(cyerror)
     return (cudaError_t.cudaSuccess, err)
-{{endif}}
-
-{{if 'cudaGetDeviceCount' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetDeviceCount():
@@ -22546,9 +21881,6 @@ def cudaGetDeviceCount():
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, count)
-{{endif}}
-
-{{if 'cudaGetDeviceProperties' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetDeviceProperties(int device):
@@ -22578,9 +21910,6 @@ def cudaGetDeviceProperties(int device):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, prop)
-{{endif}}
-
-{{if 'cudaDeviceGetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetAttribute(attr not None : cudaDeviceAttr, int device):
@@ -22614,9 +21943,6 @@ def cudaDeviceGetAttribute(attr not None : cudaDeviceAttr, int device):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, value)
-{{endif}}
-
-{{if 'cudaDeviceGetHostAtomicCapabilities' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetHostAtomicCapabilities(operations : Optional[tuple[cudaAtomicOperation] | list[cudaAtomicOperation]], unsigned int count, int device):
@@ -22677,9 +22003,6 @@ def cudaDeviceGetHostAtomicCapabilities(operations : Optional[tuple[cudaAtomicOp
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pycapabilities)
-{{endif}}
-
-{{if 'cudaDeviceGetDefaultMemPool' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetDefaultMemPool(int device):
@@ -22710,9 +22033,6 @@ def cudaDeviceGetDefaultMemPool(int device):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, memPool)
-{{endif}}
-
-{{if 'cudaDeviceSetMemPool' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceSetMemPool(int device, memPool):
@@ -22755,9 +22075,6 @@ def cudaDeviceSetMemPool(int device, memPool):
     with nogil:
         err = cyruntime.cudaDeviceSetMemPool(device, cymemPool)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceGetMemPool' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetMemPool(int device):
@@ -22792,9 +22109,6 @@ def cudaDeviceGetMemPool(int device):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, memPool)
-{{endif}}
-
-{{if 'cudaDeviceGetNvSciSyncAttributes' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, int device, int flags):
@@ -22868,7 +22182,6 @@ def cudaDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, int device, int flags):
     -------
     cudaError_t
 
-
     See Also
     --------
     :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaDestroyExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
@@ -22879,9 +22192,6 @@ def cudaDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, int device, int flags):
         err = cyruntime.cudaDeviceGetNvSciSyncAttributes(cynvSciSyncAttrList, device, flags)
     _helper_input_void_ptr_free(&cynvSciSyncAttrListHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceGetP2PAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetP2PAttribute(attr not None : cudaDeviceP2PAttr, int srcDevice, int dstDevice):
@@ -22944,9 +22254,6 @@ def cudaDeviceGetP2PAttribute(attr not None : cudaDeviceP2PAttr, int srcDevice, 
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, value)
-{{endif}}
-
-{{if 'cudaDeviceGetP2PAtomicCapabilities' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetP2PAtomicCapabilities(operations : Optional[tuple[cudaAtomicOperation] | list[cudaAtomicOperation]], unsigned int count, int srcDevice, int dstDevice):
@@ -23011,9 +22318,6 @@ def cudaDeviceGetP2PAtomicCapabilities(operations : Optional[tuple[cudaAtomicOpe
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pycapabilities)
-{{endif}}
-
-{{if 'cudaChooseDevice' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaChooseDevice(prop : Optional[cudaDeviceProp]):
@@ -23045,9 +22349,6 @@ def cudaChooseDevice(prop : Optional[cudaDeviceProp]):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, device)
-{{endif}}
-
-{{if 'cudaInitDevice' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaInitDevice(int device, unsigned int deviceFlags, unsigned int flags):
@@ -23088,9 +22389,6 @@ def cudaInitDevice(int device, unsigned int deviceFlags, unsigned int flags):
     with nogil:
         err = cyruntime.cudaInitDevice(device, deviceFlags, flags)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaSetDevice' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaSetDevice(int device):
@@ -23144,9 +22442,6 @@ def cudaSetDevice(int device):
     with nogil:
         err = cyruntime.cudaSetDevice(device)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGetDevice' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetDevice():
@@ -23172,9 +22467,6 @@ def cudaGetDevice():
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, device)
-{{endif}}
-
-{{if 'cudaSetDeviceFlags' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaSetDeviceFlags(unsigned int flags):
@@ -23259,9 +22551,6 @@ def cudaSetDeviceFlags(unsigned int flags):
     with nogil:
         err = cyruntime.cudaSetDeviceFlags(flags)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGetDeviceFlags' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetDeviceFlags():
@@ -23309,9 +22598,6 @@ def cudaGetDeviceFlags():
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, flags)
-{{endif}}
-
-{{if 'cudaStreamCreate' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamCreate():
@@ -23339,9 +22625,6 @@ def cudaStreamCreate():
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pStream)
-{{endif}}
-
-{{if 'cudaStreamCreateWithFlags' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamCreateWithFlags(unsigned int flags):
@@ -23383,9 +22666,6 @@ def cudaStreamCreateWithFlags(unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pStream)
-{{endif}}
-
-{{if 'cudaStreamCreateWithPriority' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamCreateWithPriority(unsigned int flags, int priority):
@@ -23444,9 +22724,6 @@ def cudaStreamCreateWithPriority(unsigned int flags, int priority):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pStream)
-{{endif}}
-
-{{if 'cudaStreamGetPriority' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamGetPriority(hStream):
@@ -23490,9 +22767,6 @@ def cudaStreamGetPriority(hStream):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, priority)
-{{endif}}
-
-{{if 'cudaStreamGetFlags' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamGetFlags(hStream):
@@ -23532,9 +22806,6 @@ def cudaStreamGetFlags(hStream):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, flags)
-{{endif}}
-
-{{if 'cudaStreamGetId' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamGetId(hStream):
@@ -23588,9 +22859,6 @@ def cudaStreamGetId(hStream):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, streamId)
-{{endif}}
-
-{{if 'cudaStreamGetDevice' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamGetDevice(hStream):
@@ -23628,9 +22896,6 @@ def cudaStreamGetDevice(hStream):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, device)
-{{endif}}
-
-{{if 'cudaCtxResetPersistingL2Cache' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaCtxResetPersistingL2Cache():
@@ -23651,9 +22916,6 @@ def cudaCtxResetPersistingL2Cache():
     with nogil:
         err = cyruntime.cudaCtxResetPersistingL2Cache()
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamCopyAttributes' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamCopyAttributes(dst, src):
@@ -23697,9 +22959,6 @@ def cudaStreamCopyAttributes(dst, src):
     with nogil:
         err = cyruntime.cudaStreamCopyAttributes(cydst, cysrc)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamGetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamGetAttribute(hStream, attr not None : cudaStreamAttrID):
@@ -23714,13 +22973,11 @@ def cudaStreamGetAttribute(hStream, attr not None : cudaStreamAttrID):
 
     attr : :py:obj:`~.cudaStreamAttrID`
 
-
     Returns
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`
     value_out : :py:obj:`~.cudaStreamAttrValue`
-
 
     See Also
     --------
@@ -23741,9 +22998,6 @@ def cudaStreamGetAttribute(hStream, attr not None : cudaStreamAttrID):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, value_out)
-{{endif}}
-
-{{if 'cudaStreamSetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamSetAttribute(hStream, attr not None : cudaStreamAttrID, value : Optional[cudaStreamAttrValue]):
@@ -23760,7 +23014,6 @@ def cudaStreamSetAttribute(hStream, attr not None : cudaStreamAttrID, value : Op
     attr : :py:obj:`~.cudaStreamAttrID`
 
     value : :py:obj:`~.cudaStreamAttrValue`
-
 
     Returns
     -------
@@ -23784,9 +23037,6 @@ def cudaStreamSetAttribute(hStream, attr not None : cudaStreamAttrID, value : Op
     with nogil:
         err = cyruntime.cudaStreamSetAttribute(cyhStream, cyattr, cyvalue_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamDestroy' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamDestroy(stream):
@@ -23824,9 +23074,6 @@ def cudaStreamDestroy(stream):
     with nogil:
         err = cyruntime.cudaStreamDestroy(cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamWaitEvent' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamWaitEvent(stream, event, unsigned int flags):
@@ -23882,9 +23129,6 @@ def cudaStreamWaitEvent(stream, event, unsigned int flags):
     with nogil:
         err = cyruntime.cudaStreamWaitEvent(cystream, cyevent, flags)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamAddCallback' in found_functions}}
 
 ctypedef struct cudaStreamCallbackData_st:
     cyruntime.cudaStreamCallback_t callback
@@ -24001,9 +23245,6 @@ def cudaStreamAddCallback(stream, callback, userData, unsigned int flags):
     _helper_input_void_ptr_free(&cyuserDataHelper)
 
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamSynchronize' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamSynchronize(stream):
@@ -24039,9 +23280,6 @@ def cudaStreamSynchronize(stream):
     with nogil:
         err = cyruntime.cudaStreamSynchronize(cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamQuery' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamQuery(stream):
@@ -24079,9 +23317,6 @@ def cudaStreamQuery(stream):
     with nogil:
         err = cyruntime.cudaStreamQuery(cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamAttachMemAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamAttachMemAsync(stream, devPtr, size_t length, unsigned int flags):
@@ -24191,9 +23426,6 @@ def cudaStreamAttachMemAsync(stream, devPtr, size_t length, unsigned int flags):
         err = cyruntime.cudaStreamAttachMemAsync(cystream, cydevPtr, length, flags)
     _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamBeginCapture' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamBeginCapture(stream, mode not None : cudaStreamCaptureMode):
@@ -24248,9 +23480,6 @@ def cudaStreamBeginCapture(stream, mode not None : cudaStreamCaptureMode):
     with nogil:
         err = cyruntime.cudaStreamBeginCapture(cystream, cymode)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamBeginRecaptureToGraph' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamBeginRecaptureToGraph(stream, mode not None : cudaStreamCaptureMode, graph, callbackData : Optional[cudaGraphRecaptureCallbackData]):
@@ -24324,9 +23553,6 @@ def cudaStreamBeginRecaptureToGraph(stream, mode not None : cudaStreamCaptureMod
     with nogil:
         err = cyruntime.cudaStreamBeginRecaptureToGraph(cystream, cymode, cygraph, cycallbackData_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamBeginCaptureToGraph' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], dependencyData : Optional[tuple[cudaGraphEdgeData] | list[cudaGraphEdgeData]], size_t numDependencies, mode not None : cudaStreamCaptureMode):
@@ -24429,9 +23655,6 @@ def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[tuple[c
     if len(dependencyData) > 1 and cydependencyData is not NULL:
         free(cydependencyData)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaThreadExchangeStreamCaptureMode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaThreadExchangeStreamCaptureMode(mode not None : cudaStreamCaptureMode):
@@ -24503,9 +23726,6 @@ def cudaThreadExchangeStreamCaptureMode(mode not None : cudaStreamCaptureMode):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, cudaStreamCaptureMode(cymode))
-{{endif}}
-
-{{if 'cudaStreamEndCapture' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamEndCapture(stream):
@@ -24551,9 +23771,6 @@ def cudaStreamEndCapture(stream):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraph)
-{{endif}}
-
-{{if 'cudaStreamIsCapturing' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamIsCapturing(stream):
@@ -24613,9 +23830,6 @@ def cudaStreamIsCapturing(stream):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, cudaStreamCaptureStatus(pCaptureStatus))
-{{endif}}
-
-{{if 'cudaStreamGetCaptureInfo' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamGetCaptureInfo(stream):
@@ -24717,9 +23931,6 @@ def cudaStreamGetCaptureInfo(stream):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None, None, None, None, None)
     return (_cudaError_t_SUCCESS, cudaStreamCaptureStatus(captureStatus_out), id_out, graph_out, pydependencies_out, pyedgeData_out, numDependencies_out)
-{{endif}}
-
-{{if 'cudaStreamUpdateCaptureDependencies' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], dependencyData : Optional[tuple[cudaGraphEdgeData] | list[cudaGraphEdgeData]], size_t numDependencies, unsigned int flags):
@@ -24804,9 +24015,6 @@ def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[tuple[cu
     if len(dependencyData) > 1 and cydependencyData is not NULL:
         free(cydependencyData)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaEventCreate' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaEventCreate():
@@ -24832,9 +24040,6 @@ def cudaEventCreate():
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, event)
-{{endif}}
-
-{{if 'cudaEventCreateWithFlags' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaEventCreateWithFlags(unsigned int flags):
@@ -24884,9 +24089,6 @@ def cudaEventCreateWithFlags(unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, event)
-{{endif}}
-
-{{if 'cudaEventRecord' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaEventRecord(event, stream):
@@ -24943,9 +24145,6 @@ def cudaEventRecord(event, stream):
     with nogil:
         err = cyruntime.cudaEventRecord(cyevent, cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaEventRecordWithFlags' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaEventRecordWithFlags(event, stream, unsigned int flags):
@@ -25011,9 +24210,6 @@ def cudaEventRecordWithFlags(event, stream, unsigned int flags):
     with nogil:
         err = cyruntime.cudaEventRecordWithFlags(cyevent, cystream, flags)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaEventQuery' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaEventQuery(event):
@@ -25056,9 +24252,6 @@ def cudaEventQuery(event):
     with nogil:
         err = cyruntime.cudaEventQuery(cyevent)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaEventSynchronize' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaEventSynchronize(event):
@@ -25100,9 +24293,6 @@ def cudaEventSynchronize(event):
     with nogil:
         err = cyruntime.cudaEventSynchronize(cyevent)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaEventDestroy' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaEventDestroy(event):
@@ -25141,9 +24331,6 @@ def cudaEventDestroy(event):
     with nogil:
         err = cyruntime.cudaEventDestroy(cyevent)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaEventElapsedTime' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaEventElapsedTime(start, end):
@@ -25214,9 +24401,6 @@ def cudaEventElapsedTime(start, end):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, ms)
-{{endif}}
-
-{{if 'cudaImportExternalMemory' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaImportExternalMemory(memHandleDesc : Optional[cudaExternalMemoryHandleDesc]):
@@ -25363,9 +24547,6 @@ def cudaImportExternalMemory(memHandleDesc : Optional[cudaExternalMemoryHandleDe
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, extMem_out)
-{{endif}}
-
-{{if 'cudaExternalMemoryGetMappedBuffer' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaExternalMemoryGetMappedBuffer(extMem, bufferDesc : Optional[cudaExternalMemoryBufferDesc]):
@@ -25431,9 +24612,6 @@ def cudaExternalMemoryGetMappedBuffer(extMem, bufferDesc : Optional[cudaExternal
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, devPtr)
-{{endif}}
-
-{{if 'cudaExternalMemoryGetMappedMipmappedArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : Optional[cudaExternalMemoryMipmappedArrayDesc]):
@@ -25503,9 +24681,6 @@ def cudaExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : Optional[cuda
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, mipmap)
-{{endif}}
-
-{{if 'cudaDestroyExternalMemory' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDestroyExternalMemory(extMem):
@@ -25541,9 +24716,6 @@ def cudaDestroyExternalMemory(extMem):
     with nogil:
         err = cyruntime.cudaDestroyExternalMemory(cyextMem)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaImportExternalSemaphore' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaImportExternalSemaphore(semHandleDesc : Optional[cudaExternalSemaphoreHandleDesc]):
@@ -25688,9 +24860,6 @@ def cudaImportExternalSemaphore(semHandleDesc : Optional[cudaExternalSemaphoreHa
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, extSem_out)
-{{endif}}
-
-{{if 'cudaSignalExternalSemaphoresAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalSemaphore_t] | list[cudaExternalSemaphore_t]], paramsArray : Optional[tuple[cudaExternalSemaphoreSignalParams] | list[cudaExternalSemaphoreSignalParams]], unsigned int numExtSems, stream):
@@ -25844,9 +25013,6 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalS
     if len(paramsArray) > 1 and cyparamsArray is not NULL:
         free(cyparamsArray)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaWaitExternalSemaphoresAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalSemaphore_t] | list[cudaExternalSemaphore_t]], paramsArray : Optional[tuple[cudaExternalSemaphoreWaitParams] | list[cudaExternalSemaphoreWaitParams]], unsigned int numExtSems, stream):
@@ -25972,9 +25138,6 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalSem
     if len(paramsArray) > 1 and cyparamsArray is not NULL:
         free(cyparamsArray)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDestroyExternalSemaphore' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDestroyExternalSemaphore(extSem):
@@ -26009,9 +25172,6 @@ def cudaDestroyExternalSemaphore(extSem):
     with nogil:
         err = cyruntime.cudaDestroyExternalSemaphore(cyextSem)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaFuncSetCacheConfig' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaFuncSetCacheConfig(func, cacheConfig not None : cudaFuncCache):
@@ -26077,9 +25237,6 @@ def cudaFuncSetCacheConfig(func, cacheConfig not None : cudaFuncCache):
         err = cyruntime.cudaFuncSetCacheConfig(cyfunc, cycacheConfig)
     _helper_input_void_ptr_free(&cyfuncHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaFuncGetAttributes' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaFuncGetAttributes(func):
@@ -26122,9 +25279,6 @@ def cudaFuncGetAttributes(func):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, attr)
-{{endif}}
-
-{{if 'cudaFuncSetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaFuncSetAttribute(func, attr not None : cudaFuncAttribute, int value):
@@ -26209,9 +25363,6 @@ def cudaFuncSetAttribute(func, attr not None : cudaFuncAttribute, int value):
         err = cyruntime.cudaFuncSetAttribute(cyfunc, cyattr, value)
     _helper_input_void_ptr_free(&cyfuncHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaFuncGetParamCount' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaFuncGetParamCount(func):
@@ -26241,9 +25392,6 @@ def cudaFuncGetParamCount(func):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, paramCount)
-{{endif}}
-
-{{if 'cudaLaunchHostFunc' in found_functions}}
 
 ctypedef struct cudaStreamHostCallbackData_st:
     cyruntime.cudaHostFn_t callback
@@ -26353,9 +25501,6 @@ def cudaLaunchHostFunc(stream, fn, userData):
     _helper_input_void_ptr_free(&cyuserDataHelper)
 
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaLaunchHostFunc_v2' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLaunchHostFunc_v2(stream, fn, userData, unsigned int syncMode):
@@ -26443,9 +25588,6 @@ def cudaLaunchHostFunc_v2(stream, fn, userData, unsigned int syncMode):
         err = cyruntime.cudaLaunchHostFunc_v2(cystream, cyfn, cyuserData, syncMode)
     _helper_input_void_ptr_free(&cyuserDataHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaFuncSetSharedMemConfig' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaFuncSetSharedMemConfig(func, config not None : cudaSharedMemConfig):
@@ -26512,9 +25654,6 @@ def cudaFuncSetSharedMemConfig(func, config not None : cudaSharedMemConfig):
         err = cyruntime.cudaFuncSetSharedMemConfig(cyfunc, cyconfig)
     _helper_input_void_ptr_free(&cyfuncHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaOccupancyMaxActiveBlocksPerMultiprocessor(func, int blockSize, size_t dynamicSMemSize):
@@ -26552,9 +25691,6 @@ def cudaOccupancyMaxActiveBlocksPerMultiprocessor(func, int blockSize, size_t dy
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, numBlocks)
-{{endif}}
-
-{{if 'cudaOccupancyAvailableDynamicSMemPerBlock' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaOccupancyAvailableDynamicSMemPerBlock(func, int numBlocks, int blockSize):
@@ -26592,9 +25728,6 @@ def cudaOccupancyAvailableDynamicSMemPerBlock(func, int numBlocks, int blockSize
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, dynamicSmemSize)
-{{endif}}
-
-{{if 'cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(func, int blockSize, size_t dynamicSMemSize, unsigned int flags):
@@ -26649,9 +25782,6 @@ def cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(func, int blockSize, 
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, numBlocks)
-{{endif}}
-
-{{if 'cudaMallocManaged' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMallocManaged(size_t size, unsigned int flags):
@@ -26783,9 +25913,6 @@ def cudaMallocManaged(size_t size, unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, devPtr)
-{{endif}}
-
-{{if 'cudaMalloc' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMalloc(size_t size):
@@ -26822,9 +25949,6 @@ def cudaMalloc(size_t size):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, devPtr)
-{{endif}}
-
-{{if 'cudaMallocHost' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMallocHost(size_t size):
@@ -26870,9 +25994,6 @@ def cudaMallocHost(size_t size):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, ptr)
-{{endif}}
-
-{{if 'cudaMallocPitch' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMallocPitch(size_t width, size_t height):
@@ -26926,9 +26047,6 @@ def cudaMallocPitch(size_t width, size_t height):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, devPtr, pitch)
-{{endif}}
-
-{{if 'cudaMallocArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMallocArray(desc : Optional[cudaChannelFormatDesc], size_t width, size_t height, unsigned int flags):
@@ -27003,9 +26121,6 @@ def cudaMallocArray(desc : Optional[cudaChannelFormatDesc], size_t width, size_t
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, array)
-{{endif}}
-
-{{if 'cudaFree' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaFree(devPtr):
@@ -27054,9 +26169,6 @@ def cudaFree(devPtr):
         err = cyruntime.cudaFree(cydevPtr)
     _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaFreeHost' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaFreeHost(ptr):
@@ -27086,9 +26198,6 @@ def cudaFreeHost(ptr):
         err = cyruntime.cudaFreeHost(cyptr)
     _helper_input_void_ptr_free(&cyptrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaFreeArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaFreeArray(array):
@@ -27123,9 +26232,6 @@ def cudaFreeArray(array):
     with nogil:
         err = cyruntime.cudaFreeArray(cyarray)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaFreeMipmappedArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaFreeMipmappedArray(mipmappedArray):
@@ -27160,9 +26266,6 @@ def cudaFreeMipmappedArray(mipmappedArray):
     with nogil:
         err = cyruntime.cudaFreeMipmappedArray(cymipmappedArray)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaHostAlloc' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaHostAlloc(size_t size, unsigned int flags):
@@ -27245,9 +26348,6 @@ def cudaHostAlloc(size_t size, unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pHost)
-{{endif}}
-
-{{if 'cudaHostRegister' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaHostRegister(ptr, size_t size, unsigned int flags):
@@ -27363,9 +26463,6 @@ def cudaHostRegister(ptr, size_t size, unsigned int flags):
         err = cyruntime.cudaHostRegister(cyptr, size, flags)
     _helper_input_void_ptr_free(&cyptrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaHostUnregister' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaHostUnregister(ptr):
@@ -27397,9 +26494,6 @@ def cudaHostUnregister(ptr):
         err = cyruntime.cudaHostUnregister(cyptr)
     _helper_input_void_ptr_free(&cyptrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaHostGetDevicePointer' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaHostGetDevicePointer(pHost, unsigned int flags):
@@ -27460,9 +26554,6 @@ def cudaHostGetDevicePointer(pHost, unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pDevice)
-{{endif}}
-
-{{if 'cudaHostGetFlags' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaHostGetFlags(pHost):
@@ -27496,9 +26587,6 @@ def cudaHostGetFlags(pHost):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pFlags)
-{{endif}}
-
-{{if 'cudaMalloc3D' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMalloc3D(extent not None : cudaExtent):
@@ -27545,9 +26633,6 @@ def cudaMalloc3D(extent not None : cudaExtent):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pitchedDevPtr)
-{{endif}}
-
-{{if 'cudaMalloc3DArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMalloc3DArray(desc : Optional[cudaChannelFormatDesc], extent not None : cudaExtent, unsigned int flags):
@@ -27668,9 +26753,6 @@ def cudaMalloc3DArray(desc : Optional[cudaChannelFormatDesc], extent not None : 
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, array)
-{{endif}}
-
-{{if 'cudaMallocMipmappedArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMallocMipmappedArray(desc : Optional[cudaChannelFormatDesc], extent not None : cudaExtent, unsigned int numLevels, unsigned int flags):
@@ -27794,9 +26876,6 @@ def cudaMallocMipmappedArray(desc : Optional[cudaChannelFormatDesc], extent not 
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, mipmappedArray)
-{{endif}}
-
-{{if 'cudaGetMipmappedArrayLevel' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetMipmappedArrayLevel(mipmappedArray, unsigned int level):
@@ -27843,9 +26922,6 @@ def cudaGetMipmappedArrayLevel(mipmappedArray, unsigned int level):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, levelArray)
-{{endif}}
-
-{{if 'cudaMemcpy3D' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy3D(p : Optional[cudaMemcpy3DParms]):
@@ -27927,9 +27003,6 @@ def cudaMemcpy3D(p : Optional[cudaMemcpy3DParms]):
     with nogil:
         err = cyruntime.cudaMemcpy3D(cyp_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy3DPeer' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy3DPeer(p : Optional[cudaMemcpy3DPeerParms]):
@@ -27964,9 +27037,6 @@ def cudaMemcpy3DPeer(p : Optional[cudaMemcpy3DPeerParms]):
     with nogil:
         err = cyruntime.cudaMemcpy3DPeer(cyp_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy3DAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy3DAsync(p : Optional[cudaMemcpy3DParms], stream):
@@ -28069,9 +27139,6 @@ def cudaMemcpy3DAsync(p : Optional[cudaMemcpy3DParms], stream):
     with nogil:
         err = cyruntime.cudaMemcpy3DAsync(cyp_ptr, cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy3DPeerAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy3DPeerAsync(p : Optional[cudaMemcpy3DPeerParms], stream):
@@ -28109,9 +27176,6 @@ def cudaMemcpy3DPeerAsync(p : Optional[cudaMemcpy3DPeerParms], stream):
     with nogil:
         err = cyruntime.cudaMemcpy3DPeerAsync(cyp_ptr, cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemGetInfo' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemGetInfo():
@@ -28154,9 +27218,6 @@ def cudaMemGetInfo():
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, free, total)
-{{endif}}
-
-{{if 'cudaArrayGetInfo' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaArrayGetInfo(array):
@@ -28203,9 +27264,6 @@ def cudaArrayGetInfo(array):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None, None)
     return (_cudaError_t_SUCCESS, desc, extent, flags)
-{{endif}}
-
-{{if 'cudaArrayGetPlane' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaArrayGetPlane(hArray, unsigned int planeIdx):
@@ -28259,9 +27317,6 @@ def cudaArrayGetPlane(hArray, unsigned int planeIdx):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pPlaneArray)
-{{endif}}
-
-{{if 'cudaArrayGetMemoryRequirements' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaArrayGetMemoryRequirements(array, int device):
@@ -28309,9 +27364,6 @@ def cudaArrayGetMemoryRequirements(array, int device):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, memoryRequirements)
-{{endif}}
-
-{{if 'cudaMipmappedArrayGetMemoryRequirements' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMipmappedArrayGetMemoryRequirements(mipmap, int device):
@@ -28359,9 +27411,6 @@ def cudaMipmappedArrayGetMemoryRequirements(mipmap, int device):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, memoryRequirements)
-{{endif}}
-
-{{if 'cudaArrayGetSparseProperties' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaArrayGetSparseProperties(array):
@@ -28415,9 +27464,6 @@ def cudaArrayGetSparseProperties(array):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, sparseProperties)
-{{endif}}
-
-{{if 'cudaMipmappedArrayGetSparseProperties' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMipmappedArrayGetSparseProperties(mipmap):
@@ -28471,9 +27517,6 @@ def cudaMipmappedArrayGetSparseProperties(mipmap):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, sparseProperties)
-{{endif}}
-
-{{if 'cudaMemcpy' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy(dst, src, size_t count, kind not None : cudaMemcpyKind):
@@ -28523,9 +27566,6 @@ def cudaMemcpy(dst, src, size_t count, kind not None : cudaMemcpyKind):
     _helper_input_void_ptr_free(&cydstHelper)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpyPeer' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpyPeer(dst, int dstDevice, src, int srcDevice, size_t count):
@@ -28573,9 +27613,6 @@ def cudaMemcpyPeer(dst, int dstDevice, src, int srcDevice, size_t count):
     _helper_input_void_ptr_free(&cydstHelper)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy2D' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy2D(dst, size_t dpitch, src, size_t spitch, size_t width, size_t height, kind not None : cudaMemcpyKind):
@@ -28635,9 +27672,6 @@ def cudaMemcpy2D(dst, size_t dpitch, src, size_t spitch, size_t width, size_t he
     _helper_input_void_ptr_free(&cydstHelper)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy2DToArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy2DToArray(dst, size_t wOffset, size_t hOffset, src, size_t spitch, size_t width, size_t height, kind not None : cudaMemcpyKind):
@@ -28703,9 +27737,6 @@ def cudaMemcpy2DToArray(dst, size_t wOffset, size_t hOffset, src, size_t spitch,
         err = cyruntime.cudaMemcpy2DToArray(cydst, wOffset, hOffset, cysrc, spitch, width, height, cykind)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy2DFromArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy2DFromArray(dst, size_t dpitch, src, size_t wOffset, size_t hOffset, size_t width, size_t height, kind not None : cudaMemcpyKind):
@@ -28771,9 +27802,6 @@ def cudaMemcpy2DFromArray(dst, size_t dpitch, src, size_t wOffset, size_t hOffse
         err = cyruntime.cudaMemcpy2DFromArray(cydst, dpitch, cysrc, wOffset, hOffset, width, height, cykind)
     _helper_input_void_ptr_free(&cydstHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy2DArrayToArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy2DArrayToArray(dst, size_t wOffsetDst, size_t hOffsetDst, src, size_t wOffsetSrc, size_t hOffsetSrc, size_t width, size_t height, kind not None : cudaMemcpyKind):
@@ -28844,9 +27872,6 @@ def cudaMemcpy2DArrayToArray(dst, size_t wOffsetDst, size_t hOffsetDst, src, siz
     with nogil:
         err = cyruntime.cudaMemcpy2DArrayToArray(cydst, wOffsetDst, hOffsetDst, cysrc, wOffsetSrc, hOffsetSrc, width, height, cykind)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpyAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpyAsync(dst, src, size_t count, kind not None : cudaMemcpyKind, stream):
@@ -28916,9 +27941,6 @@ def cudaMemcpyAsync(dst, src, size_t count, kind not None : cudaMemcpyKind, stre
     _helper_input_void_ptr_free(&cydstHelper)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpyPeerAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpyPeerAsync(dst, int dstDevice, src, int srcDevice, size_t count, stream):
@@ -28974,9 +27996,6 @@ def cudaMemcpyPeerAsync(dst, int dstDevice, src, int srcDevice, size_t count, st
     _helper_input_void_ptr_free(&cydstHelper)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpyBatchAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpyBatchAsync(dsts : Optional[tuple[Any] | list[Any]], srcs : Optional[tuple[Any] | list[Any]], sizes : tuple[int] | list[int], size_t count, attrs : Optional[tuple[cudaMemcpyAttributes] | list[cudaMemcpyAttributes]], attrsIdxs : tuple[int] | list[int], size_t numAttrs, stream):
@@ -29124,9 +28143,6 @@ def cudaMemcpyBatchAsync(dsts : Optional[tuple[Any] | list[Any]], srcs : Optiona
     if len(attrs) > 1 and cyattrs is not NULL:
         free(cyattrs)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy3DBatchAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[cudaMemcpy3DBatchOp] | list[cudaMemcpy3DBatchOp]], unsigned long long flags, stream):
@@ -29254,13 +28270,10 @@ def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[cudaMemcpy3DBa
     if len(opList) > 1 and cyopList is not NULL:
         free(cyopList)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpyWithAttributesAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpyWithAttributesAsync(dst, src, size_t size, attr : Optional[cudaMemcpyAttributes], stream):
-    """ 
+    """
 
     Performs asynchronous memory copy operation with the specified
     attributes.
@@ -29314,13 +28327,10 @@ def cudaMemcpyWithAttributesAsync(dst, src, size_t size, attr : Optional[cudaMem
     _helper_input_void_ptr_free(&cydstHelper)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy3DWithAttributesAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy3DWithAttributesAsync(op : Optional[cudaMemcpy3DBatchOp], unsigned long long flags, stream):
-    """ 
+    """
 
     Performs 3D asynchronous memory copy with the specified attributes.
 
@@ -29362,9 +28372,6 @@ def cudaMemcpy3DWithAttributesAsync(op : Optional[cudaMemcpy3DBatchOp], unsigned
     with nogil:
         err = cyruntime.cudaMemcpy3DWithAttributesAsync(cyop_ptr, flags, cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy2DAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy2DAsync(dst, size_t dpitch, src, size_t spitch, size_t width, size_t height, kind not None : cudaMemcpyKind, stream):
@@ -29445,9 +28452,6 @@ def cudaMemcpy2DAsync(dst, size_t dpitch, src, size_t spitch, size_t width, size
     _helper_input_void_ptr_free(&cydstHelper)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy2DToArrayAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy2DToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t spitch, size_t width, size_t height, kind not None : cudaMemcpyKind, stream):
@@ -29534,9 +28538,6 @@ def cudaMemcpy2DToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t sp
         err = cyruntime.cudaMemcpy2DToArrayAsync(cydst, wOffset, hOffset, cysrc, spitch, width, height, cykind, cystream)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpy2DFromArrayAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpy2DFromArrayAsync(dst, size_t dpitch, src, size_t wOffset, size_t hOffset, size_t width, size_t height, kind not None : cudaMemcpyKind, stream):
@@ -29622,9 +28623,6 @@ def cudaMemcpy2DFromArrayAsync(dst, size_t dpitch, src, size_t wOffset, size_t h
         err = cyruntime.cudaMemcpy2DFromArrayAsync(cydst, dpitch, cysrc, wOffset, hOffset, width, height, cykind, cystream)
     _helper_input_void_ptr_free(&cydstHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemset' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemset(devPtr, int value, size_t count):
@@ -29660,9 +28658,6 @@ def cudaMemset(devPtr, int value, size_t count):
         err = cyruntime.cudaMemset(cydevPtr, value, count)
     _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemset2D' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemset2D(devPtr, size_t pitch, int value, size_t width, size_t height):
@@ -29705,9 +28700,6 @@ def cudaMemset2D(devPtr, size_t pitch, int value, size_t width, size_t height):
         err = cyruntime.cudaMemset2D(cydevPtr, pitch, value, width, height)
     _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemset3D' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemset3D(pitchedDevPtr not None : cudaPitchedPtr, int value, extent not None : cudaExtent):
@@ -29759,9 +28751,6 @@ def cudaMemset3D(pitchedDevPtr not None : cudaPitchedPtr, int value, extent not 
     with nogil:
         err = cyruntime.cudaMemset3D(pitchedDevPtr._pvt_ptr[0], value, extent._pvt_ptr[0])
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemsetAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemsetAsync(devPtr, int value, size_t count, stream):
@@ -29813,9 +28802,6 @@ def cudaMemsetAsync(devPtr, int value, size_t count, stream):
         err = cyruntime.cudaMemsetAsync(cydevPtr, value, count, cystream)
     _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemset2DAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemset2DAsync(devPtr, size_t pitch, int value, size_t width, size_t height, stream):
@@ -29874,9 +28860,6 @@ def cudaMemset2DAsync(devPtr, size_t pitch, int value, size_t width, size_t heig
         err = cyruntime.cudaMemset2DAsync(cydevPtr, pitch, value, width, height, cystream)
     _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemset3DAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemset3DAsync(pitchedDevPtr not None : cudaPitchedPtr, int value, extent not None : cudaExtent, stream):
@@ -29944,9 +28927,6 @@ def cudaMemset3DAsync(pitchedDevPtr not None : cudaPitchedPtr, int value, extent
     with nogil:
         err = cyruntime.cudaMemset3DAsync(pitchedDevPtr._pvt_ptr[0], value, extent._pvt_ptr[0], cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemPrefetchAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPrefetchAsync(devPtr, size_t count, location not None : cudaMemLocation, unsigned int flags, stream):
@@ -30063,9 +29043,6 @@ def cudaMemPrefetchAsync(devPtr, size_t count, location not None : cudaMemLocati
         err = cyruntime.cudaMemPrefetchAsync(cydevPtr, count, location._pvt_ptr[0], flags, cystream)
     _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemPrefetchBatchAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : tuple[int] | list[int], size_t count, prefetchLocs : Optional[tuple[cudaMemLocation] | list[cudaMemLocation]], prefetchLocIdxs : tuple[int] | list[int], size_t numPrefetchLocs, unsigned long long flags, stream):
@@ -30172,9 +29149,6 @@ def cudaMemPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : 
     if len(prefetchLocs) > 1 and cyprefetchLocs is not NULL:
         free(cyprefetchLocs)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemDiscardBatchAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemDiscardBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : tuple[int] | list[int], size_t count, unsigned long long flags, stream):
@@ -30246,9 +29220,6 @@ def cudaMemDiscardBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : t
     with nogil:
         err = cyruntime.cudaMemDiscardBatchAsync(cydptrs_ptr, cysizes.data(), count, flags, cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemDiscardAndPrefetchBatchAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : tuple[int] | list[int], size_t count, prefetchLocs : Optional[tuple[cudaMemLocation] | list[cudaMemLocation]], prefetchLocIdxs : tuple[int] | list[int], size_t numPrefetchLocs, unsigned long long flags, stream):
@@ -30363,9 +29334,6 @@ def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]]
     if len(prefetchLocs) > 1 and cyprefetchLocs is not NULL:
         free(cyprefetchLocs)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemAdvise' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemAdvise(devPtr, size_t count, advice not None : cudaMemoryAdvise, location not None : cudaMemLocation):
@@ -30561,9 +29529,6 @@ def cudaMemAdvise(devPtr, size_t count, advice not None : cudaMemoryAdvise, loca
         err = cyruntime.cudaMemAdvise(cydevPtr, count, cyadvice, location._pvt_ptr[0])
     _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemRangeGetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemRangeGetAttribute(size_t dataSize, attribute not None : cudaMemRangeAttribute, devPtr, size_t count):
@@ -30712,9 +29677,6 @@ def cudaMemRangeGetAttribute(size_t dataSize, attribute not None : cudaMemRangeA
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, cydata.pyObj())
-{{endif}}
-
-{{if 'cudaMemRangeGetAttributes' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : Optional[tuple[cudaMemRangeAttribute] | list[cudaMemRangeAttribute]], size_t numAttributes, devPtr, size_t count):
@@ -30794,9 +29756,6 @@ def cudaMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : O
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, [obj.pyObj() for obj in pylist])
-{{endif}}
-
-{{if 'cudaMemcpyToArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpyToArray(dst, size_t wOffset, size_t hOffset, src, size_t count, kind not None : cudaMemcpyKind):
@@ -30854,9 +29813,6 @@ def cudaMemcpyToArray(dst, size_t wOffset, size_t hOffset, src, size_t count, ki
         err = cyruntime.cudaMemcpyToArray(cydst, wOffset, hOffset, cysrc, count, cykind)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpyFromArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpyFromArray(dst, src, size_t wOffset, size_t hOffset, size_t count, kind not None : cudaMemcpyKind):
@@ -30914,9 +29870,6 @@ def cudaMemcpyFromArray(dst, src, size_t wOffset, size_t hOffset, size_t count, 
         err = cyruntime.cudaMemcpyFromArray(cydst, cysrc, wOffset, hOffset, count, cykind)
     _helper_input_void_ptr_free(&cydstHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpyArrayToArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpyArrayToArray(dst, size_t wOffsetDst, size_t hOffsetDst, src, size_t wOffsetSrc, size_t hOffsetSrc, size_t count, kind not None : cudaMemcpyKind):
@@ -30984,9 +29937,6 @@ def cudaMemcpyArrayToArray(dst, size_t wOffsetDst, size_t hOffsetDst, src, size_
     with nogil:
         err = cyruntime.cudaMemcpyArrayToArray(cydst, wOffsetDst, hOffsetDst, cysrc, wOffsetSrc, hOffsetSrc, count, cykind)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpyToArrayAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpyToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t count, kind not None : cudaMemcpyKind, stream):
@@ -31061,9 +30011,6 @@ def cudaMemcpyToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t coun
         err = cyruntime.cudaMemcpyToArrayAsync(cydst, wOffset, hOffset, cysrc, count, cykind, cystream)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemcpyFromArrayAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemcpyFromArrayAsync(dst, src, size_t wOffset, size_t hOffset, size_t count, kind not None : cudaMemcpyKind, stream):
@@ -31138,9 +30085,6 @@ def cudaMemcpyFromArrayAsync(dst, src, size_t wOffset, size_t hOffset, size_t co
         err = cyruntime.cudaMemcpyFromArrayAsync(cydst, cysrc, wOffset, hOffset, count, cykind, cystream)
     _helper_input_void_ptr_free(&cydstHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMallocAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMallocAsync(size_t size, hStream):
@@ -31193,9 +30137,6 @@ def cudaMallocAsync(size_t size, hStream):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, devPtr)
-{{endif}}
-
-{{if 'cudaFreeAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaFreeAsync(devPtr, hStream):
@@ -31240,9 +30181,6 @@ def cudaFreeAsync(devPtr, hStream):
         err = cyruntime.cudaFreeAsync(cydevPtr, cyhStream)
     _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemPoolTrimTo' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPoolTrimTo(memPool, size_t minBytesToKeep):
@@ -31290,9 +30228,6 @@ def cudaMemPoolTrimTo(memPool, size_t minBytesToKeep):
     with nogil:
         err = cyruntime.cudaMemPoolTrimTo(cymemPool, minBytesToKeep)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemPoolSetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPoolSetAttribute(memPool, attr not None : cudaMemPoolAttr, value):
@@ -31366,9 +30301,6 @@ def cudaMemPoolSetAttribute(memPool, attr not None : cudaMemPoolAttr, value):
     with nogil:
         err = cyruntime.cudaMemPoolSetAttribute(cymemPool, cyattr, cyvalue_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemPoolGetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
@@ -31481,9 +30413,6 @@ def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, cyvalue.pyObj())
-{{endif}}
-
-{{if 'cudaMemPoolSetAccess' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPoolSetAccess(memPool, descList : Optional[tuple[cudaMemAccessDesc] | list[cudaMemAccessDesc]], size_t count):
@@ -31534,9 +30463,6 @@ def cudaMemPoolSetAccess(memPool, descList : Optional[tuple[cudaMemAccessDesc] |
     if len(descList) > 1 and cydescList is not NULL:
         free(cydescList)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemPoolGetAccess' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPoolGetAccess(memPool, location : Optional[cudaMemLocation]):
@@ -31578,9 +30504,6 @@ def cudaMemPoolGetAccess(memPool, location : Optional[cudaMemLocation]):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, cudaMemAccessFlags(flags))
-{{endif}}
-
-{{if 'cudaMemPoolCreate' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
@@ -31678,9 +30601,6 @@ def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, memPool)
-{{endif}}
-
-{{if 'cudaMemPoolDestroy' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPoolDestroy(memPool):
@@ -31724,9 +30644,6 @@ def cudaMemPoolDestroy(memPool):
     with nogil:
         err = cyruntime.cudaMemPoolDestroy(cymemPool)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMemGetDefaultMemPool' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemGetDefaultMemPool(location : Optional[cudaMemLocation], typename not None : cudaMemAllocationType):
@@ -31769,9 +30686,6 @@ def cudaMemGetDefaultMemPool(location : Optional[cudaMemLocation], typename not 
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, memPool)
-{{endif}}
-
-{{if 'cudaMemGetMemPool' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemGetMemPool(location : Optional[cudaMemLocation], typename not None : cudaMemAllocationType):
@@ -31823,9 +30737,6 @@ def cudaMemGetMemPool(location : Optional[cudaMemLocation], typename not None : 
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, memPool)
-{{endif}}
-
-{{if 'cudaMemSetMemPool' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemSetMemPool(location : Optional[cudaMemLocation], typename not None : cudaMemAllocationType, memPool):
@@ -31890,9 +30801,6 @@ def cudaMemSetMemPool(location : Optional[cudaMemLocation], typename not None : 
     with nogil:
         err = cyruntime.cudaMemSetMemPool(cylocation_ptr, cytypename, cymemPool)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaMallocFromPoolAsync' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMallocFromPoolAsync(size_t size, memPool, stream):
@@ -31949,9 +30857,6 @@ def cudaMallocFromPoolAsync(size_t size, memPool, stream):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, ptr)
-{{endif}}
-
-{{if 'cudaMemPoolExportToShareableHandle' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPoolExportToShareableHandle(memPool, handleType not None : cudaMemAllocationHandleType, unsigned int flags):
@@ -32006,9 +30911,6 @@ def cudaMemPoolExportToShareableHandle(memPool, handleType not None : cudaMemAll
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, cyshareableHandle.pyObj())
-{{endif}}
-
-{{if 'cudaMemPoolImportFromShareableHandle' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPoolImportFromShareableHandle(shareableHandle, handleType not None : cudaMemAllocationHandleType, unsigned int flags):
@@ -32051,9 +30953,6 @@ def cudaMemPoolImportFromShareableHandle(shareableHandle, handleType not None : 
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, memPool)
-{{endif}}
-
-{{if 'cudaMemPoolExportPointer' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPoolExportPointer(ptr):
@@ -32089,9 +30988,6 @@ def cudaMemPoolExportPointer(ptr):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, exportData)
-{{endif}}
-
-{{if 'cudaMemPoolImportPointer' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaMemPoolImportPointer(memPool, exportData : Optional[cudaMemPoolPtrExportData]):
@@ -32142,9 +31038,6 @@ def cudaMemPoolImportPointer(memPool, exportData : Optional[cudaMemPoolPtrExport
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, ptr)
-{{endif}}
-
-{{if 'cudaPointerGetAttributes' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaPointerGetAttributes(ptr):
@@ -32215,9 +31108,6 @@ def cudaPointerGetAttributes(ptr):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, attributes)
-{{endif}}
-
-{{if 'cudaDeviceCanAccessPeer' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceCanAccessPeer(int device, int peerDevice):
@@ -32254,9 +31144,6 @@ def cudaDeviceCanAccessPeer(int device, int peerDevice):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, canAccessPeer)
-{{endif}}
-
-{{if 'cudaDeviceEnablePeerAccess' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceEnablePeerAccess(int peerDevice, unsigned int flags):
@@ -32305,9 +31192,6 @@ def cudaDeviceEnablePeerAccess(int peerDevice, unsigned int flags):
     with nogil:
         err = cyruntime.cudaDeviceEnablePeerAccess(peerDevice, flags)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceDisablePeerAccess' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceDisablePeerAccess(int peerDevice):
@@ -32334,9 +31218,6 @@ def cudaDeviceDisablePeerAccess(int peerDevice):
     with nogil:
         err = cyruntime.cudaDeviceDisablePeerAccess(peerDevice)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphicsUnregisterResource' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphicsUnregisterResource(resource):
@@ -32373,9 +31254,6 @@ def cudaGraphicsUnregisterResource(resource):
     with nogil:
         err = cyruntime.cudaGraphicsUnregisterResource(cyresource)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphicsResourceSetMapFlags' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphicsResourceSetMapFlags(resource, unsigned int flags):
@@ -32429,9 +31307,6 @@ def cudaGraphicsResourceSetMapFlags(resource, unsigned int flags):
     with nogil:
         err = cyruntime.cudaGraphicsResourceSetMapFlags(cyresource, flags)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphicsMapResources' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphicsMapResources(int count, resources, stream):
@@ -32492,9 +31367,6 @@ def cudaGraphicsMapResources(int count, resources, stream):
     with nogil:
         err = cyruntime.cudaGraphicsMapResources(count, cyresources, cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphicsUnmapResources' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphicsUnmapResources(int count, resources, stream):
@@ -32553,9 +31425,6 @@ def cudaGraphicsUnmapResources(int count, resources, stream):
     with nogil:
         err = cyruntime.cudaGraphicsUnmapResources(count, cyresources, cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphicsResourceGetMappedPointer' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphicsResourceGetMappedPointer(resource):
@@ -32599,9 +31468,6 @@ def cudaGraphicsResourceGetMappedPointer(resource):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, devPtr, size)
-{{endif}}
-
-{{if 'cudaGraphicsSubResourceGetMappedArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphicsSubResourceGetMappedArray(resource, unsigned int arrayIndex, unsigned int mipLevel):
@@ -32656,9 +31522,6 @@ def cudaGraphicsSubResourceGetMappedArray(resource, unsigned int arrayIndex, uns
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, array)
-{{endif}}
-
-{{if 'cudaGraphicsResourceGetMappedMipmappedArray' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphicsResourceGetMappedMipmappedArray(resource):
@@ -32702,9 +31565,6 @@ def cudaGraphicsResourceGetMappedMipmappedArray(resource):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, mipmappedArray)
-{{endif}}
-
-{{if 'cudaGetChannelDesc' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetChannelDesc(array):
@@ -32742,9 +31602,6 @@ def cudaGetChannelDesc(array):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, desc)
-{{endif}}
-
-{{if 'cudaCreateChannelDesc' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaCreateChannelDesc(int x, int y, int z, int w, f not None : cudaChannelFormatKind):
@@ -32791,9 +31648,6 @@ def cudaCreateChannelDesc(int x, int y, int z, int w, f not None : cudaChannelFo
     cdef cudaChannelFormatDesc wrapper = cudaChannelFormatDesc()
     wrapper._pvt_ptr[0] = err
     return (cudaError_t.cudaSuccess, wrapper)
-{{endif}}
-
-{{if 'cudaCreateTextureObject' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaCreateTextureObject(pResDesc : Optional[cudaResourceDesc], pTexDesc : Optional[cudaTextureDesc], pResViewDesc : Optional[cudaResourceViewDesc]):
@@ -33036,9 +31890,6 @@ def cudaCreateTextureObject(pResDesc : Optional[cudaResourceDesc], pTexDesc : Op
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pTexObject)
-{{endif}}
-
-{{if 'cudaDestroyTextureObject' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDestroyTextureObject(texObject):
@@ -33071,9 +31922,6 @@ def cudaDestroyTextureObject(texObject):
     with nogil:
         err = cyruntime.cudaDestroyTextureObject(cytexObject)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGetTextureObjectResourceDesc' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetTextureObjectResourceDesc(texObject):
@@ -33112,9 +31960,6 @@ def cudaGetTextureObjectResourceDesc(texObject):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pResDesc)
-{{endif}}
-
-{{if 'cudaGetTextureObjectTextureDesc' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetTextureObjectTextureDesc(texObject):
@@ -33153,9 +31998,6 @@ def cudaGetTextureObjectTextureDesc(texObject):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pTexDesc)
-{{endif}}
-
-{{if 'cudaGetTextureObjectResourceViewDesc' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetTextureObjectResourceViewDesc(texObject):
@@ -33195,9 +32037,6 @@ def cudaGetTextureObjectResourceViewDesc(texObject):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pResViewDesc)
-{{endif}}
-
-{{if 'cudaCreateSurfaceObject' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaCreateSurfaceObject(pResDesc : Optional[cudaResourceDesc]):
@@ -33237,9 +32076,6 @@ def cudaCreateSurfaceObject(pResDesc : Optional[cudaResourceDesc]):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pSurfObject)
-{{endif}}
-
-{{if 'cudaDestroySurfaceObject' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDestroySurfaceObject(surfObject):
@@ -33272,9 +32108,6 @@ def cudaDestroySurfaceObject(surfObject):
     with nogil:
         err = cyruntime.cudaDestroySurfaceObject(cysurfObject)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGetSurfaceObjectResourceDesc' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetSurfaceObjectResourceDesc(surfObject):
@@ -33310,9 +32143,6 @@ def cudaGetSurfaceObjectResourceDesc(surfObject):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pResDesc)
-{{endif}}
-
-{{if 'cudaDriverGetVersion' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDriverGetVersion():
@@ -33343,9 +32173,6 @@ def cudaDriverGetVersion():
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, driverVersion)
-{{endif}}
-
-{{if 'cudaRuntimeGetVersion' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaRuntimeGetVersion():
@@ -33379,9 +32206,6 @@ def cudaRuntimeGetVersion():
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, runtimeVersion)
-{{endif}}
-
-{{if 'cudaLogsRegisterCallback' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLogsRegisterCallback(callbackFunc, userData):
@@ -33420,9 +32244,6 @@ def cudaLogsRegisterCallback(callbackFunc, userData):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, callback_out)
-{{endif}}
-
-{{if 'cudaLogsUnregisterCallback' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLogsUnregisterCallback(callback):
@@ -33449,9 +32270,6 @@ def cudaLogsUnregisterCallback(callback):
     with nogil:
         err = cyruntime.cudaLogsUnregisterCallback(cycallback)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaLogsCurrent' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLogsCurrent(unsigned int flags):
@@ -33475,9 +32293,6 @@ def cudaLogsCurrent(unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, iterator_out)
-{{endif}}
-
-{{if 'cudaLogsDumpToFile' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLogsDumpToFile(iterator : Optional[cudaLogIterator], char* pathToFile, unsigned int flags):
@@ -33519,9 +32334,6 @@ def cudaLogsDumpToFile(iterator : Optional[cudaLogIterator], char* pathToFile, u
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, iterator)
-{{endif}}
-
-{{if 'cudaLogsDumpToMemory' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLogsDumpToMemory(iterator : Optional[cudaLogIterator], char* buffer, size_t size, unsigned int flags):
@@ -33577,9 +32389,6 @@ def cudaLogsDumpToMemory(iterator : Optional[cudaLogIterator], char* buffer, siz
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, iterator, size)
-{{endif}}
-
-{{if 'cudaGraphCreate' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphCreate(unsigned int flags):
@@ -33609,9 +32418,6 @@ def cudaGraphCreate(unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraph)
-{{endif}}
-
-{{if 'cudaGraphAddKernelNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddKernelNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, pNodeParams : Optional[cudaKernelNodeParams]):
@@ -33731,9 +32537,6 @@ def cudaGraphAddKernelNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphKernelNodeGetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphKernelNodeGetParams(node):
@@ -33780,9 +32583,6 @@ def cudaGraphKernelNodeGetParams(node):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pNodeParams)
-{{endif}}
-
-{{if 'cudaGraphKernelNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphKernelNodeSetParams(node, pNodeParams : Optional[cudaKernelNodeParams]):
@@ -33818,9 +32618,6 @@ def cudaGraphKernelNodeSetParams(node, pNodeParams : Optional[cudaKernelNodePara
     with nogil:
         err = cyruntime.cudaGraphKernelNodeSetParams(cynode, cypNodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphKernelNodeCopyAttributes' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphKernelNodeCopyAttributes(hDst, hSrc):
@@ -33865,9 +32662,6 @@ def cudaGraphKernelNodeCopyAttributes(hDst, hSrc):
     with nogil:
         err = cyruntime.cudaGraphKernelNodeCopyAttributes(cyhDst, cyhSrc)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphKernelNodeGetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphKernelNodeGetAttribute(hNode, attr not None : cudaKernelNodeAttrID):
@@ -33882,13 +32676,11 @@ def cudaGraphKernelNodeGetAttribute(hNode, attr not None : cudaKernelNodeAttrID)
 
     attr : :py:obj:`~.cudaKernelNodeAttrID`
 
-
     Returns
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`
     value_out : :py:obj:`~.cudaKernelNodeAttrValue`
-
 
     See Also
     --------
@@ -33909,9 +32701,6 @@ def cudaGraphKernelNodeGetAttribute(hNode, attr not None : cudaKernelNodeAttrID)
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, value_out)
-{{endif}}
-
-{{if 'cudaGraphKernelNodeSetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID, value : Optional[cudaKernelNodeAttrValue]):
@@ -33927,7 +32716,6 @@ def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID,
     attr : :py:obj:`~.cudaKernelNodeAttrID`
 
     value : :py:obj:`~.cudaKernelNodeAttrValue`
-
 
     Returns
     -------
@@ -33951,9 +32739,6 @@ def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID,
     with nogil:
         err = cyruntime.cudaGraphKernelNodeSetAttribute(cyhNode, cyattr, cyvalue_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphAddMemcpyNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, pCopyParams : Optional[cudaMemcpy3DParms]):
@@ -34027,9 +32812,6 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphAddMemcpyNode1D' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, dst, src, size_t count, kind not None : cudaMemcpyKind):
@@ -34124,9 +32906,6 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[tuple[cudaGraphNode
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphMemcpyNodeGetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphMemcpyNodeGetParams(node):
@@ -34164,9 +32943,6 @@ def cudaGraphMemcpyNodeGetParams(node):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pNodeParams)
-{{endif}}
-
-{{if 'cudaGraphMemcpyNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphMemcpyNodeSetParams(node, pNodeParams : Optional[cudaMemcpy3DParms]):
@@ -34202,9 +32978,6 @@ def cudaGraphMemcpyNodeSetParams(node, pNodeParams : Optional[cudaMemcpy3DParms]
     with nogil:
         err = cyruntime.cudaGraphMemcpyNodeSetParams(cynode, cypNodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphMemcpyNodeSetParams1D' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphMemcpyNodeSetParams1D(node, dst, src, size_t count, kind not None : cudaMemcpyKind):
@@ -34266,9 +33039,6 @@ def cudaGraphMemcpyNodeSetParams1D(node, dst, src, size_t count, kind not None :
     _helper_input_void_ptr_free(&cydstHelper)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphAddMemsetNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddMemsetNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, pMemsetParams : Optional[cudaMemsetParams]):
@@ -34336,9 +33106,6 @@ def cudaGraphAddMemsetNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphMemsetNodeGetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphMemsetNodeGetParams(node):
@@ -34376,9 +33143,6 @@ def cudaGraphMemsetNodeGetParams(node):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pNodeParams)
-{{endif}}
-
-{{if 'cudaGraphMemsetNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphMemsetNodeSetParams(node, pNodeParams : Optional[cudaMemsetParams]):
@@ -34414,9 +33178,6 @@ def cudaGraphMemsetNodeSetParams(node, pNodeParams : Optional[cudaMemsetParams])
     with nogil:
         err = cyruntime.cudaGraphMemsetNodeSetParams(cynode, cypNodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphAddHostNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddHostNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, pNodeParams : Optional[cudaHostNodeParams]):
@@ -34485,9 +33246,6 @@ def cudaGraphAddHostNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] 
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphHostNodeGetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphHostNodeGetParams(node):
@@ -34525,9 +33283,6 @@ def cudaGraphHostNodeGetParams(node):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pNodeParams)
-{{endif}}
-
-{{if 'cudaGraphHostNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphHostNodeSetParams(node, pNodeParams : Optional[cudaHostNodeParams]):
@@ -34563,9 +33318,6 @@ def cudaGraphHostNodeSetParams(node, pNodeParams : Optional[cudaHostNodeParams])
     with nogil:
         err = cyruntime.cudaGraphHostNodeSetParams(cynode, cypNodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphAddChildGraphNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, childGraph):
@@ -34644,9 +33396,6 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[tuple[cudaGraphNo
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphChildGraphNodeGetGraph' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphChildGraphNodeGetGraph(node):
@@ -34689,9 +33438,6 @@ def cudaGraphChildGraphNodeGetGraph(node):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraph)
-{{endif}}
-
-{{if 'cudaGraphAddEmptyNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddEmptyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies):
@@ -34760,9 +33506,6 @@ def cudaGraphAddEmptyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t]
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphAddEventRecordNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, event):
@@ -34840,9 +33583,6 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[tuple[cudaGraphN
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphEventRecordNodeGetEvent' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphEventRecordNodeGetEvent(node):
@@ -34880,9 +33620,6 @@ def cudaGraphEventRecordNodeGetEvent(node):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, event_out)
-{{endif}}
-
-{{if 'cudaGraphEventRecordNodeSetEvent' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphEventRecordNodeSetEvent(node, event):
@@ -34925,9 +33662,6 @@ def cudaGraphEventRecordNodeSetEvent(node, event):
     with nogil:
         err = cyruntime.cudaGraphEventRecordNodeSetEvent(cynode, cyevent)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphAddEventWaitNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, event):
@@ -35008,9 +33742,6 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[tuple[cudaGraphNod
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphEventWaitNodeGetEvent' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphEventWaitNodeGetEvent(node):
@@ -35048,9 +33779,6 @@ def cudaGraphEventWaitNodeGetEvent(node):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, event_out)
-{{endif}}
-
-{{if 'cudaGraphEventWaitNodeSetEvent' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphEventWaitNodeSetEvent(node, event):
@@ -35093,9 +33821,6 @@ def cudaGraphEventWaitNodeSetEvent(node, event):
     with nogil:
         err = cyruntime.cudaGraphEventWaitNodeSetEvent(cynode, cyevent)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphAddExternalSemaphoresSignalNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaExternalSemaphoreSignalNodeParams]):
@@ -35165,9 +33890,6 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[tup
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphExternalSemaphoresSignalNodeGetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExternalSemaphoresSignalNodeGetParams(hNode):
@@ -35211,9 +33933,6 @@ def cudaGraphExternalSemaphoresSignalNodeGetParams(hNode):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, params_out)
-{{endif}}
-
-{{if 'cudaGraphExternalSemaphoresSignalNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[cudaExternalSemaphoreSignalNodeParams]):
@@ -35250,9 +33969,6 @@ def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[
     with nogil:
         err = cyruntime.cudaGraphExternalSemaphoresSignalNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphAddExternalSemaphoresWaitNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaExternalSemaphoreWaitNodeParams]):
@@ -35322,9 +34038,6 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[tuple
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphExternalSemaphoresWaitNodeGetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExternalSemaphoresWaitNodeGetParams(hNode):
@@ -35368,9 +34081,6 @@ def cudaGraphExternalSemaphoresWaitNodeGetParams(hNode):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, params_out)
-{{endif}}
-
-{{if 'cudaGraphExternalSemaphoresWaitNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[cudaExternalSemaphoreWaitNodeParams]):
@@ -35407,9 +34117,6 @@ def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[cu
     with nogil:
         err = cyruntime.cudaGraphExternalSemaphoresWaitNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphAddMemAllocNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaMemAllocNodeParams]):
@@ -35518,9 +34225,6 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[tuple[cudaGraphNode
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphMemAllocNodeGetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphMemAllocNodeGetParams(node):
@@ -35561,9 +34265,6 @@ def cudaGraphMemAllocNodeGetParams(node):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, params_out)
-{{endif}}
-
-{{if 'cudaGraphAddMemFreeNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, dptr):
@@ -35652,9 +34353,6 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[tuple[cudaGraphNode_
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphMemFreeNodeGetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphMemFreeNodeGetParams(node):
@@ -35693,9 +34391,6 @@ def cudaGraphMemFreeNodeGetParams(node):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, dptr_out)
-{{endif}}
-
-{{if 'cudaDeviceGraphMemTrim' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGraphMemTrim(int device):
@@ -35722,9 +34417,6 @@ def cudaDeviceGraphMemTrim(int device):
     with nogil:
         err = cyruntime.cudaDeviceGraphMemTrim(device)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceGetGraphMemAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetGraphMemAttribute(int device, attr not None : cudaGraphMemAttributeType):
@@ -35773,9 +34465,6 @@ def cudaDeviceGetGraphMemAttribute(int device, attr not None : cudaGraphMemAttri
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, cyvalue.pyObj())
-{{endif}}
-
-{{if 'cudaDeviceSetGraphMemAttribute' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceSetGraphMemAttribute(int device, attr not None : cudaGraphMemAttributeType, value):
@@ -35815,9 +34504,6 @@ def cudaDeviceSetGraphMemAttribute(int device, attr not None : cudaGraphMemAttri
     with nogil:
         err = cyruntime.cudaDeviceSetGraphMemAttribute(device, cyattr, cyvalue_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphClone' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphClone(originalGraph):
@@ -35865,9 +34551,6 @@ def cudaGraphClone(originalGraph):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphClone)
-{{endif}}
-
-{{if 'cudaGraphNodeFindInClone' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphNodeFindInClone(originalNode, clonedGraph):
@@ -35922,9 +34605,6 @@ def cudaGraphNodeFindInClone(originalNode, clonedGraph):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pNode)
-{{endif}}
-
-{{if 'cudaGraphNodeGetType' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphNodeGetType(node):
@@ -35962,9 +34642,6 @@ def cudaGraphNodeGetType(node):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, cudaGraphNodeType(pType))
-{{endif}}
-
-{{if 'cudaGraphNodeGetContainingGraph' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphNodeGetContainingGraph(hNode):
@@ -36003,9 +34680,6 @@ def cudaGraphNodeGetContainingGraph(hNode):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, phGraph)
-{{endif}}
-
-{{if 'cudaGraphNodeGetLocalId' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphNodeGetLocalId(hNode):
@@ -36045,9 +34719,6 @@ def cudaGraphNodeGetLocalId(hNode):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, nodeId)
-{{endif}}
-
-{{if 'cudaGraphNodeGetToolsId' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphNodeGetToolsId(hNode):
@@ -36083,9 +34754,6 @@ def cudaGraphNodeGetToolsId(hNode):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, toolsNodeId)
-{{endif}}
-
-{{if 'cudaGraphGetId' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphGetId(hGraph):
@@ -36124,9 +34792,6 @@ def cudaGraphGetId(hGraph):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, graphID)
-{{endif}}
-
-{{if 'cudaGraphExecGetId' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecGetId(hGraphExec):
@@ -36165,9 +34830,6 @@ def cudaGraphExecGetId(hGraphExec):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, graphID)
-{{endif}}
-
-{{if 'cudaGraphGetNodes' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphGetNodes(graph, size_t numNodes = 0):
@@ -36226,9 +34888,6 @@ def cudaGraphGetNodes(graph, size_t numNodes = 0):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, pynodes, numNodes)
-{{endif}}
-
-{{if 'cudaGraphGetRootNodes' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphGetRootNodes(graph, size_t pNumRootNodes = 0):
@@ -36287,9 +34946,6 @@ def cudaGraphGetRootNodes(graph, size_t pNumRootNodes = 0):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, pypRootNodes, pNumRootNodes)
-{{endif}}
-
-{{if 'cudaGraphGetEdges' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphGetEdges(graph, size_t numEdges = 0):
@@ -36383,9 +35039,6 @@ def cudaGraphGetEdges(graph, size_t numEdges = 0):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None, None, None)
     return (_cudaError_t_SUCCESS, pyfrom_, pyto, pyedgeData, numEdges)
-{{endif}}
-
-{{if 'cudaGraphNodeGetDependencies' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphNodeGetDependencies(node, size_t pNumDependencies = 0):
@@ -36464,9 +35117,6 @@ def cudaGraphNodeGetDependencies(node, size_t pNumDependencies = 0):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None, None)
     return (_cudaError_t_SUCCESS, pypDependencies, pyedgeData, pNumDependencies)
-{{endif}}
-
-{{if 'cudaGraphNodeGetDependentNodes' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphNodeGetDependentNodes(node, size_t pNumDependentNodes = 0):
@@ -36545,9 +35195,6 @@ def cudaGraphNodeGetDependentNodes(node, size_t pNumDependentNodes = 0):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None, None)
     return (_cudaError_t_SUCCESS, pypDependentNodes, pyedgeData, pNumDependentNodes)
-{{endif}}
-
-{{if 'cudaGraphAddDependencies' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], to : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], edgeData : Optional[tuple[cudaGraphEdgeData] | list[cudaGraphEdgeData]], size_t numDependencies):
@@ -36638,9 +35285,6 @@ def cudaGraphAddDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] | li
     if len(edgeData) > 1 and cyedgeData is not NULL:
         free(cyedgeData)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphRemoveDependencies' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphRemoveDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], to : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], edgeData : Optional[tuple[cudaGraphEdgeData] | list[cudaGraphEdgeData]], size_t numDependencies):
@@ -36734,9 +35378,6 @@ def cudaGraphRemoveDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] |
     if len(edgeData) > 1 and cyedgeData is not NULL:
         free(cyedgeData)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphDestroyNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphDestroyNode(node):
@@ -36773,9 +35414,6 @@ def cudaGraphDestroyNode(node):
     with nogil:
         err = cyruntime.cudaGraphDestroyNode(cynode)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphInstantiate' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphInstantiate(graph, unsigned long long flags):
@@ -36877,9 +35515,6 @@ def cudaGraphInstantiate(graph, unsigned long long flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphExec)
-{{endif}}
-
-{{if 'cudaGraphInstantiateWithFlags' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphInstantiateWithFlags(graph, unsigned long long flags):
@@ -36983,9 +35618,6 @@ def cudaGraphInstantiateWithFlags(graph, unsigned long long flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphExec)
-{{endif}}
-
-{{if 'cudaGraphInstantiateWithParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphInstantiateWithParams(graph, instantiateParams : Optional[cudaGraphInstantiateParams]):
@@ -37130,9 +35762,6 @@ def cudaGraphInstantiateWithParams(graph, instantiateParams : Optional[cudaGraph
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphExec)
-{{endif}}
-
-{{if 'cudaGraphExecGetFlags' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecGetFlags(graphExec):
@@ -37173,9 +35802,6 @@ def cudaGraphExecGetFlags(graphExec):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, flags)
-{{endif}}
-
-{{if 'cudaGraphExecKernelNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : Optional[cudaKernelNodeParams]):
@@ -37255,9 +35881,6 @@ def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     with nogil:
         err = cyruntime.cudaGraphExecKernelNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphExecMemcpyNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams : Optional[cudaMemcpy3DParms]):
@@ -37320,9 +35943,6 @@ def cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     with nogil:
         err = cyruntime.cudaGraphExecMemcpyNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphExecMemcpyNodeSetParams1D' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecMemcpyNodeSetParams1D(hGraphExec, node, dst, src, size_t count, kind not None : cudaMemcpyKind):
@@ -37395,9 +36015,6 @@ def cudaGraphExecMemcpyNodeSetParams1D(hGraphExec, node, dst, src, size_t count,
     _helper_input_void_ptr_free(&cydstHelper)
     _helper_input_void_ptr_free(&cysrcHelper)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphExecMemsetNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : Optional[cudaMemsetParams]):
@@ -37465,9 +36082,6 @@ def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     with nogil:
         err = cyruntime.cudaGraphExecMemsetNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphExecHostNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams : Optional[cudaHostNodeParams]):
@@ -37520,9 +36134,6 @@ def cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams : Optional[cuda
     with nogil:
         err = cyruntime.cudaGraphExecHostNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphExecChildGraphNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecChildGraphNodeSetParams(hGraphExec, node, childGraph):
@@ -37590,9 +36201,6 @@ def cudaGraphExecChildGraphNodeSetParams(hGraphExec, node, childGraph):
     with nogil:
         err = cyruntime.cudaGraphExecChildGraphNodeSetParams(cyhGraphExec, cynode, cychildGraph)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphExecEventRecordNodeSetEvent' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event):
@@ -37653,9 +36261,6 @@ def cudaGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event):
     with nogil:
         err = cyruntime.cudaGraphExecEventRecordNodeSetEvent(cyhGraphExec, cyhNode, cyevent)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphExecEventWaitNodeSetEvent' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event):
@@ -37716,9 +36321,6 @@ def cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event):
     with nogil:
         err = cyruntime.cudaGraphExecEventWaitNodeSetEvent(cyhGraphExec, cyhNode, cyevent)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphExecExternalSemaphoresSignalNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodeParams : Optional[cudaExternalSemaphoreSignalNodeParams]):
@@ -37776,9 +36378,6 @@ def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodePa
     with nogil:
         err = cyruntime.cudaGraphExecExternalSemaphoresSignalNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphExecExternalSemaphoresWaitNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams : Optional[cudaExternalSemaphoreWaitNodeParams]):
@@ -37836,9 +36435,6 @@ def cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodePara
     with nogil:
         err = cyruntime.cudaGraphExecExternalSemaphoresWaitNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphNodeSetEnabled' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphNodeSetEnabled(hGraphExec, hNode, unsigned int isEnabled):
@@ -37899,9 +36495,6 @@ def cudaGraphNodeSetEnabled(hGraphExec, hNode, unsigned int isEnabled):
     with nogil:
         err = cyruntime.cudaGraphNodeSetEnabled(cyhGraphExec, cyhNode, isEnabled)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphNodeGetEnabled' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphNodeGetEnabled(hGraphExec, hNode):
@@ -37958,9 +36551,6 @@ def cudaGraphNodeGetEnabled(hGraphExec, hNode):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, isEnabled)
-{{endif}}
-
-{{if 'cudaGraphExecUpdate' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecUpdate(hGraphExec, hGraph):
@@ -38134,9 +36724,6 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, resultInfo)
-{{endif}}
-
-{{if 'cudaGraphUpload' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphUpload(graphExec, stream):
@@ -38183,9 +36770,6 @@ def cudaGraphUpload(graphExec, stream):
     with nogil:
         err = cyruntime.cudaGraphUpload(cygraphExec, cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphLaunch' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphLaunch(graphExec, stream):
@@ -38237,9 +36821,6 @@ def cudaGraphLaunch(graphExec, stream):
     with nogil:
         err = cyruntime.cudaGraphLaunch(cygraphExec, cystream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphExecDestroy' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecDestroy(graphExec):
@@ -38272,9 +36853,6 @@ def cudaGraphExecDestroy(graphExec):
     with nogil:
         err = cyruntime.cudaGraphExecDestroy(cygraphExec)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphDestroy' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphDestroy(graph):
@@ -38307,9 +36885,6 @@ def cudaGraphDestroy(graph):
     with nogil:
         err = cyruntime.cudaGraphDestroy(cygraph)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphDebugDotPrint' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphDebugDotPrint(graph, char* path, unsigned int flags):
@@ -38347,9 +36922,6 @@ def cudaGraphDebugDotPrint(graph, char* path, unsigned int flags):
     with nogil:
         err = cyruntime.cudaGraphDebugDotPrint(cygraph, path, flags)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaUserObjectCreate' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaUserObjectCreate(ptr, destroy, unsigned int initialRefcount, unsigned int flags):
@@ -38410,9 +36982,6 @@ def cudaUserObjectCreate(ptr, destroy, unsigned int initialRefcount, unsigned in
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, object_out)
-{{endif}}
-
-{{if 'cudaUserObjectRetain' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaUserObjectRetain(object, unsigned int count):
@@ -38452,9 +37021,6 @@ def cudaUserObjectRetain(object, unsigned int count):
     with nogil:
         err = cyruntime.cudaUserObjectRetain(cyobject, count)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaUserObjectRelease' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaUserObjectRelease(object, unsigned int count):
@@ -38497,9 +37063,6 @@ def cudaUserObjectRelease(object, unsigned int count):
     with nogil:
         err = cyruntime.cudaUserObjectRelease(cyobject, count)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphRetainUserObject' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphRetainUserObject(graph, object, unsigned int count, unsigned int flags):
@@ -38553,9 +37116,6 @@ def cudaGraphRetainUserObject(graph, object, unsigned int count, unsigned int fl
     with nogil:
         err = cyruntime.cudaGraphRetainUserObject(cygraph, cyobject, count, flags)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphReleaseUserObject' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphReleaseUserObject(graph, object, unsigned int count):
@@ -38604,9 +37164,6 @@ def cudaGraphReleaseUserObject(graph, object, unsigned int count):
     with nogil:
         err = cyruntime.cudaGraphReleaseUserObject(cygraph, cyobject, count)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphAddNode' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphAddNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], dependencyData : Optional[tuple[cudaGraphEdgeData] | list[cudaGraphEdgeData]], size_t numDependencies, nodeParams : Optional[cudaGraphNodeParams]):
@@ -38700,9 +37257,6 @@ def cudaGraphAddNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | li
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pGraphNode)
-{{endif}}
-
-{{if 'cudaGraphNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphNodeSetParams(node, nodeParams : Optional[cudaGraphNodeParams]):
@@ -38744,9 +37298,6 @@ def cudaGraphNodeSetParams(node, nodeParams : Optional[cudaGraphNodeParams]):
     with nogil:
         err = cyruntime.cudaGraphNodeSetParams(cynode, cynodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphNodeGetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphNodeGetParams(node):
@@ -38797,9 +37348,6 @@ def cudaGraphNodeGetParams(node):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, nodeParams)
-{{endif}}
-
-{{if 'cudaGraphExecNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecNodeSetParams(graphExec, node, nodeParams : Optional[cudaGraphNodeParams]):
@@ -38857,9 +37405,6 @@ def cudaGraphExecNodeSetParams(graphExec, node, nodeParams : Optional[cudaGraphN
     with nogil:
         err = cyruntime.cudaGraphExecNodeSetParams(cygraphExec, cynode, cynodeParams_ptr)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaGraphConditionalHandleCreate' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphConditionalHandleCreate(graph, unsigned int defaultLaunchValue, unsigned int flags):
@@ -38909,9 +37454,6 @@ def cudaGraphConditionalHandleCreate(graph, unsigned int defaultLaunchValue, uns
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pHandle_out)
-{{endif}}
-
-{{if 'cudaGraphConditionalHandleCreate_v2' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphConditionalHandleCreate_v2(graph, ctx, unsigned int defaultLaunchValue, unsigned int flags):
@@ -38972,9 +37514,6 @@ def cudaGraphConditionalHandleCreate_v2(graph, ctx, unsigned int defaultLaunchVa
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pHandle_out)
-{{endif}}
-
-{{if 'cudaGetDriverEntryPoint' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetDriverEntryPoint(char* symbol, unsigned long long flags):
@@ -39076,9 +37615,6 @@ def cudaGetDriverEntryPoint(char* symbol, unsigned long long flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, funcPtr, cudaDriverEntryPointQueryResult(driverStatus))
-{{endif}}
-
-{{if 'cudaGetDriverEntryPointByVersion' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetDriverEntryPointByVersion(char* symbol, unsigned int cudaVersion, unsigned long long flags):
@@ -39184,9 +37720,6 @@ def cudaGetDriverEntryPointByVersion(char* symbol, unsigned int cudaVersion, uns
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, funcPtr, cudaDriverEntryPointQueryResult(driverStatus))
-{{endif}}
-
-{{if 'cudaLibraryLoadData' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLibraryLoadData(code, jitOptions : Optional[tuple[cudaJitOption] | list[cudaJitOption]], jitOptionsValues : Optional[tuple[Any] | list[Any]], unsigned int numJitOptions, libraryOptions : Optional[tuple[cudaLibraryOption] | list[cudaLibraryOption]], libraryOptionValues : Optional[tuple[Any] | list[Any]], unsigned int numLibraryOptions):
@@ -39284,9 +37817,6 @@ def cudaLibraryLoadData(code, jitOptions : Optional[tuple[cudaJitOption] | list[
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, library)
-{{endif}}
-
-{{if 'cudaLibraryLoadFromFile' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLibraryLoadFromFile(char* fileName, jitOptions : Optional[tuple[cudaJitOption] | list[cudaJitOption]], jitOptionsValues : Optional[tuple[Any] | list[Any]], unsigned int numJitOptions, libraryOptions : Optional[tuple[cudaLibraryOption] | list[cudaLibraryOption]], libraryOptionValues : Optional[tuple[Any] | list[Any]], unsigned int numLibraryOptions):
@@ -39382,9 +37912,6 @@ def cudaLibraryLoadFromFile(char* fileName, jitOptions : Optional[tuple[cudaJitO
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, library)
-{{endif}}
-
-{{if 'cudaLibraryUnload' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLibraryUnload(library):
@@ -39417,9 +37944,6 @@ def cudaLibraryUnload(library):
     with nogil:
         err = cyruntime.cudaLibraryUnload(cylibrary)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaLibraryGetKernel' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLibraryGetKernel(library, char* name):
@@ -39461,9 +37985,6 @@ def cudaLibraryGetKernel(library, char* name):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pKernel)
-{{endif}}
-
-{{if 'cudaLibraryGetGlobal' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLibraryGetGlobal(library, char* name):
@@ -39513,9 +38034,6 @@ def cudaLibraryGetGlobal(library, char* name):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, dptr, numbytes)
-{{endif}}
-
-{{if 'cudaLibraryGetManaged' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLibraryGetManaged(library, char* name):
@@ -39567,9 +38085,6 @@ def cudaLibraryGetManaged(library, char* name):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, dptr, numbytes)
-{{endif}}
-
-{{if 'cudaLibraryGetUnifiedFunction' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLibraryGetUnifiedFunction(library, char* symbol):
@@ -39613,9 +38128,6 @@ def cudaLibraryGetUnifiedFunction(library, char* symbol):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, fptr)
-{{endif}}
-
-{{if 'cudaLibraryGetKernelCount' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLibraryGetKernelCount(lib):
@@ -39653,9 +38165,6 @@ def cudaLibraryGetKernelCount(lib):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, count)
-{{endif}}
-
-{{if 'cudaLibraryEnumerateKernels' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaLibraryEnumerateKernels(unsigned int numKernels, lib):
@@ -39706,9 +38215,6 @@ def cudaLibraryEnumerateKernels(unsigned int numKernels, lib):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pykernels)
-{{endif}}
-
-{{if 'cudaKernelSetAttributeForDevice' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaKernelSetAttributeForDevice(kernel, attr not None : cudaFuncAttribute, int value, int device):
@@ -39812,9 +38318,6 @@ def cudaKernelSetAttributeForDevice(kernel, attr not None : cudaFuncAttribute, i
     with nogil:
         err = cyruntime.cudaKernelSetAttributeForDevice(cykernel, cyattr, value, device)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceGetDevResource' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetDevResource(int device, typename not None : cudaDevResourceType):
@@ -39851,9 +38354,6 @@ def cudaDeviceGetDevResource(int device, typename not None : cudaDevResourceType
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, resource)
-{{endif}}
-
-{{if 'cudaDevSmResourceSplitByCount' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[cudaDevResource], unsigned int flags, unsigned int minCount):
@@ -39972,9 +38472,6 @@ def cudaDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[cudaD
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None, None)
     return (_cudaError_t_SUCCESS, pyresult, cynbGroups, remaining)
-{{endif}}
-
-{{if 'cudaDevSmResourceSplit' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[cudaDevResource], unsigned int flags, groupParams : Optional[tuple[cudaDevSmResourceGroupParams] | list[cudaDevSmResourceGroupParams]]):
@@ -40145,9 +38642,6 @@ def cudaDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[cudaDevResou
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, pyresult, remainder)
-{{endif}}
-
-{{if 'cudaDevResourceGenerateDesc' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDevResourceGenerateDesc(resources : Optional[tuple[cudaDevResource] | list[cudaDevResource]], unsigned int nbResources):
@@ -40212,9 +38706,6 @@ def cudaDevResourceGenerateDesc(resources : Optional[tuple[cudaDevResource] | li
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, phDesc)
-{{endif}}
-
-{{if 'cudaGreenCtxCreate' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGreenCtxCreate(desc, int device, unsigned int flags):
@@ -40275,9 +38766,6 @@ def cudaGreenCtxCreate(desc, int device, unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, phCtx)
-{{endif}}
-
-{{if 'cudaExecutionCtxDestroy' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaExecutionCtxDestroy(ctx):
@@ -40334,9 +38822,6 @@ def cudaExecutionCtxDestroy(ctx):
     with nogil:
         err = cyruntime.cudaExecutionCtxDestroy(cyctx)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaExecutionCtxGetDevResource' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaExecutionCtxGetDevResource(ctx, typename not None : cudaDevResourceType):
@@ -40380,9 +38865,6 @@ def cudaExecutionCtxGetDevResource(ctx, typename not None : cudaDevResourceType)
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, resource)
-{{endif}}
-
-{{if 'cudaExecutionCtxGetDevice' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaExecutionCtxGetDevice(ctx):
@@ -40422,9 +38904,6 @@ def cudaExecutionCtxGetDevice(ctx):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, device)
-{{endif}}
-
-{{if 'cudaExecutionCtxGetId' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaExecutionCtxGetId(ctx):
@@ -40465,9 +38944,6 @@ def cudaExecutionCtxGetId(ctx):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, ctxId)
-{{endif}}
-
-{{if 'cudaExecutionCtxStreamCreate' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaExecutionCtxStreamCreate(ctx, unsigned int flags, int priority):
@@ -40540,9 +39016,6 @@ def cudaExecutionCtxStreamCreate(ctx, unsigned int flags, int priority):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, phStream)
-{{endif}}
-
-{{if 'cudaExecutionCtxSynchronize' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaExecutionCtxSynchronize(ctx):
@@ -40582,9 +39055,6 @@ def cudaExecutionCtxSynchronize(ctx):
     with nogil:
         err = cyruntime.cudaExecutionCtxSynchronize(cyctx)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaStreamGetDevResource' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaStreamGetDevResource(hStream, typename not None : cudaDevResourceType):
@@ -40630,9 +39100,6 @@ def cudaStreamGetDevResource(hStream, typename not None : cudaDevResourceType):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, resource)
-{{endif}}
-
-{{if 'cudaExecutionCtxRecordEvent' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaExecutionCtxRecordEvent(ctx, event):
@@ -40689,9 +39156,6 @@ def cudaExecutionCtxRecordEvent(ctx, event):
     with nogil:
         err = cyruntime.cudaExecutionCtxRecordEvent(cyctx, cyevent)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaExecutionCtxWaitEvent' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaExecutionCtxWaitEvent(ctx, event):
@@ -40747,9 +39211,6 @@ def cudaExecutionCtxWaitEvent(ctx, event):
     with nogil:
         err = cyruntime.cudaExecutionCtxWaitEvent(cyctx, cyevent)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaDeviceGetExecutionCtx' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaDeviceGetExecutionCtx(int device):
@@ -40787,9 +39248,6 @@ def cudaDeviceGetExecutionCtx(int device):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, ctx)
-{{endif}}
-
-{{if 'cudaGetExportTable' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetExportTable(pExportTableId : Optional[cudaUUID_t]):
@@ -40801,9 +39259,6 @@ def cudaGetExportTable(pExportTableId : Optional[cudaUUID_t]):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, ppExportTable)
-{{endif}}
-
-{{if 'cudaGetKernel' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGetKernel(entryFuncAddr):
@@ -40846,9 +39301,6 @@ def cudaGetKernel(entryFuncAddr):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, kernelPtr)
-{{endif}}
-
-{{if 'make_cudaPitchedPtr' in found_functions}}
 
 @cython.embedsignature(True)
 def make_cudaPitchedPtr(d, size_t p, size_t xsz, size_t ysz):
@@ -40887,9 +39339,6 @@ def make_cudaPitchedPtr(d, size_t p, size_t xsz, size_t ysz):
     cdef cudaPitchedPtr wrapper = cudaPitchedPtr()
     wrapper._pvt_ptr[0] = err
     return wrapper
-{{endif}}
-
-{{if 'make_cudaPos' in found_functions}}
 
 @cython.embedsignature(True)
 def make_cudaPos(size_t x, size_t y, size_t z):
@@ -40923,9 +39372,6 @@ def make_cudaPos(size_t x, size_t y, size_t z):
     cdef cudaPos wrapper = cudaPos()
     wrapper._pvt_ptr[0] = err
     return wrapper
-{{endif}}
-
-{{if 'make_cudaExtent' in found_functions}}
 
 @cython.embedsignature(True)
 def make_cudaExtent(size_t w, size_t h, size_t d):
@@ -40960,19 +39406,17 @@ def make_cudaExtent(size_t w, size_t h, size_t d):
     cdef cudaExtent wrapper = cudaExtent()
     wrapper._pvt_ptr[0] = err
     return wrapper
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaGraphicsEGLRegisterImage(image, unsigned int flags):
     """ Registers an EGL image.
 
-    Registers the EGLImageKHR specified by `image` for access by CUDA. A
-    handle to the registered object is returned as `pCudaResource`.
-    Additional Mapping/Unmapping is not required for the registered
-    resource and :py:obj:`~.cudaGraphicsResourceGetMappedEglFrame` can be
-    directly called on the `pCudaResource`.
+    Registers the :py:obj:`~.EGLImageKHR` specified by `image` for access
+    by CUDA. A handle to the registered object is returned as
+    `pCudaResource`. Additional Mapping/Unmapping is not required for the
+    registered resource and
+    :py:obj:`~.cudaGraphicsResourceGetMappedEglFrame` can be directly
+    called on the `pCudaResource`.
 
     The application will be responsible for synchronizing access to shared
     objects. The application must ensure that any pending operation which
@@ -41000,14 +39444,15 @@ def cudaGraphicsEGLRegisterImage(image, unsigned int flags):
       contents of the resource, so none of the data previously stored in
       the resource will be preserved.
 
-    The EGLImageKHR is an object which can be used to create EGLImage
-    target resource. It is defined as a void pointer. typedef void*
-    EGLImageKHR
+    The :py:obj:`~.EGLImageKHR` is an object which can be used to create
+    EGLImage target resource. It is defined as a void pointer. typedef
+    void* :py:obj:`~.EGLImageKHR`
 
     Parameters
     ----------
     image : :py:obj:`~.EGLImageKHR`
-        An EGLImageKHR image which can be used to create target resource.
+        An :py:obj:`~.EGLImageKHR` image which can be used to create target
+        resource.
     flags : unsigned int
         Map flags
 
@@ -41036,23 +39481,21 @@ def cudaGraphicsEGLRegisterImage(image, unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, pCudaResource)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaEGLStreamConsumerConnect(eglStream):
     """ Connect CUDA to EGLStream as a consumer.
 
-    Connect CUDA as a consumer to EGLStreamKHR specified by `eglStream`.
+    Connect CUDA as a consumer to :py:obj:`~.EGLStreamKHR` specified by
+    `eglStream`.
 
-    The EGLStreamKHR is an EGL object that transfers a sequence of image
-    frames from one API to another.
+    The :py:obj:`~.EGLStreamKHR` is an EGL object that transfers a sequence
+    of image frames from one API to another.
 
     Parameters
     ----------
     eglStream : :py:obj:`~.EGLStreamKHR`
-        EGLStreamKHR handle
+        :py:obj:`~.EGLStreamKHR` handle
 
     Returns
     -------
@@ -41079,16 +39522,14 @@ def cudaEGLStreamConsumerConnect(eglStream):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, conn)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaEGLStreamConsumerConnectWithFlags(eglStream, unsigned int flags):
     """ Connect CUDA to EGLStream as a consumer with given flags.
 
-    Connect CUDA as a consumer to EGLStreamKHR specified by `stream` with
-    specified `flags` defined by :py:obj:`~.cudaEglResourceLocationFlags`.
+    Connect CUDA as a consumer to :py:obj:`~.EGLStreamKHR` specified by
+    `stream` with specified `flags` defined by
+    :py:obj:`~.cudaEglResourceLocationFlags`.
 
     The flags specify whether the consumer wants to access frames from
     system memory or video memory. Default is
@@ -41097,7 +39538,7 @@ def cudaEGLStreamConsumerConnectWithFlags(eglStream, unsigned int flags):
     Parameters
     ----------
     eglStream : :py:obj:`~.EGLStreamKHR`
-        EGLStreamKHR handle
+        :py:obj:`~.EGLStreamKHR` handle
     flags : unsigned int
         Flags denote intended location - system or video.
 
@@ -41126,15 +39567,12 @@ def cudaEGLStreamConsumerConnectWithFlags(eglStream, unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, conn)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaEGLStreamConsumerDisconnect(conn):
     """ Disconnect CUDA as a consumer to EGLStream .
 
-    Disconnect CUDA as a consumer to EGLStreamKHR.
+    Disconnect CUDA as a consumer to :py:obj:`~.EGLStreamKHR`.
 
     Parameters
     ----------
@@ -41163,15 +39601,12 @@ def cudaEGLStreamConsumerDisconnect(conn):
     with nogil:
         err = cyruntime.cudaEGLStreamConsumerDisconnect(cyconn)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaEGLStreamConsumerAcquireFrame(conn, pCudaResource, pStream, unsigned int timeout):
     """ Acquire an image frame from the EGLStream with CUDA as a consumer.
 
-    Acquire an image frame from EGLStreamKHR.
+    Acquire an image frame from :py:obj:`~.EGLStreamKHR`.
     :py:obj:`~.cudaGraphicsResourceGetMappedEglFrame` can be called on
     `pCudaResource` to get :py:obj:`~.cudaEglFrame`.
 
@@ -41229,16 +39664,13 @@ def cudaEGLStreamConsumerAcquireFrame(conn, pCudaResource, pStream, unsigned int
     with nogil:
         err = cyruntime.cudaEGLStreamConsumerAcquireFrame(cyconn, cypCudaResource, cypStream, timeout)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaEGLStreamConsumerReleaseFrame(conn, pCudaResource, pStream):
     """ Releases the last frame acquired from the EGLStream.
 
     Release the acquired image frame specified by `pCudaResource` to
-    EGLStreamKHR.
+    :py:obj:`~.EGLStreamKHR`.
 
     Parameters
     ----------
@@ -41289,23 +39721,21 @@ def cudaEGLStreamConsumerReleaseFrame(conn, pCudaResource, pStream):
     with nogil:
         err = cyruntime.cudaEGLStreamConsumerReleaseFrame(cyconn, cypCudaResource, cypStream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaEGLStreamProducerConnect(eglStream, width, height):
     """ Connect CUDA to EGLStream as a producer.
 
-    Connect CUDA as a producer to EGLStreamKHR specified by `stream`.
+    Connect CUDA as a producer to :py:obj:`~.EGLStreamKHR` specified by
+    `stream`.
 
-    The EGLStreamKHR is an EGL object that transfers a sequence of image
-    frames from one API to another.
+    The :py:obj:`~.EGLStreamKHR` is an EGL object that transfers a sequence
+    of image frames from one API to another.
 
     Parameters
     ----------
     eglStream : :py:obj:`~.EGLStreamKHR`
-        EGLStreamKHR handle
+        :py:obj:`~.EGLStreamKHR` handle
     width : :py:obj:`~.EGLint`
         width of the image to be submitted to the stream
     height : :py:obj:`~.EGLint`
@@ -41352,15 +39782,12 @@ def cudaEGLStreamProducerConnect(eglStream, width, height):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, conn)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaEGLStreamProducerDisconnect(conn):
     """ Disconnect CUDA as a producer to EGLStream .
 
-    Disconnect CUDA as a producer to EGLStreamKHR.
+    Disconnect CUDA as a producer to :py:obj:`~.EGLStreamKHR`.
 
     Parameters
     ----------
@@ -41389,9 +39816,6 @@ def cudaEGLStreamProducerDisconnect(conn):
     with nogil:
         err = cyruntime.cudaEGLStreamProducerDisconnect(cyconn)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaEGLStreamProducerPresentFrame(conn, eglframe not None : cudaEglFrame, pStream):
@@ -41449,9 +39873,6 @@ def cudaEGLStreamProducerPresentFrame(conn, eglframe not None : cudaEglFrame, pS
     with nogil:
         err = cyruntime.cudaEGLStreamProducerPresentFrame(cyconn, eglframe._pvt_ptr[0], cypStream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaEGLStreamProducerReturnFrame(conn, eglframe : Optional[cudaEglFrame], pStream):
@@ -41504,9 +39925,6 @@ def cudaEGLStreamProducerReturnFrame(conn, eglframe : Optional[cudaEglFrame], pS
     with nogil:
         err = cyruntime.cudaEGLStreamProducerReturnFrame(cyconn, cyeglframe_ptr, cypStream)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaGraphicsResourceGetMappedEglFrame(resource, unsigned int index, unsigned int mipLevel):
@@ -41558,16 +39976,13 @@ def cudaGraphicsResourceGetMappedEglFrame(resource, unsigned int index, unsigned
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, eglFrame)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaEventCreateFromEGLSync(eglSync, unsigned int flags):
     """ Creates an event from EGLSync object.
 
-    Creates an event *phEvent from an EGLSyncKHR eglSync with the flages
-    specified via `flags`. Valid flags include:
+    Creates an event *phEvent from an :py:obj:`~.EGLSyncKHR` eglSync with
+    the flages specified via `flags`. Valid flags include:
 
     - :py:obj:`~.cudaEventDefault`: Default event creation flag.
 
@@ -41579,8 +39994,8 @@ def cudaEventCreateFromEGLSync(eglSync, unsigned int flags):
     :py:obj:`~.cudaEventRecord` and TimingData are not supported for events
     created from EGLSync.
 
-    The EGLSyncKHR is an opaque handle to an EGL sync object. typedef void*
-    EGLSyncKHR
+    The :py:obj:`~.EGLSyncKHR` is an opaque handle to an EGL sync object.
+    typedef void* :py:obj:`~.EGLSyncKHR`
 
     Parameters
     ----------
@@ -41614,9 +40029,6 @@ def cudaEventCreateFromEGLSync(eglSync, unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, phEvent)
-{{endif}}
-
-{{if 'cudaProfilerStart' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaProfilerStart():
@@ -41642,9 +40054,6 @@ def cudaProfilerStart():
     with nogil:
         err = cyruntime.cudaProfilerStart()
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if 'cudaProfilerStop' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaProfilerStop():
@@ -41670,9 +40079,6 @@ def cudaProfilerStop():
     with nogil:
         err = cyruntime.cudaProfilerStop()
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaGLGetDevices(unsigned int cudaDeviceCount, deviceList not None : cudaGLDeviceList):
@@ -41738,9 +40144,6 @@ def cudaGLGetDevices(unsigned int cudaDeviceCount, deviceList not None : cudaGLD
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, pCudaDeviceCount, pypCudaDevices)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaGraphicsGLRegisterImage(image, target, unsigned int flags):
@@ -41838,9 +40241,6 @@ def cudaGraphicsGLRegisterImage(image, target, unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, resource)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaGraphicsGLRegisterBuffer(buffer, unsigned int flags):
@@ -41895,22 +40295,20 @@ def cudaGraphicsGLRegisterBuffer(buffer, unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, resource)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaVDPAUGetDevice(vdpDevice, vdpGetProcAddress):
-    """ Gets the CUDA device associated with a VdpDevice.
+    """ Gets the CUDA device associated with a :py:obj:`~.VdpDevice`.
 
-    Returns the CUDA device associated with a VdpDevice, if applicable.
+    Returns the CUDA device associated with a :py:obj:`~.VdpDevice`, if
+    applicable.
 
     Parameters
     ----------
     vdpDevice : :py:obj:`~.VdpDevice`
-        A VdpDevice handle
+        A :py:obj:`~.VdpDevice` handle
     vdpGetProcAddress : :py:obj:`~.VdpGetProcAddress`
-        VDPAU's VdpGetProcAddress function pointer
+        VDPAU's :py:obj:`~.VdpGetProcAddress` function pointer
 
     Returns
     -------
@@ -41948,17 +40346,14 @@ def cudaVDPAUGetDevice(vdpDevice, vdpGetProcAddress):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, device)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaVDPAUSetVDPAUDevice(int device, vdpDevice, vdpGetProcAddress):
     """ Sets a CUDA device to use VDPAU interoperability.
 
-    Records `vdpDevice` as the VdpDevice for VDPAU interoperability with
-    the CUDA device `device` and sets `device` as the current device for
-    the calling host thread.
+    Records `vdpDevice` as the :py:obj:`~.VdpDevice` for VDPAU
+    interoperability with the CUDA device `device` and sets `device` as the
+    current device for the calling host thread.
 
     This function will immediately initialize the primary context on
     `device` if needed.
@@ -41973,9 +40368,9 @@ def cudaVDPAUSetVDPAUDevice(int device, vdpDevice, vdpGetProcAddress):
     device : int
         Device to use for VDPAU interoperability
     vdpDevice : :py:obj:`~.VdpDevice`
-        The VdpDevice to interoperate with
+        The :py:obj:`~.VdpDevice` to interoperate with
     vdpGetProcAddress : :py:obj:`~.VdpGetProcAddress`
-        VDPAU's VdpGetProcAddress function pointer
+        VDPAU's :py:obj:`~.VdpGetProcAddress` function pointer
 
     Returns
     -------
@@ -42007,17 +40402,15 @@ def cudaVDPAUSetVDPAUDevice(int device, vdpDevice, vdpGetProcAddress):
     with nogil:
         err = cyruntime.cudaVDPAUSetVDPAUDevice(device, cyvdpDevice, cyvdpGetProcAddress)
     return (_cudaError_t(err),)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaGraphicsVDPAURegisterVideoSurface(vdpSurface, unsigned int flags):
-    """ Register a VdpVideoSurface object.
+    """ Register a :py:obj:`~.VdpVideoSurface` object.
 
-    Registers the VdpVideoSurface specified by `vdpSurface` for access by
-    CUDA. A handle to the registered object is returned as `resource`. The
-    surface's intended usage is specified using `flags`, as follows:
+    Registers the :py:obj:`~.VdpVideoSurface` specified by `vdpSurface` for
+    access by CUDA. A handle to the registered object is returned as
+    `resource`. The surface's intended usage is specified using `flags`, as
+    follows:
 
     - :py:obj:`~.cudaGraphicsMapFlagsNone`: Specifies no hints about how
       this resource will be used. It is therefore assumed that this
@@ -42064,17 +40457,15 @@ def cudaGraphicsVDPAURegisterVideoSurface(vdpSurface, unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, resource)
-{{endif}}
-
-{{if True}}
 
 @cython.embedsignature(True)
 def cudaGraphicsVDPAURegisterOutputSurface(vdpSurface, unsigned int flags):
-    """ Register a VdpOutputSurface object.
+    """ Register a :py:obj:`~.VdpOutputSurface` object.
 
-    Registers the VdpOutputSurface specified by `vdpSurface` for access by
-    CUDA. A handle to the registered object is returned as `resource`. The
-    surface's intended usage is specified using `flags`, as follows:
+    Registers the :py:obj:`~.VdpOutputSurface` specified by `vdpSurface`
+    for access by CUDA. A handle to the registered object is returned as
+    `resource`. The surface's intended usage is specified using `flags`, as
+    follows:
 
     - :py:obj:`~.cudaGraphicsMapFlagsNone`: Specifies no hints about how
       this resource will be used. It is therefore assumed that this
@@ -42121,8 +40512,6 @@ def cudaGraphicsVDPAURegisterOutputSurface(vdpSurface, unsigned int flags):
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, resource)
-{{endif}}
-
 
 @cython.embedsignature(True)
 def getLocalRuntimeVersion():
@@ -42154,7 +40543,6 @@ def getLocalRuntimeVersion():
     err = cyruntime.getLocalRuntimeVersion(&runtimeVersion)
     return (cudaError_t(err), runtimeVersion)
 
-
 cdef class cudaBindingsRuntimeGlobal:
     cdef map[void_ptr, void*] _allocated
 
@@ -42164,7 +40552,6 @@ cdef class cudaBindingsRuntimeGlobal:
         self._allocated.clear()
 
 cdef cudaBindingsRuntimeGlobal m_global = cudaBindingsRuntimeGlobal()
-
 
 @cython.embedsignature(True)
 def sizeof(objType):
@@ -42180,501 +40567,500 @@ def sizeof(objType):
     lowered_name : int
         The size of `objType` in bytes
     """
-    {{if 'dim3' in found_struct}}
+
     if objType == dim3:
-        return sizeof(cyruntime.dim3){{endif}}
-    {{if 'cudaDevResourceDesc_t' in found_types}}
+        return sizeof(cyruntime.dim3)
+
     if objType == cudaDevResourceDesc_t:
-        return sizeof(cyruntime.cudaDevResourceDesc_t){{endif}}
-    {{if 'cudaExecutionContext_t' in found_types}}
+        return sizeof(cyruntime.cudaDevResourceDesc_t)
+
     if objType == cudaExecutionContext_t:
-        return sizeof(cyruntime.cudaExecutionContext_t){{endif}}
-    {{if 'cudaChannelFormatDesc' in found_struct}}
+        return sizeof(cyruntime.cudaExecutionContext_t)
+
     if objType == cudaChannelFormatDesc:
-        return sizeof(cyruntime.cudaChannelFormatDesc){{endif}}
-    {{if 'cudaArray_t' in found_types}}
+        return sizeof(cyruntime.cudaChannelFormatDesc)
+
     if objType == cudaArray_t:
-        return sizeof(cyruntime.cudaArray_t){{endif}}
-    {{if 'cudaArray_const_t' in found_types}}
+        return sizeof(cyruntime.cudaArray_t)
+
     if objType == cudaArray_const_t:
-        return sizeof(cyruntime.cudaArray_const_t){{endif}}
-    {{if 'cudaMipmappedArray_t' in found_types}}
+        return sizeof(cyruntime.cudaArray_const_t)
+
     if objType == cudaMipmappedArray_t:
-        return sizeof(cyruntime.cudaMipmappedArray_t){{endif}}
-    {{if 'cudaMipmappedArray_const_t' in found_types}}
+        return sizeof(cyruntime.cudaMipmappedArray_t)
+
     if objType == cudaMipmappedArray_const_t:
-        return sizeof(cyruntime.cudaMipmappedArray_const_t){{endif}}
-    {{if 'cudaArraySparseProperties' in found_struct}}
+        return sizeof(cyruntime.cudaMipmappedArray_const_t)
+
     if objType == cudaArraySparseProperties:
-        return sizeof(cyruntime.cudaArraySparseProperties){{endif}}
-    {{if 'cudaArrayMemoryRequirements' in found_struct}}
+        return sizeof(cyruntime.cudaArraySparseProperties)
+
     if objType == cudaArrayMemoryRequirements:
-        return sizeof(cyruntime.cudaArrayMemoryRequirements){{endif}}
-    {{if 'cudaPitchedPtr' in found_struct}}
+        return sizeof(cyruntime.cudaArrayMemoryRequirements)
+
     if objType == cudaPitchedPtr:
-        return sizeof(cyruntime.cudaPitchedPtr){{endif}}
-    {{if 'cudaExtent' in found_struct}}
+        return sizeof(cyruntime.cudaPitchedPtr)
+
     if objType == cudaExtent:
-        return sizeof(cyruntime.cudaExtent){{endif}}
-    {{if 'cudaPos' in found_struct}}
+        return sizeof(cyruntime.cudaExtent)
+
     if objType == cudaPos:
-        return sizeof(cyruntime.cudaPos){{endif}}
-    {{if 'cudaMemcpy3DParms' in found_struct}}
+        return sizeof(cyruntime.cudaPos)
+
     if objType == cudaMemcpy3DParms:
-        return sizeof(cyruntime.cudaMemcpy3DParms){{endif}}
-    {{if 'cudaMemcpyNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaMemcpy3DParms)
+
     if objType == cudaMemcpyNodeParams:
-        return sizeof(cyruntime.cudaMemcpyNodeParams){{endif}}
-    {{if 'cudaMemcpy3DPeerParms' in found_struct}}
+        return sizeof(cyruntime.cudaMemcpyNodeParams)
+
     if objType == cudaMemcpy3DPeerParms:
-        return sizeof(cyruntime.cudaMemcpy3DPeerParms){{endif}}
-    {{if 'cudaMemsetParams' in found_struct}}
+        return sizeof(cyruntime.cudaMemcpy3DPeerParms)
+
     if objType == cudaMemsetParams:
-        return sizeof(cyruntime.cudaMemsetParams){{endif}}
-    {{if 'cudaMemsetParamsV2' in found_struct}}
+        return sizeof(cyruntime.cudaMemsetParams)
+
     if objType == cudaMemsetParamsV2:
-        return sizeof(cyruntime.cudaMemsetParamsV2){{endif}}
-    {{if 'cudaAccessPolicyWindow' in found_struct}}
+        return sizeof(cyruntime.cudaMemsetParamsV2)
+
     if objType == cudaAccessPolicyWindow:
-        return sizeof(cyruntime.cudaAccessPolicyWindow){{endif}}
-    {{if 'cudaHostFn_t' in found_types}}
+        return sizeof(cyruntime.cudaAccessPolicyWindow)
+
     if objType == cudaHostFn_t:
-        return sizeof(cyruntime.cudaHostFn_t){{endif}}
-    {{if 'cudaHostNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaHostFn_t)
+
     if objType == cudaHostNodeParams:
-        return sizeof(cyruntime.cudaHostNodeParams){{endif}}
-    {{if 'cudaHostNodeParamsV2' in found_struct}}
+        return sizeof(cyruntime.cudaHostNodeParams)
+
     if objType == cudaHostNodeParamsV2:
-        return sizeof(cyruntime.cudaHostNodeParamsV2){{endif}}
-    {{if 'cudaResourceDesc' in found_struct}}
+        return sizeof(cyruntime.cudaHostNodeParamsV2)
+
     if objType == cudaResourceDesc:
-        return sizeof(cyruntime.cudaResourceDesc){{endif}}
-    {{if 'cudaResourceViewDesc' in found_struct}}
+        return sizeof(cyruntime.cudaResourceDesc)
+
     if objType == cudaResourceViewDesc:
-        return sizeof(cyruntime.cudaResourceViewDesc){{endif}}
-    {{if 'cudaPointerAttributes' in found_struct}}
+        return sizeof(cyruntime.cudaResourceViewDesc)
+
     if objType == cudaPointerAttributes:
-        return sizeof(cyruntime.cudaPointerAttributes){{endif}}
-    {{if 'cudaFuncAttributes' in found_struct}}
+        return sizeof(cyruntime.cudaPointerAttributes)
+
     if objType == cudaFuncAttributes:
-        return sizeof(cyruntime.cudaFuncAttributes){{endif}}
-    {{if 'cudaMemLocation' in found_struct}}
+        return sizeof(cyruntime.cudaFuncAttributes)
+
     if objType == cudaMemLocation:
-        return sizeof(cyruntime.cudaMemLocation){{endif}}
-    {{if 'cudaMemAccessDesc' in found_struct}}
+        return sizeof(cyruntime.cudaMemLocation)
+
     if objType == cudaMemAccessDesc:
-        return sizeof(cyruntime.cudaMemAccessDesc){{endif}}
-    {{if 'cudaMemPoolProps' in found_struct}}
+        return sizeof(cyruntime.cudaMemAccessDesc)
+
     if objType == cudaMemPoolProps:
-        return sizeof(cyruntime.cudaMemPoolProps){{endif}}
-    {{if 'cudaMemPoolPtrExportData' in found_struct}}
+        return sizeof(cyruntime.cudaMemPoolProps)
+
     if objType == cudaMemPoolPtrExportData:
-        return sizeof(cyruntime.cudaMemPoolPtrExportData){{endif}}
-    {{if 'cudaMemAllocNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaMemPoolPtrExportData)
+
     if objType == cudaMemAllocNodeParams:
-        return sizeof(cyruntime.cudaMemAllocNodeParams){{endif}}
-    {{if 'cudaMemAllocNodeParamsV2' in found_struct}}
+        return sizeof(cyruntime.cudaMemAllocNodeParams)
+
     if objType == cudaMemAllocNodeParamsV2:
-        return sizeof(cyruntime.cudaMemAllocNodeParamsV2){{endif}}
-    {{if 'cudaMemFreeNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaMemAllocNodeParamsV2)
+
     if objType == cudaMemFreeNodeParams:
-        return sizeof(cyruntime.cudaMemFreeNodeParams){{endif}}
-    {{if 'cudaMemcpyAttributes' in found_struct}}
+        return sizeof(cyruntime.cudaMemFreeNodeParams)
+
     if objType == cudaMemcpyAttributes:
-        return sizeof(cyruntime.cudaMemcpyAttributes){{endif}}
-    {{if 'cudaOffset3D' in found_struct}}
+        return sizeof(cyruntime.cudaMemcpyAttributes)
+
     if objType == cudaOffset3D:
-        return sizeof(cyruntime.cudaOffset3D){{endif}}
-    {{if 'cudaMemcpy3DOperand' in found_struct}}
+        return sizeof(cyruntime.cudaOffset3D)
+
     if objType == cudaMemcpy3DOperand:
-        return sizeof(cyruntime.cudaMemcpy3DOperand){{endif}}
-    {{if 'cudaMemcpy3DBatchOp' in found_struct}}
+        return sizeof(cyruntime.cudaMemcpy3DOperand)
+
     if objType == cudaMemcpy3DBatchOp:
-        return sizeof(cyruntime.cudaMemcpy3DBatchOp){{endif}}
-    {{if 'CUuuid_st' in found_struct}}
+        return sizeof(cyruntime.cudaMemcpy3DBatchOp)
+
     if objType == CUuuid_st:
-        return sizeof(cyruntime.CUuuid_st){{endif}}
-    {{if 'CUuuid' in found_types}}
+        return sizeof(cyruntime.CUuuid_st)
+
     if objType == CUuuid:
-        return sizeof(cyruntime.CUuuid){{endif}}
-    {{if 'cudaUUID_t' in found_types}}
+        return sizeof(cyruntime.CUuuid)
+
     if objType == cudaUUID_t:
-        return sizeof(cyruntime.cudaUUID_t){{endif}}
-    {{if 'cudaDeviceProp' in found_struct}}
+        return sizeof(cyruntime.cudaUUID_t)
+
     if objType == cudaDeviceProp:
-        return sizeof(cyruntime.cudaDeviceProp){{endif}}
-    {{if 'cudaIpcEventHandle_st' in found_struct}}
+        return sizeof(cyruntime.cudaDeviceProp)
+
     if objType == cudaIpcEventHandle_st:
-        return sizeof(cyruntime.cudaIpcEventHandle_st){{endif}}
-    {{if 'cudaIpcEventHandle_t' in found_types}}
+        return sizeof(cyruntime.cudaIpcEventHandle_st)
+
     if objType == cudaIpcEventHandle_t:
-        return sizeof(cyruntime.cudaIpcEventHandle_t){{endif}}
-    {{if 'cudaIpcMemHandle_st' in found_struct}}
+        return sizeof(cyruntime.cudaIpcEventHandle_t)
+
     if objType == cudaIpcMemHandle_st:
-        return sizeof(cyruntime.cudaIpcMemHandle_st){{endif}}
-    {{if 'cudaIpcMemHandle_t' in found_types}}
+        return sizeof(cyruntime.cudaIpcMemHandle_st)
+
     if objType == cudaIpcMemHandle_t:
-        return sizeof(cyruntime.cudaIpcMemHandle_t){{endif}}
-    {{if 'cudaMemFabricHandle_st' in found_struct}}
+        return sizeof(cyruntime.cudaIpcMemHandle_t)
+
     if objType == cudaMemFabricHandle_st:
-        return sizeof(cyruntime.cudaMemFabricHandle_st){{endif}}
-    {{if 'cudaMemFabricHandle_t' in found_types}}
+        return sizeof(cyruntime.cudaMemFabricHandle_st)
+
     if objType == cudaMemFabricHandle_t:
-        return sizeof(cyruntime.cudaMemFabricHandle_t){{endif}}
-    {{if 'cudaExternalMemoryHandleDesc' in found_struct}}
+        return sizeof(cyruntime.cudaMemFabricHandle_t)
+
     if objType == cudaExternalMemoryHandleDesc:
-        return sizeof(cyruntime.cudaExternalMemoryHandleDesc){{endif}}
-    {{if 'cudaExternalMemoryBufferDesc' in found_struct}}
+        return sizeof(cyruntime.cudaExternalMemoryHandleDesc)
+
     if objType == cudaExternalMemoryBufferDesc:
-        return sizeof(cyruntime.cudaExternalMemoryBufferDesc){{endif}}
-    {{if 'cudaExternalMemoryMipmappedArrayDesc' in found_struct}}
+        return sizeof(cyruntime.cudaExternalMemoryBufferDesc)
+
     if objType == cudaExternalMemoryMipmappedArrayDesc:
-        return sizeof(cyruntime.cudaExternalMemoryMipmappedArrayDesc){{endif}}
-    {{if 'cudaExternalSemaphoreHandleDesc' in found_struct}}
+        return sizeof(cyruntime.cudaExternalMemoryMipmappedArrayDesc)
+
     if objType == cudaExternalSemaphoreHandleDesc:
-        return sizeof(cyruntime.cudaExternalSemaphoreHandleDesc){{endif}}
-    {{if 'cudaExternalSemaphoreSignalParams' in found_struct}}
+        return sizeof(cyruntime.cudaExternalSemaphoreHandleDesc)
+
     if objType == cudaExternalSemaphoreSignalParams:
-        return sizeof(cyruntime.cudaExternalSemaphoreSignalParams){{endif}}
-    {{if 'cudaExternalSemaphoreWaitParams' in found_struct}}
+        return sizeof(cyruntime.cudaExternalSemaphoreSignalParams)
+
     if objType == cudaExternalSemaphoreWaitParams:
-        return sizeof(cyruntime.cudaExternalSemaphoreWaitParams){{endif}}
-    {{if 'cudaDevSmResource' in found_struct}}
+        return sizeof(cyruntime.cudaExternalSemaphoreWaitParams)
+
     if objType == cudaDevSmResource:
-        return sizeof(cyruntime.cudaDevSmResource){{endif}}
-    {{if 'cudaDevWorkqueueConfigResource' in found_struct}}
+        return sizeof(cyruntime.cudaDevSmResource)
+
     if objType == cudaDevWorkqueueConfigResource:
-        return sizeof(cyruntime.cudaDevWorkqueueConfigResource){{endif}}
-    {{if 'cudaDevWorkqueueResource' in found_struct}}
+        return sizeof(cyruntime.cudaDevWorkqueueConfigResource)
+
     if objType == cudaDevWorkqueueResource:
-        return sizeof(cyruntime.cudaDevWorkqueueResource){{endif}}
-    {{if 'cudaDevSmResourceGroupParams_st' in found_struct}}
+        return sizeof(cyruntime.cudaDevWorkqueueResource)
+
     if objType == cudaDevSmResourceGroupParams_st:
-        return sizeof(cyruntime.cudaDevSmResourceGroupParams_st){{endif}}
-    {{if 'cudaDevSmResourceGroupParams' in found_types}}
+        return sizeof(cyruntime.cudaDevSmResourceGroupParams_st)
+
     if objType == cudaDevSmResourceGroupParams:
-        return sizeof(cyruntime.cudaDevSmResourceGroupParams){{endif}}
-    {{if 'cudaDevResource_st' in found_struct}}
+        return sizeof(cyruntime.cudaDevSmResourceGroupParams)
+
     if objType == cudaDevResource_st:
-        return sizeof(cyruntime.cudaDevResource_st){{endif}}
-    {{if 'cudaDevResource' in found_types}}
+        return sizeof(cyruntime.cudaDevResource_st)
+
     if objType == cudaDevResource:
-        return sizeof(cyruntime.cudaDevResource){{endif}}
-    {{if 'cudaStream_t' in found_types}}
+        return sizeof(cyruntime.cudaDevResource)
+
     if objType == cudaStream_t:
-        return sizeof(cyruntime.cudaStream_t){{endif}}
-    {{if 'cudaEvent_t' in found_types}}
+        return sizeof(cyruntime.cudaStream_t)
+
     if objType == cudaEvent_t:
-        return sizeof(cyruntime.cudaEvent_t){{endif}}
-    {{if 'cudaGraphicsResource_t' in found_types}}
+        return sizeof(cyruntime.cudaEvent_t)
+
     if objType == cudaGraphicsResource_t:
-        return sizeof(cyruntime.cudaGraphicsResource_t){{endif}}
-    {{if 'cudaExternalMemory_t' in found_types}}
+        return sizeof(cyruntime.cudaGraphicsResource_t)
+
     if objType == cudaExternalMemory_t:
-        return sizeof(cyruntime.cudaExternalMemory_t){{endif}}
-    {{if 'cudaExternalSemaphore_t' in found_types}}
+        return sizeof(cyruntime.cudaExternalMemory_t)
+
     if objType == cudaExternalSemaphore_t:
-        return sizeof(cyruntime.cudaExternalSemaphore_t){{endif}}
-    {{if 'cudaGraph_t' in found_types}}
+        return sizeof(cyruntime.cudaExternalSemaphore_t)
+
     if objType == cudaGraph_t:
-        return sizeof(cyruntime.cudaGraph_t){{endif}}
-    {{if 'cudaGraphNode_t' in found_types}}
+        return sizeof(cyruntime.cudaGraph_t)
+
     if objType == cudaGraphNode_t:
-        return sizeof(cyruntime.cudaGraphNode_t){{endif}}
-    {{if 'cudaUserObject_t' in found_types}}
+        return sizeof(cyruntime.cudaGraphNode_t)
+
     if objType == cudaUserObject_t:
-        return sizeof(cyruntime.cudaUserObject_t){{endif}}
-    {{if 'cudaGraphConditionalHandle' in found_types}}
+        return sizeof(cyruntime.cudaUserObject_t)
+
     if objType == cudaGraphConditionalHandle:
-        return sizeof(cyruntime.cudaGraphConditionalHandle){{endif}}
-    {{if 'cudaFunction_t' in found_types}}
+        return sizeof(cyruntime.cudaGraphConditionalHandle)
+
     if objType == cudaFunction_t:
-        return sizeof(cyruntime.cudaFunction_t){{endif}}
-    {{if 'cudaKernel_t' in found_types}}
+        return sizeof(cyruntime.cudaFunction_t)
+
     if objType == cudaKernel_t:
-        return sizeof(cyruntime.cudaKernel_t){{endif}}
-    {{if 'cudalibraryHostUniversalFunctionAndDataTable' in found_struct}}
+        return sizeof(cyruntime.cudaKernel_t)
+
     if objType == cudalibraryHostUniversalFunctionAndDataTable:
-        return sizeof(cyruntime.cudalibraryHostUniversalFunctionAndDataTable){{endif}}
-    {{if 'cudaLibrary_t' in found_types}}
+        return sizeof(cyruntime.cudalibraryHostUniversalFunctionAndDataTable)
+
     if objType == cudaLibrary_t:
-        return sizeof(cyruntime.cudaLibrary_t){{endif}}
-    {{if 'cudaMemPool_t' in found_types}}
+        return sizeof(cyruntime.cudaLibrary_t)
+
     if objType == cudaMemPool_t:
-        return sizeof(cyruntime.cudaMemPool_t){{endif}}
-    {{if 'cudaKernelNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaMemPool_t)
+
     if objType == cudaKernelNodeParams:
-        return sizeof(cyruntime.cudaKernelNodeParams){{endif}}
-    {{if 'cudaKernelNodeParamsV2' in found_struct}}
+        return sizeof(cyruntime.cudaKernelNodeParams)
+
     if objType == cudaKernelNodeParamsV2:
-        return sizeof(cyruntime.cudaKernelNodeParamsV2){{endif}}
-    {{if 'cudaExternalSemaphoreSignalNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaKernelNodeParamsV2)
+
     if objType == cudaExternalSemaphoreSignalNodeParams:
-        return sizeof(cyruntime.cudaExternalSemaphoreSignalNodeParams){{endif}}
-    {{if 'cudaExternalSemaphoreSignalNodeParamsV2' in found_struct}}
+        return sizeof(cyruntime.cudaExternalSemaphoreSignalNodeParams)
+
     if objType == cudaExternalSemaphoreSignalNodeParamsV2:
-        return sizeof(cyruntime.cudaExternalSemaphoreSignalNodeParamsV2){{endif}}
-    {{if 'cudaExternalSemaphoreWaitNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaExternalSemaphoreSignalNodeParamsV2)
+
     if objType == cudaExternalSemaphoreWaitNodeParams:
-        return sizeof(cyruntime.cudaExternalSemaphoreWaitNodeParams){{endif}}
-    {{if 'cudaExternalSemaphoreWaitNodeParamsV2' in found_struct}}
+        return sizeof(cyruntime.cudaExternalSemaphoreWaitNodeParams)
+
     if objType == cudaExternalSemaphoreWaitNodeParamsV2:
-        return sizeof(cyruntime.cudaExternalSemaphoreWaitNodeParamsV2){{endif}}
-    {{if 'cudaConditionalNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaExternalSemaphoreWaitNodeParamsV2)
+
     if objType == cudaConditionalNodeParams:
-        return sizeof(cyruntime.cudaConditionalNodeParams){{endif}}
-    {{if 'cudaChildGraphNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaConditionalNodeParams)
+
     if objType == cudaChildGraphNodeParams:
-        return sizeof(cyruntime.cudaChildGraphNodeParams){{endif}}
-    {{if 'cudaEventRecordNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaChildGraphNodeParams)
+
     if objType == cudaEventRecordNodeParams:
-        return sizeof(cyruntime.cudaEventRecordNodeParams){{endif}}
-    {{if 'cudaEventWaitNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaEventRecordNodeParams)
+
     if objType == cudaEventWaitNodeParams:
-        return sizeof(cyruntime.cudaEventWaitNodeParams){{endif}}
-    {{if 'cudaGraphNodeParams' in found_struct}}
+        return sizeof(cyruntime.cudaEventWaitNodeParams)
+
     if objType == cudaGraphNodeParams:
-        return sizeof(cyruntime.cudaGraphNodeParams){{endif}}
-    {{if 'cudaGraphEdgeData_st' in found_struct}}
+        return sizeof(cyruntime.cudaGraphNodeParams)
+
     if objType == cudaGraphEdgeData_st:
-        return sizeof(cyruntime.cudaGraphEdgeData_st){{endif}}
-    {{if 'cudaGraphEdgeData' in found_types}}
+        return sizeof(cyruntime.cudaGraphEdgeData_st)
+
     if objType == cudaGraphEdgeData:
-        return sizeof(cyruntime.cudaGraphEdgeData){{endif}}
-    {{if 'cudaGraphExec_t' in found_types}}
+        return sizeof(cyruntime.cudaGraphEdgeData)
+
     if objType == cudaGraphExec_t:
-        return sizeof(cyruntime.cudaGraphExec_t){{endif}}
-    {{if 'cudaGraphInstantiateParams_st' in found_struct}}
+        return sizeof(cyruntime.cudaGraphExec_t)
+
     if objType == cudaGraphInstantiateParams_st:
-        return sizeof(cyruntime.cudaGraphInstantiateParams_st){{endif}}
-    {{if 'cudaGraphInstantiateParams' in found_types}}
+        return sizeof(cyruntime.cudaGraphInstantiateParams_st)
+
     if objType == cudaGraphInstantiateParams:
-        return sizeof(cyruntime.cudaGraphInstantiateParams){{endif}}
-    {{if 'cudaGraphExecUpdateResultInfo_st' in found_struct}}
+        return sizeof(cyruntime.cudaGraphInstantiateParams)
+
     if objType == cudaGraphExecUpdateResultInfo_st:
-        return sizeof(cyruntime.cudaGraphExecUpdateResultInfo_st){{endif}}
-    {{if 'cudaGraphExecUpdateResultInfo' in found_types}}
+        return sizeof(cyruntime.cudaGraphExecUpdateResultInfo_st)
+
     if objType == cudaGraphExecUpdateResultInfo:
-        return sizeof(cyruntime.cudaGraphExecUpdateResultInfo){{endif}}
-    {{if 'cudaGraphDeviceNode_t' in found_types}}
+        return sizeof(cyruntime.cudaGraphExecUpdateResultInfo)
+
     if objType == cudaGraphDeviceNode_t:
-        return sizeof(cyruntime.cudaGraphDeviceNode_t){{endif}}
-    {{if 'cudaGraphKernelNodeUpdate' in found_struct}}
+        return sizeof(cyruntime.cudaGraphDeviceNode_t)
+
     if objType == cudaGraphKernelNodeUpdate:
-        return sizeof(cyruntime.cudaGraphKernelNodeUpdate){{endif}}
-    {{if 'cudaLaunchMemSyncDomainMap_st' in found_struct}}
+        return sizeof(cyruntime.cudaGraphKernelNodeUpdate)
+
     if objType == cudaLaunchMemSyncDomainMap_st:
-        return sizeof(cyruntime.cudaLaunchMemSyncDomainMap_st){{endif}}
-    {{if 'cudaLaunchMemSyncDomainMap' in found_types}}
+        return sizeof(cyruntime.cudaLaunchMemSyncDomainMap_st)
+
     if objType == cudaLaunchMemSyncDomainMap:
-        return sizeof(cyruntime.cudaLaunchMemSyncDomainMap){{endif}}
-    {{if 'cudaLaunchAttributeValue' in found_struct}}
+        return sizeof(cyruntime.cudaLaunchMemSyncDomainMap)
+
     if objType == cudaLaunchAttributeValue:
-        return sizeof(cyruntime.cudaLaunchAttributeValue){{endif}}
-    {{if 'cudaLaunchAttribute_st' in found_struct}}
+        return sizeof(cyruntime.cudaLaunchAttributeValue)
+
     if objType == cudaLaunchAttribute_st:
-        return sizeof(cyruntime.cudaLaunchAttribute_st){{endif}}
-    {{if 'cudaLaunchAttribute' in found_types}}
+        return sizeof(cyruntime.cudaLaunchAttribute_st)
+
     if objType == cudaLaunchAttribute:
-        return sizeof(cyruntime.cudaLaunchAttribute){{endif}}
-    {{if 'cudaAsyncCallbackHandle_t' in found_types}}
+        return sizeof(cyruntime.cudaLaunchAttribute)
+
     if objType == cudaAsyncCallbackHandle_t:
-        return sizeof(cyruntime.cudaAsyncCallbackHandle_t){{endif}}
-    {{if 'cudaAsyncNotificationInfo' in found_struct}}
+        return sizeof(cyruntime.cudaAsyncCallbackHandle_t)
+
     if objType == cudaAsyncNotificationInfo:
-        return sizeof(cyruntime.cudaAsyncNotificationInfo){{endif}}
-    {{if 'cudaAsyncNotificationInfo_t' in found_types}}
+        return sizeof(cyruntime.cudaAsyncNotificationInfo)
+
     if objType == cudaAsyncNotificationInfo_t:
-        return sizeof(cyruntime.cudaAsyncNotificationInfo_t){{endif}}
-    {{if 'cudaAsyncCallback' in found_types}}
+        return sizeof(cyruntime.cudaAsyncNotificationInfo_t)
+
     if objType == cudaAsyncCallback:
-        return sizeof(cyruntime.cudaAsyncCallback){{endif}}
-    {{if 'cudaLogsCallbackHandle' in found_types}}
+        return sizeof(cyruntime.cudaAsyncCallback)
+
     if objType == cudaLogsCallbackHandle:
-        return sizeof(cyruntime.cudaLogsCallbackHandle){{endif}}
-    {{if 'cudaLogIterator' in found_types}}
+        return sizeof(cyruntime.cudaLogsCallbackHandle)
+
     if objType == cudaLogIterator:
-        return sizeof(cyruntime.cudaLogIterator){{endif}}
-    {{if 'cudaSurfaceObject_t' in found_types}}
+        return sizeof(cyruntime.cudaLogIterator)
+
     if objType == cudaSurfaceObject_t:
-        return sizeof(cyruntime.cudaSurfaceObject_t){{endif}}
-    {{if 'cudaTextureDesc' in found_struct}}
+        return sizeof(cyruntime.cudaSurfaceObject_t)
+
     if objType == cudaTextureDesc:
-        return sizeof(cyruntime.cudaTextureDesc){{endif}}
-    {{if 'cudaTextureObject_t' in found_types}}
+        return sizeof(cyruntime.cudaTextureDesc)
+
     if objType == cudaTextureObject_t:
-        return sizeof(cyruntime.cudaTextureObject_t){{endif}}
-    {{if 'cudaStreamCallback_t' in found_types}}
+        return sizeof(cyruntime.cudaTextureObject_t)
+
     if objType == cudaStreamCallback_t:
-        return sizeof(cyruntime.cudaStreamCallback_t){{endif}}
-    {{if 'cudaGraphRecaptureCallback_t' in found_types}}
+        return sizeof(cyruntime.cudaStreamCallback_t)
+
     if objType == cudaGraphRecaptureCallback_t:
-        return sizeof(cyruntime.cudaGraphRecaptureCallback_t){{endif}}
-    {{if 'cudaGraphRecaptureCallbackData' in found_struct}}
+        return sizeof(cyruntime.cudaGraphRecaptureCallback_t)
+
     if objType == cudaGraphRecaptureCallbackData:
-        return sizeof(cyruntime.cudaGraphRecaptureCallbackData){{endif}}
-    {{if 'cudaLogsCallback_t' in found_types}}
+        return sizeof(cyruntime.cudaGraphRecaptureCallbackData)
+
     if objType == cudaLogsCallback_t:
-        return sizeof(cyruntime.cudaLogsCallback_t){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.cudaLogsCallback_t)
+
     if objType == GLenum:
-        return sizeof(cyruntime.GLenum){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.GLenum)
+
     if objType == GLuint:
-        return sizeof(cyruntime.GLuint){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.GLuint)
+
     if objType == EGLImageKHR:
-        return sizeof(cyruntime.EGLImageKHR){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.EGLImageKHR)
+
     if objType == EGLStreamKHR:
-        return sizeof(cyruntime.EGLStreamKHR){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.EGLStreamKHR)
+
     if objType == EGLint:
-        return sizeof(cyruntime.EGLint){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.EGLint)
+
     if objType == EGLSyncKHR:
-        return sizeof(cyruntime.EGLSyncKHR){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.EGLSyncKHR)
+
     if objType == VdpDevice:
-        return sizeof(cyruntime.VdpDevice){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.VdpDevice)
+
     if objType == VdpGetProcAddress:
-        return sizeof(cyruntime.VdpGetProcAddress){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.VdpGetProcAddress)
+
     if objType == VdpVideoSurface:
-        return sizeof(cyruntime.VdpVideoSurface){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.VdpVideoSurface)
+
     if objType == VdpOutputSurface:
-        return sizeof(cyruntime.VdpOutputSurface){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.VdpOutputSurface)
+
     if objType == cudaStreamAttrValue:
-        return sizeof(cyruntime.cudaStreamAttrValue){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.cudaStreamAttrValue)
+
     if objType == cudaKernelNodeAttrValue:
-        return sizeof(cyruntime.cudaKernelNodeAttrValue){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.cudaKernelNodeAttrValue)
+
     if objType == cudaEglPlaneDesc_st:
-        return sizeof(cyruntime.cudaEglPlaneDesc_st){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.cudaEglPlaneDesc_st)
+
     if objType == cudaEglPlaneDesc:
-        return sizeof(cyruntime.cudaEglPlaneDesc){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.cudaEglPlaneDesc)
+
     if objType == cudaEglFrame_st:
-        return sizeof(cyruntime.cudaEglFrame_st){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.cudaEglFrame_st)
+
     if objType == cudaEglFrame:
-        return sizeof(cyruntime.cudaEglFrame){{endif}}
-    {{if True}}
+        return sizeof(cyruntime.cudaEglFrame)
+
     if objType == cudaEglStreamConnection:
-        return sizeof(cyruntime.cudaEglStreamConnection){{endif}}
+        return sizeof(cyruntime.cudaEglStreamConnection)
     raise TypeError("Unknown type: " + str(objType))
 
 cdef int _add_native_handle_getters() except?-1:
     from cuda.bindings.utils import _add_cuda_native_handle_getter
-    {{if 'cudaDevResourceDesc_t' in found_types}}
+
     def cudaDevResourceDesc_t_getter(cudaDevResourceDesc_t x): return <uintptr_t><void*><cyruntime.cudaDevResourceDesc_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaDevResourceDesc_t, cudaDevResourceDesc_t_getter)
-    {{endif}}
-    {{if 'cudaExecutionContext_t' in found_types}}
+
+
     def cudaExecutionContext_t_getter(cudaExecutionContext_t x): return <uintptr_t><void*><cyruntime.cudaExecutionContext_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaExecutionContext_t, cudaExecutionContext_t_getter)
-    {{endif}}
-    {{if 'cudaArray_t' in found_types}}
+
+
     def cudaArray_t_getter(cudaArray_t x): return <uintptr_t><void*><cyruntime.cudaArray_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaArray_t, cudaArray_t_getter)
-    {{endif}}
-    {{if 'cudaArray_const_t' in found_types}}
+
+
     def cudaArray_const_t_getter(cudaArray_const_t x): return <uintptr_t><void*><cyruntime.cudaArray_const_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaArray_const_t, cudaArray_const_t_getter)
-    {{endif}}
-    {{if 'cudaMipmappedArray_t' in found_types}}
+
+
     def cudaMipmappedArray_t_getter(cudaMipmappedArray_t x): return <uintptr_t><void*><cyruntime.cudaMipmappedArray_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaMipmappedArray_t, cudaMipmappedArray_t_getter)
-    {{endif}}
-    {{if 'cudaMipmappedArray_const_t' in found_types}}
+
+
     def cudaMipmappedArray_const_t_getter(cudaMipmappedArray_const_t x): return <uintptr_t><void*><cyruntime.cudaMipmappedArray_const_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaMipmappedArray_const_t, cudaMipmappedArray_const_t_getter)
-    {{endif}}
-    {{if 'cudaStream_t' in found_types}}
+
+
     def cudaStream_t_getter(cudaStream_t x): return <uintptr_t><void*><cyruntime.cudaStream_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaStream_t, cudaStream_t_getter)
-    {{endif}}
-    {{if 'cudaEvent_t' in found_types}}
+
+
     def cudaEvent_t_getter(cudaEvent_t x): return <uintptr_t><void*><cyruntime.cudaEvent_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaEvent_t, cudaEvent_t_getter)
-    {{endif}}
-    {{if 'cudaGraphicsResource_t' in found_types}}
+
+
     def cudaGraphicsResource_t_getter(cudaGraphicsResource_t x): return <uintptr_t><void*><cyruntime.cudaGraphicsResource_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaGraphicsResource_t, cudaGraphicsResource_t_getter)
-    {{endif}}
-    {{if 'cudaExternalMemory_t' in found_types}}
+
+
     def cudaExternalMemory_t_getter(cudaExternalMemory_t x): return <uintptr_t><void*><cyruntime.cudaExternalMemory_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaExternalMemory_t, cudaExternalMemory_t_getter)
-    {{endif}}
-    {{if 'cudaExternalSemaphore_t' in found_types}}
+
+
     def cudaExternalSemaphore_t_getter(cudaExternalSemaphore_t x): return <uintptr_t><void*><cyruntime.cudaExternalSemaphore_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaExternalSemaphore_t, cudaExternalSemaphore_t_getter)
-    {{endif}}
-    {{if 'cudaGraph_t' in found_types}}
+
+
     def cudaGraph_t_getter(cudaGraph_t x): return <uintptr_t><void*><cyruntime.cudaGraph_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaGraph_t, cudaGraph_t_getter)
-    {{endif}}
-    {{if 'cudaGraphNode_t' in found_types}}
+
+
     def cudaGraphNode_t_getter(cudaGraphNode_t x): return <uintptr_t><void*><cyruntime.cudaGraphNode_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaGraphNode_t, cudaGraphNode_t_getter)
-    {{endif}}
-    {{if 'cudaUserObject_t' in found_types}}
+
+
     def cudaUserObject_t_getter(cudaUserObject_t x): return <uintptr_t><void*><cyruntime.cudaUserObject_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaUserObject_t, cudaUserObject_t_getter)
-    {{endif}}
-    {{if 'cudaFunction_t' in found_types}}
+
+
     def cudaFunction_t_getter(cudaFunction_t x): return <uintptr_t><void*><cyruntime.cudaFunction_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaFunction_t, cudaFunction_t_getter)
-    {{endif}}
-    {{if 'cudaKernel_t' in found_types}}
+
+
     def cudaKernel_t_getter(cudaKernel_t x): return <uintptr_t><void*><cyruntime.cudaKernel_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaKernel_t, cudaKernel_t_getter)
-    {{endif}}
-    {{if 'cudaLibrary_t' in found_types}}
+
+
     def cudaLibrary_t_getter(cudaLibrary_t x): return <uintptr_t><void*><cyruntime.cudaLibrary_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaLibrary_t, cudaLibrary_t_getter)
-    {{endif}}
-    {{if 'cudaMemPool_t' in found_types}}
+
+
     def cudaMemPool_t_getter(cudaMemPool_t x): return <uintptr_t><void*><cyruntime.cudaMemPool_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaMemPool_t, cudaMemPool_t_getter)
-    {{endif}}
-    {{if 'cudaGraphExec_t' in found_types}}
+
+
     def cudaGraphExec_t_getter(cudaGraphExec_t x): return <uintptr_t><void*><cyruntime.cudaGraphExec_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaGraphExec_t, cudaGraphExec_t_getter)
-    {{endif}}
-    {{if 'cudaGraphDeviceNode_t' in found_types}}
+
+
     def cudaGraphDeviceNode_t_getter(cudaGraphDeviceNode_t x): return <uintptr_t><void*><cyruntime.cudaGraphDeviceNode_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaGraphDeviceNode_t, cudaGraphDeviceNode_t_getter)
-    {{endif}}
-    {{if 'cudaAsyncCallbackHandle_t' in found_types}}
+
+
     def cudaAsyncCallbackHandle_t_getter(cudaAsyncCallbackHandle_t x): return <uintptr_t><void*><cyruntime.cudaAsyncCallbackHandle_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaAsyncCallbackHandle_t, cudaAsyncCallbackHandle_t_getter)
-    {{endif}}
-    {{if 'cudaLogsCallbackHandle' in found_types}}
+
+
     def cudaLogsCallbackHandle_getter(cudaLogsCallbackHandle x): return <uintptr_t><void*><cyruntime.cudaLogsCallbackHandle>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaLogsCallbackHandle, cudaLogsCallbackHandle_getter)
-    {{endif}}
-    {{if True}}
+
+
     def EGLImageKHR_getter(EGLImageKHR x): return <uintptr_t><void*><cyruntime.EGLImageKHR>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(EGLImageKHR, EGLImageKHR_getter)
-    {{endif}}
-    {{if True}}
+
+
     def EGLStreamKHR_getter(EGLStreamKHR x): return <uintptr_t><void*><cyruntime.EGLStreamKHR>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(EGLStreamKHR, EGLStreamKHR_getter)
-    {{endif}}
-    {{if True}}
+
+
     def EGLSyncKHR_getter(EGLSyncKHR x): return <uintptr_t><void*><cyruntime.EGLSyncKHR>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(EGLSyncKHR, EGLSyncKHR_getter)
-    {{endif}}
-    {{if True}}
+
+
     def cudaEglStreamConnection_getter(cudaEglStreamConnection x): return <uintptr_t><void*><cyruntime.cudaEglStreamConnection>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaEglStreamConnection, cudaEglStreamConnection_getter)
-    {{endif}}
+
     return 0
 _add_native_handle_getters()
-
