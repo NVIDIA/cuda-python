@@ -96,11 +96,9 @@ linux:
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '580.65.06', ENV: { MODE: 'nightly-numba-cuda' } }
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda' } }
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda' } }
-    # nightly-numba-cuda-mlir (MLIR backend, mirrors nightly-numba-cuda coverage)
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda-mlir' } }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda-mlir' } }
-    - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda-mlir' } }
-    - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda-mlir' } }
+    # nightly-numba-cuda-mlir (MLIR backend, linux-64 only)
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda-mlir' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda-mlir' } }
     # nightly-cuda-core (released cuda-core from PyPI against main pathfinder/bindings)
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-cuda-core' } }
     # nightly-standard (arm64 nightly-only runners — per runner team request)
@@ -143,5 +141,8 @@ windows:
     # nightly-numba-cuda
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC', ENV: { MODE: 'nightly-numba-cuda' } }
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '596.36',  DRIVER_MODE: 'TCC', ENV: { MODE: 'nightly-numba-cuda' } }
+    # nightly-numba-cuda-mlir (MLIR backend, win-64)
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { MODE: 'nightly-numba-cuda-mlir' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { MODE: 'nightly-numba-cuda-mlir' } }
     # nightly-cuda-core (released cuda-core from PyPI against main pathfinder/bindings)
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { MODE: 'nightly-cuda-core' } }

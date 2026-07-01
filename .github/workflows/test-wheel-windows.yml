@@ -38,7 +38,8 @@ on:
       test-mode:
         description: >
           Test mode: 'standard' (default), 'nightly-pytorch',
-          'nightly-numba-cuda', or 'nightly-cuda-core'.
+          'nightly-numba-cuda', 'nightly-numba-cuda-mlir', or
+          'nightly-cuda-core'.
         type: string
         default: 'standard'
       sha:
@@ -388,6 +389,14 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests nightly-numba-cuda
 
+      - name: Install cuda-python wheels + numba-cuda-mlir
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests nightly-numba-cuda-mlir
+
       - name: Install main pathfinder/bindings + released cuda-core
         if: ${{ inputs.test-mode == 'nightly-cuda-core' }}
         env:
@@ -409,6 +418,14 @@ jobs:
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: python -m numba.runtests numba.cuda.tests
+
+      - name: Run numba-cuda-mlir tests
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_TESTS_DIR != '' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          pushd "${NUMBA_CUDA_MLIR_TESTS_DIR}"
+          pytest -rxXs -v --durations=0 tests/
+          popd
 
       - name: Run released cuda-core tests
         if: ${{ inputs.test-mode == 'nightly-cuda-core' && env.CUDA_CORE_RELEASED_TESTS_DIR != '' }}
