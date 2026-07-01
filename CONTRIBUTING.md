@@ -21,6 +21,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Table of Contents](#table-of-contents)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
+  - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
   - [CI infrastructure overview](#ci-infrastructure-overview)
@@ -75,6 +76,29 @@ This sets up a git pre-commit hook so that all configured checks will run before
 Some contributors prefer to commit intermediate or work-in-progress changes that may not pass all pre-commit checks, and only clean up their commits before pushing (for example, by squashing and running `pre-commit run --all-files` manually at the end). If this fits your workflow, you may choose not to run `pre-commit install` and instead rely on manual checks. This approach avoids disruption during iterative development, while still ensuring code quality before code is shared or merged.
 
 Choose the setup that best fits your workflow and development style.
+
+
+## Signing Your Work
+
+Contributions to files licensed under Apache 2.0 must be certified under the
+[Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco).
+Sign off every commit with the `-s` option:
+
+```console
+git commit -s -m "Describe your change"
+```
+
+Git uses your configured name and email address to add a trailer like this to
+the commit message:
+
+```text
+Signed-off-by: Your Name <your.email@example.com>
+```
+
+Use your real name and an email address associated with your contribution. The
+sign-off certifies that you have the right to submit the contribution under the
+DCO below. DCO sign-off is separate from the cryptographic commit signing
+described in the next section; both requirements apply.
 
 
 ## Code signing
