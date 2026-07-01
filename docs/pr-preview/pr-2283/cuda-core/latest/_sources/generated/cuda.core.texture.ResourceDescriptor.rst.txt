@@ -1,0 +1,39 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.texture.ResourceDescriptor
+====================================
+
+.. currentmodule:: cuda.core.texture
+
+.. autoclass:: ResourceDescriptor
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: from_array
+   .. automethod:: from_linear
+   .. automethod:: from_mipmapped_array
+   .. automethod:: from_pitch2d
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: format
+   .. autoattribute:: height
+   .. autoattribute:: kind
+   .. autoattribute:: num_channels
+   .. autoattribute:: pitch_bytes
+   .. autoattribute:: size_bytes
+   .. autoattribute:: source
+   .. autoattribute:: width
+   
+   
