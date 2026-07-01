@@ -37,8 +37,8 @@ on:
         default: ''
       test-mode:
         description: >
-          Test mode: 'standard' (default), 'nightly-pytorch', or
-          'nightly-numba-cuda'.
+          Test mode: 'standard' (default), 'nightly-pytorch',
+          'nightly-numba-cuda', or 'nightly-cuda-core'.
         type: string
         default: 'standard'
       sha:
@@ -388,6 +388,14 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests nightly-numba-cuda
 
+      - name: Install main pathfinder/bindings + released cuda-core
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests nightly-cuda-core
+
       # ── Nightly: run tests ──
       - name: Run PyTorch interop tests
         if: ${{ inputs.test-mode == 'nightly-pytorch' }}
@@ -401,3 +409,11 @@ jobs:
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: python -m numba.runtests numba.cuda.tests
+
+      - name: Run released cuda-core tests
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' && env.CUDA_CORE_RELEASED_TESTS_DIR != '' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          pushd "${CUDA_CORE_RELEASED_TESTS_DIR}/cuda_core"
+          pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
+          popd

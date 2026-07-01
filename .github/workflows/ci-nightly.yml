@@ -192,6 +192,82 @@ jobs:
       test-mode: nightly-numba-cuda
       matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
 
+  # ── numba-cuda-mlir tests ──
+
+  test-numba-cuda-mlir-linux-64:
+    name: "Nightly numba-cuda-mlir (linux-64)"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: find-wheels
+    permissions:
+      contents: read
+      actions: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: nightly
+      host-platform: linux-64
+      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      test-mode: nightly-numba-cuda-mlir
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda-mlir"))'
+
+  test-numba-cuda-mlir-linux-aarch64:
+    name: "Nightly numba-cuda-mlir (linux-aarch64)"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: find-wheels
+    permissions:
+      contents: read
+      actions: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: nightly
+      host-platform: linux-aarch64
+      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      test-mode: nightly-numba-cuda-mlir
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda-mlir"))'
+
+  # ── Released cuda-core against main pathfinder/bindings ──
+
+  test-cuda-core-linux-64:
+    name: "Nightly cuda-core (linux-64)"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: find-wheels
+    permissions:
+      contents: read
+      actions: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: nightly
+      host-platform: linux-64
+      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      test-mode: nightly-cuda-core
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-cuda-core"))'
+
+  test-cuda-core-windows:
+    name: "Nightly cuda-core (win-64)"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: find-wheels
+    permissions:
+      contents: read
+      actions: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-windows.yml
+    with:
+      build-type: nightly
+      host-platform: win-64
+      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      test-mode: nightly-cuda-core
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-cuda-core"))'
+
   # ── Standard tests on nightly-only runners ──
 
   test-standard-linux-aarch64:
@@ -226,6 +302,10 @@ jobs:
       - test-numba-cuda-linux-64
       - test-numba-cuda-linux-aarch64
       - test-numba-cuda-windows
+      - test-numba-cuda-mlir-linux-64
+      - test-numba-cuda-mlir-linux-aarch64
+      - test-cuda-core-linux-64
+      - test-cuda-core-windows
       - test-standard-linux-aarch64
     steps:
       - name: Exit
@@ -250,6 +330,14 @@ jobs:
                  needs.test-numba-cuda-linux-aarch64.result == 'failure' ||
                  needs.test-numba-cuda-windows.result == 'cancelled' ||
                  needs.test-numba-cuda-windows.result == 'failure' ||
+                 needs.test-numba-cuda-mlir-linux-64.result == 'cancelled' ||
+                 needs.test-numba-cuda-mlir-linux-64.result == 'failure' ||
+                 needs.test-numba-cuda-mlir-linux-aarch64.result == 'cancelled' ||
+                 needs.test-numba-cuda-mlir-linux-aarch64.result == 'failure' ||
+                 needs.test-cuda-core-linux-64.result == 'cancelled' ||
+                 needs.test-cuda-core-linux-64.result == 'failure' ||
+                 needs.test-cuda-core-windows.result == 'cancelled' ||
+                 needs.test-cuda-core-windows.result == 'failure' ||
                  needs.test-standard-linux-aarch64.result == 'cancelled' ||
                  needs.test-standard-linux-aarch64.result == 'failure' }}; then
             exit 1
