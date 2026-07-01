@@ -39,7 +39,7 @@ jobs:
       CUDA_BUILD_VER: ${{ steps.find.outputs.cuda_build_ver }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           fetch-depth: 1
 
@@ -98,7 +98,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
-      matrix_filter: 'map(select(.MODE == "nightly-pytorch"))'
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
 
   test-pytorch-linux-aarch64:
     name: "Nightly PyTorch (linux-aarch64)"
@@ -116,7 +116,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
-      matrix_filter: 'map(select(.MODE == "nightly-pytorch"))'
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
 
   test-pytorch-windows:
     name: "Nightly PyTorch (win-64)"
@@ -134,7 +134,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
-      matrix_filter: 'map(select(.MODE == "nightly-pytorch"))'
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
 
   # ── numba-cuda tests ──
 
@@ -154,7 +154,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
-      matrix_filter: 'map(select(.MODE == "nightly-numba-cuda"))'
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
 
   test-numba-cuda-linux-aarch64:
     name: "Nightly numba-cuda (linux-aarch64)"
@@ -172,7 +172,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
-      matrix_filter: 'map(select(.MODE == "nightly-numba-cuda"))'
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
 
   test-numba-cuda-windows:
     name: "Nightly numba-cuda (win-64)"
@@ -190,7 +190,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
-      matrix_filter: 'map(select(.MODE == "nightly-numba-cuda"))'
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
 
   # ── Standard tests on nightly-only runners ──
 
@@ -210,7 +210,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: standard
-      matrix_filter: 'map(select(.MODE == "nightly-standard"))'
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-standard"))'
 
   # ── Status check ──
 

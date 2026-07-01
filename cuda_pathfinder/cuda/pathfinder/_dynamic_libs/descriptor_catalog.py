@@ -272,6 +272,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcupti.so.12", "libcupti.so.13"),
         windows_dlls=(
             "cupti64_2026.3.0.dll",
+            "cupti64_2026.2.1.dll",
             "cupti64_2026.2.0.dll",
             "cupti64_2026.1.1.dll",
             "cupti64_2026.1.0.dll",
