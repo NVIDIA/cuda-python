@@ -1,0 +1,18 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. py:currentmodule:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.6.0 Release notes
+=======================================
+
+Highlights
+----------
+
+* :func:`find_nvidia_binary_utility` now resolves binaries through a bounded,
+  deterministic search of trusted directories instead of ``shutil.which`` and
+  gains a CTK-root canary fallback. When the NVIDIA wheel, ``CONDA_PREFIX``, and
+  ``CUDA_HOME`` / ``CUDA_PATH`` directories all miss, ``cudart`` is resolved
+  through the OS dynamic loader, the CUDA Toolkit root is derived from that
+  path, and its ``bin`` layout is searched.
+  (`PR #2196 <https://github.com/NVIDIA/cuda-python/pull/2196>`_)
