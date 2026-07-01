@@ -455,22 +455,18 @@ jobs:
           # numba package at collection time, which cuSIMT intentionally does
           # not depend on. See NVIDIA/numba-cuda-mlir#136.
           #
-          # Deselects:
-          # - CudaArraySetting + TestCudaArrayInterface + test_fortran_contiguous:
-          #     serial-pytest contamination of `numba_cuda_mlir.cuda.cudadrv`
-          #     from an xfailed test in test_nrt_comprehensive.py. Upstream CI
-          #     hides it by running with `-n auto --dist loadscope`. See
-          #     NVIDIA/numba-cuda-mlir#135.
+          # Deselects observed to fail on linux-64 only:
+          # - TestCudaArrayInterface::*: serial-pytest contamination of
+          #     numba_cuda_mlir.cuda.cudadrv from an xfailed test in
+          #     test_nrt_comprehensive.py. Upstream CI hides it via
+          #     `-n auto --dist loadscope`. See NVIDIA/numba-cuda-mlir#135.
           # - TestLinkerDumpAssembly::test_nvjitlink_jit_with_linkable_code_lto_dump_assembly_warn:
-          #     invokes `cuobjdump` subprocess, which is not on PATH in the
-          #     base ubuntu:24.04 container. Will file an upstream skip-guard
-          #     issue.
+          #     subprocess-invokes `cuobjdump`, which is not on PATH in the
+          #     base ubuntu:24.04 container. Windows runners ship cuobjdump
+          #     with the local CTK, so this doesn't repro there.
           pytest -rxXs -v --durations=0 \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
-            --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_default_stream' \
-            --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_supplied_stream' \
-            --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_sync' \
             --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_no_sync' \
             --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_sync' \
             --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_no_sync' \
@@ -500,22 +496,10 @@ jobs:
           # patterns that pytest 9.1 rejects; the main-side fix (#2212) has
           # not yet shipped in a cuda-core release.
           pip install "pytest<9.1"
-          # Deselects, all pre-existing in released cuda-core v1.0.1:
-          # - NvlinkVersion: expected drift; main's cuda-bindings adds
-          #   VERSION_6_0, which the v1.0.1 wrapper mapping predates. The
-          #   nightly-cuda-core mode intentionally exercises released-core
-          #   against main-bindings, so this test is permanently red here.
-          # - rlcompleter opt-out: the "should crash" expectation baked into
-          #   v1.0.1 doesn't hold on all runners; passes on Linux, flakes on
-          #   Windows MCDM. Environment-dependent, not a code signal.
-          # - test_non_managed_resources_report_not_managed[pinned]: same
-          #   underlying "Failed to allocate memory from pool" that v1.0.1
-          #   already xfails in sibling test_pinned_memory_resource_initialization
-          #   (TODO(#9999)). Main has since fixed this parametrization to
-          #   xfail on the pinned branch too.
+          # NvlinkVersion: expected drift on this mode. main cuda-bindings
+          # adds NvlinkVersion.VERSION_6_0 which v1.0.1's wrapper mapping
+          # predates. Fails on both platforms.
           pytest -rxXs -v --durations=0 --randomly-dont-reorganize \
             --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]' \
-            --deselect 'tests/test_rlcompleter_patch.py::test_opt_out_env_var_disables_patch_even_when_interactive' \
-            --deselect 'tests/test_memory.py::test_non_managed_resources_report_not_managed[pinned]' \
             tests/
           popd

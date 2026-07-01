@@ -434,21 +434,16 @@ jobs:
           pushd numba-cuda-mlir-released
           pip install --upgrade "pip>=25.1"
           pip install --group test
-          # Deselects — see comments on the equivalent Linux step and
-          # NVIDIA/numba-cuda-mlir#135, #136.
+          # Deselects observed to fail on win-64 only (subset of the
+          # NVIDIA/numba-cuda-mlir#135 tests; different serial-pytest
+          # ordering surfaces different tests on Linux vs Windows).
           pytest -rxXs -v --durations=0 \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
             --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_default_stream' \
             --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_supplied_stream' \
             --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_sync' \
-            --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_no_sync' \
-            --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_sync' \
-            --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_no_sync' \
-            --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync' \
-            --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync_two_streams' \
             --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_fortran_contiguous' \
-            --deselect 'tests/numba_cuda_tests/cudadrv/test_nvjitlink.py::TestLinkerDumpAssembly::test_nvjitlink_jit_with_linkable_code_lto_dump_assembly_warn' \
             tests/
           popd
 
@@ -469,7 +464,15 @@ jobs:
           # Cap pytest below 9.1 — released cuda-core <=1.0.1 has parametrize
           # patterns that pytest 9.1 rejects (see #2212).
           pip install "pytest<9.1"
-          # Deselects — see comments on the equivalent Linux step.
+          # NvlinkVersion: same expected drift as Linux (bindings adds
+          #   VERSION_6_0 unknown to v1.0.1's wrapper mapping).
+          # rlcompleter opt-out: env-dependent assertion that only fails on
+          #   Windows MCDM — passes on Linux.
+          # test_non_managed_resources_report_not_managed[pinned]: same
+          #   MCDM mempool OOM that v1.0.1 already xfails in sibling
+          #   test_pinned_memory_resource_initialization (TODO(#9999)).
+          #   Main fixed the parametrized case via #2139 but v1.0.1 doesn't
+          #   have the fix.
           pytest -rxXs -v --durations=0 --randomly-dont-reorganize \
             --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]' \
             --deselect 'tests/test_rlcompleter_patch.py::test_opt_out_env_var_disables_patch_even_when_interactive' \
