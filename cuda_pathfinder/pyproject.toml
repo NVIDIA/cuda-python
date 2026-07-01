@@ -29,7 +29,7 @@ cu12 = [
     "nvidia-cusparselt-cu12",
     "nvidia-libmathdx-cu12",
     "nvidia-nccl-cu12; sys_platform != 'win32'",
-    "nvidia-nvshmem-cu12!=3.7.0; sys_platform != 'win32'",
+    "nvidia-nvshmem-cu12<3.7; sys_platform != 'win32'",
 ]
 cu13 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,cupti,profiler,nvvm]==13.*",
@@ -43,7 +43,7 @@ cu13 = [
     "nvidia-cusparselt-cu13",
     "nvidia-libmathdx-cu13",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
-    "nvidia-nvshmem-cu13!=3.7.0; sys_platform != 'win32'",
+    "nvidia-nvshmem-cu13<3.7; sys_platform != 'win32'",
 ]
 host = [
     # TODO: remove the Python 3.15 guard once 3.15 is officially supported
