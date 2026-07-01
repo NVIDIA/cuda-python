@@ -45,7 +45,8 @@ jobs:
       - name: Run CI tools unit tests
         run: |
           python -m pip install pytest
-          python -m pytest -v ci/tools/tests
+          # Standalone CI tool tests; skip repo-root conftest.py (imports cuda.pathfinder).
+          python -m pytest -v --noconftest ci/tools/tests
 
   find-wheels:
     runs-on: ubuntu-latest
