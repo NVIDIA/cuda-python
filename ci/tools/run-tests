@@ -163,7 +163,9 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       )
     elif [[ "${test_module}" == "nightly-numba-cuda-mlir" ]]; then
       echo "Installing pathfinder + bindings + core + numba-cuda-mlir"
-      PIP_ARGS+=("numba-cuda-mlir[cu${TEST_CUDA_MAJOR}]")
+      # numpy<2.5: numba-cuda-mlir 0.4.0 registers np.row_stack, which was
+      # removed in NumPy 2.5. See NVIDIA/numba-cuda-mlir#154.
+      PIP_ARGS+=("numba-cuda-mlir[cu${TEST_CUDA_MAJOR}]" "numpy<2.5")
     fi
 
     pip install "${PIP_ARGS[@]}"
