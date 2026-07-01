@@ -1028,11 +1028,498 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert result is buf
     assert buf._size == new_size
 
-    # Successful commit: create, map, set access, and no rollback calls.
-    assert [c[0] for c in calls] == ["create", "map", "set_access"]
+    # Successful commit: create, map, set access, explicit handle release.
+    assert [c[0] for c in calls] == ["create", "map", "set_access", "release"]
     assert ("create", aligned_additional) in calls
     assert ("map", new_ptr, aligned_additional, NEW_HANDLE) in calls
     assert ("set_access", new_ptr, aligned_additional, 1) in calls
+    assert ("release", NEW_HANDLE) in calls
+
+
+def test_vmm_allocator_allocate_releases_handle_after_map(init_cuda, monkeypatch):
+    """Exercise VMM allocation with mocked driver calls and explicit handle release.
+
+    On successful map, the handle ownership should be released to avoid leaking
+    driver-side allocation handles even for the short-lived mock path.
+    """
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    vmm_mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+
+    SUCCESS = driver.CUresult.CUDA_SUCCESS
+    HANDLE = 0xBEEF
+    calls = []
+
+    def fake_get_allocation_granularity(_, _granularity_flag):
+        calls.append(("granularity",))
+        return (SUCCESS, 1024)
+
+    def fake_create(size, p, flags):
+        calls.append(("create", size))
+        return (SUCCESS, HANDLE)
+
+    def fake_addr_reserve(size, align, hint, fd):
+        calls.append(("addr_reserve", size, align, hint, fd))
+        return (SUCCESS, 0x20_0000)
+
+    def fake_map(ptr, size, offset, handle, flags):
+        calls.append(("map", ptr, size, handle))
+        return (SUCCESS,)
+
+    def fake_set_access(ptr, size, descs, count):
+        calls.append(("set_access", ptr, size, count))
+        return (SUCCESS,)
+
+    def fake_release(handle):
+        calls.append(("release", handle))
+        return (SUCCESS,)
+
+    def fake_unmap(ptr, size):
+        calls.append(("unmap", ptr, size))
+        return (SUCCESS,)
+
+    def fake_addr_free(ptr, size):
+        calls.append(("addr_free", ptr, size))
+        return (SUCCESS,)
+
+    class FakeBuffer:
+        def __init__(self, ptr, size, mr):
+            self.handle = ptr
+            self.size = size
+            self.memory_resource = mr
+
+    def fake_from_handle(ptr, size, mr):
+        calls.append(("from_handle", ptr, size))
+        return FakeBuffer(ptr, size, mr)
+
+    monkeypatch.setattr(driver, "cuMemGetAllocationGranularity", fake_get_allocation_granularity)
+    monkeypatch.setattr(driver, "cuMemCreate", fake_create)
+    monkeypatch.setattr(driver, "cuMemAddressReserve", fake_addr_reserve)
+    monkeypatch.setattr(driver, "cuMemMap", fake_map)
+    monkeypatch.setattr(driver, "cuMemSetAccess", fake_set_access)
+    monkeypatch.setattr(driver, "cuMemRelease", fake_release)
+    monkeypatch.setattr(driver, "cuMemUnmap", fake_unmap)
+    monkeypatch.setattr(driver, "cuMemAddressFree", fake_addr_free)
+    monkeypatch.setattr(Buffer, "from_handle", fake_from_handle)
+
+    result = vmm_mr.allocate(4096)
+
+    assert isinstance(result, FakeBuffer)
+    assert result.size == 4096
+    assert [c[0] for c in calls] == [
+        "granularity",
+        "create",
+        "addr_reserve",
+        "map",
+        "set_access",
+        "release",
+        "from_handle",
+    ]
+    assert ("release", HANDLE) in calls
+
+
+def test_vmm_allocator_allocate_rolls_back_if_handle_release_fails(init_cuda, monkeypatch):
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    vmm_mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+
+    SUCCESS = driver.CUresult.CUDA_SUCCESS
+    ERROR = driver.CUresult.CUDA_ERROR_UNKNOWN
+    HANDLE = 0xBEEF
+    calls = []
+    release_calls = [0]
+
+    def fake_get_allocation_granularity(_, _granularity_flag):
+        calls.append(("granularity",))
+        return (SUCCESS, 1024)
+
+    def fake_create(size, p, flags):
+        calls.append(("create", size))
+        return (SUCCESS, HANDLE)
+
+    def fake_addr_reserve(size, align, hint, fd):
+        calls.append(("addr_reserve", size, align, hint, fd))
+        return (SUCCESS, 0x20_0000)
+
+    def fake_map(ptr, size, offset, handle, flags):
+        calls.append(("map", ptr, size, handle))
+        return (SUCCESS,)
+
+    def fake_set_access(ptr, size, descs, count):
+        calls.append(("set_access", ptr, size, count))
+        return (SUCCESS,)
+
+    def fake_release(handle):
+        calls.append(("release", handle))
+        release_calls[0] += 1
+        if release_calls[0] == 1:
+            return (ERROR,)
+        return (SUCCESS,)
+
+    def fake_unmap(ptr, size):
+        calls.append(("unmap", ptr, size))
+        return (SUCCESS,)
+
+    def fake_addr_free(ptr, size):
+        calls.append(("addr_free", ptr, size))
+        return (SUCCESS,)
+
+    class FakeBuffer:
+        def __init__(self, ptr, size, mr):
+            self.handle = ptr
+            self.size = size
+            self.memory_resource = mr
+
+    def fake_from_handle(ptr, size, mr):
+        calls.append(("from_handle", ptr, size))
+        return FakeBuffer(ptr, size, mr)
+
+    monkeypatch.setattr(driver, "cuMemGetAllocationGranularity", fake_get_allocation_granularity)
+    monkeypatch.setattr(driver, "cuMemCreate", fake_create)
+    monkeypatch.setattr(driver, "cuMemAddressReserve", fake_addr_reserve)
+    monkeypatch.setattr(driver, "cuMemMap", fake_map)
+    monkeypatch.setattr(driver, "cuMemSetAccess", fake_set_access)
+    monkeypatch.setattr(driver, "cuMemRelease", fake_release)
+    monkeypatch.setattr(driver, "cuMemUnmap", fake_unmap)
+    monkeypatch.setattr(driver, "cuMemAddressFree", fake_addr_free)
+    monkeypatch.setattr(Buffer, "from_handle", fake_from_handle)
+
+    with pytest.raises(CUDAError):
+        vmm_mr.allocate(4096)
+
+    assert [c[0] for c in calls] == [
+        "granularity",
+        "create",
+        "addr_reserve",
+        "map",
+        "set_access",
+        "release",
+        "unmap",
+        "release",
+        "addr_free",
+    ]
+    assert calls.count(("release", HANDLE)) == 2
+    assert "from_handle" not in [c[0] for c in calls]
+
+
+def test_vmm_allocator_grow_allocation_fast_path_rolls_back_if_handle_release_fails(init_cuda, monkeypatch):
+    """Verify fast-path rollback when the post-map handle release fails."""
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    vmm_mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+
+    prop = driver.CUmemAllocationProp()
+    prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+    prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    prop.location.id = device.device_id
+
+    SUCCESS = driver.CUresult.CUDA_SUCCESS
+    ERROR = driver.CUresult.CUDA_ERROR_UNKNOWN
+    NEW_HANDLE = 0xBEEF
+    calls = []
+    release_calls = [0]
+
+    def fake_create(size, p, flags):
+        calls.append(("create", size))
+        return (SUCCESS, NEW_HANDLE)
+
+    def fake_map(ptr, size, offset, handle, flags):
+        calls.append(("map", ptr, size, handle))
+        return (SUCCESS,)
+
+    def fake_set_access(ptr, size, descs, count):
+        calls.append(("set_access", ptr, size, count))
+        return (SUCCESS,)
+
+    def fake_release(handle):
+        calls.append(("release", handle))
+        release_calls[0] += 1
+        if release_calls[0] == 1:
+            return (ERROR,)
+        return (SUCCESS,)
+
+    def fake_unmap(ptr, size):
+        calls.append(("unmap", ptr, size))
+        return (SUCCESS,)
+
+    def fake_addr_free(ptr, size):
+        calls.append(("addr_free", ptr, size))
+        return (SUCCESS,)
+
+    class FakeBuffer:
+        def __init__(self, size):
+            self._size = size
+
+    original_size = 2 * 1024 * 1024
+    aligned_additional = 2 * 1024 * 1024
+    new_size = original_size + aligned_additional
+    new_ptr = 0x10_0000
+    buf = FakeBuffer(original_size)
+
+    monkeypatch.setattr(driver, "cuMemCreate", fake_create)
+    monkeypatch.setattr(driver, "cuMemMap", fake_map)
+    monkeypatch.setattr(driver, "cuMemSetAccess", fake_set_access)
+    monkeypatch.setattr(driver, "cuMemUnmap", fake_unmap)
+    monkeypatch.setattr(driver, "cuMemRelease", fake_release)
+    monkeypatch.setattr(driver, "cuMemAddressFree", fake_addr_free)
+
+    with pytest.raises(CUDAError):
+        vmm_mr._grow_allocation_fast_path(buf, new_size, prop, aligned_additional, new_ptr)
+
+    assert buf._size == original_size
+    assert [c[0] for c in calls] == [
+        "create",
+        "map",
+        "set_access",
+        "release",
+        "unmap",
+        "release",
+        "addr_free",
+    ]
+
+
+def test_vmm_allocator_grow_allocation_slow_path(init_cuda, monkeypatch):
+    """Exercise the VMM grow slow path with mocked driver calls.
+
+    This verifies that both retained and newly-created handles are released after
+    successful mapping and commit.
+    """
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    vmm_mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+
+    prop = driver.CUmemAllocationProp()
+    prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+    prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    prop.location.id = device.device_id
+
+    SUCCESS = driver.CUresult.CUDA_SUCCESS
+    OLD_HANDLE = 0xFEED
+    NEW_HANDLE = 0xBEEF
+    calls = []
+
+    def fake_addr_reserve(size, align, hint, fd):
+        calls.append(("reserve", size, align, hint, fd))
+        return (SUCCESS, 0x30_0000)
+
+    def fake_retain(handle):
+        calls.append(("retain", handle))
+        return (SUCCESS, OLD_HANDLE)
+
+    def fake_create(size, p, flags):
+        calls.append(("create", size))
+        return (SUCCESS, NEW_HANDLE)
+
+    def fake_map(ptr, size, offset, handle, flags):
+        calls.append(("map", ptr, size, offset, handle))
+        return (SUCCESS,)
+
+    def fake_unmap(ptr, size):
+        calls.append(("unmap", ptr, size))
+        return (SUCCESS,)
+
+    def fake_set_access(ptr, size, descs, count):
+        calls.append(("set_access", ptr, size, count))
+        return (SUCCESS,)
+
+    def fake_release(handle):
+        calls.append(("release", handle))
+        return (SUCCESS,)
+
+    def fake_addr_free(ptr, size):
+        calls.append(("addr_free", ptr, size))
+        return (SUCCESS,)
+
+    class FakeInputBuffer:
+        def __init__(self, size, handle):
+            self._size = size
+            self.handle = handle
+
+        def _clear(self):
+            calls.append(("clear",))
+
+    class FakeReturnedBuffer:
+        def __init__(self, ptr, size, mr):
+            self.handle = ptr
+            self.size = size
+            self.memory_resource = mr
+
+    def fake_from_handle(ptr, size, mr):
+        calls.append(("from_handle", ptr, size))
+        return FakeReturnedBuffer(ptr, size, mr)
+
+    monkeypatch.setattr(driver, "cuMemAddressReserve", fake_addr_reserve)
+    monkeypatch.setattr(driver, "cuMemRetainAllocationHandle", fake_retain)
+    monkeypatch.setattr(driver, "cuMemUnmap", fake_unmap)
+    monkeypatch.setattr(driver, "cuMemMap", fake_map)
+    monkeypatch.setattr(driver, "cuMemCreate", fake_create)
+    monkeypatch.setattr(driver, "cuMemSetAccess", fake_set_access)
+    monkeypatch.setattr(driver, "cuMemRelease", fake_release)
+    monkeypatch.setattr(driver, "cuMemAddressFree", fake_addr_free)
+    monkeypatch.setattr(Buffer, "from_handle", fake_from_handle)
+
+    original_size = 2 * 1024 * 1024
+    aligned_additional = 2 * 1024 * 1024
+    result_size = original_size + aligned_additional
+    original_ptr = 0x10_0000
+    buf = FakeInputBuffer(original_size, original_ptr)
+
+    result = vmm_mr._grow_allocation_slow_path(buf, result_size, prop, aligned_additional, result_size, 1024)
+
+    assert isinstance(result, FakeReturnedBuffer)
+    assert result.size == result_size
+    assert result.handle == 0x30_0000
+    assert [c[0] for c in calls] == [
+        "reserve",
+        "retain",
+        "unmap",
+        "map",
+        "create",
+        "map",
+        "set_access",
+        "release",
+        "release",
+        "addr_free",
+        "clear",
+        "from_handle",
+    ]
+    assert ("release", NEW_HANDLE) in calls
+    assert ("release", OLD_HANDLE) in calls
+
+
+def test_vmm_allocator_grow_allocation_slow_path_rolls_back_if_handle_release_fails(init_cuda, monkeypatch):
+    """Verify slow-path rollback when a handle release fails near the end of growth."""
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    vmm_mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+
+    prop = driver.CUmemAllocationProp()
+    prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+    prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    prop.location.id = device.device_id
+
+    SUCCESS = driver.CUresult.CUDA_SUCCESS
+    ERROR = driver.CUresult.CUDA_ERROR_UNKNOWN
+    OLD_HANDLE = 0xFEED
+    NEW_HANDLE = 0xBEEF
+    calls = []
+    release_calls = [0]
+
+    def fake_addr_reserve(size, align, hint, fd):
+        calls.append(("reserve", size, align, hint, fd))
+        return (SUCCESS, 0x30_0000)
+
+    def fake_retain(handle):
+        calls.append(("retain", handle))
+        return (SUCCESS, OLD_HANDLE)
+
+    def fake_create(size, p, flags):
+        calls.append(("create", size))
+        return (SUCCESS, NEW_HANDLE)
+
+    def fake_map(ptr, size, offset, handle, flags):
+        calls.append(("map", ptr, size, offset, handle))
+        return (SUCCESS,)
+
+    def fake_unmap(ptr, size):
+        calls.append(("unmap", ptr, size))
+        return (SUCCESS,)
+
+    def fake_set_access(ptr, size, descs, count):
+        calls.append(("set_access", ptr, size, count))
+        return (SUCCESS,)
+
+    def fake_release(handle):
+        calls.append(("release", handle))
+        release_calls[0] += 1
+        if release_calls[0] == 1:
+            return (ERROR,)
+        return (SUCCESS,)
+
+    def fake_addr_free(ptr, size):
+        calls.append(("addr_free", ptr, size))
+        return (SUCCESS,)
+
+    class FakeInputBuffer:
+        def __init__(self, size, handle):
+            self._size = size
+            self.handle = handle
+
+        def _clear(self):
+            calls.append(("clear",))
+
+    def fake_from_handle(ptr, size, mr):
+        calls.append(("from_handle", ptr, size))
+        return FakeBuffer(ptr, size, mr)
+
+    class FakeBuffer:
+        def __init__(self, ptr, size, mr):
+            self.handle = ptr
+            self.size = size
+            self.memory_resource = mr
+
+    original_size = 2 * 1024 * 1024
+    aligned_additional = 2 * 1024 * 1024
+    result_size = original_size + aligned_additional
+    original_ptr = 0x10_0000
+    buf = FakeInputBuffer(original_size, original_ptr)
+
+    monkeypatch.setattr(driver, "cuMemAddressReserve", fake_addr_reserve)
+    monkeypatch.setattr(driver, "cuMemRetainAllocationHandle", fake_retain)
+    monkeypatch.setattr(driver, "cuMemUnmap", fake_unmap)
+    monkeypatch.setattr(driver, "cuMemMap", fake_map)
+    monkeypatch.setattr(driver, "cuMemCreate", fake_create)
+    monkeypatch.setattr(driver, "cuMemSetAccess", fake_set_access)
+    monkeypatch.setattr(driver, "cuMemRelease", fake_release)
+    monkeypatch.setattr(driver, "cuMemAddressFree", fake_addr_free)
+    monkeypatch.setattr(Buffer, "from_handle", fake_from_handle)
+
+    with pytest.raises(CUDAError):
+        vmm_mr._grow_allocation_slow_path(buf, result_size, prop, aligned_additional, result_size, 1024)
+
+    assert [c[0] for c in calls] == [
+        "reserve",
+        "retain",
+        "unmap",
+        "map",
+        "create",
+        "map",
+        "set_access",
+        "release",
+        "unmap",
+        "release",
+        "unmap",
+        "map",
+        "release",
+        "addr_free",
+    ]
+    assert calls.count(("release", NEW_HANDLE)) == 2
+    assert calls.count(("release", OLD_HANDLE)) == 1
 
 
 def test_vmm_allocator_rdma_unsupported_exception():
