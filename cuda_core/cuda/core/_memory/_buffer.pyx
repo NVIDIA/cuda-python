@@ -206,6 +206,7 @@ cdef class Buffer:
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
     @property
+    @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
         if self._ipc_data is None:
@@ -460,6 +461,7 @@ cdef class Buffer:
 
 # Memory Attribute Query Helpers
 # ------------------------------
+@cython.critical_section
 cdef inline void _init_mem_attrs(Buffer self):
     """Initialize memory attributes by querying the pointer."""
     if not self._mem_attrs_inited.load(memory_order_acquire):
