@@ -7,6 +7,17 @@
 =================================
 
 
+Breaking changes
+----------------
+
+- :class:`LaunchConfig` fields (``grid``, ``block``, ``cluster``,
+  ``shmem_size``, ``is_cooperative``) are now read-only after construction.
+  Assigning to them from Python raises ``AttributeError``. Mutation was
+  previously possible but was never intended given that :class:`LaunchConfig`
+  is a hashable value type. Code that mutates a config after creation should
+  construct a new :class:`LaunchConfig` instead.
+
+
 Fixes and enhancements
 ----------------------
 
